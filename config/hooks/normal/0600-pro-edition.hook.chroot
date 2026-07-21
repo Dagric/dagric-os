@@ -15,11 +15,11 @@ printf 'VARIANT="Pro"\nVARIANT_ID=pro\n' >> /usr/lib/os-release
 # SSH server: installed but off until the owner turns it on
 systemctl disable ssh.service 2>/dev/null || true
 
-# 32-bit Wine support — most classic Windows .exe installers are
-# 32-bit; without this they silently fail
+# 32-bit land: classic Windows .exe installers (wine32) and Steam both
+# need i386 multiarch, so they install here, after it's enabled.
 if dpkg --add-architecture i386 && apt-get update -qq; then
-    apt-get install -y wine32:i386 || \
-        echo "WARNING: wine32:i386 install failed — 64-bit Wine only"
+    apt-get install -y wine32:i386 steam-installer || \
+        echo "WARNING: wine32/steam install failed — 64-bit Wine only"
 else
     echo "WARNING: could not enable i386 multiarch"
 fi

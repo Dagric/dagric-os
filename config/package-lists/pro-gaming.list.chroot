@@ -6,9 +6,8 @@
 wine
 winetricks
 
-# Steam (installer from contrib) — brings Valve's Proton for games;
-# the freehold-gaming helper adds community Proton-GE on request
-steam-installer
+# NOTE: steam-installer is installed by the 0600-pro-edition hook —
+# it depends on i386 multiarch, which must be enabled first.
 
 # Performance: CPU/GPU governor optimization while gaming + FPS overlay
 gamemode
