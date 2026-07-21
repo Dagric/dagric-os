@@ -10,9 +10,18 @@ cracklib-runtime
 # filesystem onto the target disk. (Found by the install run-through:
 # "Failed to find unsquashfs".)
 squashfs-tools
-# The installed system's bootloader. The live ISO boots via live-build's
-# own bootloader, so nothing pulled GRUB into the image — but the
-# INSTALLED system needs it or the bootloader step fails.
-# BIOS/MBR now; EFI (grub-efi-amd64 + shim) is a roadmap item.
-grub-pc
+# The installed system's bootloader — BIOS *and* EFI.
+# The -bin packages coexist (the grub-pc/grub-efi-amd64 metapackages
+# conflict, so we use the underlying pieces): grub2-common provides
+# grub-install, the -bin packages provide the i386-pc and x86_64-efi
+# targets, and shim-signed + grub-efi-amd64-signed give Secure Boot.
+grub2-common
+grub-pc-bin
+grub-efi-amd64-bin
+grub-efi-amd64-signed
+shim-signed
+efibootmgr
 os-prober
+# btrfs is the default install filesystem (instant Timeshift/rollback
+# snapshots); the installed system needs the tools
+btrfs-progs

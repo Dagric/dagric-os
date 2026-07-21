@@ -1,0 +1,6 @@
+#!/bin/sh
+# Dagric OS — branded boot splash.
+set -e
+cp /usr/share/dagric/logo/dagric-logo.png /usr/share/plymouth/themes/dagric/logo.png
+plymouth-set-default-theme dagric
+update-initramfs -u

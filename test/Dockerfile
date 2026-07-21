@@ -12,6 +12,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         socat \
         imagemagick \
         python3-pip \
+        ovmf \
     && pip3 install --break-system-packages vncdotool \
     && rm -rf /var/lib/apt/lists/*
 

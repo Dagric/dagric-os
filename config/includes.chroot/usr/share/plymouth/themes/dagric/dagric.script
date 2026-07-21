@@ -1,0 +1,21 @@
+# Dagric OS boot splash: dark ground, centered D mark, quiet pulse.
+Window.SetBackgroundTopColor(0.043, 0.067, 0.094);
+Window.SetBackgroundBottomColor(0.024, 0.039, 0.059);
+
+logo.image = Image("logo.png");
+logo.sprite = Sprite(logo.image);
+logo.sprite.SetX(Window.GetWidth() / 2 - logo.image.GetWidth() / 2);
+logo.sprite.SetY(Window.GetHeight() / 2 - logo.image.GetHeight() / 2);
+
+progress = 0;
+fun refresh_callback() {
+    progress++;
+    opacity = 0.75 + 0.25 * Math.Sin(progress / 25);
+    logo.sprite.SetOpacity(opacity);
+}
+Plymouth.SetRefreshFunction(refresh_callback);
+
+# Password prompt (disk encryption) — keep it readable on the dark ground
+fun display_password_callback(prompt, bullets) {
+    prompt.text = prompt;
+}

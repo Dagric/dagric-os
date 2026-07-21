@@ -27,9 +27,20 @@ if [ -f /iso/dagric.iso ]; then
     BOOTARG="-boot d"
 fi
 
+# UEFI=1 boots with OVMF firmware instead of SeaBIOS, with persistent
+# EFI variables so the installed system's boot entry survives reboots.
+FIRMWARE=""
+if [ "$UEFI" = "1" ]; then
+    [ -f /disk/OVMF_VARS.fd ] || cp /usr/share/OVMF/OVMF_VARS_4M.fd /disk/OVMF_VARS.fd
+    FIRMWARE="-drive if=pflash,format=raw,readonly=on,file=/usr/share/OVMF/OVMF_CODE_4M.fd \
+              -drive if=pflash,format=raw,file=/disk/OVMF_VARS.fd"
+    echo "UEFI firmware (OVMF) enabled"
+fi
+
 qemu-system-x86_64 \
     $ACCEL \
     -m 4096 -smp 4 \
+    $FIRMWARE \
     $CDARG $BOOTARG \
     $DISKARG \
     -vga virtio \
