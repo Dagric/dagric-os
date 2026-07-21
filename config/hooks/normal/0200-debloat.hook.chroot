@@ -1,0 +1,27 @@
+#!/bin/sh
+# Freehold OS — debloat pass
+# Runs inside the chroot after all packages are installed.
+# Removes anything that phones home, nags, or duplicates functionality.
+set -e
+
+# Packages we never want, even if something dragged them in.
+# popularity-contest = Debian's (opt-in) usage reporting. We don't ship it at all.
+for pkg in popularity-contest reportbug debian-faq doc-debian installation-report; do
+    if dpkg -s "$pkg" >/dev/null 2>&1; then
+        apt-get purge -y "$pkg"
+    fi
+done
+
+apt-get autoremove --purge -y
+apt-get clean
+
+# Trim apt lists from the image (regenerated on first 'apt update')
+rm -rf /var/lib/apt/lists/*
+
+# No pre-seeded MOTD ads/news
+rm -f /etc/update-motd.d/* 2>/dev/null || true
+
+# Disable services that serve no purpose on a desktop
+for svc in ModemManager.service; do
+    systemctl disable "$svc" 2>/dev/null || true
+done

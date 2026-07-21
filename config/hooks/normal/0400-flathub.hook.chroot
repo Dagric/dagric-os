@@ -1,0 +1,6 @@
+#!/bin/sh
+# Freehold OS — enable Flathub out of the box.
+# Discover's Flatpak backend then offers the full app catalog on first boot.
+set -e
+flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo || \
+    echo "WARNING: could not add Flathub remote (no network in chroot?) — continuing"

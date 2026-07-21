@@ -1,0 +1,35 @@
+# Freehold OS — CI: build the ISO on every push, keep it as an artifact.
+# Activates automatically once this repo is pushed to GitHub.
+name: build-iso
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build ISO in Debian container
+        run: |
+          docker build -t freehold-builder docker/
+          mkdir -p out
+          docker run --rm --privileged \
+            -v "$PWD:/src:ro" -v "$PWD/out:/out" \
+            freehold-builder sh /src/docker/container-build.sh
+
+      - name: Checksums
+        run: cd out && sha256sum *.iso > SHA256SUMS
+
+      - name: Upload ISO artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: freehold-os-iso
+          path: |
+            out/*.iso
+            out/SHA256SUMS
+          retention-days: 14

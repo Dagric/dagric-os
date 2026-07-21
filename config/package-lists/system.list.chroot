@@ -1,0 +1,47 @@
+# Antithesis OS — Base system
+
+# Live boot machinery (required for the live ISO to boot)
+live-boot
+live-config
+live-config-systemd
+user-setup
+
+# Kernel
+linux-image-amd64
+
+# Networking
+network-manager
+wireless-regdb
+
+# Audio — PipeWire only, no PulseAudio daemon
+pipewire
+pipewire-pulse
+pipewire-audio
+wireplumber
+
+# Printing
+cups
+
+# Security & updates
+sudo
+firewalld
+plasma-firewall
+unattended-upgrades
+ca-certificates
+
+# App distribution
+flatpak
+
+# Fonts — small, complete, readable
+fonts-noto-core
+fonts-noto-color-emoji
+fonts-liberation
+
+# Compressed swap — snappier on low-RAM machines
+zram-tools
+
+# Quality of life
+bash-completion
+less
+nano
+curl

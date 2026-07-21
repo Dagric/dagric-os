@@ -1,0 +1,22 @@
+#!/bin/sh
+# Freehold OS — security baseline
+# Updates are automatic and silent. They never reboot the machine for you.
+# (The exact opposite of a certain other operating system.)
+set -e
+
+# Automatic security updates — download and apply, never auto-reboot
+cat > /etc/apt/apt.conf.d/20auto-upgrades << 'EOF'
+APT::Periodic::Update-Package-Lists "1";
+APT::Periodic::Unattended-Upgrade "1";
+EOF
+
+cat > /etc/apt/apt.conf.d/52antithesis-unattended << 'EOF'
+Unattended-Upgrade::Automatic-Reboot "false";
+Unattended-Upgrade::Remove-Unused-Dependencies "true";
+EOF
+
+# Firewall on by default
+systemctl enable firewalld.service 2>/dev/null || true
+
+# zram swap on by default
+systemctl enable zramswap.service 2>/dev/null || true

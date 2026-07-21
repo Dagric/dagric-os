@@ -1,0 +1,30 @@
+{
+  "policies": {
+    "DisableTelemetry": true,
+    "DisableFirefoxStudies": true,
+    "DisablePocket": true,
+    "DontCheckDefaultBrowser": true,
+    "NoDefaultBookmarks": true,
+    "OverrideFirstRunPage": "",
+    "OverridePostUpdatePage": "",
+    "EnableTrackingProtection": {
+      "Value": true,
+      "Cryptomining": true,
+      "Fingerprinting": true
+    },
+    "FirefoxHome": {
+      "SponsoredTopSites": false,
+      "SponsoredPocket": false,
+      "Snippets": false,
+      "Pocket": false,
+      "Highlights": false,
+      "TopSites": true
+    },
+    "UserMessaging": {
+      "ExtensionRecommendations": false,
+      "FeatureRecommendations": false,
+      "MoreFromMozilla": false,
+      "SkipOnboarding": true
+    }
+  }
+}

@@ -1,0 +1,5 @@
+# Freehold OS — the single biggest anti-bloat lever in APT.
+# Nothing gets installed unless a human or a package list asked for it by name.
+# This applies forever on installed systems, not just at ISO build time.
+APT::Install-Recommends "false";
+APT::Install-Suggests "false";

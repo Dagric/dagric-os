@@ -1,0 +1,43 @@
+# Antithesis OS — Desktop (KDE Plasma, hand-picked)
+#
+# Deliberately NOT using task-kde-desktop or kde-standard metapackages.
+# Those drag in games, KDE PIM, Akonadi databases, and dozens of apps
+# nobody asked for. Every package below earns its place.
+
+# Core Plasma shell
+plasma-desktop
+plasma-workspace
+plasma-nm
+plasma-pa
+powerdevil
+bluedevil
+kscreen
+systemsettings
+breeze-gtk-theme
+kde-config-gtk-style
+
+# Login manager
+sddm
+sddm-theme-breeze
+
+# Wayland/X portals (screen sharing, file pickers for Flatpak apps)
+xdg-desktop-portal-kde
+
+# Essential KDE applications — one tool per job, no overlap
+dolphin
+konsole
+kate
+ark
+gwenview
+okular
+kde-spectacle
+kwalletmanager
+print-manager
+
+# Software center (Flatpak-backed)
+plasma-discover
+plasma-discover-backend-flatpak
+
+# Disk/power plumbing the desktop expects
+udisks2
+upower

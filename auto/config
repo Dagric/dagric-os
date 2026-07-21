@@ -1,0 +1,20 @@
+#!/bin/sh
+# Freehold OS — live-build configuration
+# This is the single source of truth for how the ISO is assembled.
+set -e
+
+lb config noauto \
+    --distribution trixie \
+    --architectures amd64 \
+    --archive-areas "main contrib non-free-firmware" \
+    --binary-images iso-hybrid \
+    --debian-installer none \
+    --apt-recommends false \
+    --bootappend-live "boot=live components quiet splash hostname=freehold username=live" \
+    --iso-application "Freehold OS" \
+    --iso-publisher "Freehold OS Project" \
+    --iso-volume "FREEHOLD_1_0" \
+    --memtest none \
+    --firmware-chroot true \
+    --firmware-binary true \
+    "${@}"

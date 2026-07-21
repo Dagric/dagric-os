@@ -1,0 +1,16 @@
+#!/bin/sh
+# Freehold OS — desktop and installer defaults.
+set -e
+
+# Default wallpaper: point the Breeze look-and-feel at the Freehold wallpaper.
+# (This file belongs to plasma-workspace; a package update could revert it,
+# which is fine for the live/installed image built here.)
+LNF=/usr/share/plasma/look-and-feel/org.kde.breeze.desktop/contents/defaults
+if [ -f "$LNF" ]; then
+    sed -i 's/^Image=Next$/Image=Freehold/; s/^defaultWallpaperTheme=Next$/defaultWallpaperTheme=Freehold/' "$LNF"
+fi
+
+# Calamares: use the Freehold branding component instead of Debian's.
+if [ -f /etc/calamares/settings.conf ]; then
+    sed -i 's/^branding:.*/branding: freehold/' /etc/calamares/settings.conf
+fi
