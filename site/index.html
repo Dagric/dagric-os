@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dagric OS — Own it outright.</title>
+<meta name="description" content="Dagric OS: a fast, private, telemetry-free desktop operating system by DGR Operations. No ads, no accounts, no bloat. Own it outright.">
+<style>
+  :root {
+    --bg:#0b1118; --panel:#121b26; --panel2:#0e161f; --line:#223140;
+    --ink:#e6edf3; --muted:#8595a6; --accent:#4fb3e8; --accent2:#7be0c8;
+  }
+  * { box-sizing:border-box; margin:0; }
+  body {
+    background: radial-gradient(ellipse 90% 55% at 50% -10%, rgba(79,179,232,.12), transparent 70%), var(--bg);
+    color:var(--ink); font:16px/1.65 system-ui,"Segoe UI",sans-serif;
+  }
+  a { color:var(--accent); text-decoration:none; }
+  main { max-width:960px; margin:0 auto; padding:0 24px 96px; }
+
+  header { text-align:center; padding:96px 24px 64px; }
+  .logo { width:104px; height:104px; margin-bottom:24px; }
+  h1 { font-size:clamp(2.6rem,8vw,4.6rem); font-weight:200; letter-spacing:.26em; text-indent:.26em; }
+  h1 b { font-weight:750; color:var(--accent); }
+  .tag { color:var(--muted); letter-spacing:.3em; text-transform:uppercase; font-size:.82rem; margin-top:10px; text-indent:.3em; }
+  .thesis { max-width:44ch; margin:28px auto 0; font-size:1.15rem; font-weight:300; text-wrap:balance; }
+  .cta { display:flex; gap:14px; justify-content:center; flex-wrap:wrap; margin-top:36px; }
+  .btn {
+    display:inline-block; padding:13px 30px; border-radius:10px; font-weight:600;
+    border:1px solid var(--line); color:var(--ink); background:var(--panel);
+  }
+  .btn.primary { background:var(--accent); color:#0b1118; border-color:var(--accent); }
+  .btn:hover { filter:brightness(1.1); }
+
+  h2 { font-size:.84rem; letter-spacing:.24em; text-transform:uppercase; color:var(--accent);
+       margin:72px 0 20px; display:flex; align-items:center; gap:14px; }
+  h2::after { content:""; flex:1; height:1px; background:var(--line); }
+
+  .promise { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:14px; }
+  .card { background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:20px 22px; }
+  .card h3 { font-size:1rem; color:var(--accent2); margin-bottom:8px; }
+  .card p { font-size:.92rem; color:var(--muted); }
+
+  table { width:100%; border-collapse:collapse; background:var(--panel); border:1px solid var(--line); border-radius:12px; overflow:hidden; font-size:.95rem; }
+  th, td { padding:13px 18px; text-align:left; border-bottom:1px solid var(--line); }
+  th { background:var(--panel2); font-family:ui-monospace,Consolas,monospace; font-size:.74rem; letter-spacing:.16em; text-transform:uppercase; color:var(--muted); }
+  tr:last-child td { border-bottom:none; }
+  td.y::before { content:"✓ "; color:var(--accent2); font-weight:700; }
+  td.n { color:var(--muted); }
+
+  .sums { background:#060a0f; border:1px solid var(--line); border-radius:10px; padding:16px 20px;
+          font-family:ui-monospace,Consolas,monospace; font-size:.8rem; color:#cfdbe6; overflow-x:auto; }
+  footer { margin-top:80px; padding-top:22px; border-top:1px solid var(--line);
+           color:var(--muted); font-size:.85rem; display:flex; justify-content:space-between; flex-wrap:wrap; gap:10px; }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <svg class="logo" viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <radialGradient id="bg" cx="30%" cy="20%" r="120%">
+          <stop offset="0%" stop-color="#16212e"/><stop offset="100%" stop-color="#080d13"/>
+        </radialGradient>
+        <linearGradient id="ac" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stop-color="#3fa9f5"/><stop offset="100%" stop-color="#7be0c8"/>
+        </linearGradient>
+      </defs>
+      <rect width="256" height="256" rx="52" fill="url(#bg)"/>
+      <path fill="url(#ac)" fill-rule="evenodd"
+            d="M 84 64 h 44 a 64 64 0 0 1 0 128 h -44 z M 108 88 v 80 h 18 a 40 40 0 0 0 0 -80 z"/>
+      <rect x="70" y="204" width="116" height="8" rx="4" fill="#3fa9f5" opacity="0.55"/>
+    </svg>
+    <h1>DAG<b>RIC</b></h1>
+    <p class="tag">own it outright</p>
+    <p class="thesis">A fast, private desktop operating system.
+    No telemetry, no ads, no accounts, no bloat — from <em>dagr</em> (day) and
+    <em>ric</em> (ruler): <strong>your computer, your day, your rule.</strong></p>
+    <div class="cta">
+      <a class="btn primary" href="#download">Download Dagric OS — free</a>
+      <a class="btn" href="#editions">See Dagric Pro</a>
+    </div>
+  </header>
+
+  <h2>The promise</h2>
+  <div class="promise">
+    <div class="card"><h3>Zero telemetry</h3><p>Nothing phones home. There is no toggle to find because there is nothing to turn off.</p></div>
+    <div class="card"><h3>No ads, no accounts</h3><p>Your desktop is not a billboard, and your computer works without asking anyone's permission.</p></div>
+    <div class="card"><h3>Updates, your way</h3><p>Security patches install silently in the background. The machine never restarts itself.</p></div>
+    <div class="card"><h3>Feels familiar</h3><p>Taskbar, launcher, and tray where you expect them. Your NTFS drives and USB sticks just work.</p></div>
+  </div>
+
+  <h2 id="editions">Editions</h2>
+  <table>
+    <thead><tr><th></th><th>Dagric OS · free</th><th>Dagric Pro</th></tr></thead>
+    <tbody>
+      <tr><td>The full private, debloated OS</td><td class="y"></td><td class="y"></td></tr>
+      <tr><td>Firefox, LibreOffice essentials, Flathub app store</td><td class="y"></td><td class="y"></td></tr>
+      <tr><td>Full creator suite: GIMP·PhotoGIMP, Krita, Inkscape, Blender, OBS, Kdenlive</td><td class="n">—</td><td class="y"></td></tr>
+      <tr><td>Chromium + Thunderbird email</td><td class="n">—</td><td class="y"></td></tr>
+      <tr><td>Windows apps &amp; gaming: Wine 64/32-bit, Steam·Proton, gamemode</td><td class="n">—</td><td class="y"></td></tr>
+      <tr><td>Timeshift system restore points</td><td class="n">—</td><td class="y"></td></tr>
+      <tr><td>Cloud backup (Borg + Vorta + rclone, 70+ providers)</td><td class="n">—</td><td class="y"></td></tr>
+      <tr><td>Phone integration (KDE Connect)</td><td class="n">—</td><td class="y"></td></tr>
+      <tr><td>Developer stack: Docker, Podman, Distrobox, toolchain</td><td class="n">—</td><td class="y"></td></tr>
+    </tbody>
+  </table>
+
+  <h2 id="download">Download</h2>
+  <div class="promise">
+    <div class="card">
+      <h3>Dagric OS 1.0 "Foundation"</h3>
+      <p>Free forever. ~1.8 GB ISO.<br><br>
+      <a class="btn primary" href="dagric-os-1.0-amd64.iso">Download ISO</a></p>
+    </div>
+    <div class="card">
+      <h3>Dagric Pro 1.0</h3>
+      <p>The complete creator &amp; developer edition. ~3.5 GB ISO.<br><br>
+      <a class="btn" href="dagric-os-pro-1.0-amd64.iso">Get Pro</a></p>
+    </div>
+  </div>
+  <p style="color:var(--muted); margin-top:18px; font-size:.9rem">
+    Write the ISO to a USB stick with <a href="https://rufus.ie">Rufus</a> or
+    <a href="https://www.ventoy.net">Ventoy</a>, boot from it, try the live
+    desktop, then click <em>Install Dagric OS</em>. Verify your download:
+  </p>
+  <div class="sums" id="sha256sums">
+    <!-- Replace with the SHA256SUMS contents for the published ISOs -->
+    (checksums are published alongside the ISOs — see SHA256SUMS)
+  </div>
+
+  <h2>Honest by construction</h2>
+  <div class="card">
+    <p>Dagric OS is built on Debian and released with its full build source —
+    every package choice and every configuration is inspectable. Based on
+    Debian; not affiliated with or endorsed by the Debian project.
+    DaVinci Resolve is not preinstalled because its license forbids
+    redistribution — Pro includes a guided official installer instead.</p>
+  </div>
+
+  <footer>
+    <span>© DGR Operations · Dagric OS</span>
+    <span><a href="#">Source</a> · <a href="#">Support</a> · dagric.com</span>
+  </footer>
+</main>
+</body>
+</html>
