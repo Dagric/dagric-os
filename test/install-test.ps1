@@ -10,6 +10,12 @@ $iso = "$repo\out\live-image-amd64.hybrid.iso"
 
 if (-not (Test-Path $iso)) { Write-Host "No ISO - run .\build.ps1 first" -ForegroundColor Red; exit 1 }
 
+# Test against a COPY so a later build.ps1 (which overwrites the working
+# ISO) can't corrupt the running VM's mounted CD-ROM. Learned the hard way.
+$testIso = "$repo\out\_testing.iso"
+Copy-Item $iso $testIso -Force
+$iso = $testIso
+
 docker build -t dagric-boottest "$repo\test"
 
 if ($Fresh) { docker volume rm -f dagric-disk 2>$null | Out-Null }
