@@ -24,7 +24,11 @@
 - [x] Flathub enabled out of the box in Discover (verified in image)
 - [x] Firefox policies: telemetry/Pocket/studies/sponsored tiles off, tracking
       protection on (verified in image)
-- [ ] Calamares install run-through test (needs accelerated VM or real hardware)
+- [x] Calamares install run-through test — full install to a 20 GB virtual
+      disk in the QEMU harness, then booted the INSTALLED system to the
+      Plasma desktop (branded SDDM login included). Found and fixed three
+      install blockers along the way: missing cracklib-runtime,
+      squashfs-tools, and grub-pc. Test creds: user freehold.
 
 ## Phase 3 — Real-hardware validation
 - [ ] Test matrix: 1 laptop + 1 desktop, Intel and AMD graphics, common Wi-Fi

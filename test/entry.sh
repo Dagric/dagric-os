@@ -18,10 +18,19 @@ if [ -f /disk/disk.qcow2 ]; then
     echo "Install target disk attached"
 fi
 
+# Boot from CD when the ISO is mounted; from disk when it isn't
+# (post-install boot test uses the disk alone).
+CDARG=""
+BOOTARG="-boot c"
+if [ -f /iso/freehold.iso ]; then
+    CDARG="-cdrom /iso/freehold.iso"
+    BOOTARG="-boot d"
+fi
+
 qemu-system-x86_64 \
     $ACCEL \
     -m 4096 -smp 4 \
-    -cdrom /iso/freehold.iso -boot d \
+    $CDARG $BOOTARG \
     $DISKARG \
     -vga virtio \
     -device usb-ehci -device usb-tablet \
