@@ -15,7 +15,32 @@ fun refresh_callback() {
 }
 Plymouth.SetRefreshFunction(refresh_callback);
 
-# Password prompt (disk encryption) — keep it readable on the dark ground
+# Disk-encryption passphrase prompt (shown below the logo).
+prompt_sprite = Sprite();
 fun display_password_callback(prompt, bullets) {
-    prompt.text = prompt;
+    bullet_str = "";
+    for (i = 0; i < bullets; i++)
+        bullet_str += "* ";
+    if (prompt == "")
+        prompt = "Enter passphrase";
+    text.image = Image.Text(prompt + ":  " + bullet_str, 0.90, 0.93, 0.96);
+    prompt_sprite.SetImage(text.image);
+    prompt_sprite.SetX(Window.GetWidth() / 2 - text.image.GetWidth() / 2);
+    prompt_sprite.SetY(Window.GetHeight() / 2 + logo.image.GetHeight());
+    prompt_sprite.SetOpacity(1);
 }
+
+fun display_normal_callback() {
+    prompt_sprite.SetOpacity(0);
+}
+
+fun message_callback(message) {
+    msg.image = Image.Text(message, 0.55, 0.62, 0.70);
+    msg_sprite = Sprite(msg.image);
+    msg_sprite.SetX(Window.GetWidth() / 2 - msg.image.GetWidth() / 2);
+    msg_sprite.SetY(Window.GetHeight() - msg.image.GetHeight() * 3);
+}
+
+Plymouth.SetDisplayPasswordFunction(display_password_callback);
+Plymouth.SetDisplayNormalFunction(display_normal_callback);
+Plymouth.SetMessageFunction(message_callback);

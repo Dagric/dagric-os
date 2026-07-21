@@ -31,6 +31,7 @@ fi
 # EFI variables so the installed system's boot entry survives reboots.
 FIRMWARE=""
 if [ "$UEFI" = "1" ]; then
+    mkdir -p /disk
     [ -f /disk/OVMF_VARS.fd ] || cp /usr/share/OVMF/OVMF_VARS_4M.fd /disk/OVMF_VARS.fd
     FIRMWARE="-drive if=pflash,format=raw,readonly=on,file=/usr/share/OVMF/OVMF_CODE_4M.fd \
               -drive if=pflash,format=raw,file=/disk/OVMF_VARS.fd"

@@ -17,7 +17,7 @@ if ! gpg --list-secret-keys "Dagric OS Repository" >/dev/null 2>&1; then
 Key-Type: RSA
 Key-Length: 4096
 Name-Real: Dagric OS Repository
-Name-Email: repo@example.org
+Name-Email: repo@dagric.com
 Expire-Date: 0
 %commit
 EOF
