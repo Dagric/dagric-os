@@ -40,8 +40,10 @@
 - [ ] Live session: disable idle screen-lock (locks after ~5 min; harmless
       but confusing — password is "live")
 - [ ] Fix installer menu label (still "Install Debian"; the rename hook
-      targeted the wrong .desktop filename — find it via
-      dpkg -L calamares-settings-debian)
+      targeted the wrong .desktop filename — fix committed, lands next build)
+- [ ] Generate locales on installed systems (terminals show "cannot change
+      locale (en_US.UTF-8)" warnings — add the locales package and
+      generation, e.g. via Calamares' locale config or a hook)
 
 ## Phase 4 — Distribution infrastructure (only if it goes public)
 - [ ] Private signed APT repo for `freehold-*` config packages
