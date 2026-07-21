@@ -10,6 +10,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         mtools \
         dosfstools \
         squashfs-tools \
+        dpkg-dev \
+        apt-utils \
+        gnupg \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /build

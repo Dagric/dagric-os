@@ -1,6 +1,7 @@
 #!/bin/sh
 # Boots /iso/freehold.iso in QEMU with the display on VNC :0,
 # then bridges it to noVNC on port 6080.
+# If /disk/disk.qcow2 exists it is attached as a virtio disk (install target).
 set -e
 
 if [ -e /dev/kvm ]; then
@@ -11,11 +12,19 @@ else
     echo "No KVM — falling back to software emulation (boot will be SLOW; be patient)"
 fi
 
+DISKARG=""
+if [ -f /disk/disk.qcow2 ]; then
+    DISKARG="-drive file=/disk/disk.qcow2,if=virtio,format=qcow2"
+    echo "Install target disk attached"
+fi
+
 qemu-system-x86_64 \
     $ACCEL \
     -m 4096 -smp 4 \
     -cdrom /iso/freehold.iso -boot d \
+    $DISKARG \
     -vga virtio \
+    -device usb-ehci -device usb-tablet \
     -display none -vnc :0 \
     -monitor unix:/tmp/monitor.sock,server,nowait &
 

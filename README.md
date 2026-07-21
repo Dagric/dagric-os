@@ -67,8 +67,10 @@ branding/                 wallpaper, boot splash, and logo sources (SVG)
 docs/                     PHILOSOPHY, BUILDING, ROADMAP
 test/                     QEMU boot-test harness (boot-test.ps1, vm-screenshot.ps1)
 .github/workflows/        CI: builds the ISO on every push once on GitHub
+packages/                 freehold-* config .debs (update channel for sold machines)
 build.ps1 / build.sh      one-command ISO builds (Windows / Debian)
 release.ps1               versioned ISO + SHA256SUMS for distribution
+repo.ps1                  build config packages + signed APT repo (docs/REPOSITORY.md)
 out/                      finished ISOs land here
 ```
 
