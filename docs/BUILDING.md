@@ -31,9 +31,14 @@ sudo ./build.sh
 
 ## Testing the ISO
 
-1. **VM first, always.** Hyper-V (already on Windows 11 Home via VirtualBox
-   alternative), VirtualBox, or VMware Player. Boot the ISO → you land on the
-   live desktop → "Install Freehold OS" launches Calamares.
+0. **Built-in QEMU harness (no VM software needed).** `.\test\boot-test.ps1`
+   boots the ISO in a containerized QEMU VM; watch it at
+   http://localhost:6080/vnc.html and grab screenshots with
+   `.\test\vm-screenshot.ps1`. Note: no KVM inside WSL2, so this runs in slow
+   software emulation — fine for smoke tests, not for judging performance.
+1. **VM with acceleration.** VirtualBox or VMware Player for realistic speed.
+   Boot the ISO → you land on the live desktop → "Install Freehold OS"
+   launches Calamares.
 2. **Then real hardware.** Write the ISO to USB with Rufus or Ventoy and test:
    boot, Wi-Fi, audio, display scaling, suspend/resume, the Calamares install
    with disk encryption enabled.

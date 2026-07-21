@@ -13,13 +13,18 @@
 - [x] Boot test in a VM — boots to full Plasma desktop (QEMU harness in `test\`)
 
 ## Phase 2 — Polish
-- [ ] Real wallpaper (render `branding/wallpaper/freehold-default.svg` to PNG,
-      wire into Plasma defaults + SDDM login screen + GRUB/Plymouth boot splash)
-- [ ] Plasma layout defaults tuned for Windows switchers (taskbar, launcher,
-      tray, click behavior) via `config/includes.chroot/etc/skel/`
-- [ ] Calamares branding module (slideshow, colors, product name)
-- [ ] Flathub enabled out of the box in Discover
-- [ ] Firefox policies file: no sponsored tiles, no Pocket, sane privacy defaults
+- [x] Real wallpaper — rendered from SVG at build prep, set as Plasma default
+      via look-and-feel hook (verified on booted desktop) + SDDM background
+- [x] Boot menu splash (`config/bootloaders/splash.svg` — live-build renders it
+      for both BIOS/isolinux and EFI/GRUB menus)
+- [x] Plasma defaults for Windows switchers (double-click to open, no wobbly
+      effects) via `etc/skel`
+- [x] Calamares branding module — product name, colors, 3-slide ownership
+      slideshow (`etc/calamares/branding/freehold/`); config verified in image
+- [x] Flathub enabled out of the box in Discover (verified in image)
+- [x] Firefox policies: telemetry/Pocket/studies/sponsored tiles off, tracking
+      protection on (verified in image)
+- [ ] Calamares install run-through test (needs accelerated VM or real hardware)
 
 ## Phase 3 — Real-hardware validation
 - [ ] Test matrix: 1 laptop + 1 desktop, Intel and AMD graphics, common Wi-Fi

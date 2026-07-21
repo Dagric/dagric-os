@@ -63,9 +63,12 @@ config/
   includes.chroot/        files copied verbatim into the OS filesystem
   hooks/normal/           build-time scripts: identity, debloat, hardening
 docker/                   containerized Debian build environment for Windows
-branding/                 wallpaper and logo sources
+branding/                 wallpaper, boot splash, and logo sources (SVG)
 docs/                     PHILOSOPHY, BUILDING, ROADMAP
+test/                     QEMU boot-test harness (boot-test.ps1, vm-screenshot.ps1)
+.github/workflows/        CI: builds the ISO on every push once on GitHub
 build.ps1 / build.sh      one-command ISO builds (Windows / Debian)
+release.ps1               versioned ISO + SHA256SUMS for distribution
 out/                      finished ISOs land here
 ```
 
