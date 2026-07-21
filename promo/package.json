@@ -1,0 +1,16 @@
+{
+  "name": "dagric-promo",
+  "version": "1.0.0",
+  "description": "Dagric OS promo video (Remotion)",
+  "scripts": {
+    "render": "remotion render DagricPromo out/dagric-promo.mp4",
+    "still": "remotion still DagricPromo out/poster.png --frame=90",
+    "studio": "remotion studio"
+  },
+  "dependencies": {
+    "@remotion/cli": "4.0.286",
+    "react": "19.0.0",
+    "react-dom": "19.0.0",
+    "remotion": "4.0.286"
+  }
+}
