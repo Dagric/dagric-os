@@ -37,13 +37,15 @@
       ships grub-pc for BIOS/MBR installs — fine for the QEMU harness,
       required work before modern-hardware installs)
 - [ ] Secure Boot behavior documented
-- [ ] Live session: disable idle screen-lock (locks after ~5 min; harmless
-      but confusing — password is "live")
-- [ ] Fix installer menu label (still "Install Debian"; the rename hook
-      targeted the wrong .desktop filename — fix committed, lands next build)
-- [ ] Generate locales on installed systems (terminals show "cannot change
-      locale (en_US.UTF-8)" warnings — add the locales package and
-      generation, e.g. via Calamares' locale config or a hook)
+- [x] Live session idle screen-lock disabled (live-config script; installed
+      systems keep normal lock behavior)
+- [x] Installer menu label renamed to "Install Freehold OS"
+- [x] Locales generated (no more terminal locale warnings)
+- [x] Windows-switcher hardware/format support: NTFS, exFAT, 7z, laptop
+      power profiles, network browsing + thumbnails in Dolphin
+- [x] Freehold Welcome: branded offline first-run page, opens once on
+      first login (verified live)
+- [x] Installed GRUB menu branded ("Freehold OS", background, 2s timeout)
 
 ## Phase 4 — Distribution infrastructure (only if it goes public)
 - [ ] Private signed APT repo for `freehold-*` config packages
