@@ -1,12 +1,12 @@
-# The Freehold Manifesto
+# The Dagric Manifesto
 
-Freehold OS exists to be the opposite of what desktop computing has become.
+Dagric OS exists to be the opposite of what desktop computing has become.
 Every design decision is checked against one question: **who does this serve —
 the person at the keyboard, or someone else?**
 
 ## What Windows does — and what we do instead
 
-| Windows | Freehold OS |
+| Windows | Dagric OS |
 |---|---|
 | Telemetry on by default, opt-out buried | **Zero telemetry.** There is nothing to opt out of. |
 | Ads in the Start menu, lock screen, File Explorer | **No ads. Anywhere. Ever.** |
@@ -38,4 +38,4 @@ Debian is community-run — no corporation's growth targets upstream of your
 desktop. It's famously stable, security-patched for years per release, and its
 only usage-reporting tool (`popularity-contest`) is opt-in — and we don't even
 ship it. We stand on Debian for the 60,000 packages and security response, and
-we maintain only the delta that makes Freehold, Freehold.
+we maintain only the delta that makes Dagric, Dagric.

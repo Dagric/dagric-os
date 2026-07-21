@@ -1,4 +1,4 @@
-# Freehold OS build environment.
+# Dagric OS build environment.
 # live-build needs a Debian host; this container IS that host.
 FROM debian:trixie
 

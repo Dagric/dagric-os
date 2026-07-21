@@ -1,5 +1,5 @@
 #!/bin/sh
-# Freehold OS — build natively on a Debian machine (needs root).
+# Dagric OS — build natively on a Debian machine (needs root).
 #   sudo apt install live-build
 #   sudo ./build.sh
 set -e

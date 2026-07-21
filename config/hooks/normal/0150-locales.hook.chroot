@@ -1,5 +1,5 @@
 #!/bin/sh
-# Freehold OS — generate the default locale.
+# Dagric OS — generate the default locale.
 # Without this every terminal session complains "cannot change locale".
 set -e
 echo "en_US.UTF-8 UTF-8" > /etc/locale.gen

@@ -21,8 +21,8 @@ if [ "$EDITION" != "pro" ]; then
     rm -f config/package-lists/pro-*.list.chroot
 fi
 mkdir -p config/includes.chroot/etc
-printf '%s\n' "$EDITION" > config/includes.chroot/etc/freehold-edition
-export FREEHOLD_EDITION="$EDITION"
+printf '%s\n' "$EDITION" > config/includes.chroot/etc/dagric-edition
+export DAGRIC_EDITION="$EDITION"
 
 lb clean
 lb config
@@ -32,5 +32,5 @@ cp -v ./*.iso /out/ 2>/dev/null || { echo "BUILD FAILED — no ISO produced. See
 cp -v build.log /out/ 2>/dev/null || true
 echo ""
 echo "=========================================="
-echo "  Freehold OS ($EDITION) ISO is in out/"
+echo "  Dagric OS ($EDITION) ISO is in out/"
 echo "=========================================="

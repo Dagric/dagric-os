@@ -1,4 +1,4 @@
-# Building Freehold OS
+# Building Dagric OS
 
 The entire OS is generated from this repository. No golden images, no
 hand-configured machines — change a file, rebuild, and the change is in the
@@ -37,7 +37,7 @@ sudo ./build.sh
    `.\test\vm-screenshot.ps1`. Note: no KVM inside WSL2, so this runs in slow
    software emulation — fine for smoke tests, not for judging performance.
 1. **VM with acceleration.** VirtualBox or VMware Player for realistic speed.
-   Boot the ISO → you land on the live desktop → "Install Freehold OS"
+   Boot the ISO → you land on the live desktop → "Install Dagric OS"
    launches Calamares.
 2. **Then real hardware.** Write the ISO to USB with Rufus or Ventoy and test:
    boot, Wi-Fi, audio, display scaling, suspend/resume, the Calamares install

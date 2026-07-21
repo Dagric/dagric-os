@@ -20,7 +20,7 @@
 - [x] Plasma defaults for Windows switchers (double-click to open, no wobbly
       effects) via `etc/skel`
 - [x] Calamares branding module — product name, colors, 3-slide ownership
-      slideshow (`etc/calamares/branding/freehold/`); config verified in image
+      slideshow (`etc/calamares/branding/dagric/`); config verified in image
 - [x] Flathub enabled out of the box in Discover (verified in image)
 - [x] Firefox policies: telemetry/Pocket/studies/sponsored tiles off, tracking
       protection on (verified in image)
@@ -28,7 +28,7 @@
       disk in the QEMU harness, then booted the INSTALLED system to the
       Plasma desktop (branded SDDM login included). Found and fixed three
       install blockers along the way: missing cracklib-runtime,
-      squashfs-tools, and grub-pc. Test creds: user freehold.
+      squashfs-tools, and grub-pc. Test creds: user dagric.
 
 ## Phase 3 — Real-hardware validation
 - [ ] Test matrix: 1 laptop + 1 desktop, Intel and AMD graphics, common Wi-Fi
@@ -39,16 +39,16 @@
 - [ ] Secure Boot behavior documented
 - [x] Live session idle screen-lock disabled (live-config script; installed
       systems keep normal lock behavior)
-- [x] Installer menu label renamed to "Install Freehold OS"
+- [x] Installer menu label renamed to "Install Dagric OS"
 - [x] Locales generated (no more terminal locale warnings)
 - [x] Windows-switcher hardware/format support: NTFS, exFAT, 7z, laptop
       power profiles, network browsing + thumbnails in Dolphin
-- [x] Freehold Welcome: branded offline first-run page, opens once on
+- [x] Dagric Welcome: branded offline first-run page, opens once on
       first login (verified live)
-- [x] Installed GRUB menu branded ("Freehold OS", background, 2s timeout)
+- [x] Installed GRUB menu branded ("Dagric OS", background, 2s timeout)
 
 ## Phase 4 — Distribution infrastructure (only if it goes public)
-- [ ] Private signed APT repo for `freehold-*` config packages
+- [ ] Private signed APT repo for `dagric-*` config packages
       (move the includes/hooks content into versioned .deb packages)
 - [ ] CI pipeline: Git push → ISO build → automated VM boot test
 - [ ] Release signing + checksums, download page, support docs

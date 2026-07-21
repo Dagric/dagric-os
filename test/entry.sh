@@ -1,5 +1,5 @@
 #!/bin/sh
-# Boots /iso/freehold.iso in QEMU with the display on VNC :0,
+# Boots /iso/dagric.iso in QEMU with the display on VNC :0,
 # then bridges it to noVNC on port 6080.
 # If /disk/disk.qcow2 exists it is attached as a virtio disk (install target).
 set -e
@@ -22,8 +22,8 @@ fi
 # (post-install boot test uses the disk alone).
 CDARG=""
 BOOTARG="-boot c"
-if [ -f /iso/freehold.iso ]; then
-    CDARG="-cdrom /iso/freehold.iso"
+if [ -f /iso/dagric.iso ]; then
+    CDARG="-cdrom /iso/dagric.iso"
     BOOTARG="-boot d"
 fi
 

@@ -1,4 +1,4 @@
-# The Freehold update channel
+# The Dagric update channel
 
 How configuration reaches machines, before and after they're sold.
 
@@ -12,16 +12,16 @@ machines two ways:
 2. **The APT repository** — `repo.ps1` assembles the *same files* into
    versioned `.deb` packages and generates a signed repo in `out\repo`.
    This is how machines you've **already sold** get configuration updates:
-   bump a package version, publish the repo, and every Freehold machine
+   bump a package version, publish the repo, and every Dagric machine
    picks it up with its normal background update run.
 
 The packages:
 
 | Package | Contains | Bump it when... |
 |---|---|---|
-| `freehold-branding` | wallpaper, logo, SDDM background | the look changes |
-| `freehold-desktop-defaults` | Plasma skel defaults, Firefox policies | default behavior changes |
-| `freehold-security-policy` | sysctl hardening, APT no-recommends (conffiles) | the security baseline evolves |
+| `dagric-branding` | wallpaper, logo, SDDM background | the look changes |
+| `dagric-desktop-defaults` | Plasma skel defaults, Firefox policies | default behavior changes |
+| `dagric-security-policy` | sysctl hardening, APT no-recommends (conffiles) | the security baseline evolves |
 
 ## Building and signing
 
@@ -30,8 +30,8 @@ The packages:
 ```
 
 The 4096-bit RSA signing key is generated on first run and stored in the
-`freehold-repo-keys` Docker volume — **never in this git repo**. Backup the
-volume (`docker run --rm -v freehold-repo-keys:/keys debian tar cz -C /keys .`)
+`dagric-repo-keys` Docker volume — **never in this git repo**. Backup the
+volume (`docker run --rm -v dagric-repo-keys:/keys debian tar cz -C /keys .`)
 and keep the archive somewhere safe: whoever holds this key can push packages
 to every customer machine.
 
@@ -40,11 +40,11 @@ to every customer machine.
 Serve `out\repo` over HTTPS (any static host works). Clients enroll with:
 
 ```bash
-curl -fsSL https://YOUR-HOST/freehold-repo.gpg.asc | gpg --dearmor \
-    | sudo tee /usr/share/keyrings/freehold.gpg > /dev/null
-echo 'deb [signed-by=/usr/share/keyrings/freehold.gpg] https://YOUR-HOST/ ./' \
-    | sudo tee /etc/apt/sources.list.d/freehold.list
-sudo apt update && sudo apt install freehold-branding freehold-desktop-defaults freehold-security-policy
+curl -fsSL https://YOUR-HOST/dagric-repo.gpg.asc | gpg --dearmor \
+    | sudo tee /usr/share/keyrings/dagric.gpg > /dev/null
+echo 'deb [signed-by=/usr/share/keyrings/dagric.gpg] https://YOUR-HOST/ ./' \
+    | sudo tee /etc/apt/sources.list.d/dagric.list
+sudo apt update && sudo apt install dagric-branding dagric-desktop-defaults dagric-security-policy
 ```
 
 Future step: preinstall the three packages and the repo source in the ISO

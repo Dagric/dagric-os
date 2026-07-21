@@ -1,4 +1,4 @@
-# Freehold OS - package a release: versioned ISO name + SHA256 checksums.
+# Dagric OS - package a release: versioned ISO name + SHA256 checksums.
 #   .\release.ps1                     # names the current ISO as free edition
 #   .\release.ps1 -Edition pro        # names it as Pro
 #   (Run right after the matching .\build.ps1 [-Edition pro].)
@@ -11,12 +11,12 @@ $repo = $PSScriptRoot
 $iso = "$repo\out\live-image-amd64.hybrid.iso"
 if (-not (Test-Path $iso)) { Write-Host "No ISO - run .\build.ps1 first" -ForegroundColor Red; exit 1 }
 
-if ($Edition -eq "pro") { $name = "freehold-os-pro-$Version-amd64.iso" }
-else { $name = "freehold-os-$Version-amd64.iso" }
+if ($Edition -eq "pro") { $name = "dagric-os-pro-$Version-amd64.iso" }
+else { $name = "dagric-os-$Version-amd64.iso" }
 
 Copy-Item $iso "$repo\out\$name" -Force
 $sums = @()
-Get-ChildItem "$repo\out\freehold-os-*-amd64.iso" | ForEach-Object {
+Get-ChildItem "$repo\out\dagric-os-*-amd64.iso" | ForEach-Object {
     $h = (Get-FileHash $_.FullName -Algorithm SHA256).Hash.ToLower()
     $sums += "$h  $($_.Name)"
 }

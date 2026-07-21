@@ -1,28 +1,28 @@
 #!/bin/sh
-# Freehold OS — system identity
+# Dagric OS — system identity
 # Rebrands the installed system while honestly stating the Debian base
 # (per Debian's derivative guidelines: own name, ID_LIKE=debian).
 set -e
 
 cat > /usr/lib/os-release << 'EOF'
-NAME="Freehold OS"
-PRETTY_NAME="Freehold OS 1.0 (Foundation)"
-ID=freehold
+NAME="Dagric OS"
+PRETTY_NAME="Dagric OS 1.0 (Foundation)"
+ID=dagric
 ID_LIKE=debian
 VERSION="1.0 (Foundation)"
 VERSION_ID="1.0"
 VERSION_CODENAME=foundation
 DEBIAN_VERSION="13 (trixie)"
-HOME_URL="https://example.org/freehold"
-SUPPORT_URL="https://example.org/freehold/support"
-BUG_REPORT_URL="https://example.org/freehold/bugs"
+HOME_URL="https://dagric.com"
+SUPPORT_URL="https://dagric.com/support"
+BUG_REPORT_URL="https://dagric.com/bugs"
 EOF
 
 # /etc/os-release is normally a symlink to the file above; make sure.
 ln -sf ../usr/lib/os-release /etc/os-release
 
 cat > /etc/issue << 'EOF'
-Freehold OS 1.0 \n \l
+Dagric OS 1.0 \n \l
 
 EOF
-printf 'Freehold OS 1.0 (Foundation)\n' > /etc/issue.net
+printf 'Dagric OS 1.0 (Foundation)\n' > /etc/issue.net

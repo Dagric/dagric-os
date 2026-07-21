@@ -1,15 +1,15 @@
 #!/bin/sh
-# Freehold OS Pro — edition-specific configuration.
-# No-op on free-edition builds (checks /etc/freehold-edition).
+# Dagric OS Pro — edition-specific configuration.
+# No-op on free-edition builds (checks /etc/dagric-edition).
 set -e
 
-EDITION=$(cat /etc/freehold-edition 2>/dev/null || echo free)
+EDITION=$(cat /etc/dagric-edition 2>/dev/null || echo free)
 [ "$EDITION" = "pro" ] || exit 0
 
-echo "Applying Freehold Pro configuration..."
+echo "Applying Dagric Pro configuration..."
 
 # Identity: mark the OS as Pro
-sed -i 's/^PRETTY_NAME=.*/PRETTY_NAME="Freehold OS Pro 1.0 (Foundation)"/' /usr/lib/os-release
+sed -i 's/^PRETTY_NAME=.*/PRETTY_NAME="Dagric OS Pro 1.0 (Foundation)"/' /usr/lib/os-release
 printf 'VARIANT="Pro"\nVARIANT_ID=pro\n' >> /usr/lib/os-release
 
 # SSH server: installed but off until the owner turns it on

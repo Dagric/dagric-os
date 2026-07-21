@@ -1,4 +1,4 @@
-# Freehold OS - build the ISO from Windows using Docker Desktop.
+# Dagric OS - build the ISO from Windows using Docker Desktop.
 #
 #   .\build.ps1              # free edition
 #   .\build.ps1 -Edition pro # Pro edition (creator/developer suite)
@@ -20,16 +20,16 @@ if (-not $?) {
 New-Item -ItemType Directory -Force "$repo\out" | Out-Null
 
 Write-Host "[1/2] Building the build-environment image..." -ForegroundColor Cyan
-docker build -t freehold-builder "$repo\docker"
+docker build -t dagric-builder "$repo\docker"
 if (-not $?) { exit 1 }
 
-Write-Host "[2/2] Building the Freehold OS ($Edition) ISO (this takes a while)..." -ForegroundColor Cyan
+Write-Host "[2/2] Building the Dagric OS ($Edition) ISO (this takes a while)..." -ForegroundColor Cyan
 docker run --rm --privileged `
     -e EDITION=$Edition `
     -v "${repo}:/src:ro" `
     -v "${repo}\out:/out" `
-    -v freehold-lb-cache:/build/cache `
-    freehold-builder `
+    -v dagric-lb-cache:/build/cache `
+    dagric-builder `
     sh /src/docker/container-build.sh
 
 if ($?) {

@@ -1,4 +1,4 @@
-# Freehold OS
+# Dagric OS
 
 **A Debian-based desktop operating system built to be the antithesis of
 Windows: no telemetry, no ads, no forced accounts, no bloat — a computer
@@ -9,7 +9,7 @@ Base: Debian 13 "Trixie" (stable) · Desktop: KDE Plasma · Installer: Calamares
 
 ```
 Debian Stable ──► hand-picked packages ──► debloat + hardening hooks
-      ──► Freehold branding ──► bootable installer ISO
+      ──► Dagric branding ──► bootable installer ISO
 ```
 
 This repository *is* the operating system: every package choice, config file,
@@ -17,8 +17,8 @@ and policy lives here, and the ISO is rebuilt from it with one command.
 
 ## Two editions, one source tree
 
-- **Freehold OS** (free) — the full debloated OS. Never crippled.
-- **Freehold OS Pro** (paid) — same OS plus the preconfigured creator +
+- **Dagric OS** (free) — the full debloated OS. Never crippled.
+- **Dagric OS Pro** (paid) — same OS plus the preconfigured creator +
   developer suite: Chromium, Thunderbird, full LibreOffice, GIMP/PhotoGIMP,
   Krita, Inkscape, Blender, OBS, Kdenlive, Borg/Vorta/rclone backup,
   KDE Connect mobile integration, Docker/Podman, and owner-consent helpers
@@ -39,7 +39,7 @@ Full details, testing checklist, and troubleshooting: [docs/BUILDING.md](docs/BU
 
 ## What makes it the antithesis
 
-| | Windows | Freehold |
+| | Windows | Dagric |
 |---|---|---|
 | Telemetry | On by default | **Not shipped** |
 | Ads in the OS | Start menu, lock screen | **None** |
@@ -55,7 +55,7 @@ What's next: [docs/ROADMAP.md](docs/ROADMAP.md)
 
 1. **`--apt-recommends false`** (`auto/config`) — APT installs nothing that
    wasn't explicitly requested, at build time *and* forever after on installed
-   systems (`config/includes.chroot/etc/apt/apt.conf.d/01freehold-norecommends`).
+   systems (`config/includes.chroot/etc/apt/apt.conf.d/01dagric-norecommends`).
 2. **No metapackages** — `task-kde-desktop` would drag in games, PIM suites,
    and Akonadi databases. Instead, `config/package-lists/` names every package
    individually with a comment saying why it's there.
@@ -77,7 +77,7 @@ branding/                 wallpaper, boot splash, and logo sources (SVG)
 docs/                     PHILOSOPHY, BUILDING, ROADMAP
 test/                     QEMU boot-test harness (boot-test.ps1, vm-screenshot.ps1)
 .github/workflows/        CI: builds the ISO on every push once on GitHub
-packages/                 freehold-* config .debs (update channel for sold machines)
+packages/                 dagric-* config .debs (update channel for sold machines)
 build.ps1 / build.sh      one-command ISO builds (Windows / Debian)
 release.ps1               versioned ISO + SHA256SUMS for distribution
 repo.ps1                  build config packages + signed APT repo (docs/REPOSITORY.md)

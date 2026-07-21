@@ -1,28 +1,28 @@
-# Freehold OS editions
+# Dagric OS editions
 
 One source tree, two products. The free edition builds adoption and trust;
 Pro is the paid step-up with the full creator/developer suite and, later,
 support contracts.
 
 ```
-.\build.ps1                  →  freehold-os-1.0-amd64.iso        (free)
-.\build.ps1 -Edition pro     →  freehold-os-pro-1.0-amd64.iso    (Pro)
+.\build.ps1                  →  dagric-os-1.0-amd64.iso        (free)
+.\build.ps1 -Edition pro     →  dagric-os-pro-1.0-amd64.iso    (Pro)
 ```
 
 Mechanics: `config/package-lists/pro-*.list.chroot` only exist in Pro
 builds; the `0600-pro-edition` hook applies Pro-only config (it reads
-`/etc/freehold-edition`, which the build writes). Everything else —
+`/etc/dagric-edition`, which the build writes). Everything else —
 branding, security baseline, debloat rules, installer — is IDENTICAL.
 Free is never a crippled Pro; Pro is never a different OS.
 
-## Freehold OS (free)
+## Dagric OS (free)
 
 Everything already shipped: debloated KDE Plasma, zero telemetry,
 hardened defaults, silent updates that never force a reboot, Firefox,
 LibreOffice essentials (Writer/Calc/Impress), Flathub, NTFS/exFAT,
-Freehold Welcome, branded installer.
+Dagric Welcome, branded installer.
 
-## Freehold OS Pro — everything above, plus
+## Dagric OS Pro — everything above, plus
 
 **Creator suite**
 | | |
@@ -41,7 +41,7 @@ Freehold Welcome, branded installer.
 | | |
 |---|---|
 | Windows apps | Wine (64- and 32-bit) + winetricks — run classic .exe software |
-| Games | Steam preinstalled (Valve Proton); `freehold-gaming` adds community Proton-GE on request |
+| Games | Steam preinstalled (Valve Proton); `dagric-gaming` adds community Proton-GE on request |
 | Performance | gamemode governor + MangoHud FPS overlay |
 
 **Stability**
@@ -58,11 +58,11 @@ Freehold Welcome, branded installer.
 | SSH | client ready; server installed but OFF until enabled |
 
 **Owner-consent helpers (never auto-run)**
-- `sudo freehold-drivers` — detects NVIDIA hardware, installs the
+- `sudo dagric-drivers` — detects NVIDIA hardware, installs the
   proprietary driver from Debian non-free on request
-- `freehold-get-resolve` — guided official DaVinci Resolve install
+- `dagric-get-resolve` — guided official DaVinci Resolve install
   (Blackmagic's license forbids preinstalling it; no honest OS can)
-- `freehold-ai` — one-command local LLM setup (Ollama); models run
+- `dagric-ai` — one-command local LLM setup (Ollama); models run
   entirely on the machine, nothing leaves it
 
 ## Pro roadmap (engineering ahead of promises)
@@ -77,7 +77,7 @@ pitch never outruns the product:
 - **umu-launcher** — containerized Proton for non-Steam .exe files;
   not yet packaged in Debian, revisit when it lands (or vendor it).
 - **LocalAI** — OpenAI-compatible self-hosted engine (LLM + Whisper +
-  image gen) as an alternative backend for `freehold-ai`.
+  image gen) as an alternative backend for `dagric-ai`.
 - **Fleet management dashboard** — builds on the signed APT repo
   (`docs/REPOSITORY.md`); needs a server-side product.
 - **Compliance profiles** (disk-encryption enforcement, audit logging,
@@ -90,6 +90,6 @@ pitch never outruns the product:
 
 | Tier | Price | Gets |
 |---|---|---|
-| Freehold OS | free | The full OS. No account, no strings. |
-| Freehold Pro | one-time or per-seat | Creator + dev suite preconfigured, priority updates |
-| Freehold Enterprise | per seat/year | Fleet dashboard, compliance, SLAs (future) |
+| Dagric OS | free | The full OS. No account, no strings. |
+| Dagric Pro | one-time or per-seat | Creator + dev suite preconfigured, priority updates |
+| Dagric Enterprise | per seat/year | Fleet dashboard, compliance, SLAs (future) |

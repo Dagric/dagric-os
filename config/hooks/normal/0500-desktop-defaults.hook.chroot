@@ -1,27 +1,27 @@
 #!/bin/sh
-# Freehold OS — desktop and installer defaults.
+# Dagric OS — desktop and installer defaults.
 set -e
 
-# Default wallpaper: point the Breeze look-and-feel at the Freehold wallpaper.
+# Default wallpaper: point the Breeze look-and-feel at the Dagric wallpaper.
 # (This file belongs to plasma-workspace; a package update could revert it,
 # which is fine for the live/installed image built here.)
 LNF=/usr/share/plasma/look-and-feel/org.kde.breeze.desktop/contents/defaults
 if [ -f "$LNF" ]; then
-    sed -i 's/^Image=Next$/Image=Freehold/; s/^defaultWallpaperTheme=Next$/defaultWallpaperTheme=Freehold/' "$LNF"
+    sed -i 's/^Image=Next$/Image=Dagric/; s/^defaultWallpaperTheme=Next$/defaultWallpaperTheme=Dagric/' "$LNF"
 fi
 
-# Calamares: use the Freehold branding component instead of Debian's.
+# Calamares: use the Dagric branding component instead of Debian's.
 if [ -f /etc/calamares/settings.conf ]; then
-    sed -i 's/^branding:.*/branding: freehold/' /etc/calamares/settings.conf
+    sed -i 's/^branding:.*/branding: dagric/' /etc/calamares/settings.conf
 fi
 
-# The desktop/menu entry should say Freehold, not Debian.
+# The desktop/menu entry should say Dagric, not Debian.
 for d in /usr/share/applications/calamares-install-debian.desktop \
          /etc/xdg/autostart/calamares-desktop-icon.desktop; do
     if [ -f "$d" ]; then
-        sed -i 's/^Name=.*/Name=Install Freehold OS/;
-                s/^GenericName=.*/GenericName=Freehold OS Installer/;
-                s/^Comment=.*/Comment=Install Freehold OS on this computer/;
-                s|^Icon=.*|Icon=/usr/share/freehold/logo/freehold-logo.png|' "$d"
+        sed -i 's/^Name=.*/Name=Install Dagric OS/;
+                s/^GenericName=.*/GenericName=Dagric OS Installer/;
+                s/^Comment=.*/Comment=Install Dagric OS on this computer/;
+                s|^Icon=.*|Icon=/usr/share/dagric/logo/dagric-logo.png|' "$d"
     fi
 done

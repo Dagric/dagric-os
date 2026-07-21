@@ -1,0 +1,5 @@
+#!/bin/sh
+# Dagric OS — first-run welcome. Opens the local welcome page once,
+# then removes its own autostart entry.
+rm -f "$HOME/.config/autostart/dagric-welcome.desktop"
+exec firefox file:///usr/share/dagric/welcome/index.html

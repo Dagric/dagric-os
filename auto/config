@@ -1,17 +1,17 @@
 #!/bin/sh
-# Freehold OS — live-build configuration
+# Dagric OS — live-build configuration
 # This is the single source of truth for how the ISO is assembled.
-# FREEHOLD_EDITION selects the flavor: "free" (default) or "pro".
+# DAGRIC_EDITION selects the flavor: "free" (default) or "pro".
 set -e
 
-case "${FREEHOLD_EDITION:-free}" in
+case "${DAGRIC_EDITION:-free}" in
     pro)
-        FH_APP="Freehold OS Pro"
-        FH_VOLUME="FREEHOLD_PRO_1_0"
+        FH_APP="Dagric OS Pro"
+        FH_VOLUME="DAGRIC_PRO_1_0"
         ;;
     *)
-        FH_APP="Freehold OS"
-        FH_VOLUME="FREEHOLD_1_0"
+        FH_APP="Dagric OS"
+        FH_VOLUME="DAGRIC_1_0"
         ;;
 esac
 
@@ -25,9 +25,9 @@ lb config noauto \
     --binary-images iso-hybrid \
     --debian-installer none \
     --apt-recommends false \
-    --bootappend-live "boot=live components quiet splash hostname=freehold username=live" \
+    --bootappend-live "boot=live components quiet splash hostname=dagric username=live" \
     --iso-application "$FH_APP" \
-    --iso-publisher "Freehold OS Project" \
+    --iso-publisher "Dagric OS Project" \
     --iso-volume "$FH_VOLUME" \
     --memtest none \
     --firmware-chroot true \

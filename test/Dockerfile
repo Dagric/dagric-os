@@ -1,4 +1,4 @@
-# Freehold OS boot-test harness.
+# Dagric OS boot-test harness.
 # Boots the built ISO in QEMU and serves the virtual display over noVNC,
 # so the boot can be watched in any browser at http://localhost:6080/vnc.html
 # Includes vncdotool for scripted mouse/keyboard input (install testing).
