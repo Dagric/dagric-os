@@ -1,0 +1,19 @@
+# Shell scripts and live-build files MUST keep LF endings —
+# a hook with CRLF endings breaks inside the Debian chroot ("/bin/sh^M").
+* text=auto
+*.sh text eol=lf
+*.chroot text eol=lf
+auto/* text eol=lf
+*.desc text eol=lf
+*.qml text eol=lf
+*.yml text eol=lf
+*.json text eol=lf
+*.md text eol=lf
+*.svg text eol=lf
+
+# Windows scripts keep CRLF
+*.ps1 text eol=crlf
+
+# Binaries
+*.png binary
+*.iso binary
