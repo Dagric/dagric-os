@@ -22,11 +22,13 @@ grub-efi-amd64-signed
 shim-signed
 efibootmgr
 os-prober
-# GPT partitioning tools — Calamares' partition backend (KPMcore) needs
-# gdisk/sgdisk to create the GPT table an EFI install requires. Without
-# these the EFI install fails at "sfdisk --force --append".
-# (Found by the UEFI install run-through test.) parted is the general
-# fallback backend.
+# THE EFI install fix: the EFI System Partition is FAT32, so Calamares
+# needs mkfs.vfat (dosfstools) to format it. Without this the install
+# dies the instant it hits "Create file system 'fat32' on /dev/vda1".
+# BIOS installs used btrfs+MBR and never touched FAT, which is why they
+# passed. (Root-caused from Calamares' session.log during the UEFI test.)
+dosfstools
+# GPT partitioning tools for the EFI/GPT layout (gdisk backend + parted).
 gdisk
 parted
 # btrfs is the default install filesystem (instant Timeshift/rollback
