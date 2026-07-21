@@ -31,12 +31,18 @@
       squashfs-tools, and grub-pc. Test creds: user dagric.
 
 ## Phase 3 — Real-hardware validation
+- [x] EFI install support — VERIFIED end to end in the UEFI (OVMF) harness:
+      GPT + EFI System Partition + btrfs root install completes, and the
+      installed system boots from its EFI partition through the Plymouth
+      splash to the desktop. Fix chain: grub-efi-amd64-bin/-signed +
+      shim-signed + efibootmgr + gdisk/parted + dosfstools (the killer:
+      mkfs.vfat for the FAT32 ESP).
+- [x] btrfs default install filesystem (Timeshift atomic snapshots) — verified
+- [x] Plymouth branded boot splash — verified on installed system
 - [ ] Test matrix: 1 laptop + 1 desktop, Intel and AMD graphics, common Wi-Fi
 - [ ] Full-disk-encryption install path verified
-- [ ] EFI install support (grub-efi-amd64 + shim-signed; image currently
-      ships grub-pc for BIOS/MBR installs — fine for the QEMU harness,
-      required work before modern-hardware installs)
-- [ ] Secure Boot behavior documented
+- [ ] Secure Boot with enforcing firmware (shim-signed chain ships; test on
+      real Secure Boot hardware)
 - [x] Live session idle screen-lock disabled (live-config script; installed
       systems keep normal lock behavior)
 - [x] Installer menu label renamed to "Install Dagric OS"
