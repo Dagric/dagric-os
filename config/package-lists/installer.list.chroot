@@ -1,4 +1,8 @@
-# Antithesis OS — Installer
+# Freehold OS — Installer
 # Calamares: the same friendly graphical installer Debian Live itself ships.
 calamares
 calamares-settings-debian
+# Password-quality dictionary — without it Calamares' password check errors
+# out with "error loading dictionary" and blocks EVERY password.
+# (Found by the QEMU install run-through test.)
+cracklib-runtime

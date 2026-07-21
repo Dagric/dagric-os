@@ -14,3 +14,13 @@ fi
 if [ -f /etc/calamares/settings.conf ]; then
     sed -i 's/^branding:.*/branding: freehold/' /etc/calamares/settings.conf
 fi
+
+# The desktop/menu entry should say Freehold, not Debian.
+for d in /usr/share/applications/install-debian.desktop; do
+    if [ -f "$d" ]; then
+        sed -i 's/^Name=.*/Name=Install Freehold OS/;
+                s/^GenericName=.*/GenericName=Freehold OS Installer/;
+                s/^Comment=.*/Comment=Install Freehold OS on this computer/;
+                s|^Icon=.*|Icon=/usr/share/freehold/logo/freehold-logo.png|' "$d"
+    fi
+done
