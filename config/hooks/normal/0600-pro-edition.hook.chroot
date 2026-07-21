@@ -1,0 +1,46 @@
+#!/bin/sh
+# Freehold OS Pro — edition-specific configuration.
+# No-op on free-edition builds (checks /etc/freehold-edition).
+set -e
+
+EDITION=$(cat /etc/freehold-edition 2>/dev/null || echo free)
+[ "$EDITION" = "pro" ] || exit 0
+
+echo "Applying Freehold Pro configuration..."
+
+# Identity: mark the OS as Pro
+sed -i 's/^PRETTY_NAME=.*/PRETTY_NAME="Freehold OS Pro 1.0 (Foundation)"/' /usr/lib/os-release
+printf 'VARIANT="Pro"\nVARIANT_ID=pro\n' >> /usr/lib/os-release
+
+# SSH server: installed but off until the owner turns it on
+systemctl disable ssh.service 2>/dev/null || true
+
+# KDE Connect needs its ports open (firewalld ships a service preset)
+firewall-offline-cmd --zone=public --add-service=kdeconnect 2>/dev/null || \
+    echo "WARNING: could not preopen KDE Connect ports"
+
+# Pro look: Papirus icons by default for new users
+if ! grep -q '^\[Icons\]' /etc/skel/.config/kdeglobals 2>/dev/null; then
+    printf '\n[Icons]\nTheme=Papirus-Dark\n' >> /etc/skel/.config/kdeglobals
+fi
+
+# PhotoGIMP (Diolinux): familiar Photoshop-style layout for GIMP.
+# Best-effort download at build time; the build continues without it
+# if the network or upstream is unavailable.
+PG_TMP=/tmp/photogimp
+mkdir -p "$PG_TMP"
+if curl -fsSL -o "$PG_TMP/pg.zip" \
+    "https://github.com/Diolinux/PhotoGIMP/archive/refs/heads/master.zip" 2>/dev/null; then
+    if command -v unzip >/dev/null 2>&1 || apt-get install -y -qq unzip >/dev/null 2>&1; then
+        unzip -q "$PG_TMP/pg.zip" -d "$PG_TMP"
+        SRC=$(find "$PG_TMP" -maxdepth 2 -type d -name ".config" | head -1)
+        if [ -n "$SRC" ]; then
+            mkdir -p /etc/skel/.config
+            cp -r "$SRC"/* /etc/skel/.config/
+            echo "PhotoGIMP layout installed for new users"
+        fi
+    fi
+else
+    echo "WARNING: PhotoGIMP download failed — GIMP ships with stock layout"
+fi
+rm -rf "$PG_TMP"

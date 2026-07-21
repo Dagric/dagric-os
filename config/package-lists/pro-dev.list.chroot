@@ -1,0 +1,18 @@
+# Freehold OS Pro — Developer toolchain
+# "Zero-friction setup out of the box."
+
+# Containers
+docker.io
+docker-compose
+podman
+
+# Core toolchain
+build-essential
+git
+python3-pip
+python3-venv
+
+# SSH — client for reaching servers, server present but DISABLED by
+# default (enable with: sudo systemctl enable --now ssh)
+openssh-client
+openssh-server

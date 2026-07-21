@@ -1,10 +1,12 @@
-# Freehold OS — build the ISO from Windows using Docker Desktop.
+# Freehold OS - build the ISO from Windows using Docker Desktop.
 #
-#   .\build.ps1
+#   .\build.ps1              # free edition
+#   .\build.ps1 -Edition pro # Pro edition (creator/developer suite)
 #
-# Requirements: Docker Desktop running. First build downloads ~1.5 GB of
-# Debian packages and takes 30-60 minutes; later builds are faster because
-# the package cache lives in a Docker volume.
+# Requirements: Docker Desktop running. First build downloads packages
+# and takes 30-60+ minutes; later builds are faster because the package
+# cache lives in a Docker volume.
+param([ValidateSet("free","pro")][string]$Edition = "free")
 
 $ErrorActionPreference = "Stop"
 $repo = $PSScriptRoot
@@ -21,8 +23,9 @@ Write-Host "[1/2] Building the build-environment image..." -ForegroundColor Cyan
 docker build -t freehold-builder "$repo\docker"
 if (-not $?) { exit 1 }
 
-Write-Host "[2/2] Building the Freehold OS ISO (this takes a while)..." -ForegroundColor Cyan
+Write-Host "[2/2] Building the Freehold OS ($Edition) ISO (this takes a while)..." -ForegroundColor Cyan
 docker run --rm --privileged `
+    -e EDITION=$Edition `
     -v "${repo}:/src:ro" `
     -v "${repo}\out:/out" `
     -v freehold-lb-cache:/build/cache `
@@ -31,5 +34,5 @@ docker run --rm --privileged `
 
 if ($?) {
     Write-Host "Done. ISO is in: $repo\out" -ForegroundColor Green
-    Write-Host "Test it in a VM (VirtualBox/Hyper-V) or write it to USB with Rufus/Ventoy."
+    Write-Host "Test it: .\test\boot-test.ps1 or .\test\install-test.ps1"
 }
