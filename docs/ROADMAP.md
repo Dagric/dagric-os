@@ -29,7 +29,15 @@
 ## Phase 3 — Real-hardware validation
 - [ ] Test matrix: 1 laptop + 1 desktop, Intel and AMD graphics, common Wi-Fi
 - [ ] Full-disk-encryption install path verified
+- [ ] EFI install support (grub-efi-amd64 + shim-signed; image currently
+      ships grub-pc for BIOS/MBR installs — fine for the QEMU harness,
+      required work before modern-hardware installs)
 - [ ] Secure Boot behavior documented
+- [ ] Live session: disable idle screen-lock (locks after ~5 min; harmless
+      but confusing — password is "live")
+- [ ] Fix installer menu label (still "Install Debian"; the rename hook
+      targeted the wrong .desktop filename — find it via
+      dpkg -L calamares-settings-debian)
 
 ## Phase 4 — Distribution infrastructure (only if it goes public)
 - [ ] Private signed APT repo for `freehold-*` config packages

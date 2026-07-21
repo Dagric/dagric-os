@@ -16,7 +16,8 @@ if [ -f /etc/calamares/settings.conf ]; then
 fi
 
 # The desktop/menu entry should say Freehold, not Debian.
-for d in /usr/share/applications/install-debian.desktop; do
+for d in /usr/share/applications/calamares-install-debian.desktop \
+         /etc/xdg/autostart/calamares-desktop-icon.desktop; do
     if [ -f "$d" ]; then
         sed -i 's/^Name=.*/Name=Install Freehold OS/;
                 s/^GenericName=.*/GenericName=Freehold OS Installer/;
