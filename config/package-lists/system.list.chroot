@@ -22,6 +22,20 @@ wireplumber
 # Printing
 cups
 
+# Locales — without this, every terminal shows locale warnings
+# (found by the install run-through test)
+locales
+
+# Windows-switcher care: read the drives people bring with them
+ntfs-3g
+exfatprogs
+
+# Archive formats Ark should just handle
+p7zip-full
+
+# Laptop power profiles (performance / balanced / power-save in the tray)
+power-profiles-daemon
+
 # Security & updates
 sudo
 firewalld

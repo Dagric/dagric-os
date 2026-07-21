@@ -1,0 +1,19 @@
+#!/bin/sh
+# Freehold OS live session: don't idle-lock the screen.
+# (Live-only — this script is run by live-config, which never runs on
+# installed systems, so installed machines keep normal lock behavior.)
+Freehold_nolock ()
+{
+    for H in /home/*; do
+        [ -d "$H" ] || continue
+        U=$(basename "$H")
+        mkdir -p "$H/.config"
+        cat > "$H/.config/kscreenlockerrc" << EOF
+[Daemon]
+Autolock=false
+LockOnResume=false
+EOF
+        chown -R "$U:$U" "$H/.config" 2>/dev/null || true
+    done
+}
+Freehold_nolock
