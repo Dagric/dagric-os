@@ -6,3 +6,13 @@ calamares-settings-debian
 # out with "error loading dictionary" and blocks EVERY password.
 # (Found by the QEMU install run-through test.)
 cracklib-runtime
+# unsquashfs — Calamares' unpackfs module needs it to copy the live
+# filesystem onto the target disk. (Found by the install run-through:
+# "Failed to find unsquashfs".)
+squashfs-tools
+# The installed system's bootloader. The live ISO boots via live-build's
+# own bootloader, so nothing pulled GRUB into the image — but the
+# INSTALLED system needs it or the bootloader step fails.
+# BIOS/MBR now; EFI (grub-efi-amd64 + shim) is a roadmap item.
+grub-pc
+os-prober
