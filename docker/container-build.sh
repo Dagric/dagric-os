@@ -10,6 +10,7 @@ set -e
 rsync -a --exclude 'out/' --exclude '.git/' /src/ /build/
 cd /build
 chmod +x auto/* config/hooks/normal/*.hook.chroot 2>/dev/null || true
+chmod +x config/includes.chroot/usr/bin/* config/includes.chroot/usr/lib/live/config/* 2>/dev/null || true
 
 lb clean
 lb config
