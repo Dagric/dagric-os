@@ -1,0 +1,15 @@
+# Freehold OS Pro — Gaming & Windows-app compatibility
+# Run Windows software and games without leaving Freehold.
+
+# Wine: the Windows compatibility layer (32-bit support for classic
+# .exe installers is added by the pro-edition hook via i386 multiarch)
+wine
+winetricks
+
+# Steam (installer from contrib) — brings Valve's Proton for games;
+# the freehold-gaming helper adds community Proton-GE on request
+steam-installer
+
+# Performance: CPU/GPU governor optimization while gaming + FPS overlay
+gamemode
+mangohud

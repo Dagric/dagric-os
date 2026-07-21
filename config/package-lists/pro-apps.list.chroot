@@ -26,6 +26,11 @@ borgbackup
 vorta
 rclone
 
+# System restore points — roll the OS back if an update or driver
+# ever goes sideways (rsync mode works on the default ext4 install;
+# btrfs snapshot mode lights up automatically on btrfs installs)
+timeshift
+
 # Mobile integration — notifications, file transfer, remote input,
 # clipboard sync with Android/iOS via the KDE Connect app
 kdeconnect

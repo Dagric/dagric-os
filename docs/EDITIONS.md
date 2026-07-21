@@ -37,10 +37,23 @@ Freehold Welcome, branded installer.
 | Mobile | KDE Connect — Android/iOS notifications, files, clipboard, remote input (firewall ports preconfigured) |
 | Look | Papirus icon theme, Pro identity |
 
+**Gaming & Windows apps**
+| | |
+|---|---|
+| Windows apps | Wine (64- and 32-bit) + winetricks — run classic .exe software |
+| Games | Steam preinstalled (Valve Proton); `freehold-gaming` adds community Proton-GE on request |
+| Performance | gamemode governor + MangoHud FPS overlay |
+
+**Stability**
+| | |
+|---|---|
+| System restore | Timeshift — scheduled restore points, roll back a bad update (rsync mode on ext4; btrfs snapshot mode on btrfs installs) |
+
 **Developer toolchain**
 | | |
 |---|---|
 | Containers | Docker (+ compose) and Podman preinstalled |
+| Any-distro shells | Distrobox — Ubuntu/Fedora/Arch userlands in a terminal with full host integration |
 | Toolchain | build-essential, git, Python (pip + venv) |
 | SSH | client ready; server installed but OFF until enabled |
 
@@ -59,6 +72,12 @@ pitch never outruns the product:
 
 - **Immutable core / atomic updates with rollback** — requires moving to
   an image-based update model (ostree/ABroot-style). Large but doable.
+  First step (smaller): btrfs as the default install filesystem so
+  Timeshift/Snapper get instant atomic snapshots instead of rsync copies.
+- **umu-launcher** — containerized Proton for non-Steam .exe files;
+  not yet packaged in Debian, revisit when it lands (or vendor it).
+- **LocalAI** — OpenAI-compatible self-hosted engine (LLM + Whisper +
+  image gen) as an alternative backend for `freehold-ai`.
 - **Fleet management dashboard** — builds on the signed APT repo
   (`docs/REPOSITORY.md`); needs a server-side product.
 - **Compliance profiles** (disk-encryption enforcement, audit logging,

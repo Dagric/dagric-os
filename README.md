@@ -15,12 +15,22 @@ Debian Stable ──► hand-picked packages ──► debloat + hardening hooks
 This repository *is* the operating system: every package choice, config file,
 and policy lives here, and the ISO is rebuilt from it with one command.
 
+## Two editions, one source tree
+
+- **Freehold OS** (free) — the full debloated OS. Never crippled.
+- **Freehold OS Pro** (paid) — same OS plus the preconfigured creator +
+  developer suite: Chromium, Thunderbird, full LibreOffice, GIMP/PhotoGIMP,
+  Krita, Inkscape, Blender, OBS, Kdenlive, Borg/Vorta/rclone backup,
+  KDE Connect mobile integration, Docker/Podman, and owner-consent helpers
+  for NVIDIA drivers, DaVinci Resolve, and local AI. See [docs/EDITIONS.md](docs/EDITIONS.md).
+
 ## Build it
 
 On this Windows machine (Docker Desktop must be running):
 
 ```powershell
-.\build.ps1        # → out\live-image-amd64.hybrid.iso
+.\build.ps1                # free edition
+.\build.ps1 -Edition pro   # Pro edition
 ```
 
 On any Debian box: `sudo apt install live-build && sudo ./build.sh`
