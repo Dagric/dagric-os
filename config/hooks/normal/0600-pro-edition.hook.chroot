@@ -46,6 +46,47 @@ if ! grep -q '^\[Icons\]' /etc/skel/.config/kdeglobals 2>/dev/null; then
     printf '\n[Icons]\nTheme=Papirus-Dark\n' >> /etc/skel/.config/kdeglobals
 fi
 
+# Pro creator/gaming/AI helpers: give them launcher entries so they're
+# discoverable and KRunner-searchable (the Dagric Hub lists them too). These
+# ship only on Pro because the tools target the Pro suite.
+mkdir -p /usr/share/applications
+cat > /usr/share/applications/dagric-gaming.desktop << 'EOF'
+[Desktop Entry]
+Type=Application
+Name=Gaming Setup
+GenericName=Proton-GE for Steam
+Comment=Install the community Proton-GE build for better game compatibility
+Exec=konsole -e sh -c '/usr/bin/dagric-gaming ; echo ; printf "Press Enter to close..." ; read x'
+Icon=dagric-logo
+Terminal=false
+Categories=Game;System;
+Keywords=steam;proton;wine;gaming;game;
+EOF
+cat > /usr/share/applications/dagric-ai.desktop << 'EOF'
+[Desktop Entry]
+Type=Application
+Name=Local AI Setup
+GenericName=Install Ollama
+Comment=Run large language models locally — nothing leaves your machine
+Exec=konsole -e sh -c '/usr/bin/dagric-ai ; echo ; printf "Press Enter to close..." ; read x'
+Icon=dagric-logo
+Terminal=false
+Categories=Development;System;
+Keywords=ai;ollama;llm;local;privacy;
+EOF
+cat > /usr/share/applications/dagric-get-resolve.desktop << 'EOF'
+[Desktop Entry]
+Type=Application
+Name=DaVinci Resolve (Install)
+GenericName=Guided Resolve install
+Comment=Walk through Blackmagic's official DaVinci Resolve download
+Exec=konsole -e sh -c '/usr/bin/dagric-get-resolve ; echo ; printf "Press Enter to close..." ; read x'
+Icon=dagric-logo
+Terminal=false
+Categories=AudioVideo;Video;
+Keywords=davinci;resolve;video;editor;blackmagic;
+EOF
+
 # PhotoGIMP (Diolinux): familiar Photoshop-style layout for GIMP.
 # Best-effort download at build time; the build continues without it
 # if the network or upstream is unavailable.

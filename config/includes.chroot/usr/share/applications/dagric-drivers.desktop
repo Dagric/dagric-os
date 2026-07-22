@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=Graphics Drivers
+GenericName=Install proprietary GPU drivers
+Comment=Detect an NVIDIA GPU and install its driver from Debian's repository
+Exec=konsole -e sh -c 'pkexec /usr/bin/dagric-drivers ; echo ; printf "Press Enter to close..." ; read x'
+Icon=dagric-logo
+Terminal=false
+Categories=System;Settings;HardwareSettings;
+Keywords=nvidia;driver;gpu;graphics;hardware;
