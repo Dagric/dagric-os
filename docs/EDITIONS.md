@@ -18,9 +18,19 @@ Free is never a crippled Pro; Pro is never a different OS.
 ## Dagric OS (free)
 
 Everything already shipped: debloated KDE Plasma, zero telemetry,
-hardened defaults, silent updates that never force a reboot, Firefox,
-LibreOffice essentials (Writer/Calc/Impress), Flathub, NTFS/exFAT,
-Dagric Welcome, branded installer.
+silent updates that never force a reboot, Firefox, LibreOffice essentials
+(Writer/Calc/Impress), Flathub, NTFS/exFAT, Dagric Welcome, branded installer.
+
+**Security baseline** (genuinely strong — free is lean, not insecure):
+AppArmor mandatory access control enforced from boot, an expanded hardened
+kernel (kexec disabled, BPF/perf locked down, network-spoof protections,
+non-world-readable homes), firewalld, silent security updates, and Lynis
+on-demand security auditing. Plus day-one functional support most switchers
+need: scanners, printer breadth, firmware updates (fwupd), VPN import, media
+codecs + Netflix/Spotify (EME), MS-Office-metric fonts, fingerprint login,
+GPU video decode, `.deb` double-click, and a screen reader.
+Pro adds *proactive* monitoring on top (the Security Suite) — free is not
+crippled, Pro is a clear step up.
 
 ## Dagric OS Pro — everything above, plus
 
@@ -48,6 +58,12 @@ Dagric Welcome, branded installer.
 | | |
 |---|---|
 | System restore | Timeshift — scheduled restore points, roll back a bad update (rsync mode on ext4; btrfs snapshot mode on btrfs installs) |
+
+**Security Suite** (the Pro step-up; free keeps a strong baseline — see below)
+| | |
+|---|---|
+| App firewall | OpenSnitch — per-application outbound control; ships in monitor mode, blocking opt-in from the GUI |
+| USB control | USBGuard — block BadUSB / USB-drop attacks; installed, opt-in "lock down USB ports" |
 
 **Developer toolchain**
 | | |
