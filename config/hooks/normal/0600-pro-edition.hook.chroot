@@ -24,13 +24,10 @@ else
     echo "WARNING: could not enable i386 multiarch"
 fi
 
-# Microsoft core fonts (Arial, Times, etc.) for pixel-faithful documents —
-# contrib package that downloads from Microsoft's mirror at install time.
-# EULA is preseeded so the build stays non-interactive; guarded so an
-# upstream mirror hiccup can't fail the build.
-echo "ttf-mscorefonts-installer msttcorefonts/accepted-mscorefonts-eula select true" | debconf-set-selections
-apt-get install -y ttf-mscorefonts-installer || \
-    echo "WARNING: mscorefonts download failed — Liberation/Carlito substitutes remain"
+# NOTE: we deliberately do NOT ship ttf-mscorefonts-installer — it fetches
+# Microsoft's proprietary fonts under a EULA (not open source). The
+# open-source Carlito (Calibri-metric) + Caladea (Cambria-metric) + Liberation
+# fonts in the base system give the same document layout fidelity, fully free.
 
 # KDE Connect needs its ports open (firewalld ships a service preset)
 firewall-offline-cmd --zone=public --add-service=kdeconnect 2>/dev/null || \

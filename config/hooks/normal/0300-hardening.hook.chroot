@@ -19,5 +19,26 @@ EOF
 # Firewall on by default
 systemctl enable firewalld.service 2>/dev/null || true
 
+# AppArmor confinement on by default
+systemctl enable apparmor.service 2>/dev/null || true
+
 # zram swap on by default
 systemctl enable zramswap.service 2>/dev/null || true
+
+# Boot the kernel with AppArmor as the active LSM (Debian ships it available
+# but this makes it explicit and enforced from first boot).
+if [ -f /etc/default/grub.d/50-dagric.cfg ]; then
+    if ! grep -q "apparmor=1" /etc/default/grub.d/50-dagric.cfg; then
+        echo 'GRUB_CMDLINE_LINUX="$GRUB_CMDLINE_LINUX apparmor=1 security=apparmor"' \
+            >> /etc/default/grub.d/50-dagric.cfg
+    fi
+fi
+
+# New home directories are 0750, not Debian's world-readable 0755, so users
+# can't read each other's files by default. login.defs actually governs this
+# (unlike chmod'ing /etc/skel). Strip any existing HOME_MODE lines (commented
+# or not) then set one clean value — avoids duplicate/conflicting entries.
+if [ -f /etc/login.defs ]; then
+    sed -i '/^#*[[:space:]]*HOME_MODE/d' /etc/login.defs
+    printf 'HOME_MODE\t0750\n' >> /etc/login.defs
+fi

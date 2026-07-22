@@ -66,6 +66,13 @@ firewalld
 plasma-firewall
 unattended-upgrades
 ca-certificates
+# AppArmor — mandatory access control. Confines apps to what they legitimately
+# need, so a compromised browser/PDF viewer can't roam the whole system.
+# The -extra profiles cover far more of the desktop than the base set.
+apparmor
+apparmor-profiles
+apparmor-profiles-extra
+apparmor-utils
 
 # App distribution
 flatpak
