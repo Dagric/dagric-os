@@ -9,6 +9,13 @@ winetricks
 # NOTE: steam-installer is installed by the 0600-pro-edition hook —
 # it depends on i386 multiarch, which must be enabled first.
 
+# Vulkan drivers — CRITICAL: Proton/DXVK translate DirectX to Vulkan; with
+# --apt-recommends false nothing else pulls these in, and without them Steam
+# games fall back to slow OpenGL or fail. 32-bit Vulkan for older games is
+# added by the 0600 hook alongside wine32. (Found by friendly-Debian review.)
+mesa-vulkan-drivers
+vulkan-tools
+
 # Performance: CPU/GPU governor optimization while gaming + FPS overlay
 gamemode
 mangohud

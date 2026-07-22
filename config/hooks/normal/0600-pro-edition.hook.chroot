@@ -18,11 +18,19 @@ systemctl disable ssh.service 2>/dev/null || true
 # 32-bit land: classic Windows .exe installers (wine32) and Steam both
 # need i386 multiarch, so they install here, after it's enabled.
 if dpkg --add-architecture i386 && apt-get update -qq; then
-    apt-get install -y wine32:i386 steam-installer || \
-        echo "WARNING: wine32/steam install failed — 64-bit Wine only"
+    apt-get install -y wine32:i386 steam-installer mesa-vulkan-drivers:i386 || \
+        echo "WARNING: wine32/steam/vulkan32 install failed — 64-bit Wine only"
 else
     echo "WARNING: could not enable i386 multiarch"
 fi
+
+# Microsoft core fonts (Arial, Times, etc.) for pixel-faithful documents —
+# contrib package that downloads from Microsoft's mirror at install time.
+# EULA is preseeded so the build stays non-interactive; guarded so an
+# upstream mirror hiccup can't fail the build.
+echo "ttf-mscorefonts-installer msttcorefonts/accepted-mscorefonts-eula select true" | debconf-set-selections
+apt-get install -y ttf-mscorefonts-installer || \
+    echo "WARNING: mscorefonts download failed — Liberation/Carlito substitutes remain"
 
 # KDE Connect needs its ports open (firewalld ships a service preset)
 firewall-offline-cmd --zone=public --add-service=kdeconnect 2>/dev/null || \

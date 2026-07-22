@@ -37,6 +37,10 @@ ipp-usb
 # with an all-in-one. SANE backend + a simple KDE scan app.
 sane-utils
 skanlite
+# Driverless NETWORK print/scan (AirPrint/Mopria/eSCL): avahi discovers the
+# devices, sane-airscan talks to network scanners without vendor drivers.
+avahi-daemon
+sane-airscan
 
 # Firmware updates (LVFS) — Discover already surfaces these; the backend
 # was missing. Matters for a distro sold to run on real hardware.
@@ -84,6 +88,11 @@ gstreamer1.0-plugins-bad
 gstreamer1.0-plugins-ugly
 gstreamer1.0-libav
 gstreamer1.0-vaapi
+# GPU-accelerated video decode (VA-API) — 4K playback without pegging the CPU
+va-driver-all
+
+# Double-clicking a downloaded .deb (Chrome, Zoom, VS Code) should just work
+gdebi
 
 # Compressed swap — snappier on low-RAM machines
 zram-tools
