@@ -56,11 +56,30 @@ Pro completeness (kept as the step-up):
 - Gaming: lutris + goverlay (Steam-only felt half-finished)
 - Full international text: fonts-noto-cjk (~200 MB, kept in Pro to keep free lean)
 
+## Backlog features — DELIVERED + VERIFIED (2026-07-22)
+
+Built the top of the backlog and tested it on a real free-edition
+UEFI + btrfs install:
+
+- **Snapshot recovery (free)** — VERIFIED end to end. On the installed btrfs
+  system: root is btrfs, `grub-btrfsd` active, first-boot `dagric-snapshot-setup`
+  ran, the apt pre/post snapshot hook is in `/etc/apt/apt.conf.d/`, and
+  `snapper -c root list` shows the automatic "Dagric baseline (first boot)"
+  snapshot. grub-btrfs (GPL-3.0) vendored from pinned upstream v4.14.
+  Caught + fixed a real bug: the first-boot service wasn't enabled because
+  `systemctl enable` in a hook runs before includes.chroot units are copied —
+  now enabled via a direct wants-symlink.
+- **Finish Setup** (dagric-setup) — launcher app for graphics/HP-printer drivers.
+- **First-login NVIDIA offer** (dagric-driver-offer) — GUI offer, autostart.
+- **Security Checkup** (dagric-security-checkup) — Lynis audit + hardening score.
+- Free-edition install run-through: full UEFI+btrfs install completes and boots;
+  the newer free packages (scanner, fwupd, AppArmor, VPN, snapper) don't break it.
+
 ## Still backlog (bigger, future)
 
-- Welcome-page "Finish setting up this PC" one-click (codecs/drivers/printer)
-- First-boot GUI NVIDIA driver offer wrapping dagric-drivers
-- Free rollback: snapper + grub-btrfs (Timeshift GUI stays the Pro step-up)
+- Full break-an-update-and-roll-back-from-GRUB cycle on real hardware (the pieces
+  are verified wired; the end-to-end rollback is a real-HW test)
 - Secure Boot MOK enrollment UX for the driver helper
 - Heroic (Epic/GOG) + ProtonUp-Qt as consent-helpers/Flatpak
 - Verify/surface Calamares LUKS full-disk-encryption
+- OEM first-boot (Calamares OEM mode) + plasma-welcome re-theme
