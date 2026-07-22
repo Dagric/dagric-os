@@ -14,6 +14,9 @@ First release, free and Pro editions.
   from one image), **btrfs default filesystem** (instant Timeshift snapshots;
   ext4 available), branded Plymouth boot splash
 - Dagric Welcome first-run page + offline user guide
+- **Dagric Hub** — one launcher entry gathering every owner tool (setup,
+  drivers, Security Checkup, guide, and the Pro creator/gaming/AI helpers)
+  in a single edition-aware window, plus searchable menu entries for each
 - **Dagric logo throughout** (Zorin-style): branded boot-menu splash, desktop
   wallpaper and login background (D monogram + wordmark), the
   application-launcher button (first-login script, self-healing), the
