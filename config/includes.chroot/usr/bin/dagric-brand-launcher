@@ -1,0 +1,33 @@
+#!/bin/sh
+# Dagric OS — brand the application-launcher button with the Dagric logo, once,
+# on first login. DEFENSIVE: only touches the launcher icon, never the panel
+# layout, and is a safe no-op if the kickoff/kicker applet can't be located.
+AUTOSTART="$HOME/.config/autostart/dagric-brand-launcher.desktop"
+CFG="$HOME/.config/plasma-org.kde.plasma.desktop-appletsrc"
+
+sleep 6                     # let plasmashell finish writing its initial config
+rm -f "$AUTOSTART"          # run exactly once
+[ -f "$CFG" ] || exit 0
+command -v kwriteconfig6 >/dev/null 2>&1 || exit 0
+command -v gawk >/dev/null 2>&1 || exit 0
+
+# Locate the Containments/Applets indices of the launcher applet.
+IDX=$(gawk '
+  match($0, /^\[Containments\]\[([0-9]+)\]\[Applets\]\[([0-9]+)\]$/, a) { n=a[1]; m=a[2] }
+  /^plugin=org\.kde\.plasma\.kickoff$/ || /^plugin=org\.kde\.plasma\.kicker$/ { print n" "m; exit }
+' "$CFG" 2>/dev/null)
+[ -n "$IDX" ] || exit 0
+set -- $IDX
+N="$1"; M="$2"
+
+kwriteconfig6 --file plasma-org.kde.plasma.desktop-appletsrc \
+  --group Containments --group "$N" --group Applets --group "$M" \
+  --group Configuration --group General --key icon dagric-logo 2>/dev/null || exit 0
+
+# Reload the panel so the new launcher icon shows immediately.
+if command -v kquitapp6 >/dev/null 2>&1; then
+    kquitapp6 plasmashell 2>/dev/null || true
+    sleep 1
+    ( kstart plasmashell >/dev/null 2>&1 & ) 2>/dev/null || \
+    ( plasmashell >/dev/null 2>&1 & )
+fi
