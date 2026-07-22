@@ -1,0 +1,71 @@
+# Dagric OS — automated release. Push a version tag (e.g. v1.2) and this
+# builds BOTH editions, checksums them, and publishes a GitHub Release with
+# the ISOs attached. Turns a release into a single `git tag && git push`.
+name: release
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+
+permissions:
+  contents: write   # needed to create the Release
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    strategy:
+      matrix:
+        edition: [free, pro]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build ${{ matrix.edition }} ISO
+        run: |
+          docker build -t dagric-builder docker/
+          mkdir -p out
+          docker run --rm --privileged \
+            -e EDITION=${{ matrix.edition }} \
+            -v "$PWD:/src:ro" -v "$PWD/out:/out" \
+            dagric-builder sh /src/docker/container-build.sh
+
+      - name: Name the ISO per edition
+        run: |
+          VER="${GITHUB_REF_NAME#v}"
+          if [ "${{ matrix.edition }}" = "pro" ]; then
+            mv out/*.iso "out/dagric-os-pro-${VER}-amd64.iso"
+          else
+            mv out/*.iso "out/dagric-os-${VER}-amd64.iso"
+          fi
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: iso-${{ matrix.edition }}
+          path: out/dagric-os-*.iso
+          retention-days: 7
+
+  publish:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: dl
+      - name: Collect + checksum
+        run: |
+          mkdir -p out
+          find dl -name '*.iso' -exec mv {} out/ \;
+          cd out && sha256sum *.iso > SHA256SUMS && cat SHA256SUMS
+      - name: Publish GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            out/*.iso
+            out/SHA256SUMS
+          body: |
+            Dagric OS ${{ github.ref_name }}.
+            Verify downloads against SHA256SUMS. Write to USB with Rufus or
+            Ventoy, boot (prefer the UEFI entry), try the live desktop, then
+            Install Dagric OS. See GETTING-STARTED.md.
+          generate_release_notes: true
