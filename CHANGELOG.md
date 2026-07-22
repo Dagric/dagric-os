@@ -14,6 +14,11 @@ First release, free and Pro editions.
   from one image), **btrfs default filesystem** (instant Timeshift snapshots;
   ext4 available), branded Plymouth boot splash
 - Dagric Welcome first-run page + offline user guide
+- **Dagric logo throughout** (Zorin-style): branded boot-menu splash, desktop
+  wallpaper and login background (D monogram + wordmark), the
+  application-launcher button (first-login script, self-healing), the
+  About-this-System page (`LOGO=` in os-release), and a full hicolor icon set
+  (16–256 px + scalable SVG)
 - Windows-switcher care: NTFS/exFAT drives, 7z, thumbnails, network browsing,
   laptop power profiles, double-click defaults
 
