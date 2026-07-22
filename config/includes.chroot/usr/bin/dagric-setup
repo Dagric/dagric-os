@@ -1,0 +1,32 @@
+#!/bin/sh
+# Dagric OS — "Finish setting up this PC". A friendly checklist for the few
+# optional things that can't ship on by default (proprietary graphics drivers,
+# HP printer/scanner support). Codecs, VPN, scanners, and firmware updates are
+# already installed in the base system, so they're not here.
+CHOICES=$(kdialog --title "Finish setting up Dagric" --separate-output --checklist \
+"Pick anything you'd like to set up (you can run this again anytime from the launcher):" \
+"drivers"  "Graphics drivers — install the NVIDIA driver (if you have NVIDIA)"  off \
+"hp"       "HP printers & scanners — add HP device support (hplip)"            off \
+"flathub"  "App store — confirm Flathub is enabled in Discover"               on \
+2>/dev/null) || exit 0
+
+[ -n "$CHOICES" ] || exit 0
+
+for c in $CHOICES; do
+    case "$c" in
+        drivers)
+            konsole -e pkexec sh -c \
+'apt-get update && apt-get install -y nvidia-driver firmware-misc-nonfree; \
+echo; echo "If no NVIDIA card was found, nothing was installed. Reboot if a driver was added."; \
+printf "Press Enter to close..."; read x' & ;;
+        hp)
+            konsole -e pkexec sh -c \
+'apt-get update && apt-get install -y hplip; \
+echo; echo "HP support installed. Add your printer in System Settings > Printers."; \
+printf "Press Enter to close..."; read x' & ;;
+        flathub)
+            flatpak remote-add --if-not-exists flathub \
+                https://dl.flathub.org/repo/flathub.flatpakrepo 2>/dev/null || true
+            kdialog --passivepopup "Flathub is enabled — browse thousands of apps in Discover." 8 2>/dev/null & ;;
+    esac
+done

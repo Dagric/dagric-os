@@ -1,0 +1,38 @@
+#!/bin/sh
+# Dagric OS — snapshot recovery: vendor grub-btrfs (GPL-3.0) from its pinned
+# upstream release and install its files. We do NOT copy its code into this
+# repo — we install the upstream release verbatim (its LICENSE ships with it),
+# which is GPL-compliant (source at https://github.com/Antynea/grub-btrfs).
+#
+# snapper config + GRUB regeneration happen on FIRST BOOT of the installed
+# system (via dagric-snapshot-setup.service) because the build chroot isn't
+# btrfs — snapper needs the real btrfs root to create a config.
+set -e
+
+GB_VER="4.14"
+GB_SHA="4fe2f8a49b39e3e561fc51bbc5a0f81a7222c1e9ef8672e014e0ba3bedad20c6"
+
+cd /tmp
+if curl -fsSL -o gb.tar.gz \
+    "https://codeload.github.com/Antynea/grub-btrfs/tar.gz/refs/tags/v${GB_VER}"; then
+    if echo "${GB_SHA}  gb.tar.gz" | sha256sum -c - >/dev/null 2>&1; then
+        mkdir gb && tar xzf gb.tar.gz -C gb --strip-components=1
+        cd gb
+        # Exactly what upstream's `make install` does (minus manpages), without
+        # needing `make` in the chroot:
+        install -Dm755 41_snapshots-btrfs      /etc/grub.d/41_snapshots-btrfs
+        install -Dm644 config                  /etc/default/grub-btrfs/config
+        install -Dm744 grub-btrfsd             /usr/bin/grub-btrfsd
+        install -Dm644 grub-btrfsd.service     /usr/lib/systemd/system/grub-btrfsd.service
+        install -Dm644 LICENSE                 /usr/share/doc/grub-btrfs/LICENSE
+        echo "grub-btrfs ${GB_VER} installed"
+    else
+        echo "WARNING: grub-btrfs checksum mismatch — snapshot recovery skipped"
+    fi
+    cd / && rm -rf /tmp/gb /tmp/gb.tar.gz
+else
+    echo "WARNING: grub-btrfs download failed — snapshot recovery unavailable"
+fi
+
+# Run the btrfs snapper setup once, on first boot of the installed system.
+systemctl enable dagric-snapshot-setup.service 2>/dev/null || true

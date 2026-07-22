@@ -112,6 +112,17 @@ gdebi
 # Compressed swap — snappier on low-RAM machines
 zram-tools
 
+# Snapshot recovery (free): snapper takes automatic pre-update snapshots of the
+# btrfs root; grub-btrfs (vendored in 0800 hook) exposes them in the boot menu
+# so a broken update can be rolled back from GRUB. inotify-tools drives the
+# grub-btrfs daemon; gawk is its generator dependency. (Pro keeps Timeshift's
+# scheduled GUI as the step-up.) kdialog/notify power the setup helpers.
+snapper
+inotify-tools
+gawk
+kdialog
+libnotify-bin
+
 # Branded boot splash (theme in /usr/share/plymouth/themes/dagric)
 plymouth
 plymouth-themes

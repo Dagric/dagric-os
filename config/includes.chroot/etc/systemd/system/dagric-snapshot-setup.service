@@ -1,0 +1,13 @@
+[Unit]
+Description=Dagric one-time snapshot-recovery setup (first boot, btrfs only)
+After=multi-user.target
+ConditionPathExists=!/var/lib/dagric/snapshot-setup-done
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/dagric-snapshot-setup
+ExecStartPost=/bin/sh -c 'mkdir -p /var/lib/dagric && touch /var/lib/dagric/snapshot-setup-done'
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target

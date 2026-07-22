@@ -1,0 +1,46 @@
+#!/bin/sh
+# Dagric OS — one-time snapshot-recovery setup, run on first boot of an
+# INSTALLED system. Only does anything on a btrfs root (recovery is btrfs-only);
+# on ext4 installs it disables itself and exits cleanly.
+set -e
+
+ROOTFS=$(findmnt -no FSTYPE / 2>/dev/null || echo "")
+if [ "$ROOTFS" != "btrfs" ]; then
+    echo "Root is $ROOTFS, not btrfs — snapshot recovery not applicable."
+    exit 0
+fi
+
+# Snapper config for the root subvolume (idempotent).
+if ! snapper -c root list >/dev/null 2>&1; then
+    snapper -c root create-config / || { echo "snapper create-config failed"; exit 0; }
+fi
+
+# Sensible desktop retention: no noisy hourly timeline, keep the last handful
+# of update snapshots.
+snapper -c root set-config \
+    TIMELINE_CREATE=no \
+    NUMBER_CLEANUP=yes \
+    NUMBER_MIN_AGE=1800 \
+    NUMBER_LIMIT=10 \
+    NUMBER_LIMIT_IMPORTANT=5 2>/dev/null || true
+
+# Snapshot the system before and after every apt/dpkg run, so a bad update is
+# always recoverable.
+cat > /etc/apt/apt.conf.d/80dagric-snapshot << 'EOF'
+DPkg::Pre-Invoke  { "if command -v snapper >/dev/null 2>&1 && findmnt -no FSTYPE / | grep -q btrfs; then snapper -c root create -d 'apt (pre)' -t pre -p > /run/dagric-snap-pre 2>/dev/null || true; fi"; };
+DPkg::Post-Invoke { "if command -v snapper >/dev/null 2>&1 && [ -s /run/dagric-snap-pre ]; then snapper -c root create -d 'apt (post)' -t post --pre-number \"$(cat /run/dagric-snap-pre)\" >/dev/null 2>&1 || true; rm -f /run/dagric-snap-pre; fi"; };
+EOF
+
+# grub-btrfs daemon: auto-refresh the GRUB snapshot submenu when snapshots
+# change. Then generate GRUB now so the menu is populated immediately.
+systemctl enable --now grub-btrfsd.service 2>/dev/null || true
+if command -v update-grub >/dev/null 2>&1; then
+    update-grub 2>/dev/null || true
+else
+    grub-mkconfig -o /boot/grub/grub.cfg 2>/dev/null || true
+fi
+
+# A clean baseline to roll back to.
+snapper -c root create -d 'Dagric baseline (first boot)' 2>/dev/null || true
+
+echo "Snapshot recovery configured."

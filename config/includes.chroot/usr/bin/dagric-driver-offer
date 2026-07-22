@@ -1,0 +1,24 @@
+#!/bin/sh
+# Dagric OS — first-login NVIDIA driver offer. Runs once (removes its own
+# autostart), only prompts if an NVIDIA GPU is present and no driver is
+# installed yet. Turns the CLI `dagric-drivers` into a friendly GUI offer.
+rm -f "$HOME/.config/autostart/dagric-driver-offer.desktop"
+sleep 8   # let the desktop settle before popping a dialog
+
+command -v lspci >/dev/null 2>&1 || exit 0
+lspci 2>/dev/null | grep -qiE 'vga.*nvidia|3d.*nvidia' || exit 0
+dpkg -s nvidia-driver >/dev/null 2>&1 && exit 0
+
+if kdialog --title "NVIDIA graphics detected" --yesno \
+"Dagric found an NVIDIA graphics card.
+
+Install the NVIDIA proprietary driver now for the best performance and
+battery life?
+
+You can always do this later — search 'Finish Setup' in the launcher, or
+run 'sudo dagric-drivers' in a terminal." 2>/dev/null; then
+    konsole -e pkexec sh -c \
+'apt-get update && apt-get install -y nvidia-driver firmware-misc-nonfree; \
+echo; echo "Done. Reboot to switch to the NVIDIA driver."; \
+printf "Press Enter to close..."; read x' &
+fi
