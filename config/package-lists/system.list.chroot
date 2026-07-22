@@ -12,6 +12,11 @@ linux-image-amd64
 # Networking
 network-manager
 wireless-regdb
+# VPN import — a privacy-first OS that can't open a WireGuard/OpenVPN config
+# undercuts its own pitch. WireGuard is kernel-native; these add the applet
+# handlers. (Found by test review: import silently failed.)
+network-manager-openvpn
+network-manager-openconnect
 
 # Audio — PipeWire only, no PulseAudio daemon
 pipewire
@@ -19,8 +24,23 @@ pipewire-pulse
 pipewire-audio
 wireplumber
 
-# Printing
+# Printing — cups alone doesn't cover most hardware. Gutenprint drives the
+# majority of inkjets/lasers, ipp-usb gives driverless modern printers,
+# cups-filters is the print pipeline. (Found by test review: printing was
+# under-provisioned.) HP all-in-ones still want hplip via the welcome helper.
 cups
+cups-filters
+printer-driver-gutenprint
+ipp-usb
+
+# Scanners — a print-only distro that can't scan reads as broken to anyone
+# with an all-in-one. SANE backend + a simple KDE scan app.
+sane-utils
+skanlite
+
+# Firmware updates (LVFS) — Discover already surfaces these; the backend
+# was missing. Matters for a distro sold to run on real hardware.
+fwupd
 
 # Locales — without this, every terminal shows locale warnings
 # (found by the install run-through test)
@@ -50,6 +70,20 @@ flatpak
 fonts-noto-core
 fonts-noto-color-emoji
 fonts-liberation
+# Metric-compatible with Calibri/Cambria so .docx/.xlsx from MS Office open
+# in LibreOffice without layout reflow. Tiny; huge fidelity win.
+# (Full CJK international fonts are a Pro add — keeps free lean.)
+fonts-crosextra-carlito
+fonts-crosextra-caladea
+
+# Multimedia codecs — mpv bundles ffmpeg for local files, but Plasma/Qt and
+# GStreamer apps need these for web/embedded media to play with sound.
+libavcodec-extra
+gstreamer1.0-plugins-good
+gstreamer1.0-plugins-bad
+gstreamer1.0-plugins-ugly
+gstreamer1.0-libav
+gstreamer1.0-vaapi
 
 # Compressed swap — snappier on low-RAM machines
 zram-tools
@@ -58,11 +92,18 @@ zram-tools
 plymouth
 plymouth-themes
 
+# Laptop hardware: fingerprint login (standard on business laptops) and
+# Intel thermal management (quieter, cooler under load).
+fprintd
+libpam-fprintd
+thermald
+
 # Quality of life
 bash-completion
 less
 nano
 curl
+plocate
 # lspci — hardware detection (the dagric-drivers helper depends on it;
 # found by code review: it was never installed)
 pciutils

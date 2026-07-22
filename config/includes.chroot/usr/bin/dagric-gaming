@@ -19,7 +19,13 @@ printf "Download the latest Proton-GE from GitHub? [y/N] "
 read -r answer
 case "$answer" in y|Y) ;; *) echo "Nothing changed."; exit 0 ;; esac
 
-DEST="$HOME/.steam/root/compatibilitytools.d"
+# Use the real Steam data dir, not ~/.steam/root (a symlink Steam creates
+# on first launch — mkdir'ing it there can collide with Steam's own setup).
+DEST="$HOME/.local/share/Steam/compatibilitytools.d"
+if [ ! -d "$HOME/.local/share/Steam" ]; then
+    echo "Steam data dir not found. Launch Steam once first, then re-run this."
+    exit 1
+fi
 mkdir -p "$DEST"
 URL=$(curl -fsSL https://api.github.com/repos/GloriousEggroll/proton-ge-custom/releases/latest \
       | grep browser_download_url | grep '\.tar\.gz"' | head -1 | cut -d '"' -f 4)
