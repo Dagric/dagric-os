@@ -33,6 +33,14 @@ fi
 firewall-offline-cmd --zone=public --add-service=kdeconnect 2>/dev/null || \
     echo "WARNING: could not preopen KDE Connect ports"
 
+# Security Suite (Pro): OpenSnitch runs in monitor mode (permissive default
+# config shipped in includes.chroot) so it never breaks connectivity out of
+# the box; the owner opts into blocking from the GUI. USBGuard is installed
+# but its service stays DISABLED — enabling it would block an unknown USB
+# keyboard; it's surfaced as an opt-in toggle instead.
+systemctl disable usbguard.service 2>/dev/null || true
+systemctl enable opensnitch.service 2>/dev/null || true
+
 # Pro look: Papirus icons by default for new users
 if ! grep -q '^\[Icons\]' /etc/skel/.config/kdeglobals 2>/dev/null; then
     printf '\n[Icons]\nTheme=Papirus-Dark\n' >> /etc/skel/.config/kdeglobals

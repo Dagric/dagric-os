@@ -1,0 +1,17 @@
+# Dagric OS Pro — Security Suite
+# (Pro-only; removed for free builds. Free keeps the strong baseline:
+# AppArmor, hardened kernel, firewalld, Lynis audit.)
+
+# OpenSnitch — interactive per-application outbound firewall (Linux's
+# "Little Snitch"). Ships in monitor/permissive mode by default so it never
+# breaks connectivity or storms prompts; the user opts into blocking from the
+# GUI. eBPF modules must match Debian's kernel — this pulls the matching set.
+opensnitch
+python3-opensnitch-ui
+opensnitch-ebpf-modules
+
+# USBGuard — USB device authorization (blocks BadUSB / USB-drop attacks).
+# Installed but the service is NOT enabled by default (enabling it would block
+# an unknown USB keyboard). Surfaced as an opt-in "Lock down USB ports" toggle.
+usbguard
+usbguard-notifier

@@ -73,6 +73,14 @@ apparmor
 apparmor-profiles
 apparmor-profiles-extra
 apparmor-utils
+# Lynis — on-demand security audit with a hardening score. A "Security
+# Checkup" a non-expert can run and understand. (Pro adds proactive
+# monitoring; this baseline audit is for everyone.)
+lynis
+
+# Kup — KDE-native, no-config scheduled backup in System Settings, for
+# non-technical users. (Pro keeps Vorta/Borg for encrypted/deduplicated repos.)
+kup-backup
 
 # App distribution
 flatpak
