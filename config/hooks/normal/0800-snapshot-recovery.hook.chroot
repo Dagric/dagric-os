@@ -34,5 +34,10 @@ else
     echo "WARNING: grub-btrfs download failed — snapshot recovery unavailable"
 fi
 
-# Run the btrfs snapper setup once, on first boot of the installed system.
-systemctl enable dagric-snapshot-setup.service 2>/dev/null || true
+# Enable the first-boot setup service. Its unit comes from includes.chroot,
+# which live-build copies AFTER hooks run — so `systemctl enable` here would
+# find no unit yet. Instead create the wants-symlink directly; it's a dangling
+# link until the unit file lands, which systemd resolves fine at boot.
+mkdir -p /etc/systemd/system/multi-user.target.wants
+ln -sf /etc/systemd/system/dagric-snapshot-setup.service \
+    /etc/systemd/system/multi-user.target.wants/dagric-snapshot-setup.service
