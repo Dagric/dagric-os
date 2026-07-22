@@ -1,33 +1,85 @@
 #!/bin/sh
-# Dagric OS — brand the application-launcher button with the Dagric logo, once,
-# on first login. DEFENSIVE: only touches the launcher icon, never the panel
-# layout, and is a safe no-op if the kickoff/kicker applet can't be located.
+# Dagric OS — brand the application-launcher button with the Dagric logo on
+# first login. DEFENSIVE: only touches the launcher icon, never the panel
+# layout. Self-healing — it waits for plasmashell to write its applet config
+# and, if the launcher can't be found this session, leaves its autostart entry
+# in place so the next login tries again instead of silently giving up.
+#
+# ORDERING MATTERS: plasmashell keeps applet config in memory and flushes it to
+# disk when it exits. So we must QUIT plasmashell BEFORE writing the icon key —
+# otherwise its exit-flush clobbers our change and the button reverts to the
+# stock kickoff icon. Sequence: locate applet -> quit shell -> write -> relaunch.
 AUTOSTART="$HOME/.config/autostart/dagric-brand-launcher.desktop"
 CFG="$HOME/.config/plasma-org.kde.plasma.desktop-appletsrc"
 
-sleep 6                     # let plasmashell finish writing its initial config
-rm -f "$AUTOSTART"          # run exactly once
-[ -f "$CFG" ] || exit 0
 command -v kwriteconfig6 >/dev/null 2>&1 || exit 0
 command -v gawk >/dev/null 2>&1 || exit 0
 
-# Locate the Containments/Applets indices of the launcher applet.
-IDX=$(gawk '
-  match($0, /^\[Containments\]\[([0-9]+)\]\[Applets\]\[([0-9]+)\]$/, a) { n=a[1]; m=a[2] }
-  /^plugin=org\.kde\.plasma\.kickoff$/ || /^plugin=org\.kde\.plasma\.kicker$/ { print n" "m; exit }
-' "$CFG" 2>/dev/null)
-[ -n "$IDX" ] || exit 0
-set -- $IDX
-N="$1"; M="$2"
+# Wait up to ~60s for plasmashell to write its applet config AND for it to
+# contain a kickoff/kicker launcher applet. plasmashell writes this file
+# lazily after the session settles, so a fixed short sleep races against it.
+find_applet() {
+    [ -f "$CFG" ] || return 1
+    gawk '
+      match($0, /^\[Containments\]\[([0-9]+)\]\[Applets\]\[([0-9]+)\]$/, a) { n=a[1]; m=a[2] }
+      /^plugin=org\.kde\.plasma\.kickoff$/ || /^plugin=org\.kde\.plasma\.kicker$/ { print n" "m; exit }
+    ' "$CFG" 2>/dev/null
+}
 
-kwriteconfig6 --file plasma-org.kde.plasma.desktop-appletsrc \
+N=""; M=""
+i=0
+while [ "$i" -lt 60 ]; do
+    IDX=$(find_applet)
+    if [ -n "$IDX" ]; then
+        set -- $IDX
+        N="$1"; M="$2"
+        break
+    fi
+    i=$((i + 1))
+    sleep 1
+done
+
+# Launcher not found this session — keep the autostart entry so the next login
+# retries. Better a delayed brand than a permanent silent no-op.
+[ -n "$N" ] && [ -n "$M" ] || exit 0
+
+# Already branded (e.g. a prior login succeeded)? Then just retire and stop.
+CUR=$(kreadconfig6 --file plasma-org.kde.plasma.desktop-appletsrc \
   --group Containments --group "$N" --group Applets --group "$M" \
-  --group Configuration --group General --key icon dagric-logo 2>/dev/null || exit 0
+  --group Configuration --group General --key icon 2>/dev/null)
+if [ "$CUR" = "dagric-logo" ]; then
+    rm -f "$AUTOSTART"
+    exit 0
+fi
 
-# Reload the panel so the new launcher icon shows immediately.
+# 1) Stop plasmashell FIRST so it flushes its in-memory config and stops
+#    writing to the appletsrc — otherwise its exit-flush overwrites our change.
 if command -v kquitapp6 >/dev/null 2>&1; then
     kquitapp6 plasmashell 2>/dev/null || true
-    sleep 1
-    ( kstart plasmashell >/dev/null 2>&1 & ) 2>/dev/null || \
+fi
+# Wait for the process to actually exit (up to ~8s) so the file is quiescent.
+j=0
+while [ "$j" -lt 8 ] && pgrep -x plasmashell >/dev/null 2>&1; do
+    j=$((j + 1)); sleep 1
+done
+pgrep -x plasmashell >/dev/null 2>&1 && { kill "$(pgrep -x plasmashell)" 2>/dev/null; sleep 1; }
+
+# 2) Now the file is ours to edit safely.
+kwriteconfig6 --file plasma-org.kde.plasma.desktop-appletsrc \
+  --group Containments --group "$N" --group Applets --group "$M" \
+  --group Configuration --group General --key icon dagric-logo 2>/dev/null
+
+# 3) Relaunch plasmashell — it reads the freshly branded config on start.
+if command -v kstart >/dev/null 2>&1; then
+    ( kstart plasmashell >/dev/null 2>&1 & ) 2>/dev/null
+else
     ( plasmashell >/dev/null 2>&1 & )
 fi
+
+# Confirm the write actually stuck before retiring the autostart; if it didn't,
+# leave the autostart so the next login tries again.
+sleep 2
+VERIFY=$(kreadconfig6 --file plasma-org.kde.plasma.desktop-appletsrc \
+  --group Containments --group "$N" --group Applets --group "$M" \
+  --group Configuration --group General --key icon 2>/dev/null)
+[ "$VERIFY" = "dagric-logo" ] && rm -f "$AUTOSTART"
