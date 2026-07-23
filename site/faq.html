@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FAQ — Dagric OS</title>
+<meta name="description" content="Frequently asked questions about Dagric OS — pricing, privacy, Windows apps, installation, Pro delivery, and refunds.">
+<link rel="icon" type="image/png" href="assets/dagric-logo.png">
+<link rel="stylesheet" href="assets/site.css">
+<style>
+details{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:18px 22px;margin-top:12px}
+details summary{cursor:pointer;font-weight:700;list-style:none;color:var(--text)}
+details summary::-webkit-details-marker{display:none}
+details summary::after{content:"+";float:right;color:var(--accent);font-weight:800}
+details[open] summary::after{content:"–"}
+details p{color:var(--muted);margin-top:10px;font-size:.97rem}
+h2{margin-top:44px}
+</style>
+</head>
+<body>
+<nav><div class="nav-in">
+  <a class="brand" href="/"><img src="assets/dagric-logo.png" alt="">Dagric&nbsp;OS</a>
+  <div class="nav-links">
+    <a href="/features">Features</a><a href="/pro">Pro</a><a href="/news">News</a>
+    <a href="/getting-started">Guide</a><a href="/support">Support</a>
+    <a class="cta" href="/download">Download</a>
+  </div>
+</div></nav>
+
+<main>
+  <h1>Questions, <span class="grad">answered.</span></h1>
+  <p class="lead">Everything people ask before (and after) switching. Something missing?
+  <a href="/contact">Ask us directly</a>.</p>
+
+  <h2>The basics</h2>
+  <details><summary>Is Dagric OS really free?</summary><p>Yes. The free edition is a complete,
+  private, hardened desktop — free forever, no strings, no account. Pro adds the creative, gaming,
+  developer, and Windows-app suites for a one-time $39.</p></details>
+  <details><summary>Can I try it without installing anything?</summary><p>Yes — every ISO is also
+  a live system. Boot it from a USB stick and use the full desktop without touching your disk;
+  install only when you're ready. The <a href="/getting-started">guide</a> shows you how.</p></details>
+  <details><summary>Will it run on my computer?</summary><p>Any 64-bit PC from roughly 2012
+  onward with 4 GB of RAM (8 GB recommended) and 25–40 GB of disk. UEFI with Secure Boot and older
+  BIOS machines both work. It runs beautifully on hardware Windows 10's end-of-support left
+  behind.</p></details>
+  <details><summary>Can I keep Windows and dual-boot?</summary><p>Yes — choose <em>Install
+  alongside</em> in the installer and pick how much space each system gets. At startup you choose
+  which to boot.</p></details>
+
+  <h2>Coming from Windows</h2>
+  <details><summary>Will my files and drives work?</summary><p>Yes. NTFS and exFAT drives mount
+  out of the box, and your documents open with matching Office-metric fonts so the layout holds.
+  Copy your files over whenever you're ready.</p></details>
+  <details><summary>Can I run Windows programs?</summary><p>Many, yes — on Pro, via
+  <strong>Bottles</strong> and Wine (one click from the Dagric Hub). Compatibility varies by app;
+  for the rest, the web version in Firefox usually covers it. Steam games run through Proton with
+  excellent results.</p></details>
+  <details><summary>Does streaming work — Netflix, Spotify, YouTube?</summary><p>Yes, out of the
+  box in Firefox, DRM included. Media codecs for local files are preinstalled too.</p></details>
+  <details><summary>Will my printer and scanner work?</summary><p>Almost certainly — modern
+  driverless printing and scanning work out of the box, plus a huge driver library and
+  Print-to-PDF. HP all-in-ones get one-click setup in the Hub.</p></details>
+
+  <h2>Privacy &amp; security</h2>
+  <details><summary>What data does Dagric OS collect?</summary><p>None. There is no telemetry,
+  no analytics, no crash reporting to us, no accounts, and no advertising ID. Nothing phones home —
+  there's nothing to turn off. Details in the <a href="/privacy">privacy policy</a>.</p></details>
+  <details><summary>How is it secure out of the box?</summary><p>AppArmor confinement enforced, a
+  hardened kernel configuration, a firewall that's on, silently-installing security updates, and
+  GPG-signed releases. Run the built-in <strong>Security Checkup</strong> to see your hardening
+  score anytime.</p></details>
+  <details><summary>What if an update breaks something?</summary><p>Dagric snapshots the system
+  before updates. Reboot, pick <em>Dagric snapshots</em> in the boot menu, choose the moment before
+  the update, and you're back — files intact.</p></details>
+
+  <h2>Dagric OS Pro</h2>
+  <details><summary>Is Pro a subscription?</summary><p>No. $39, once. No license server, no
+  activation, no expiry. Install it on the machines you own, keep it forever, updates included.</p></details>
+  <details><summary>How do I get Pro after paying?</summary><p>Checkout finishes on your personal
+  download page — bookmark it. The same link re-downloads anytime and resumes interrupted
+  downloads. It's also linked from your Stripe receipt.</p></details>
+  <details><summary>What if I buy Pro and don't like it?</summary><p>Reply to your Stripe receipt
+  within <strong>14 days</strong> and we refund in full — no quiz, no hoops.
+  Details in the <a href="/terms">terms</a>.</p></details>
+  <details><summary>Can I upgrade a free install to Pro?</summary><p>The current path is
+  installing the Pro ISO (keep your files on a separate partition or back them up). An in-place
+  upgrade tool is on the roadmap.</p></details>
+
+  <h2>The project</h2>
+  <details><summary>Is the software open source?</summary><p>Yes — Dagric OS is built from
+  open-source software on a Debian base, and we never bundle proprietary software. Optional
+  extras (Steam, NVIDIA driver, DaVinci Resolve) install only when you ask. See
+  <a href="/licenses">licenses</a>.</p></details>
+  <details><summary>What am I paying for, if it's open source?</summary><p>The work: curation,
+  integration, hardening, testing, packaging, and support — turning thousands of parts into one
+  finished, coherent product. The parts are free; the craftsmanship is what you buy.</p></details>
+  <details><summary>How do I verify my download is genuine?</summary><p>Every release ships
+  SHA-256 checksums signed with our GPG key — the <a href="/download">download page</a> has the
+  three files and the two commands.</p></details>
+
+  <p style="margin-top:40px">Still stuck? <a class="btn primary" href="/contact">Contact us</a></p>
+</main>
+
+<footer><div class="foot">
+  <span>© 2026 DGR Operations · Built on Debian. Not affiliated with the Debian Project.</span>
+  <span class="links"><a href="/features">Features</a><a href="/pro">Pro</a><a href="/download">Download</a><a href="/news">News</a><a href="/getting-started">Guide</a><a href="/support">Support</a><a href="/faq">FAQ</a><a href="/contact">Contact</a><a href="/about">About</a><a href="/licenses">Licenses</a><a href="/privacy">Privacy</a><a href="/terms">Terms</a></span>
+</div></footer>
+</body>
+</html>

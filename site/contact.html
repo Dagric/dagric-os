@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Contact — Dagric OS</title>
+<meta name="description" content="Get in touch with the Dagric OS team — support, refunds, business, or anything else.">
+<link rel="icon" type="image/png" href="assets/dagric-logo.png">
+<link rel="stylesheet" href="assets/site.css">
+<style>
+form{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:30px 34px;margin-top:26px}
+label{display:block;font-weight:700;margin:18px 0 6px;color:var(--text)}
+input,select,textarea{width:100%;background:#0a1420;border:1px solid var(--line);border-radius:10px;
+  padding:12px 14px;color:var(--text);font:inherit}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--accent)}
+textarea{min-height:160px;resize:vertical}
+button{margin-top:22px;padding:14px 34px;border-radius:999px;font-weight:700;font-size:1rem;
+  border:none;color:#fff;background:var(--grad);cursor:pointer;box-shadow:0 8px 30px rgba(63,169,245,.35)}
+button:disabled{opacity:.6;cursor:wait}
+.hp{position:absolute;left:-9999px;opacity:0;height:0;overflow:hidden}
+#status{margin-top:16px;font-weight:600}
+#status.ok{color:var(--good)}
+#status.err{color:#f87171}
+</style>
+</head>
+<body>
+<nav><div class="nav-in">
+  <a class="brand" href="/"><img src="assets/dagric-logo.png" alt="">Dagric&nbsp;OS</a>
+  <div class="nav-links">
+    <a href="/features">Features</a><a href="/pro">Pro</a><a href="/news">News</a>
+    <a href="/getting-started">Guide</a><a href="/support">Support</a>
+    <a class="cta" href="/download">Download</a>
+  </div>
+</div></nav>
+
+<main>
+  <h1>Talk to <span class="grad">a human.</span></h1>
+  <p class="lead">Support question, refund, business inquiry, or just a thought — write it below
+  and it lands directly with us. We read everything.</p>
+
+  <div class="note"><strong>Bought Pro?</strong> Replying to your Stripe receipt also reaches us
+  and attaches your purchase details automatically — that's the fastest route for order and
+  refund questions.</div>
+
+  <form id="cform" novalidate>
+    <label for="topic">What's it about?</label>
+    <select id="topic" name="topic">
+      <option value="support">Help with Dagric OS</option>
+      <option value="order">My Pro order or a refund</option>
+      <option value="bug">A bug report</option>
+      <option value="business">Business / press</option>
+      <option value="general">Something else</option>
+    </select>
+
+    <label for="name">Your name <span style="color:var(--muted);font-weight:400">(optional)</span></label>
+    <input id="name" name="name" maxlength="120" autocomplete="name">
+
+    <label for="email">Your email <span style="color:var(--muted);font-weight:400">(so we can reply)</span></label>
+    <input id="email" name="email" type="email" maxlength="200" autocomplete="email">
+
+    <label for="message">Your message</label>
+    <textarea id="message" name="message" maxlength="5000" required
+      placeholder="What were you doing, what happened? For system questions, pasting the output of:   cat /etc/os-release   helps us know your exact build."></textarea>
+
+    <div class="hp"><label>Website<input name="website" tabindex="-1" autocomplete="off"></label></div>
+
+    <button id="send" type="submit">Send message</button>
+    <div id="status" role="status"></div>
+  </form>
+</main>
+
+<footer><div class="foot">
+  <span>© 2026 DGR Operations · Built on Debian. Not affiliated with the Debian Project.</span>
+  <span class="links"><a href="/features">Features</a><a href="/pro">Pro</a><a href="/download">Download</a><a href="/news">News</a><a href="/getting-started">Guide</a><a href="/support">Support</a><a href="/faq">FAQ</a><a href="/contact">Contact</a><a href="/about">About</a><a href="/licenses">Licenses</a><a href="/privacy">Privacy</a><a href="/terms">Terms</a></span>
+</div></footer>
+
+<script>
+document.getElementById("cform").addEventListener("submit", async function (e) {
+  e.preventDefault();
+  var f = e.target, s = document.getElementById("status"), b = document.getElementById("send");
+  var msg = f.message.value.trim();
+  if (msg.length < 10) { s.className = "err"; s.textContent = "Please write a little more so we can help."; return; }
+  b.disabled = true; s.className = ""; s.textContent = "Sending…";
+  try {
+    var r = await fetch("https://dagric-contact.dagric.workers.dev/", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        topic: f.topic.value, name: f.name.value, email: f.email.value,
+        message: msg, website: f.website.value
+      })
+    });
+    var j = await r.json();
+    if (j.ok) { s.className = "ok"; s.textContent = "Sent — thank you. If you left an email, we'll reply there."; f.reset(); }
+    else { s.className = "err"; s.textContent = j.error || "Something went wrong — please try again."; }
+  } catch (err) {
+    s.className = "err"; s.textContent = "Couldn't reach the server — check your connection and try again.";
+  }
+  b.disabled = false;
+});
+</script>
+</body>
+</html>
