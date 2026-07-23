@@ -17,6 +17,11 @@ First release, free and Pro editions.
 - **Dagric Hub** — one launcher entry gathering every owner tool (setup,
   drivers, Security Checkup, guide, and the Pro creator/gaming/AI helpers)
   in a single edition-aware window, plus searchable menu entries for each
+- Accessibility now functional: Orca ships with its speech backend
+  (espeak-ng), not mute
+- Steam is a one-click consent install (Dagric Hub), never bundled
+- Print-to-PDF, L2TP/IPsec VPN, and (Pro) Google Drive in Dolphin
+- Pro gaming: Heroic (Epic/GOG/Amazon) and ProtonUp-Qt one-click helpers
 - **Dagric logo throughout** (Zorin-style): branded boot-menu splash, desktop
   wallpaper and login background (D monogram + wordmark), the
   application-launcher button (first-login script, self-healing), the
