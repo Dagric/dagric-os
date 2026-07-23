@@ -14,9 +14,12 @@ set -- \
     guide    "Welcome & User Guide"
 if [ "$EDITION" = "pro" ]; then
     set -- "$@" \
-        gaming  "Gaming setup — install Proton-GE for Steam" \
-        ai      "Local AI — install Ollama (runs on your hardware)" \
-        resolve "DaVinci Resolve — guided install"
+        steam    "Install Steam (Valve's game store)" \
+        heroic   "Install Heroic (Epic / GOG / Amazon games)" \
+        protonup "Install ProtonUp-Qt (manage Proton/Wine versions)" \
+        gaming   "Gaming extras — install Proton-GE for Steam" \
+        ai       "Local AI — install Ollama (runs on your hardware)" \
+        resolve  "DaVinci Resolve — guided install"
 fi
 
 CHOICE=$(kdialog --title "Dagric Hub" --icon dagric-logo \
@@ -33,6 +36,9 @@ case "$CHOICE" in
     security) dagric-security-checkup & ;;
     guide)    exec firefox file:///usr/share/dagric/welcome/index.html ;;
     drivers)  run_term 'pkexec /usr/bin/dagric-drivers' ;;
+    steam)    run_term '/usr/bin/dagric-get-steam' ;;
+    heroic)   run_term '/usr/bin/dagric-get-heroic' ;;
+    protonup) run_term '/usr/bin/dagric-get-protonup' ;;
     gaming)   run_term '/usr/bin/dagric-gaming' ;;
     ai)       run_term '/usr/bin/dagric-ai' ;;
     resolve)  run_term '/usr/bin/dagric-get-resolve' ;;

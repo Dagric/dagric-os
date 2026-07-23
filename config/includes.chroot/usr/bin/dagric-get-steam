@@ -1,0 +1,39 @@
+#!/bin/sh
+# Dagric OS — install Steam, on the owner's request.
+# Steam's installer (steam-installer) is in Debian's non-free section and
+# carries Valve's Subscriber Agreement, so Dagric never bundles it. This
+# installs it only when you ask — the same honest, user-consented pattern as
+# the NVIDIA driver and DaVinci Resolve helpers. The 32-bit libraries Steam
+# needs (i386 multiarch, Wine32, 32-bit Vulkan) are already in place on Pro,
+# so this is a quick download.
+cat << 'EOF'
+Dagric — install Steam
+
+Steam is Valve's proprietary game store and launcher. Dagric doesn't ship it
+preinstalled (its licence forbids anyone bundling it), but installing it is one
+step. Everything it depends on is already set up on Dagric Pro.
+
+You'll be asked for your administrator password, then Steam downloads and
+installs. Afterwards, launch "Steam" from the application launcher.
+EOF
+
+printf '\nInstall Steam now? [y/N] '
+read ans
+case "$ans" in
+    y|Y|yes|YES) ;;
+    *) echo "No changes made."; exit 0 ;;
+esac
+
+# steam-installer pulls the rest of its i386 deps; multiarch was enabled at
+# build time on Pro. Run under pkexec so this works when launched from the GUI.
+pkexec sh -c 'dpkg --add-architecture i386 && apt-get update && apt-get install -y steam-installer'
+RC=$?
+if [ "$RC" -eq 0 ]; then
+    echo
+    echo "Steam installed. Launch it from the application launcher; on first"
+    echo "run it finishes updating itself."
+else
+    echo
+    echo "Steam installation did not complete (exit $RC). You can retry from"
+    echo "the Dagric Hub, or check your network connection."
+fi

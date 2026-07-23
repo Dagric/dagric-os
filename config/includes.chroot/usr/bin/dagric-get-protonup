@@ -1,0 +1,24 @@
+#!/bin/sh
+# Dagric OS — install ProtonUp-Qt, on request.
+# ProtonUp-Qt (GPL-3.0) is a GUI for installing and managing Proton-GE / Wine-GE
+# compatibility versions for Steam and Lutris — a friendlier alternative to the
+# CLI `dagric-gaming` helper. Installed from Flathub as a per-user Flatpak.
+cat << 'EOF'
+Dagric — install ProtonUp-Qt
+
+ProtonUp-Qt is a free, open-source app for installing and switching between
+Proton-GE and Wine-GE versions for Steam and Lutris — no terminal needed.
+It installs from Flathub.
+EOF
+
+printf '\nInstall ProtonUp-Qt now? [y/N] '
+read ans
+case "$ans" in y|Y|yes|YES) ;; *) echo "No changes made."; exit 0 ;; esac
+
+flatpak remote-add --if-not-exists flathub \
+    https://dl.flathub.org/repo/flathub.flatpakrepo 2>/dev/null || true
+if flatpak install -y --noninteractive flathub net.davidotek.pupgui2; then
+    echo; echo "ProtonUp-Qt installed — launch it from the application launcher."
+else
+    echo; echo "Install did not complete. Check your network and try again."
+fi

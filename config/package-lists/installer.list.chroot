@@ -34,3 +34,8 @@ parted
 # btrfs is the default install filesystem (instant Timeshift/rollback
 # snapshots); the installed system needs the tools
 btrfs-progs
+# Full-disk encryption: cryptsetup (userspace) is already pulled in, but the
+# initramfs integration is what actually UNLOCKS an encrypted root at boot.
+# Without it a LUKS install boots to a dead prompt. Required for the Calamares
+# "Encrypt system" option to produce a bootable machine.
+cryptsetup-initramfs

@@ -48,8 +48,13 @@ plasma-systemmonitor
 
 # Accessibility — a screen reader is a legal procurement requirement in many
 # markets (EU EN 301 549, US Section 508); without it the OS can't be sold
-# to institutions and is unusable for blind users.
+# to institutions and is unusable for blind users. Orca is MUTE without a
+# speech backend: speech-dispatcher + the espeak-ng voice are Recommends, and
+# --apt-recommends false drops them — verified absent in the built image, so
+# the accessibility claim was non-functional. Pin them explicitly.
 orca
+speech-dispatcher-espeak-ng
+espeak-ng
 
 # Disk/power plumbing the desktop expects
 udisks2

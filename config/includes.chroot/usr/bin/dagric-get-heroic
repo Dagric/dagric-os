@@ -1,0 +1,23 @@
+#!/bin/sh
+# Dagric OS — install Heroic Games Launcher, on request.
+# Heroic (GPL-3.0) is the open-source launcher for Epic Games, GOG, and
+# Amazon Prime Gaming libraries — the natural companion to Steam on Pro.
+# Installed from the already-enabled Flathub as a per-user Flatpak (no root).
+cat << 'EOF'
+Dagric — install Heroic Games Launcher
+
+Heroic is a free, open-source launcher for your Epic Games, GOG, and Amazon
+Prime Gaming libraries, with Proton/Wine built in. It installs from Flathub.
+EOF
+
+printf '\nInstall Heroic now? [y/N] '
+read ans
+case "$ans" in y|Y|yes|YES) ;; *) echo "No changes made."; exit 0 ;; esac
+
+flatpak remote-add --if-not-exists flathub \
+    https://dl.flathub.org/repo/flathub.flatpakrepo 2>/dev/null || true
+if flatpak install -y --noninteractive flathub com.heroicgameslauncher.hgl; then
+    echo; echo "Heroic installed — launch it from the application launcher."
+else
+    echo; echo "Install did not complete. Check your network and try again."
+fi

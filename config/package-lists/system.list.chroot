@@ -17,6 +17,8 @@ wireless-regdb
 # handlers. (Found by test review: import silently failed.)
 network-manager-openvpn
 network-manager-openconnect
+# L2TP/IPsec covers the corporate VPN stack many institutions still run.
+network-manager-l2tp
 
 # Audio — PipeWire only, no PulseAudio daemon
 pipewire
@@ -32,6 +34,9 @@ cups
 cups-filters
 printer-driver-gutenprint
 ipp-usb
+# "Print to PDF" as a virtual printer in every app's print dialog — a
+# baseline Windows-switcher expectation (audit gap: was absent).
+printer-driver-cups-pdf
 
 # Scanners — a print-only distro that can't scan reads as broken to anyone
 # with an all-in-one. SANE backend + a simple KDE scan app.
@@ -56,6 +61,12 @@ exfatprogs
 
 # Archive formats Ark should just handle
 p7zip-full
+unzip
+
+# Small CLI plumbing the helpers rely on: xdg-open (open URLs/files in the
+# user's default app) is used by dagric-get-resolve; unzip is used by the
+# Resolve guide. With --apt-recommends false these aren't pulled implicitly.
+xdg-utils
 
 # Laptop power profiles (performance / balanced / power-save in the tray)
 power-profiles-daemon

@@ -12,14 +12,31 @@ echo "Applying Dagric Pro configuration..."
 sed -i 's/^PRETTY_NAME=.*/PRETTY_NAME="Dagric OS Pro 1.0 (Foundation)"/' /usr/lib/os-release
 printf 'VARIANT="Pro"\nVARIANT_ID=pro\n' >> /usr/lib/os-release
 
-# SSH server: installed but off until the owner turns it on
+# SSH server: installed but off until the owner turns it on. Ship a hardened
+# drop-in so that IF it's ever enabled, it starts locked down rather than at
+# stock Debian defaults. Root login is disabled (users have sudo) and retries
+# are capped; password auth stays on so enabling SSH doesn't lock out an owner
+# who hasn't set up keys yet (they can switch to keys-only when ready).
 systemctl disable ssh.service 2>/dev/null || true
+mkdir -p /etc/ssh/sshd_config.d
+cat > /etc/ssh/sshd_config.d/50-dagric.conf << 'EOF'
+# Dagric OS hardened SSH defaults (only apply if the owner enables sshd).
+PermitRootLogin no
+MaxAuthTries 3
+X11Forwarding no
+# For a keys-only posture, also set: PasswordAuthentication no
+EOF
 
-# 32-bit land: classic Windows .exe installers (wine32) and Steam both
-# need i386 multiarch, so they install here, after it's enabled.
+# 32-bit land: classic Windows .exe installers (wine32) and 32-bit Vulkan
+# (DXVK/Proton) need i386 multiarch, so they install here, after it's enabled.
+# NOTE: Steam is deliberately NOT installed here. steam-installer lives in
+# Debian non-free and carries Valve's EULA; per the owner's mandate, Steam is
+# NEVER bundled — it's a one-click, user-consented install via `dagric-get-steam`
+# (surfaced in the Dagric Hub). We only preinstall the open-source 32-bit deps
+# so that when the owner does opt into Steam, everything it needs is ready.
 if dpkg --add-architecture i386 && apt-get update -qq; then
-    apt-get install -y wine32:i386 steam-installer mesa-vulkan-drivers:i386 || \
-        echo "WARNING: wine32/steam/vulkan32 install failed — 64-bit Wine only"
+    apt-get install -y wine32:i386 mesa-vulkan-drivers:i386 || \
+        echo "WARNING: wine32/vulkan32 install failed — 64-bit Wine only"
 else
     echo "WARNING: could not enable i386 multiarch"
 fi
@@ -50,6 +67,42 @@ fi
 # discoverable and KRunner-searchable (the Dagric Hub lists them too). These
 # ship only on Pro because the tools target the Pro suite.
 mkdir -p /usr/share/applications
+cat > /usr/share/applications/dagric-get-steam.desktop << 'EOF'
+[Desktop Entry]
+Type=Application
+Name=Install Steam
+GenericName=Valve game store
+Comment=Install Steam (user-consented; Dagric never bundles it)
+Exec=konsole -e sh -c '/usr/bin/dagric-get-steam ; echo ; printf "Press Enter to close..." ; read x'
+Icon=dagric-logo
+Terminal=false
+Categories=Game;System;
+Keywords=steam;valve;games;store;
+EOF
+cat > /usr/share/applications/dagric-get-heroic.desktop << 'EOF'
+[Desktop Entry]
+Type=Application
+Name=Install Heroic
+GenericName=Epic / GOG / Amazon games
+Comment=Install the Heroic Games Launcher (Epic, GOG, Amazon) from Flathub
+Exec=konsole -e sh -c '/usr/bin/dagric-get-heroic ; echo ; printf "Press Enter to close..." ; read x'
+Icon=dagric-logo
+Terminal=false
+Categories=Game;
+Keywords=heroic;epic;gog;amazon;games;launcher;
+EOF
+cat > /usr/share/applications/dagric-get-protonup.desktop << 'EOF'
+[Desktop Entry]
+Type=Application
+Name=Install ProtonUp-Qt
+GenericName=Manage Proton/Wine versions
+Comment=Install ProtonUp-Qt to manage Proton-GE / Wine-GE for Steam and Lutris
+Exec=konsole -e sh -c '/usr/bin/dagric-get-protonup ; echo ; printf "Press Enter to close..." ; read x'
+Icon=dagric-logo
+Terminal=false
+Categories=Game;
+Keywords=proton;protonup;wine;ge;steam;lutris;
+EOF
 cat > /usr/share/applications/dagric-gaming.desktop << 'EOF'
 [Desktop Entry]
 Type=Application
@@ -90,6 +143,15 @@ EOF
 # PhotoGIMP (Diolinux): familiar Photoshop-style layout for GIMP.
 # Best-effort download at build time; the build continues without it
 # if the network or upstream is unavailable.
+#
+# SUPPLY-CHAIN NOTE: this fetches a moving branch (no pinned tag/checksum is
+# possible in this offline build environment). To bound the blast radius of a
+# compromised/malicious archive we do NOT copy the payload wholesale — we
+# ALLOW-LIST only the GIMP profile directories. This specifically prevents an
+# injected .config/autostart/*.desktop (or any other unexpected file) from
+# landing in every new user's session and auto-executing on first login.
+# TODO(when network is available at build): pin to a release tag + sha256 -c,
+# mirroring the grub-btrfs vendoring in 0800-snapshot-recovery.
 PG_TMP=/tmp/photogimp
 mkdir -p "$PG_TMP"
 if curl -fsSL -o "$PG_TMP/pg.zip" \
@@ -97,10 +159,17 @@ if curl -fsSL -o "$PG_TMP/pg.zip" \
     if command -v unzip >/dev/null 2>&1 || apt-get install -y -qq unzip >/dev/null 2>&1; then
         unzip -q "$PG_TMP/pg.zip" -d "$PG_TMP"
         SRC=$(find "$PG_TMP" -maxdepth 2 -type d -name ".config" | head -1)
-        if [ -n "$SRC" ]; then
+        # Only proceed if the payload actually looks like PhotoGIMP (a GIMP
+        # profile dir present) — a sanity gate against a garbage/hostile zip.
+        if [ -n "$SRC" ] && [ -d "$SRC/GIMP" ]; then
             mkdir -p /etc/skel/.config
-            cp -r "$SRC"/* /etc/skel/.config/
-            echo "PhotoGIMP layout installed for new users"
+            # Allow-list: copy ONLY the GIMP profile (and MyPaint brushes if
+            # present). Never a blanket `cp -r *` — that was the injection path.
+            cp -r "$SRC/GIMP" /etc/skel/.config/
+            [ -d "$SRC/MyPaint" ] && cp -r "$SRC/MyPaint" /etc/skel/.config/
+            echo "PhotoGIMP layout installed for new users (GIMP profile only)"
+        else
+            echo "WARNING: PhotoGIMP archive missing a GIMP profile — skipped"
         fi
     fi
 else

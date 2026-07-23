@@ -7,7 +7,14 @@ set -e
 # which is fine for the live/installed image built here.)
 LNF=/usr/share/plasma/look-and-feel/org.kde.breeze.desktop/contents/defaults
 if [ -f "$LNF" ]; then
-    sed -i 's/^Image=Next$/Image=Dagric/; s/^defaultWallpaperTheme=Next$/defaultWallpaperTheme=Dagric/' "$LNF"
+    # Match by KEY, not by the stock value: upstream renames the default
+    # wallpaper per release (it happened to be "Next"), and an exact
+    # `Image=Next` match would silently no-op on drift, shipping the stock
+    # wallpaper with no build warning. Rewrite whatever the value is.
+    sed -i -E 's/^(Image=).*/\1Dagric/; s/^(defaultWallpaperTheme=).*/\1Dagric/' "$LNF"
+    if ! grep -q '^Image=Dagric' "$LNF"; then
+        echo "WARNING: Breeze defaults had no Image= key — wallpaper branding may not apply" >&2
+    fi
 fi
 
 # Calamares: use the Dagric branding component instead of Debian's.
