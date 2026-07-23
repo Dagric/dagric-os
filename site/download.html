@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Download — Dagric OS</title>
+<meta name="description" content="Download Dagric OS free, or get Dagric OS Pro. System requirements, checksums, and GPG verification.">
+<link rel="icon" type="image/png" href="assets/dagric-logo.png">
+<link rel="stylesheet" href="assets/site.css">
+<style>
+.dl{display:grid;gap:22px;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));margin:34px 0}
+.dl .card{margin:0;text-align:center;padding:34px}
+.dl .card.pro{border:1px solid rgba(63,169,245,.5);background:linear-gradient(180deg,rgba(63,169,245,.09),var(--panel) 45%)}
+.dl h3{font-size:1.35rem}
+.dl .meta{color:var(--muted);font-size:.9rem;margin:8px 0 20px}
+.sums{background:#0a1420;border:1px solid var(--line);border-radius:12px;padding:16px 18px;font:12.5px/1.8 ui-monospace,Consolas,monospace;color:#7fd1a8;overflow-x:auto;white-space:nowrap;margin:14px 0}
+</style>
+</head>
+<body>
+<nav><div class="nav-in">
+  <a class="brand" href="/"><img src="assets/dagric-logo.png" alt="">Dagric&nbsp;OS</a>
+  <div class="nav-links">
+    <a href="/features">Features</a><a href="/pro">Pro</a><a href="/news">News</a>
+    <a href="/getting-started">Guide</a><a href="/support">Support</a>
+    <a class="cta" href="/download">Download</a>
+  </div>
+</div></nav>
+
+<main>
+  <h1>Get <span class="grad">Dagric OS.</span></h1>
+  <p class="lead">Both editions are full 64-bit systems you can try live from USB before
+  installing. New to this? The <a href="/getting-started">step-by-step guide</a> takes you from
+  download to desktop in about 20 minutes.</p>
+
+  <div class="dl">
+    <div class="card">
+      <h3>Dagric OS</h3>
+      <div class="meta">Free forever · 1.9 GB ISO · the lean, private daily driver</div>
+      <a class="btn primary" href="https://pub-23bebbd32e3b44c4af6e53c06194e77f.r2.dev/dagric-os-1.0-amd64.iso">Download free</a>
+    </div>
+    <div class="card pro">
+      <h3>Dagric OS <span class="grad">Pro</span></h3>
+      <div class="meta">$39 one-time · 3.3 GB ISO · creative + gaming + dev + Windows apps</div>
+      <a class="btn primary" href="https://buy.stripe.com/6oU5kwbye2Jogri31D8k809">Buy &amp; download — $39</a>
+      <div class="meta" style="margin:14px 0 0">Instant delivery after checkout · <a href="/terms">14-day refunds</a> · <a href="/pro">what's inside →</a></div>
+    </div>
+  </div>
+
+  <h2>System requirements</h2>
+  <ul>
+    <li><strong>Processor:</strong> any 64-bit Intel or AMD CPU (roughly 2012 or newer)</li>
+    <li><strong>Memory:</strong> 4 GB minimum, 8 GB recommended</li>
+    <li><strong>Storage:</strong> 25 GB free (Free) / 40 GB (Pro)</li>
+    <li><strong>Firmware:</strong> UEFI (Secure Boot supported) or legacy BIOS</li>
+    <li>Works beautifully on the machines Windows 10's end-of-support left behind.</li>
+  </ul>
+
+  <h2>Verify your download</h2>
+  <p>Don't skip this for installs that matter — it proves your ISO is byte-for-byte what we built.</p>
+  <div class="sums">
+bd5465b2eb1b1e77c339407c9bff3ceaedd34b4d6e6523a22762c4c8215ab6c2  dagric-os-1.0-amd64.iso<br>
+5868910e732381505c3239f4469d1ea1a4186ac0c60b115d7230504c16091f58  dagric-os-pro-1.0-amd64.iso
+  </div>
+  <pre><code>gpg --import dagric-signing-key.asc
+gpg --verify SHA256SUMS.sig SHA256SUMS
+sha256sum -c SHA256SUMS</code></pre>
+  <p>Files: <a href="SHA256SUMS">SHA256SUMS</a> · <a href="SHA256SUMS.sig">SHA256SUMS.sig</a> ·
+  <a href="dagric-signing-key.asc">signing key</a>. On Windows:
+  <code>Get-FileHash .\dagric-os-1.0-amd64.iso</code> in PowerShell, compare to the list.</p>
+
+  <h2>Already bought Pro?</h2>
+  <p>Your download link lives on your post-purchase page — open the link from your Stripe receipt
+  (it re-downloads anytime and resumes if interrupted). Trouble? <a href="/support">Support</a> has
+  you.</p>
+</main>
+
+<footer><div class="foot">
+  <span>© 2026 DGR Operations · Built on Debian. Not affiliated with the Debian Project.</span>
+  <span class="links"><a href="/features">Features</a><a href="/pro">Pro</a><a href="/download">Download</a><a href="/news">News</a><a href="/getting-started">Guide</a><a href="/support">Support</a><a href="/about">About</a><a href="/licenses">Licenses</a><a href="/privacy">Privacy</a><a href="/terms">Terms</a></span>
+</div></footer>
+</body>
+</html>

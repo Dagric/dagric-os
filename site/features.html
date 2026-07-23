@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Features — Dagric OS</title>
+<meta name="description" content="What makes Dagric OS different: real privacy, real security, snapshots, the Hub, layouts, and everything working out of the box.">
+<link rel="icon" type="image/png" href="assets/dagric-logo.png">
+<link rel="stylesheet" href="assets/site.css">
+<style>
+.feat{display:grid;gap:18px;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));margin:26px 0 8px}
+.feat .card{margin:0}
+.strip{margin:10px 0 34px;border-radius:16px;overflow:hidden;border:1px solid var(--line);box-shadow:0 24px 70px rgba(0,0,0,.5)}
+h2.sec{margin-top:56px}
+</style>
+</head>
+<body>
+<nav><div class="nav-in">
+  <a class="brand" href="/"><img src="assets/dagric-logo.png" alt="">Dagric&nbsp;OS</a>
+  <div class="nav-links">
+    <a href="/features">Features</a><a href="/pro">Pro</a><a href="/news">News</a>
+    <a href="/getting-started">Guide</a><a href="/support">Support</a>
+    <a class="cta" href="/download">Download</a>
+  </div>
+</div></nav>
+
+<main class="wide">
+  <h1>Built like it's <span class="grad">your machine.</span></h1>
+  <p class="lead">Because it is. Every feature below ships enabled, tested, and quiet — no setup
+  scavenger hunt, no settings to un-break.</p>
+
+  <div class="strip"><img src="assets/hero-desktop.png" alt="Dagric OS desktop"></div>
+
+  <h2 class="sec">Privacy that isn't a setting</h2>
+  <div class="feat">
+    <div class="card"><h3>Zero telemetry</h3><p>The OS contains no data collection at all. There's no
+    toggle because there's nothing to turn off — verified in what we ship, not promised in a policy.</p></div>
+    <div class="card"><h3>No accounts, no ads</h3><p>Your desktop works without signing in to
+    anything, and no surface of it is rented to advertisers.</p></div>
+    <div class="card"><h3>Private AI, if you want AI</h3><p>Pro's Ollama runs language models on
+    your own hardware. Your prompts never leave the room.</p></div>
+  </div>
+
+  <h2 class="sec">Security you don't have to assemble</h2>
+  <div class="feat">
+    <div class="card"><h3>Hardened by default</h3><p>AppArmor mandatory access control enforced,
+    hardened kernel settings, firewall on — from the first boot, before you change a thing.</p></div>
+    <div class="card"><h3>Updates on your terms</h3><p>Security patches install silently in the
+    background. The machine <em>never</em> restarts itself.</p></div>
+    <div class="card"><h3>Verified releases</h3><p>Every ISO ships SHA-256 checksums signed with our
+    GPG key, so you can prove your download is untouched.</p></div>
+    <div class="card"><h3>Secure Boot, handled</h3><p>Boots with Secure Boot on. Installing the
+    NVIDIA driver? Dagric walks you through key enrollment so you never hit a black screen.</p></div>
+    <div class="card"><h3>Security Checkup</h3><p>One click runs a Lynis audit and shows your
+    hardening score — security you can see.</p></div>
+    <div class="card"><h3>Opt-in lockdown (Pro)</h3><p>OpenSnitch application firewall and USBGuard
+    device control, installed and one toggle away.</p></div>
+  </div>
+
+  <h2 class="sec">Un-breakable, practically</h2>
+  <div class="feat">
+    <div class="card"><h3>Snapshots before updates</h3><p>On the default btrfs install, Dagric
+    snapshots the system before changes land.</p></div>
+    <div class="card"><h3>Roll back from the boot menu</h3><p>Something went sideways? Pick
+    <em>Dagric snapshots</em> at boot and you're back to before — files intact, minutes flat.</p></div>
+    <div class="card"><h3>Backups included</h3><p>Simple file backup on Free; Borg + Vorta + rclone
+    on Pro for versioned backups to any disk or cloud.</p></div>
+  </div>
+
+  <h2 class="sec">Comfortable from minute one</h2>
+  <div class="feat">
+    <div class="card"><h3>Dagric Looks</h3><p>Switch your whole desktop layout in one click —
+    classic taskbar, minimal bar, or Pro's dock layouts. Switch back anytime.</p></div>
+    <div class="card"><h3>The Dagric Hub</h3><p>Drivers, printers, security, layouts, guides — every
+    owner tool gathered in one window instead of scattered across menus.</p></div>
+    <div class="card"><h3>Everything just works</h3><p>Printers (with Print-to-PDF), scanners,
+    Wi-Fi, Bluetooth, media codecs, streaming, NTFS/exFAT drives, firmware updates.</p></div>
+    <div class="card"><h3>Your documents open right</h3><p>Office-metric fonts mean Word and Excel
+    files keep their layout. Full LibreOffice on Pro.</p></div>
+    <div class="card"><h3>Windows-switcher care</h3><p>Taskbar where you expect it, double-click as
+    you expect it, NumLock on, task manager on <kbd>Ctrl</kbd>+<kbd>Esc</kbd>.</p></div>
+    <div class="card"><h3>Accessible to everyone</h3><p>A talking screen reader, fingerprint login
+    support, and keyboard-friendly design — usable and procurable.</p></div>
+  </div>
+
+  <p style="margin:48px 0 0;text-align:center">
+    <a class="btn primary" href="/download">Download Dagric OS</a>
+    <a class="btn" href="/pro" style="margin-left:10px">See what Pro adds</a>
+  </p>
+</main>
+
+<footer><div class="foot">
+  <span>© 2026 DGR Operations · Built on Debian. Not affiliated with the Debian Project.</span>
+  <span class="links"><a href="/features">Features</a><a href="/pro">Pro</a><a href="/download">Download</a><a href="/news">News</a><a href="/getting-started">Guide</a><a href="/support">Support</a><a href="/about">About</a><a href="/licenses">Licenses</a><a href="/privacy">Privacy</a><a href="/terms">Terms</a></span>
+</div></footer>
+</body>
+</html>
