@@ -17,8 +17,10 @@ battery life?
 
 You can always do this later — search 'Finish Setup' in the launcher, or
 run 'sudo dagric-drivers' in a terminal." 2>/dev/null; then
-    konsole -e pkexec sh -c \
-'apt-get update && apt-get install -y nvidia-driver firmware-misc-nonfree; \
-echo; echo "Done. Reboot to switch to the NVIDIA driver."; \
+    # Route through dagric-drivers so the Secure Boot / MOK-enrollment handling
+    # lives in one place (an unsigned NVIDIA module under Secure Boot = black
+    # screen). It re-confirms and installs.
+    konsole -e sh -c \
+'pkexec /usr/bin/dagric-drivers; \
 printf "Press Enter to close..."; read x' &
 fi

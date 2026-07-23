@@ -15,9 +15,10 @@ CHOICES=$(kdialog --title "Finish setting up Dagric" --separate-output --checkli
 for c in $CHOICES; do
     case "$c" in
         drivers)
-            konsole -e pkexec sh -c \
-'apt-get update && apt-get install -y nvidia-driver firmware-misc-nonfree; \
-echo; echo "If no NVIDIA card was found, nothing was installed. Reboot if a driver was added."; \
+            # Route through dagric-drivers for the NVIDIA-detect + Secure Boot
+            # / MOK-enrollment handling (avoids a black screen on SB laptops).
+            konsole -e sh -c \
+'pkexec /usr/bin/dagric-drivers; \
 printf "Press Enter to close..."; read x' & ;;
         hp)
             konsole -e pkexec sh -c \

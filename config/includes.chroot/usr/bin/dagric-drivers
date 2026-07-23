@@ -19,9 +19,45 @@ if lspci | grep -qi 'vga.*nvidia\|3d.*nvidia'; then
     read -r answer
     case "$answer" in
         y|Y)
+            # Secure Boot check UP FRONT: an unsigned DKMS module won't load
+            # under enforcing Secure Boot, which strands the user at a black
+            # screen after reboot. Detect it so we can walk them through MOK
+            # enrollment instead of letting it fail silently.
+            SB="disabled"
+            if command -v mokutil >/dev/null 2>&1; then
+                mokutil --sb-state 2>/dev/null | grep -qi "enabled" && SB="enabled"
+            fi
+            if [ "$SB" = "enabled" ]; then
+                echo ""
+                echo "NOTE: Secure Boot is ON. The NVIDIA driver builds a kernel"
+                echo "module that must be signed and enrolled, or it won't load"
+                echo "(black screen). Dagric will set up the signing key and ask"
+                echo "you to enroll it — you'll finish that at the next reboot."
+                echo ""
+            fi
+
             apt-get update
             apt-get install -y nvidia-driver firmware-misc-nonfree
-            echo "Done. Reboot to switch to the NVIDIA driver."
+
+            if [ "$SB" = "enabled" ]; then
+                # Enroll the Machine Owner Key so the DKMS-built module is
+                # trusted. This prompts for a one-time password you re-enter in
+                # the blue "MOK Manager" screen at the next boot.
+                if command -v update-secureboot-policy >/dev/null 2>&1; then
+                    update-secureboot-policy --enroll-key 2>/dev/null || true
+                fi
+                echo ""
+                echo "IMPORTANT — finish Secure Boot enrollment:"
+                echo "  1. Reboot now."
+                echo "  2. At the blue 'MOK Management' screen, choose"
+                echo "     'Enroll MOK' -> 'Continue' and enter the password"
+                echo "     you were just asked for."
+                echo "  3. The system boots into the NVIDIA driver."
+                echo "If you skip this, the driver won't load and you'll fall"
+                echo "back to the open-source driver. You can re-run this anytime."
+            else
+                echo "Done. Reboot to switch to the NVIDIA driver."
+            fi
             ;;
         *)
             echo "Nothing changed."
