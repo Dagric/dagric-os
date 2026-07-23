@@ -1,0 +1,27 @@
+{
+  "hosting": {
+    "public": "site",
+    "cleanUrls": true,
+    "trailingSlash": false,
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ],
+    "headers": [
+      {
+        "source": "**/*.html",
+        "headers": [
+          { "key": "Cache-Control", "value": "no-cache, max-age=0" }
+        ]
+      },
+      {
+        "source": "/@(SHA256SUMS|SHA256SUMS.sig|dagric-signing-key.asc)",
+        "headers": [
+          { "key": "Content-Type", "value": "text/plain; charset=utf-8" },
+          { "key": "Content-Disposition", "value": "attachment" }
+        ]
+      }
+    ]
+  }
+}
