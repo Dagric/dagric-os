@@ -1,0 +1,25 @@
+#!/bin/sh
+# Dagric OS — install Bottles, on request (Pro Windows-app support).
+# Bottles (GPL-3.0) runs Windows software on Linux in tidy, per-app
+# containers, with a curated database of installers and gaming launchers —
+# a much friendlier front-end than raw Wine (which Pro also ships). Installed
+# from the already-enabled Flathub as a per-user Flatpak (no root needed).
+cat << 'EOF'
+Dagric — install Bottles (run Windows apps)
+
+Bottles is a free, open-source app that runs Windows programs and games on
+Linux inside self-contained "bottles", tuned per app for the best chance of
+working. It's the easy way to bring a Windows app across. Installs from Flathub.
+EOF
+
+printf '\nInstall Bottles now? [y/N] '
+read ans
+case "$ans" in y|Y|yes|YES) ;; *) echo "No changes made."; exit 0 ;; esac
+
+flatpak remote-add --if-not-exists flathub \
+    https://dl.flathub.org/repo/flathub.flatpakrepo 2>/dev/null || true
+if flatpak install -y --noninteractive flathub com.usebottles.bottles; then
+    echo; echo "Bottles installed — launch it from the application launcher."
+else
+    echo; echo "Install did not complete. Check your network and try again."
+fi

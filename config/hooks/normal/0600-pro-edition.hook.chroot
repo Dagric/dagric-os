@@ -67,6 +67,18 @@ fi
 # discoverable and KRunner-searchable (the Dagric Hub lists them too). These
 # ship only on Pro because the tools target the Pro suite.
 mkdir -p /usr/share/applications
+cat > /usr/share/applications/dagric-get-bottles.desktop << 'EOF'
+[Desktop Entry]
+Type=Application
+Name=Run Windows Apps (Bottles)
+GenericName=Windows app support
+Comment=Install Bottles to run Windows software and games in tidy containers
+Exec=konsole -e sh -c '/usr/bin/dagric-get-bottles ; echo ; printf "Press Enter to close..." ; read x'
+Icon=dagric-logo
+Terminal=false
+Categories=System;Utility;
+Keywords=windows;wine;bottles;exe;apps;compatibility;
+EOF
 cat > /usr/share/applications/dagric-get-steam.desktop << 'EOF'
 [Desktop Entry]
 Type=Application

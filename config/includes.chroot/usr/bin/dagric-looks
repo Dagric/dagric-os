@@ -1,0 +1,53 @@
+#!/bin/sh
+# Dagric OS — "Dagric Looks": pick your desktop layout, one click.
+# Reshapes the Plasma panels through Plasma's OWN scripting engine
+# (evaluateScript over D-Bus) — the robust, version-safe way, never by
+# hand-editing the applet config. Each layout also re-brands the launcher
+# button with the Dagric logo so branding survives a switch.
+#
+# Edition-aware, mirroring the "free is lean, Pro is complete" rule (and
+# Zorin's own model): free ships 2 layouts, Pro unlocks 4.
+EDITION=$(cat /etc/dagric-edition 2>/dev/null || echo free)
+
+# Apply a Plasma layout script against the running shell.
+apply() {
+    dbus-send --session --type=method_call --dest=org.kde.plasmashell \
+        /PlasmaShell org.kde.PlasmaShell.evaluateScript "string:$1" >/dev/null 2>&1
+}
+
+# Each layout: clear existing panels, then build. The launcher (kickoff) gets
+# icon=dagric-logo set in the same script. Written on single lines (semicolons)
+# so the whole script passes cleanly as one D-Bus string argument.
+CLEAR='var ps=panels(); for(var i=0;i<ps.length;i++){ps[i].remove();}'
+
+CLASSIC="$CLEAR"' var p=new Panel; p.location="bottom"; p.height=Math.round(gridUnit*2.2); var k=p.addWidget("org.kde.plasma.kickoff"); k.currentConfigGroup=["General"]; k.writeConfig("icon","dagric-logo"); p.addWidget("org.kde.plasma.pager"); p.addWidget("org.kde.plasma.taskmanager"); p.addWidget("org.kde.plasma.marginsseparator"); p.addWidget("org.kde.plasma.systemtray"); p.addWidget("org.kde.plasma.digitalclock"); p.addWidget("org.kde.plasma.showdesktop");'
+
+FOCUS="$CLEAR"' var p=new Panel; p.location="bottom"; p.height=Math.round(gridUnit*2); var k=p.addWidget("org.kde.plasma.kickoff"); k.currentConfigGroup=["General"]; k.writeConfig("icon","dagric-logo"); p.addWidget("org.kde.plasma.icontasks"); p.addWidget("org.kde.plasma.marginsseparator"); p.addWidget("org.kde.plasma.systemtray"); p.addWidget("org.kde.plasma.digitalclock");'
+
+HORIZON="$CLEAR"' var t=new Panel; t.location="top"; t.height=Math.round(gridUnit*1.6); var k=t.addWidget("org.kde.plasma.kickoff"); k.currentConfigGroup=["General"]; k.writeConfig("icon","dagric-logo"); t.addWidget("org.kde.plasma.appmenu"); t.addWidget("org.kde.plasma.panelspacer"); t.addWidget("org.kde.plasma.systemtray"); t.addWidget("org.kde.plasma.digitalclock"); var d=new Panel; d.location="bottom"; d.height=Math.round(gridUnit*3); d.addWidget("org.kde.plasma.icontasks");'
+
+COMMAND="$CLEAR"' var s=new Panel; s.location="left"; s.height=Math.round(gridUnit*3.2); var k=s.addWidget("org.kde.plasma.kickoff"); k.currentConfigGroup=["General"]; k.writeConfig("icon","dagric-logo"); s.addWidget("org.kde.plasma.icontasks"); var t=new Panel; t.location="top"; t.height=Math.round(gridUnit*1.5); t.addWidget("org.kde.plasma.panelspacer"); t.addWidget("org.kde.plasma.systemtray"); t.addWidget("org.kde.plasma.digitalclock");'
+
+set -- \
+    classic "Classic  —  a taskbar at the bottom, familiar and comfortable" \
+    focus   "Focus  —  one tidy bar, nothing in your way"
+if [ "$EDITION" = "pro" ]; then
+    set -- "$@" \
+        horizon "Horizon  —  a menu bar up top with a dock below (Pro)" \
+        command "Command  —  a side dock for living in your apps (Pro)"
+fi
+
+CHOICE=$(kdialog --title "Dagric Looks" --icon dagric-logo \
+    --menu "Pick your desktop layout — you can switch back anytime:" "$@" 2>/dev/null) || exit 0
+[ -n "$CHOICE" ] || exit 0
+
+case "$CHOICE" in
+    classic) apply "$CLASSIC" ;;
+    focus)   apply "$FOCUS" ;;
+    horizon) apply "$HORIZON" ;;
+    command) apply "$COMMAND" ;;
+    *) exit 0 ;;
+esac
+
+kdialog --title "Dagric Looks" \
+    --passivepopup "Applied the ${CHOICE} layout. Not for you? Open Dagric Looks again." 6 2>/dev/null
