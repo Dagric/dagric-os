@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Licenses — Dagric OS</title>
+<meta name="description" content="How Dagric OS honors open-source licenses, and what is (and is never) bundled.">
+<link rel="icon" type="image/png" href="assets/dagric-logo.png">
+<link rel="stylesheet" href="assets/site.css">
+</head>
+<body>
+<nav><div class="nav-in">
+  <a class="brand" href="/"><img src="assets/dagric-logo.png" alt="">Dagric&nbsp;OS</a>
+  <div class="nav-links">
+    <a href="/getting-started">Guide</a><a href="/support">Support</a><a href="/about">About</a>
+    <a class="cta" href="/#download">Download</a>
+  </div>
+</div></nav>
+
+<main>
+  <h1>Licenses, <span class="grad">honored.</span></h1>
+  <p class="lead">Dagric OS is built from free and open-source software, and we play it straight.</p>
+
+  <h2>What's inside</h2>
+  <ul>
+    <li>The base system is <strong>Debian 13</strong> and <strong>KDE Plasma</strong> — thousands of
+    packages under the GPL, LGPL, MIT, Apache-2.0, BSD, and similar licenses. Each package's
+    license text ships on the installed system under <code>/usr/share/doc/&lt;package&gt;/copyright</code>.</li>
+    <li>Bundled open-source extras keep their upstream licenses — for example
+    <strong>grub-btrfs</strong> (GPL-3.0, vendored from a pinned, checksum-verified release, license
+    text included) and the <strong>PhotoGIMP</strong> configuration layout (open source, Pro).</li>
+    <li>Dagric's own scripts, branding hooks, and configuration are © DGR Operations; the
+    <strong>Dagric</strong> name, D monogram, and wallpapers are trademarks/brand assets and may not
+    be used to market derivative products.</li>
+  </ul>
+
+  <h2>What's never bundled</h2>
+  <p>Proprietary software is <strong>never preinstalled</strong>. Steam (Valve), the NVIDIA driver,
+  Widevine DRM, and DaVinci Resolve (Blackmagic) are only ever installed when <em>you</em> ask —
+  one-click, clearly labeled — fetched from their vendors under their own EULAs. Firmware needed
+  for hardware to function comes from Debian's <code>non-free-firmware</code> area.</p>
+
+  <h2>Source code</h2>
+  <p>Source for every Debian package in Dagric OS is available from
+  <a href="https://www.debian.org/distrib/packages">Debian's package archive</a> (matching the
+  versions we ship). Per the GPL, we'll also supply the corresponding source for any GPL-licensed
+  component we distribute — email
+  <a href="mailto:repo@dagric.com?subject=Dagric%20source%20request">repo@dagric.com</a>.</p>
+
+  <h2>Verifying releases</h2>
+  <p>Every release publishes <a href="SHA256SUMS">SHA256SUMS</a>, a GPG
+  <a href="SHA256SUMS.sig">signature</a>, and the <a href="dagric-signing-key.asc">signing key</a>,
+  so you can prove your download is exactly what we built.</p>
+
+  <p style="margin-top:26px">Buying <a href="/#pro">Pro</a> pays for curation, integration,
+  testing, and support — the work — not for exclusive rights over free software. That's the
+  honest trade, and it's why the free edition will always exist.</p>
+</main>
+
+<footer><div class="foot">
+  <span>© 2026 DGR Operations · Built on Debian. Not affiliated with the Debian Project.</span>
+  <span class="links"><a href="/getting-started">Guide</a><a href="/support">Support</a><a href="/about">About</a><a href="/licenses">Licenses</a><a href="/privacy">Privacy</a><a href="/terms">Terms</a></span>
+</div></footer>
+</body>
+</html>

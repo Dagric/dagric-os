@@ -26,9 +26,25 @@ a{color:var(--accent);text-decoration:none}
   <img class="logo" src="assets/dagric-logo.png" alt="Dagric OS">
   <h1>Thank you. <span class="grad">It's yours — outright.</span></h1>
   <p>Your purchase of <strong>Dagric OS Pro</strong> is complete. A receipt from Stripe is on its way to your email.</p>
-  <a class="btn" href="https://pub-23bebbd32e3b44c4af6e53c06194e77f.r2.dev/dagric-os-pro-1.0-amd64.iso">Download Dagric OS Pro (3.3 GB)</a>
+  <a class="btn" id="dl" href="#">Download Dagric OS Pro (3.3 GB)</a>
+  <p class="small" id="dlnote">Your download is tied to your purchase and verified by Stripe. Keep this page's
+  address (bookmark it!) — the same link re-downloads anytime, and resuming an interrupted download works.</p>
   <p class="small">Write it to a USB stick with <a href="https://rufus.ie">Rufus</a> or <a href="https://www.ventoy.net">Ventoy</a>, boot, try the live desktop, then click <em>Install Dagric OS</em>.<br>
-  Keep this page's link — you can re-download anytime. Free updates are announced on the <a href="https://dagric-os.web.app">homepage</a>.</p>
+  Free updates are announced on the <a href="https://dagric-os.web.app">homepage</a>.</p>
+  <script>
+  (function(){
+    var sid = new URLSearchParams(location.search).get("session_id");
+    var a = document.getElementById("dl");
+    if (sid && /^cs_[A-Za-z0-9_]+$/.test(sid)) {
+      a.href = "https://dagric-gate.dagric.workers.dev/?session_id=" + encodeURIComponent(sid);
+    } else {
+      a.textContent = "Purchase Dagric OS Pro — $39";
+      a.href = "https://buy.stripe.com/6oU5kwbye2Jogri31D8k809";
+      document.getElementById("dlnote").textContent =
+        "This page had no purchase session attached. If you already bought Pro, open the link from your receipt/checkout page; otherwise grab it below.";
+    }
+  })();
+  </script>
   <div class="sums">5868910e732381505c3239f4469d1ea1a4186ac0c60b115d7230504c16091f58  dagric-os-pro-1.0-amd64.iso</div>
   <p class="small">Verify with <a href="SHA256SUMS">SHA256SUMS</a> + <a href="SHA256SUMS.sig">signature</a> · Questions? Reply to your receipt email.</p>
 </div>

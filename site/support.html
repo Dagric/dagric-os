@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Support — Dagric OS</title>
+<meta name="description" content="Get help with Dagric OS — built-in tools, common fixes, and how to reach a human.">
+<link rel="icon" type="image/png" href="assets/dagric-logo.png">
+<link rel="stylesheet" href="assets/site.css">
+</head>
+<body>
+<nav><div class="nav-in">
+  <a class="brand" href="/"><img src="assets/dagric-logo.png" alt="">Dagric&nbsp;OS</a>
+  <div class="nav-links">
+    <a href="/getting-started">Guide</a><a href="/support">Support</a><a href="/about">About</a>
+    <a class="cta" href="/#download">Download</a>
+  </div>
+</div></nav>
+
+<main>
+  <h1>Help is <span class="grad">built in.</span></h1>
+  <p class="lead">Most answers are already on your machine — and when they aren't, a human reads
+  every message.</p>
+
+  <h2>First stops on your computer</h2>
+  <div class="card"><strong>The offline guide</strong><br>
+  <p>Press <kbd>Meta</kbd>, type <em>Guide</em>, and open <strong>Dagric Welcome &amp; Guide</strong> —
+  printers, Wi-Fi, apps, backups, and shortcuts, readable even with no internet.</p></div>
+  <div class="card"><strong>The Dagric Hub</strong><br>
+  <p>One window for the fix-it tools: graphics drivers, Finish Setup (printers/HP),
+  Security Checkup, and the layout switcher. <kbd>Meta</kbd> → type <em>Hub</em>.</p></div>
+  <div class="card"><strong>Something broke after an update?</strong><br>
+  <p>Reboot, and in the boot menu open <strong>Dagric snapshots</strong> — pick the snapshot from
+  before the update and you're back in minutes, files intact.</p></div>
+
+  <h2>Common quick fixes</h2>
+  <ul>
+    <li><strong>No sound after boot</strong> — click the speaker icon in the tray and check the
+    output device; a monitor's HDMI audio often grabs default.</li>
+    <li><strong>Wi-Fi missing on very new laptops</strong> — connect briefly by phone-USB tethering
+    or cable, run updates (firmware arrives via LVFS), reboot.</li>
+    <li><strong>NVIDIA screen issues</strong> — open the Hub → <em>Graphics drivers</em>; with
+    Secure Boot on, complete the blue MOK screen at reboot (<em>Enroll MOK → Continue</em>).</li>
+    <li><strong>A Windows program you miss</strong> — on Pro, open the Hub → <em>Run Windows
+    apps</em> (Bottles), or use the web app in Firefox.</li>
+    <li><strong>Printer won't appear</strong> — most work driverless; for HP all-in-ones run the
+    Hub → <em>Finish Setup</em> → HP support.</li>
+  </ul>
+
+  <h2>Reach a human</h2>
+  <p>Email <a href="mailto:repo@dagric.com?subject=Dagric%20OS%20support">repo@dagric.com</a>
+  with what you were doing, what happened, and (if you can) a photo of the screen.
+  <strong>Pro customers:</strong> replying to your Stripe receipt also reaches us, and includes your
+  purchase details automatically — that's the fastest route.</p>
+  <div class="note">Include the output of <code>cat /etc/os-release</code> (press <kbd>Meta</kbd>,
+  type <em>Konsole</em>, paste that line) so we know your exact build.</div>
+
+  <h2>Answers to bigger questions</h2>
+  <p>The <a href="/#faq">FAQ</a> covers pricing, privacy, Windows files, and refunds — and the
+  <a href="/getting-started">Getting-started guide</a> covers installation end to end.</p>
+</main>
+
+<footer><div class="foot">
+  <span>© 2026 DGR Operations · Built on Debian. Not affiliated with the Debian Project.</span>
+  <span class="links"><a href="/getting-started">Guide</a><a href="/support">Support</a><a href="/about">About</a><a href="/licenses">Licenses</a><a href="/privacy">Privacy</a><a href="/terms">Terms</a></span>
+</div></footer>
+</body>
+</html>
