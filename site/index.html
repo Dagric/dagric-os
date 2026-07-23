@@ -3,165 +3,326 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Dagric OS — Own it outright.</title>
-<meta name="description" content="Dagric OS: a fast, private, telemetry-free desktop operating system by DGR Operations. No ads, no accounts, no bloat. Own it outright.">
+<title>Dagric OS — Your computer. Yours again.</title>
+<meta name="description" content="Dagric OS is a fast, private desktop operating system. No telemetry, no ads, no accounts. Built on Debian and KDE Plasma. Own it outright.">
+<meta property="og:title" content="Dagric OS — Your computer. Yours again.">
+<meta property="og:description" content="A fast, private desktop OS. No telemetry, no ads, no accounts. Own it outright.">
+<meta property="og:image" content="https://dagric-os.web.app/assets/hero-desktop.png">
+<link rel="icon" type="image/png" href="assets/dagric-logo.png">
 <style>
-  :root {
-    --bg:#0b1118; --panel:#121b26; --panel2:#0e161f; --line:#223140;
-    --ink:#e6edf3; --muted:#8595a6; --accent:#4fb3e8; --accent2:#7be0c8;
-  }
-  * { box-sizing:border-box; margin:0; }
-  body {
-    background: radial-gradient(ellipse 90% 55% at 50% -10%, rgba(79,179,232,.12), transparent 70%), var(--bg);
-    color:var(--ink); font:16px/1.65 system-ui,"Segoe UI",sans-serif;
-  }
-  a { color:var(--accent); text-decoration:none; }
-  main { max-width:960px; margin:0 auto; padding:0 24px 96px; }
+:root{
+  --bg:#0a111c; --bg2:#0e1725; --panel:#131f31; --panel2:#182740;
+  --line:#22344f; --text:#e8eef6; --muted:#9db1c8; --accent:#3fa9f5;
+  --accent2:#59c2e8; --good:#4ade80; --grad:linear-gradient(135deg,#59c2e8,#3fa9f5 55%,#2f7fd1);
+  --radius:16px; --maxw:1100px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font:16px/1.65 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;-webkit-font-smoothing:antialiased}
+a{color:var(--accent);text-decoration:none}
+img{max-width:100%;display:block}
+section{padding:88px 24px}
+.wrap{max-width:var(--maxw);margin:0 auto}
+h1{font-size:clamp(2.4rem,6vw,4rem);line-height:1.08;letter-spacing:-.02em;font-weight:800}
+h2{font-size:clamp(1.7rem,4vw,2.5rem);line-height:1.15;letter-spacing:-.01em;font-weight:800;margin-bottom:14px}
+h3{font-size:1.12rem;font-weight:700;margin-bottom:6px}
+.sub{color:var(--muted);font-size:1.13rem;max-width:640px}
+.center{text-align:center}
+.center .sub{margin:0 auto}
+.grad{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
 
-  header { text-align:center; padding:96px 24px 64px; }
-  .logo { width:104px; height:104px; margin-bottom:24px; }
-  h1 { font-size:clamp(2.6rem,8vw,4.6rem); font-weight:200; letter-spacing:.26em; text-indent:.26em; }
-  h1 b { font-weight:750; color:var(--accent); }
-  .tag { color:var(--muted); letter-spacing:.3em; text-transform:uppercase; font-size:.82rem; margin-top:10px; text-indent:.3em; }
-  .thesis { max-width:44ch; margin:28px auto 0; font-size:1.15rem; font-weight:300; text-wrap:balance; }
-  .cta { display:flex; gap:14px; justify-content:center; flex-wrap:wrap; margin-top:36px; }
-  .btn {
-    display:inline-block; padding:13px 30px; border-radius:10px; font-weight:600;
-    border:1px solid var(--line); color:var(--ink); background:var(--panel);
-  }
-  .btn.primary { background:var(--accent); color:#0b1118; border-color:var(--accent); }
-  .btn:hover { filter:brightness(1.1); }
+/* nav */
+nav{position:sticky;top:0;z-index:50;background:rgba(10,17,28,.82);backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
+.nav-in{max-width:var(--maxw);margin:0 auto;display:flex;align-items:center;gap:26px;padding:14px 24px}
+.brand{display:flex;align-items:center;gap:10px;font-weight:800;font-size:1.15rem;color:var(--text)}
+.brand img{width:30px;height:30px;border-radius:8px}
+.nav-links{display:flex;gap:22px;margin-left:auto;align-items:center}
+.nav-links a{color:var(--muted);font-weight:600;font-size:.95rem}
+.nav-links a:hover{color:var(--text)}
+.nav-links a.cta{color:#fff;background:var(--grad);padding:8px 18px;border-radius:999px}
+@media(max-width:760px){.nav-links a:not(.cta){display:none}}
 
-  h2 { font-size:.84rem; letter-spacing:.24em; text-transform:uppercase; color:var(--accent);
-       margin:72px 0 20px; display:flex; align-items:center; gap:14px; }
-  h2::after { content:""; flex:1; height:1px; background:var(--line); }
+/* buttons */
+.btn{display:inline-block;padding:14px 30px;border-radius:999px;font-weight:700;font-size:1.02rem;border:1px solid var(--line);color:var(--text);transition:transform .15s ease, box-shadow .15s ease}
+.btn:hover{transform:translateY(-2px)}
+.btn.primary{background:var(--grad);border:none;color:#fff;box-shadow:0 8px 30px rgba(63,169,245,.35)}
+.btn.ghost{background:var(--panel)}
 
-  .promise { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:14px; }
-  .card { background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:20px 22px; }
-  .card h3 { font-size:1rem; color:var(--accent2); margin-bottom:8px; }
-  .card p { font-size:.92rem; color:var(--muted); }
+/* hero */
+.hero{padding:96px 24px 60px;text-align:center;background:
+  radial-gradient(1000px 500px at 50% -10%, rgba(63,169,245,.16), transparent 60%), var(--bg)}
+.hero .logo{width:96px;height:96px;margin:0 auto 26px;border-radius:24px;box-shadow:0 20px 60px rgba(63,169,245,.35)}
+.hero .sub{margin:18px auto 30px}
+.hero .btns{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin-bottom:14px}
+.hero .tiny{color:var(--muted);font-size:.85rem}
+.shot{margin:56px auto 0;max-width:960px;border-radius:var(--radius);overflow:hidden;
+  border:1px solid var(--line);box-shadow:0 30px 90px rgba(0,0,0,.55), 0 0 0 1px rgba(63,169,245,.08)}
+.trust{display:flex;gap:10px 34px;justify-content:center;flex-wrap:wrap;padding:26px 24px;border-top:1px solid var(--line);border-bottom:1px solid var(--line);background:var(--bg2)}
+.trust span{color:var(--muted);font-size:.95rem;font-weight:600}
+.trust b{color:var(--good);margin-right:6px}
 
-  table { width:100%; border-collapse:collapse; background:var(--panel); border:1px solid var(--line); border-radius:12px; overflow:hidden; font-size:.95rem; }
-  th, td { padding:13px 18px; text-align:left; border-bottom:1px solid var(--line); }
-  th { background:var(--panel2); font-family:ui-monospace,Consolas,monospace; font-size:.74rem; letter-spacing:.16em; text-transform:uppercase; color:var(--muted); }
-  tr:last-child td { border-bottom:none; }
-  td.y::before { content:"✓ "; color:var(--accent2); font-weight:700; }
-  td.n { color:var(--muted); }
+/* cards */
+.grid{display:grid;gap:18px;margin-top:42px}
+.grid.c3{grid-template-columns:repeat(auto-fit,minmax(280px,1fr))}
+.grid.c2{grid-template-columns:repeat(auto-fit,minmax(320px,1fr))}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:26px}
+.card p{color:var(--muted);font-size:.98rem}
+.card .ico{font-size:1.6rem;margin-bottom:12px;display:block}
 
-  .sums { background:#060a0f; border:1px solid var(--line); border-radius:10px; padding:16px 20px;
-          font-family:ui-monospace,Consolas,monospace; font-size:.8rem; color:#cfdbe6; overflow-x:auto; }
-  footer { margin-top:80px; padding-top:22px; border-top:1px solid var(--line);
-           color:var(--muted); font-size:.85rem; display:flex; justify-content:space-between; flex-wrap:wrap; gap:10px; }
+/* looks */
+.look{padding:0;overflow:hidden;display:flex;flex-direction:column}
+.look img{border-bottom:1px solid var(--line);aspect-ratio:16/10;object-fit:cover}
+.look .pad{padding:18px 22px}
+.badge{display:inline-block;font-size:.72rem;font-weight:800;letter-spacing:.06em;padding:3px 10px;border-radius:999px;background:rgba(63,169,245,.15);color:var(--accent2);margin-left:8px;vertical-align:2px}
+
+/* pricing */
+.price-grid{display:grid;gap:22px;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));max-width:820px;margin:42px auto 0}
+.price{background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:34px;display:flex;flex-direction:column;text-align:left}
+.price.pro{border:1px solid rgba(63,169,245,.5);background:linear-gradient(180deg,rgba(63,169,245,.09),var(--panel) 45%);box-shadow:0 20px 70px rgba(63,169,245,.18)}
+.price .tier{font-weight:800;font-size:1.2rem}
+.price .amount{font-size:2.6rem;font-weight:800;margin:10px 0 2px}
+.price .amount small{font-size:1rem;color:var(--muted);font-weight:600}
+.price ul{list-style:none;margin:20px 0 26px;display:grid;gap:9px}
+.price li{padding-left:26px;position:relative;color:var(--muted);font-size:.96rem}
+.price li::before{content:"✓";position:absolute;left:0;color:var(--good);font-weight:800}
+.price li.no::before{content:"—";color:#5a6b80}
+.price .btn{margin-top:auto;text-align:center}
+
+/* video */
+.video{max-width:960px;margin:42px auto 0;border-radius:var(--radius);overflow:hidden;border:1px solid var(--line);box-shadow:0 30px 90px rgba(0,0,0,.5)}
+.video video{width:100%;display:block}
+
+/* table */
+table{width:100%;border-collapse:collapse;margin-top:36px;font-size:.95rem}
+th,td{padding:13px 16px;border-bottom:1px solid var(--line);text-align:left}
+th{color:var(--muted);font-weight:700;font-size:.85rem;letter-spacing:.05em;text-transform:uppercase}
+td.y{color:var(--good);font-weight:700}
+td.n{color:#5a6b80}
+tr:hover td{background:rgba(63,169,245,.04)}
+.tablewrap{overflow-x:auto}
+
+/* checksums */
+.sums{background:#0a1420;border:1px solid var(--line);border-radius:12px;padding:18px 20px;font:12.5px/1.8 ui-monospace,Consolas,monospace;color:#7fd1a8;overflow-x:auto;white-space:nowrap;margin-top:18px}
+
+/* faq */
+details{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:18px 22px;margin-top:12px}
+details summary{cursor:pointer;font-weight:700;list-style:none}
+details summary::-webkit-details-marker{display:none}
+details summary::after{content:"+";float:right;color:var(--accent);font-weight:800}
+details[open] summary::after{content:"–"}
+details p{color:var(--muted);margin-top:10px;font-size:.97rem}
+
+footer{border-top:1px solid var(--line);padding:40px 24px;color:var(--muted);font-size:.9rem}
+.foot{max-width:var(--maxw);margin:0 auto;display:flex;gap:18px;flex-wrap:wrap;justify-content:space-between;align-items:center}
+.alt{background:var(--bg2)}
 </style>
 </head>
 <body>
-<main>
-  <header>
-    <svg class="logo" viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg">
-      <defs>
-        <radialGradient id="bg" cx="30%" cy="20%" r="120%">
-          <stop offset="0%" stop-color="#16212e"/><stop offset="100%" stop-color="#080d13"/>
-        </radialGradient>
-        <linearGradient id="ac" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0%" stop-color="#3fa9f5"/><stop offset="100%" stop-color="#7be0c8"/>
-        </linearGradient>
-      </defs>
-      <rect width="256" height="256" rx="52" fill="url(#bg)"/>
-      <path fill="url(#ac)" fill-rule="evenodd"
-            d="M 84 64 h 44 a 64 64 0 0 1 0 128 h -44 z M 108 88 v 80 h 18 a 40 40 0 0 0 0 -80 z"/>
-      <rect x="70" y="204" width="116" height="8" rx="4" fill="#3fa9f5" opacity="0.55"/>
-    </svg>
-    <h1>DAG<b>RIC</b></h1>
-    <p class="tag">own it outright</p>
-    <p class="thesis">A fast, private desktop operating system.
-    No telemetry, no ads, no accounts, no bloat — from <em>dagr</em> (day) and
-    <em>ric</em> (ruler): <strong>your computer, your day, your rule.</strong></p>
-    <div class="cta">
-      <a class="btn primary" href="#download">Download Dagric OS — free</a>
-      <a class="btn" href="#editions">See Dagric Pro</a>
-    </div>
-  </header>
 
-  <h2>The promise</h2>
-  <div class="promise">
-    <div class="card"><h3>Zero telemetry</h3><p>Nothing phones home. There is no toggle to find because there is nothing to turn off.</p></div>
-    <div class="card"><h3>No ads, no accounts</h3><p>Your desktop is not a billboard, and your computer works without asking anyone's permission.</p></div>
-    <div class="card"><h3>Updates, your way</h3><p>Security patches install silently in the background. The machine never restarts itself.</p></div>
-    <div class="card"><h3>Secure by default</h3><p>AppArmor confinement, a hardened kernel, and a firewall out of the box — before you change a thing. Pro adds an opt-in application firewall (OpenSnitch) and USB device controls (USBGuard) you switch on when you want them.</p></div>
-    <div class="card"><h3>Feels familiar</h3><p>Taskbar, launcher, and tray where you expect them. Your NTFS drives and USB sticks just work.</p></div>
-    <div class="card"><h3>Pick your desktop</h3><p>Open <strong>Dagric Looks</strong> and switch layouts in a click — a classic taskbar, a minimal bar, or (in Pro) a Mac-style dock and a power-user side dock. Your desktop, your rules.</p></div>
-    <div class="card"><h3>Run Windows apps</h3><p>Pro brings Windows software across with Wine and one-click <strong>Bottles</strong> — tidy per-app containers tuned for compatibility. Steam, Heroic, and Proton set up in a click too.</p></div>
-  </div>
-
-  <h2 id="editions">Editions</h2>
-  <table>
-    <thead><tr><th></th><th>Dagric OS · free</th><th>Dagric Pro</th></tr></thead>
-    <tbody>
-      <tr><td>The full private, debloated OS</td><td class="y"></td><td class="y"></td></tr>
-      <tr><td>Firefox, LibreOffice essentials, Flathub app store</td><td class="y"></td><td class="y"></td></tr>
-      <tr><td>Full creator suite: GIMP·PhotoGIMP, Krita, Inkscape, Blender, OBS, Kdenlive</td><td class="n">—</td><td class="y"></td></tr>
-      <tr><td>Chromium + Thunderbird email</td><td class="n">—</td><td class="y"></td></tr>
-      <tr><td>Windows apps &amp; gaming: Wine 64/32-bit, Steam·Proton, gamemode</td><td class="n">—</td><td class="y"></td></tr>
-      <tr><td>Snapshot recovery — roll back a bad update from the boot menu</td><td class="y"></td><td class="y"></td></tr>
-      <tr><td>Timeshift scheduled restore points (GUI)</td><td class="n">—</td><td class="y"></td></tr>
-      <tr><td>Cloud backup (Borg + Vorta + rclone, 70+ providers)</td><td class="n">—</td><td class="y"></td></tr>
-      <tr><td>Phone integration (KDE Connect)</td><td class="n">—</td><td class="y"></td></tr>
-      <tr><td>Developer stack: Docker, Podman, Distrobox, toolchain</td><td class="n">—</td><td class="y"></td></tr>
-      <tr><td>Security Suite: opt-in application firewall + USB device control</td><td class="n">—</td><td class="y"></td></tr>
-    </tbody>
-  </table>
-
-  <h2 id="download">Download</h2>
-  <div class="promise">
-    <div class="card">
-      <h3>Dagric OS 1.0 "Foundation"</h3>
-      <p>Free forever. ~1.8 GB ISO.<br><br>
-      <a class="btn primary" href="https://pub-23bebbd32e3b44c4af6e53c06194e77f.r2.dev/dagric-os-1.0-amd64.iso">Download ISO</a></p>
-    </div>
-    <div class="card">
-      <h3>Dagric Pro 1.0</h3>
-      <p>The complete creator &amp; developer edition. ~3.5 GB ISO.<br><br>
-      <a class="btn" href="https://pub-23bebbd32e3b44c4af6e53c06194e77f.r2.dev/dagric-os-pro-1.0-amd64.iso">Get Pro</a></p>
+<nav>
+  <div class="nav-in">
+    <a class="brand" href="#top"><img src="assets/dagric-logo.png" alt="">Dagric&nbsp;OS</a>
+    <div class="nav-links">
+      <a href="#looks">Looks</a>
+      <a href="#features">Features</a>
+      <a href="#windows">Windows apps</a>
+      <a href="#pro">Pro</a>
+      <a href="#faq">FAQ</a>
+      <a class="cta" href="#download">Download</a>
     </div>
   </div>
-  <p style="color:var(--muted); margin-top:18px; font-size:.9rem">
-    New to this? The <a href="https://dagric.com/getting-started">step-by-step
-    guide</a> walks you from download to desktop. In short: write the ISO to a
-    USB stick with <a href="https://rufus.ie">Rufus</a> or
-    <a href="https://www.ventoy.net">Ventoy</a>, boot from it (tap F12), try the
-    live desktop, then click <em>Install Dagric OS</em>. Verify your download:
-  </p>
-  <div class="sums" id="sha256sums">
+</nav>
+
+<header class="hero" id="top">
+  <img class="logo" src="assets/dagric-logo.png" alt="Dagric OS logo">
+  <h1>Your computer.<br><span class="grad">Yours again.</span></h1>
+  <p class="sub">Dagric OS is a fast, private desktop operating system. No telemetry, no ads,
+  no accounts, no bloat — from <em>dagr</em> (day) and <em>ric</em> (ruler):
+  your computer, your day, your rule.</p>
+  <div class="btns">
+    <a class="btn primary" href="#download">Download Dagric OS — free</a>
+    <a class="btn ghost" href="#pro">Get Dagric Pro · $39</a>
+  </div>
+  <div class="tiny">Built on Debian 13 · KDE Plasma · GPG-signed releases · Free updates</div>
+  <div class="shot"><img src="assets/hero-desktop.png" alt="The Dagric OS desktop"></div>
+</header>
+
+<div class="trust">
+  <span><b>✓</b> Zero telemetry</span>
+  <span><b>✓</b> No ads, no accounts</span>
+  <span><b>✓</b> Open-source base</span>
+  <span><b>✓</b> Never restarts itself</span>
+  <span><b>✓</b> Own it outright</span>
+</div>
+
+<section id="looks" class="center">
+  <div class="wrap">
+    <h2>Pick a desktop. <span class="grad">Your desktop.</span></h2>
+    <p class="sub">Open <strong>Dagric Looks</strong> and reshape your desktop in one click —
+    and switch back anytime. Every layout keeps your apps, files, and settings.</p>
+    <div class="grid c2">
+      <div class="card look"><img src="assets/look-classic.svg" alt="Classic layout"><div class="pad"><h3>Classic</h3><p>A taskbar at the bottom — familiar and comfortable from day one.</p></div></div>
+      <div class="card look"><img src="assets/look-focus.svg" alt="Focus layout"><div class="pad"><h3>Focus</h3><p>One tidy bar, nothing in your way. Just you and your work.</p></div></div>
+      <div class="card look"><img src="assets/look-horizon.svg" alt="Horizon layout"><div class="pad"><h3>Horizon<span class="badge">PRO</span></h3><p>A menu bar up top with a dock below — an elegant, Mac-style flow.</p></div></div>
+      <div class="card look"><img src="assets/look-command.svg" alt="Command layout"><div class="pad"><h3>Command<span class="badge">PRO</span></h3><p>A side dock for living in your apps — built for power users.</p></div></div>
+    </div>
+  </div>
+</section>
+
+<section class="alt center" id="video-section" hidden>
+  <div class="wrap">
+    <h2>See it <span class="grad">move.</span></h2>
+    <div class="video"><video src="assets/dagric-promo.mp4" autoplay muted loop playsinline controls></video></div>
+  </div>
+</section>
+
+<section id="features">
+  <div class="wrap center">
+    <h2>Private by design. <span class="grad">Secure by default.</span></h2>
+    <p class="sub">Everything is on before you change a thing — and nothing phones home, ever.</p>
+    <div class="grid c3" style="text-align:left">
+      <div class="card"><span class="ico">🛡️</span><h3>Hardened out of the box</h3><p>AppArmor confinement, a hardened kernel, and a firewall from first boot. Pro adds an opt-in application firewall and USB device controls.</p></div>
+      <div class="card"><span class="ico">⏪</span><h3>Undo anything</h3><p>Automatic snapshots before every update. If anything ever goes sideways, roll the whole system back from the boot menu.</p></div>
+      <div class="card"><span class="ico">🔄</span><h3>Updates, your way</h3><p>Security patches install silently in the background. The computer <em>never</em> restarts itself — you reboot when it suits you.</p></div>
+      <div class="card"><span class="ico">🧭</span><h3>The Dagric Hub</h3><p>Drivers, security checkup, layout switcher, the guide, and every owner tool — gathered in one friendly window.</p></div>
+      <div class="card"><span class="ico">🖨️</span><h3>Everything just works</h3><p>Printers, scanners, Wi-Fi, Bluetooth, NTFS drives, Print-to-PDF, media codecs, streaming — working from the first minute.</p></div>
+      <div class="card"><span class="ico">♿</span><h3>For everyone</h3><p>A talking screen reader, fingerprint login, and accessibility that institutions can actually procure.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="alt" id="windows">
+  <div class="wrap center">
+    <h2>Bring your <span class="grad">Windows apps.</span></h2>
+    <p class="sub">Dagric Pro runs Windows software in tidy, per-app containers with
+    <strong>Bottles</strong> and Wine — and sets up Steam, Proton, and the Epic/GOG launcher in one click each.</p>
+    <div class="grid c3" style="text-align:left">
+      <div class="card"><span class="ico">📦</span><h3>Bottles</h3><p>Windows apps in self-contained “bottles,” tuned per app for maximum compatibility. One click to install.</p></div>
+      <div class="card"><span class="ico">🎮</span><h3>Gaming, sorted</h3><p>Steam with Proton, Heroic for Epic/GOG/Amazon, ProtonUp-Qt, GameMode, and MangoHud — the full stack, consent-first.</p></div>
+      <div class="card"><span class="ico">📄</span><h3>Your documents open</h3><p>Office-metric fonts render your Word and Excel files with the right layout, and the full LibreOffice suite is preinstalled on Pro.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="pro" class="center">
+  <div class="wrap">
+    <h2>Simple pricing. <span class="grad">Own it outright.</span></h2>
+    <p class="sub">No subscriptions. No license servers. Buy Pro once, install it on your own machines, keep it forever — updates included.</p>
+    <div class="price-grid">
+      <div class="price">
+        <div class="tier">Dagric OS</div>
+        <div class="amount">$0</div>
+        <div style="color:var(--muted);font-size:.9rem">free forever</div>
+        <ul>
+          <li>The full private, hardened desktop</li>
+          <li>Snapshot rollback &amp; silent updates</li>
+          <li>Dagric Looks — Classic &amp; Focus layouts</li>
+          <li>Writer, Calc, Impress, Firefox, and essentials</li>
+          <li>Printers, scanners, codecs, streaming</li>
+          <li class="no">Creative & video suite</li>
+          <li class="no">Windows apps &amp; gaming stack</li>
+          <li class="no">Developer toolchain &amp; local AI</li>
+        </ul>
+        <a class="btn ghost" href="#download">Download free</a>
+      </div>
+      <div class="price pro">
+        <div class="tier">Dagric OS <span class="grad">Pro</span></div>
+        <div class="amount">$39 <small>one-time</small></div>
+        <div style="color:var(--muted);font-size:.9rem">own it forever · free updates</div>
+        <ul>
+          <li><strong>Everything in Dagric OS</strong>, plus:</li>
+          <li>Creative suite: GIMP (PhotoGIMP), Krita, Inkscape, Blender, Kdenlive, OBS</li>
+          <li>Windows apps: Bottles + Wine, one-click Steam/Heroic/Proton</li>
+          <li>All four Dagric Looks layouts</li>
+          <li>Developer stack: Docker, Podman, Distrobox, SSH</li>
+          <li>Local, private AI (Ollama) — runs on your hardware</li>
+          <li>Phone integration, cloud backup, Google Drive in your file manager</li>
+          <li>Opt-in security suite: app firewall + USB control</li>
+        </ul>
+        <a class="btn primary" href="https://buy.stripe.com/6oU5kwbye2Jogri31D8k809">Get Dagric Pro — $39</a>
+      </div>
+    </div>
+    <p style="color:var(--muted);font-size:.85rem;margin-top:18px">Secure checkout by Stripe · The software is open source — you pay for curation, convenience, and support, not exclusivity.</p>
+  </div>
+</section>
+
+<section class="alt">
+  <div class="wrap">
+    <h2 class="center">Compare <span class="grad">editions</span></h2>
+    <div class="tablewrap">
+    <table>
+      <tr><th>What you get</th><th>Free</th><th>Pro</th></tr>
+      <tr><td>Debloated Debian 13 + KDE Plasma, zero telemetry</td><td class="y">✓</td><td class="y">✓</td></tr>
+      <tr><td>Hardened security, firewall, silent updates, no forced reboots</td><td class="y">✓</td><td class="y">✓</td></tr>
+      <tr><td>Snapshot recovery (roll back from the boot menu)</td><td class="y">✓</td><td class="y">✓</td></tr>
+      <tr><td>Dagric Looks layouts</td><td>2</td><td class="y">4</td></tr>
+      <tr><td>Office suite</td><td>Writer · Calc · Impress</td><td class="y">Full LibreOffice</td></tr>
+      <tr><td>Creative &amp; video suite (GIMP, Krita, Inkscape, Blender, Kdenlive, OBS)</td><td class="n">—</td><td class="y">✓</td></tr>
+      <tr><td>Windows apps (Bottles + Wine) &amp; one-click gaming stack</td><td class="n">—</td><td class="y">✓</td></tr>
+      <tr><td>Developer toolchain (Docker, Podman, Distrobox) &amp; local AI</td><td class="n">—</td><td class="y">✓</td></tr>
+      <tr><td>Phone integration, backup suite, Drive in Dolphin</td><td class="n">—</td><td class="y">✓</td></tr>
+      <tr><td>Security Suite: opt-in app firewall + USB device control</td><td class="n">—</td><td class="y">✓</td></tr>
+    </table>
+    </div>
+  </div>
+</section>
+
+<section id="download" class="center">
+  <div class="wrap">
+    <h2>Download <span class="grad">Dagric OS</span></h2>
+    <p class="sub">Write the ISO to a USB stick with <a href="https://rufus.ie">Rufus</a> or
+    <a href="https://www.ventoy.net">Ventoy</a>, boot from it, try the live desktop,
+    then click <em>Install Dagric OS</em>. UEFI &amp; Secure Boot supported.</p>
+    <div class="grid c2" style="max-width:820px;margin:36px auto 0">
+      <div class="card center">
+        <h3>Dagric OS — Free</h3>
+        <p style="margin-bottom:18px">The lean, private daily driver. 1.9&nbsp;GB.</p>
+        <a class="btn primary" href="https://pub-23bebbd32e3b44c4af6e53c06194e77f.r2.dev/dagric-os-1.0-amd64.iso">Download ISO</a>
+      </div>
+      <div class="card center">
+        <h3>Dagric OS — Pro</h3>
+        <p style="margin-bottom:18px">The complete suite. 3.3&nbsp;GB. Delivered after purchase.</p>
+        <a class="btn ghost" href="https://buy.stripe.com/6oU5kwbye2Jogri31D8k809">Buy &amp; download — $39</a>
+      </div>
+    </div>
+    <h3 style="margin-top:48px">Verify your download</h3>
+    <div class="sums" id="sha256sums">
 bd5465b2eb1b1e77c339407c9bff3ceaedd34b4d6e6523a22762c4c8215ab6c2  dagric-os-1.0-amd64.iso<br>
 5868910e732381505c3239f4469d1ea1a4186ac0c60b115d7230504c16091f58  dagric-os-pro-1.0-amd64.iso
+    </div>
+    <p style="color:var(--muted);font-size:.9rem;margin-top:12px">
+      Releases are GPG-signed — download <a href="SHA256SUMS">SHA256SUMS</a>,
+      <a href="SHA256SUMS.sig">SHA256SUMS.sig</a>, and the
+      <a href="dagric-signing-key.asc">signing key</a>, then
+      <code style="background:var(--panel);padding:1px 6px;border-radius:5px">gpg --verify SHA256SUMS.sig SHA256SUMS</code>.
+    </p>
   </div>
-  <p style="color:var(--muted); margin-top:10px; font-size:.85rem">
-    Releases are GPG-signed: verify with <code style="background:var(--panel); padding:1px 6px; border-radius:5px">SHA256SUMS.sig</code>
-    against our signing key <code style="background:var(--panel); padding:1px 6px; border-radius:5px">dagric-signing-key.asc</code>.
-  </p>
+</section>
 
-  <h2>Honest by construction</h2>
-  <div class="card">
-    <p>Dagric OS is built on Debian and released with its full build source —
-    every package choice and every configuration is inspectable. Based on
-    Debian; not affiliated with or endorsed by the Debian project.</p>
-    <p style="margin-top:12px">The base system is 100% open source. Steam is a
-    downloaded bootstrapper (© Valve, under the Steam Subscriber Agreement);
-    NVIDIA drivers install at your request from Debian (© NVIDIA); DaVinci
-    Resolve is a guided official download (© Blackmagic Design). None of that
-    proprietary software is bundled in the ISO — it's installed by you, under
-    the vendor's own license. Full detail in
-    <a href="https://dagric.com/licenses">LICENSES</a>.</p>
-    <p style="margin-top:12px; color:var(--muted); font-size:.85rem">Steam is a
-    trademark of Valve Corporation. NVIDIA is a trademark of NVIDIA Corporation.
-    Debian is a trademark of Software in the Public Interest, Inc. All marks are
-    property of their respective owners; used for identification only.</p>
+<section class="alt" id="faq">
+  <div class="wrap" style="max-width:760px">
+    <h2 class="center">Questions, <span class="grad">answered</span></h2>
+    <details><summary>Is Dagric OS really free?</summary><p>Yes. The free edition is a complete, private, hardened desktop — free forever, no strings. Pro adds the creative, gaming, developer, and Windows-app suites for a one-time $39.</p></details>
+    <details><summary>Will my Windows files and drives work?</summary><p>Yes. NTFS and exFAT drives mount out of the box, your Office documents open with matching fonts, and Pro runs many Windows programs directly via Bottles and Wine.</p></details>
+    <details><summary>Is it a subscription?</summary><p>No. Pro is a one-time purchase. There are no license servers and no activation — you own your copy outright, with free updates.</p></details>
+    <details><summary>What about my privacy?</summary><p>Dagric OS ships zero telemetry. There is nothing to opt out of because nothing is collected — no accounts, no ads, no “diagnostics.”</p></details>
+    <details><summary>Can I try it without installing?</summary><p>Yes — every ISO is also a live system. Boot it from USB and use the full desktop without touching your disk; install only when you're ready.</p></details>
+    <details><summary>What if an update breaks something?</summary><p>Dagric snapshots the system before updates. Pick “Dagric snapshots” in the boot menu and you're back to the moment before — files intact.</p></details>
+    <details><summary>Is the software open source?</summary><p>Yes — Dagric OS is built from open-source software on a Debian base, and GPL source availability is honored. Proprietary extras like Steam or the NVIDIA driver are never bundled; they install only when you ask, with one click.</p></details>
   </div>
+</section>
 
-  <footer>
-    <span>© DGR Operations · Dagric OS</span>
-    <span><a href="https://dagric.com/source">Source</a> · <a href="https://dagric.com/support">Support</a> · dagric.com</span>
-  </footer>
-</main>
+<footer>
+  <div class="foot">
+    <span>© 2026 DGR Operations · Dagric OS™ · Built on Debian. Not affiliated with the Debian Project.</span>
+    <span><a href="https://github.com/dorthemich/dagric-os/releases">Releases</a> · <a href="SHA256SUMS">Checksums</a> · dagric.com</span>
+  </div>
+</footer>
+
+<script>
+/* reveal the promo section only if the video exists */
+(function(){var v=document.querySelector('#video-section video');if(!v)return;
+fetch(v.getAttribute('src'),{method:'HEAD'}).then(function(r){if(r.ok)document.getElementById('video-section').hidden=false;}).catch(function(){});})();
+</script>
 </body>
 </html>
