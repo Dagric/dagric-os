@@ -23,3 +23,8 @@ config/includes.chroot/etc/skel/** text eol=lf
 # Binaries
 *.png binary
 *.iso binary
+
+# Verification artifacts must stay byte-exact (CRLF breaks sha256sum -c / gpg)
+site/SHA256SUMS text eol=lf
+site/SHA256SUMS.sig -text
+site/dagric-signing-key.asc -text
