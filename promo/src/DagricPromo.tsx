@@ -285,13 +285,16 @@ const Editions: React.FC = () => {
 // feature better than any still could.
 const Looks: React.FC = () => {
   const frame = useCurrentFrame();
-  const fade = interpolate(frame, [0, 14, 262, 280], [0, 1, 1, 0]);
+  const fade = interpolate(frame, [0, 14, 442, 460], [0, 1, 1, 0]);
   // Screen geometry (the mini desktop)
-  const SW = 1400, SH = 800, PX = (1920 - SW) / 2, PY = 150;
-  // Phase keyframes: Classic -> Focus -> Horizon -> Command
-  const K = [0, 70, 140, 210];
-  const lerp = (vals: number[]) =>
-    interpolate(frame, K, vals, { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  const SW = 1400, SH = 745, PX = (1920 - SW) / 2, PY = 150;
+  // SLOW pacing: each layout HOLDS ~2.7s, then a quick 25-frame morph.
+  // Hold windows: Classic 0-105, Focus 130-210, Horizon 235-315, Command 340-460.
+  const K = [0, 105, 130, 210, 235, 315, 340];
+  const lerp = (v: [number, number, number, number]) =>
+    interpolate(frame, K, [v[0], v[0], v[1], v[1], v[2], v[2], v[3]], {
+      extrapolateLeft: "clamp", extrapolateRight: "clamp",
+    });
   // Panel A (the main bar): bottom full -> bottom slim -> top bar -> left dock
   const aX = lerp([0, 0, 0, 0]);
   const aY = lerp([SH - 64, SH - 48, 0, 0]);
@@ -300,9 +303,13 @@ const Looks: React.FC = () => {
   // Panel B (the dock): hidden -> hidden -> floating bottom dock -> hidden
   const bO = lerp([0, 0, 1, 0]);
   const bW = 520;
-  const labels = ["Classic", "Focus", "Horizon · Pro", "Command · Pro"];
-  const li = Math.min(3, Math.floor(frame / 70));
-  const labelFade = interpolate(frame % 70, [0, 12, 58, 70], [0, 1, 1, 0]);
+  // One label per layout, visible through its whole hold window.
+  const labels: Array<{ t: string; d: string; w: [number, number] }> = [
+    { t: "Classic",       d: "A taskbar at the bottom — familiar from day one", w: [0, 105] },
+    { t: "Focus",         d: "One tidy bar, nothing in your way",               w: [130, 210] },
+    { t: "Horizon · Pro", d: "A menu bar up top with a dock below",             w: [235, 315] },
+    { t: "Command · Pro", d: "A side dock for living in your apps",             w: [340, 460] },
+  ];
   return (
     <AbsoluteFill style={{ backgroundColor: BG, opacity: fade }}>
       <div style={{ position: "absolute", top: 56, width: "100%", textAlign: "center", color: INK, fontSize: 46, fontWeight: 300, fontFamily: SANS }}>
@@ -329,12 +336,25 @@ const Looks: React.FC = () => {
           ))}
         </div>
       </div>
-      {/* layout label */}
-      <div style={{ position: "absolute", bottom: 64, width: "100%", textAlign: "center", opacity: labelFade }}>
-        <span style={{ color: ACCENT2, fontSize: 34, fontFamily: SANS, border: "1px solid #223140", background: "#121b26", borderRadius: 999, padding: "12px 34px" }}>
-          {labels[li]}
-        </span>
-      </div>
+      {/* layout labels — each persists through its whole hold window */}
+      {labels.map((l) => {
+        const o = interpolate(
+          frame,
+          [l.w[0], l.w[0] + 10, l.w[1] - 10, l.w[1]],
+          [0, 1, 1, 0],
+          { extrapolateLeft: "clamp", extrapolateRight: "clamp" }
+        );
+        return (
+          <div key={l.t} style={{ position: "absolute", bottom: 46, width: "100%", textAlign: "center", opacity: o }}>
+            <div>
+              <span style={{ color: ACCENT2, fontSize: 40, fontWeight: 700, fontFamily: SANS, border: "1px solid #223140", background: "#121b26", borderRadius: 999, padding: "12px 40px" }}>
+                {l.t}
+              </span>
+            </div>
+            <div style={{ color: MUTED, fontSize: 26, fontFamily: SANS, marginTop: 16 }}>{l.d}</div>
+          </div>
+        );
+      })}
     </AbsoluteFill>
   );
 };
@@ -384,19 +404,19 @@ export const DagricPromo: React.FC = () => {
       <Sequence from={400} durationInFrames={150}>
         <Shot src="dagric-welcome-live2.png" title="Feels like home" sub="A warm welcome, an offline guide, familiar layout" />
       </Sequence>
-      <Sequence from={550} durationInFrames={280}>
+      <Sequence from={550} durationInFrames={460}>
         <Looks />
       </Sequence>
-      <Sequence from={830} durationInFrames={150}>
+      <Sequence from={1010} durationInFrames={150}>
         <Shot src="dagric-uefi-installed-desktop.png" title="Installed and yours" sub="KDE Plasma desktop — clean, fast, private" />
       </Sequence>
-      <Sequence from={980} durationInFrames={150}>
+      <Sequence from={1160} durationInFrames={150}>
         <Shot src="dagric-uefi-install-done.png" title="Modern-PC ready" sub="UEFI + Secure Boot install, verified end to end" />
       </Sequence>
-      <Sequence from={1130} durationInFrames={160}>
+      <Sequence from={1310} durationInFrames={160}>
         <Editions />
       </Sequence>
-      <Sequence from={1290} durationInFrames={130}>
+      <Sequence from={1470} durationInFrames={130}>
         <Outro />
       </Sequence>
     </AbsoluteFill>
