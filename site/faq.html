@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>FAQ — Dagric OS</title>
 <meta name="description" content="Frequently asked questions about Dagric OS — pricing, privacy, Windows apps, installation, Pro delivery, and refunds.">
-<link rel="icon" type="image/png" href="assets/dagric-logo.png">
-<link rel="stylesheet" href="assets/site.css">
+<link rel="icon" type="image/png" href="/assets/dagric-logo.png">
+<link rel="stylesheet" href="/assets/site.css">
 <style>
 details{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:18px 22px;margin-top:12px}
 details summary{cursor:pointer;font-weight:700;list-style:none;color:var(--text)}
@@ -16,18 +16,36 @@ details[open] summary::after{content:"–"}
 details p{color:var(--muted);margin-top:10px;font-size:.97rem}
 h2{margin-top:44px}
 </style>
+<link rel="canonical" href="https://dagric-os.web.app/faq">
+<meta name="theme-color" content="#0a111c">
+<link rel="icon" href="/favicon.ico" sizes="32x32">
+<link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
+<link rel="manifest" href="/site.webmanifest">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Dagric OS">
+<meta property="og:title" content="FAQ — Dagric OS">
+<meta property="og:description" content="Frequently asked questions about Dagric OS — pricing, privacy, Windows apps, installation, Pro delivery, and refunds.">
+<meta property="og:url" content="https://dagric-os.web.app/faq">
+<meta property="og:image" content="https://dagric-os.web.app/assets/hero-desktop.png">
+<meta property="og:image:width" content="1920">
+<meta property="og:image:height" content="1080">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="FAQ — Dagric OS">
+<meta name="twitter:description" content="Frequently asked questions about Dagric OS — pricing, privacy, Windows apps, installation, Pro delivery, and refunds.">
+<meta name="twitter:image" content="https://dagric-os.web.app/assets/hero-desktop.png">
 </head>
 <body>
+<a class="skip" href="#main">Skip to content</a>
 <nav><div class="nav-in">
-  <a class="brand" href="/"><img src="assets/dagric-logo.png" alt="">Dagric&nbsp;OS</a>
+  <a class="brand" href="/"><img src="/assets/dagric-logo.png" alt="Dagric OS" width="30" height="30">Dagric&nbsp;OS</a>
   <div class="nav-links">
-    <a href="/features">Features</a><a href="/pro">Pro</a><a href="/news">News</a>
+    <a href="/features">Features</a><a href="/pro">Pro</a><a href="/about">About</a>
     <a href="/getting-started">Guide</a><a href="/support">Support</a>
     <a class="cta" href="/download">Download</a>
   </div>
 </div></nav>
 
-<main>
+<main id="main">
   <h1>Questions, <span class="grad">answered.</span></h1>
   <p class="lead">Everything people ask before (and after) switching. Something missing?
   <a href="/contact">Ask us directly</a>.</p>
@@ -36,6 +54,13 @@ h2{margin-top:44px}
   <details><summary>Is Dagric OS really free?</summary><p>Yes. The free edition is a complete,
   private, hardened desktop — free forever, no strings, no account. Pro adds the creative, gaming,
   developer, and Windows-app suites for a one-time $39.</p></details>
+  <details><summary>Why pay $39 when Mint, Ubuntu or Zorin are free?</summary><p>You don't have to
+  — the free edition of Dagric is itself a real, complete distro. Pro is for people who'd rather not
+  assemble and harden a general distro themselves. It's one curated, tested, coherent product: the
+  Dagric Hub, seven one-click Looks layouts, snapshot-rollback, GPG-signed releases, Windows-app
+  support, a hand-picked open-source toolkit, and real human support — set up the way a careful
+  friend would. The tools are open source; the $39 buys the craftsmanship and the time it saves.
+  No disrespect to the other projects — Dagric is just a different trade.</p></details>
   <details><summary>Can I try it without installing anything?</summary><p>Yes — every ISO is also
   a live system. Boot it from a USB stick and use the full desktop without touching your disk;
   install only when you're ready. The <a href="/getting-started">guide</a> shows you how.</p></details>
@@ -105,5 +130,15 @@ h2{margin-top:44px}
   <span>© 2026 DGR Operations · Built on Debian. Not affiliated with the Debian Project.</span>
   <span class="links"><a href="/features">Features</a><a href="/pro">Pro</a><a href="/download">Download</a><a href="/news">News</a><a href="/getting-started">Guide</a><a href="/support">Support</a><a href="/faq">FAQ</a><a href="/contact">Contact</a><a href="/about">About</a><a href="/licenses">Licenses</a><a href="/privacy">Privacy</a><a href="/terms">Terms</a></span>
 </div></footer>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[
+{"@type":"Question","name":"Is Dagric OS really free?","acceptedAnswer":{"@type":"Answer","text":"Yes. The free edition is a complete, private, hardened desktop — free forever, no account. Pro adds the creative, gaming, developer, and Windows-app suites for a one-time $39."}},
+{"@type":"Question","name":"Why pay $39 when Mint, Ubuntu or Zorin are free?","acceptedAnswer":{"@type":"Answer","text":"You don't have to — the free edition is a real, complete distro. Pro is one curated, tested, supported product (the Hub, Looks, snapshot-rollback, signed releases, Windows-app support, human support) for people who'd rather not assemble and harden a general distro themselves. The tools are open source; the $39 buys the craftsmanship."}},
+{"@type":"Question","name":"Will my Windows files and drives work?","acceptedAnswer":{"@type":"Answer","text":"Yes. NTFS and exFAT drives mount out of the box, your Office documents open with matching fonts, and Pro runs many Windows programs directly via Bottles and Wine."}},
+{"@type":"Question","name":"Is Pro a subscription?","acceptedAnswer":{"@type":"Answer","text":"No. Pro is a one-time purchase — no license servers, no activation. You own your copy outright, with free updates."}},
+{"@type":"Question","name":"What if I buy Pro and don't like it?","acceptedAnswer":{"@type":"Answer","text":"Reply to your receipt within 14 days and we refund in full — no quiz, no hoops."}},
+{"@type":"Question","name":"What data does Dagric OS collect?","acceptedAnswer":{"@type":"Answer","text":"None. There is no telemetry, no analytics, no accounts, and no advertising ID. Nothing phones home."}}
+]}
+</script>
 </body>
 </html>
