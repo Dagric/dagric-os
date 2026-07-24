@@ -14,8 +14,12 @@ export default {
     }
 
     // Ask Stripe about this checkout session (server-side; key never leaves).
+    // Expand the charge too so we can see if the purchase was later REFUNDED —
+    // a refunded checkout session still reports payment_status "paid", so
+    // checking that alone would let a refunded buyer keep re-downloading.
     const sres = await fetch(
-      `https://api.stripe.com/v1/checkout/sessions/${sid}?expand[]=line_items`,
+      `https://api.stripe.com/v1/checkout/sessions/${sid}` +
+        `?expand[]=line_items&expand[]=payment_intent.latest_charge`,
       { headers: { Authorization: `Bearer ${env.STRIPE_KEY}` } }
     );
     if (!sres.ok) return msg(403, "Unknown purchase session.");
@@ -26,6 +30,20 @@ export default {
     const boughtPro = items.some((li) => li.price && li.price.id === PRICE_ID);
     if (!paid || !boughtPro) {
       return msg(403, "This session has no completed Dagric OS Pro purchase.");
+    }
+
+    // Refund check — FAIL-OPEN: only block on POSITIVE evidence of a refund, so
+    // a paying customer is never wrongly locked out if Stripe's shape shifts.
+    const charge = s.payment_intent && s.payment_intent.latest_charge;
+    const refunded =
+      charge && (charge.refunded === true || Number(charge.amount_refunded) > 0);
+    if (refunded) {
+      return msg(
+        403,
+        "This purchase was refunded, so Pro downloads and updates have ended. " +
+          "The copy you already downloaded is yours to keep and run. " +
+          "You're welcome to re-purchase anytime."
+      );
     }
 
     // Paid — stream the ISO from the private bucket, honoring Range.
