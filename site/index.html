@@ -47,6 +47,14 @@ main{max-width:none;margin:0;padding:0}
 .price li::before{content:"✓";position:absolute;left:0;color:var(--good);font-weight:800}
 .price li.no::before{content:"—";color:var(--faint)}
 .price .btn{margin-top:auto;text-align:center}
+@media(max-width:640px){
+  .hero .logo{width:78px;height:78px;margin-bottom:18px}
+  .trust{gap:8px 16px;padding:18px 14px}
+  .trust span{font-size:.84rem}
+  .win10 .in{padding:0 4px}
+  .price{padding:26px 22px}
+  .price .amount{font-size:2.3rem}
+}
 </style>
 </head>
 <body>
@@ -75,7 +83,7 @@ main{max-width:none;margin:0;padding:0}
   </div>
   <p class="refund">Pro is a one-time $39 · 14-day, no-questions refund</p>
   <p class="tiny">Built on Debian 13 · KDE Plasma · GPG-signed releases · free updates</p>
-  <div class="shot"><img src="/assets/hero-desktop.png" alt="The Dagric OS desktop" width="1920" height="1080"></div>
+  <div class="shot"><picture><source type="image/webp" srcset="/assets/hero-shot.webp"><img src="/assets/hero-shot.png" alt="The Dagric OS desktop" width="1920" height="820"></picture></div>
 </header>
 
 <div class="trust">

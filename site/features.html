@@ -10,8 +10,10 @@
 <style>
 .feat{display:grid;gap:18px;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));margin:26px 0 8px}
 .feat .card{margin:0}
-.strip{margin:10px 0 34px;border-radius:16px;overflow:hidden;border:1px solid var(--line);box-shadow:0 24px 70px rgba(0,0,0,.5)}
+.strip{margin:14px 0 34px;border-radius:var(--r-lg);overflow:hidden;border:1px solid var(--line);box-shadow:0 24px 70px rgba(0,0,0,.5)}
+.strip img{width:100%;display:block}
 h2.sec{margin-top:56px}
+@media(max-width:640px){h2.sec{margin-top:38px}.strip{border-radius:var(--r-md);margin-bottom:24px}}
 </style>
 <link rel="canonical" href="https://dagric-os.web.app/features">
 <meta name="theme-color" content="#0a111c">
@@ -50,7 +52,7 @@ h2.sec{margin-top:56px}
     tested, and quiet — no setup scavenger hunt, no settings to un-break.</p>
   </div>
 
-  <div class="strip"><img src="/assets/shot-welcome.png" alt="The Dagric OS welcome screen and Hub" width="1280" height="800" loading="lazy"></div>
+  <div class="strip"><picture><source type="image/webp" srcset="/assets/shot-welcome.webp"><img src="/assets/shot-welcome.png" alt="The Dagric OS welcome screen and Hub" width="1280" height="800" loading="lazy"></picture></div>
 
   <h2 class="sec">Privacy that isn't a setting</h2>
   <div class="feat">

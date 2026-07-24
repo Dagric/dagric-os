@@ -121,7 +121,7 @@ td.n{color:var(--faint)}
 .phero .lead{margin:0 auto 26px}
 .phero .btns{display:flex;gap:14px;justify-content:center;flex-wrap:wrap}
 .phero .tiny{color:var(--muted);font-size:.85rem;margin-top:12px}
-.shot{max-width:960px;margin:44px auto 0;border-radius:var(--r-lg);overflow:hidden;
+.shot{max-width:880px;margin:40px auto 0;border-radius:var(--r-lg);overflow:hidden;
   border:1px solid var(--line);box-shadow:var(--shadow),0 0 0 1px rgba(63,169,245,.08)}
 
 /* ── Dagric Looks card (one component, used on / and /pro) ── */
@@ -158,6 +158,42 @@ footer{border-top:1px solid var(--line);padding:38px 24px;color:var(--muted);fon
 .foot .links a{color:var(--muted)}
 .foot .links a:hover{color:var(--text)}
 .foot .links a:not(:last-child)::after{content:"·";margin:0 12px;color:var(--line2)}
+
+/* ── polish ── */
+.shot img{width:100%;display:block}
+.eyebrow{display:inline-block;margin-bottom:10px}
+.sec-head{margin-bottom:12px}
+
+/* ── responsive: tablet ── */
+@media(max-width:900px){
+  section{padding:64px 22px}
+  .phero{padding:64px 22px 34px}
+  .grid.c3{grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
+  .looks-grid{grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
+}
+
+/* ── responsive: phone ── */
+@media(max-width:640px){
+  h1{font-size:clamp(1.95rem,8.5vw,2.5rem)}
+  h2{font-size:clamp(1.5rem,6vw,1.95rem)}
+  section{padding:48px 18px}
+  .phero{padding:44px 18px 28px}
+  .lead,.sub{font-size:1.03rem}
+  main{max-width:100%;padding:38px 20px 60px}
+  main h2{margin:38px 0 12px;font-size:1.4rem}
+  .shot{margin-top:28px;border-radius:var(--r-md)}
+  .btn{padding:12px 22px;font-size:.97rem}
+  .btn.lg{padding:14px 24px;font-size:1rem}
+  .phero .btns{gap:10px;width:100%}
+  .phero .btns .btn{flex:1 1 auto;min-width:0;max-width:360px}
+  .looks-grid{grid-template-columns:1fr;gap:14px}
+  .grid{gap:14px}
+  .card{padding:20px 22px}
+  pre,.sums{font-size:11.5px}
+  .foot{justify-content:center;text-align:center;gap:12px}
+  .foot .links{justify-content:center}
+  .foot .links a:not(:last-child)::after{margin:0 9px}
+}
 
 @media (prefers-reduced-motion:reduce){
   *{scroll-behavior:auto!important;transition:none!important;animation:none!important}
