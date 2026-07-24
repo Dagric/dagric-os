@@ -91,6 +91,30 @@ Terminal=false
 Categories=Network;Utility;
 Keywords=localsend;airdrop;share;files;transfer;private;
 EOF
+cat > /usr/share/applications/dagric-get-cryptomator.desktop << 'EOF'
+[Desktop Entry]
+Type=Application
+Name=Encrypt Cloud Files (Cryptomator)
+GenericName=Client-side encryption
+Comment=Install Cryptomator to encrypt files before they reach any cloud
+Exec=konsole -e sh -c '/usr/bin/dagric-get-cryptomator ; echo ; printf "Press Enter to close..." ; read x'
+Icon=dagric-logo
+Terminal=false
+Categories=Security;Utility;
+Keywords=cryptomator;encrypt;vault;cloud;privacy;zero-knowledge;
+EOF
+cat > /usr/share/applications/dagric-get-upscayl.desktop << 'EOF'
+[Desktop Entry]
+Type=Application
+Name=AI Image Upscaler (Upscayl)
+GenericName=Offline AI upscaling
+Comment=Install Upscayl to enlarge and enhance images with local AI
+Exec=konsole -e sh -c '/usr/bin/dagric-get-upscayl ; echo ; printf "Press Enter to close..." ; read x'
+Icon=dagric-logo
+Terminal=false
+Categories=Graphics;Utility;
+Keywords=upscayl;upscale;ai;image;enhance;photo;
+EOF
 cat > /usr/share/applications/dagric-get-steam.desktop << 'EOF'
 [Desktop Entry]
 Type=Application

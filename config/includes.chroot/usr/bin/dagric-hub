@@ -15,14 +15,16 @@ set -- \
     guide    "Welcome & User Guide"
 if [ "$EDITION" = "pro" ]; then
     set -- "$@" \
-        bottles   "Run Windows apps — install Bottles" \
-        localsend "Share files privately — install LocalSend" \
-        steam    "Install Steam (Valve's game store)" \
-        heroic   "Install Heroic (Epic / GOG / Amazon games)" \
-        protonup "Install ProtonUp-Qt (manage Proton/Wine versions)" \
-        gaming   "Gaming extras — install Proton-GE for Steam" \
-        ai       "Local AI — install Ollama (runs on your hardware)" \
-        resolve  "DaVinci Resolve — guided install"
+        bottles     "Run Windows apps — install Bottles" \
+        localsend   "Share files privately — install LocalSend" \
+        cryptomator "Encrypt before the cloud — install Cryptomator" \
+        upscayl     "AI image upscaler (offline) — install Upscayl" \
+        steam       "Install Steam (Valve's game store)" \
+        heroic      "Install Heroic (Epic / GOG / Amazon games)" \
+        protonup    "Install ProtonUp-Qt (manage Proton/Wine versions)" \
+        gaming      "Gaming extras — install Proton-GE for Steam" \
+        ai          "Local AI — install Ollama (runs on your hardware)" \
+        resolve     "DaVinci Resolve — guided install"
 fi
 
 CHOICE=$(kdialog --title "Dagric Hub" --icon dagric-logo \
@@ -40,8 +42,10 @@ case "$CHOICE" in
     security) dagric-security-checkup & ;;
     guide)    exec firefox file:///usr/share/dagric/welcome/index.html ;;
     drivers)   run_term 'pkexec /usr/bin/dagric-drivers' ;;
-    bottles)   run_term '/usr/bin/dagric-get-bottles' ;;
-    localsend) run_term '/usr/bin/dagric-get-localsend' ;;
+    bottles)     run_term '/usr/bin/dagric-get-bottles' ;;
+    localsend)   run_term '/usr/bin/dagric-get-localsend' ;;
+    cryptomator) run_term '/usr/bin/dagric-get-cryptomator' ;;
+    upscayl)     run_term '/usr/bin/dagric-get-upscayl' ;;
     steam)    run_term '/usr/bin/dagric-get-steam' ;;
     heroic)   run_term '/usr/bin/dagric-get-heroic' ;;
     protonup) run_term '/usr/bin/dagric-get-protonup' ;;
