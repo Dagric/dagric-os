@@ -6,7 +6,7 @@
 # button with the Dagric logo so branding survives a switch.
 #
 # Edition-aware, mirroring the "free is lean, Pro is complete" rule (and
-# Zorin's own model): free ships 2 layouts, Pro unlocks 4.
+# Zorin's own model): free ships 3 layouts, Pro unlocks 7.
 EDITION=$(cat /etc/dagric-edition 2>/dev/null || echo free)
 
 # Apply a Plasma layout script against the running shell.
@@ -28,13 +28,27 @@ HORIZON="$CLEAR"' var t=new Panel; t.location="top"; t.height=Math.round(gridUni
 
 COMMAND="$CLEAR"' var s=new Panel; s.location="left"; s.height=Math.round(gridUnit*3.2); var k=s.addWidget("org.kde.plasma.kickoff"); k.currentConfigGroup=["General"]; k.writeConfig("icon","dagric-logo"); s.addWidget("org.kde.plasma.icontasks"); var t=new Panel; t.location="top"; t.height=Math.round(gridUnit*1.5); t.addWidget("org.kde.plasma.panelspacer"); t.addWidget("org.kde.plasma.systemtray"); t.addWidget("org.kde.plasma.digitalclock");'
 
+# Eleven — a centered taskbar (Windows-11 style). Two expanding spacers push
+# the app icons to the middle; launcher pinned left, tray+clock pinned right.
+ELEVEN="$CLEAR"' var p=new Panel; p.location="bottom"; p.height=Math.round(gridUnit*2.4); var k=p.addWidget("org.kde.plasma.kickoff"); k.currentConfigGroup=["General"]; k.writeConfig("icon","dagric-logo"); p.addWidget("org.kde.plasma.panelspacer"); p.addWidget("org.kde.plasma.icontasks"); p.addWidget("org.kde.plasma.panelspacer"); p.addWidget("org.kde.plasma.systemtray"); p.addWidget("org.kde.plasma.digitalclock");'
+
+# Unity — a side dock plus a top bar carrying the global application menu.
+UNITY="$CLEAR"' var s=new Panel; s.location="left"; s.height=Math.round(gridUnit*3.2); var k=s.addWidget("org.kde.plasma.kickoff"); k.currentConfigGroup=["General"]; k.writeConfig("icon","dagric-logo"); s.addWidget("org.kde.plasma.icontasks"); var t=new Panel; t.location="top"; t.height=Math.round(gridUnit*1.5); t.addWidget("org.kde.plasma.appmenu"); t.addWidget("org.kde.plasma.panelspacer"); t.addWidget("org.kde.plasma.systemtray"); t.addWidget("org.kde.plasma.digitalclock");'
+
+# Duo — two panels: a top bar (launcher, menu, tray, clock) and a bottom task
+# bar. The power-user layout with room for everything.
+DUO="$CLEAR"' var t=new Panel; t.location="top"; t.height=Math.round(gridUnit*1.6); var k=t.addWidget("org.kde.plasma.kickoff"); k.currentConfigGroup=["General"]; k.writeConfig("icon","dagric-logo"); t.addWidget("org.kde.plasma.appmenu"); t.addWidget("org.kde.plasma.panelspacer"); t.addWidget("org.kde.plasma.systemtray"); t.addWidget("org.kde.plasma.digitalclock"); var b=new Panel; b.location="bottom"; b.height=Math.round(gridUnit*2.2); b.addWidget("org.kde.plasma.pager"); b.addWidget("org.kde.plasma.taskmanager"); b.addWidget("org.kde.plasma.showdesktop");'
+
 set -- \
     classic "Classic  —  a taskbar at the bottom, familiar and comfortable" \
-    focus   "Focus  —  one tidy bar, nothing in your way"
+    focus   "Focus  —  one tidy bar, nothing in your way" \
+    eleven  "Eleven  —  a centered taskbar, clean and modern"
 if [ "$EDITION" = "pro" ]; then
     set -- "$@" \
         horizon "Horizon  —  a menu bar up top with a dock below (Pro)" \
-        command "Command  —  a side dock for living in your apps (Pro)"
+        command "Command  —  a side dock for living in your apps (Pro)" \
+        unity   "Unity  —  a side dock with a global menu bar on top (Pro)" \
+        duo     "Duo  —  two panels, top and bottom, for power users (Pro)"
 fi
 
 CHOICE=$(kdialog --title "Dagric Looks" --icon dagric-logo \
@@ -44,8 +58,11 @@ CHOICE=$(kdialog --title "Dagric Looks" --icon dagric-logo \
 case "$CHOICE" in
     classic) apply "$CLASSIC" ;;
     focus)   apply "$FOCUS" ;;
+    eleven)  apply "$ELEVEN" ;;
     horizon) apply "$HORIZON" ;;
     command) apply "$COMMAND" ;;
+    unity)   apply "$UNITY" ;;
+    duo)     apply "$DUO" ;;
     *) exit 0 ;;
 esac
 

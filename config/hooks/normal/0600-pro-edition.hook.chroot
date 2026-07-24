@@ -79,6 +79,18 @@ Terminal=false
 Categories=System;Utility;
 Keywords=windows;wine;bottles;exe;apps;compatibility;
 EOF
+cat > /usr/share/applications/dagric-get-localsend.desktop << 'EOF'
+[Desktop Entry]
+Type=Application
+Name=Share Files Privately (LocalSend)
+GenericName=Local file sharing
+Comment=Install LocalSend to share files between your devices with no cloud
+Exec=konsole -e sh -c '/usr/bin/dagric-get-localsend ; echo ; printf "Press Enter to close..." ; read x'
+Icon=dagric-logo
+Terminal=false
+Categories=Network;Utility;
+Keywords=localsend;airdrop;share;files;transfer;private;
+EOF
 cat > /usr/share/applications/dagric-get-steam.desktop << 'EOF'
 [Desktop Entry]
 Type=Application
