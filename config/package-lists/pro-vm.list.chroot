@@ -1,0 +1,28 @@
+# Dagric OS Pro — Virtual machines ("Windows in a window")
+# Wine/Bottles cover most Windows apps; for the rest, the honest answer is
+# real Windows in a VM. Fully open-source stack: KVM (kernel hypervisor),
+# QEMU, libvirt, and the virt-manager GUI. Windows itself is NEVER bundled —
+# the dagric-vm helper points at Microsoft's official ISO download.
+# Enabled on demand via dagric-vm (group membership needs owner consent).
+
+# The GUI the owner actually opens
+virt-manager
+
+# Hypervisor + tooling
+qemu-system-x86
+qemu-utils
+libvirt-daemon-system
+libvirt-clients
+
+# UEFI firmware for guests — Windows 11 requires UEFI boot
+ovmf
+
+# Software TPM 2.0 — Windows 11's hardware requirement, satisfied in software
+swtpm
+swtpm-tools
+
+# Guest display/console viewer (SPICE)
+virt-viewer
+
+# NAT networking for guests (libvirt's default network)
+dnsmasq-base

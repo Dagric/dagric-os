@@ -19,7 +19,12 @@ Free is never a crippled Pro; Pro is never a different OS.
 
 Everything already shipped: debloated KDE Plasma, zero telemetry,
 silent updates that never force a reboot, Firefox, LibreOffice essentials
-(Writer/Calc/Impress), Flathub, NTFS/exFAT, Dagric Welcome, branded installer.
+(Writer/Calc/Impress), Elisa music library, Flathub, NTFS/exFAT,
+Dagric Welcome, branded installer, and the **Migration Assistant**
+(`dagric-migrate` — copies Documents/Pictures/Music/Videos/Desktop and
+Chrome/Edge/Firefox bookmarks over from the Windows partition, read-only,
+never touching Windows). Drive-health watching too: plasma-disks warns
+before a failing disk dies, and the Security Checkup reports SMART status.
 
 **Security baseline** (genuinely strong — free is lean, not insecure):
 AppArmor mandatory access control enforced from boot, an expanded hardened
@@ -50,8 +55,9 @@ crippled, Pro is a clear step up.
 **Gaming & Windows apps**
 | | |
 |---|---|
-| Windows apps | Wine (64- and 32-bit) + winetricks — run classic .exe software |
-| Games | Steam preinstalled (Valve Proton); `dagric-gaming` adds community Proton-GE on request |
+| Windows apps | Wine (64- and 32-bit) + winetricks — run classic .exe software; Bottles via one-click consent install |
+| Windows itself | "Windows in a window" — KVM/QEMU + virt-manager preinstalled with UEFI (OVMF) and software TPM (swtpm) for Windows 11 guests; `dagric-vm` enables it with consent. Windows is never bundled — the helper points to Microsoft's official ISO download |
+| Games | Steam via one-click consent install (`dagric-get-steam` — NEVER bundled); 32-bit Vulkan prepped; `dagric-gaming` adds community Proton-GE on request |
 | Performance | gamemode governor + MangoHud FPS overlay |
 
 **Stability**
@@ -63,7 +69,7 @@ crippled, Pro is a clear step up.
 | | |
 |---|---|
 | App firewall | OpenSnitch — per-application outbound control; ships in monitor mode, blocking opt-in from the GUI |
-| USB control | USBGuard — block BadUSB / USB-drop attacks; installed, opt-in "lock down USB ports" |
+| USB control | USBGuard — block BadUSB / USB-drop attacks. Ships masked; `dagric-usb-protect` (Hub → USB Protection) generates an allow-list from the devices currently attached and only then arms the daemon, so enabling it can never deauthorize the owner's own keyboard/mouse. Same tool disarms it. |
 
 **Developer toolchain**
 | | |
@@ -80,6 +86,11 @@ crippled, Pro is a clear step up.
   (Blackmagic's license forbids preinstalling it; no honest OS can)
 - `dagric-ai` — one-command local LLM setup (Ollama); models run
   entirely on the machine, nothing leaves it
+- `dagric-vm` — enables the VM stack (groups + service) with consent
+- `dagric-get-joplin` — local-first Markdown notes (OneNote/Notion
+  alternative, offline, optional E2E-encrypted sync)
+- `dagric-get-onlyoffice` — MS-Office-style ribbon suite with the best
+  open-source .docx/.xlsx/.pptx fidelity, alongside LibreOffice
 
 ## Pro roadmap (engineering ahead of promises)
 

@@ -48,6 +48,14 @@
   <strong>System Settings → Printers → Add Printer</strong>. Most printers are
   detected automatically.</p>
 
+  <h2>Bringing your files from Windows</h2>
+  <p>Open the <strong>Dagric Hub</strong> and pick <strong>Migrate from
+  Windows</strong> (or run <code>dagric-migrate</code>). It finds the Windows
+  still on this PC, shows your Documents, Pictures, Music, Videos, Desktop and
+  browser bookmarks, and copies what you pick into your new home folder.
+  Windows is only ever <em>read</em> — nothing there is touched, so you can
+  always boot back into it.</p>
+
   <h2>Your Windows drives and USB sticks</h2>
   <p>They just work. Plug in a USB stick or external drive (including
   NTFS-formatted Windows drives) and it appears in <strong>Dolphin</strong>,
@@ -62,22 +70,44 @@
     <li><kbd>Meta</kbd>+<kbd>L</kbd> — lock the screen</li>
   </ul>
 
-  <h2>Backups</h2>
+  <h2>Pairing your phone (Pro)</h2>
+  <p><strong>KDE Connect</strong> links your phone to this PC for notifications,
+  file transfer and clipboard sharing. For your safety its ports are open only
+  on networks you mark as <em>Home</em> — never on café or airport Wi-Fi. If
+  pairing doesn't find your phone, open <strong>System Settings →
+  Firewall</strong> and set the current connection's zone to <em>home</em>.</p>
+
+  <h2>USB Protection (Pro)</h2>
+  <p>Open the Hub and choose <strong>USB Protection</strong> to block malicious
+  USB devices (the kind that pretend to be a keyboard and type commands). Plug
+  in everything you normally use <em>first</em> — Dagric remembers those and
+  blocks only strangers. Run it again any time to refresh the list or switch
+  protection back off.</p>
+
+  <h2>Backups &amp; drive health</h2>
   <p>On Dagric Pro: <strong>Vorta</strong> makes encrypted backups to a drive
   or server, and <code>rclone</code> connects to Google Drive, Dropbox,
   OneDrive and 70+ other services. <strong>Timeshift</strong> takes system
-  restore points — if an update ever misbehaves, roll back to yesterday.</p>
+  restore points — if an update ever misbehaves, roll back to yesterday.
+  On every edition, Dagric watches your drives' SMART health and warns you
+  in plain language if one starts failing — and the Security Checkup shows
+  each drive's status any time.</p>
 
   <h2>Running Windows programs (Pro)</h2>
   <p>Double-click many <code>.exe</code> files and Wine runs them. For games,
-  open <strong>Steam</strong> — enable Proton under Settings → Compatibility
-  to play Windows games. The <code>dagric-gaming</code> command adds the
-  community Proton-GE build.</p>
+  install <strong>Steam</strong> with one click from the Dagric Hub (it is
+  never bundled), then enable Proton under Settings → Compatibility. The
+  <code>dagric-gaming</code> command adds the community Proton-GE build.
+  And for the rare app that won't run under Wine, <strong>Windows in a
+  window</strong>: pick it in the Hub (<code>dagric-vm</code>) to enable
+  virtual machines and run real Windows safely inside Dagric.</p>
 
   <div class="tip">Terminal helpers that ask before doing anything:
-  <code>sudo dagric-drivers</code> (NVIDIA), <code>dagric-get-resolve</code>
+  <code>sudo dagric-drivers</code> (NVIDIA), <code>dagric-migrate</code>
+  (bring files from Windows), <code>dagric-get-resolve</code>
   (DaVinci Resolve), <code>dagric-ai</code> (private local AI),
-  <code>dagric-gaming</code> (Proton-GE).</div>
+  <code>dagric-gaming</code> (Proton-GE), <code>dagric-vm</code>
+  (virtual machines, Pro).</div>
 
   <h2>Getting help</h2>
   <p>Visit <strong>dagric.com/support</strong>. Your system details for any

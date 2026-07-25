@@ -14,10 +14,41 @@ EOF
 cat > /etc/apt/apt.conf.d/52dagric-unattended << 'EOF'
 Unattended-Upgrade::Automatic-Reboot "false";
 Unattended-Upgrade::Remove-Unused-Dependencies "true";
+
+// CRITICAL — do not remove. Stock 50unattended-upgrades matches origins with
+// ${distro_codename}, which unattended-upgrade resolves via lsb_release, i.e.
+// from VERSION_CODENAME in os-release. Hook 0100 rebrands that to "foundation"
+// (and ID to "dagric"), so EVERY stock pattern misses and nothing is ever
+// upgraded — silently voiding the product's central "silent security updates"
+// promise. Origins-Pattern is an apt LIST option, so these entries are
+// APPENDED to the stock ones; the real Debian codename is hardcoded on
+// purpose. Bump these when rebasing onto a newer Debian release.
+Unattended-Upgrade::Origins-Pattern {
+    "origin=Debian,codename=trixie,label=Debian";
+    "origin=Debian,codename=trixie,label=Debian-Security";
+    "origin=Debian,codename=trixie-security,label=Debian-Security";
+    "origin=Debian,codename=trixie-updates,label=Debian";
+};
 EOF
 
 # Firewall on by default
 systemctl enable firewalld.service 2>/dev/null || true
+
+# SSH is NOT reachable by default. openssh-server ships on Pro (off until the
+# owner enables it), but firewalld's stock public zone allows the ssh service,
+# which would expose a password-auth sshd on every untrusted network the moment
+# it's switched on. Close it; enabling SSH is then a deliberate two-step:
+#   sudo firewall-cmd --permanent --add-service=ssh && sudo firewall-cmd --reload
+firewall-offline-cmd --zone=public --remove-service=ssh 2>/dev/null || true
+
+# Fingerprint login: fprintd + libpam-fprintd are installed, but Debian's PAM
+# profile ships "Default: no", so /etc/pam.d/common-auth never consults the
+# reader — a user could enroll a finger and have it silently ignored at the
+# login screen, lockscreen and sudo. Enable the profile non-interactively.
+# pam_fprintd returns "ignore" when no reader or no enrollment exists, so
+# password login is unaffected on hardware without a sensor.
+DEBIAN_FRONTEND=noninteractive pam-auth-update --enable fprintd 2>/dev/null || \
+    echo "WARNING: could not enable the fprintd PAM profile"
 
 # AppArmor confinement on by default
 systemctl enable apparmor.service 2>/dev/null || true

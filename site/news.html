@@ -47,6 +47,60 @@ article img{border-radius:var(--r-md);border:1px solid var(--line);margin:16px 0
   <h1>News from <span class="grad">Dagric.</span></h1>
   <p class="lead">Release notes, milestones, and what's coming next.</p>
 
+  <article id="migration">
+    <div class="date">July 25, 2026 · Update</div>
+    <h2>Your files follow you: the Migration Assistant</h2>
+    <p>The biggest fear about leaving Windows was never the desktop — it's the
+    <em>stuff</em>. This update makes the move a one-click errand, on every
+    edition:</p>
+    <ul>
+      <li><strong>Migration Assistant</strong> (free) — open the Hub, pick
+      <em>Migrate from Windows</em>, and Dagric finds the Windows still on your
+      PC, then copies your Documents, Pictures, Music, Videos, Desktop and
+      <strong>Chrome / Edge / Firefox bookmarks</strong> into your new home.
+      The Windows partition is only ever mounted read-only — nothing there is
+      touched, and it checks free space before it copies a byte.</li>
+      <li><strong>Drive-failure early warning</strong> (free) — Dagric now
+      watches every disk's SMART health and warns you in plain language while
+      a backup is still possible. The Security Checkup reports each drive's
+      status alongside your hardening score.</li>
+      <li><strong>A real music library</strong> (free) — Elisa, KDE's own
+      player: your music, playlists, album art. No accounts, obviously.</li>
+      <li><strong>Windows in a window</strong> (Pro) — for the rare app Wine
+      can't handle: a full KVM virtual-machine stack with UEFI and a software
+      TPM 2.0, so even Windows 11 installs in a box. You bring Microsoft's own
+      ISO; Dagric never bundles Windows.</li>
+      <li><strong>Joplin &amp; ONLYOFFICE</strong> (Pro, one-click) — private
+      Markdown notes that live on your disk, and the ribbon-style office suite
+      with the best open-source .docx fidelity.</li>
+    </ul>
+    <p>This release also lands a deep audit of the shipped images — every
+    finding below was verified against the actual ISO contents, not just the
+    source:</p>
+    <ul>
+      <li><strong>Silent security updates now actually install.</strong> Our
+      own rebranding renamed the OS codename, which quietly stopped
+      unattended-upgrades from matching any Debian security origin — patches
+      were never applied. Fixed and pinned. This is the most important fix in
+      the release.</li>
+      <li><strong>USB Protection is safe to turn on.</strong> USBGuard could be
+      pulled in at boot by a companion service with an empty allow-list, which
+      would deauthorize USB keyboards and mice. It now ships fully masked, and
+      a new <em>USB Protection</em> tool allow-lists your attached devices
+      <em>before</em> arming — it can't lock you out.</li>
+      <li><strong>Fingerprint login works</strong> — the PAM profile was
+      installed but never enabled, so enrolled fingerprints were ignored.</li>
+      <li><strong>Google Drive in Dolphin can sign in</strong> (Pro) — the
+      account provider was missing, making the feature unreachable.</li>
+      <li><strong>Firmware updates appear in Discover</strong>, not just the
+      command line. <strong>CJK text no longer renders as empty boxes</strong>
+      on the free edition. <strong>KDE Connect</strong> ports moved off
+      untrusted networks, and SSH is no longer pre-opened in the firewall.</li>
+    </ul>
+    <p>Consent installers are now truly per-user (no admin prompt), and every
+    helper's documentation was re-checked against what actually ships.</p>
+  </article>
+
   <article id="looks-plus">
     <div class="date">July 24, 2026 · Update</div>
     <h2>More Looks, and a curated open-source toolkit</h2>

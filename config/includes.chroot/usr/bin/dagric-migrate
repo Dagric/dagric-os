@@ -1,0 +1,262 @@
+#!/bin/sh
+# Dagric OS — Migration Assistant: bring your files and bookmarks over from
+# the Windows installation that's still on this PC (or on a plugged-in drive).
+# The Windows partition is only ever mounted READ-ONLY — nothing there is
+# touched, so the owner can go back any time. Copies never overwrite files
+# that already exist in the Linux home (--ignore-existing).
+# Free edition: this is the switcher's onboarding moment, so it ships everywhere.
+
+TITLE="Dagric Migration Assistant"
+err() { kdialog --title "$TITLE" --sorry "$1" 2>/dev/null; }
+
+# --- 0. Live-session warning: the live home lives in RAM -------------------
+if [ -d /run/live/medium ]; then
+    kdialog --title "$TITLE" --warningcontinuecancel \
+"You are running the LIVE session (from the USB stick).
+
+Anything copied here lands in memory and disappears at shutdown.
+Best order: install Dagric first, then run Migration from the Hub.
+
+Continue anyway (e.g. to rescue a few files)?" 2>/dev/null || exit 0
+fi
+
+# --- 1. Find Windows: NTFS partitions that contain \Windows and \Users -----
+kdialog --title "$TITLE" --passivepopup "Looking for a Windows installation…" 6 2>/dev/null &
+
+CAND=/tmp/dagric-migrate-candidates.$$
+: > "$CAND"
+BITLOCKER=""
+MOUNTED_BY_US=""
+
+# lsblk -rp: raw, full paths. Columns: NAME FSTYPE MOUNTPOINT (may be empty).
+lsblk -rpno NAME,FSTYPE,MOUNTPOINT 2>/dev/null | while IFS=' ' read -r dev fstype mnt; do
+    case "$fstype" in
+        BitLocker) echo "$dev" >> "${CAND}.bitlocker" ;;
+        ntfs|ntfs3)
+            if [ -z "$mnt" ]; then
+                # Mount read-only via udisks (polkit handles authorization).
+                if udisksctl mount -b "$dev" -o ro >/dev/null 2>&1; then
+                    mnt=$(lsblk -rpno MOUNTPOINT "$dev" | head -1)
+                    [ -n "$mnt" ] && echo "$dev" >> "${CAND}.mounted"
+                fi
+            fi
+            # NOTE: udisks decodes \xNN escapes for us via lsblk raw output;
+            # re-read the mountpoint in decoded form:
+            mnt=$(lsblk -pno MOUNTPOINT "$dev" | head -1)
+            if [ -n "$mnt" ] && [ -d "$mnt/Windows" ] && [ -d "$mnt/Users" ]; then
+                printf '%s\t%s\n' "$dev" "$mnt" >> "$CAND"
+            fi
+            ;;
+    esac
+done
+
+[ -f "${CAND}.bitlocker" ] && BITLOCKER=$(cat "${CAND}.bitlocker" 2>/dev/null)
+[ -f "${CAND}.mounted" ]   && MOUNTED_BY_US=$(cat "${CAND}.mounted" 2>/dev/null)
+
+cleanup() {
+    # Unmount only what we mounted; leave pre-existing mounts alone.
+    for d in $MOUNTED_BY_US; do udisksctl unmount -b "$d" >/dev/null 2>&1; done
+    rm -f "$CAND" "${CAND}.bitlocker" "${CAND}.mounted"
+}
+trap cleanup EXIT
+
+if [ ! -s "$CAND" ]; then
+    if [ -n "$BITLOCKER" ]; then
+        err "A BitLocker-encrypted drive was found ($BITLOCKER) but Dagric cannot
+unlock it without the recovery key.
+
+In Windows: turn off BitLocker (Settings > Privacy & security >
+Device encryption), or copy your files to a plain USB drive instead.
+Nothing on the drive was changed."
+    else
+        err "No Windows installation was found on this PC's drives.
+
+If a password prompt appeared and was cancelled, Dagric could not open
+the Windows drive to look inside — run this again and approve it.
+
+If Windows lives on a drive that isn't plugged in, connect it and
+run Migration again from the Dagric Hub. Nothing was changed."
+    fi
+    exit 1
+fi
+
+# --- 2. Pick the Windows install (if several) ------------------------------
+N=$(wc -l < "$CAND")
+if [ "$N" -gt 1 ]; then
+    MENU=""
+    i=0
+    while IFS='	' read -r dev mnt; do
+        i=$((i+1))
+        MENU="$MENU $i \"$dev — $(du -sh "$mnt/Users" 2>/dev/null | cut -f1) of user files\""
+    done < "$CAND"
+    PICK=$(eval kdialog --title \"\$TITLE\" --menu \"Several Windows installations were found. Which one?\" $MENU 2>/dev/null) || exit 0
+else
+    PICK=1
+fi
+WINDEV=$(sed -n "${PICK}p" "$CAND" | cut -f1)
+WINMNT=$(sed -n "${PICK}p" "$CAND" | cut -f2)
+
+# --- 3. Pick the Windows user profile --------------------------------------
+PROFILES=/tmp/dagric-migrate-profiles.$$
+find "$WINMNT/Users" -mindepth 1 -maxdepth 1 -type d 2>/dev/null \
+    | grep -viE '/(Public|Default|Default User|All Users)$' > "$PROFILES"
+PN=$(wc -l < "$PROFILES")
+if [ "$PN" -eq 0 ]; then
+    err "No user profiles were found in $WINMNT/Users."; rm -f "$PROFILES"; exit 1
+elif [ "$PN" -gt 1 ]; then
+    MENU=""
+    i=0
+    while IFS= read -r p; do
+        i=$((i+1)); MENU="$MENU $i \"$(basename "$p")\""
+    done < "$PROFILES"
+    UPICK=$(eval kdialog --title \"\$TITLE\" --menu \"Which Windows user are you?\" $MENU 2>/dev/null) || { rm -f "$PROFILES"; exit 0; }
+else
+    UPICK=1
+fi
+WINUSER_DIR=$(sed -n "${UPICK}p" "$PROFILES")
+WINUSER=$(basename "$WINUSER_DIR")
+rm -f "$PROFILES"
+
+# --- 4. What to bring over --------------------------------------------------
+CHOICES=$(kdialog --title "$TITLE" --separate-output --checklist \
+"Found Windows user \"$WINUSER\". What should come over to Dagric?
+(Files are COPIED — Windows keeps its own untouched.)" \
+ docs   "Documents"                        on \
+ desk   "Desktop"                          on \
+ pics   "Pictures"                         on \
+ music  "Music"                            on \
+ vids   "Videos"                           on \
+ downl  "Downloads"                        off \
+ marks  "Browser bookmarks (Chrome / Edge / Firefox)" on \
+ 2>/dev/null) || exit 0
+[ -n "$CHOICES" ] || exit 0
+
+# Map choice -> Windows dir name + Linux target. OneDrive-redirected folders
+# are merged in as a second source when present.
+pairs_for() {
+    case "$1" in
+        docs)  echo "Documents";; desk) echo "Desktop";; pics) echo "Pictures";;
+        music) echo "Music";;     vids) echo "Videos";;  downl) echo "Downloads";;
+    esac
+}
+
+# --- 5. Space check ----------------------------------------------------------
+NEED_KB=0
+for c in $CHOICES; do
+    d=$(pairs_for "$c"); [ -n "$d" ] || continue
+    for src in "$WINUSER_DIR/$d" "$WINUSER_DIR/OneDrive/$d"; do
+        [ -d "$src" ] || continue
+        NEED_KB=$((NEED_KB + $(du -sk "$src" 2>/dev/null | cut -f1)))
+    done
+done
+FREE_KB=$(df -k "$HOME" | awk 'NR==2{print $4}')
+if [ "$NEED_KB" -gt "$FREE_KB" ]; then
+    err "Not enough space: your selection is $((NEED_KB/1024/1024)) GB but this
+disk only has $((FREE_KB/1024/1024)) GB free. Deselect some folders
+(Videos are usually the big one) and try again. Nothing was copied."
+    exit 1
+fi
+
+# --- 6. Copy (rsync: resumable, never overwrites existing Linux files) ------
+echo
+echo "=== Dagric Migration: copying from Windows user '$WINUSER' ==="
+echo "    (source is mounted read-only; Windows is not modified)"
+echo
+for c in $CHOICES; do
+    d=$(pairs_for "$c"); [ -n "$d" ] || continue
+    for src in "$WINUSER_DIR/$d" "$WINUSER_DIR/OneDrive/$d"; do
+        [ -d "$src" ] || continue
+        echo "--- $src  ->  $HOME/$d"
+        mkdir -p "$HOME/$d"
+        rsync -rt --ignore-existing --info=progress2 \
+            --exclude 'desktop.ini' --exclude 'Thumbs.db' --exclude '*.lnk' \
+            "$src/" "$HOME/$d/" || echo "    (some files could not be read — skipped)"
+    done
+done
+
+# --- 7. Bookmarks -> one HTML file Firefox can import ------------------------
+# NOTE: kdialog --separate-output returns the tags NEWLINE-separated, so a
+# `case " $CHOICES " in *" marks "*)` test silently never matches (there is a
+# newline, not a space, before the tag) and bookmarks would be skipped without
+# a word of explanation. Re-split on whitespace instead.
+WANT_MARKS=no
+for c in $CHOICES; do [ "$c" = marks ] && WANT_MARKS=yes; done
+case "$WANT_MARKS" in yes)
+    OUT="$HOME/Windows-bookmarks.html"
+    python3 - "$WINUSER_DIR" "$OUT" << 'PYEOF'
+import json, sqlite3, sys, glob, html, os, shutil, tempfile
+prof, out = sys.argv[1], sys.argv[2]
+items = []   # (folder, title, url)
+
+def walk_chrome(node, folder):
+    if node.get("type") == "url":
+        items.append((folder, node.get("name", ""), node.get("url", "")))
+    for ch in node.get("children", []):
+        walk_chrome(ch, node.get("name", folder))
+
+# Chrome + Edge (every profile, not just Default)
+for base, label in ((r"AppData/Local/Google/Chrome/User Data", "Chrome"),
+                    (r"AppData/Local/Microsoft/Edge/User Data", "Edge")):
+    for bm in glob.glob(os.path.join(prof, base, "*", "Bookmarks")):
+        try:
+            with open(bm, encoding="utf-8") as f:
+                roots = json.load(f).get("roots", {})
+            for r in roots.values():
+                if isinstance(r, dict):
+                    walk_chrome(r, label)
+        except Exception:
+            pass
+
+# Firefox on Windows (places.sqlite; copy out first — NTFS is mounted ro)
+for db in glob.glob(os.path.join(prof, r"AppData/Roaming/Mozilla/Firefox/Profiles", "*", "places.sqlite")):
+    try:
+        tmp = os.path.join(tempfile.mkdtemp(), "places.sqlite")
+        shutil.copy(db, tmp)
+        con = sqlite3.connect(tmp)
+        for title, url in con.execute(
+            "SELECT b.title, p.url FROM moz_bookmarks b JOIN moz_places p ON b.fk=p.id "
+            "WHERE b.type=1 AND p.url LIKE 'http%'"):
+            items.append(("Firefox", title or url, url))
+        con.close()
+    except Exception:
+        pass
+
+seen, rows = set(), []
+for folder, title, url in items:
+    if url and url not in seen:
+        seen.add(url)
+        rows.append((folder, title, url))
+
+with open(out, "w", encoding="utf-8") as f:
+    f.write("<!DOCTYPE NETSCAPE-Bookmark-file-1>\n<META HTTP-EQUIV=\"Content-Type\" "
+            "CONTENT=\"text/html; charset=UTF-8\">\n<TITLE>Bookmarks</TITLE>\n"
+            "<H1>Bookmarks from Windows</H1>\n<DL><p>\n")
+    cur = None
+    for folder, title, url in sorted(rows):
+        if folder != cur:
+            if cur is not None:
+                f.write("</DL><p>\n")
+            f.write("<DT><H3>%s</H3>\n<DL><p>\n" % html.escape(folder))
+            cur = folder
+        f.write('<DT><A HREF="%s">%s</A>\n' % (html.escape(url, quote=True), html.escape(title)))
+    if cur is not None:
+        f.write("</DL><p>\n")
+    f.write("</DL><p>\n")
+print("BOOKMARKS=%d" % len(rows))
+PYEOF
+    if [ -s "$OUT" ]; then
+        echo
+        echo "Bookmarks saved to: $OUT"
+        echo "Import them in Firefox:  Bookmarks > Manage Bookmarks >"
+        echo "Import and Backup > Import Bookmarks from HTML."
+    fi
+;; esac
+
+echo
+echo "=== Migration finished ==="
+kdialog --title "$TITLE" --msgbox \
+"Done! Your Windows files are now in your Dagric home folder.
+
+Windows itself was not modified — it was only ever read.
+Bookmarks (if selected): import ~/Windows-bookmarks.html in Firefox via
+Bookmarks > Manage Bookmarks > Import and Backup." 2>/dev/null

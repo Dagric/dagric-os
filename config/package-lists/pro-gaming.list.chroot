@@ -6,8 +6,11 @@
 wine
 winetricks
 
-# NOTE: steam-installer is installed by the 0600-pro-edition hook —
-# it depends on i386 multiarch, which must be enabled first.
+# NOTE: Steam is deliberately NOT preinstalled (Valve's EULA — owner
+# mandate: proprietary stores are never bundled). It installs only via the
+# dagric-get-steam consent helper in the Hub; the 0600 hook pre-enables
+# i386 multiarch + 32-bit Wine/Vulkan so that consent install works
+# instantly when the owner opts in.
 
 # Vulkan drivers — CRITICAL: Proton/DXVK translate DirectX to Vulkan; with
 # --apt-recommends false nothing else pulls these in, and without them Steam

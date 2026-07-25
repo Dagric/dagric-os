@@ -28,10 +28,18 @@ rclone
 # Google Drive mounted natively in Dolphin (KDE-native, complements rclone's
 # CLI with a browse-in-the-file-manager experience).
 kio-gdrive
+# kio-gdrive alone cannot SIGN IN: the Google entry in Online Accounts lives in
+# kaccounts-providers, which is only a Recommends and so is dropped by our
+# no-recommends policy — leaving the advertised "Google Drive in Dolphin" with
+# no way to add an account. The OAuth login window needs the QtWebEngine QML
+# module. (Audit: verified missing in the shipped Pro image.)
+kaccounts-providers
+qml6-module-qtwebengine
 
-# System restore points — roll the OS back if an update or driver
-# ever goes sideways (rsync mode works on the default ext4 install;
-# btrfs snapshot mode lights up automatically on btrfs installs)
+# Optional scheduled-snapshot GUI. The automatic pre-update rollback stack
+# is snapper + grub-btrfs (configured at first boot on the default btrfs
+# install); Timeshift adds user-scheduled restore points on top, and its
+# rsync mode covers manual ext4 installs that snapper's btrfs flow can't.
 timeshift
 
 # Mobile integration — notifications, file transfer, remote input,

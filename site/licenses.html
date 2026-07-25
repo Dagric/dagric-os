@@ -54,10 +54,14 @@
   </ul>
 
   <h2>What's never bundled</h2>
-  <p>Proprietary software is <strong>never preinstalled</strong>. Steam (Valve), the NVIDIA driver,
-  Widevine DRM, and DaVinci Resolve (Blackmagic) are only ever installed when <em>you</em> ask —
-  one-click, clearly labeled — fetched from their vendors under their own EULAs. Firmware needed
-  for hardware to function comes from Debian's <code>non-free-firmware</code> area.</p>
+  <p>Proprietary <strong>applications</strong> are <strong>never preinstalled</strong>. Steam (Valve),
+  the NVIDIA driver, Widevine DRM, and DaVinci Resolve (Blackmagic) are only ever installed when
+  <em>you</em> ask — one-click, clearly labeled — fetched from their vendors under their own EULAs.
+  One honest exception, the same one Debian's own official media makes: redistributable closed-source
+  <em>device firmware and CPU microcode</em> (Wi-Fi chips, sound, security updates for your processor)
+  ship preinstalled from Debian's <code>non-free-firmware</code> area, because without them Wi-Fi and
+  audio simply don't work on real hardware. Every license text is on disk at
+  <code>/usr/share/doc/&lt;package&gt;/copyright</code>.</p>
 
   <h2>Source code</h2>
   <p>Source for every Debian package in Dagric OS is available from

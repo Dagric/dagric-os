@@ -1,0 +1,64 @@
+#!/bin/sh
+# Dagric OS Pro — "Windows in a window": set up virtual machines (KVM/QEMU +
+# virt-manager). For the app that Wine/Bottles can't run, the honest answer is
+# real Windows inside a VM. Everything here is open source and preinstalled on
+# Pro; this helper only ENABLES it (group membership + service) with consent,
+# and points to Microsoft's own ISO download — Dagric never bundles Windows.
+cat << 'EOF'
+Dagric — Windows in a window (virtual machines)
+
+Pro ships a complete, open-source VM stack: KVM (the Linux kernel's own
+hypervisor), QEMU, and the Virtual Machine Manager app. A virtual machine
+runs a whole other OS — including real Windows — inside a window, safely
+walled off from your files.
+
+This setup will:
+  1. check that your CPU's virtualization is enabled,
+  2. add your user to the 'libvirt' and 'kvm' groups (needs your password),
+  3. make sure the VM service is running.
+EOF
+
+# --- 1. CPU virtualization check -------------------------------------------
+if ! grep -qE 'vmx|svm' /proc/cpuinfo; then
+    cat << 'EOF'
+
+Your CPU's virtualization (Intel VT-x / AMD-V) is OFF or unsupported.
+Usually it just needs switching on in the BIOS/UEFI: reboot, enter setup
+(often F2 or Del), find "Virtualization" / "SVM" / "VT-x", enable, save.
+Then run this again. No changes were made.
+EOF
+    exit 1
+fi
+echo
+echo "CPU virtualization: available."
+
+printf '\nEnable VM support now? [y/N] '
+read ans
+case "$ans" in y|Y|yes|YES) ;; *) echo "No changes made."; exit 0 ;; esac
+
+# --- 2. Groups + service (single privileged step) ---------------------------
+ME=$(id -un)
+if pkexec sh -c "usermod -aG libvirt,kvm '$ME' && systemctl enable --now libvirtd.service"; then
+    echo "User '$ME' added to libvirt+kvm; VM service running."
+else
+    echo "Could not enable VM support (administrator access is required)."
+    exit 1
+fi
+
+cat << 'EOF'
+
+Done. One thing to know: group changes apply at your NEXT login —
+log out and back in once before creating your first VM.
+
+To install Windows in a VM:
+  1. Get the Windows ISO from Microsoft's official download page:
+        https://www.microsoft.com/software-download/windows11
+     (Windows in a VM runs unactivated with minor cosmetic limits, or use
+      your existing license key.)
+  2. Open "Virtual Machine Manager" from the launcher.
+  3. New VM > Local install media > pick the ISO > give it 4+ GB RAM,
+     2+ CPUs, 64+ GB disk. Windows 11's TPM requirement is covered — Pro
+     ships swtpm (a software TPM) and UEFI firmware (OVMF).
+
+Your files stay outside the VM unless you share them on purpose.
+EOF

@@ -46,8 +46,11 @@ fi
 # open-source Carlito (Calibri-metric) + Caladea (Cambria-metric) + Liberation
 # fonts in the base system give the same document layout fidelity, fully free.
 
-# KDE Connect needs its ports open (firewalld ships a service preset)
-firewall-offline-cmd --zone=public --add-service=kdeconnect 2>/dev/null || \
+# KDE Connect needs its ports open (firewalld ships a service preset). Bind it
+# to the HOME zone, not public: 1714-1764 is a phone-pairing surface that has no
+# business being reachable on café/airport Wi-Fi. Pairing works once the owner
+# marks the network as trusted (dagric-setup offers this; the guide explains it).
+firewall-offline-cmd --zone=home --add-service=kdeconnect 2>/dev/null || \
     echo "WARNING: could not preopen KDE Connect ports"
 
 # Security Suite (Pro): OpenSnitch runs in monitor mode (permissive default
@@ -55,7 +58,21 @@ firewall-offline-cmd --zone=public --add-service=kdeconnect 2>/dev/null || \
 # the box; the owner opts into blocking from the GUI. USBGuard is installed
 # but its service stays DISABLED — enabling it would block an unknown USB
 # keyboard; it's surfaced as an opt-in toggle instead.
-systemctl disable usbguard.service 2>/dev/null || true
+# USBGuard: MUST stay fully inert until the owner opts in through
+# dagric-usb-protect. Disabling usbguard.service alone is NOT enough — Debian's
+# preset enables usbguard-dbus.service, which declares Requires=usbguard.service
+# and therefore starts the blocking daemon on every boot. With the shipped
+# rules.conf empty and ImplicitPolicyTarget=block, that deauthorizes every USB
+# device: the owner's keyboard and mouse go dead, and on a live-USB boot the
+# stick backing the session can be cut off. (QEMU tests miss this — emulated
+# input is PS/2.) Mask both units so nothing can pull them in; the opt-in
+# helper unmasks, generates an allow-list from the currently attached devices,
+# and only then starts them.
+systemctl disable usbguard.service usbguard-dbus.service 2>/dev/null || true
+systemctl mask usbguard.service usbguard-dbus.service 2>/dev/null || true
+# The per-user notifier is globally enabled by the package; it is useless while
+# the daemon is masked and only produces confusing popups.
+systemctl --global disable usbguard-notifier.service 2>/dev/null || true
 systemctl enable opensnitch.service 2>/dev/null || true
 
 # Pro look: Papirus icons by default for new users
@@ -186,6 +203,54 @@ Icon=dagric-logo
 Terminal=false
 Categories=AudioVideo;Video;
 Keywords=davinci;resolve;video;editor;blackmagic;
+EOF
+cat > /usr/share/applications/dagric-usb-protect.desktop << 'EOF'
+[Desktop Entry]
+Type=Application
+Name=USB Protection
+GenericName=Block unknown USB devices
+Comment=Allow-list the USB devices you use and block malicious ones (BadUSB)
+Exec=dagric-usb-protect
+Icon=dagric-logo
+Terminal=false
+Categories=System;Security;
+Keywords=usb;usbguard;security;badusb;lockdown;ports;
+EOF
+cat > /usr/share/applications/dagric-vm.desktop << 'EOF'
+[Desktop Entry]
+Type=Application
+Name=Windows in a Window (VMs)
+GenericName=Virtual machine setup
+Comment=Enable KVM virtual machines — run real Windows safely inside a window
+Exec=konsole -e sh -c '/usr/bin/dagric-vm ; echo ; printf "Press Enter to close..." ; read x'
+Icon=dagric-logo
+Terminal=false
+Categories=System;Emulator;
+Keywords=vm;virtual;machine;windows;kvm;qemu;virt-manager;
+EOF
+cat > /usr/share/applications/dagric-get-joplin.desktop << 'EOF'
+[Desktop Entry]
+Type=Application
+Name=Private Notes (Joplin)
+GenericName=Local-first notes
+Comment=Install Joplin — notes and to-dos in open Markdown, no account, offline-first
+Exec=konsole -e sh -c '/usr/bin/dagric-get-joplin ; echo ; printf "Press Enter to close..." ; read x'
+Icon=dagric-logo
+Terminal=false
+Categories=Office;Utility;
+Keywords=joplin;notes;notebook;markdown;onenote;notion;todo;
+EOF
+cat > /usr/share/applications/dagric-get-onlyoffice.desktop << 'EOF'
+[Desktop Entry]
+Type=Application
+Name=Familiar Office Look (ONLYOFFICE)
+GenericName=MS-Office-style suite
+Comment=Install ONLYOFFICE — the ribbon layout Office users know, best .docx fidelity
+Exec=konsole -e sh -c '/usr/bin/dagric-get-onlyoffice ; echo ; printf "Press Enter to close..." ; read x'
+Icon=dagric-logo
+Terminal=false
+Categories=Office;
+Keywords=onlyoffice;office;word;excel;powerpoint;docx;xlsx;pptx;ribbon;
 EOF
 
 # PhotoGIMP (Diolinux): familiar Photoshop-style layout for GIMP.

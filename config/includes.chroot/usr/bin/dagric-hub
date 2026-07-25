@@ -9,16 +9,21 @@ EDITION=$(cat /etc/dagric-edition 2>/dev/null || echo free)
 # Build the menu: pairs of "tag" "label". Pro adds creator tools.
 set -- \
     setup    "Finish setting up this PC" \
+    migrate  "Migrate from Windows — bring your files and bookmarks" \
     looks    "Dagric Looks — change your desktop layout" \
     drivers  "Graphics drivers — install the NVIDIA driver" \
     security "Security Checkup — score this system's hardening" \
     guide    "Welcome & User Guide"
 if [ "$EDITION" = "pro" ]; then
     set -- "$@" \
+        vm          "Windows in a window — set up virtual machines" \
+        usbprotect  "USB protection — block unknown USB devices" \
         bottles     "Run Windows apps — install Bottles" \
         localsend   "Share files privately — install LocalSend" \
         cryptomator "Encrypt before the cloud — install Cryptomator" \
         upscayl     "AI image upscaler (offline) — install Upscayl" \
+        joplin      "Notes that stay yours — install Joplin" \
+        onlyoffice  "The familiar Office look — install ONLYOFFICE" \
         steam       "Install Steam (Valve's game store)" \
         heroic      "Install Heroic (Epic / GOG / Amazon games)" \
         protonup    "Install ProtonUp-Qt (manage Proton/Wine versions)" \
@@ -38,6 +43,11 @@ run_term() {
 
 case "$CHOICE" in
     setup)    dagric-setup & ;;
+    migrate)  run_term '/usr/bin/dagric-migrate' ;;
+    vm)       run_term '/usr/bin/dagric-vm' ;;
+    usbprotect) dagric-usb-protect & ;;
+    joplin)     run_term '/usr/bin/dagric-get-joplin' ;;
+    onlyoffice) run_term '/usr/bin/dagric-get-onlyoffice' ;;
     looks)    dagric-looks & ;;
     security) dagric-security-checkup & ;;
     guide)    exec firefox file:///usr/share/dagric/welcome/index.html ;;

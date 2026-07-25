@@ -59,6 +59,15 @@ locales
 ntfs-3g
 exfatprogs
 
+# Migration Assistant (dagric-migrate) — rsync does the resumable copying
+# from the old Windows partition. Free: migration IS the onboarding.
+rsync
+
+# Drive health — smartctl feeds the Security Checkup's disk report, and
+# plasma-disks (desktop list) warns the owner BEFORE a failing disk dies.
+# "You own this machine" includes knowing when its disk is dying.
+smartmontools
+
 # Archive formats Ark should just handle
 p7zip-full
 unzip
@@ -102,9 +111,14 @@ fonts-noto-color-emoji
 fonts-liberation
 # Metric-compatible with Calibri/Cambria so .docx/.xlsx from MS Office open
 # in LibreOffice without layout reflow. Tiny; huge fidelity win.
-# (Full CJK international fonts are a Pro add — keeps free lean.)
 fonts-crosextra-carlito
 fonts-crosextra-caladea
+# CJK fallback (~2 MB). Without ANY CJK-capable font, a Japanese product page,
+# a Chinese manual, or a Korean video title renders as empty tofu boxes — which
+# reads as "this OS is broken", not "this OS is lean". Droid Fallback is the
+# minimum that makes text legible everywhere; full-quality CJK typography
+# (fonts-noto-cjk, ~91 MB) stays the Pro upgrade.
+fonts-droid-fallback
 
 # Multimedia codecs — mpv bundles ffmpeg for local files, but Plasma/Qt and
 # GStreamer apps need these for web/embedded media to play with sound.

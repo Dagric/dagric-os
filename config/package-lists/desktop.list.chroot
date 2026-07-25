@@ -37,6 +37,10 @@ print-manager
 # Software center (Flatpak-backed)
 plasma-discover
 plasma-discover-backend-flatpak
+# Firmware updates (LVFS) in the GUI. fwupd itself is in system.list, but
+# without this backend Discover shows no firmware at all and updates are
+# CLI-only via fwupdmgr — which the Windows-switcher audience will never find.
+plasma-discover-backend-fwupd
 
 # Desktop completeness: network browsing in Dolphin, video/document
 # thumbnails, a calculator, and a task-manager equivalent (Ctrl+Esc)
@@ -59,3 +63,8 @@ espeak-ng
 # Disk/power plumbing the desktop expects
 udisks2
 upower
+
+# SMART disk-failure warnings, KDE-native: a kded daemon that watches disk
+# health and notifies the user in plain language when a drive degrades.
+# Pairs with smartmontools (system list) which powers the Security Checkup.
+plasma-disks

@@ -17,9 +17,9 @@ printf '\nInstall Cryptomator now? [y/N] '
 read ans
 case "$ans" in y|Y|yes|YES) ;; *) echo "No changes made."; exit 0 ;; esac
 
-flatpak remote-add --if-not-exists flathub \
+flatpak remote-add --user --if-not-exists flathub \
     https://dl.flathub.org/repo/flathub.flatpakrepo 2>/dev/null || true
-if flatpak install -y --noninteractive flathub org.cryptomator.Cryptomator; then
+if flatpak install --user -y --noninteractive flathub org.cryptomator.Cryptomator; then
     echo; echo "Cryptomator installed — launch it from the application launcher."
 else
     echo; echo "Install did not complete. Check your network and try again."

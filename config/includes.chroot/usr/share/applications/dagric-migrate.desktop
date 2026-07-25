@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=Migrate from Windows
+GenericName=Windows migration assistant
+Comment=Copy your Documents, Pictures, Music, Videos and browser bookmarks over from the Windows on this PC
+Exec=konsole -e sh -c '/usr/bin/dagric-migrate ; echo ; printf "Press Enter to close..." ; read x'
+Icon=dagric-logo
+Terminal=false
+Categories=System;Utility;
+Keywords=windows;migrate;migration;transfer;files;documents;bookmarks;switch;

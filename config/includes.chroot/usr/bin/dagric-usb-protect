@@ -1,0 +1,72 @@
+#!/bin/sh
+# Dagric OS Pro — USB port lockdown (USBGuard), safely.
+# USBGuard blocks USB devices that aren't on an allow-list, which defeats
+# "BadUSB" attacks and malicious USB drops. Enabled naively it is a foot-gun:
+# the shipped policy is empty and the daemon's default is BLOCK, so turning it
+# on would instantly deauthorize the owner's own keyboard and mouse with no way
+# left to click "allow". This helper does it in the only safe order —
+# allow-list what's plugged in FIRST, then start the daemon.
+TITLE="Dagric USB Protection"
+
+if [ ! -x /usr/sbin/usbguard ] && ! command -v usbguard >/dev/null 2>&1; then
+    kdialog --title "$TITLE" --sorry \
+        "USB protection is a Dagric Pro feature." 2>/dev/null
+    exit 1
+fi
+
+# Already on? Offer to turn it off.
+if systemctl is-active --quiet usbguard.service 2>/dev/null; then
+    kdialog --title "$TITLE" --warningyesno \
+"USB protection is currently ON — unknown USB devices are blocked.
+
+Turn it OFF and allow all USB devices again?" 2>/dev/null || exit 0
+    if pkexec sh -c 'systemctl disable --now usbguard.service usbguard-dbus.service; systemctl mask usbguard.service usbguard-dbus.service'; then
+        kdialog --title "$TITLE" --msgbox "USB protection is off. All USB devices work normally." 2>/dev/null
+    else
+        kdialog --title "$TITLE" --sorry "Could not turn it off (administrator access is required)." 2>/dev/null
+    fi
+    exit 0
+fi
+
+kdialog --title "$TITLE" --yesno \
+"Turn ON USB protection?
+
+Dagric will remember every USB device plugged in RIGHT NOW — your
+keyboard, mouse, webcam, printer, drives — and allow those. Any
+OTHER USB device plugged in later is blocked until you approve it.
+
+IMPORTANT: plug in everything you normally use before continuing.
+Anything unplugged now will be blocked when you plug it back in
+(you can always re-run this to refresh the list, or turn it off).
+
+Protects against malicious USB devices that pretend to be keyboards." 2>/dev/null || exit 0
+
+# Order matters: generate the allow-list from the currently attached devices
+# BEFORE the daemon ever starts, so nothing the owner is using gets cut off.
+if pkexec sh -c '
+set -e
+umask 077
+usbguard generate-policy > /etc/usbguard/rules.conf
+# Refuse to arm a daemon with an empty policy — that is the lockout case.
+if [ ! -s /etc/usbguard/rules.conf ]; then
+    echo "empty policy — refusing to enable" >&2
+    exit 2
+fi
+systemctl unmask usbguard.service usbguard-dbus.service
+systemctl enable --now usbguard.service usbguard-dbus.service
+'; then
+    kdialog --title "$TITLE" --msgbox \
+"USB protection is ON.
+
+Everything currently plugged in is allowed. New USB devices are
+blocked until you approve them — re-run this tool any time to
+refresh the list or turn protection back off." 2>/dev/null
+else
+    kdialog --title "$TITLE" --sorry \
+"USB protection was NOT enabled — nothing was changed, and all your
+USB devices keep working.
+
+(This needs administrator access, and Dagric deliberately refuses to
+arm USB blocking without a device allow-list.)" 2>/dev/null
+    exit 1
+fi
