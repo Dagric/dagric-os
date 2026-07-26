@@ -1,0 +1,7 @@
+# Dagric layout file. Copy to ~/.local/share/dagric/looks/ and edit;
+# it appears in Dagric Looks next time. SCRIPT is Plasma's own
+# scripting API (one line). Panels are cleared automatically first.
+NAME=Focus
+DESCRIPTION=one tidy bar, nothing in your way
+SORT=20
+SCRIPT=var p=new Panel; p.location="bottom"; p.height=Math.round(gridUnit*2); var k=p.addWidget("org.kde.plasma.kickoff"); k.currentConfigGroup=["General"]; k.writeConfig("icon","dagric-logo"); p.addWidget("org.kde.plasma.icontasks"); p.addWidget("org.kde.plasma.marginsseparator"); p.addWidget("org.kde.plasma.systemtray"); p.addWidget("org.kde.plasma.digitalclock");

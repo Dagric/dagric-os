@@ -40,7 +40,12 @@ case "$ans" in y|Y|yes|YES) ;; *) echo "No changes made."; exit 0 ;; esac
 
 # --- 2. Groups + service (single privileged step) ---------------------------
 ME=$(id -un)
-if pkexec sh -c "usermod -aG libvirt,kvm '$ME' && systemctl enable --now libvirtd.service"; then
+# Dagric ships the VM daemons DISABLED (see the 0600 hook) so they cost
+# nothing until asked for. Turn them on now, and start the default NAT network
+# so new VMs get working networking.
+if pkexec sh -c "usermod -aG libvirt,kvm '$ME' && \
+    systemctl enable --now libvirtd.service virtlogd.service && \
+    (virsh net-autostart default 2>/dev/null; virsh net-start default 2>/dev/null; true)"; then
     echo "User '$ME' added to libvirt+kvm; VM service running."
 else
     echo "Could not enable VM support (administrator access is required)."

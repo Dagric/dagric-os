@@ -19,6 +19,11 @@ chmod +x config/includes.chroot/usr/bin/* config/includes.chroot/usr/lib/live/co
 
 if [ "$EDITION" != "pro" ]; then
     rm -f config/package-lists/pro-*.list.chroot
+    # Pro-only appearance drop-ins are REMOVED from the free image, not just
+    # hidden by their EDITION=pro flag — otherwise a free user could unlock
+    # the Pro layouts and styles by deleting one line of text.
+    grep -rlx 'EDITION=pro' config/includes.chroot/usr/share/dagric/looks \
+        config/includes.chroot/usr/share/dagric/styles 2>/dev/null | xargs -r rm -f
 fi
 mkdir -p config/includes.chroot/etc
 printf '%s\n' "$EDITION" > config/includes.chroot/etc/dagric-edition

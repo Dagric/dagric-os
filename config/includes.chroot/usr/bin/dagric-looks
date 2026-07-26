@@ -7,66 +7,84 @@
 # hand-editing the applet config. Each layout also re-brands the launcher
 # button with the Dagric logo so branding survives a switch.
 #
-# Edition-aware, mirroring the "free is lean, Pro is complete" rule (and
-# Zorin's own model): free ships 3 layouts, Pro unlocks 7.
+# EXTENSIBLE BY DESIGN, exactly like Dagric Styles. Layouts are plain
+# key=value files, not code baked into this script, read from:
+#
+#   /usr/share/dagric/looks/          shipped with Dagric
+#   /etc/dagric/looks/                added by the administrator
+#   ~/.local/share/dagric/looks/      added by you, no root needed
+#
+# Copy a shipped .look file, change its SCRIPT line (Plasma scripting API,
+# on one line), and it appears in this menu next time.
+#
+# Edition: Pro-only layouts carry EDITION=pro. On the free edition those
+# files are REMOVED AT BUILD TIME, not merely hidden.
 EDITION=$(cat /etc/dagric-edition 2>/dev/null || echo free)
+LOOK_DIRS="/usr/share/dagric/looks /etc/dagric/looks ${XDG_DATA_HOME:-$HOME/.local/share}/dagric/looks"
 
-# Apply a Plasma layout script against the running shell.
+# Every layout starts from a clean slate; the launcher is re-branded inside
+# each layout's own script so the D logo survives the rebuild.
+CLEAR='var ps=panels(); for(var i=0;i<ps.length;i++){ps[i].remove();}'
+
 apply() {
     dbus-send --session --type=method_call --dest=org.kde.plasmashell \
         /PlasmaShell org.kde.PlasmaShell.evaluateScript "string:$1" >/dev/null 2>&1
 }
 
-# Each layout: clear existing panels, then build. The launcher (kickoff) gets
-# icon=dagric-logo set in the same script. Written on single lines (semicolons)
-# so the whole script passes cleanly as one D-Bus string argument.
-CLEAR='var ps=panels(); for(var i=0;i<ps.length;i++){ps[i].remove();}'
+lkey() { sed -n "s/^[[:space:]]*$2[[:space:]]*=[[:space:]]*//p" "$1" | head -1; }
 
-CLASSIC="$CLEAR"' var p=new Panel; p.location="bottom"; p.height=Math.round(gridUnit*2.2); var k=p.addWidget("org.kde.plasma.kickoff"); k.currentConfigGroup=["General"]; k.writeConfig("icon","dagric-logo"); p.addWidget("org.kde.plasma.pager"); p.addWidget("org.kde.plasma.taskmanager"); p.addWidget("org.kde.plasma.marginsseparator"); p.addWidget("org.kde.plasma.systemtray"); p.addWidget("org.kde.plasma.digitalclock"); p.addWidget("org.kde.plasma.showdesktop");'
+TMPLIST=$(mktemp) || exit 1
+trap 'rm -f "$TMPLIST" "$TMPLIST.n"' EXIT INT TERM
 
-FOCUS="$CLEAR"' var p=new Panel; p.location="bottom"; p.height=Math.round(gridUnit*2); var k=p.addWidget("org.kde.plasma.kickoff"); k.currentConfigGroup=["General"]; k.writeConfig("icon","dagric-logo"); p.addWidget("org.kde.plasma.icontasks"); p.addWidget("org.kde.plasma.marginsseparator"); p.addWidget("org.kde.plasma.systemtray"); p.addWidget("org.kde.plasma.digitalclock");'
+for dir in $LOOK_DIRS; do
+    [ -d "$dir" ] || continue
+    for f in "$dir"/*.look; do
+        [ -f "$f" ] || continue
+        id=$(basename "$f" .look)
+        need=$(lkey "$f" EDITION)
+        # Belt and braces: the files are stripped from free images at build
+        # time, but honour the flag at runtime too.
+        if [ "$need" = "pro" ] && [ "$EDITION" != "pro" ]; then continue; fi
+        [ -n "$(lkey "$f" SCRIPT)" ] || continue
+        name=$(lkey "$f" NAME); [ -n "$name" ] || name="$id"
+        desc=$(lkey "$f" DESCRIPTION)
+        sort=$(lkey "$f" SORT); [ -n "$sort" ] || sort=50
+        label="$name"
+        [ -n "$desc" ] && label="$name  —  $desc"
+        [ "$need" = "pro" ] && label="$label (Pro)"
+        grep -v "	$id	" "$TMPLIST" > "$TMPLIST.n" 2>/dev/null || true
+        mv -f "$TMPLIST.n" "$TMPLIST" 2>/dev/null || true
+        printf '%s\t%s\t%s\t%s\n' "$sort" "$id" "$label" "$f" >> "$TMPLIST"
+    done
+done
 
-HORIZON="$CLEAR"' var t=new Panel; t.location="top"; t.height=Math.round(gridUnit*1.6); var k=t.addWidget("org.kde.plasma.kickoff"); k.currentConfigGroup=["General"]; k.writeConfig("icon","dagric-logo"); t.addWidget("org.kde.plasma.appmenu"); t.addWidget("org.kde.plasma.panelspacer"); t.addWidget("org.kde.plasma.systemtray"); t.addWidget("org.kde.plasma.digitalclock"); var d=new Panel; d.location="bottom"; d.height=Math.round(gridUnit*3); d.addWidget("org.kde.plasma.icontasks");'
-
-COMMAND="$CLEAR"' var s=new Panel; s.location="left"; s.height=Math.round(gridUnit*3.2); var k=s.addWidget("org.kde.plasma.kickoff"); k.currentConfigGroup=["General"]; k.writeConfig("icon","dagric-logo"); s.addWidget("org.kde.plasma.icontasks"); var t=new Panel; t.location="top"; t.height=Math.round(gridUnit*1.5); t.addWidget("org.kde.plasma.panelspacer"); t.addWidget("org.kde.plasma.systemtray"); t.addWidget("org.kde.plasma.digitalclock");'
-
-# Eleven — a centered taskbar (Windows-11 style). Two expanding spacers push
-# the app icons to the middle; launcher pinned left, tray+clock pinned right.
-ELEVEN="$CLEAR"' var p=new Panel; p.location="bottom"; p.height=Math.round(gridUnit*2.4); var k=p.addWidget("org.kde.plasma.kickoff"); k.currentConfigGroup=["General"]; k.writeConfig("icon","dagric-logo"); p.addWidget("org.kde.plasma.panelspacer"); p.addWidget("org.kde.plasma.icontasks"); p.addWidget("org.kde.plasma.panelspacer"); p.addWidget("org.kde.plasma.systemtray"); p.addWidget("org.kde.plasma.digitalclock");'
-
-# Unity — a side dock plus a top bar carrying the global application menu.
-UNITY="$CLEAR"' var s=new Panel; s.location="left"; s.height=Math.round(gridUnit*3.2); var k=s.addWidget("org.kde.plasma.kickoff"); k.currentConfigGroup=["General"]; k.writeConfig("icon","dagric-logo"); s.addWidget("org.kde.plasma.icontasks"); var t=new Panel; t.location="top"; t.height=Math.round(gridUnit*1.5); t.addWidget("org.kde.plasma.appmenu"); t.addWidget("org.kde.plasma.panelspacer"); t.addWidget("org.kde.plasma.systemtray"); t.addWidget("org.kde.plasma.digitalclock");'
-
-# Duo — two panels: a top bar (launcher, menu, tray, clock) and a bottom task
-# bar. The power-user layout with room for everything.
-DUO="$CLEAR"' var t=new Panel; t.location="top"; t.height=Math.round(gridUnit*1.6); var k=t.addWidget("org.kde.plasma.kickoff"); k.currentConfigGroup=["General"]; k.writeConfig("icon","dagric-logo"); t.addWidget("org.kde.plasma.appmenu"); t.addWidget("org.kde.plasma.panelspacer"); t.addWidget("org.kde.plasma.systemtray"); t.addWidget("org.kde.plasma.digitalclock"); var b=new Panel; b.location="bottom"; b.height=Math.round(gridUnit*2.2); b.addWidget("org.kde.plasma.pager"); b.addWidget("org.kde.plasma.taskmanager"); b.addWidget("org.kde.plasma.showdesktop");'
-
-set -- \
-    classic "Classic  —  a taskbar at the bottom, familiar and comfortable" \
-    focus   "Focus  —  one tidy bar, nothing in your way" \
-    eleven  "Eleven  —  a centered taskbar, clean and modern"
-if [ "$EDITION" = "pro" ]; then
-    set -- "$@" \
-        horizon "Horizon  —  a menu bar up top with a dock below (Pro)" \
-        command "Command  —  a side dock for living in your apps (Pro)" \
-        unity   "Unity  —  a side dock with a global menu bar on top (Pro)" \
-        duo     "Duo  —  two panels, top and bottom, for power users (Pro)"
+if [ ! -s "$TMPLIST" ]; then
+    kdialog --title "Dagric Looks" --sorry \
+        "No layouts are installed. Reinstall the dagric-branding package to restore them." 2>/dev/null
+    exit 1
 fi
+
+set --
+OLDIFS=$IFS; IFS='
+'
+for line in $(sort -n -k1,1 "$TMPLIST"); do
+    IFS='	' read -r _ id label _ <<EOF
+$line
+EOF
+    set -- "$@" "$id" "$label"
+done
+IFS=$OLDIFS
 
 CHOICE=$(kdialog --title "Dagric Looks" --icon dagric-logo \
     --menu "Pick your desktop layout — you can switch back anytime:" "$@" 2>/dev/null) || exit 0
 [ -n "$CHOICE" ] || exit 0
 
-case "$CHOICE" in
-    classic) apply "$CLASSIC" ;;
-    focus)   apply "$FOCUS" ;;
-    eleven)  apply "$ELEVEN" ;;
-    horizon) apply "$HORIZON" ;;
-    command) apply "$COMMAND" ;;
-    unity)   apply "$UNITY" ;;
-    duo)     apply "$DUO" ;;
-    *) exit 0 ;;
-esac
+FILE=$(grep "	$CHOICE	" "$TMPLIST" | head -1 | cut -f4)
+[ -n "$FILE" ] || exit 0
+SCRIPT=$(lkey "$FILE" SCRIPT)
+[ -n "$SCRIPT" ] || exit 0
+
+apply "$CLEAR $SCRIPT"
 
 kdialog --title "Dagric Looks" \
     --passivepopup "Applied the ${CHOICE} layout. Not for you? Open Dagric Looks again." 6 2>/dev/null

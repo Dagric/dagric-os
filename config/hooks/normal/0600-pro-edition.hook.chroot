@@ -77,6 +77,22 @@ systemctl mask usbguard.service usbguard-dbus.service 2>/dev/null || true
 systemctl --global disable usbguard-notifier.service 2>/dev/null || true
 systemctl enable opensnitch.service 2>/dev/null || true
 
+# Virtual machines: installed, but OFF until the owner asks for them.
+# libvirt-daemon-system's postinst enables libvirtd (plus virtlogd and
+# libvirt-guests) at boot — so without this, every Pro owner who never touches
+# a VM would still run the VM daemons AND get a virbr0 NAT bridge with its own
+# dnsmasq listening. That is exactly the surface a private, lean OS should not
+# create uninvited, and it contradicts dagric-vm, which tells the owner it is
+# turning the VM service on. Same lesson as USBGuard: a package's own postinst
+# will happily enable things we intend to be opt-in.
+# dagric-vm re-enables these (with the group setup) after the owner consents.
+systemctl disable libvirtd.service libvirtd.socket libvirtd-ro.socket \
+    libvirtd-admin.socket virtlogd.service virtlogd.socket \
+    libvirt-guests.service 2>/dev/null || true
+# The default NAT network autostarts when libvirtd first runs; drop the
+# autostart link so even enabling the daemon doesn't silently add a bridge.
+rm -f /etc/libvirt/qemu/networks/autostart/default.xml 2>/dev/null || true
+
 # Pro look: Papirus icons by default for new users
 if ! grep -q '^\[Icons\]' /etc/skel/.config/kdeglobals 2>/dev/null; then
     printf '\n[Icons]\nTheme=Papirus-Dark\n' >> /etc/skel/.config/kdeglobals

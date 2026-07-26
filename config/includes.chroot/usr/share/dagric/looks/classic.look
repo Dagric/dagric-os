@@ -1,0 +1,7 @@
+# Dagric layout file. Copy to ~/.local/share/dagric/looks/ and edit;
+# it appears in Dagric Looks next time. SCRIPT is Plasma's own
+# scripting API (one line). Panels are cleared automatically first.
+NAME=Classic
+DESCRIPTION=a taskbar at the bottom, familiar and comfortable
+SORT=10
+SCRIPT=var p=new Panel; p.location="bottom"; p.height=Math.round(gridUnit*2.2); var k=p.addWidget("org.kde.plasma.kickoff"); k.currentConfigGroup=["General"]; k.writeConfig("icon","dagric-logo"); p.addWidget("org.kde.plasma.pager"); p.addWidget("org.kde.plasma.taskmanager"); p.addWidget("org.kde.plasma.marginsseparator"); p.addWidget("org.kde.plasma.systemtray"); p.addWidget("org.kde.plasma.digitalclock"); p.addWidget("org.kde.plasma.showdesktop");
