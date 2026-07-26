@@ -62,6 +62,11 @@ exfatprogs
 # Migration Assistant (dagric-migrate) — rsync does the resumable copying
 # from the old Windows partition. Free: migration IS the onboarding.
 rsync
+# python3 powers the bookmark/tab/password recovery in migrate-browser.py.
+# It arrives today only as another package's dependency, and with
+# --apt-recommends false that is exactly how Orca lost its speech engine.
+# Pin it: a core free-edition feature must not rest on an implicit dep.
+python3
 
 # Drive health — smartctl feeds the Security Checkup's disk report, and
 # plasma-disks (desktop list) warns the owner BEFORE a failing disk dies.

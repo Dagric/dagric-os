@@ -130,6 +130,8 @@ CHOICES=$(kdialog --title "$TITLE" --separate-output --checklist \
  vids   "Videos"                           on \
  downl  "Downloads"                        off \
  marks  "Browser bookmarks (Chrome / Edge / Firefox)" on \
+ tabs   "Browser tabs you had open"        on \
+ pwds   "Saved passwords (Firefox only - Chrome explains why)" off \
  2>/dev/null) || exit 0
 [ -n "$CHOICES" ] || exit 0
 
@@ -254,11 +256,96 @@ PYEOF
     fi
 ;; esac
 
+# --- 8. Open tabs and saved passwords ---------------------------------------
+WANT_TABS=no; WANT_PWDS=no
+for c in $CHOICES; do
+    [ "$c" = tabs ] && WANT_TABS=yes
+    [ "$c" = pwds ] && WANT_PWDS=yes
+done
+
+if [ "$WANT_TABS" = yes ] || [ "$WANT_PWDS" = yes ]; then
+    echo
+    echo "--- browser tabs and logins ---"
+    PRIMARY=""
+    if [ "$WANT_PWDS" = yes ]; then
+        # A Firefox Primary Password can't be guessed; ask rather than fail.
+        if grep -rqs '"encryptedPassword"' \
+             "$WINUSER_DIR/AppData/Roaming/Mozilla/Firefox/Profiles" 2>/dev/null; then
+            PRIMARY=$(kdialog --title "$TITLE" --password \
+"If this person set a Primary Password in Firefox, type it so the saved
+logins can be unlocked.
+
+Leave it blank if they never set one (most people haven't)." 2>/dev/null) || PRIMARY=""
+        fi
+    fi
+
+    RES=$(python3 /usr/share/dagric/migrate-browser.py "$WINUSER_DIR" "$HOME" "$PRIMARY" 2>/dev/null)
+    N_TABS=$(printf '%s\n' "$RES" | sed -n 's/^TABS=//p')
+    N_PWDS=$(printf '%s\n' "$RES" | sed -n 's/^PASSWORDS=//p')
+    PWNOTE=$(printf '%s\n' "$RES" | sed -n 's/^PWNOTE=//p')
+    CHROMEISH=$(printf '%s\n' "$RES" | sed -n 's/^CHROMEISH=//p')
+    EXPORTED=$(printf '%s\n' "$RES" | sed -n 's/^EXPORTED=//p')
+
+    if [ "$WANT_TABS" = yes ]; then
+        if [ "${N_TABS:-0}" -gt 0 ] 2>/dev/null; then
+            echo "Recovered ${N_TABS} open tabs -> ~/Windows-open-tabs.html"
+        else
+            echo "No open tabs were found (the browsers may have been closed cleanly)."
+        fi
+    fi
+
+    if [ "$WANT_PWDS" = yes ]; then
+        if [ "${N_PWDS:-0}" -gt 0 ] 2>/dev/null; then
+            echo "Recovered ${N_PWDS} Firefox logins -> ~/Windows-passwords.csv"
+            echo "  This file is PLAIN TEXT and readable only by you."
+            echo "  Import it, then delete it."
+        else
+            echo "No Firefox logins were recovered."
+            [ -n "$PWNOTE" ] && echo "  ($PWNOTE)"
+        fi
+        # Chrome/Edge: be straight about the cryptography.
+        if [ "${CHROMEISH:-0}" = 1 ]; then
+            if [ -n "$EXPORTED" ]; then
+                echo
+                echo "Found a password file exported from Chrome:"
+                printf '%s\n' "$EXPORTED" | tr '|' '\n' | sed 's/^/  /'
+                echo "  Copy it to your home folder and import it the same way."
+            else
+                cat << 'EOF'
+
+Chrome / Edge passwords could NOT be read, and no tool can read them here:
+they are encrypted with a Windows key tied to that Windows account, which
+does not exist on this system. That is a security feature, not a fault.
+
+To bring them over, do this ONCE while still in Windows:
+  Chrome : Settings > Autofill and passwords > Google Password Manager
+           > Settings > Download file
+  Edge   : Settings > Profiles > Passwords > ... > Export passwords
+Save the .csv, then run this migration again - it will pick it up.
+EOF
+            fi
+        fi
+    fi
+fi
+
 echo
 echo "=== Migration finished ==="
-kdialog --title "$TITLE" --msgbox \
-"Done! Your Windows files are now in your Dagric home folder.
+SUMMARY="Done! Your Windows files are now in your Dagric home folder.
 
 Windows itself was not modified — it was only ever read.
-Bookmarks (if selected): import ~/Windows-bookmarks.html in Firefox via
-Bookmarks > Manage Bookmarks > Import and Backup." 2>/dev/null
+
+To finish up, in Firefox:
+• Bookmarks — Bookmarks ▸ Manage Bookmarks ▸ Import and Backup ▸
+  Import Bookmarks from HTML ▸ Windows-bookmarks.html
+• Open tabs — import Windows-open-tabs.html the same way; they arrive as a
+  bookmark folder you can 'Open All in Tabs'"
+
+if [ "${N_PWDS:-0}" -gt 0 ] 2>/dev/null; then
+    SUMMARY="$SUMMARY
+• Passwords — Firefox ▸ Passwords ▸ ⋯ ▸ Import from a File ▸
+  Windows-passwords.csv   (KeePassXC on Pro can import the same file)
+
+⚠ Windows-passwords.csv is PLAIN TEXT. Delete it once imported."
+fi
+
+kdialog --title "$TITLE" --msgbox "$SUMMARY" 2>/dev/null
