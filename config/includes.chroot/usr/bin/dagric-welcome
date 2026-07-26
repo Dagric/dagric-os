@@ -1,4 +1,6 @@
 #!/bin/sh
+# SPDX-FileCopyrightText: 2026 DGR Operations <repo@dagric.com>
+# SPDX-License-Identifier: GPL-3.0-or-later
 # Dagric OS — first-run welcome. Opens the local welcome page once,
 # then removes its own autostart entry.
 rm -f "$HOME/.config/autostart/dagric-welcome.desktop"

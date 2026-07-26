@@ -1,0 +1,78 @@
+#!/bin/sh
+# SPDX-FileCopyrightText: 2026 DGR Operations <repo@dagric.com>
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Dagric OS Pro — video wallpapers.
+#
+# Vendors "Smart Video Wallpaper Reborn" (GPL-2.0-or-later, pure QML) as a
+# normal Plasma wallpaper plugin. Plasma discovers anything under
+# /usr/share/plasma/wallpapers/<id>/ with no registration step, so this needs
+# no compilation, no kpackagetool6, and no KDE Store / GHNS network calls at
+# runtime — the owner just picks it in Configure Desktop and Wallpaper.
+#
+# WHY NOT the alternatives: linux-wallpaperengine is GPL code that is useless
+# without Wallpaper Engine's PROPRIETARY, non-redistributable Steam assets, so
+# Dagric will not ship or "helpfully" install it. Hidamari is GNOME/X11-shaped
+# and behaves poorly on Plasma Wayland.
+#
+# Pinned to a release + sha256, mirroring the grub-btrfs vendoring in 0800:
+# a moving branch is a supply-chain hole. Failure is never fatal — the build
+# continues without the feature rather than shipping a broken image.
+#
+# Pro only: video wallpapers are a "complete", not a "correct", feature, and
+# decoding video continuously costs battery. Free keeps Plasma's own
+# Slideshow / Picture-of-the-Day plugins, which cost nothing.
+EDITION=$(cat /etc/dagric-edition 2>/dev/null || echo free)
+[ "$EDITION" = "pro" ] || exit 0
+
+VER=2.13.0
+SHA=00b405e2ad7d4e777c6a257487e27fb9aa7c9a5ab88ea06ff944c8954944f4e0
+ID=luisbocanegra.smart.video.wallpaper.reborn
+URL="https://github.com/luisbocanegra/plasma-smart-video-wallpaper-reborn/releases/download/v${VER}/plasma-smart-video-wallpaper-reborn-v${VER}.tar.gz"
+DEST="/usr/share/plasma/wallpapers/$ID"
+
+TMP=/tmp/videowall
+mkdir -p "$TMP"
+
+if ! curl -fsSL -o "$TMP/p.tar.gz" "$URL" 2>/dev/null; then
+    echo "WARNING: video wallpaper download failed — feature skipped"
+    rm -rf "$TMP"; exit 0
+fi
+
+GOT=$(sha256sum "$TMP/p.tar.gz" | cut -d' ' -f1)
+if [ "$GOT" != "$SHA" ]; then
+    echo "WARNING: video wallpaper CHECKSUM MISMATCH — refusing to install"
+    echo "  expected $SHA"
+    echo "  got      $GOT"
+    rm -rf "$TMP"; exit 0
+fi
+
+mkdir -p "$TMP/x"
+tar xzf "$TMP/p.tar.gz" -C "$TMP/x"
+
+# The archive unpacks with metadata.json + contents/ at its root.
+SRC=$(dirname "$(find "$TMP/x" -name metadata.json | head -1)")
+if [ -z "$SRC" ] || [ ! -d "$SRC/contents" ]; then
+    echo "WARNING: unexpected video wallpaper archive layout — skipped"
+    rm -rf "$TMP"; exit 0
+fi
+
+mkdir -p "$DEST"
+cp -r "$SRC/metadata.json" "$SRC/contents" "$DEST/"
+
+# Upstream's installer marks this helper executable; git/tar preserve it, but
+# be explicit so the pause-on-fullscreen detection works either way.
+[ -f "$DEST/contents/ui/tools/gdbus_get_signal.sh" ] && \
+    chmod 755 "$DEST/contents/ui/tools/gdbus_get_signal.sh"
+
+# Ship the licence alongside, as with every other vendored component.
+mkdir -p /usr/share/doc/dagric-video-wallpaper
+if [ -f "$SRC/LICENSE" ]; then
+    cp "$SRC/LICENSE" /usr/share/doc/dagric-video-wallpaper/
+else
+    printf 'Smart Video Wallpaper Reborn — GPL-2.0-or-later\nUpstream: %s\n' \
+        "https://github.com/luisbocanegra/plasma-smart-video-wallpaper-reborn" \
+        > /usr/share/doc/dagric-video-wallpaper/LICENSE
+fi
+
+rm -rf "$TMP"
+echo "Video wallpaper plugin installed ($ID v$VER)"

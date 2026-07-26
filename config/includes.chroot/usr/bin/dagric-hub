@@ -1,4 +1,6 @@
 #!/bin/sh
+# SPDX-FileCopyrightText: 2026 DGR Operations <repo@dagric.com>
+# SPDX-License-Identifier: GPL-3.0-or-later
 # Dagric OS — the Hub. One friendly place that gathers every owner tool
 # (drivers, setup, security, guide, and the Pro creator/gaming/AI helpers)
 # so they're discoverable from the launcher instead of hidden on the CLI.
@@ -11,6 +13,8 @@ set -- \
     setup    "Finish setting up this PC" \
     migrate  "Migrate from Windows — bring your files and bookmarks" \
     looks    "Dagric Looks — change your desktop layout" \
+    style    "Dagric Styles — colors, wallpaper, effects in one click" \
+    variety  "Rotating wallpapers — install Variety (optional)" \
     drivers  "Graphics drivers — install the NVIDIA driver" \
     security "Security Checkup — score this system's hardening" \
     guide    "Welcome & User Guide"
@@ -47,8 +51,10 @@ case "$CHOICE" in
     vm)       run_term '/usr/bin/dagric-vm' ;;
     usbprotect) dagric-usb-protect & ;;
     joplin)     run_term '/usr/bin/dagric-get-joplin' ;;
+    variety)    run_term '/usr/bin/dagric-get-variety' ;;
     onlyoffice) run_term '/usr/bin/dagric-get-onlyoffice' ;;
     looks)    dagric-looks & ;;
+    style)    dagric-style & ;;
     security) dagric-security-checkup & ;;
     guide)    exec firefox file:///usr/share/dagric/welcome/index.html ;;
     drivers)   run_term 'pkexec /usr/bin/dagric-drivers' ;;

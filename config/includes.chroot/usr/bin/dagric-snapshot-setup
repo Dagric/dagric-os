@@ -1,4 +1,6 @@
 #!/bin/sh
+# SPDX-FileCopyrightText: 2026 DGR Operations <repo@dagric.com>
+# SPDX-License-Identifier: GPL-3.0-or-later
 # Dagric OS — one-time snapshot-recovery setup, run on first boot of an
 # INSTALLED system. Only does anything on a btrfs root (recovery is btrfs-only);
 # on ext4 installs it disables itself and exits cleanly.

@@ -1,0 +1,43 @@
+#!/bin/sh
+# SPDX-FileCopyrightText: 2026 DGR Operations <repo@dagric.com>
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Dagric OS — install Variety, on request.
+# Variety (GPL-3, from Debian's own archive) rotates your wallpaper on a
+# schedule and can pull new ones from online sources.
+#
+# NOT preinstalled, deliberately: out of the box Variety fetches wallpapers
+# from third-party services, and a private-by-default OS shouldn't start
+# talking to anyone's servers without being asked. Plasma's own built-in
+# Slideshow and Picture of the Day wallpaper plugins already cover the
+# offline case with nothing to install.
+cat << 'EOF'
+Dagric — install Variety (automatic wallpaper changer)
+
+Variety changes your wallpaper on a schedule, from your own folders and,
+if you switch it on, from online collections. It adds a tray icon for
+skipping, pausing and favouriting the current image.
+
+Two things worth knowing before you install:
+  * Variety can download wallpapers from third-party websites. That is
+    OFF until you enable a source, but it is why Dagric doesn't preinstall it.
+  * If you only want a rotating slideshow of your OWN pictures, you don't
+    need this at all — right-click the desktop, Configure Desktop and
+    Wallpaper, and choose "Slideshow".
+
+Installed from Debian's archive (GPL-3, open source), about 25 MB with
+its dependencies.
+EOF
+
+printf '\nInstall Variety now? [y/N] '
+read ans
+case "$ans" in y|Y|yes|YES) ;; *) echo "No changes made."; exit 0 ;; esac
+
+if pkexec sh -c 'apt-get update && apt-get install -y variety'; then
+    echo
+    echo "Variety installed — launch it from the application launcher."
+    echo "It starts in the system tray; right-click the icon for options."
+else
+    echo
+    echo "Install did not complete (administrator access is required)."
+    echo "You can try again from the Dagric Hub."
+fi

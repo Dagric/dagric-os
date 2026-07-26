@@ -20,7 +20,11 @@ Free is never a crippled Pro; Pro is never a different OS.
 Everything already shipped: debloated KDE Plasma, zero telemetry,
 silent updates that never force a reboot, Firefox, LibreOffice essentials
 (Writer/Calc/Impress), Elisa music library, Flathub, NTFS/exFAT,
-Dagric Welcome, branded installer, and the **Migration Assistant**
+Dagric Welcome, branded installer, **Dagric Styles** (`dagric-style` —
+one-click desktop moods: color scheme + accent + wallpaper + KWin effects,
+3 styles free / 6 on Pro, six Dagric-made wallpaper packs, all reversible
+via Reset; complements Dagric Looks which handles panel layouts), and
+the **Migration Assistant**
 (`dagric-migrate` — copies Documents/Pictures/Music/Videos/Desktop and
 Chrome/Edge/Firefox bookmarks over from the Windows partition, read-only,
 never touching Windows). Drive-health watching too: plasma-disks warns

@@ -1,0 +1,143 @@
+#!/bin/sh
+# SPDX-FileCopyrightText: 2026 DGR Operations <repo@dagric.com>
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Dagric OS — "Dagric Styles": pick the desktop's visual personality in one
+# click. Where Dagric Looks reshapes the PANELS, Styles changes the MOOD:
+# color scheme, accent color, wallpaper and window effects — using only
+# Plasma's own open-source switches (plasma-apply-colorscheme,
+# plasma-apply-wallpaperimage, kwriteconfig6, KWin's built-in effects).
+# Nothing is installed; a style applies in seconds and "Reset" undoes it.
+#
+# EXTENSIBLE BY DESIGN. Styles are plain key=value files, not code baked into
+# this script, loaded from three places (later wins, so you can override ours):
+#
+#   /usr/share/dagric/styles/   shipped with Dagric
+#   /etc/dagric/styles/         added by the machine's administrator
+#   ~/.local/share/dagric/styles/   added by you, no root needed
+#
+# Copy any shipped .style file to ~/.local/share/dagric/styles/, edit it, and
+# it appears in this menu next time. See the shipped files for the format;
+# every key is optional.
+EDITION=$(cat /etc/dagric-edition 2>/dev/null || echo free)
+WALLS=/usr/share/wallpapers
+STYLE_DIRS="/usr/share/dagric/styles /etc/dagric/styles ${XDG_DATA_HOME:-$HOME/.local/share}/dagric/styles"
+
+# --- primitive knobs ---------------------------------------------------------
+set_scheme() { [ -n "$1" ] && plasma-apply-colorscheme "$1" >/dev/null 2>&1; }
+set_accent() {
+    case "$1" in
+        "" ) : ;;
+        default) kwriteconfig6 --file kdeglobals --group General --key AccentColor --delete 2>/dev/null ;;
+        *) kwriteconfig6 --file kdeglobals --group General --key AccentColor "$1" 2>/dev/null ;;
+    esac
+}
+set_wall() {
+    [ -n "$1" ] || return 0
+    for res in 3840x2160 1920x1080; do
+        if [ -f "$WALLS/$1/contents/images/$res.png" ]; then
+            plasma-apply-wallpaperimage "$WALLS/$1/contents/images/$res.png" >/dev/null 2>&1
+            return 0
+        fi
+    done
+    # Also accept an absolute path to any image the owner likes.
+    [ -f "$1" ] && plasma-apply-wallpaperimage "$1" >/dev/null 2>&1
+}
+set_effect() { [ -n "$2" ] && kwriteconfig6 --file kwinrc --group Plugins --key "$1" "$2" 2>/dev/null; }
+
+kwin_reload() {
+    dbus-send --session --type=method_call --dest=org.kde.KWin \
+        /KWin org.kde.KWin.reconfigure 2>/dev/null
+    CURRENT=$(kreadconfig6 --file kdeglobals --group General --key ColorScheme 2>/dev/null)
+    [ -n "$CURRENT" ] && plasma-apply-colorscheme "$CURRENT" >/dev/null 2>&1
+}
+
+# --- style files -------------------------------------------------------------
+# Read one key from a .style file (ignores comments; tolerates spaces).
+skey() { sed -n "s/^[[:space:]]*$2[[:space:]]*=[[:space:]]*//p" "$1" | head -1 | sed 's/[[:space:]]*$//'; }
+
+# Build the menu from every readable style file. Ordering: shipped first
+# (with SORT= respected), then admin, then user additions.
+TMPLIST=$(mktemp) || exit 1
+trap 'rm -f "$TMPLIST"' EXIT INT TERM
+
+for dir in $STYLE_DIRS; do
+    [ -d "$dir" ] || continue
+    for f in "$dir"/*.style; do
+        [ -f "$f" ] || continue
+        id=$(basename "$f" .style)
+        need=$(skey "$f" EDITION)
+        # A style may require Pro; free hides those rather than failing later.
+        if [ "$need" = "pro" ] && [ "$EDITION" != "pro" ]; then continue; fi
+        name=$(skey "$f" NAME); [ -n "$name" ] || name="$id"
+        desc=$(skey "$f" DESCRIPTION)
+        sort=$(skey "$f" SORT); [ -n "$sort" ] || sort=50
+        label="$name"
+        [ -n "$desc" ] && label="$name  —  $desc"
+        [ "$need" = "pro" ] && label="$label (Pro)"
+        # later definitions of the same id replace earlier ones
+        grep -v "	$id	" "$TMPLIST" > "$TMPLIST.n" 2>/dev/null || true
+        mv -f "$TMPLIST.n" "$TMPLIST" 2>/dev/null || true
+        printf '%s\t%s\t%s\t%s\n' "$sort" "$id" "$label" "$f" >> "$TMPLIST"
+    done
+done
+
+if [ ! -s "$TMPLIST" ]; then
+    kdialog --title "Dagric Styles" --sorry \
+        "No styles are installed. Reinstall the dagric-branding package to restore them." 2>/dev/null
+    exit 1
+fi
+
+# Assemble kdialog's tag/label pairs, sorted.
+set --
+OLDIFS=$IFS; IFS='
+'
+for line in $(sort -n -k1,1 "$TMPLIST"); do
+    IFS='	' read -r _ id label _ <<EOF
+$line
+EOF
+    set -- "$@" "$id" "$label"
+done
+IFS=$OLDIFS
+
+set -- "$@" \
+    accent "Accent color  —  pick ANY color, keep everything else" \
+    reset  "Reset  —  back to the standard Dagric appearance"
+
+CHOICE=$(kdialog --title "Dagric Styles" --icon dagric-logo \
+    --menu "Pick the desktop's mood — colors, wallpaper, effects. Panels stay put:" \
+    "$@" 2>/dev/null) || exit 0
+[ -n "$CHOICE" ] || exit 0
+
+apply_file() {
+    f=$1
+    set_scheme "$(skey "$f" SCHEME)"
+    set_accent "$(skey "$f" ACCENT)"
+    set_wall   "$(skey "$f" WALLPAPER)"
+    set_effect blurEnabled         "$(skey "$f" BLUR)"
+    set_effect translucencyEnabled "$(skey "$f" TRANSLUCENCY)"
+    set_effect wobblywindowsEnabled "$(skey "$f" WOBBLY)"
+}
+
+case "$CHOICE" in
+    accent)
+        HEX=$(kdialog --title "Dagric Styles — accent color" --getcolor 2>/dev/null) || exit 0
+        case "$HEX" in
+            \#??????)
+                R=$(printf '%d' "0x$(printf '%s' "$HEX" | cut -c2-3)")
+                G=$(printf '%d' "0x$(printf '%s' "$HEX" | cut -c4-5)")
+                B=$(printf '%d' "0x$(printf '%s' "$HEX" | cut -c6-7)")
+                set_accent "$R,$G,$B" ;;
+            *) exit 0 ;;
+        esac ;;
+    reset)
+        RESET=$(grep "	daybreak	" "$TMPLIST" | head -1 | cut -f4)
+        [ -n "$RESET" ] && apply_file "$RESET" ;;
+    *)
+        FILE=$(grep "	$CHOICE	" "$TMPLIST" | head -1 | cut -f4)
+        [ -n "$FILE" ] || exit 0
+        apply_file "$FILE" ;;
+esac
+kwin_reload
+
+kdialog --title "Dagric Styles" \
+    --passivepopup "Applied ${CHOICE}. Mix freely with any Dagric Look." 6 2>/dev/null

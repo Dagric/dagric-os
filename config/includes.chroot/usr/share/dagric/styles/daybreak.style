@@ -1,0 +1,31 @@
+# Dagric style file.
+#
+# Copy this to ~/.local/share/dagric/styles/mystyle.style, edit, and it shows
+# up in Dagric Styles next time you open it. Every key is optional — leave one
+# out and that part of the desktop is left alone.
+#
+#   NAME          what appears in the menu
+#   DESCRIPTION   the short line beside the name
+#   SORT          menu order (lower first; shipped styles use 10-60)
+#   EDITION       set to "pro" to hide the style on the free edition
+#   SCHEME        a Plasma color scheme: BreezeLight, BreezeDark, BreezeClassic
+#                 (or any scheme name in /usr/share/color-schemes)
+#   ACCENT        "r,g,b" (0-255 each), or "default" to use the scheme's own
+#   WALLPAPER     a wallpaper package name in /usr/share/wallpapers,
+#                 or an absolute path to any image file you like
+#   BLUR          true/false — the glassy blur behind panels and menus
+#   TRANSLUCENCY  true/false — translucent inactive windows
+#   WOBBLY        true/false — windows wobble when dragged
+#
+# All of these are stock, open-source KDE Plasma features. Nothing is
+# downloaded and nothing is installed.
+
+NAME=Daybreak
+DESCRIPTION=the Dagric default: bright, blue, calm
+SORT=10
+SCHEME=DagricLight
+ACCENT=default
+WALLPAPER=Dagric
+BLUR=true
+TRANSLUCENCY=false
+WOBBLY=false
