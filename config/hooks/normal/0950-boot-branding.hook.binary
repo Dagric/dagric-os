@@ -1,0 +1,67 @@
+#!/bin/sh
+# SPDX-FileCopyrightText: 2026 DGR Operations <repo@dagric.com>
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Dagric OS — name the edition in the boot menu.
+#
+# live-build labels every image "Live system (amd64)" under a generic
+# "Boot menu" title, so the free and Pro ISOs were indistinguishable at the
+# moment of booting. Anyone holding both — or booting a multi-ISO USB — had no
+# way to tell which one they were starting until the desktop appeared.
+#
+# This is a BINARY hook: it runs on the assembled ISO tree, after the boot
+# loaders are in place, and rewrites the menu text for both firmware paths:
+#   isolinux/  -> legacy BIOS
+#   boot/grub/ -> UEFI (incl. Secure Boot)
+set -e
+
+EDITION="${DAGRIC_EDITION:-}"
+# Fall back to the marker baked into the chroot if the variable didn't survive.
+if [ -z "$EDITION" ]; then
+    for c in chroot/etc/dagric-edition ../chroot/etc/dagric-edition; do
+        [ -f "$c" ] && { EDITION=$(cat "$c"); break; }
+    done
+fi
+[ -n "$EDITION" ] || EDITION=free
+
+if [ "$EDITION" = "pro" ]; then
+    LIVE="Dagric OS Pro 1.0"
+    TITLE="Dagric OS Pro 1.0  (Foundation)"
+else
+    LIVE="Dagric OS 1.0  -  Free edition"
+    TITLE="Dagric OS 1.0  (Foundation)  -  Free edition"
+fi
+SAFE="$LIVE  (safe graphics mode)"
+
+esc() { printf '%s' "$1" | sed -e 's/[\/&]/\\&/g'; }
+L=$(esc "$LIVE"); T=$(esc "$TITLE"); S=$(esc "$SAFE")
+
+# --- legacy BIOS (isolinux/syslinux) ---------------------------------------
+for f in isolinux/live.cfg isolinux/menu.cfg isolinux/stdmenu.cfg isolinux/isolinux.cfg; do
+    [ -f "$f" ] || continue
+    # Order matters: rewrite the fail-safe entry first, otherwise the plain
+    # "Live system (amd64)" pattern would match and mangle it too.
+    sed -i "s/menu label .*Live system (amd64 fail-safe mode).*/menu label $S/" "$f"
+    sed -i "s/menu label \^Live system (amd64)/menu label ^$L/" "$f"
+    sed -i "s/^\(\s*\)menu title Boot menu/\1menu title $T/" "$f"
+done
+
+# --- UEFI (GRUB) ------------------------------------------------------------
+for f in boot/grub/grub.cfg boot/grub/config.cfg boot/grub/theme.cfg; do
+    [ -f "$f" ] || continue
+    sed -i "s/menuentry \"Live system (amd64 fail-safe mode)\"/menuentry \"$S\"/" "$f"
+    sed -i "s/menuentry \"Live system (amd64)\"/menuentry \"$L\"/" "$f"
+    sed -i "s/^\(\s*title-text:\s*\).*/\1\"$T\"/" "$f"
+done
+
+# Verify the rename actually took — a silent sed miss would put us straight
+# back to two identically-labelled ISOs.
+HIT=0
+for f in isolinux/live.cfg boot/grub/grub.cfg; do
+    [ -f "$f" ] || continue
+    grep -q "$LIVE" "$f" && HIT=$((HIT+1))
+done
+if [ "$HIT" -ge 1 ]; then
+    echo "Boot menu branded for the $EDITION edition: \"$LIVE\""
+else
+    echo "WARNING: boot-menu branding did not apply (upstream label changed?)"
+fi
