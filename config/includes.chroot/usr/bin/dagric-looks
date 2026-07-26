@@ -52,7 +52,7 @@ for dir in $LOOK_DIRS; do
         label="$name"
         [ -n "$desc" ] && label="$name  —  $desc"
         [ "$need" = "pro" ] && label="$label (Pro)"
-        grep -v "	$id	" "$TMPLIST" > "$TMPLIST.n" 2>/dev/null || true
+        grep -vF "	$id	" "$TMPLIST" > "$TMPLIST.n" 2>/dev/null || true
         mv -f "$TMPLIST.n" "$TMPLIST" 2>/dev/null || true
         printf '%s\t%s\t%s\t%s\n' "$sort" "$id" "$label" "$f" >> "$TMPLIST"
     done
@@ -79,7 +79,7 @@ CHOICE=$(kdialog --title "Dagric Looks" --icon dagric-logo \
     --menu "Pick your desktop layout — you can switch back anytime:" "$@" 2>/dev/null) || exit 0
 [ -n "$CHOICE" ] || exit 0
 
-FILE=$(grep "	$CHOICE	" "$TMPLIST" | head -1 | cut -f4)
+FILE=$(grep -F "	$CHOICE	" "$TMPLIST" | head -1 | cut -f4)
 [ -n "$FILE" ] || exit 0
 SCRIPT=$(lkey "$FILE" SCRIPT)
 [ -n "$SCRIPT" ] || exit 0

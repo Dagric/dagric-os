@@ -75,7 +75,7 @@ for dir in $STYLE_DIRS; do
         [ -n "$desc" ] && label="$name  —  $desc"
         [ "$need" = "pro" ] && label="$label (Pro)"
         # later definitions of the same id replace earlier ones
-        grep -v "	$id	" "$TMPLIST" > "$TMPLIST.n" 2>/dev/null || true
+        grep -vF "	$id	" "$TMPLIST" > "$TMPLIST.n" 2>/dev/null || true
         mv -f "$TMPLIST.n" "$TMPLIST" 2>/dev/null || true
         printf '%s\t%s\t%s\t%s\n' "$sort" "$id" "$label" "$f" >> "$TMPLIST"
     done
@@ -130,10 +130,10 @@ case "$CHOICE" in
             *) exit 0 ;;
         esac ;;
     reset)
-        RESET=$(grep "	daybreak	" "$TMPLIST" | head -1 | cut -f4)
+        RESET=$(grep -F "	daybreak	" "$TMPLIST" | head -1 | cut -f4)
         [ -n "$RESET" ] && apply_file "$RESET" ;;
     *)
-        FILE=$(grep "	$CHOICE	" "$TMPLIST" | head -1 | cut -f4)
+        FILE=$(grep -F "	$CHOICE	" "$TMPLIST" | head -1 | cut -f4)
         [ -n "$FILE" ] || exit 0
         apply_file "$FILE" ;;
 esac

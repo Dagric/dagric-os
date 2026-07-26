@@ -18,7 +18,10 @@ Free is never a crippled Pro; Pro is never a different OS.
 ## Dagric OS (free)
 
 Everything already shipped: debloated KDE Plasma, zero telemetry,
-silent updates that never force a reboot, Firefox, LibreOffice essentials
+silent updates that never force a reboot, Firefox (telemetry/Pocket/studies
+off, tracking protection on, and the uBlock Origin ad blocker, which Firefox
+fetches from addons.mozilla.org on first launch and the owner can remove like
+any add-on), LibreOffice essentials
 (Writer/Calc/Impress), Elisa music library, Flathub, NTFS/exFAT,
 Dagric Welcome, branded installer, **Dagric Styles** (`dagric-style` —
 one-click desktop moods: color scheme + accent + wallpaper + KWin effects,
@@ -29,6 +32,13 @@ the **Migration Assistant**
 Chrome/Edge/Firefox bookmarks over from the Windows partition, read-only,
 never touching Windows). Drive-health watching too: plasma-disks warns
 before a failing disk dies, and the Security Checkup reports SMART status.
+
+**Snapshot recovery** (free, on the default btrfs install): snapper takes an
+automatic snapshot before and after every apt transaction, and grub-btrfs
+exposes them as a submenu in the boot menu — so a bad update is undone from
+GRUB instead of reinstalled. `dagric-snapshot-setup` configures it on first
+boot of the installed system. This is what the Welcome page's rollback
+promise rests on; Pro adds Timeshift's scheduled GUI on top of it.
 
 **Security baseline** (genuinely strong — free is lean, not insecure):
 AppArmor mandatory access control enforced from boot, an expanded hardened
@@ -67,7 +77,7 @@ crippled, Pro is a clear step up.
 **Stability**
 | | |
 |---|---|
-| System restore | Timeshift — scheduled restore points, roll back a bad update (rsync mode on ext4; btrfs snapshot mode on btrfs installs) |
+| System restore | Timeshift — adds user-scheduled restore points and an rsync mode for manual ext4 installs, on top of the snapper/grub-btrfs pre-update rollback every edition gets |
 
 **Security Suite** (the Pro step-up; free keeps a strong baseline — see below)
 | | |
@@ -103,8 +113,8 @@ pitch never outruns the product:
 
 - **Immutable core / atomic updates with rollback** — requires moving to
   an image-based update model (ostree/ABroot-style). Large but doable.
-  First step (smaller): btrfs as the default install filesystem so
-  Timeshift/Snapper get instant atomic snapshots instead of rsync copies.
+  (The btrfs-default + snapper/grub-btrfs rollback groundwork already
+  ships; this is the step beyond it.)
 - **umu-launcher** — containerized Proton for non-Steam .exe files;
   not yet packaged in Debian, revisit when it lands (or vendor it).
 - **LocalAI** — OpenAI-compatible self-hosted engine (LLM + Whisper +

@@ -38,10 +38,13 @@ vendor's own license at that time.
 
 ### Steam (Valve)
 
-- Dagric preinstalls `steam-installer`, a small **bootstrapper**. It does not
-  contain the Steam client.
-- On first launch the bootstrapper downloads Steam from Valve, and the user
-  accepts Valve's **Steam Subscriber Agreement**.
+- Dagric does **not** preinstall Steam, or `steam-installer`, or any part of
+  either. Neither ships in the free or the Pro ISO.
+- The `dagric-get-steam` helper installs `steam-installer` — a small
+  **bootstrapper**, which itself contains no Steam client code — from Debian's
+  official repository, only when the user chooses to.
+- That bootstrapper then downloads Steam from Valve, and the user accepts
+  Valve's **Steam Subscriber Agreement** at that point.
 - This is the same mechanism Debian, Ubuntu, Linux Mint, Pop!_OS, and Valve's
   own SteamOS use. Steam and the Steam logo are trademarks of Valve
   Corporation; Dagric is not affiliated with or endorsed by Valve.

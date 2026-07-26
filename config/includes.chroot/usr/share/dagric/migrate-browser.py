@@ -41,6 +41,13 @@ import tempfile
 OUT_TABS = "Windows-open-tabs.html"
 OUT_PASS = "Windows-passwords.csv"
 
+# Every glob pattern below is built from a REAL path the caller handed us --
+# ultimately /media/<user>/<NTFS volume label>/Users/<name>. Windows happily
+# accepts '[' and ']' in a volume label ("Windows [SSD]"), and glob reads those
+# as a character class, so an unescaped prefix silently matches nothing and the
+# migration reports zero tabs, zero passwords and no exported CSV while claiming
+# success. glob.escape() the fixed prefix; only the '*' we wrote stays a wildcard.
+
 
 # ---------------------------------------------------------------- utilities
 def copy_out(path):
@@ -68,9 +75,12 @@ def mozlz4(path):
             magic = fh.read(8)
             if not magic.startswith(b"mozLz4"):
                 return None
-            (size,) = struct.unpack("<I", fh.read(4))
+            hdr = fh.read(4)
+            if len(hdr) < 4:
+                return None      # truncated header -- an unclean Windows shutdown
+            (size,) = struct.unpack("<I", hdr)
             src = fh.read()
-    except OSError:
+    except (OSError, struct.error):
         return None
 
     dst = bytearray()
@@ -117,28 +127,34 @@ def firefox_tabs(prof_root):
     pats = ["sessionstore-backups/recovery.jsonlz4",
             "sessionstore-backups/previous.jsonlz4",
             "sessionstore.jsonlz4"]
-    for prof in glob.glob(os.path.join(prof_root, "*")):
+    for prof in glob.glob(os.path.join(glob.escape(prof_root), "*")):
         for p in pats:
             f = os.path.join(prof, p)
             if not os.path.exists(f):
                 continue
-            raw = mozlz4(f)
-            if not raw:
-                continue
+            # A half-written session file is exactly what an unclean Windows
+            # shutdown leaves behind -- the case where this matters most. It
+            # must never sink the other candidates, the other profiles, or the
+            # password recovery that runs after us.
             try:
+                raw = mozlz4(f)
+                if not raw:
+                    continue
                 data = json.loads(raw.decode("utf-8", "replace"))
-            except ValueError:
-                continue
-            for win in data.get("windows", []):
-                for tab in win.get("tabs", []):
-                    entries = tab.get("entries", [])
-                    if not entries:
-                        continue
-                    idx = min(tab.get("index", len(entries)) - 1, len(entries) - 1)
-                    e = entries[max(idx, 0)]
-                    url = e.get("url", "")
-                    if url.startswith(("http://", "https://")):
-                        out.append(("Firefox", e.get("title") or url, url))
+                for win in data.get("windows") or []:
+                    for tab in win.get("tabs") or []:
+                        entries = tab.get("entries") or []
+                        if not entries:
+                            continue
+                        # "index" is 1-based, but may be absent or JSON null.
+                        idx = tab.get("index")
+                        idx = idx - 1 if isinstance(idx, int) else len(entries) - 1
+                        e = entries[min(max(idx, 0), len(entries) - 1)]
+                        url = e.get("url") or ""
+                        if isinstance(url, str) and url.startswith(("http://", "https://")):
+                            out.append(("Firefox", e.get("title") or url, url))
+            except Exception:
+                pass             # keep whatever was salvaged, move on
             if out:
                 return out           # newest recovery file wins
     return out
@@ -154,12 +170,13 @@ def chromium_tabs(user_data_dir, label):
     """
     found, seen = [], set()
     cands = []
-    for prof in glob.glob(os.path.join(user_data_dir, "*")):
+    for prof in glob.glob(os.path.join(glob.escape(user_data_dir), "*")):
         for name in ("Current Session", "Current Tabs", "Last Session", "Last Tabs"):
             cands.append(os.path.join(prof, "Sessions", name))
             cands.append(os.path.join(prof, name))
-        cands += glob.glob(os.path.join(prof, "Sessions", "Session_*"))
-        cands += glob.glob(os.path.join(prof, "Sessions", "Tabs_*"))
+        sess = os.path.join(glob.escape(prof), "Sessions")
+        cands += glob.glob(os.path.join(sess, "Session_*"))
+        cands += glob.glob(os.path.join(sess, "Tabs_*"))
     # Restrict to characters actually legal in a URL. A looser class (e.g. all
     # printable ASCII) swallows the binary padding between records and glues
     # several URLs into one -- caught in testing.
@@ -170,7 +187,7 @@ def chromium_tabs(user_data_dir, label):
         try:
             with open(f, "rb") as fh:
                 blob = fh.read()
-        except OSError:
+        except Exception:
             continue
         for m in url_re.finditer(blob):
             url = m.group(0).decode("utf-8", "ignore").rstrip("/?&.,;:!")
@@ -209,7 +226,7 @@ def _sec_bytes(item):
 
 def firefox_passwords(prof_root, primary_pw=""):
     """Decrypt Firefox logins via NSS. Returns (rows, note)."""
-    profiles = [p for p in glob.glob(os.path.join(prof_root, "*"))
+    profiles = [p for p in glob.glob(os.path.join(glob.escape(prof_root), "*"))
                 if os.path.exists(os.path.join(p, "logins.json"))]
     if not profiles:
         return [], "no Firefox logins found"
@@ -288,7 +305,7 @@ def find_exported_csv(prof):
     Look where Chrome puts it by default."""
     hits = []
     for d in ("Downloads", "Desktop", "Documents"):
-        for f in glob.glob(os.path.join(prof, d, "*.csv")):
+        for f in glob.glob(os.path.join(glob.escape(prof), d, "*.csv")):
             try:
                 with open(f, encoding="utf-8", errors="replace") as fh:
                     head = fh.readline().lower()
@@ -305,7 +322,9 @@ def write_tabs(tabs, path):
     for src, title, url in tabs:
         if url not in seen:
             seen.add(url)
-            rows.append((src, title, url))
+            # A title is not always a string (sites can put a number there);
+            # keep it one, or sorted() and the slice below both blow up.
+            rows.append((src, title if isinstance(title, str) else str(title), url))
     import html as H
     with open(path, "w", encoding="utf-8") as fh:
         fh.write("<!DOCTYPE NETSCAPE-Bookmark-file-1>\n"
@@ -338,33 +357,58 @@ def write_passwords(rows, path):
     return len(rows)
 
 
+def _step(what, fn, fallback, failures):
+    """Run one recovery step. A step that fails must not take the others with
+    it, and must never leave the caller unable to tell failure from 'found
+    nothing' -- dagric-migrate reads only our stdout."""
+    try:
+        return fn()
+    except Exception as exc:
+        failures.append(what)
+        print("dagric-migrate: %s failed: %s: %s" % (what, type(exc).__name__, exc),
+              file=sys.stderr)
+        return fallback
+
+
 def main():
     if len(sys.argv) < 3:
         print("usage: migrate-browser.py <windows-profile> <output-dir> [primary-password]")
         return 2
     prof, outdir = sys.argv[1], sys.argv[2]
     primary = sys.argv[3] if len(sys.argv) > 3 else ""
+    ff_root = os.path.join(prof, "AppData/Roaming/Mozilla/Firefox/Profiles")
+    chrome_dir = os.path.join(prof, "AppData/Local/Google/Chrome/User Data")
+    edge_dir = os.path.join(prof, "AppData/Local/Microsoft/Edge/User Data")
+    failures = []
 
     tabs = []
-    tabs += firefox_tabs(os.path.join(prof, "AppData/Roaming/Mozilla/Firefox/Profiles"))
-    tabs += chromium_tabs(os.path.join(prof, "AppData/Local/Google/Chrome/User Data"), "Chrome")
-    tabs += chromium_tabs(os.path.join(prof, "AppData/Local/Microsoft/Edge/User Data"), "Edge")
-    n_tabs = write_tabs(tabs, os.path.join(outdir, OUT_TABS)) if tabs else 0
+    tabs += _step("reading Firefox tabs", lambda: firefox_tabs(ff_root), [], failures)
+    tabs += _step("reading Chrome tabs", lambda: chromium_tabs(chrome_dir, "Chrome"), [], failures)
+    tabs += _step("reading Edge tabs", lambda: chromium_tabs(edge_dir, "Edge"), [], failures)
+    n_tabs = _step("writing the tab list",
+                   lambda: write_tabs(tabs, os.path.join(outdir, OUT_TABS)) if tabs else 0,
+                   0, failures)
 
-    rows, note = firefox_passwords(
-        os.path.join(prof, "AppData/Roaming/Mozilla/Firefox/Profiles"), primary)
-    n_pw = write_passwords(rows, os.path.join(outdir, OUT_PASS)) if rows else 0
+    rows, note = _step("reading Firefox logins",
+                       lambda: firefox_passwords(ff_root, primary),
+                       ([], "the Firefox login store could not be read"), failures)
+    n_pw = _step("writing the login list",
+                 lambda: write_passwords(rows, os.path.join(outdir, OUT_PASS)) if rows else 0,
+                 0, failures)
 
-    chrome_present = os.path.isdir(os.path.join(prof, "AppData/Local/Google/Chrome/User Data"))
-    edge_present = os.path.isdir(os.path.join(prof, "AppData/Local/Microsoft/Edge/User Data"))
-    exported = find_exported_csv(prof)
+    chrome_present = os.path.isdir(chrome_dir)
+    edge_present = os.path.isdir(edge_dir)
+    exported = _step("looking for an exported password file",
+                     lambda: find_exported_csv(prof), [], failures)
 
+    # These five lines are the contract with dagric-migrate: always print them.
     print("TABS=%d" % n_tabs)
     print("PASSWORDS=%d" % n_pw)
     print("PWNOTE=%s" % note)
     print("CHROMEISH=%d" % (1 if (chrome_present or edge_present) else 0))
     print("EXPORTED=%s" % ("|".join(exported)))
-    return 0
+    print("FAILED=%s" % ("; ".join(failures)))
+    return 1 if failures else 0
 
 
 if __name__ == "__main__":

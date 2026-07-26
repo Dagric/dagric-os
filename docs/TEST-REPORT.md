@@ -11,11 +11,18 @@ QEMU harness, ISO-filesystem inspection, and two source-review passes
 - Welcome page auto-opens on first login; offline user guide linked
 - Ctrl+Esc system monitor (confirmed by user on real hardware)
 - Full UEFI install + EFI boot + Plymouth splash (earlier session)
-- Pro suite binaries present in image: chromium, thunderbird, libreoffice,
-  gimp (PhotoGIMP skel lands in GIMP/3.0 — correct for Trixie), krita, inkscape,
-  blender, obs-studio, kdenlive, wine(+wine32), steam-installer, gamemode,
-  mangohud, timeshift, distrobox, docker.io, podman, kdeconnect, vorta, rclone,
+- Pro suite binaries present in image (re-verified against the shipped Pro ISO
+  2026-07-26): chromium, thunderbird, libreoffice, gimp (PhotoGIMP skel lands in
+  GIMP/3.0 — correct for Trixie), krita, inkscape, blender, obs-studio, kdenlive,
+  audacity, keepassxc, wine(+wine32), lutris, gamemode, mangohud, goverlay,
+  timeshift, distrobox, docker.io, podman, kdeconnect, vorta, rclone,
   papirus-icon-theme
+  - **No Steam package ships in either edition, by design.** `steam-installer`
+    was bundled in the 2026-07-21 build this report originally covered; it was
+    removed in `e3e3eb8` (2026-07-25). Steam is now reachable only through the
+    `dagric-get-steam` consent helper, per the never-bundled mandate in
+    docs/EDITIONS.md. Verified: no `Package: *steam*` stanza in the dpkg status
+    of either ISO; `/usr/bin` carries only `dagric-get-steam`.
 - firewalld kdeconnect service present; wallpaper `Image=Dagric` set correctly
 
 ## Review findings — triaged against the real image
