@@ -36,6 +36,23 @@ mkdir -p config/includes.chroot/etc
 printf '%s\n' "$EDITION" > config/includes.chroot/etc/dagric-edition
 export DAGRIC_EDITION="$EDITION"
 
+# Same 8-bit wallpaper guard as build.sh — see the comment there for why this
+# reads the PNG header directly instead of asking ImageMagick. (`identify`
+# reports the *effective* depth and calls a 16-bit-header file "8-bit" when its
+# samples happen to fit in 8 bits, which is precisely the case that doubles the
+# file size and the case we are trying to catch.)
+deep=
+for png in config/includes.chroot/usr/share/wallpapers/*/contents/images/*.png; do
+    [ -f "$png" ] || continue
+    [ "$(od -An -tu1 -j24 -N1 "$png" | tr -d ' ')" = 8 ] || deep="$deep $png"
+done
+if [ -n "$deep" ]; then
+    echo "ERROR: wallpapers are not 8-bit — this doubles their size for no" >&2
+    echo "visible gain. Re-encode with: mogrify -depth 8 <file>" >&2
+    for d in $deep; do echo "  $d" >&2; done
+    exit 1
+fi
+
 lb clean
 lb config
 lb build

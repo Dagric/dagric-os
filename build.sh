@@ -51,6 +51,28 @@ mkdir -p config/includes.chroot/etc
 printf '%s\n' "$EDITION" > config/includes.chroot/etc/dagric-edition
 export DAGRIC_EDITION="$EDITION"
 
+# Refuse to ship 16-bit wallpapers. Six of the packs predate
+# branding/wallpaper/make-wallpapers.sh and have no generator in the tree, so
+# the only thing standing between us and a repeat of the 43 MB regression --
+# where six packs were written as 16-bit RGBA and nobody noticed until the ISO
+# was measured -- is somebody remembering. Check it instead of remembering.
+#
+# Read the depth out of the PNG header directly (byte 24, right after IHDR's
+# width and height) rather than shelling out to ImageMagick: the build host is
+# a live-build chroot toolchain and is not required to have `identify`, and a
+# check that silently no-ops when its dependency is missing is worse than none.
+deep=
+for png in config/includes.chroot/usr/share/wallpapers/*/contents/images/*.png; do
+    [ -f "$png" ] || continue
+    [ "$(od -An -tu1 -j24 -N1 "$png" | tr -d ' ')" = 8 ] || deep="$deep $png"
+done
+if [ -n "$deep" ]; then
+    echo "ERROR: wallpapers are not 8-bit — this doubles their size for no" >&2
+    echo "visible gain. Re-encode with: mogrify -depth 8 <file>" >&2
+    for d in $deep; do echo "  $d" >&2; done
+    exit 1
+fi
+
 lb clean
 lb config
 lb build
