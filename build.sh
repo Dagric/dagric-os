@@ -129,5 +129,32 @@ case "$EDITION" in
     pro) NAME=dagric-os-pro-1.0-amd64.iso ;;
     *)   NAME=dagric-os-1.0-amd64.iso ;;
 esac
-cp -v ./*.iso "$SRC/out/$NAME"
+# dd, not cp, and then check the size — because the destination is usually a
+# Windows drive seen through WSL's 9p bridge, and cp fails there on a file this
+# large:
+#     cp: error writing '.../dagric-os-pro-1.0-amd64.iso': Cannot allocate memory
+# It failed at 1.1 GB of a 3.8 GB image and still exited before the verify, so
+# out/ was left holding a TRUNCATED ISO with a plausible name and a fresh
+# timestamp. That is the worst possible failure mode for a build: the artefact
+# looks finished, and the only way to find out otherwise is for somebody to
+# flash it and watch it not boot.
+#
+# dd with an explicit block size writes in bounded chunks instead of letting cp
+# choose a mapping strategy 9p cannot satisfy. The size comparison afterwards is
+# the part that actually matters — any copy method can be interrupted, and a
+# build must not report success over a short file.
+SRCISO=$(ls -1 ./*.iso 2>/dev/null | head -1)
+[ -n "$SRCISO" ] || { echo "no ISO produced" >&2; exit 1; }
+mkdir -p "$SRC/out"
+dd if="$SRCISO" of="$SRC/out/$NAME" bs=4M status=none
+
+WANT=$(stat -c%s "$SRCISO")
+GOT=$(stat -c%s "$SRC/out/$NAME" 2>/dev/null || echo 0)
+if [ "$WANT" != "$GOT" ]; then
+    echo "ERROR: copy is short — $GOT of $WANT bytes." >&2
+    echo "The ISO itself is fine at $SRCISO; only the copy failed." >&2
+    rm -f "$SRC/out/$NAME"
+    exit 1
+fi
+echo "copied $NAME ($GOT bytes, verified)"
 echo "Done ($EDITION edition) — ISO is at out/$NAME"
