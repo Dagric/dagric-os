@@ -147,6 +147,21 @@ ApplicationWindow {
     property real ui: Math.max(1.0, Math.min(1.9, sysFont.height / 15.0))
     function px(n) { return Math.round(n * app.ui); }
 
+    // Short window: shrink the decoration, not the words.
+    //
+    // Every page can scroll now, which is the right safety net and the wrong
+    // first impression — a scrollbar on the welcome screen says "this did not
+    // fit" before the owner has read a word. It showed up on an ordinary
+    // 1024x768 VM, where the window clamps to about 860x595 and the welcome
+    // page's 88px logo and generous gaps are just past what is left after the
+    // header and footer take their share.
+    //
+    // So the big decorative elements stand down when there is no room for them.
+    // The heading, the body text and the note are untouched at every size: the
+    // logo is there to be handsome and the sentences are there to be read, and
+    // when those two compete the sentences win.
+    readonly property bool shortWin: app.height < app.px(660)
+
     // --- brand ---------------------------------------------------------------
     // The window wears the theme being chosen. Clicking "Dark" is supposed to
     // feel like flipping a switch on the whole machine, and a wizard that stays
@@ -953,6 +968,31 @@ ApplicationWindow {
                 }
             }
 
+            // The rail's job, in one line, for when there is no rail.
+            //
+            // The step list hides below 900px so it does not crush the page,
+            // which is right — but it took the answer to "how much more of this
+            // is there?" with it, and that is the single most reassuring thing
+            // on screen for somebody who has just been talked into replacing
+            // their operating system. A 1024x768 VM window lands at about
+            // 860px, so the people most likely to lose it are exactly the
+            // cautious ones evaluating Dagric in VirtualBox before they commit
+            // a real machine.
+            //
+            // Visible on precisely the inverse of the rail's condition, so the
+            // two can never both show and can never both be missing.
+            Text {
+                visible: app.width < app.px(900) && app.steps.length > 1
+                Layout.alignment: Qt.AlignVCenter
+                Layout.rightMargin: app.px(4)
+                text: "Step " + (app.stepIndex + 1) + " of " + app.steps.length
+                color: app.cDim
+                font.pixelSize: app.px(12)
+                Accessible.role: Accessible.StaticText
+                Accessible.name: "Step " + (app.stepIndex + 1) + " of " + app.steps.length
+                                 + ", " + app.stepTitle(app.steps[app.stepIndex])
+            }
+
             Rectangle {
                 visible: app.edition === "pro"
                 Layout.alignment: Qt.AlignVCenter
@@ -1124,22 +1164,22 @@ ApplicationWindow {
                 Item { Layout.fillHeight: true }
 
                 Rectangle {
-                    Layout.preferredWidth: app.px(88)
-                    Layout.preferredHeight: app.px(88)
-                    radius: app.px(24)
+                    Layout.preferredWidth: app.px(app.shortWin ? 64 : 88)
+                    Layout.preferredHeight: app.px(app.shortWin ? 64 : 88)
+                    radius: app.px(app.shortWin ? 18 : 24)
                     color: app.cAccent
                     Accessible.ignored: true
                     Text {
                         anchors.centerIn: parent
                         text: "D"
                         color: app.cOnAccent
-                        font.pixelSize: app.px(52)
+                        font.pixelSize: app.px(app.shortWin ? 38 : 52)
                         font.bold: true
                         Accessible.ignored: true
                     }
                 }
 
-                Item { Layout.preferredHeight: app.px(26) }
+                Item { Layout.preferredHeight: app.px(app.shortWin ? 14 : 26) }
 
                 Text {
                     Layout.fillWidth: true

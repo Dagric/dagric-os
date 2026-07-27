@@ -78,6 +78,20 @@ rsync
 # Pin it: a core free-edition feature must not rest on an implicit dep.
 python3
 
+# X11 bindings, for /usr/lib/dagric/set-window-icon.
+# The first-run wizard runs on Qt's shared qml interpreter, and that binary
+# calls setWindowIcon() with its own compiled-in artwork, so the window carries
+# a real _NET_WM_ICON and every window manager prefers that over our .desktop
+# file. The result was the Qt Quick logo in the title bar of the first window a
+# customer ever sees. QML cannot override it — enumerating every property of
+# Window, ApplicationWindow and Qt.application turns up nothing to set — so the
+# property is replaced from outside, which needs an X client library.
+# Wayland does not need this (app_id already resolves to our .desktop file), but
+# the X11 session is what VirtualBox, VMware and QEMU give you, and trying the
+# OS in a VM is how a cautious switcher evaluates it before committing a machine.
+# 300 kB, pure Python, no compiler and no image library anywhere in the chain.
+python3-xlib
+
 # Drive health — smartctl feeds the Security Checkup's disk report, and
 # plasma-disks (desktop list) warns the owner BEFORE a failing disk dies.
 # "You own this machine" includes knowing when its disk is dying.

@@ -424,6 +424,11 @@ export QT_LINUX_ACCESSIBILITY_ALWAYS_ON
 pending_kind=
 pending_id=
 
+# Same title-bar icon fix as dagric-firstrun — see the long comment there.
+# Detached, X11-only, silent, and gives up by itself.
+[ -x /usr/lib/dagric/set-window-icon ] && \
+    /usr/lib/dagric/set-window-icon dagric-appearance >/dev/null 2>&1 &
+
 "$QML" "$QMLFILE" -- "--catalog=$CATALOG" 2>&1 | while IFS= read -r line; do
     case "$line" in
         *@DAGRIC@*) msg=${line#*@DAGRIC@} ;;

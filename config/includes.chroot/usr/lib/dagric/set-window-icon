@@ -1,0 +1,158 @@
+#!/usr/bin/python3
+# SPDX-FileCopyrightText: 2026 DGR Operations <repo@dagric.com>
+# SPDX-License-Identifier: GPL-3.0-or-later
+"""Put the Dagric logo on a QML window's title bar, on X11.
+
+    /usr/lib/dagric/set-window-icon dagric-firstrun &
+
+WHY THIS EXISTS
+---------------
+The first-run wizard came up with a gold "W" — the Qt Quick runtime's own badge
+— in its title bar and taskbar entry, on the first window a customer ever sees.
+
+Half of that is fixed elsewhere: the wizard now launches through a symlink named
+after itself, so its WM_CLASS is "dagric-firstrun", and Plasma's task manager
+matches that to dagric-firstrun.desktop and uses Icon=dagric-logo. The taskbar
+is correct.
+
+The title bar is not, and cannot be fixed the same way. Qt's qml runtime calls
+setWindowIcon() with a resource compiled into the binary, so the window carries
+a real _NET_WM_ICON property, and a window manager always prefers that over any
+.desktop lookup. Confirmed with xprop under Xvfb: _NET_WM_ICON(CARDINAL) = Icon
+(64 x 64), already set, before we get a say.
+
+QML cannot override it. Enumerating every property of Window, ApplicationWindow
+and Qt.application at runtime turns up nothing containing "icon" — Qt 6 simply
+does not expose the window icon to QML. So the only place left to change it is
+the X server, after the window exists.
+
+WHY IT IS WORTH DOING AT ALL, given the default session is Wayland (where app_id
+already resolves to the right .desktop file and the icon is correct): the X11
+session is what you get in VirtualBox, VMware and QEMU, and on older NVIDIA
+hardware. Trying the OS in a VM is exactly how a cautious switcher evaluates it
+before committing a machine — so the X11 path is not an edge case, it is the
+first impression.
+
+SAFETY
+------
+This runs detached, alongside the most important window in the product, so it is
+written to fail silently and never to interfere:
+  * every failure path returns quietly — no output, no non-zero exit that could
+    surface in a log the owner reads
+  * it gives up after a fixed deadline rather than waiting forever for a window
+    that may never appear
+  * it only ever writes one property on a window whose WM_CLASS we chose
+  * on Wayland it exits immediately, because there is nothing to fix and no X
+    server to talk to
+The worst case is the title bar keeping the icon it has today.
+"""
+
+import os
+import struct
+import sys
+import time
+
+DEADLINE = 20.0          # seconds to wait for the window to appear
+POLL = 0.25
+BLOB = "/usr/share/dagric/icon/dagric-64.rgba"
+SIDE = 64
+
+
+def _quiet_exit():
+    raise SystemExit(0)
+
+
+def load_icon():
+    """RGBA bytes -> the CARDINAL list _NET_WM_ICON wants.
+
+    The property is width, height, then one 32-bit ARGB word per pixel. The
+    blob is straight RGBA in file order, so each pixel is rotated here; doing
+    the swap at runtime keeps tools/make-icon-blob.sh producing a plain,
+    inspectable image file rather than something in X11's private word order.
+    """
+    with open(BLOB, "rb") as fh:
+        raw = fh.read()
+    if len(raw) != SIDE * SIDE * 4:
+        return None
+    out = [SIDE, SIDE]
+    for i in range(0, len(raw), 4):
+        r, g, b, a = raw[i], raw[i + 1], raw[i + 2], raw[i + 3]
+        out.append((a << 24) | (r << 16) | (g << 8) | b)
+    return out
+
+
+def main():
+    if len(sys.argv) < 2:
+        _quiet_exit()
+    wanted = sys.argv[1]
+
+    # Wayland needs nothing from us and has no X server to talk to.
+    if os.environ.get("XDG_SESSION_TYPE") == "wayland" or not os.environ.get("DISPLAY"):
+        _quiet_exit()
+
+    try:
+        from Xlib import display, X
+        from Xlib.error import XError
+    except Exception:
+        _quiet_exit()
+
+    icon = load_icon()
+    if not icon:
+        _quiet_exit()
+
+    try:
+        dpy = display.Display()
+    except Exception:
+        _quiet_exit()
+
+    root = dpy.screen().root
+    net_icon = dpy.intern_atom("_NET_WM_ICON")
+    cardinal = dpy.intern_atom("CARDINAL")
+
+    def walk(win, depth=0):
+        """Find every window whose WM_CLASS instance matches.
+
+        Recursion is bounded: a toolkit reparents its window a few levels below
+        the root at most, and an unbounded walk on a busy desktop is a lot of
+        round trips for no gain.
+        """
+        found = []
+        if depth > 4:
+            return found
+        try:
+            cls = win.get_wm_class()
+            if cls and wanted in cls:
+                found.append(win)
+            for child in win.query_tree().children:
+                found.extend(walk(child, depth + 1))
+        except (XError, Exception):
+            pass
+        return found
+
+    deadline = time.time() + DEADLINE
+    while time.time() < deadline:
+        targets = walk(root)
+        if targets:
+            for win in targets:
+                try:
+                    win.change_property(net_icon, cardinal, 32, icon)
+                except Exception:
+                    pass
+            try:
+                dpy.sync()
+            except Exception:
+                pass
+            _quiet_exit()
+        time.sleep(POLL)
+    _quiet_exit()
+
+
+if __name__ == "__main__":
+    try:
+        main()
+    except SystemExit:
+        raise
+    except Exception:
+        # Never let a title-bar cosmetic fault produce a traceback next to the
+        # first-run wizard.
+        pass
