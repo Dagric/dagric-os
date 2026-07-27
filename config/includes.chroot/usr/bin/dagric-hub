@@ -17,6 +17,7 @@ set -- \
     migrate  "      Migrate from Windows" \
     guide    "      Welcome guide" \
     _looks   "──  Appearance  ───────────────────" \
+    gallery  "      Appearance gallery" \
     looks    "      Desktop layout" \
     style    "      Colors and mood" \
     variety  "      Rotating wallpapers" \
@@ -46,8 +47,8 @@ if [ "$EDITION" = "pro" ]; then
 fi
 
 # A comfortable initial size; taller on Pro, which has more sections.
-GEOM=440x430
-[ "$EDITION" = "pro" ] && GEOM=440x680
+GEOM=440x455
+[ "$EDITION" = "pro" ] && GEOM=440x705
 
 CHOICE=$(kdialog --title "Dagric Hub" --icon dagric-logo --geometry "$GEOM" \
     --menu "What would you like to do?" "$@" 2>/dev/null) || exit 0
@@ -67,6 +68,7 @@ case "$CHOICE" in
     joplin)     run_term '/usr/bin/dagric-get-joplin' ;;
     variety)    run_term '/usr/bin/dagric-get-variety' ;;
     onlyoffice) run_term '/usr/bin/dagric-get-onlyoffice' ;;
+    gallery)  dagric-appearance & ;;
     looks)    dagric-looks & ;;
     style)    dagric-style & ;;
     security) dagric-security-checkup & ;;

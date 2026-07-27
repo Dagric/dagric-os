@@ -64,6 +64,16 @@ espeak-ng
 udisks2
 upower
 
+# The QML runtime, for the Dagric Appearance gallery.
+# The image ALREADY carries every QML module that gallery imports — QtQuick,
+# QtQuick.Controls and QtQuick.Layouts all ship because Plasma itself is built
+# on them. What was missing was the interpreter that runs a .qml file outside
+# of Plasma: /usr/bin/qml6 simply did not exist, so a native gallery was
+# impossible. This package is that interpreter and nothing more (about 150 kB);
+# its dependencies — libqt6qml6, libqt6gui6, libqt6widgets6 — are already
+# pulled in by plasma-desktop, so this adds no new libraries to the image.
+qml-qt6
+
 # SMART disk-failure warnings, KDE-native: a kded daemon that watches disk
 # health and notifies the user in plain language when a drive degrades.
 # Pairs with smartmontools (system list) which powers the Security Checkup.

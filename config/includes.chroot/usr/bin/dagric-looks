@@ -54,7 +54,7 @@ for dir in $LOOK_DIRS; do
         [ "$need" = "pro" ] && label="$label (Pro)"
         grep -vF "	$id	" "$TMPLIST" > "$TMPLIST.n" 2>/dev/null || true
         mv -f "$TMPLIST.n" "$TMPLIST" 2>/dev/null || true
-        printf '%s\t%s\t%s\t%s\n' "$sort" "$id" "$label" "$f" >> "$TMPLIST"
+        printf '%s\t%s\t%s\t%s\t%s\n' "$sort" "$id" "$label" "$f" "$name" >> "$TMPLIST"
     done
 done
 
@@ -79,12 +79,19 @@ CHOICE=$(kdialog --title "Dagric Looks" --icon dagric-logo --geometry 520x320 \
     --menu "Pick a layout — switch back anytime:" "$@" 2>/dev/null) || exit 0
 [ -n "$CHOICE" ] || exit 0
 
-FILE=$(grep -F "	$CHOICE	" "$TMPLIST" | head -1 | cut -f4)
+ROW=$(grep -F "	$CHOICE	" "$TMPLIST" | head -1)
+FILE=$(printf '%s\n' "$ROW" | cut -f4)
 [ -n "$FILE" ] || exit 0
 SCRIPT=$(lkey "$FILE" SCRIPT)
 [ -n "$SCRIPT" ] || exit 0
 
 apply "$CLEAR $SCRIPT"
 
+# Report the layout's display NAME, not its internal tag: the popup used to
+# say "Layout applied: focus" when the menu row the owner clicked read
+# "Focus — one clean panel at the bottom".
+NAME=$(printf '%s\n' "$ROW" | cut -f5)
+[ -n "$NAME" ] || NAME=$CHOICE
+
 kdialog --title "Dagric Looks" \
-    --passivepopup "Layout applied: ${CHOICE}" 4 2>/dev/null
+    --passivepopup "Layout applied: $NAME" 4 2>/dev/null

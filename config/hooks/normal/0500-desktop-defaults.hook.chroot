@@ -17,6 +17,17 @@ if [ -f "$LNF" ]; then
     if ! grep -q '^Image=Dagric' "$LNF"; then
         echo "WARNING: Breeze defaults had no Image= key — wallpaper branding may not apply" >&2
     fi
+
+    # ...and the colour scheme with it. Dagric ships DagricLight/DagricDark
+    # (Breeze derivatives repainted with the brand blue), but the desktop was
+    # still starting on stock BreezeLight — so the schemes existed and nothing
+    # used them, and a first boot looked like plain Breeze with a Dagric
+    # wallpaper. Key it to DagricLight, which is exactly what the Daybreak
+    # style applies, so the shipped default and "Reset" now agree.
+    sed -i -E 's/^(ColorScheme=).*/\1DagricLight/' "$LNF"
+    if ! grep -q '^ColorScheme=DagricLight' "$LNF"; then
+        echo "WARNING: Breeze defaults had no ColorScheme= key — brand colours may not apply" >&2
+    fi
 fi
 
 # Calamares: use the Dagric branding component instead of Debian's.

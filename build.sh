@@ -36,9 +36,16 @@ if [ "$EDITION" != "pro" ]; then
     rm -f config/package-lists/pro-*.list.chroot
     # Pro-only appearance drop-ins are REMOVED from the free image, not just
     # hidden by their EDITION=pro flag — otherwise a free user could unlock
-    # the Pro layouts and styles by deleting one line of text.
-    grep -rlx 'EDITION=pro' config/includes.chroot/usr/share/dagric/looks \
-        config/includes.chroot/usr/share/dagric/styles 2>/dev/null | xargs -r rm -f
+    # the Pro layouts and styles by deleting one line of text. Each one's
+    # gallery preview thumbnail goes with it: an orphan thumb is dead weight
+    # in a lean free image, and a gallery that lists thumbs would advertise a
+    # style the free edition can no longer apply.
+    for drop in $(grep -rlx 'EDITION=pro' config/includes.chroot/usr/share/dagric/looks \
+        config/includes.chroot/usr/share/dagric/styles 2>/dev/null); do
+        base=${drop##*/}
+        rm -f "$drop" \
+            "config/includes.chroot/usr/share/dagric/appearance/thumbs/${base%.*}.png"
+    done
 fi
 mkdir -p config/includes.chroot/etc
 printf '%s\n' "$EDITION" > config/includes.chroot/etc/dagric-edition

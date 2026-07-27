@@ -25,7 +25,7 @@ any add-on), LibreOffice essentials
 (Writer/Calc/Impress), Elisa music library, Flathub, NTFS/exFAT,
 Dagric Welcome, branded installer, **Dagric Styles** (`dagric-style` —
 one-click desktop moods: color scheme + accent + wallpaper + KWin effects,
-3 styles free / 6 on Pro, six Dagric-made wallpaper packs, all reversible
+3 styles free / 6 on Pro, sixteen Dagric-made wallpaper packs, all reversible
 via Reset; complements Dagric Looks which handles panel layouts), and
 the **Migration Assistant**
 (`dagric-migrate` — copies Documents/Pictures/Music/Videos/Desktop and

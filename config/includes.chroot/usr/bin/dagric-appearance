@@ -1,0 +1,475 @@
+#!/bin/sh
+# SPDX-FileCopyrightText: 2026 DGR Operations <repo@dagric.com>
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Dagric OS — "Dagric Appearance": browse the desktop's styles and layouts as
+# pictures, try any of them for real, and keep only what you actually like.
+#
+# WHY THIS EXISTS. Dagric Styles and Dagric Looks are text menus: you pick a
+# name and the desktop changes, and if you hate it you go hunting for the one
+# you had before. That is a bad trade to ask of someone who just left Windows.
+# Here every entry is a thumbnail, one click applies it FOR REAL, and a bar
+# appears at the bottom saying what is on trial with Keep and Revert and a
+# 20-second countdown. Do nothing and the desktop goes back by itself. Nothing
+# becomes permanent without pressing Keep.
+#
+# HOW IT IS PUT TOGETHER. The window is QML (/usr/share/dagric/appearance/
+# main.qml) and it has no power of its own: QML cannot run programs. This
+# script does all the applying and all the undoing. It hands the window a
+# catalogue and reads back one line per click:
+#
+#     @DAGRIC@PREVIEW|style|midnight     try this one now
+#     @DAGRIC@KEEP|style|midnight        stop the timer, it stays
+#     @DAGRIC@REVERT|style|midnight      put everything back
+#     @DAGRIC@QUIT                       the window closed
+#
+# Lines without the marker are ordinary Qt chatter and are ignored, and the
+# id is checked against the catalogue before anything happens — the window can
+# only ever ask for a style that this script already found on disk.
+#
+# SAME FILES, SAME COMMANDS as the text menus, so a style you wrote by hand
+# shows up here too:
+#
+#   /usr/share/dagric/styles|looks/       shipped with Dagric
+#   /etc/dagric/styles|looks/             added by the administrator
+#   ~/.local/share/dagric/styles|looks/   added by you, no root needed
+#
+# Thumbnails follow the same three-directory order and are optional:
+# <dir>/appearance/thumbs/<id>.png. When one is missing the window draws a
+# tile in that style's own accent colour instead of a broken image.
+EDITION=$(cat /etc/dagric-edition 2>/dev/null || echo free)
+BRAND='#3fa9f5'
+WALLS=/usr/share/wallpapers
+QMLFILE=/usr/share/dagric/appearance/main.qml
+XDG_DATA=${XDG_DATA_HOME:-$HOME/.local/share}
+XDG_CONF=${XDG_CONFIG_HOME:-$HOME/.config}
+STYLE_DIRS="/usr/share/dagric/styles /etc/dagric/styles $XDG_DATA/dagric/styles"
+LOOK_DIRS="/usr/share/dagric/looks /etc/dagric/looks $XDG_DATA/dagric/looks"
+THUMB_DIRS="/usr/share/dagric/appearance/thumbs /etc/dagric/appearance/thumbs $XDG_DATA/dagric/appearance/thumbs"
+# The catalogue is kept in a delimited scratch file. The delimiter is ASCII
+# Unit Separator, NOT a tab: tab counts as IFS whitespace, so "read" silently
+# folds two tabs in a row into one, and an entry with no thumbnail would take
+# the next field as its picture. A control character cannot occur in a name.
+SEP=$(printf '\037')
+
+notify() {
+    kdialog --title "Dagric Appearance" --passivepopup "$1" 5 >/dev/null 2>&1 &
+}
+
+# --- the QML runtime ---------------------------------------------------------
+# Debian's qml-qt6 package installs /usr/bin/qml6 (a link to /usr/lib/qt6/bin/
+# qml). Every QML module this gallery imports already ships with Plasma; only
+# the interpreter is a separate package, so check for it by hand and fall back
+# to the classic text menu rather than dying with a stack trace.
+QML=
+for cand in qml6 /usr/lib/qt6/bin/qml /usr/lib/x86_64-linux-gnu/qt6/bin/qml; do
+    if command -v "$cand" >/dev/null 2>&1; then QML=$cand; break; fi
+done
+if [ -z "$QML" ] || [ ! -r "$QMLFILE" ]; then
+    kdialog --title "Dagric Appearance" --sorry \
+        "The appearance gallery needs the QML runtime (package qml-qt6), which is not installed. Opening the classic Styles menu instead." 2>/dev/null
+    exec /usr/bin/dagric-style
+fi
+
+WORK=$(mktemp -d) || exit 1
+trap 'rm -rf "$WORK"' EXIT INT TERM
+CATALOG=$WORK/catalog.json
+CAPFILE=$WORK/captured
+PANFILE=$WORK/panels
+STATE=$WORK/pending
+
+# --- reading the drop-in files ----------------------------------------------
+skey() { sed -n "s/^[[:space:]]*$2[[:space:]]*=[[:space:]]*//p" "$1" | head -1 | sed 's/[[:space:]]*$//'; }
+
+# Text out of a .style file lands inside a JSON string, so quote it properly
+# and drop control characters rather than trusting whoever wrote the file.
+jesc() {
+    printf '%s' "$1" | tr -d '\001-\037' | sed 's/\\/\\\\/g; s/"/\\"/g'
+}
+
+# Anything that goes into the scratch file loses control characters first, so
+# a hand-written .style file can never inject a field boundary.
+flat() { printf '%s' "$1" | tr -d '\001-\037'; }
+
+# ACCENT is "r,g,b" in the style files; the window wants "#rrggbb" for the
+# fallback tile. Anything unparseable becomes the Dagric blue.
+accent_hex() {
+    _a=$(printf '%s' "$1" | tr -d ' ')
+    case "$_a" in
+        *,*,*) : ;;
+        *) printf '%s' "$BRAND"; return 0 ;;
+    esac
+    _r=${_a%%,*}; _t=${_a#*,}; _g=${_t%%,*}; _b=${_t#*,}
+    case "$_b" in *,*) printf '%s' "$BRAND"; return 0 ;; esac
+    for _v in "$_r" "$_g" "$_b"; do
+        case "$_v" in ''|*[!0-9]*) printf '%s' "$BRAND"; return 0 ;; esac
+        if [ "$_v" -gt 255 ]; then printf '%s' "$BRAND"; return 0; fi
+    done
+    printf '#%02x%02x%02x' "$_r" "$_g" "$_b"
+}
+
+# collect <kind> <extension> <dirs...>  ->  $WORK/<kind>.tsv
+# Same precedence rule as the text menus: later directories replace an entry
+# with the same id, so a user copy overrides the shipped one.
+collect() {
+    _kind=$1
+    _ext=$2
+    shift 2
+    _out=$WORK/$_kind.tsv
+    : > "$_out"
+    for _dir in "$@"; do
+        [ -d "$_dir" ] || continue
+        for _f in "$_dir"/*."$_ext"; do
+            [ -f "$_f" ] || continue
+            _id=$(basename "$_f" ".$_ext")
+            # An id travels over the protocol and back, so keep it boring.
+            case "$_id" in ''|*[!A-Za-z0-9._-]*) continue ;; esac
+            _need=$(skey "$_f" EDITION)
+            if [ "$_need" = "pro" ] && [ "$EDITION" != "pro" ]; then continue; fi
+            if [ "$_kind" = "layout" ] && [ -z "$(skey "$_f" SCRIPT)" ]; then continue; fi
+            _name=$(flat "$(skey "$_f" NAME)"); [ -n "$_name" ] || _name=$_id
+            _desc=$(flat "$(skey "$_f" DESCRIPTION)")
+            _sort=$(skey "$_f" SORT)
+            case "$_sort" in ''|*[!0-9]*) _sort=50 ;; esac
+            _pro=false
+            [ "$_need" = "pro" ] && _pro=true
+            _acc=$BRAND
+            [ "$_kind" = "style" ] && _acc=$(accent_hex "$(skey "$_f" ACCENT)")
+            _thumb=
+            for _td in $THUMB_DIRS; do
+                [ -f "$_td/$_id.png" ] && _thumb="file://$_td/$_id.png"
+            done
+            grep -avF "$SEP$_id$SEP" "$_out" > "$_out.n" 2>/dev/null || true
+            mv -f "$_out.n" "$_out" 2>/dev/null || true
+            printf "%s$SEP%s$SEP%s$SEP%s$SEP%s$SEP%s$SEP%s$SEP%s\n" \
+                "$_sort" "$_id" "$_name" "$_desc" "$_pro" "$_acc" "$_thumb" "$_f" >> "$_out"
+        done
+    done
+}
+
+emit_entries() {
+    _first=1
+    sort -t"$SEP" -k1,1n -k3,3 "$1" 2>/dev/null | \
+    while IFS="$SEP" read -r _s _id _name _desc _pro _acc _thumb _file; do
+        [ -n "$_id" ] || continue
+        [ "$_first" -eq 1 ] || printf ',\n'
+        _first=0
+        printf '    {"kind":"%s","id":"%s","name":"%s","desc":"%s","pro":%s,"accent":"%s","thumb":"%s"}' \
+            "$2" "$(jesc "$_id")" "$(jesc "$_name")" "$(jesc "$_desc")" \
+            "$_pro" "$(jesc "$_acc")" "$(jesc "$_thumb")"
+    done
+}
+
+collect style style $STYLE_DIRS
+collect layout look $LOOK_DIRS
+
+if [ ! -s "$WORK/style.tsv" ] && [ ! -s "$WORK/layout.tsv" ]; then
+    kdialog --title "Dagric Appearance" --sorry \
+        "No styles or layouts are installed. Reinstall the dagric-branding package to restore them." 2>/dev/null
+    exit 1
+fi
+
+{
+    printf '{\n'
+    printf '  "edition": "%s",\n' "$(jesc "$EDITION")"
+    printf '  "styles": [\n'
+    emit_entries "$WORK/style.tsv" style
+    printf '\n  ],\n'
+    printf '  "layouts": [\n'
+    emit_entries "$WORK/layout.tsv" layout
+    printf '\n  ]\n}\n'
+} > "$CATALOG"
+
+lookup()      { grep -aF "$SEP$2$SEP" "$WORK/$1.tsv" 2>/dev/null | head -1 | cut -d"$SEP" -f8; }
+lookup_name() { grep -aF "$SEP$2$SEP" "$WORK/$1.tsv" 2>/dev/null | head -1 | cut -d"$SEP" -f3; }
+
+# --- the same knobs the text menus use ---------------------------------------
+set_scheme() { [ -n "$1" ] && plasma-apply-colorscheme "$1" >/dev/null 2>&1; return 0; }
+set_accent() {
+    case "$1" in
+        "") : ;;
+        default) kwriteconfig6 --file kdeglobals --group General --key AccentColor --delete 2>/dev/null ;;
+        *) kwriteconfig6 --file kdeglobals --group General --key AccentColor "$1" 2>/dev/null ;;
+    esac
+    return 0
+}
+set_wall() {
+    [ -n "$1" ] || return 0
+    for _res in 3840x2160 1920x1080; do
+        if [ -f "$WALLS/$1/contents/images/$_res.png" ]; then
+            plasma-apply-wallpaperimage "$WALLS/$1/contents/images/$_res.png" >/dev/null 2>&1
+            return 0
+        fi
+    done
+    [ -e "$1" ] && plasma-apply-wallpaperimage "$1" >/dev/null 2>&1
+    return 0
+}
+set_effect() { [ -n "$2" ] && kwriteconfig6 --file kwinrc --group Plugins --key "$1" "$2" 2>/dev/null; return 0; }
+del_effect() { kwriteconfig6 --file kwinrc --group Plugins --key "$1" --delete 2>/dev/null; return 0; }
+
+kwin_reload() {
+    dbus-send --session --type=method_call --dest=org.kde.KWin \
+        /KWin org.kde.KWin.reconfigure 2>/dev/null
+    _cur=$(kreadconfig6 --file kdeglobals --group General --key ColorScheme 2>/dev/null)
+    [ -n "$_cur" ] && plasma-apply-colorscheme "$_cur" >/dev/null 2>&1
+    return 0
+}
+
+plasma_script() {
+    dbus-send --session --type=method_call --dest=org.kde.plasmashell \
+        /PlasmaShell org.kde.PlasmaShell.evaluateScript "string:$1" >/dev/null 2>&1
+}
+
+CLEAR='var ps=panels(); for(var i=0;i<ps.length;i++){ps[i].remove();}'
+
+# Read the panels back out of Plasma so Revert can rebuild what was there.
+# The whole description is assembled first and printed in one go: if anything
+# in the loop throws, nothing is printed at all, capture is treated as failed,
+# and Revert falls back to a known-good layout instead of half a desktop.
+SERIALIZE='try{var ps=panels(); var o=""; for(var i=0;i<ps.length;i++){var p=ps[i]; var ids=p.widgetIds; var n=[]; for(var j=0;j<ids.length;j++){var d=p.widgetById(ids[j]); if(d){n.push(d.type);}} o+="P|"+p.location+"|"+p.height+"|"+n.join(" ")+"\n";} print(o);}catch(e){}'
+
+# --- what the desktop shows when the owner has never chosen ------------------
+# On a freshly installed Dagric there is no ColorScheme in kdeglobals and no
+# wallpaper in the applet config: nobody has overridden them, so Plasma is
+# drawing the look-and-feel package's own defaults and kreadconfig6 reports
+# nothing at all. Capturing that "nothing" is what breaks Revert — the restore
+# steps are guarded on a non-empty value, so they are skipped, the previewed
+# scheme and wallpaper stay on screen, and the popup claims the desktop was put
+# back. Reading the defaults file gives the honest answer, and it is not a
+# guess: 0500-desktop-defaults.hook.chroot is what writes Image=Dagric into it.
+LNF=/usr/share/plasma/look-and-feel/org.kde.breeze.desktop/contents/defaults
+lnf_key() {   # <exact group line> <key>
+    [ -f "$LNF" ] || return 0
+    awk -v grp="$1" -v key="$2" '
+        $0 == grp { ins = 1; next }
+        /^\[/     { ins = 0 }
+        ins && index($0, key "=") == 1 { sub(/^[^=]*=/, ""); print; exit }
+    ' "$LNF"
+}
+
+# --- capture: what the desktop looked like before we touched it --------------
+capture_style() {
+    [ -f "$CAPFILE" ] && return 0
+    _s=$(kreadconfig6 --file kdeglobals --group General --key ColorScheme 2>/dev/null)
+    [ -n "$_s" ] || _s=$(lnf_key '[kdeglobals][General]' ColorScheme)
+    _a=$(kreadconfig6 --file kdeglobals --group General --key AccentColor 2>/dev/null)
+    _b=$(kreadconfig6 --file kwinrc --group Plugins --key blurEnabled 2>/dev/null)
+    _t=$(kreadconfig6 --file kwinrc --group Plugins --key translucencyEnabled 2>/dev/null)
+    _w=$(kreadconfig6 --file kwinrc --group Plugins --key wobblywindowsEnabled 2>/dev/null)
+    # Plasma keeps the current wallpaper in the desktop applet config; there is
+    # no "read it back" command, so read the one key we need. An absent key
+    # means the default wallpaper package is still on screen — name it, because
+    # plasma-apply-wallpaperimage takes a wallpaper package as happily as a file.
+    _p=$(sed -n 's/^Image=//p' "$XDG_CONF/plasma-org.kde.plasma.desktop-appletsrc" 2>/dev/null | head -1)
+    _p=${_p#file://}
+    if [ -z "$_p" ]; then
+        _d=$(lnf_key '[Wallpaper]' Image)
+        [ -n "$_d" ] && [ -d "$WALLS/$_d" ] && _p=$WALLS/$_d
+    fi
+    {
+        printf 'SCHEME=%s\n' "$_s"
+        printf 'ACCENT=%s\n' "$_a"
+        printf 'BLUR=%s\n' "$_b"
+        printf 'TRANS=%s\n' "$_t"
+        printf 'WOBBLY=%s\n' "$_w"
+        printf 'WALL=%s\n' "$_p"
+    } > "$CAPFILE"
+    return 0
+}
+
+capture_panels() {
+    [ -s "$PANFILE" ] && return 0
+    if ! _out=$(dbus-send --print-reply=literal --session --type=method_call \
+                --dest=org.kde.plasmashell /PlasmaShell \
+                org.kde.PlasmaShell.evaluateScript "string:$SERIALIZE" 2>/dev/null); then
+        return 1
+    fi
+    printf '%s\n' "$_out" | sed -n 's/^[[:space:]]*\(P|[a-z]*|[0-9]*|.*\)$/\1/p' > "$PANFILE"
+    [ -s "$PANFILE" ] || { rm -f "$PANFILE"; return 1; }
+    return 0
+}
+
+# --- putting it back ---------------------------------------------------------
+revert_style() {
+    [ -f "$CAPFILE" ] || return 0
+    _s=; _a=; _b=; _t=; _w=; _p=
+    while IFS='=' read -r _k _v; do
+        case "$_k" in
+            SCHEME) _s=$_v ;;
+            ACCENT) _a=$_v ;;
+            BLUR)   _b=$_v ;;
+            TRANS)  _t=$_v ;;
+            WOBBLY) _w=$_v ;;
+            WALL)   _p=$_v ;;
+        esac
+    done < "$CAPFILE"
+    [ -n "$_s" ] && plasma-apply-colorscheme "$_s" >/dev/null 2>&1
+    # An empty capture means the key was not set at all, so DELETE it rather
+    # than writing a value the owner never chose.
+    if [ -n "$_a" ]; then
+        kwriteconfig6 --file kdeglobals --group General --key AccentColor "$_a" 2>/dev/null
+    else
+        kwriteconfig6 --file kdeglobals --group General --key AccentColor --delete 2>/dev/null
+    fi
+    [ -n "$_p" ] && [ -e "$_p" ] && plasma-apply-wallpaperimage "$_p" >/dev/null 2>&1
+    if [ -n "$_b" ]; then set_effect blurEnabled "$_b"; else del_effect blurEnabled; fi
+    if [ -n "$_t" ]; then set_effect translucencyEnabled "$_t"; else del_effect translucencyEnabled; fi
+    if [ -n "$_w" ]; then set_effect wobblywindowsEnabled "$_w"; else del_effect wobblywindowsEnabled; fi
+    kwin_reload
+    return 0
+}
+
+rebuild_panels() {
+    [ -s "$PANFILE" ] || return 1
+    _js=$CLEAR
+    _n=0
+    while IFS='|' read -r _tag _loc _h _widgets; do
+        [ "$_tag" = "P" ] || continue
+        case "$_loc" in ''|*[!a-z]*) _loc=bottom ;; esac
+        case "$_h" in ''|*[!0-9]*) _h=44 ;; esac
+        _n=$((_n + 1))
+        _js="$_js var p$_n=new Panel; p$_n.location=\"$_loc\"; p$_n.height=$_h;"
+        for _w in $_widgets; do
+            case "$_w" in ''|*[!A-Za-z0-9._-]*) continue ;; esac
+            _js="$_js var w=p$_n.addWidget(\"$_w\");"
+            if [ "$_w" = "org.kde.plasma.kickoff" ]; then
+                _js="$_js w.currentConfigGroup=[\"General\"]; w.writeConfig(\"icon\",\"dagric-logo\");"
+            fi
+        done
+    done < "$PANFILE"
+    [ "$_n" -gt 0 ] || return 1
+    plasma_script "$_js"
+    return 0
+}
+
+fallback_layout() {
+    _f=$(sort -t"$SEP" -k1,1n "$WORK/layout.tsv" 2>/dev/null | head -1 | cut -d"$SEP" -f8)
+    [ -n "$_f" ] && apply_layout "$_f"
+    notify "Your previous layout could not be read, so the standard Dagric layout was restored."
+    return 0
+}
+
+# --- applying ----------------------------------------------------------------
+apply_style() {
+    set_scheme "$(skey "$1" SCHEME)"
+    set_accent "$(skey "$1" ACCENT)"
+    set_wall   "$(skey "$1" WALLPAPER)"
+    set_effect blurEnabled          "$(skey "$1" BLUR)"
+    set_effect translucencyEnabled  "$(skey "$1" TRANSLUCENCY)"
+    set_effect wobblywindowsEnabled "$(skey "$1" WOBBLY)"
+    kwin_reload
+    return 0
+}
+
+apply_layout() {
+    _sc=$(skey "$1" SCRIPT)
+    [ -n "$_sc" ] || return 1
+    plasma_script "$CLEAR $_sc"
+    return 0
+}
+
+do_revert() {
+    case "$1" in
+        style)  revert_style ;;
+        layout) rebuild_panels || fallback_layout ;;
+    esac
+    return 0
+}
+
+# --- run the window and act on what it asks for ------------------------------
+# console.log() from QML goes to stderr, so stderr is merged into the pipe.
+# QT_MESSAGE_PATTERN strips Qt's usual "qml: " prefix and QT_LOGGING_RULES
+# makes sure a stray user setting cannot silence the protocol. The Basic
+# control style is always present and is fully restyled by main.qml, so the
+# gallery looks the same whatever theme is being previewed underneath it.
+# QML_XHR_ALLOW_FILE_READ is what lets the window read the catalogue at all:
+# Qt refuses local-file XMLHttpRequest unless it is set, and without it the
+# gallery comes up completely empty. It applies to this process only, and the
+# only local file the window ever asks for is the catalogue we just wrote.
+QT_MESSAGE_PATTERN='%{message}'
+QT_LOGGING_RULES='qml.debug=true'
+QT_QUICK_CONTROLS_STYLE=Basic
+QML_XHR_ALLOW_FILE_READ=1
+export QT_MESSAGE_PATTERN QT_LOGGING_RULES QT_QUICK_CONTROLS_STYLE QML_XHR_ALLOW_FILE_READ
+
+pending_kind=
+pending_id=
+
+"$QML" "$QMLFILE" -- "--catalog=$CATALOG" 2>&1 | while IFS= read -r line; do
+    case "$line" in
+        *@DAGRIC@*) msg=${line#*@DAGRIC@} ;;
+        *) continue ;;
+    esac
+    cmd=${msg%%|*}
+    rest=${msg#*|}
+    kind=${rest%%|*}
+    id=${rest#*|}
+    case "$kind" in style|layout) : ;; *) kind=; id= ;; esac
+    case "$id" in ''|*[!A-Za-z0-9._-]*) id= ;; esac
+
+    case "$cmd" in
+        PREVIEW)
+            [ -n "$kind" ] && [ -n "$id" ] || continue
+            file=$(lookup "$kind" "$id")
+            [ -n "$file" ] && [ -f "$file" ] || continue
+            # Take back the previous trial before starting a new one, so two
+            # half-applied styles can never add up to a third one nobody chose.
+            # Layout on layout is the exception: applying a layout already
+            # clears every panel first, and reverting in between only flickers.
+            if [ -n "$pending_kind" ]; then
+                if [ "$pending_kind" = "layout" ] && [ "$kind" = "layout" ]; then
+                    :
+                else
+                    do_revert "$pending_kind"
+                fi
+            fi
+            if [ "$kind" = "style" ]; then
+                capture_style
+            else
+                capture_panels || true
+            fi
+            pending_kind=$kind
+            pending_id=$id
+            printf '%s|%s\n' "$kind" "$id" > "$STATE"
+            if [ "$kind" = "style" ]; then
+                apply_style "$file"
+            else
+                apply_layout "$file"
+            fi
+            ;;
+        KEEP)
+            [ -n "$pending_kind" ] || continue
+            name=$(lookup_name "$pending_kind" "$pending_id")
+            [ -n "$name" ] || name=$pending_id
+            rm -f "$STATE"
+            # The baseline is dropped along with the trial. It described the
+            # desktop from BEFORE this style was applied, and the owner has
+            # just said this one stays; if it survived, the next thing they
+            # tried and reverted would restore that older desktop and quietly
+            # throw the Keep away. Clearing it makes the next trial measure
+            # itself against what is actually on screen now.
+            rm -f "$CAPFILE" "$PANFILE"
+            pending_kind=
+            pending_id=
+            notify "Kept: $name"
+            ;;
+        REVERT)
+            [ -n "$pending_kind" ] || continue
+            do_revert "$pending_kind"
+            rm -f "$STATE"
+            pending_kind=
+            pending_id=
+            ;;
+        QUIT)
+            : ;;
+    esac
+done
+
+# If the window died mid-preview the loop never saw a REVERT, and the owner
+# would be left staring at a desktop they never agreed to. The pending marker
+# outlives the pipeline on purpose, so we can still put things back.
+if [ -s "$STATE" ]; then
+    stale_kind=$(cut -d'|' -f1 "$STATE")
+    do_revert "$stale_kind"
+    rm -f "$STATE"
+    notify "The gallery closed while a preview was running, so the desktop was put back."
+fi
