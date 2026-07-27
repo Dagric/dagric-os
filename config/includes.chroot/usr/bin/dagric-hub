@@ -8,36 +8,49 @@
 # system without the owner picking it and confirming.
 EDITION=$(cat /etc/dagric-edition 2>/dev/null || echo free)
 
-# Build the menu: pairs of "tag" "label". Pro adds creator tools.
+# Build the menu: pairs of "tag" "label", grouped into sections. Rows whose
+# tag starts with "_" are section headers — picking one just reopens the Hub.
+# Pro appends its own sections below the free ones.
 set -- \
-    setup    "Finish setting up this PC" \
-    migrate  "Migrate from Windows — bring your files and bookmarks" \
-    looks    "Dagric Looks — change your desktop layout" \
-    style    "Dagric Styles — colors, wallpaper, effects in one click" \
-    variety  "Rotating wallpapers — install Variety (optional)" \
-    drivers  "Graphics drivers — install the NVIDIA driver" \
-    security "Security Checkup — score this system's hardening" \
-    guide    "Welcome & User Guide"
+    _start   "──  Get started  ──────────────────" \
+    setup    "      Finish setup" \
+    migrate  "      Migrate from Windows" \
+    guide    "      Welcome guide" \
+    _looks   "──  Appearance  ───────────────────" \
+    looks    "      Desktop layout" \
+    style    "      Colors and mood" \
+    variety  "      Rotating wallpapers" \
+    _system  "──  System  ───────────────────────" \
+    drivers  "      NVIDIA driver" \
+    security "      Security checkup"
 if [ "$EDITION" = "pro" ]; then
     set -- "$@" \
-        vm          "Windows in a window — set up virtual machines" \
-        usbprotect  "USB protection — block unknown USB devices" \
-        bottles     "Run Windows apps — install Bottles" \
-        localsend   "Share files privately — install LocalSend" \
-        cryptomator "Encrypt before the cloud — install Cryptomator" \
-        upscayl     "AI image upscaler (offline) — install Upscayl" \
-        joplin      "Notes that stay yours — install Joplin" \
-        onlyoffice  "The familiar Office look — install ONLYOFFICE" \
-        steam       "Install Steam (Valve's game store)" \
-        heroic      "Install Heroic (Epic / GOG / Amazon games)" \
-        protonup    "Install ProtonUp-Qt (manage Proton/Wine versions)" \
-        gaming      "Gaming extras — install Proton-GE for Steam" \
-        ai          "Local AI — install Ollama (runs on your hardware)" \
-        resolve     "DaVinci Resolve — guided install"
+        _windows "──  Windows and apps  ─────────────" \
+        vm          "      Windows in a VM" \
+        bottles     "      Windows apps — Bottles" \
+        onlyoffice  "      Office suite — ONLYOFFICE" \
+        _privacy "──  Privacy and files  ────────────" \
+        usbprotect  "      USB protection" \
+        localsend   "      Local sharing — LocalSend" \
+        cryptomator "      Cloud encryption — Cryptomator" \
+        joplin      "      Private notes — Joplin" \
+        _gaming  "──  Gaming  ───────────────────────" \
+        steam       "      Steam" \
+        heroic      "      Heroic — Epic, GOG, Amazon" \
+        protonup    "      ProtonUp-Qt" \
+        gaming      "      Proton-GE for Steam" \
+        _creator "──  Creator and AI  ───────────────" \
+        upscayl     "      Image upscaler — Upscayl" \
+        resolve     "      DaVinci Resolve" \
+        ai          "      Local AI — Ollama"
 fi
 
-CHOICE=$(kdialog --title "Dagric Hub" --icon dagric-logo \
-    --menu "Welcome to Dagric. What would you like to do?" "$@" 2>/dev/null) || exit 0
+# A comfortable initial size; taller on Pro, which has more sections.
+GEOM=440x430
+[ "$EDITION" = "pro" ] && GEOM=440x680
+
+CHOICE=$(kdialog --title "Dagric Hub" --icon dagric-logo --geometry "$GEOM" \
+    --menu "What would you like to do?" "$@" 2>/dev/null) || exit 0
 [ -n "$CHOICE" ] || exit 0
 
 # Run a terminal helper in konsole and hold the window open afterwards.
@@ -46,6 +59,7 @@ run_term() {
 }
 
 case "$CHOICE" in
+    _*)       exec /usr/bin/dagric-hub ;;
     setup)    dagric-setup & ;;
     migrate)  run_term '/usr/bin/dagric-migrate' ;;
     vm)       run_term '/usr/bin/dagric-vm' ;;

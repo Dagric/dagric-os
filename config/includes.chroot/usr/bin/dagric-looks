@@ -75,8 +75,8 @@ EOF
 done
 IFS=$OLDIFS
 
-CHOICE=$(kdialog --title "Dagric Looks" --icon dagric-logo \
-    --menu "Pick your desktop layout — you can switch back anytime:" "$@" 2>/dev/null) || exit 0
+CHOICE=$(kdialog --title "Dagric Looks" --icon dagric-logo --geometry 520x320 \
+    --menu "Pick a layout — switch back anytime:" "$@" 2>/dev/null) || exit 0
 [ -n "$CHOICE" ] || exit 0
 
 FILE=$(grep -F "	$CHOICE	" "$TMPLIST" | head -1 | cut -f4)
@@ -87,4 +87,4 @@ SCRIPT=$(lkey "$FILE" SCRIPT)
 apply "$CLEAR $SCRIPT"
 
 kdialog --title "Dagric Looks" \
-    --passivepopup "Applied the ${CHOICE} layout. Not for you? Open Dagric Looks again." 6 2>/dev/null
+    --passivepopup "Layout applied: ${CHOICE}" 4 2>/dev/null

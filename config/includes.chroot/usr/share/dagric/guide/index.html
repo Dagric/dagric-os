@@ -2,127 +2,493 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Dagric OS — User Guide</title>
 <style>
-  :root { --bg:#0b1118; --panel:#121b26; --line:#223140; --ink:#e6edf3;
-          --muted:#8595a6; --accent:#4fb3e8; --accent2:#7be0c8; }
-  * { box-sizing:border-box; margin:0; }
-  body { background:var(--bg); color:var(--ink); font:16px/1.65 system-ui,sans-serif; }
-  main { max-width:760px; margin:0 auto; padding:48px 24px 96px; }
-  h1 { font-weight:300; letter-spacing:.1em; margin-bottom:6px; }
-  h1 b { color:var(--accent); font-weight:700; }
-  .sub { color:var(--muted); margin-bottom:40px; }
-  h2 { color:var(--accent2); font-size:1.05rem; margin:36px 0 10px; }
-  p, li { color:var(--ink); font-size:.95rem; }
-  ul { padding-left:22px; }
-  kbd { background:var(--panel); border:1px solid var(--line); border-radius:5px;
-        padding:1px 7px; font-size:.85em; }
-  code { background:var(--panel); border:1px solid var(--line); border-radius:5px;
-         padding:1px 6px; font-family:ui-monospace,Consolas,monospace; font-size:.85em; }
-  .tip { background:var(--panel); border-left:3px solid var(--accent);
-         border-radius:0 8px 8px 0; padding:12px 16px; margin:10px 0; color:var(--muted); }
+  :root {
+    --bg:        #0a111c;
+    --bg-raise:  #0e1726;
+    --panel:     #101b2c;
+    --panel-2:   #132033;
+    --line:      rgba(148,178,214,.12);
+    --line-soft: rgba(148,178,214,.07);
+    --ink:       #e7eef7;
+    --ink-soft:  #c3cfdd;
+    --muted:     #8496ac;
+    --faint:     #5f7186;
+    --accent:    #3fa9f5;
+    --accent-dim:#2b76ad;
+    --accent-bg: rgba(63,169,245,.10);
+    --accent-brd:rgba(63,169,245,.28);
+    --radius:    12px;
+  }
+
+  * { box-sizing:border-box; margin:0; padding:0; }
+
+  html { scroll-behavior:smooth; scroll-padding-top:28px; }
+
+  body {
+    background:var(--bg);
+    color:var(--ink);
+    font:16px/1.7 -apple-system, "Segoe UI", "Noto Sans", Ubuntu, Cantarell, system-ui, sans-serif;
+    -webkit-font-smoothing:antialiased;
+    text-rendering:optimizeLegibility;
+  }
+
+  ::selection { background:rgba(63,169,245,.30); }
+
+  a { color:var(--accent); text-decoration:none; }
+  a:hover { text-decoration:underline; text-underline-offset:3px; }
+  :focus-visible { outline:2px solid var(--accent); outline-offset:2px; border-radius:4px; }
+
+  /* ---------- shell ---------- */
+  .shell {
+    max-width:1120px;
+    margin:0 auto;
+    padding:0 32px;
+    display:grid;
+    grid-template-columns:224px minmax(0,1fr);
+    gap:56px;
+  }
+
+  /* ---------- sidebar ---------- */
+  .side {
+    padding:44px 0 64px;
+  }
+  .sidebox {
+    position:sticky;
+    top:24px;
+    max-height:calc(100vh - 48px);
+    overflow-y:auto;
+    scrollbar-width:thin;
+    scrollbar-color:var(--line) transparent;
+  }
+  .brand {
+    display:flex; align-items:center; gap:11px;
+    padding-bottom:18px; margin-bottom:14px;
+    border-bottom:1px solid var(--line-soft);
+  }
+  .mark {
+    width:34px; height:34px; flex:none;
+    border-radius:9px;
+    background:linear-gradient(145deg, #17293f, #0e1a2b);
+    border:1px solid var(--accent-brd);
+    display:grid; place-items:center;
+    color:var(--accent);
+    font-weight:700; font-size:17px;
+    letter-spacing:.02em;
+  }
+  .brand-name { font-size:.95rem; font-weight:600; letter-spacing:.01em; }
+  .brand-name small { display:block; font-size:.72rem; font-weight:500; color:var(--muted); letter-spacing:.08em; text-transform:uppercase; margin-top:1px; }
+
+  .navgroup { margin:16px 0 4px; font-size:.68rem; font-weight:600; letter-spacing:.14em; text-transform:uppercase; color:var(--faint); }
+  nav.toc a {
+    display:block;
+    padding:5px 10px;
+    margin:1px 0 1px -10px;
+    font-size:.85rem;
+    color:var(--muted);
+    border-radius:7px;
+    border-left:2px solid transparent;
+    line-height:1.45;
+  }
+  nav.toc a:hover { color:var(--ink); background:var(--line-soft); text-decoration:none; }
+  nav.toc a.active {
+    color:var(--accent);
+    background:var(--accent-bg);
+    border-left-color:var(--accent);
+    border-radius:0 7px 7px 0;
+  }
+
+  /* ---------- content ---------- */
+  .content { padding:44px 0 110px; max-width:660px; }
+
+  header.hero { margin-bottom:20px; }
+  .eyebrow {
+    font-size:.72rem; font-weight:600;
+    letter-spacing:.18em; text-transform:uppercase;
+    color:var(--accent);
+    margin-bottom:10px;
+  }
+  h1 {
+    font-size:clamp(1.9rem, 3.4vw, 2.5rem);
+    font-weight:650;
+    letter-spacing:-.015em;
+    line-height:1.15;
+  }
+  .sub {
+    color:var(--muted);
+    font-size:1.02rem;
+    margin-top:12px;
+    max-width:46ch;
+  }
+
+  section {
+    padding:36px 0 6px;
+    margin-top:14px;
+    border-top:1px solid var(--line-soft);
+    scroll-margin-top:24px;
+  }
+  section:first-of-type { border-top:none; margin-top:26px; padding-top:14px; }
+
+  h2 {
+    font-size:1.22rem;
+    font-weight:600;
+    letter-spacing:-.008em;
+    color:var(--ink);
+    margin-bottom:14px;
+    display:flex; align-items:center; gap:10px;
+  }
+  .pro {
+    flex:none;
+    font-size:.62rem; font-weight:700;
+    letter-spacing:.12em;
+    color:var(--accent);
+    background:var(--accent-bg);
+    border:1px solid var(--accent-brd);
+    border-radius:99px;
+    padding:2.5px 9px 2px;
+    transform:translateY(1px);
+  }
+
+  p { color:var(--ink-soft); font-size:.96rem; margin-bottom:12px; }
+  p strong { color:var(--ink); font-weight:600; }
+  em { color:var(--ink); font-style:italic; }
+
+  kbd {
+    display:inline-block;
+    background:linear-gradient(180deg, var(--panel-2), var(--panel));
+    border:1px solid var(--line);
+    border-bottom-width:2px;
+    border-radius:6px;
+    padding:1px 8px;
+    font:600 .8em/1.6 ui-monospace, "Cascadia Mono", Consolas, monospace;
+    color:var(--ink);
+    white-space:nowrap;
+  }
+  code {
+    background:var(--accent-bg);
+    border:1px solid rgba(63,169,245,.16);
+    border-radius:6px;
+    padding:1.5px 7px;
+    font:.85em ui-monospace, "Cascadia Mono", Consolas, monospace;
+    color:#8ecdf8;
+    white-space:nowrap;
+  }
+
+  /* ---------- shortcut cards ---------- */
+  .keys {
+    display:grid;
+    grid-template-columns:repeat(auto-fill, minmax(280px, 1fr));
+    gap:12px;
+    margin:18px 0 10px;
+  }
+  .key-card {
+    background:var(--bg-raise);
+    border:1px solid var(--line-soft);
+    border-radius:var(--radius);
+    padding:14px 16px 13px;
+  }
+  .key-card .combo { margin-bottom:7px; display:flex; align-items:center; gap:5px; flex-wrap:wrap; }
+  .key-card .combo .plus { color:var(--faint); font-size:.78rem; }
+  .key-card .what { font-size:.86rem; color:var(--muted); line-height:1.5; }
+  .key-card .what strong { color:var(--ink-soft); font-weight:500; }
+
+  /* ---------- terminal helpers panel ---------- */
+  .helpers {
+    background:var(--bg-raise);
+    border:1px solid var(--line-soft);
+    border-radius:var(--radius);
+    padding:18px 20px 8px;
+    margin:20px 0 10px;
+  }
+  .helpers-title {
+    font-size:.78rem; font-weight:600;
+    letter-spacing:.1em; text-transform:uppercase;
+    color:var(--muted);
+    margin-bottom:4px;
+  }
+  .helpers-sub { font-size:.86rem; color:var(--faint); margin-bottom:12px; }
+  .helper-row {
+    display:flex; align-items:baseline; gap:14px;
+    padding:9px 0;
+    border-top:1px solid var(--line-soft);
+    font-size:.9rem;
+  }
+  .helper-row code { flex:none; }
+  .helper-row span { color:var(--muted); font-size:.87rem; }
+
+  /* ---------- tip callout ---------- */
+  .tip {
+    background:var(--accent-bg);
+    border:1px solid rgba(63,169,245,.18);
+    border-radius:var(--radius);
+    padding:13px 16px;
+    margin:14px 0;
+    font-size:.9rem;
+    color:var(--ink-soft);
+    display:flex; gap:11px; align-items:baseline;
+  }
+  .tip::before {
+    content:"i";
+    flex:none;
+    width:17px; height:17px;
+    border-radius:50%;
+    background:var(--accent);
+    color:#06121f;
+    font:700 .68rem/17px ui-monospace, monospace;
+    text-align:center;
+    transform:translateY(2px);
+  }
+
+  footer.colophon {
+    margin-top:56px;
+    padding-top:22px;
+    border-top:1px solid var(--line-soft);
+    font-size:.8rem;
+    color:var(--faint);
+  }
+
+  /* ---------- narrow screens ---------- */
+  @media (max-width:900px) {
+    .shell { display:block; padding:0 22px; }
+    .side { padding:20px 0 0; }
+    .sidebox {
+      position:sticky; top:0; z-index:5;
+      max-height:none; overflow:visible;
+      background:rgba(10,17,28,.92);
+      backdrop-filter:blur(10px);
+      margin:0 -22px; padding:12px 22px 10px;
+      border-bottom:1px solid var(--line-soft);
+    }
+    .brand { border-bottom:none; padding-bottom:8px; margin-bottom:2px; }
+    .navgroup { display:none; }
+    nav.toc { display:flex; gap:6px; overflow-x:auto; padding-bottom:4px; scrollbar-width:none; }
+    nav.toc::-webkit-scrollbar { display:none; }
+    nav.toc a {
+      flex:none; margin:0;
+      border:1px solid var(--line-soft);
+      border-radius:99px;
+      padding:4px 12px;
+      font-size:.8rem;
+    }
+    nav.toc a.active { border-color:var(--accent-brd); border-radius:99px; }
+    .content { padding-top:30px; max-width:none; }
+  }
 </style>
 </head>
 <body>
-<main>
-  <h1>DAG<b>RIC</b> — User Guide</h1>
-  <p class="sub">Everything you need for your first week. This page works offline.</p>
+<div class="shell">
 
-  <h2>Installing apps</h2>
-  <p>Open <strong>Discover</strong> (the bag icon in the taskbar). Search, click
-  Install, done. Everything is free, checked, and removable. Removing an app
-  actually removes it — nothing comes back on its own.</p>
+  <aside class="side">
+    <div class="sidebox">
+      <div class="brand">
+        <div class="mark">D</div>
+        <div class="brand-name">Dagric OS<small>User Guide</small></div>
+      </div>
+      <nav class="toc" aria-label="Sections">
+        <div class="navgroup">Everyday</div>
+        <a href="#apps">Installing apps</a>
+        <a href="#updates">Updates</a>
+        <a href="#tray">Wi-Fi, sound, displays</a>
+        <a href="#printers">Printers</a>
+        <a href="#shortcuts">Keyboard shortcuts</a>
+        <div class="navgroup">Make it yours</div>
+        <a href="#looks">Looks and Styles</a>
+        <a href="#migrate">Files from Windows</a>
+        <a href="#drives">Drives &amp; USB sticks</a>
+        <div class="navgroup">Going further</div>
+        <a href="#phone">Pairing your phone</a>
+        <a href="#usbguard">USB Protection</a>
+        <a href="#backups">Backups &amp; drive health</a>
+        <a href="#windows">Windows programs</a>
+        <a href="#helpers">Terminal helpers</a>
+        <a href="#help">Getting help</a>
+      </nav>
+    </div>
+  </aside>
 
-  <h2>Updates</h2>
-  <p>Security updates install silently in the background. When bigger updates
-  are ready, a tray icon appears — apply them whenever you like.
-  <strong>Dagric never restarts your computer for you.</strong></p>
+  <main class="content">
 
-  <h2>Wi-Fi, sound, displays</h2>
-  <p>All in the system tray (bottom right). Click the network icon to join
-  Wi-Fi, the speaker for volume and output device, and the display icon when
-  you plug in a monitor or projector.</p>
+    <header class="hero">
+      <div class="eyebrow">User Guide</div>
+      <h1>Welcome to Dagric&nbsp;OS</h1>
+      <p class="sub">Everything you need for your first week. This page works offline.</p>
+    </header>
 
-  <h2>Printers</h2>
-  <p>Plug the printer in (or have it on the same Wi-Fi), then open
-  <strong>System Settings → Printers → Add Printer</strong>. Most printers are
-  detected automatically.</p>
+    <section id="apps">
+      <h2>Installing apps</h2>
+      <p>Open <strong>Discover</strong> (the bag icon in the taskbar). Search, click
+      Install, done. Everything is free, checked, and removable. Removing an app
+      actually removes it — nothing comes back on its own.</p>
+    </section>
 
-  <h2>Making it yours: Looks and Styles</h2>
-  <p>Two tools shape the desktop, both one click and both reversible.
-  <strong>Dagric Looks</strong> changes the layout — where the taskbar,
-  panels and menus sit. <strong>Dagric Styles</strong> changes the mood —
-  light or dark colors, accent color, wallpaper, and window effects like
-  glassy blur. They combine freely: a centered taskbar in deep Midnight, a
-  classic taskbar in warm Dawn. Pro adds the Command, Duo, Horizon and Unity
-  layouts — side docks and top menu bars. Find both in the launcher or the
-  Hub, and pick <em>Reset</em> in Styles any time to return to standard
-  Dagric.</p>
+    <section id="updates">
+      <h2>Updates</h2>
+      <p>Security updates install silently in the background. When bigger updates
+      are ready, a tray icon appears — apply them whenever you like.
+      <strong>Dagric never restarts your computer for you.</strong></p>
+    </section>
 
-  <h2>Bringing your files from Windows</h2>
-  <p>Open the <strong>Dagric Hub</strong> and pick <strong>Migrate from
-  Windows</strong> (or run <code>dagric-migrate</code>). It finds the Windows
-  still on this PC, shows your Documents, Pictures, Music, Videos, Desktop and
-  browser bookmarks, and copies what you pick into your new home folder.
-  Windows is only ever <em>read</em> — nothing there is touched, so you can
-  always boot back into it.</p>
+    <section id="tray">
+      <h2>Wi-Fi, sound, displays</h2>
+      <p>All in the system tray (bottom right). Click the network icon to join
+      Wi-Fi, the speaker for volume and output device, and the display icon when
+      you plug in a monitor or projector.</p>
+    </section>
 
-  <h2>Your Windows drives and USB sticks</h2>
-  <p>They just work. Plug in a USB stick or external drive (including
-  NTFS-formatted Windows drives) and it appears in <strong>Dolphin</strong>,
-  the file manager (folder icon in the taskbar).</p>
+    <section id="printers">
+      <h2>Printers</h2>
+      <p>Plug the printer in (or have it on the same Wi-Fi), then open
+      <strong>System Settings → Printers → Add Printer</strong>. Most printers are
+      detected automatically.</p>
+    </section>
 
-  <h2>Keyboard shortcuts worth knowing</h2>
-  <ul>
-    <li><kbd>Meta</kbd> (the ⊞ key) — open the app launcher</li>
-    <li><kbd>Ctrl</kbd>+<kbd>Esc</kbd> — system monitor (the task-manager reflex)</li>
-    <li><kbd>Meta</kbd>+<kbd>E</kbd> — file manager</li>
-    <li><kbd>Print Screen</kbd> — screenshots with Spectacle</li>
-    <li><kbd>Meta</kbd>+<kbd>L</kbd> — lock the screen</li>
-  </ul>
+    <section id="shortcuts">
+      <h2>Keyboard shortcuts worth knowing</h2>
+      <div class="keys">
+        <div class="key-card">
+          <div class="combo"><kbd>Meta</kbd></div>
+          <div class="what"><strong>Open the app launcher</strong> — Meta is the ⊞ key</div>
+        </div>
+        <div class="key-card">
+          <div class="combo"><kbd>Ctrl</kbd><span class="plus">+</span><kbd>Esc</kbd></div>
+          <div class="what"><strong>System monitor</strong> — the task-manager reflex</div>
+        </div>
+        <div class="key-card">
+          <div class="combo"><kbd>Meta</kbd><span class="plus">+</span><kbd>E</kbd></div>
+          <div class="what"><strong>File manager</strong></div>
+        </div>
+        <div class="key-card">
+          <div class="combo"><kbd>Print Screen</kbd></div>
+          <div class="what"><strong>Screenshots</strong> with Spectacle</div>
+        </div>
+        <div class="key-card">
+          <div class="combo"><kbd>Meta</kbd><span class="plus">+</span><kbd>L</kbd></div>
+          <div class="what"><strong>Lock the screen</strong></div>
+        </div>
+      </div>
+    </section>
 
-  <h2>Pairing your phone (Pro)</h2>
-  <p><strong>KDE Connect</strong> links your phone to this PC for notifications,
-  file transfer and clipboard sharing. For your safety its ports are open only
-  on networks you mark as <em>Home</em> — never on café or airport Wi-Fi. If
-  pairing doesn't find your phone, open <strong>System Settings →
-  Firewall</strong> and set the current connection's zone to <em>home</em>.</p>
+    <section id="looks">
+      <h2>Making it yours: Looks and Styles</h2>
+      <p>Two tools shape the desktop, both one click and both reversible.
+      <strong>Dagric Looks</strong> changes the layout — where the taskbar,
+      panels and menus sit. <strong>Dagric Styles</strong> changes the mood —
+      light or dark colors, accent color, wallpaper, and window effects like
+      glassy blur. They combine freely: a centered taskbar in deep Midnight, a
+      classic taskbar in warm Dawn. Pro adds the Command, Duo, Horizon and Unity
+      layouts — side docks and top menu bars. Find both in the launcher or the
+      Hub, and pick <em>Reset</em> in Styles any time to return to standard
+      Dagric.</p>
+    </section>
 
-  <h2>USB Protection (Pro)</h2>
-  <p>Open the Hub and choose <strong>USB Protection</strong> to block malicious
-  USB devices (the kind that pretend to be a keyboard and type commands). Plug
-  in everything you normally use <em>first</em> — Dagric remembers those and
-  blocks only strangers. Run it again any time to refresh the list or switch
-  protection back off.</p>
+    <section id="migrate">
+      <h2>Bringing your files from Windows</h2>
+      <p>Open the <strong>Dagric Hub</strong> and pick <strong>Migrate from
+      Windows</strong> (or run <code>dagric-migrate</code>). It finds the Windows
+      still on this PC, shows your Documents, Pictures, Music, Videos, Desktop and
+      browser bookmarks, and copies what you pick into your new home folder.</p>
+      <div class="tip">Windows is only ever <em>read</em> — nothing there is
+      touched, so you can always boot back into it.</div>
+    </section>
 
-  <h2>Backups &amp; drive health</h2>
-  <p>On Dagric Pro: <strong>Vorta</strong> makes encrypted backups to a drive
-  or server, and <code>rclone</code> connects to Google Drive, Dropbox,
-  OneDrive and 70+ other services. <strong>Timeshift</strong> takes system
-  restore points — if an update ever misbehaves, roll back to yesterday.
-  On every edition, Dagric watches your drives' SMART health and warns you
-  in plain language if one starts failing — and the Security Checkup shows
-  each drive's status any time.</p>
+    <section id="drives">
+      <h2>Your Windows drives and USB sticks</h2>
+      <p>They just work. Plug in a USB stick or external drive (including
+      NTFS-formatted Windows drives) and it appears in <strong>Dolphin</strong>,
+      the file manager (folder icon in the taskbar).</p>
+    </section>
 
-  <h2>Running Windows programs (Pro)</h2>
-  <p>Double-click many <code>.exe</code> files and Wine runs them. For games,
-  install <strong>Steam</strong> with one click from the Dagric Hub (it is
-  never bundled), then enable Proton under Settings → Compatibility. The
-  <code>dagric-gaming</code> command adds the community Proton-GE build.
-  And for the rare app that won't run under Wine, <strong>Windows in a
-  window</strong>: pick it in the Hub (<code>dagric-vm</code>) to enable
-  virtual machines and run real Windows safely inside Dagric.</p>
+    <section id="phone">
+      <h2>Pairing your phone <span class="pro">PRO</span></h2>
+      <p><strong>KDE Connect</strong> links your phone to this PC for notifications,
+      file transfer and clipboard sharing. For your safety its ports are open only
+      on networks you mark as <em>Home</em> — never on café or airport Wi-Fi. If
+      pairing doesn't find your phone, open <strong>System Settings →
+      Firewall</strong> and set the current connection's zone to <em>home</em>.</p>
+    </section>
 
-  <div class="tip">Terminal helpers that ask before doing anything:
-  <code>sudo dagric-drivers</code> (NVIDIA), <code>dagric-migrate</code>
-  (bring files from Windows), <code>dagric-get-resolve</code>
-  (DaVinci Resolve), <code>dagric-ai</code> (private local AI),
-  <code>dagric-gaming</code> (Proton-GE), <code>dagric-vm</code>
-  (virtual machines, Pro).</div>
+    <section id="usbguard">
+      <h2>USB Protection <span class="pro">PRO</span></h2>
+      <p>Open the Hub and choose <strong>USB Protection</strong> to block malicious
+      USB devices (the kind that pretend to be a keyboard and type commands). Plug
+      in everything you normally use <em>first</em> — Dagric remembers those and
+      blocks only strangers. Run it again any time to refresh the list or switch
+      protection back off.</p>
+    </section>
 
-  <h2>Getting help</h2>
-  <p>Visit <strong>dagric.com/support</strong>. Your system details for any
-  support request: open Konsole and run <code>cat /etc/os-release</code>.</p>
-</main>
+    <section id="backups">
+      <h2>Backups &amp; drive health</h2>
+      <p>On Dagric Pro: <strong>Vorta</strong> makes encrypted backups to a drive
+      or server, and <code>rclone</code> connects to Google Drive, Dropbox,
+      OneDrive and 70+ other services. <strong>Timeshift</strong> takes system
+      restore points — if an update ever misbehaves, roll back to yesterday.
+      On every edition, Dagric watches your drives' SMART health and warns you
+      in plain language if one starts failing — and the Security Checkup shows
+      each drive's status any time.</p>
+    </section>
+
+    <section id="windows">
+      <h2>Running Windows programs <span class="pro">PRO</span></h2>
+      <p>Double-click many <code>.exe</code> files and Wine runs them. For games,
+      install <strong>Steam</strong> with one click from the Dagric Hub (it is
+      never bundled), then enable Proton under Settings → Compatibility. The
+      <code>dagric-gaming</code> command adds the community Proton-GE build.
+      And for the rare app that won't run under Wine, <strong>Windows in a
+      window</strong>: pick it in the Hub (<code>dagric-vm</code>) to enable
+      virtual machines and run real Windows safely inside Dagric.</p>
+    </section>
+
+    <section id="helpers">
+      <h2>Terminal helpers</h2>
+      <div class="helpers">
+        <div class="helpers-title">One command each</div>
+        <div class="helpers-sub">Every helper asks before doing anything.</div>
+        <div class="helper-row"><code>sudo dagric-drivers</code><span>NVIDIA</span></div>
+        <div class="helper-row"><code>dagric-migrate</code><span>bring files from Windows</span></div>
+        <div class="helper-row"><code>dagric-get-resolve</code><span>DaVinci Resolve</span></div>
+        <div class="helper-row"><code>dagric-ai</code><span>private local AI</span></div>
+        <div class="helper-row"><code>dagric-gaming</code><span>Proton-GE</span></div>
+        <div class="helper-row"><code>dagric-vm</code><span>virtual machines, Pro</span></div>
+      </div>
+    </section>
+
+    <section id="help">
+      <h2>Getting help</h2>
+      <p>Visit <strong>dagric.com/support</strong>. Your system details for any
+      support request: open Konsole and run <code>cat /etc/os-release</code>.</p>
+    </section>
+
+    <footer class="colophon">Dagric OS · This guide is stored on your computer and needs no internet connection.</footer>
+
+  </main>
+</div>
+
+<script>
+(function () {
+  var links = Array.prototype.slice.call(document.querySelectorAll('nav.toc a'));
+  var map = {};
+  links.forEach(function (a) { map[a.getAttribute('href').slice(1)] = a; });
+  var sections = Array.prototype.slice.call(document.querySelectorAll('main section'));
+  function setActive(id) {
+    links.forEach(function (a) { a.classList.remove('active'); });
+    if (map[id]) map[id].classList.add('active');
+  }
+  if ('IntersectionObserver' in window) {
+    var visible = {};
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) { visible[e.target.id] = e.isIntersecting; });
+      for (var i = 0; i < sections.length; i++) {
+        if (visible[sections[i].id]) { setActive(sections[i].id); break; }
+      }
+    }, { rootMargin: '-15% 0px -70% 0px' });
+    sections.forEach(function (s) { io.observe(s); });
+  }
+  links.forEach(function (a) {
+    a.addEventListener('click', function () { setActive(a.getAttribute('href').slice(1)); });
+  });
+})();
+</script>
 </body>
 </html>

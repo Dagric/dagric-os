@@ -100,11 +100,12 @@ done
 IFS=$OLDIFS
 
 set -- "$@" \
-    accent "Accent color  —  pick ANY color, keep everything else" \
-    reset  "Reset  —  back to the standard Dagric appearance"
+    _sep   "───────────────────────────────" \
+    accent "Accent color — pick any color" \
+    reset  "Reset — standard Dagric look"
 
-CHOICE=$(kdialog --title "Dagric Styles" --icon dagric-logo \
-    --menu "Pick the desktop's mood — colors, wallpaper, effects. Panels stay put:" \
+CHOICE=$(kdialog --title "Dagric Styles" --icon dagric-logo --geometry 520x380 \
+    --menu "Pick a mood — colors, wallpaper, effects. Panels stay put:" \
     "$@" 2>/dev/null) || exit 0
 [ -n "$CHOICE" ] || exit 0
 
@@ -119,6 +120,10 @@ apply_file() {
 }
 
 case "$CHOICE" in
+    _sep)
+        # Separator row: just reopen the menu (clean up first; exec skips the trap).
+        rm -f "$TMPLIST" "$TMPLIST.n"
+        exec /usr/bin/dagric-style ;;
     accent)
         HEX=$(kdialog --title "Dagric Styles — accent color" --getcolor 2>/dev/null) || exit 0
         case "$HEX" in
@@ -140,4 +145,4 @@ esac
 kwin_reload
 
 kdialog --title "Dagric Styles" \
-    --passivepopup "Applied ${CHOICE}. Mix freely with any Dagric Look." 6 2>/dev/null
+    --passivepopup "Style applied: ${CHOICE}" 4 2>/dev/null
