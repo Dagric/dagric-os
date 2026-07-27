@@ -1,0 +1,221 @@
+#!/bin/sh
+# SPDX-FileCopyrightText: 2026 DGR Operations <repo@dagric.com>
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Dagric OS — stop shipping a gzip initramfs that nobody chose.
+#
+# /etc/initramfs-tools/initramfs.conf in this image says COMPRESS=zstd. That is
+# Debian's own default in Trixie, and it has never once taken effect: the
+# shipped initrd.img is gzip. mkinitramfs decides like this, in its own source
+# at /usr/sbin/mkinitramfs:
+#
+#     if ! command -v "${compress}" >/dev/null 2>&1; then
+#             echo "W: No ${compress} in ${PATH}, using gzip" >&2
+#             compress=gzip
+#     fi
+#
+# ...and /usr/bin/zstd is not in the chroot. The reason is worth writing down,
+# because it is not a forgotten line in a package list. initramfs-tools-core
+# carries `Recommends: zstd, busybox | busybox-static`, and auto/config builds
+# with --apt-recommends false. So the recommendation is dropped, mkinitramfs
+# prints one warning into a fifteen-minute build log that nobody reads, and
+# every boot pays gzip. Nothing in the tree is wrong; two correct decisions
+# just cancel each other out silently.
+#
+# MEASURED, on 2 cores (which is what the target hardware has), compressing
+# this image's real 264 MB initramfs cpio:
+#
+#     gzip      7 s   109.1 MB      <- what ships today
+#     zstd -9   2 s    88.4 MB      <- Debian's default, what this hook gets
+#     zstd -19 44 s    81.4 MB
+#
+# zstd -9 is strictly better than gzip on both axes: it is faster to produce
+# AND 20.7 MB smaller. There is no trade being made here, which is rare enough
+# to be worth saying out loud.
+#
+# WHY THE SIZE MATTERS MORE THAN THE DECOMPRESSION. On the live ISO, GRUB reads
+# the whole initrd through UEFI block IO before the kernel gets control, at
+# roughly 13 MB/s — measured, by screenshotting the boot every second: the
+# black rectangle GRUB punches through the splash lasts 19 s on the shipped
+# image, and the kernel only takes over for the last ~3 s of it. Every megabyte
+# removed from the initrd is a megabyte of that rectangle. In-kernel
+# decompression is the smaller half: 0.77 s of gzip against roughly 0.3 s of
+# zstd.
+#
+# COMPRESSLEVEL IS DELIBERATELY LEFT AT DEBIAN'S 9. Level 19 buys 7.1 MB more,
+# about half a second of GRUB read, and it was not distinguishable from level 9
+# in an end-to-end boot. It costs 44 s instead of 2 s on two cores — and
+# mkinitramfs does not only run here, it runs on the owner's laptop at every
+# kernel update. Trading forty extra seconds of a stalled `apt upgrade` on an
+# eight-year-old machine for half a second of boot is the wrong way round. No
+# conf.d file is shipped for this: initramfs.conf already says what we want,
+# and restating a setting that is already correct is how a config directory
+# turns into a pile of guesses.
+#
+# THE OTHER HALF, NOW APPLIED. The squashfs is the bigger half by far, and it
+# is one flag, which auto/config now sets:
+#
+#     lb config --chroot-squashfs-compression-type zstd
+#
+# live-build defaults to `-comp xz` when that flag is unset (binary_rootfs, the
+# `# Set squashfs compression type or default to xz` branch), so the image
+# decompresses xz on every single file read while the Plasma session starts —
+# which is where most of the boot actually goes. auto/config also sets
+# --chroot-squashfs-compression-level 19, which is an ISO-size decision and not
+# a boot-speed one; see the table below and the note in auto/config.
+#
+# Measured, power-on to Plasma wallpaper, UEFI/OVMF under QEMU-KVM, ISO on SSD,
+# host page cache dropped before every run, five variants run round-robin for
+# three rounds, median:
+#
+#     shipped: xz squashfs + gzip initrd                    69 s
+#     zstd initrd only (this hook)                          67 s
+#     zstd squashfs only                                    63 s
+#     both                                                  56 s
+#
+# Read that table the honest way: this hook ALONE is worth about 2 s, which is
+# barely outside the run-to-run spread. Its real job is to make the squashfs
+# change cheap — zstd costs the squashfs 115 MB, and the initrd gives 21 MB of
+# it straight back, twice over, because the live ISO carries the initrd both at
+# /live/initrd.img and again inside the squashfs at /boot.
+#
+# The block size and compression level are worth knowing about and are NOT
+# worth reaching for on boot-time grounds; measured on identical content:
+#
+#     xz    128K  (what ships)   1,924,943,872   122 s to build
+#     zstd  128K                 2,040,176,640    75 s
+#     zstd  256K                 1,995,149,312    90 s
+#     zstd  256K  level 19       1,978,392,576   172 s
+#
+# zstd at the default level is 47 s FASTER to build than the xz it replaces.
+# 256K blocks and level 19 buy back 62 MB of the 115 MB and made no difference
+# to boot time (55 s and 54 s against 56 s, all inside the spread), so treat
+# them as an image-size decision, not a speed one. Note there is no
+# `lb config` flag for block size — only --chroot-squashfs-compression-type and
+# --chroot-squashfs-compression-level exist. mksquashfs picks it up from
+# MKSQUASHFS_OPTIONS in lb build's environment, which works but is undocumented
+# passthrough rather than a supported knob.
+#
+# VERIFIED END TO END, not just reasoned about. This hook was run inside a real
+# chroot unpacked from the shipped squashfs; it produced a 140,674,044-byte
+# initrd where gzip had produced 161,343,265. That exact initrd was put back
+# into the ISO alongside a zstd squashfs and booted: 56 s to the desktop under
+# OVMF against 69 s for the shipped image, and 49 s under SeaBIOS against 61 s.
+# The desktop and the first-run wizard were opened and looked at in both, so
+# "it booted" means somebody saw it, not that a timer expired quietly.
+set -e
+
+
+# ---------------------------------------------------------------------------
+# The one package that was missing
+# ---------------------------------------------------------------------------
+# `zstd` now lives in config/package-lists/system.list.chroot, which is where a
+# package belongs; this hook used to apt-get it because the change that found
+# the bug was not allowed to edit the lists. The install is gone, the check is
+# not, because the failure it catches is silent at every layer: with no zstd
+# binary, mkinitramfs prints one line and produces a gzip initramfs, exiting 0.
+# That is true on the owner's own disk at every future kernel update too, not
+# just here.
+#
+# Not fatal. A gzip initramfs boots; it is just slower and 21 MB bigger, and
+# failing a fifteen-minute build over it would be the wrong call.
+command -v zstd >/dev/null 2>&1 || {
+    echo "WARNING: zstd is not installed. It is listed in" >&2
+    echo "         config/package-lists/system.list.chroot — if it is still" >&2
+    echo "         there, apt dropped it; if it is not, someone removed it." >&2
+    echo "         The initramfs below will be gzip." >&2
+}
+
+
+# ---------------------------------------------------------------------------
+# Regenerate, and check that it actually took
+# ---------------------------------------------------------------------------
+# 0700-plymouth.hook.chroot also runs update-initramfs, later, so the shipped
+# initrd would end up zstd even if this hook only installed the package. It is
+# regenerated here anyway, for two reasons: so this file is correct on its own
+# rather than by depending on the internals of a hook three hundred lines away,
+# and so the build log says whether zstd took at the moment we can still do
+# something about it. The cost is one extra initramfs build per image.
+BEFORE=$(stat -c%s /boot/initrd.img-* 2>/dev/null | sort -rn | head -1)
+
+# mkinitramfs announces the gzip fallback on stderr and then exits successfully,
+# so the exit status tells us nothing and the message is the whole signal.
+# Capture both streams and read it back.
+OUT=$(update-initramfs -u 2>&1) || {
+    printf '%s\n' "$OUT" >&2
+    echo "WARNING: update-initramfs failed — shipping whatever initrd was there" >&2
+}
+printf '%s\n' "$OUT"
+
+AFTER=$(stat -c%s /boot/initrd.img-* 2>/dev/null | sort -rn | head -1)
+
+case "$OUT" in
+    *"using gzip"*)
+        echo "WARNING: mkinitramfs fell back to gzip despite COMPRESS=zstd." >&2
+        echo "         That is the exact failure this hook exists to fix, so" >&2
+        echo "         something undid it: check that zstd installed, and that" >&2
+        echo "         CONFIG_RD_ZSTD=y in /boot/config-*." >&2
+        ;;
+    *)
+        # Not a proof that the container is zstd — nothing cheap in the chroot
+        # can parse a multi-segment initrd — but it is the exact inverse of the
+        # documented failure, and the size is the corroborating evidence.
+        #
+        # The size is reported, not asserted on, with one exception. Asserting
+        # "it must have shrunk" was the first version of this and it was wrong:
+        # on any build where the initramfs was ALREADY zstd — a rebuild, or the
+        # day zstd moves into the package list — it regenerates at the same size
+        # and the check fired a warning at a completely correct image. A test
+        # that fails on a good build teaches people to ignore the build log.
+        # Growing by more than a percent is the thing that would actually mean
+        # something (gzip is ~15% larger than zstd here), so that is all we
+        # check for.
+        if [ -n "$BEFORE" ] && [ -n "$AFTER" ]; then
+            echo "boot-speed: initramfs $BEFORE -> $AFTER bytes"
+            if [ "$AFTER" -gt $((BEFORE + BEFORE / 100)) ]; then
+                echo "WARNING: the initramfs GREW by more than 1%. Going from" >&2
+                echo "         zstd back to gzip looks like this; check for a" >&2
+                echo "         second COMPRESS= under /etc/initramfs-tools/conf.d." >&2
+            fi
+        fi
+        ;;
+esac
+
+
+# ---------------------------------------------------------------------------
+# REJECTED — measured, and deliberately not shipped.
+# ---------------------------------------------------------------------------
+# COMPRESSLEVEL=19 for the initramfs
+#   See the header. 7.1 MB for 42 extra seconds of every kernel update on the
+#   owner's machine, and no boot-time difference outside the noise.
+#
+# MODULES=dep instead of MODULES=most
+#   The single biggest thing in the initrd, and it has to stay. `dep` includes
+#   only the modules the machine BUILDING the image needs; a live ISO exists to
+#   boot hardware nobody has seen. It would also take the GPU drivers out of
+#   the initramfs, which is what lets KMS come up before the root switch and is
+#   the whole basis of the flicker-free work.
+#
+# Pruning firmware out of the initramfs
+#   Tempting: of the 264 MB uncompressed initramfs, 37.3 MB is kernel modules
+#   and most of the rest is firmware, and a live boot demonstrably does not need
+#   Mellanox NIC firmware before it has mounted the squashfs. Rejected because
+#   the failure mode is unbootable, not slow: get the allow-list wrong for one
+#   storage controller and that machine never reaches the desktop, and it will
+#   be somebody else's machine, not ours. If this is ever revisited it needs a
+#   deny-list of provably-not-storage firmware, not an allow-list, and a boot
+#   test on real hardware.
+#
+# Disabling units to reach the display manager sooner
+#   The critical chain to sddm.service was read out of a kmsg-on-serial log of
+#   a real boot: live-config (2.7 s) -> firewalld (2.1 s) -> network-pre.target
+#   -> NetworkManager -> network.target -> systemd-user-sessions -> sddm. Both
+#   costs are real and both are things the product sells; 0250-performance
+#   already refuses to disable firewalld and gives the reason. Nothing else on
+#   that chain is over a second. systemd reaches graphical.target in 12.2 s of
+#   a 69 s boot, so the units are not where the time is and no drop-in was
+#   shipped under /etc/systemd/system — there was nothing to buy.
+#
+# NetworkManager-wait-online
+#   Already disabled by 0250-performance.hook.chroot, and verified absent from
+#   the built chroot's network-online.target.wants. The classic answer to this
+#   question was already done; re-doing it would just have looked like progress.

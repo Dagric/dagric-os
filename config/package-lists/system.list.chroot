@@ -8,6 +8,18 @@ user-setup
 
 # Kernel
 linux-image-amd64
+# The initramfs compressor. /etc/initramfs-tools/initramfs.conf already says
+# COMPRESS=zstd — that is Debian's own Trixie default — but /usr/bin/zstd was
+# not in the image, so mkinitramfs printed one warning into a fifteen-minute
+# build log and silently fell back to gzip. Two correct decisions cancelling
+# each other: initramfs-tools-core carries "Recommends: zstd" and auto/config
+# sets --apt-recommends false, so the recommendation was dropped and nothing
+# ever said so. The shipped 1.0 initrd.img is 161 MB of gzip; the same content
+# as zstd is 140 MB, and generating it on the two cores an owner's laptop
+# actually has takes 2 s instead of 7 s. GRUB reads that file at roughly
+# 13 MB/s off a USB stick, so it is also the length of the one boot screen with
+# no logo on it. zstd is strictly better than gzip on both axes here.
+zstd
 
 # Networking
 network-manager

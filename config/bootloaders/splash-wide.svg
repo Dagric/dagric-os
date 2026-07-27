@@ -1,0 +1,76 @@
+<!--
+  Dagric OS — boot splash, 16:9 master for the GRUB theme.
+
+  Same composition as splash.svg, re-laid-out for a widescreen artboard rather
+  than stretched: every element sits at the same FRACTION of the height, so the
+  UEFI and BIOS menus read as one design even though one is 16:9 and the other
+  4:3.
+
+  GRUB scales this with desktop-image-scale-method "crop", which is CSS
+  background-size:cover — on a 4:3 panel it scales to the height and throws away
+  about 12.5% off each side. Nothing that matters may sit outside the middle
+  75%, and anything meant to touch the edge (the contours) is drawn overlong so
+  it still bleeds after the crop.
+
+  Type here is only 1.2x the 4:3 art, not the 1.41x that pure proportion would
+  give. GRUB cannot scale a font — a 24px menu item is 24px at 1080p and at
+  768 — so a wordmark scaled proportionally would tower over the menu it is
+  supposed to sit above.
+-->
+<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1080" viewBox="0 0 1920 1080">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#0e1826"/>
+      <stop offset="55%" stop-color="#0a111c"/>
+      <stop offset="100%" stop-color="#05080d"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="50%" cy="14%" r="52%">
+      <stop offset="0%" stop-color="#18293d"/>
+      <stop offset="100%" stop-color="#18293d" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="mark" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#3fa9f5"/>
+      <stop offset="100%" stop-color="#7be0c8"/>
+    </linearGradient>
+    <linearGradient id="hair" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#3fa9f5" stop-opacity="0"/>
+      <stop offset="50%" stop-color="#3fa9f5" stop-opacity="0.8"/>
+      <stop offset="100%" stop-color="#7be0c8" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="contour" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#3fa9f5" stop-opacity="0"/>
+      <stop offset="45%" stop-color="#3fa9f5" stop-opacity="0.6"/>
+      <stop offset="100%" stop-color="#7be0c8" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="band" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#03060a" stop-opacity="0"/>
+      <stop offset="20%" stop-color="#03060a" stop-opacity="0.5"/>
+      <stop offset="80%" stop-color="#03060a" stop-opacity="0.5"/>
+      <stop offset="100%" stop-color="#03060a" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="1920" height="1080" fill="url(#bg)"/>
+  <rect width="1920" height="1080" fill="url(#glow)"/>
+
+  <g class="brand" transform="translate(960,135) scale(1.8)">
+    <circle r="38" fill="none" stroke="#243850" stroke-width="1"/>
+    <circle r="38" fill="none" stroke="url(#mark)" stroke-width="1" opacity="0.25"/>
+    <path transform="translate(-3,0)"
+          d="M -14 -20 H 0 A 20 20 0 0 1 0 20 H -14 Z M -6 -12 H 0 A 12 12 0 0 1 0 12 H -6 Z"
+          fill="url(#mark)" fill-rule="evenodd"/>
+  </g>
+
+  <g class="brand" font-family="DejaVu Sans" text-anchor="middle">
+    <text x="977" y="293" font-size="60" letter-spacing="34" fill="#e8eef4">DAGRIC</text>
+    <text x="966" y="340" font-size="20" letter-spacing="11.4" fill="#6d8196">OWN IT OUTRIGHT</text>
+  </g>
+  <rect class="brand" x="806" y="371" width="308" height="1" fill="url(#hair)"/>
+
+  <rect x="0" y="377" width="1920" height="635" fill="url(#band)"/>
+
+  <g stroke="url(#contour)" fill="none" stroke-width="1.8">
+    <path d="M -40 1052 Q 560 1018 1050 1038 T 1960 1021" opacity="0.16"/>
+    <path d="M -40 1071 Q 640 1038 1145 1058 T 1960 1043" opacity="0.10"/>
+  </g>
+</svg>

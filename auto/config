@@ -26,6 +26,50 @@ esac
 # stick. It goes on a second, copied menu entry instead, which
 # config/hooks/normal/0950-boot-branding.hook.binary builds on the assembled
 # ISO tree. Read that hook before adding a kernel argument here.
+#
+# The three flags after `username=live` are the ones that are unconditionally
+# right on every machine, and each is here because a boot was measured without
+# it:
+#
+#   plymouth.ignore-serial-consoles — the one that matters. Plymouth refuses to
+#   draw at all when the kernel command line names a serial console, and falls
+#   back to text. Booted with `console=ttyS0` present, mean frame luminance was
+#   0.00252 across the entire splash window: no splash, ever, just black from
+#   the GRUB handoff to the KDE startup screen. The same boot with this flag
+#   measured 0.0684 and drew normally. Firmware that advertises a serial console
+#   is not exotic — business desktops with AMT, anything with serial redirection
+#   enabled, every VPS — and all of them were getting zero Dagric branding at
+#   boot.
+#
+#   vt.global_cursor_default=0 — removes the blinking console cursor that the
+#   VT handoff leaves in the corner. Measured, not assumed: a 7x2 pixel lit
+#   block at (1,12) in the baseline capture, on an otherwise black frame.
+#
+#   loglevel=3 — `quiet` is only loglevel=4, so KERN_ERR and KERN_WARNING still
+#   print straight over the splash. Nothing printed in QEMU, which has no real
+#   hardware to complain about; this is the flag that keeps a laptop's ACPI or
+#   firmware grumbling off a paying customer's boot screen. Prophylactic, and
+#   labelled as such.
+#
+# Deliberately NOT added, both proposed and both rejected: `rd.udev.log_level=3`
+# (rd.* is dracut's namespace and Debian uses initramfs-tools, so it is a no-op
+# that reads like a fix) and `nomodeset` (forces the frame-buffer renderer and
+# guarantees the mode change this whole round exists to remove).
+#
+# --chroot-squashfs-compression-type: live-build defaults to `-comp xz` when
+# this is unset — the `# Set squashfs compression type or default to xz` branch
+# in /usr/lib/live/build/binary_rootfs — so every file read during session
+# startup was paying an xz block decompression. Measured on the same host, cold
+# cache, medians of 3-6 runs: 69 s to desktop shipped, 63 s with zstd squashfs
+# alone, 56 s with zstd squashfs plus the zstd initrd that
+# 0260-boot-speed.hook.chroot produces. It also makes the build step FASTER
+# (75 s vs 122 s). Level 19 is not a speed change and was measured not to be
+# one — zstd's decompression rate is essentially independent of the level it
+# was compressed at — it is here to buy back 17 MB of the ~4% the switch to
+# zstd adds to the ISO, for about 82 s more build time. A 256K block size would
+# buy back another 45 MB, but there is no lb flag for it: it would have to be
+# smuggled in through MKSQUASHFS_OPTIONS in lb build's environment, and
+# undocumented passthrough does not belong in this file.
 lb config noauto \
     --distribution trixie \
     --architectures amd64 \
@@ -33,7 +77,9 @@ lb config noauto \
     --binary-images iso-hybrid \
     --debian-installer none \
     --apt-recommends false \
-    --bootappend-live "boot=live components quiet splash hostname=dagric username=live" \
+    --chroot-squashfs-compression-type zstd \
+    --chroot-squashfs-compression-level 19 \
+    --bootappend-live "boot=live components quiet splash hostname=dagric username=live loglevel=3 vt.global_cursor_default=0 plymouth.ignore-serial-consoles" \
     --iso-application "$FH_APP" \
     --iso-publisher "Dagric OS Project" \
     --iso-volume "$FH_VOLUME" \

@@ -1,6 +1,20 @@
 [General]
-; Dagric OS login: dedicated quiet navy backdrop (the desktop wallpaper's
-; baked-in wordmark would clash behind the login form).
+; Dagric OS — this is no longer the login screen. It is the rescue.
+;
+; /etc/sddm.conf.d/10-dagric.conf now selects our own theme, in
+; /usr/share/sddm/themes/dagric/. This file stays because the documented way
+; out of a broken greeter is to set Current=breeze, and somebody doing that
+; from a text console at 2am should land on a screen that still looks like the
+; product they bought rather than on stock KDE.
+;
+; It is deliberately the SAME background and the SAME logo as the real theme,
+; and that is the only thing it can be: Breeze's Main.qml reads six keys —
+; background, color, type, logo, showlogo, showClock — and nothing else. There
+; is no layout, no typography and no spacing to reach from here. That ceiling
+; is exactly why the Dagric theme exists.
+;
+; If the art ever moves, both this file and
+; /usr/share/sddm/themes/dagric/theme.conf have to move with it.
 type=image
 background=/usr/share/dagric/sddm/background.png
 color=#0a111c

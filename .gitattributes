@@ -26,6 +26,13 @@ config/includes.chroot/etc/** text eol=lf
 # Linux-side config that CRLF would break (KConfig, .desktop, skel dotfiles)
 config/includes.chroot/etc/skel/** text eol=lf
 *.desktop text eol=lf
+# The boot loaders' own config, which live-build copies over its templates and
+# which then ships INSIDE the ISO. isolinux/stdmenu.cfg was falling through to
+# `* text=auto`, so a clone with core.autocrlf=true wrote it CRLF — and
+# build.ps1 mounts the working tree straight into the build container. Same
+# class of bug as the usr/lib/dagric line above; the PNG rule at the bottom
+# still claims any artwork that lands in here.
+config/bootloaders/** text eol=lf
 # Plasma colour schemes are KConfig INI files and were falling through to
 # `* text=auto`, so a clone with core.autocrlf=true wrote CRLF into them —
 # and build.ps1 mounts the working tree straight into the build container.
@@ -45,6 +52,22 @@ po/*.po text eol=lf
 # claim the PNGs sitting inside those trees.
 *.png binary
 *.iso binary
+# GRUB's bitmap fonts, and the raw RGBA icon blob. Both live under
+# config/includes.chroot/usr/share/dagric/, which the directory rule above
+# declares `text eol=lf` — so without these two lines git treats a binary as
+# text and rewrites its bytes on the way in.
+#
+# This has not corrupted anything yet and that is luck, not design. Git's text
+# filter converts CRLF pairs, and today's three .pf2 files happen to contain
+# bare CR bytes (51, 54 and 66 of them) without a single LF following one;
+# dagric-64.rgba carries 440. The next regeneration by
+# config/bootloaders/make-boot-art.sh or tools/make-icon-blob.sh — a different
+# glyph range, a different size, one changed pixel — puts a 0x0D next to a 0x0A
+# and the committed file is silently wrong from then on. The failure mode for a
+# .pf2 is the worst kind: GRUB does not report a broken font, it quietly falls
+# back to 16px Unifont and the menu just looks like the theme was ignored.
+*.pf2 binary
+*.rgba binary
 # Compiled gettext catalogues. Git's NUL-byte heuristic already detects these
 # as binary, so this is insurance rather than a live bug — but a .mo checked
 # out with CRLF conversion is a CORRUPT catalogue, and the failure mode is a

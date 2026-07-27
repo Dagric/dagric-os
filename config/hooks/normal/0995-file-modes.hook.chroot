@@ -1,0 +1,57 @@
+#!/bin/sh
+# SPDX-FileCopyrightText: 2026 DGR Operations <repo@dagric.com>
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Dagric OS — take the executable bit off files that are not programs.
+#
+# systemd says this into the journal on every boot of every machine:
+#
+#   Configuration file /etc/systemd/system.conf.d/10-dagric-stop-timeout.conf
+#   is marked executable. Please remove executable permission bits.
+#   Proceeding anyway.
+#
+# ...and the same for the journald drop-in, the zramswap drop-in and
+# dagric-snapshot-setup.service. Three warnings, every boot, forever.
+#
+# WHY IT HAPPENS, because the obvious fix is to chmod the files and that does
+# nothing. Git has all of them recorded as 100644 — checked, they are correct in
+# the repository. The bit is added by the CHECKOUT: this tree is developed on
+# Windows, which has no POSIX mode bits, so everything under config/ reads back
+# as 0755 through drvfs/9p, and build.ps1 mounts the working tree straight into
+# the build container. live-build then copies config/includes.chroot into the
+# chroot with `cp -a`, faithfully preserving a permission that was invented by
+# the filesystem. Nothing in the repository is wrong and nothing in the
+# repository can fix it, which is why this is a build step.
+#
+# Only extensions that are never executable are touched. /etc has plenty of
+# directories where the bit is load-bearing — network/if-up.d, cron.daily,
+# init.d, kernel/install.d — and a blanket `chmod -R 0644 /etc` would break
+# every one of them silently. A .conf or a .service is data in every case there
+# is.
+#
+# This is cosmetic: systemd says "Proceeding anyway" and means it. It is here
+# because a journal that cries wolf on every boot is a journal nobody reads the
+# day something real goes wrong, and because a paying owner running
+# `journalctl -b` should not be met with three complaints about our own files.
+set -e
+
+FIXED=0
+for d in /etc/systemd /etc/sysctl.d /etc/sddm.conf.d /etc/udev/rules.d /etc/calamares; do
+    [ -d "$d" ] || continue
+    for f in $(find "$d" -type f \
+                    \( -name '*.conf' -o -name '*.service' -o -name '*.socket' \
+                       -o -name '*.timer'  -o -name '*.target'  -o -name '*.mount' \
+                       -o -name '*.path'   -o -name '*.preset'  -o -name '*.rules' \) \
+                    -perm /111 2>/dev/null); do
+        chmod 0644 "$f"
+        echo "file-modes: 0644 $f"
+        FIXED=$((FIXED + 1))
+    done
+done
+
+if [ "$FIXED" -eq 0 ]; then
+    # Not a failure. It is what a Linux checkout looks like, and it is what this
+    # image should look like once the build host stops handing us 0755.
+    echo "file-modes: nothing to fix — no config file arrived executable"
+else
+    echo "file-modes: cleared the executable bit on $FIXED config files"
+fi

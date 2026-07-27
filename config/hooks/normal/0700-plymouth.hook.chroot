@@ -1,8 +1,104 @@
 #!/bin/sh
 # SPDX-FileCopyrightText: 2026 DGR Operations <repo@dagric.com>
 # SPDX-License-Identifier: GPL-3.0-or-later
-# Dagric OS — branded boot splash.
+# Dagric OS — branded boot splash, sharing the bootloader's artwork.
+#
+# The splash used to paint its own gradient and its own logo, and it did not
+# match what GRUB had just been showing: different navy, different mark,
+# different position. Booting the 1.0 ISO and photographing every two seconds,
+# the run read as GRUB's splash, then a large black rectangle, then a visibly
+# DIFFERENT splash. Two of those three are somebody else's to fix; this one is
+# ours, and the fix is to stop having a second picture at all.
+#
+# So the theme's background is the bootloader's own background.png, copied here
+# rather than re-authored. dagric.script scales it the same way GRUB does
+# (cover) and puts its progress hairline on the rule the art already draws. The
+# two are the same pixels because they are the same file — not because two
+# gradients were typed out with the same hex codes and will drift apart the
+# first time one of them is edited.
+#
+# Runs after chroot_includes_after_packages, so /usr/share/dagric/boot exists
+# by now (live-build's chroot script: includes at step 51, hooks at step 52).
 set -e
-cp /usr/share/dagric/logo/dagric-logo.png /usr/share/plymouth/themes/dagric/logo.png
+
+THEME=/usr/share/plymouth/themes/dagric
+ART=/usr/share/dagric/boot/grub-theme/background.png
+
+# The fallback mark, for the branch in dagric.script that runs when the boot
+# art is missing. Kept even when the art is present: it costs 14 KB and it is
+# the difference between a degraded splash and a black screen.
+cp /usr/share/dagric/logo/dagric-logo.png "$THEME/logo.png"
+
+if [ -f "$ART" ]; then
+    cp "$ART" "$THEME/background.png"
+
+    # Pin the progress hairline to the rule the artwork actually draws.
+    #
+    # dagric.script ships fallback coordinates and this rewrites them from the
+    # PNG that is about to be installed. Reading them off the SVG instead was
+    # the first attempt and it does not hold: the rule moved from y=422 to
+    # y=371 in the time it took to write this hook, and the splash rendered its
+    # progress bar as a second horizontal line 28 pixels below the real one. A
+    # constant that has to be kept in step by hand with a file another part of
+    # the build generates is a constant that will be wrong.
+    # Invoked through python3 rather than by its shebang: everything under
+    # /usr/lib/dagric ships mode 0644, because config/includes.chroot is copied
+    # with the modes it has in the repo and the repo is checked out on Windows.
+    if GEO=$(python3 /usr/lib/dagric/boot-find-splash-rule "$ART" 2>&1); then
+        set -- $GEO
+        sed -i \
+            -e "s/^RULE_ART_W = .*/RULE_ART_W = $1;/" \
+            -e "s/^RULE_ART_H = .*/RULE_ART_H = $2;/" \
+            -e "s/^RULE_X = .*/RULE_X = $3;/" \
+            -e "s/^RULE_Y = .*/RULE_Y = $4;/" \
+            -e "s/^RULE_LEN = .*/RULE_LEN = $5;/" \
+            "$THEME/dagric.script"
+        echo "Plymouth: progress hairline pinned to the art's rule at y=$4 of $2 (x=$3, ${5}px)"
+    else
+        # Not fatal — the shipped fallback is close — but a silently misplaced
+        # bar is exactly what this machinery exists to prevent, so say it loudly.
+        echo "WARNING: could not find the rule in $ART: $GEO"
+        echo "         Plymouth keeps dagric.script's fallback coordinates; check"
+        echo "         a boot screenshot for a doubled horizontal line."
+    fi
+else
+    # Not fatal — dagric.script falls back to the gradient — but it silently
+    # un-does the whole point of this hook, so say so where a build log will
+    # show it. config/bootloaders/make-boot-art.sh regenerates the art.
+    echo "WARNING: $ART missing — Plymouth falls back to its own gradient and"
+    echo "         the bootloader handoff will show two different pictures."
+fi
+
+# systemd refuses to treat an executable file as configuration without
+# complaining, and every boot logs "Configuration file ... is marked executable.
+# Please remove executable permission bits. Proceeding anyway." for each one.
+# The repo is checked out on Windows, where the executable bit does not survive,
+# so everything under config/includes.chroot arrives mode 0755 regardless of
+# what git records. Only this hook's own drop-in is corrected here; the same
+# warning is already in the journal for the drop-ins other hooks install.
+find /etc/systemd/system/plymouth-quit.service.d -name '*.conf' -exec chmod 0644 {} + 2>/dev/null || true
+
 plymouth-set-default-theme dagric
 update-initramfs -u
+
+# Verify what actually ended up in the initramfs rather than what was copied
+# into the filesystem. The initramfs hook re-reads plymouth-set-default-theme
+# and copies the theme directory itself; if the theme name and the directory
+# ever disagree, the splash is missing at exactly the moment it matters and the
+# built ISO looks fine on disk.
+MISS=""
+[ -f "$THEME/dagric.script" ] || MISS="$MISS script"
+[ -f "$ART" ] && { [ -f "$THEME/background.png" ] || MISS="$MISS background"; }
+[ "$(plymouth-set-default-theme)" = dagric ] || MISS="$MISS default-theme"
+if lsinitramfs /boot/initrd.img-* 2>/dev/null | grep -q 'themes/dagric/dagric.script'; then
+    [ -f "$ART" ] && ! lsinitramfs /boot/initrd.img-* 2>/dev/null \
+        | grep -q 'themes/dagric/background.png' && MISS="$MISS initramfs-background"
+else
+    MISS="$MISS initramfs-theme"
+fi
+
+if [ -z "$MISS" ]; then
+    echo "Plymouth: dagric theme installed, sharing the bootloader background"
+else
+    echo "WARNING: Plymouth splash incomplete —$MISS"
+fi

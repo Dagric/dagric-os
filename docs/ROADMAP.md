@@ -17,6 +17,39 @@
       via look-and-feel hook (verified on booted desktop) + SDDM background
 - [x] Boot menu splash (`config/bootloaders/splash.svg` — live-build renders it
       for both BIOS/isolinux and EFI/GRUB menus)
+- [x] **Boot experience overhaul** — the whole chain from firmware to login,
+      designed and then measured rather than assumed. A real GRUB theme on
+      UEFI (`usr/share/dagric/boot/grub-theme/`) with a visible selection and
+      a "Starting Dagric OS in 6s" countdown; the same design on BIOS in what
+      `vesamenu` can express (`config/bootloaders/isolinux/stdmenu.cfg`), at
+      1024x768 instead of the 640x480 live-build hard-codes; both titles
+      suppressed because they printed through the wordmark; a 10-second
+      timeout on both paths, which used to be *wait forever*. Plymouth now
+      loads the bootloader's own `background.png` and finds the artwork's
+      decorative rule in the pixels at build time to place its progress fill.
+      `gfxterm` keeps drawing the branded art through the squashfs load, which
+      removes the black rectangle that used to sit there for ~19 s. Verified
+      by booting throwaway GRUB ISOs under OVMF at 1920x1080, 1280x800 and
+      1024x768 and opening every screenshot; the accessible "(with screen
+      reader)" entry is regression-checked against a reconstructed pre-hook
+      tree on both firmware paths.
+- [x] **Dagric's own SDDM theme** (`usr/share/sddm/themes/dagric/`) — replaces
+      Breeze-with-our-wallpaper. Imports `QtQuick` and nothing else, so no KDE
+      QML module can be renamed upstream and take the login screen with it.
+      Breeze stays configured as the documented rescue path with the same art.
+      `branding/sddm/render-login.sh` renders its states (users / caps / failed
+      / no-users / layouts) under Xvfb so they can be reviewed without a
+      twenty-minute reboot.
+- [x] **Boot time: 69 s → 56 s to the Plasma wallpaper** (QEMU/OVMF, cold
+      cache, median of 3-6 runs; BIOS 61 s → 49 s). Two causes, both silent:
+      the initramfs was gzip because `zstd` was only a dropped *Recommends*,
+      and live-build defaults the squashfs to xz when
+      `--chroot-squashfs-compression-type` is unset. Fixed in
+      `system.list.chroot`, `auto/config` and
+      `0260-boot-speed.hook.chroot`. These are QEMU numbers on an SSD: both
+      phases are I/O- and decompression-bound, so the gain on the USB-2 sticks
+      and 5400 rpm disks this OS targets should be **larger**, not smaller —
+      but that is reasoning, not a measurement.
 - [x] Plasma defaults for Windows switchers (double-click to open, no wobbly
       effects) via `etc/skel`
 - [x] Calamares branding module — product name, colors, 3-slide ownership
@@ -30,6 +63,36 @@
       Plasma desktop (branded SDDM login included). Found and fixed three
       install blockers along the way: missing cracklib-runtime,
       squashfs-tools, and grub-pc. Test creds: user dagric.
+- [ ] **A Dagric Plasma startup screen** (`etc/xdg/ksplashrc` + a look-and-feel
+      package). This is the largest unbranded stretch left in the boot and it
+      is not a black gap — it is **~16 seconds of KDE's Breeze splash**, a
+      white KDE logo and "Plasma made by KDE" on pure black, because
+      `/etc/xdg/ksplashrc` does not exist in the image and Plasma falls back.
+      It is also the cheapest of the remaining items, because something *is*
+      already drawing: it needs the same `#0e1826 → #05080d` ground and the
+      mark at the same height, not new machinery.
+- [ ] **The ~9-second black window between Plymouth and the Plasma splash.**
+      Measured, and **not** fixed — recorded here so nobody reports it as done.
+      Two independent arrangements were tried (`After=display-manager.service`
+      on `plymouth-quit`, worth exactly 1 s because `sddm.service` is
+      `Type=simple` and goes active the instant it is exec'd; and SDDM on tty1
+      the way Fedora arranges GDM, worth nothing at all). It is the display
+      server taking the VT with nothing yet drawing, and Plymouth cannot cover
+      it — the framebuffer is cleared at that moment regardless of ordering or
+      which VT. `plymouth quit --retain-splash` *is* shipped and does fix the
+      related bug: plain `plymouth quit` restored the text console and dumped
+      stale pre-boot text on screen for the whole gap. The levers that would
+      close the gap itself are SDDM's and Plasma's, not Plymouth's.
+- [ ] Align Plymouth's mark with GRUB's. The base gradient is byte-identical
+      between the two now, so the colour is continuous, but Plymouth's mark
+      sits at 38% of screen height and the bootloader's wordmark block sits
+      higher — so the logo still moves once, between the menu and the splash.
+- [ ] Boot-theme assets for HiDPI. Everything in the GRUB theme is a fixed
+      pixel size because GRUB cannot scale a font — it renders pre-generated
+      `.pf2` bitmaps. That is why `gfxmode` is capped at 1920x1080 rather than
+      set to bare `auto`: `auto` would keep the firmware's own mode and remove
+      a mode change, but on a 4K laptop it produces a menu a quarter of the
+      screen wide in unreadable type. A HiDPI font set would let `auto` win.
 
 ## Phase 3 — Real-hardware validation
 - [x] EFI install support — VERIFIED end to end in the UEFI (OVMF) harness:
@@ -41,6 +104,21 @@
 - [x] btrfs default install filesystem (Timeshift atomic snapshots) — verified
 - [x] Plymouth branded boot splash — verified on installed system
 - [ ] Test matrix: 1 laptop + 1 desktop, Intel and AMD graphics, common Wi-Fi
+- [ ] **One real login on real hardware (or an installed VM) before shipping
+      the new SDDM theme.** Three things could not be exercised in
+      `--test-mode`: PAM's `informationMessage` text (expired password, locked
+      account), the Restart / Shut down buttons against real logind
+      (`sddm.canReboot`/`canPowerOff` are false in test mode, so they were only
+      driven through stubs), and multi-monitor. On multi-monitor the greeter
+      logs "Adding view for screen <rect>" per screen and this theme
+      deliberately ignores `screenModel` and fills its view — so the form will
+      most likely appear on **every** monitor rather than only the primary.
+      Sixty seconds on a dual-head machine settles it.
+- [ ] Boot timings on real media. Everything measured so far is QEMU/KVM with
+      the ISO on an SSD, which models a fast USB 3 stick and not the USB 2
+      sticks and 5400 rpm disks this OS targets. In particular the ~13 MB/s
+      GRUB initrd read rate is an OVMF figure; real firmware varies widely and
+      is often worse.
 - [ ] Full-disk-encryption install path verified
 - [ ] Secure Boot with enforcing firmware (shim-signed chain ships; test on
       real Secure Boot hardware)
@@ -157,6 +235,17 @@ free-edition features. Everything below ships on both editions.
       are still English inside an otherwise translated product. The QML needs
       `qsTr()` plus `lupdate`/`lrelease`; note both files are called `main.qml`
       and would share the translation context "main".
+- [ ] **The login screen's ~10 strings.** "Other user", "Restart", "Shut down",
+      "Caps Lock is on" and the rest of `usr/share/sddm/themes/dagric/Main.qml`
+      are English. The clock and the long date are the exception and are
+      already correct in every locale — they come out of Qt's own locale rather
+      than a format string. `metadata.desktop` deliberately omits
+      `TranslationsDirectory` rather than advertise a directory that does not
+      exist; that key goes in at the same time as the `.qm` files.
+      Watch for the trap that cost a render here: `Qt.formatTime(d,
+      Locale.ShortFormat)` **silently ignores the locale in every locale** —
+      that overload takes a `Qt::DateFormat`, and `Locale.ShortFormat == 1 ==
+      Qt.ISODate`. Use `Date.toLocaleTimeString`/`toLocaleDateString`.
 - Not achievable, recorded so it is not re-attempted: **the login screen cannot
   host a screen reader** (SDDM publishes no AT-SPI bus its Qt greeter joins),
   and **slow keys do not exist on the Wayland session** (no KWin plugin;

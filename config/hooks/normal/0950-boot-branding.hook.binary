@@ -1,15 +1,24 @@
 #!/bin/sh
 # SPDX-FileCopyrightText: 2026 DGR Operations <repo@dagric.com>
 # SPDX-License-Identifier: GPL-3.0-or-later
-# Dagric OS — name the edition in the boot menu.
+# Dagric OS — the boot menu, on both firmware paths.
 #
 # live-build labels every image "Live system (amd64)" under a generic
 # "Boot menu" title, so the free and Pro ISOs were indistinguishable at the
 # moment of booting. Anyone holding both — or booting a multi-ISO USB — had no
 # way to tell which one they were starting until the desktop appeared.
 #
+# It also ships a UEFI menu that is barely a menu: live-build's live-theme sets
+# an item colour and a selected-item colour and nothing else, so booted in QEMU
+# you cannot tell which of the four entries is highlighted; the resolution is
+# hard-wired to 800x600 and scaled up on every modern panel; the only countdown
+# is a white brick reading "The highlighted entry will be executed automatically
+# in 3s."; the handoff to the kernel punches a black rectangle through the
+# splash and leaves it there for the whole squashfs load; and GRUB beeps twice
+# on the way in. This hook fixes all of that.
+#
 # This is a BINARY hook: it runs on the assembled ISO tree, after the boot
-# loaders are in place, and rewrites the menu text for both firmware paths:
+# loaders are in place, and rewrites both firmware paths:
 #   isolinux/  -> legacy BIOS
 #   boot/grub/ -> UEFI (incl. Secure Boot)
 set -e
@@ -25,15 +34,21 @@ fi
 
 if [ "$EDITION" = "pro" ]; then
     LIVE="Dagric OS Pro 1.0"
-    TITLE="Dagric OS Pro 1.0  (Foundation)"
 else
     LIVE="Dagric OS 1.0  -  Free edition"
-    TITLE="Dagric OS 1.0  (Foundation)  -  Free edition"
 fi
 SAFE="$LIVE  (safe graphics mode)"
 
 esc() { printf '%s' "$1" | sed -e 's/[\/&]/\\&/g'; }
-L=$(esc "$LIVE"); T=$(esc "$TITLE"); S=$(esc "$SAFE")
+L=$(esc "$LIVE"); S=$(esc "$SAFE")
+
+# Where the pre-rendered menu art, fonts and theme live inside the chroot.
+# Binary hooks run with the cwd set to binary/, so the chroot is one level up;
+# the bare path is kept as a fallback in case that ever changes.
+ART=
+for c in ../chroot/usr/share/dagric/boot chroot/usr/share/dagric/boot; do
+    [ -d "$c/grub-theme" ] && { ART=$c; break; }
+done
 
 # How long the menu waits before booting the default entry, in seconds.
 # It used to wait FOREVER on both paths — isolinux shipped "timeout 0", which
@@ -56,10 +71,28 @@ for f in isolinux/live.cfg isolinux/menu.cfg isolinux/stdmenu.cfg isolinux/isoli
     # "Live system (amd64)" pattern would match and mangle it too.
     sed -i "s/menu label .*Live system (amd64 fail-safe mode).*/menu label $S/" "$f"
     sed -i "s/menu label \^Live system (amd64)/menu label ^$L/" "$f"
-    sed -i "s/^\(\s*\)menu title Boot menu/\1menu title $T/" "$f"
+    # The top-level title is REMOVED, not branded, for the same reason the GRUB
+    # theme's title is blanked further down: splash.png already carries the
+    # DAGRIC wordmark and the tagline, and syslinux prints its title in the same
+    # band. This used to read "Dagric OS 1.0 (Foundation) - Free edition" set
+    # over art that already says DAGRIC. The edition is named on every entry,
+    # which is where someone actually looks. "menu title" with no argument
+    # suppresses the row; the Utilities submenu keeps its own title, because
+    # that one is not sitting on top of a logo.
+    sed -i "s/^\([[:space:]]*\)menu title Boot menu.*$/\1menu title/" "$f"
     # syslinux counts in tenths of a second, so 10s is 100.
     sed -i "s/^\([[:space:]]*\)timeout[[:space:]]\+0[[:space:]]*$/\1timeout $((WAIT * 10))/" "$f"
 done
+
+# vesamenu does not scale its background by so much as a pixel — the menu comes
+# out at whatever size the PNG is. live-build rasterises splash.svg at a
+# hard-coded 640x480 (the size is a literal in binary_bootloader_splash, there
+# is no config knob), so the BIOS menu has been rendering at 640x480 on machines
+# that offer 1024x768. Swap in the render authored at the resolution
+# config/bootloaders/isolinux/stdmenu.cfg actually asks for.
+if [ -n "$ART" ] && [ -f "$ART/isolinux/splash.png" ] && [ -d isolinux ]; then
+    cp "$ART/isolinux/splash.png" isolinux/splash.png
+fi
 
 # --- UEFI (GRUB) ------------------------------------------------------------
 for f in boot/grub/grub.cfg boot/grub/config.cfg; do
@@ -196,6 +229,127 @@ if [ -f boot/grub/grub.cfg ] && ! grep -q '^set timeout=' boot/grub/grub.cfg; th
         > boot/grub/grub.cfg.new && mv boot/grub/grub.cfg.new boot/grub/grub.cfg
 fi
 
+# --- the GRUB theme ---------------------------------------------------------
+#
+# Installed from the chroot rather than generated here. The assets are PNGs and
+# bitmap .pf2 fonts, and this hook runs inside the build container where there
+# is no ImageMagick, no rsvg-convert and no TTFs — generating them at this point
+# would mean generating them on every build machine, and the first one missing a
+# tool ships a menu with no theme at all. config/bootloaders/make-boot-art.sh
+# builds them by hand into config/includes.chroot/usr/share/dagric/boot/.
+if [ -n "$ART" ] && [ -d boot/grub ]; then
+    rm -rf boot/grub/themes/dagric
+    mkdir -p boot/grub/themes
+    cp -a "$ART/grub-theme" boot/grub/themes/dagric
+
+    # theme.cfg is what selects a theme, and it is sourced again inside every
+    # submenu so the submenus are themed too. live-build's version keyed off
+    # splash.png and pointed at live-theme; this keys off the Dagric theme and
+    # keeps live-theme as the fallback, so a failed copy degrades to the old
+    # menu instead of to no menu.
+    #
+    # The loadfont lines are not optional. theme.txt matches fonts by NAME among
+    # fonts that are ALREADY LOADED; a name that matches nothing silently falls
+    # back to the built-in 16px Unifont and the theme looks like it was ignored.
+    cat > boot/grub/theme.cfg <<'THEMECFG'
+set color_normal=light-gray/black
+set color_highlight=white/dark-gray
+
+if [ -e $prefix/themes/dagric/theme.txt ]; then
+    loadfont $prefix/themes/dagric/fonts/body.pf2
+    loadfont $prefix/themes/dagric/fonts/sel.pf2
+    loadfont $prefix/themes/dagric/fonts/small.pf2
+    set theme=$prefix/themes/dagric/theme.txt
+elif [ -e $prefix/splash.png ]; then
+    set theme=$prefix/live-theme/theme.txt
+else
+    set menu_color_normal=cyan/blue
+    set menu_color_highlight=white/blue
+fi
+THEMECFG
+
+    if [ -f boot/grub/config.cfg ]; then
+        # 800x600 is live-build's copy-from-netinst default, and it is why the
+        # UEFI menu looks soft: on a 1080p laptop the entire GRUB screen is a
+        # 4:3 image scaled up. A preference list gets the real panel resolution
+        # where the firmware offers it, with auto last so nothing can be left
+        # without a mode. gfxpayload=keep is already there and is correct — it
+        # hands the kernel the framebuffer GRUB is using, so there is no mode
+        # change between the menu and Plymouth.
+        #
+        # A BARE `auto` WAS PROPOSED AND IS NOT WHAT THIS SHIPS. The case for it
+        # is real and measured: `auto` takes the mode the firmware is already
+        # in, so there is no firmware->GRUB mode change at all, and the list
+        # does cost one — booted under OVMF the firmware sits at 1280x800, GRUB
+        # takes 1920x1080 off the front of this list, and the frame in between
+        # is black.
+        #
+        # It is one black frame, and the alternative is worse. Everything in
+        # this theme is a fixed pixel size, because GRUB cannot scale a font: it
+        # renders pre-generated .pf2 bitmaps, so the panel is 288 px and the
+        # type is 24 px whatever the screen is. On a 4K laptop — whose firmware
+        # does run its GOP at native — `auto` produces a menu occupying a
+        # quarter of the screen's width in unreadable type. Capping the
+        # preference at 1920x1080 bounds that, and one black frame at the very
+        # start of the boot is a cheaper thing to spend than legibility on the
+        # newest hardware the product runs on. Revisit if the theme ever gains
+        # a HiDPI font set.
+        sed -i 's|^\([[:space:]]*\)set gfxmode=800x600[[:space:]]*$|\1set gfxmode=1920x1080,1280x800,1024x768,auto|' \
+            boot/grub/config.cfg
+
+        # Two 440 Hz tones at every boot, from live-build's default config.
+        # Nothing Windows or macOS does, and the audience for this OS is people
+        # who just left Windows.
+        sed -i '/^insmod play[[:space:]]*$/d; /^play 960 440 /d' boot/grub/config.cfg
+
+        # The black rectangle at the moment of boot.
+        #
+        # desktop-image belongs to gfxmenu. When the menu exits, gfxmenu stops
+        # painting and gfxterm takes over, clears its own rectangle to black and
+        # prints GRUB's "Booting `...'" line into it. On the shipped 2 GB ISO
+        # that black box is the entire visible boot for twenty seconds while the
+        # squashfs loads. Giving gfxterm the same picture the menu was drawing
+        # removes it; theme.txt pairs this by handing gfxterm the whole screen
+        # rather than an inset box, or the image lands in the wrong place.
+        #
+        # background.png — the BRANDED art, the same file the menu itself draws.
+        #
+        # This was terminal.png, a copy with the brand block rendered out,
+        # because gfxterm's background_image can only stretch and never crop and
+        # the monogram squashes on a 4:3 panel. That reasoning is correct and
+        # the conclusion was still wrong, because it optimised the wrong screen.
+        # This is not a screen anybody glances at: it is the longest single
+        # stretch of the whole boot, ~15-19 s while GRUB reads the initrd, and
+        # the unbranded version made the sequence read menu-WITH-mark ->
+        # fifteen seconds with NO mark -> Plymouth with the mark BACK. The mark
+        # blinking out and returning is a worse artifact than a slightly
+        # stretched circle, and it happened on every machine rather than on
+        # some.
+        #
+        # Rendered and looked at under OVMF at each mode the gfxmode preference
+        # list above can land on:
+        #   1920x1080  exact — the art is authored at this size, and the load
+        #              screen becomes byte-identical to the menu's own backdrop
+        #   1280x800   ~11% narrow; the circle still reads as a circle
+        #   1024x768   ~25% narrow; a visibly oval monogram. This is the third
+        #              choice in the list and only reached on firmware that
+        #              offers no widescreen mode at all.
+        #
+        # terminal.png is still generated and still shipped. If a deployment is
+        # mostly 4:3 hardware, swapping the filename on the line below is the
+        # whole change.
+        if ! grep -q gfxterm_background boot/grub/config.cfg; then
+            cat >> boot/grub/config.cfg <<'BGCFG'
+
+if [ -e $prefix/themes/dagric/background.png ]; then
+    insmod gfxterm_background
+    background_image -m stretch $prefix/themes/dagric/background.png
+fi
+BGCFG
+        fi
+    fi
+fi
+
 # The GRUB theme's title. This is NOT boot/grub/theme.cfg — that file only
 # points at the theme — it is theme.txt inside the theme directory, which is
 # why the previous sed here silently did nothing for months while the check
@@ -230,6 +384,26 @@ fi
 for f in $THEMES; do
     grep -qE '^[[:space:]]*title-text:[[:space:]]*""' "$f" || MISS="$MISS theme-title"
 done
+if [ -n "$ART" ]; then
+    [ -f boot/grub/themes/dagric/theme.txt ] || MISS="$MISS grub-theme"
+    [ -f isolinux/splash.png ] || MISS="$MISS isolinux-splash"
+    if [ -f boot/grub/theme.cfg ]; then
+        grep -q 'themes/dagric/theme.txt' boot/grub/theme.cfg || MISS="$MISS theme-cfg"
+    fi
+    if [ -f boot/grub/config.cfg ]; then
+        grep -q '^[[:space:]]*set gfxmode=1920x1080' boot/grub/config.cfg || MISS="$MISS gfxmode"
+        grep -q 'gfxterm_background' boot/grub/config.cfg || MISS="$MISS gfxterm-bg"
+        grep -q '^play ' boot/grub/config.cfg && MISS="$MISS grub-beep"
+    fi
+else
+    MISS="$MISS boot-art-missing"
+fi
+if [ -f isolinux/menu.cfg ]; then
+    grep -qE '^[[:space:]]*menu title[[:space:]]*$' isolinux/menu.cfg || MISS="$MISS isolinux-title"
+fi
+if [ -f isolinux/stdmenu.cfg ]; then
+    grep -q '^menu resolution 1024 768' isolinux/stdmenu.cfg || MISS="$MISS isolinux-style"
+fi
 # The accessible entry, checked in every menu file that actually holds live
 # entries. A file with no boot=live in it has no entry to have copied.
 for f in isolinux/live.cfg boot/grub/grub.cfg boot/grub/config.cfg; do
@@ -237,9 +411,32 @@ for f in isolinux/live.cfg boot/grub/grub.cfg boot/grub/config.cfg; do
     grep -q 'boot=live' "$f" || continue
     grep -q 'dagric\.a11y=1' "$f" || MISS="$MISS a11y-entry:$f"
 done
+# The GRUB theme's panel is a fixed pixel height, so it holds a fixed number of
+# rows — four, at the item metrics in theme.txt. A fifth top-level entry is not
+# an error and is still reachable with the arrow keys, because GRUB scrolls the
+# list to keep the selection visible, but it will not be ON SCREEN when the menu
+# first draws, and there is no scrollbar to say so. Whoever adds one should
+# raise `height` by 52 to match. Entries inside `if false; then ... fi` are the
+# installer block live-build always emits and never renders; they do not count.
+if [ -f boot/grub/grub.cfg ]; then
+    ENTRIES=$(awk '
+        /^if false; then/ { skip = 1 }
+        skip && /^fi[[:space:]]*$/ { skip = 0; next }
+        skip { next }
+        /^(menuentry|submenu)[[:space:]]/ { n++ }
+        END { print n + 0 }
+    ' boot/grub/grub.cfg)
+    if [ "$ENTRIES" -gt 4 ]; then
+        echo "WARNING: $ENTRIES top-level GRUB entries but the theme panel fits 4 —"
+        echo "         raise boot_menu height in usr/share/dagric/boot/grub-theme/theme.txt"
+    fi
+fi
+
 if [ -z "$MISS" ]; then
     echo "Boot menu branded for the $EDITION edition: \"$LIVE\" (${WAIT}s timeout)"
     echo "Accessible boot entry added: \"$A11Y\" (dagric.a11y=1)"
+    echo "GRUB theme installed: boot/grub/themes/dagric (visible countdown, 1080p)"
+    echo "BIOS menu styled: isolinux/stdmenu.cfg at 1024x768"
 else
     echo "WARNING: boot-menu branding incomplete —$MISS"
 fi

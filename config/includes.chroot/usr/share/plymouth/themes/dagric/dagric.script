@@ -1,40 +1,143 @@
 # Dagric OS boot splash — plymouth "script" plugin.
-# Deep navy ground, D mark riding slightly above centre with an eased
-# fade-in and a quiet breathing pulse, a hairline progress indicator,
-# and the LUKS passphrase prompt beneath the mark.
+#
+# THE ONE RULE HERE: this must draw the SAME PICTURE the bootloader was already
+# drawing, in the same place, at the same size. Booting the shipped 1.0 ISO in
+# QEMU and photographing it every two seconds, the handoff read as three
+# different screens — GRUB's navy with a circled D and the DAGRIC wordmark near
+# the top, then black, then a different navy with a rounded-square D badge at
+# 38% height fading up from nothing. Three images where a product shows one.
+#
+# So the background is not painted here any more. It is the bootloader's own
+# background.png, copied into this theme by 0700-plymouth.hook.chroot and
+# scaled the same way GRUB scales it (cover: fill the screen, crop the
+# overflow, keep the centre). The mark, the wordmark, the tagline and the
+# gradient are therefore identical to the frame before by construction, not by
+# two files agreeing on a hex value. If the boot art is regenerated, this moves
+# with it.
+#
+# NOTHING FADES AND NOTHING PULSES. The old script eased the logo up from zero
+# opacity over 1.2s and then breathed it on a sine. Both were fine in isolation
+# and both wreck the handoff: if the previous frame already showed the mark at
+# full strength, fading it in means the screen visibly empties and refills.
+# macOS and elementary hold their mark absolutely still for exactly this reason.
+#
+# What DOES move is the progress hairline, and it is deliberately drawn on top
+# of the thin rule that the art already has under the tagline — so the static
+# decoration the user has been looking at simply starts filling with brand blue.
+# That rule's geometry is the four constants below and they are read off
+# config/bootloaders/splash-wide.svg; the two have to move together.
 
-Window.SetBackgroundTopColor(0.055, 0.094, 0.149);   # #0e1826
-Window.SetBackgroundBottomColor(0.020, 0.031, 0.051); # #05080d
+# ---- Fallback ground, used only if the boot art is missing -----------------
+# Same #0e1826 -> #05080d the art's gradient starts and ends on, so a build
+# that somehow ships without background.png degrades to the old look rather
+# than to black.
+Window.SetBackgroundTopColor(0.055, 0.094, 0.149);
+Window.SetBackgroundBottomColor(0.020, 0.031, 0.051);
 
-# ---- Logo: horizontally centred, riding at 38% of the height ----
-logo.image = Image("logo.png");
-logo.x = Window.GetWidth() / 2 - logo.image.GetWidth() / 2;
-logo.y = Window.GetHeight() * 0.38 - logo.image.GetHeight() / 2;
-logo.sprite = Sprite(logo.image);
-logo.sprite.SetPosition(logo.x, logo.y, 10);
-logo.sprite.SetOpacity(0);
+screen.w = Window.GetWidth();
+screen.h = Window.GetHeight();
 
-# Anchor line for the progress hairline / passphrase prompt.
-anchor_y = logo.y + logo.image.GetHeight() + 44;
+# ---- The bootloader's own artwork, scaled "cover" --------------------------
+# GRUB uses desktop-image-scale-method "crop", which is CSS background-size:
+# cover. Reproduce it exactly: scale until both axes cover the screen, then
+# centre. Plymouth clips sprites to the window, so a negative position is all
+# the cropping that is needed.
+bg.image = Image("background.png");
+state.have_art = 0;
 
-# ---- Hairline progress indicator ----
-bar.width = Window.GetWidth() / 5;
-if (bar.width > 300)
-    bar.width = 300;
+if (bg.image) {
+    state.have_art = 1;
+    art.w = bg.image.GetWidth();
+    art.h = bg.image.GetHeight();
+
+    # Compare aspect ratios by cross-multiplying — no floats, no divide-by-zero.
+    if (screen.w * art.h > screen.h * art.w) {
+        # Screen is wider than the art: width drives the scale, crop top/bottom.
+        fit.w = screen.w;
+        fit.h = Math.Int(screen.w * art.h / art.w);
+    } else {
+        fit.h = screen.h;
+        fit.w = Math.Int(screen.h * art.w / art.h);
+    }
+
+    art.x = Math.Int((screen.w - fit.w) / 2);
+    art.y = Math.Int((screen.h - fit.h) / 2);
+
+    bg.sprite = Sprite(bg.image.Scale(fit.w, fit.h));
+    bg.sprite.SetPosition(art.x, art.y, 0);
+}
+
+# ---- Geometry of the rule in the artwork -----------------------------------
+# WHERE THESE NUMBERS COME FROM: 0700-plymouth.hook.chroot finds the rule in
+# background.png at build time and rewrites the five lines below. They are NOT
+# maintained by hand and they are NOT copied from the SVG. That was the first
+# attempt, and the artwork moved the rule from y=422 to y=371 inside twenty
+# minutes while this was being written — the bar rendered as a second line 28
+# pixels under the first, which is precisely the kind of near-miss that gets
+# shipped because nobody opens the screenshot. Measuring the file that actually
+# ships is the only version that cannot drift.
+#
+# The values here are the fallback used if the detector cannot run.
+# --- BEGIN generated geometry ---
+RULE_ART_W = 1920;
+RULE_ART_H = 1080;
+RULE_X = 816;
+RULE_Y = 371;
+RULE_LEN = 290;
+# --- END generated geometry ---
+
+if (state.have_art == 1) {
+    # Map the rule through the same cover transform the background went through.
+    bar.x = art.x + Math.Int(RULE_X * fit.w / RULE_ART_W);
+    bar.y = art.y + Math.Int(RULE_Y * fit.h / RULE_ART_H);
+    bar.width = Math.Int(RULE_LEN * fit.w / RULE_ART_W);
+} else {
+    # No art: put the mark and the bar where the old script had them.
+    logo.image = Image("logo.png");
+    bar.width = Math.Int(screen.w / 5);
+    if (bar.width > 300)
+        bar.width = 300;
+    bar.x = Math.Int(screen.w / 2 - bar.width / 2);
+    # Hung off the bottom of the mark rather than at a fixed fraction of the
+    # screen. A fixed 52% put the bar 12 pixels under the badge on a 1280x800
+    # panel, close enough that the badge's soft shadow swallowed it.
+    bar.y = Math.Int(screen.h * 0.58);
+    if (logo.image) {
+        logo.sprite = Sprite(logo.image);
+        logo.y = Math.Int(screen.h * 0.38 - logo.image.GetHeight() / 2);
+        logo.sprite.SetPosition(
+            Math.Int(screen.w / 2 - logo.image.GetWidth() / 2), logo.y, 10);
+        bar.y = logo.y + logo.image.GetHeight() + 44;
+    }
+}
+
+# Two pixels, not one. The rule underneath is a single pixel on a 1920-wide
+# artboard, which lands on a fraction of a pixel once it has been scaled down to
+# a laptop panel and comes out as a grey smear; a 2px fill covers it cleanly.
 bar.height = 2;
-bar.x = Window.GetWidth() / 2 - bar.width / 2;
-bar.y = anchor_y;
 
+# The line under the bar that the passphrase prompt and status messages use.
+anchor_y = bar.y + Math.Int(screen.h * 0.06);
+
+# ---- Progress ---------------------------------------------------------------
+# Shown while booting only. On shutdown and reboot there is nothing honest to
+# report progress against, and a bar that jumps to full and sits there is worse
+# than no bar. Those modes get the artwork alone, held still.
 bar.bg.sprite = Sprite();
 bar.fg.sprite = Sprite();
 state.show_bar = 0;
+
 if (Plymouth.GetMode() == "boot") {
     state.show_bar = 1;
-    bar.bg.image = Image.Text("█", 0.13, 0.19, 0.26);   # slate track
+    # There is no rectangle primitive in this language; a full block glyph
+    # scaled to size is the standard way to get one.
+    bar.bg.image = Image.Text("█", 0.13, 0.19, 0.26);
     bar.bg.sprite.SetImage(bar.bg.image.Scale(bar.width, bar.height));
     bar.bg.sprite.SetPosition(bar.x, bar.y, 5);
-    bar.bg.sprite.SetOpacity(0);
-    bar.fg.image = Image.Text("█", 0.247, 0.663, 0.961); # #3fa9f5 fill
+    # Under the art's own rule when there is art: the track is only there to
+    # give the fill something to sit on where the rule has faded out at the ends.
+    bar.bg.sprite.SetOpacity(0.35);
+    bar.fg.image = Image.Text("█", 0.247, 0.663, 0.961);   # #3fa9f5
 }
 
 fun progress_callback(duration, progress) {
@@ -44,38 +147,20 @@ fun progress_callback(duration, progress) {
             fill = 1;
         bar.fg.sprite.SetImage(bar.fg.image.Scale(fill, bar.height));
         bar.fg.sprite.SetPosition(bar.x, bar.y, 6);
+        bar.fg.sprite.SetOpacity(1);
     }
 }
 Plymouth.SetBootProgressFunction(progress_callback);
 
-# ---- Eased fade-in plus a slow, subtle breathing pulse ----
-state.tick = 0;
-state.fade = 0;
-state.prompt_active = 0;
-
-fun refresh_callback() {
-    state.tick++;
-    f = state.tick / 60;                 # ~1.2 s fade-in at 50 fps
-    if (f > 1)
-        f = 1;
-    f = f * f * (3 - 2 * f);             # smoothstep ease
-    state.fade = f;
-    breath = 0.95 + 0.05 * Math.Sin(state.tick / 40);
-    logo.sprite.SetOpacity(f * breath);
-    if (state.prompt_active == 1) {
-        bar.bg.sprite.SetOpacity(0);
-        bar.fg.sprite.SetOpacity(0);
-    } else {
-        bar.bg.sprite.SetOpacity(0.85 * f);
-        bar.fg.sprite.SetOpacity(f);
-    }
-}
-Plymouth.SetRefreshFunction(refresh_callback);
-
-# ---- Disk-encryption passphrase prompt (below the mark) ----
+# ---- Disk-encryption passphrase prompt -------------------------------------
+# The bar is hidden while a passphrase is being typed: the machine is waiting
+# for a person, not making progress, and leaving a progress bar on screen while
+# nothing progresses is what makes people think the prompt is decorative.
 prompt_sprite = Sprite();
+
 fun display_password_callback(prompt, bullets) {
-    state.prompt_active = 1;
+    bar.bg.sprite.SetOpacity(0);
+    bar.fg.sprite.SetOpacity(0);
     bullet_str = "";
     for (i = 0; i < bullets; i++)
         bullet_str += "• ";
@@ -83,23 +168,29 @@ fun display_password_callback(prompt, bullets) {
         prompt = "Enter passphrase";
     text.image = Image.Text(prompt + "   " + bullet_str, 0.90, 0.93, 0.96);
     prompt_sprite.SetImage(text.image);
-    prompt_sprite.SetPosition(Window.GetWidth() / 2 - text.image.GetWidth() / 2,
-                              anchor_y - text.image.GetHeight() / 2, 12);
+    prompt_sprite.SetPosition(
+        Math.Int(screen.w / 2 - text.image.GetWidth() / 2),
+        Math.Int(anchor_y - text.image.GetHeight() / 2), 12);
     prompt_sprite.SetOpacity(1);
 }
 
 fun display_normal_callback() {
-    state.prompt_active = 0;
     prompt_sprite.SetOpacity(0);
+    if (state.show_bar == 1) {
+        bar.bg.sprite.SetOpacity(0.35);
+        bar.fg.sprite.SetOpacity(1);
+    }
 }
 
-# ---- Status messages: one muted line near the bottom ----
+# ---- Status messages: one muted line near the bottom -----------------------
 msg_sprite = Sprite();
+
 fun message_callback(message) {
     msg.image = Image.Text(message, 0.43, 0.51, 0.60);
     msg_sprite.SetImage(msg.image);
-    msg_sprite.SetPosition(Window.GetWidth() / 2 - msg.image.GetWidth() / 2,
-                           Window.GetHeight() * 0.92 - msg.image.GetHeight(), 4);
+    msg_sprite.SetPosition(
+        Math.Int(screen.w / 2 - msg.image.GetWidth() / 2),
+        Math.Int(screen.h * 0.92 - msg.image.GetHeight()), 4);
     msg_sprite.SetOpacity(1);
 }
 

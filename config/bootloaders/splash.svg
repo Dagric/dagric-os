@@ -1,11 +1,30 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="640" height="480" viewBox="0 0 640 480">
+<!--
+  Dagric OS — boot splash, 4:3 master.
+
+  live-build rasterises this file itself, at a hard-coded 640x480 for isolinux
+  and 800x600 for GRUB (see /usr/lib/live/build/binary_bootloader_splash — the
+  sizes are literals, there is no config knob). Both are 4:3, so this artboard
+  is 4:3 and neither render is distorted. 0950-boot-branding.hook.binary then
+  replaces those renders with the sharper pre-rendered PNGs under
+  usr/share/dagric/boot/; what survives here is the fallback if that hook is
+  ever removed, which is why it must stand on its own.
+
+  The base gradient is deliberately the same #0e1826 -> #05080d that
+  usr/share/plymouth/themes/dagric/dagric.script paints, so the bootloader and
+  the splash that follows it are one continuous image rather than two navies.
+
+  The middle is kept quiet on purpose. The old art ran contour lines straight
+  through the band where the menu sits, and the menu is drawn ON this image, so
+  every stroke there is something for white text to fight.
+-->
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="768" viewBox="0 0 1024 768">
   <defs>
     <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
       <stop offset="0%" stop-color="#0e1826"/>
       <stop offset="55%" stop-color="#0a111c"/>
       <stop offset="100%" stop-color="#05080d"/>
     </linearGradient>
-    <radialGradient id="glow" cx="50%" cy="18%" r="50%">
+    <radialGradient id="glow" cx="50%" cy="14%" r="52%">
       <stop offset="0%" stop-color="#18293d"/>
       <stop offset="100%" stop-color="#18293d" stop-opacity="0"/>
     </radialGradient>
@@ -23,13 +42,21 @@
       <stop offset="45%" stop-color="#3fa9f5" stop-opacity="0.6"/>
       <stop offset="100%" stop-color="#7be0c8" stop-opacity="0"/>
     </linearGradient>
+    <!-- The quiet band: a soft darkening behind the menu so the panel and the
+         countdown always have contrast, whatever the panel scales to. -->
+    <linearGradient id="band" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#03060a" stop-opacity="0"/>
+      <stop offset="20%" stop-color="#03060a" stop-opacity="0.5"/>
+      <stop offset="80%" stop-color="#03060a" stop-opacity="0.5"/>
+      <stop offset="100%" stop-color="#03060a" stop-opacity="0"/>
+    </linearGradient>
   </defs>
 
-  <rect width="640" height="480" fill="url(#bg)"/>
-  <rect width="640" height="480" fill="url(#glow)"/>
+  <rect width="1024" height="768" fill="url(#bg)"/>
+  <rect width="1024" height="768" fill="url(#glow)"/>
 
   <!-- D monogram in a fine keyline ring -->
-  <g transform="translate(320,86)">
+  <g transform="translate(512,96) scale(1.5)">
     <circle r="38" fill="none" stroke="#243850" stroke-width="1"/>
     <circle r="38" fill="none" stroke="url(#mark)" stroke-width="1" opacity="0.25"/>
     <path transform="translate(-3,0)"
@@ -37,17 +64,19 @@
           fill="url(#mark)" fill-rule="evenodd"/>
   </g>
 
-  <!-- Wordmark and tagline -->
+  <!-- Wordmark and tagline. The x offsets cancel the trailing letter-space that
+       SVG adds after the last glyph, which otherwise shifts centred text left. -->
   <g font-family="DejaVu Sans" text-anchor="middle">
-    <text x="329" y="170" font-size="32" letter-spacing="18" fill="#e8eef4">DAGRIC</text>
-    <text x="323" y="196" font-size="11" letter-spacing="6" fill="#6d8196">OWN IT OUTRIGHT</text>
+    <text x="526" y="208" font-size="50" letter-spacing="28" fill="#e8eef4">DAGRIC</text>
+    <text x="517" y="242" font-size="17" letter-spacing="9.5" fill="#6d8196">OWN IT OUTRIGHT</text>
   </g>
-  <rect x="240" y="214" width="160" height="1" fill="url(#hair)"/>
+  <rect x="384" y="264" width="256" height="1" fill="url(#hair)"/>
 
-  <!-- Quiet horizon contours, kept clear of menu and help text -->
-  <g stroke="url(#contour)" fill="none" stroke-width="1.25">
-    <path d="M -20 408 Q 190 372 350 392 T 660 376" opacity="0.20"/>
-    <path d="M -20 432 Q 210 400 380 418 T 660 404" opacity="0.12"/>
-    <path d="M -20 456 Q 230 428 410 444 T 660 432" opacity="0.07"/>
+  <rect x="0" y="268" width="1024" height="456" fill="url(#band)"/>
+
+  <!-- Horizon contours, pinned to the last 5% so they never cross the menu. -->
+  <g stroke="url(#contour)" fill="none" stroke-width="1.5">
+    <path d="M -20 748 Q 300 724 560 738 T 1060 726" opacity="0.16"/>
+    <path d="M -20 764 Q 340 740 610 754 T 1060 744" opacity="0.10"/>
   </g>
 </svg>

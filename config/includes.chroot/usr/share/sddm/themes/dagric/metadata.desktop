@@ -1,0 +1,37 @@
+[SddmGreeterTheme]
+Name=Dagric
+Description=The Dagric OS login screen
+Author=DGR Operations
+Copyright=(c) 2026 DGR Operations
+License=GPL-3.0-or-later
+Website=https://dagric.com
+Type=sddm-theme
+Version=1.0
+MainScript=Main.qml
+ConfigFile=theme.conf
+Screenshot=preview.png
+Theme-Id=dagric
+
+# The two lines below are load-bearing and are the reason most third-party SDDM
+# themes show a black screen on Plasma 6.
+#
+# QtVersion is how the sddm daemon picks the greeter binary: it resolves
+# "sddm-greeter-qt<QtVersion>". Debian 13 ships only /usr/bin/sddm-greeter-qt6.
+# Set this to 5, or leave it out and let the default apply, and the daemon logs
+# "The theme at <path> requires missing sddm-greeter-qt5. Using fallback theme."
+# and starts its built-in greeter instead of this one — no Dagric branding, and
+# nothing on screen to explain why.
+#
+# Theme-API=2.0 is what says this theme expects the modern greeter contract:
+# the sddm, userModel, sessionModel, keyboard and config context objects that
+# Main.qml reads. Both keys were copied from the shipped sddm-theme-breeze
+# metadata, which is the reference implementation on this exact SDDM version.
+Theme-API=2.0
+QtVersion=6
+
+# Deliberately NOT set: TranslationsDirectory. SDDM will happily load .qm files
+# from a theme, but this theme ships none, and declaring a directory that does
+# not exist advertises a translation mechanism that is not there. Every visible
+# string in Main.qml is English; the clock and the date are the exception and
+# are already locale-driven, because they come out of Qt's locale rather than a
+# format string. Wiring the rest into the repo's po/ tree is a separate job.

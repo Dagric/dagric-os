@@ -58,7 +58,38 @@ set -- -m 4096 -smp 2 -cdrom "$ISO" -boot d \
 # KVM if the kernel exposes it. Without it a Plasma boot takes long enough that
 # the timer would expire before the desktop appears, and the run would look
 # like a failure that is really just slowness.
-[ -w /dev/kvm ] && set -- "$@" -enable-kvm -cpu host
+#
+# EXCEPT for secureboot on a nested host, where KVM cannot be used at all.
+# OVMF_CODE_4M.ms.fd is built SMM_REQUIRE, and QEMU's q35 switches SMM on by
+# itself — `smm` defaults to auto, which resolves to on for this firmware — so
+# leaving `-machine smm=on` off the command line, which this script did and
+# documented as the whole mitigation, changed nothing. Nested KVM does not carry
+# SMM through, and the guest dies the instant GRUB hands off to the kernel:
+#   KVM: entry failed, hardware error 0xffffffff ... SMM=1
+# after which the run sits on the GRUB load screen for the rest of the timer.
+# That reads exactly like an ISO that will not boot, and it is the mode whose
+# whole job is to answer "will this boot on a retail Windows laptop" — so the
+# one question most worth getting right was the one being answered wrongly.
+#
+# Measured on WSL2, same ISO, same firmware: under KVM every frame from t=30s to
+# t=180s was the GRUB background and qemu.log carried the SMM entry failure;
+# under TCG the run reached the first-run wizard at t=300s. Forcing smm=off is
+# not an escape — the firmware then never initialises at all and every frame
+# reads "Guest has not initialized the display (yet)".
+#
+# So a nested host runs this mode on TCG. It is slow, and it is the only way the
+# mode tells the truth. Bare metal is unaffected and keeps KVM.
+if [ "$MODE" = secureboot ] && grep -q '^flags.* hypervisor' /proc/cpuinfo 2>/dev/null; then
+    echo "nested host detected: secureboot runs WITHOUT KVM, because SMM does not nest."
+    # TCG is roughly 2-3x slower to a desktop here, and a timer that expires
+    # before the desktop appears is the same false failure by another route.
+    if [ "$SECS" -lt 300 ]; then
+        echo "  raising SECS from $SECS to 300 so the desktop has time to appear"
+        SECS=300
+    fi
+elif [ -w /dev/kvm ]; then
+    set -- "$@" -enable-kvm -cpu host
+fi
 
 case "$MODE" in
     bios)
@@ -84,25 +115,25 @@ case "$MODE" in
         set -- "$@" -machine q35 \
             -drive "if=pflash,format=raw,unit=0,readonly=on,file=$OVMF/OVMF_CODE_4M.ms.fd" \
             -drive "if=pflash,format=raw,unit=1,file=$OUT/vars.fd"
-        # SMM is deliberately NOT enabled, and it costs this test nothing.
+        # SMM=1 adds the variable-store lockdown on top. It is NOT what decides
+        # whether this mode runs with SMM at all — the firmware settles that.
         #
-        # The textbook invocation adds `-machine q35,smm=on` plus
-        # `-global driver=cfi.pflash01,property=secure,value=on`. Under WSL2 —
-        # which is itself a guest on Hyper-V — that combination dies the moment
-        # the kernel is handed control:
-        #   KVM: entry failed, hardware error 0xffffffff ... SMM=1
-        # Nested KVM does not carry SMM through. The run reached the GRUB menu
-        # and then froze on one frame for 285 seconds, which reads exactly like
-        # an OS that fails to boot and is nothing of the kind.
+        # This block used to say SMM was "deliberately NOT enabled, and it costs
+        # this test nothing", on the theory that omitting `-machine smm=on` left
+        # it off. It does not. `smm` defaults to auto on q35, and auto resolves
+        # to ON for a SMM_REQUIRE firmware build like OVMF_CODE_4M.ms.fd, so the
+        # line above has always run with SMM whatever this flag said. That is
+        # why the nested-KVM crash the old comment described as avoided was
+        # still happening on every WSL2 run; the KVM decision above is where it
+        # is actually handled now.
         #
-        # SMM only protects the variable store from being rewritten at runtime.
-        # It plays no part in deciding whether an image is allowed to load —
-        # OVMF still verifies shim against the enrolled Microsoft keys, and shim
-        # still verifies GRUB against Debian's, which is the entire question a
-        # boot test is here to answer. What is lost is the guarantee that a
-        # hostile guest cannot forge its own keys, which no honest ISO is trying
-        # to do. Enable it with SMM=1 on a bare-metal host if you want the
-        # complete picture.
+        # What SMM=1 still buys: `secure=on` on the pflash device makes the
+        # variable store writable only from SMM, which is the guarantee that a
+        # hostile guest cannot enrol its own keys. It plays no part in deciding
+        # whether an image is allowed to load — OVMF verifies shim against the
+        # enrolled Microsoft keys and shim verifies GRUB against Debian's either
+        # way, and that chain is the question a boot test exists to answer.
+        # Worth setting on bare metal for the complete picture.
         [ "${SMM:-0}" = 1 ] && set -- "$@" \
             -global driver=cfi.pflash01,property=secure,value=on \
             -machine smm=on

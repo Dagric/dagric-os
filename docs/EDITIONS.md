@@ -48,8 +48,58 @@ software — but none of them is gated. A switcher decides in the first hour
 whether this was a mistake, and the free edition has to win that hour on its
 own.
 
-- **Check This PC** (`dagric-hardware-check`) — the one item here that runs
-  *before* the first hour. A read-only, unprivileged, offline hardware report
+- **The boot, end to end** — the first ninety seconds of the product, and until
+  recently the least designed part of it. Both firmware paths now carry the
+  brand and the edition, and the chain from power-on to the login screen was
+  measured frame by frame rather than assumed.
+  **The menu.** UEFI gets a real GRUB theme
+  (`usr/share/dagric/boot/grub-theme/`): translucent panel, a brand-blue
+  selection pill, and a countdown that reads *"Starting Dagric OS in 6s"*
+  instead of GRUB's *"The highlighted entry will be executed automatically
+  in 3s."* Legacy BIOS gets the same design in what `vesamenu` can express —
+  same art, same navy, same blue, same wording — at 1024x768 rather than the
+  640x480 live-build hard-codes. Both menus name the edition on every entry
+  and wait **10 seconds**; both used to wait *forever*, which is the worst
+  possible default for someone who does not know Enter is required and will
+  conclude the machine has hung. Neither shows a top-level title any more: it
+  printed straight through the wordmark on the art, on both paths, unnoticed.
+  The accessible **(with screen reader)** entry survives all of this and is
+  regression-checked on both paths.
+  **The handoff.** The moment GRUB left the menu it used to punch a black
+  rectangle through the splash and leave it there for the entire ~19-second
+  squashfs load. `gfxterm` now draws the same branded picture the menu was
+  drawing, so the mark stays up. Plymouth then loads *that same PNG* rather
+  than a colour-matched imitation, and pins its progress fill to the
+  decorative rule in the artwork — measured out of the image at build time,
+  not hard-coded, because the rule moved once mid-development and nothing
+  except a screenshot noticed. Nothing fades in and nothing pulses: if the
+  previous frame already showed the mark, fading it in makes the screen
+  visibly empty and refill.
+  **The login screen** is now Dagric's own SDDM theme, not Breeze with our
+  wallpaper pushed into six configurable keys. It imports `QtQuick` and
+  nothing else — no Kirigami, no `org.kde.plasma.*` — so there is no KDE QML
+  module left that can be renamed upstream and take the login screen with it.
+  Breeze remains configured as the documented rescue path, carrying the same
+  art.
+  **Three kernel flags** ride every entry, each for a measured reason.
+  `plymouth.ignore-serial-consoles` is the one that matters: any machine whose
+  firmware advertises a serial console — business desktops with AMT, anything
+  with serial redirection, every VPS — was getting **no splash at all**, black
+  from the GRUB handoff to the KDE startup screen. `vt.global_cursor_default=0`
+  removes a blinking console cursor from the VT handoff.
+  `loglevel=3` is the honest odd one out: `quiet` is only loglevel 4, so kernel
+  errors and warnings still print over the splash. Nothing printed in QEMU,
+  which has no real hardware to complain about.
+  **What is not fixed, stated plainly.** There is still a ~9-second black
+  window between Plymouth and the Plasma startup screen. It was measured, two
+  independent arrangements were tried against it, and neither moved it: it is
+  the display server taking the VT with nothing yet drawing, and Plymouth
+  cannot cover it because the framebuffer is cleared at that moment regardless
+  of ordering. Plasma's own startup screen is also still KDE's Breeze — a
+  white KDE logo on pure black for about sixteen seconds, which is the largest
+  unbranded stretch left in the sequence. Both are named in the roadmap.
+- **Check This PC** (`dagric-hardware-check`) — the first *tool* here, and one
+  that runs before the install rather than after. A read-only, unprivileged, offline hardware report
   that answers the question the live USB otherwise leaves hanging: will the
   Wi-Fi work, is the disk BitLocker'd, is Secure Boot going to be a problem,
   is there room. It names the Wi-Fi chip in plain words and says whether its
@@ -443,6 +493,54 @@ pitch never outruns the product:
 Things that have cost a research pass at least once. Written here so they never
 cost another.
 
+- **The ISO shipped a gzip initramfs that nobody chose, and nothing was
+  misconfigured.** `/etc/initramfs-tools/initramfs.conf` says `COMPRESS=zstd` —
+  Debian's own Trixie default — and it had never once taken effect.
+  `mkinitramfs` falls back with `W: No zstd in $PATH, using gzip` and then
+  exits 0, so the exit status says nothing and the warning lands in a
+  fifteen-minute build log. `zstd` was absent because `initramfs-tools-core`
+  only *Recommends* it and `auto/config` sets `--apt-recommends false`. Two
+  correct decisions cancelling each other, silently: 161 MB of gzip where
+  140 MB of zstd was asked for. `zstd` is now pinned in
+  `system.list.chroot` and `0260-boot-speed.hook.chroot` greps for that exact
+  warning string, because the size alone cannot prove it.
+- **live-build defaults the squashfs to `-comp xz` when you do not say
+  otherwise** — the `# Set squashfs compression type or default to xz` branch
+  in `/usr/lib/live/build/binary_rootfs`. So every file read during session
+  startup paid an xz block decompression. Measured power-on to Plasma
+  wallpaper under QEMU/OVMF, cold cache, medians of 3-6 runs: **69 s** shipped,
+  63 s with a zstd squashfs, **56 s** with zstd squashfs *and* zstd initrd. The
+  build step also gets **faster** (75 s vs 122 s). The ISO grows ~4%;
+  `--chroot-squashfs-compression-level 19` buys 17 MB of that back for ~82 s
+  more build time and costs nothing at boot, because zstd's decompression rate
+  is essentially independent of the level it was compressed at. Note there is
+  **no** `lb config` flag for the squashfs block size — only
+  `--chroot-squashfs-compression-type` and `--chroot-squashfs-compression-level`
+  exist; a 256K block would have to be smuggled through `MKSQUASHFS_OPTIONS`,
+  which is undocumented passthrough and is deliberately not done.
+- **systemd's boot is not where this OS's boot time goes.** Its own accounting
+  on the shipped image: `Startup finished in 3.99s (kernel) + 8.24s (userspace)
+  = 12.23s` — of a 69-second boot. The critical chain to `sddm.service`, read
+  off a `kmsg`-on-serial log, is live-config (2.7 s) → firewalld (2.1 s) →
+  network-pre → NetworkManager → network.target → systemd-user-sessions →
+  sddm, and nothing else on it is over a second. Both of those costs are things
+  the product sells. The time is in GRUB reading a 161 MB initrd at ~13 MB/s
+  and in the Plasma session drawing itself. **Do not go unit-hunting here.**
+- **GRUB's PNG decoder is narrower than ImageMagick's writer, and it fails
+  silently.** A 16-bit or sub-byte-palette PNG draws as rainbow moiré, or as
+  nothing at all, with no error anywhere. `magick` picks both encodings on its
+  own — 16-bit whenever it composites with alpha, palette whenever an image has
+  few colours, which is exactly what a flat-filled 9-slice tile is. Every PNG
+  in the boot theme is forced to 8-bit RGBA non-interlaced and the IHDR is
+  re-read afterwards; `build.sh` hard-fails on any PNG under
+  `config/includes.chroot` deeper than 8-bit (`od -An -tu1 -j24 -N1 f.png`).
+- **`gfxterm`'s `background_image` can only stretch — there is no crop mode**,
+  unlike the theme's own `desktop-image-scale-method: "crop"`. That is why the
+  load screen is the branded 1920x1080 art stretched: exact at 16:9, ~11%
+  narrow at 1280x800, visibly oval at 1024x768. Rendered under OVMF at all
+  three and looked at before choosing. The unbranded `terminal.png` is still
+  generated for anyone whose fleet is mostly 4:3; swapping the filename in
+  `0950-boot-branding.hook.binary` is the whole change.
 - **`/etc/calamares/modules/fstab.conf`'s `mountOptions:` and
   `ssdExtraMountOptions:` are dead config** for this Calamares version. The
   fstab module reads its option strings out of global storage

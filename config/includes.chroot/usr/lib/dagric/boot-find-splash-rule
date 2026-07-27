@@ -1,0 +1,156 @@
+#!/usr/bin/python3
+# SPDX-FileCopyrightText: 2026 DGR Operations <repo@dagric.com>
+# SPDX-License-Identifier: GPL-3.0-or-later
+"""Locate the thin horizontal rule in the Dagric boot artwork.
+
+The Plymouth splash draws its progress fill on top of the decorative rule the
+boot art already has under the tagline, so that the static line the user has
+been looking at simply starts filling with brand blue. That only works if the
+splash knows exactly which row the rule is on -- and the row is not knowable
+from the theme, because the artwork is generated separately by
+config/bootloaders/make-boot-art.sh and its layout moves.
+
+Reading the row out of the SVG was tried first and is not good enough: during
+one afternoon of work on this the rule moved from y=422 to y=371, the constant
+in dagric.script did not, and the splash rendered the progress bar as a second
+horizontal line 28 pixels below the first. So this measures the PNG that is
+actually going to ship.
+
+Prints "ART_W ART_H X Y LEN" on success and exits 0; prints nothing and exits
+non-zero if the rule cannot be found, in which case the caller must keep the
+values already in dagric.script rather than guess.
+
+Pure standard library on purpose. The Dagric chroot has python3 and has neither
+ImageMagick nor Pillow, and a build hook is the wrong place to add either.
+"""
+
+import struct
+import sys
+import zlib
+
+
+def read_rgba(path):
+    """Decode a non-interlaced 8-bit RGBA PNG into (w, h, bytes).
+
+    make-boot-art.sh forces exactly that encoding and refuses to emit anything
+    else -- GRUB's decoder cannot read 16-bit or palette PNGs -- so anything
+    other than depth 8 / colour type 6 / interlace 0 means the art pipeline has
+    changed underneath us and guessing would be worse than failing.
+    """
+    data = open(path, "rb").read()
+    if data[:8] != b"\x89PNG\r\n\x1a\n":
+        raise ValueError("not a PNG")
+    w, h, depth, ctype, _comp, _filt, inter = struct.unpack(">IIBBBBB", data[16:29])
+    if (depth, ctype, inter) != (8, 6, 0):
+        raise ValueError("want 8-bit RGBA non-interlaced, got depth=%d type=%d "
+                         "interlace=%d" % (depth, ctype, inter))
+
+    idat = bytearray()
+    pos = 8
+    while pos < len(data):
+        (length,) = struct.unpack(">I", data[pos:pos + 4])
+        kind = data[pos + 4:pos + 8]
+        if kind == b"IDAT":
+            idat += data[pos + 8:pos + 8 + length]
+        elif kind == b"IEND":
+            break
+        pos += 12 + length
+
+    raw = zlib.decompress(bytes(idat))
+    stride = w * 4
+    out = bytearray(h * stride)
+    prev = bytearray(stride)
+    p = 0
+    for y in range(h):
+        ft = raw[p]
+        p += 1
+        line = bytearray(raw[p:p + stride])
+        p += stride
+        if ft == 1:                                    # Sub
+            for i in range(4, stride):
+                line[i] = (line[i] + line[i - 4]) & 0xFF
+        elif ft == 2:                                  # Up
+            for i in range(stride):
+                line[i] = (line[i] + prev[i]) & 0xFF
+        elif ft == 3:                                  # Average
+            for i in range(stride):
+                a = line[i - 4] if i >= 4 else 0
+                line[i] = (line[i] + ((a + prev[i]) >> 1)) & 0xFF
+        elif ft == 4:                                  # Paeth
+            for i in range(stride):
+                a = line[i - 4] if i >= 4 else 0
+                b = prev[i]
+                c = prev[i - 4] if i >= 4 else 0
+                pa, pb, pc = abs(b - c), abs(a - c), abs(a + b - 2 * c)
+                pr = a if (pa <= pb and pa <= pc) else (b if pb <= pc else c)
+                line[i] = (line[i] + pr) & 0xFF
+        elif ft != 0:
+            raise ValueError("bad PNG filter type %d on row %d" % (ft, y))
+        out[y * stride:(y + 1) * stride] = line
+        prev = line
+    return w, h, bytes(out)
+
+
+def find_rule(w, h, px):
+    """Return (x, y, length) of the longest thin horizontal rule, or None.
+
+    Scored by the LONGEST CONTIGUOUS run of pixels brighter than the same
+    column six rows up. Brightness alone is not enough to tell the rule from
+    the wordmark -- on the current art the rule and the letters score within
+    25% of each other -- but a run of set pixels is: letterforms have gaps
+    between the glyphs and the rule does not.
+    """
+    stride = w * 4
+
+    def lum(x, y):
+        i = y * stride + x * 4
+        return (px[i] + px[i + 1] + px[i + 2]) / 3.0
+
+    best = None
+    # Only the upper 60%: the lower half of the art is the deliberately quiet
+    # band the boot menu is drawn on, and the horizon contours down there are
+    # long, thin and horizontal too.
+    for y in range(8, int(h * 0.6)):
+        run = longest = start = longest_start = 0
+        for x in range(w):
+            if lum(x, y) - lum(x, y - 6) > 5:
+                if run == 0:
+                    start = x
+                run += 1
+                if run > longest:
+                    longest, longest_start = run, start
+            else:
+                run = 0
+        if longest > w * 0.06 and (best is None or longest > best[2]):
+            best = (longest_start, y, longest)
+    return best
+
+
+def main():
+    if len(sys.argv) != 2:
+        sys.exit("usage: boot-find-splash-rule BACKGROUND.PNG")
+    try:
+        w, h, px = read_rgba(sys.argv[1])
+        hit = find_rule(w, h, px)
+    except Exception as exc:                       # noqa: BLE001 - reported, not raised
+        print("boot-find-splash-rule: %s" % exc, file=sys.stderr)
+        return 1
+    if not hit:
+        print("boot-find-splash-rule: no rule found in %s" % sys.argv[1],
+              file=sys.stderr)
+        return 1
+    x, y, length = hit
+    # A rule that is not roughly centred is not the rule this splash expects to
+    # draw on, and silently putting the progress bar somewhere odd is worse
+    # than falling back to the value already in the theme.
+    centre = (x + length / 2.0) / w
+    if abs(centre - 0.5) > 0.02:
+        print("boot-find-splash-rule: candidate at y=%d is off-centre (%.3f)"
+              % (y, centre), file=sys.stderr)
+        return 1
+    print("%d %d %d %d %d" % (w, h, x, y, length))
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
