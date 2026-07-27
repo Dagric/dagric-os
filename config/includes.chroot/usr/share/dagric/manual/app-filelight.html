@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Filelight &mdash; Dagric OS Manual</title>
+<link rel="stylesheet" href="manual.css">
+<script src="manual.js"></script>
+</head>
+<body>
+<div class="shell">
+  <aside class="side">
+    <div class="sidebox">
+      <a class="brand" href="index.html">
+        <div class="mark">D</div>
+        <div class="brand-name">Dagric OS<small>Manual</small></div>
+      </a>
+      <nav class="toc">
+        <a class="back" href="index.html">&larr; All applications</a>
+        <div class="navgroup">Files and getting around</div>
+        <a href="app-dolphin.html">Dolphin</a>
+        <a href="app-launcher.html">The launcher and search</a>
+        <a href="app-desktop.html">The desktop, panels and windows</a>
+        <a href="app-system-settings.html">System Settings</a>
+        <a href="app-discover.html">Discover</a>
+        <a href="app-konsole.html">Konsole</a>
+        <a href="app-ark.html">Ark</a>
+        <a href="app-kcalc.html">KCalc</a>
+        <a href="app-system-monitor.html">System Monitor</a>
+        <a href="app-gdebi.html">Installing downloaded software</a>
+        <a href="app-kwallet.html">KWallet</a>
+        <a href="app-filelight.html" class="active">Filelight</a>
+      </nav>
+    </div>
+  </aside>
+
+  <main class="content">
+
+    <header class="hero">
+      <div class="eyebrow">Files and getting around</div>
+      <h1>Filelight<span class="pill pro">PRO</span></h1>
+      <p class="sub">Find out where the disk space actually went, in one picture.</p>
+    </header>
+
+    <div class="swap"><span>On Windows this was</span><strong>WinDirStat, TreeSize, or Storage settings</strong></div>
+
+    <div class="notice pro-notice"><div><strong>This one is part of Dagric&nbsp;OS Pro.</strong> You are reading the manual on the free edition, so it is not installed on this computer. The page is here on purpose &mdash; you should be able to see exactly what Pro adds before you decide whether you want it.</div></div>
+    <section>
+      <h2>What it is</h2>
+      <p><strong>Filelight</strong> draws your disk as concentric rings: the centre
+      is the folder you scanned, each ring out is a level deeper, and the size of a
+      segment is the size of the folder. A twenty-gigabyte forgotten video is
+      instantly, visually obvious in a way no list of folders ever manages.</p>
+    </section>
+
+    <section>
+      <h2>Five things you will actually do</h2>
+      <ol class="tasks">
+        <li><span class="t">Find out why the disk is full</span><p>Open Filelight and scan your home folder. The biggest segment on the
+         first ring is where to look. Click it to zoom in, and keep going until you
+         reach the actual file.</p></li>
+        <li><span class="t">Jump to a file you found</span><p>Right-click a segment &rarr; <em>Open Folder</em> and Dolphin opens
+         there. You can also delete from Filelight's right-click menu, though opening
+         the folder first is the safer habit.</p></li>
+        <li><span class="t">Scan a specific folder or drive</span><p><em>Scan</em> &rarr; <em>Scan Folder</em>, or pick a mounted drive from
+         the overview page. Scanning an external drive works the same way.</p></li>
+        <li><span class="t">Skip folders you do not care about</span><p><em>Settings</em> &rarr; <em>Configure Filelight</em> lets you exclude
+         paths and choose whether to cross onto other filesystems &mdash; useful for
+         ignoring a mounted backup drive.</p></li>
+        <li><span class="t">Check a folder before you back it up</span><p>Scan the folder you are about to add to a backup set. Discovering the
+         30&nbsp;GB of raw camera footage <em>before</em> the first backup run saves
+         a long evening.</p></li>
+      </ol>
+    </section>
+
+    <section>
+      <h2>One thing that will surprise you</h2>
+      <p><strong>Your home folder is probably not the problem.</strong> On a
+      machine that came from Windows, the usual culprits are a hidden
+      <code>.cache</code> folder, an old Downloads pile, or Flatpak runtimes. All
+      three are safe to prune &mdash; and
+      <a href="app-bleachbit.html">BleachBit</a> does the first one properly. Never
+      delete things outside your home folder to make space; use the package tools
+      instead.</p>
+    </section>
+
+    <section>
+      <h2>Where to find it</h2>
+      <p>Launcher &rarr; <strong>Disk Space</strong> (also <em>Filelight</em>).
+      Also available from Dolphin's <em>Tools</em> menu when installed.</p>
+    </section>
+
+    <section>
+      <h2>See also</h2>
+      <div class="related"><a href="app-bleachbit.html">BleachBit</a><a href="app-dolphin.html">Dolphin</a><a href="app-kup.html">Kup</a></div>
+    </section>
+
+    <footer class="colophon">Dagric OS Manual &middot; stored on this computer, no internet needed &middot; <a href="index.html">every application</a></footer>
+
+  </main>
+</div>
+</body>
+</html>

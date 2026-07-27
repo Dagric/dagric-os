@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Printers and scanners &mdash; Dagric OS Manual</title>
+<link rel="stylesheet" href="manual.css">
+<script src="manual.js"></script>
+</head>
+<body>
+<div class="shell">
+  <aside class="side">
+    <div class="sidebox">
+      <a class="brand" href="index.html">
+        <div class="mark">D</div>
+        <div class="brand-name">Dagric OS<small>Manual</small></div>
+      </a>
+      <nav class="toc">
+        <a class="back" href="index.html">&larr; All applications</a>
+        <div class="navgroup">Writing and documents</div>
+        <a href="app-libreoffice-writer.html">LibreOffice Writer</a>
+        <a href="app-libreoffice-calc.html">LibreOffice Calc</a>
+        <a href="app-libreoffice-impress.html">LibreOffice Impress</a>
+        <a href="app-libreoffice-draw.html">LibreOffice Draw</a>
+        <a href="app-libreoffice-base-math.html">LibreOffice Base and Math</a>
+        <a href="app-onlyoffice.html">ONLYOFFICE</a>
+        <a href="app-kate.html">Kate</a>
+        <a href="app-okular.html">Okular</a>
+        <a href="app-joplin.html">Joplin</a>
+        <a href="app-printing.html" class="active">Printers and scanners</a>
+      </nav>
+    </div>
+  </aside>
+
+  <main class="content">
+
+    <header class="hero">
+      <div class="eyebrow">Writing and documents</div>
+      <h1>Printers and scanners</h1>
+      <p class="sub">Getting paper into the computer and out of it again, including Print to PDF.</p>
+    </header>
+
+    <div class="swap"><span>On Windows this was</span><strong>Devices and Printers, and Windows Fax and Scan</strong></div>
+
+    <section>
+      <h2>What it is</h2>
+      <p>Printing on Dagric is handled by CUPS, the same printing system macOS
+      uses, configured from <strong>System Settings &rarr; Printers</strong>. Modern
+      network printers are found automatically and need no driver at all; older USB
+      printers are covered by the Gutenprint driver set, which Dagric installs by
+      default.</p>
+      <p>Scanning is <strong>Skanlite</strong>: a small window with a Preview button
+      and a Scan button. It talks to USB scanners and to network all-in-ones over
+      the driverless eSCL protocol.</p>
+    </section>
+
+    <section>
+      <h2>Five things you will actually do</h2>
+      <ol class="tasks">
+        <li><span class="t">Add a printer</span><p>System Settings &rarr; <em>Printers</em> &rarr; <em>Add Printer</em>.
+         Wait a moment for the list to populate, pick yours, accept the suggested
+         driver. A printer on the same wifi usually appears without you doing
+         anything.</p></li>
+        <li><span class="t">Print to PDF</span><p>In any application's print dialogue, choose the printer called
+         <strong>PDF</strong>. The file appears in a folder called <code>PDF</code>
+         inside your home folder. This is a real print queue, so it works from every
+         app including ones with no &ldquo;export&rdquo; feature.</p></li>
+        <li><span class="t">Scan a page</span><p>Open Skanlite, press <em>Preview</em>, drag a box around the part of
+         the glass you want, then <em>Scan</em>. It asks where to save. 300&nbsp;dpi
+         is right for documents; 600 and above is for photographs.</p></li>
+        <li><span class="t">Get an HP all-in-one working fully</span><p>Open <a href="tool-dagric-setup.html">Finish Setup</a> from the Dagric
+         Hub and tick <em>HP printer and scanner support</em>. It installs HP's own
+         open-source driver package, which some HP devices need for scanning and ink
+         levels.</p></li>
+        <li><span class="t">Print double-sided or several pages to a sheet</span><p>Both live in the print dialogue, under <em>Page Handling</em> or
+         <em>Properties</em> depending on the app. If two-sided is missing, the
+         printer's page in System Settings has an <em>Installed options</em> section
+         where the duplex unit must be declared.</p></li>
+      </ol>
+    </section>
+
+    <section>
+      <h2>One thing that will surprise you</h2>
+      <p><strong>The driver hunt is over.</strong> There is no manufacturer website
+      to visit, no 400&nbsp;MB &ldquo;printer software suite&rdquo; with a tray icon
+      and a shop in it, and no driver disc. Most printers made in the last decade
+      speak a standard protocol and simply appear. The ones that do not are handled
+      by drivers that were already installed before you plugged anything in.</p>
+    </section>
+
+    <section>
+      <h2>Where to find it</h2>
+      <p>Printers: System Settings &rarr; <em>Printers</em>. Scanning: launcher
+      &rarr; <strong>Scanner</strong> (also <em>Skanlite</em>). Print to PDF: the
+      printer named <em>PDF</em> in any print dialogue.</p>
+    </section>
+
+    <section>
+      <h2>See also</h2>
+      <div class="related"><a href="app-okular.html">Okular</a><a href="app-system-settings.html">System Settings</a><a href="tool-dagric-setup.html">Finish Setup</a><a href="app-libreoffice-writer.html">LibreOffice Writer</a></div>
+    </section>
+
+    <footer class="colophon">Dagric OS Manual &middot; stored on this computer, no internet needed &middot; <a href="index.html">every application</a></footer>
+
+  </main>
+</div>
+</body>
+</html>

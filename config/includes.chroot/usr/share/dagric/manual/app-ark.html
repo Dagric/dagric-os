@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ark &mdash; Dagric OS Manual</title>
+<link rel="stylesheet" href="manual.css">
+<script src="manual.js"></script>
+</head>
+<body>
+<div class="shell">
+  <aside class="side">
+    <div class="sidebox">
+      <a class="brand" href="index.html">
+        <div class="mark">D</div>
+        <div class="brand-name">Dagric OS<small>Manual</small></div>
+      </a>
+      <nav class="toc">
+        <a class="back" href="index.html">&larr; All applications</a>
+        <div class="navgroup">Files and getting around</div>
+        <a href="app-dolphin.html">Dolphin</a>
+        <a href="app-launcher.html">The launcher and search</a>
+        <a href="app-desktop.html">The desktop, panels and windows</a>
+        <a href="app-system-settings.html">System Settings</a>
+        <a href="app-discover.html">Discover</a>
+        <a href="app-konsole.html">Konsole</a>
+        <a href="app-ark.html" class="active">Ark</a>
+        <a href="app-kcalc.html">KCalc</a>
+        <a href="app-system-monitor.html">System Monitor</a>
+        <a href="app-gdebi.html">Installing downloaded software</a>
+        <a href="app-kwallet.html">KWallet</a>
+        <a href="app-filelight.html">Filelight</a>
+      </nav>
+    </div>
+  </aside>
+
+  <main class="content">
+
+    <header class="hero">
+      <div class="eyebrow">Files and getting around</div>
+      <h1>Ark</h1>
+      <p class="sub">Zip files, and the dozen other archive formats things arrive in.</p>
+    </header>
+
+    <div class="swap"><span>On Windows this was</span><strong>the built-in Zip support, WinRAR and 7-Zip</strong></div>
+
+    <section>
+      <h2>What it is</h2>
+      <p><strong>Ark</strong> handles compressed archives. Mostly you will never
+      open it directly &mdash; it works from Dolphin's right-click menu, which is
+      where the Windows habits already point.</p>
+      <p>It reads and writes ZIP, 7z, tar and the gzip/bzip2/xz family, and it opens
+      RAR files. Dagric installs the full 7-Zip support alongside it, so a
+      <code>.7z</code> someone emails you is a double-click, not an errand.</p>
+    </section>
+
+    <section>
+      <h2>Five things you will actually do</h2>
+      <ol class="tasks">
+        <li><span class="t">Unzip something</span><p>Right-click the archive in Dolphin &rarr; <em>Extract</em> &rarr;
+         <em>Extract archive here, autodetect subfolder</em>. That last option is the
+         one you want: it avoids the classic mess of forty loose files landing in
+         Downloads.</p></li>
+        <li><span class="t">Make a zip to email</span><p>Select the files, right-click &rarr; <em>Compress</em> &rarr;
+         <em>Here (as ZIP)</em>. ZIP is the format to pick when the other end is on
+         Windows or a phone.</p></li>
+        <li><span class="t">Put a password on an archive</span><p>Open Ark, <em>Archive</em> &rarr; <em>New</em>, choose ZIP or 7z, and
+         tick <em>Encrypt contents</em>. 7z encrypts the file names too; ZIP does
+         not. For anything genuinely sensitive use
+         <a href="app-cryptomator.html">Cryptomator</a> instead &mdash; archive
+         passwords are convenience, not security.</p></li>
+        <li><span class="t">Look inside without extracting</span><p>Double-click the archive. Ark opens it like a folder; you can preview a
+         single file, or drag just the one you need out onto the desktop.</p></li>
+        <li><span class="t">Deal with a split archive</span><p>Multi-part files ending <code>.z01</code>, <code>.part1.rar</code> or
+         <code>.7z.001</code>: put every part in one folder and open the first one.
+         Ark finds the rest itself.</p></li>
+      </ol>
+    </section>
+
+    <section>
+      <h2>One thing that will surprise you</h2>
+      <p><strong>Ark can open RAR files but cannot create them.</strong> The RAR
+      compression format is proprietary and its owner does not license the
+      compressor for free redistribution, so no open-source OS ships one. Unpacking
+      is fine; if you need to <em>send</em> a compressed file, send a ZIP or a 7z and
+      the other end will manage.</p>
+    </section>
+
+    <section>
+      <h2>Where to find it</h2>
+      <p>Right-click any archive in Dolphin. To open it as an app, launcher &rarr;
+      <strong>Archive Manager</strong> (also found by typing <em>Ark</em>,
+      <em>zip</em> or <em>7-zip</em>).</p>
+    </section>
+
+    <section>
+      <h2>See also</h2>
+      <div class="related"><a href="app-dolphin.html">Dolphin</a><a href="app-cryptomator.html">Cryptomator</a></div>
+    </section>
+
+    <footer class="colophon">Dagric OS Manual &middot; stored on this computer, no internet needed &middot; <a href="index.html">every application</a></footer>
+
+  </main>
+</div>
+</body>
+</html>

@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Rotating wallpapers (Variety) &mdash; Dagric OS Manual</title>
+<link rel="stylesheet" href="manual.css">
+<script src="manual.js"></script>
+</head>
+<body>
+<div class="shell">
+  <aside class="side">
+    <div class="sidebox">
+      <a class="brand" href="index.html">
+        <div class="mark">D</div>
+        <div class="brand-name">Dagric OS<small>Manual</small></div>
+      </a>
+      <nav class="toc">
+        <a class="back" href="index.html">&larr; All applications</a>
+        <div class="navgroup">Dagric&#x27;s own tools</div>
+        <a href="tool-dagric-hub.html">Dagric Hub</a>
+        <a href="tool-dagric-setup.html">Finish Setup</a>
+        <a href="tool-dagric-firstrun.html">Set Up Dagric</a>
+        <a href="tool-dagric-migrate.html">Migration Assistant</a>
+        <a href="tool-dagric-appearance.html">Dagric Appearance</a>
+        <a href="tool-dagric-looks.html">Dagric Looks</a>
+        <a href="tool-dagric-style.html">Dagric Styles</a>
+        <a href="tool-dagric-display.html">Dagric Display</a>
+        <a href="tool-dagric-app-names.html">Why the apps have plain names</a>
+        <a href="tool-dagric-get-variety.html" class="active">Rotating wallpapers (Variety)</a>
+        <a href="tool-dagric-drivers.html">NVIDIA driver helper</a>
+        <a href="tool-dagric-security-checkup.html">Security Checkup</a>
+        <a href="tool-dagric-usb-protect.html">USB Protection</a>
+        <a href="tool-dagric-vm.html">Windows in a window (VM setup)</a>
+        <a href="tool-dagric-gaming.html">Proton-GE helper</a>
+        <a href="tool-dagric-ai.html">Local AI (Ollama)</a>
+        <a href="tool-dagric-manual.html">This manual</a>
+        <a href="tool-dagric-background.html">Helpers that run by themselves</a>
+        <a href="tool-dagric-commands.html">Every dagric command</a>
+      </nav>
+    </div>
+  </aside>
+
+  <main class="content">
+
+    <header class="hero">
+      <div class="eyebrow">Dagric&#x27;s own tools</div>
+      <h1>Rotating wallpapers (Variety)<span class="pill add" title="Not preinstalled — Dagric installs it for you when you ask">ADD-ON</span></h1>
+      <p class="sub">Install the wallpaper changer &mdash; and find out why it is not preinstalled.</p>
+    </header>
+
+    <div class="swap"><span>On Windows this was</span><strong>Windows Spotlight and the wallpaper slideshow</strong></div>
+
+    <section>
+      <h2>What it is</h2>
+      <p><strong>Variety</strong> changes your wallpaper on a schedule, from your
+      own folders and, if you switch it on, from online collections. It adds a tray
+      icon for skipping, pausing and favouriting the current image.</p>
+      <p>It is <em>not</em> preinstalled, deliberately. Out of the box Variety can
+      fetch wallpapers from third-party services, and an operating system that
+      promises to be private by default should not start talking to anyone's servers
+      without being asked. So it is offered rather than assumed.</p>
+    </section>
+
+    <section>
+      <h2>Getting it</h2>
+      <p>Dagric Hub &rarr; <strong>Rotating wallpapers</strong>, launcher &rarr;
+      <em>Rotating Wallpapers</em>, or <code>dagric-get-variety</code>. A terminal
+      window explains the trade-off, asks yes or no, and installs Variety from
+      Debian's own archive (about 25&nbsp;MB) after asking for your administrator
+      password.</p>
+      <p>This one ships on every edition of Dagric, free included.</p>
+    </section>
+    <section>
+      <h2>Five things you will actually do</h2>
+      <ol class="tasks">
+        <li><span class="t">Decide whether you need it at all</span><p>If you only want a slideshow of your own pictures, you do not. Right-click
+         the desktop &rarr; <em>Configure Desktop and Wallpaper</em> &rarr;
+         <em>Slideshow</em>, point it at a folder, done &mdash; nothing to install and
+         nothing that talks to the internet.</p></li>
+        <li><span class="t">Install it</span><p>Run the helper and answer yes. It launches into the system tray;
+         right-click that icon for everything.</p></li>
+        <li><span class="t">Use your own pictures</span><p>In Variety's preferences, remove the online sources and add your own
+         folders. It then behaves like a much more capable version of Plasma's
+         slideshow, with favourites and a &ldquo;never show this one again&rdquo;
+         option.</p></li>
+        <li><span class="t">Turn on an online source, knowingly</span><p>The sources list is where the internet comes in. Enable one and Variety
+         will download images from it. That is a reasonable thing to want; it is just
+         a decision Dagric will not make for you.</p></li>
+        <li><span class="t">Use Dagric&#x27;s own wallpapers</span><p>Point Variety at <code>/usr/share/wallpapers/</code>. Dagric ships more
+         than twenty designs, each in a branded and a logo-free &ldquo;Clean&rdquo;
+         version.</p></li>
+      </ol>
+    </section>
+
+    <section>
+      <h2>One thing that will surprise you</h2>
+      <p><strong>The reason it is a separate install is written into the tool
+      itself.</strong> The helper explains the third-party-download issue before it
+      asks you anything, and offers you the built-in alternative that needs no
+      install. That pattern &mdash; tell the owner the trade-off, then let them choose
+      &mdash; is how every consent helper on this machine works.</p>
+    </section>
+
+    <section>
+      <h2>Where to find it</h2>
+      <p>After installing: the tray icon, or launcher &rarr; <em>Variety</em>.
+      Before installing: Dagric Hub &rarr; <em>Rotating wallpapers</em>.</p>
+    </section>
+
+    <section>
+      <h2>See also</h2>
+      <div class="related"><a href="tool-dagric-style.html">Dagric Styles</a><a href="app-desktop.html">The desktop, panels and windows</a><a href="tool-dagric-appearance.html">Dagric Appearance</a></div>
+    </section>
+
+    <footer class="colophon">Dagric OS Manual &middot; stored on this computer, no internet needed &middot; <a href="index.html">every application</a></footer>
+
+  </main>
+</div>
+</body>
+</html>

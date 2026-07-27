@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kate &mdash; Dagric OS Manual</title>
+<link rel="stylesheet" href="manual.css">
+<script src="manual.js"></script>
+</head>
+<body>
+<div class="shell">
+  <aside class="side">
+    <div class="sidebox">
+      <a class="brand" href="index.html">
+        <div class="mark">D</div>
+        <div class="brand-name">Dagric OS<small>Manual</small></div>
+      </a>
+      <nav class="toc">
+        <a class="back" href="index.html">&larr; All applications</a>
+        <div class="navgroup">Writing and documents</div>
+        <a href="app-libreoffice-writer.html">LibreOffice Writer</a>
+        <a href="app-libreoffice-calc.html">LibreOffice Calc</a>
+        <a href="app-libreoffice-impress.html">LibreOffice Impress</a>
+        <a href="app-libreoffice-draw.html">LibreOffice Draw</a>
+        <a href="app-libreoffice-base-math.html">LibreOffice Base and Math</a>
+        <a href="app-onlyoffice.html">ONLYOFFICE</a>
+        <a href="app-kate.html" class="active">Kate</a>
+        <a href="app-okular.html">Okular</a>
+        <a href="app-joplin.html">Joplin</a>
+        <a href="app-printing.html">Printers and scanners</a>
+      </nav>
+    </div>
+  </aside>
+
+  <main class="content">
+
+    <header class="hero">
+      <div class="eyebrow">Writing and documents</div>
+      <h1>Kate</h1>
+      <p class="sub">A plain-text editor that scales from a shopping list to a config file.</p>
+    </header>
+
+    <div class="swap"><span>On Windows this was</span><strong>Notepad, and most of Notepad++</strong></div>
+
+    <section>
+      <h2>What it is</h2>
+      <p><strong>Kate</strong> opens text files. Not documents &mdash; text: notes,
+      lists, configuration files, code, anything where the words matter and the
+      formatting does not. It is Notepad's job done well, with the parts of
+      Notepad++ most people actually use built in.</p>
+      <p>It colours syntax for hundreds of file types, opens very large files without
+      complaint, has a genuinely good find-and-replace, and keeps a sidebar of every
+      document you have open.</p>
+    </section>
+
+    <section>
+      <h2>Five things you will actually do</h2>
+      <ol class="tasks">
+        <li><span class="t">Find and replace across a file</span><p><kbd>Ctrl</kbd>+<kbd>R</kbd>. The bar at the bottom does plain text,
+         whole words, or regular expressions, and shows the number of matches as you
+         type. <em>Replace All</em> is a single undo away if it goes wrong.</p></li>
+        <li><span class="t">Edit a system file safely</span><p>Open it normally. When you save a file you do not own, Kate offers to
+         save it with administrator rights and asks for your password, so you never
+         need to launch an editor as root. Cancel and nothing is written.</p></li>
+        <li><span class="t">Work on several files at once</span><p>The <em>Documents</em> sidebar on the left lists everything open.
+         <em>View</em> &rarr; <em>Split View</em> puts two files side by side in one
+         window.</p></li>
+        <li><span class="t">Get a terminal in the same window</span><p><kbd>F4</kbd> opens a terminal panel at the bottom, already in the
+         folder of the file you are editing.</p></li>
+        <li><span class="t">Turn on spell checking</span><p><em>Tools</em> &rarr; <em>Spelling</em> &rarr; <em>Automatic Spell
+         Checking</em>. Useful when Kate is doing duty as a notes app.</p></li>
+      </ol>
+    </section>
+
+    <section>
+      <h2>One thing that will surprise you</h2>
+      <p><strong>Line endings are a real thing and Kate handles them for
+      you.</strong> Windows ends every line with two invisible characters; Linux uses
+      one. Kate detects which a file uses and keeps it, so a file you edit here and
+      send back does not arrive as one long line. You can see and change the setting
+      at the bottom right of the window &mdash; that little <em>Windows/DOS</em> or
+      <em>Unix</em> label is not decoration.</p>
+    </section>
+
+    <section>
+      <h2>Where to find it</h2>
+      <p>Launcher &rarr; <strong>Text Editor</strong> (also found by typing
+      <em>Kate</em>, <em>Notepad</em> or <em>notepad++</em>). Double-clicking a
+      <code>.txt</code> opens it here.</p>
+    </section>
+
+    <section>
+      <h2>See also</h2>
+      <div class="related"><a href="app-konsole.html">Konsole</a><a href="app-dolphin.html">Dolphin</a><a href="app-libreoffice-writer.html">LibreOffice Writer</a></div>
+    </section>
+
+    <footer class="colophon">Dagric OS Manual &middot; stored on this computer, no internet needed &middot; <a href="index.html">every application</a></footer>
+
+  </main>
+</div>
+</body>
+</html>

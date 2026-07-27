@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Local AI (Ollama) &mdash; Dagric OS Manual</title>
+<link rel="stylesheet" href="manual.css">
+<script src="manual.js"></script>
+</head>
+<body>
+<div class="shell">
+  <aside class="side">
+    <div class="sidebox">
+      <a class="brand" href="index.html">
+        <div class="mark">D</div>
+        <div class="brand-name">Dagric OS<small>Manual</small></div>
+      </a>
+      <nav class="toc">
+        <a class="back" href="index.html">&larr; All applications</a>
+        <div class="navgroup">Dagric&#x27;s own tools</div>
+        <a href="tool-dagric-hub.html">Dagric Hub</a>
+        <a href="tool-dagric-setup.html">Finish Setup</a>
+        <a href="tool-dagric-firstrun.html">Set Up Dagric</a>
+        <a href="tool-dagric-migrate.html">Migration Assistant</a>
+        <a href="tool-dagric-appearance.html">Dagric Appearance</a>
+        <a href="tool-dagric-looks.html">Dagric Looks</a>
+        <a href="tool-dagric-style.html">Dagric Styles</a>
+        <a href="tool-dagric-display.html">Dagric Display</a>
+        <a href="tool-dagric-app-names.html">Why the apps have plain names</a>
+        <a href="tool-dagric-get-variety.html">Rotating wallpapers (Variety)</a>
+        <a href="tool-dagric-drivers.html">NVIDIA driver helper</a>
+        <a href="tool-dagric-security-checkup.html">Security Checkup</a>
+        <a href="tool-dagric-usb-protect.html">USB Protection</a>
+        <a href="tool-dagric-vm.html">Windows in a window (VM setup)</a>
+        <a href="tool-dagric-gaming.html">Proton-GE helper</a>
+        <a href="tool-dagric-ai.html" class="active">Local AI (Ollama)</a>
+        <a href="tool-dagric-manual.html">This manual</a>
+        <a href="tool-dagric-background.html">Helpers that run by themselves</a>
+        <a href="tool-dagric-commands.html">Every dagric command</a>
+      </nav>
+    </div>
+  </aside>
+
+  <main class="content">
+
+    <header class="hero">
+      <div class="eyebrow">Dagric&#x27;s own tools</div>
+      <h1>Local AI (Ollama)<span class="pill add" title="Not preinstalled — Dagric installs it for you when you ask">ADD-ON</span></h1>
+      <p class="sub">Run a large language model on your own hardware, offline, with nothing sent anywhere.</p>
+    </header>
+
+    <div class="swap"><span>On Windows this was</span><strong>ChatGPT and Copilot &mdash; on your machine, without the account</strong></div>
+
+
+    <section>
+      <h2>What it is</h2>
+      <p><strong>Ollama</strong> downloads and runs large language models on this
+      computer. The model file lives on your disk, the computation happens on your
+      processor or graphics card, and <strong>nothing is sent anywhere</strong>. It
+      works with the network unplugged.</p>
+      <p>That is the entire pitch. A local model is not as capable as the largest
+      hosted ones, and in exchange nobody is reading your prompts, keeping them, or
+      training on them.</p>
+    </section>
+
+    <section>
+      <h2>Running it</h2>
+      <p>Dagric Hub &rarr; <strong>Local AI &mdash; Ollama</strong>, launcher &rarr;
+      <em>Local AI Setup</em>, or <code>dagric-ai</code>. A terminal window explains
+      what Ollama is and asks yes or no.</p>
+      <p>Be aware of what &ldquo;yes&rdquo; means here: it downloads and runs the
+      official installer script from <code>ollama.com</code>. That is outside Debian's
+      archive, so it is your trust in Ollama rather than in Debian's packaging. The
+      helper tells you the address before it asks, and tells you how to remove it
+      afterwards: <code>sudo rm -f /usr/local/bin/ollama</code>.</p>
+    </section>
+    <section>
+      <h2>Five things you will actually do</h2>
+      <ol class="tasks">
+        <li><span class="t">Run your first model</span><p><code>ollama run llama3.2</code>. The first run downloads the model
+         (a couple of gigabytes) and then drops you into a chat prompt in the terminal.
+         <code>/bye</code> leaves.</p></li>
+        <li><span class="t">Pick a model that fits your machine</span><p>Roughly: a 3-billion-parameter model wants about 4&nbsp;GB of memory, 7
+         to 8 billion wants about 8&nbsp;GB, and larger models want more than most
+         laptops have. If a model is slow or the machine starts swapping, use a smaller
+         one &mdash; that is the whole tuning process.</p></li>
+        <li><span class="t">Use the graphics card</span><p>Ollama uses an NVIDIA GPU automatically if the proprietary driver is
+         installed &mdash; run <a href="tool-dagric-drivers.html">the driver helper</a>
+         first. The difference between GPU and processor is roughly the difference
+         between conversation and correspondence.</p></li>
+        <li><span class="t">Manage the models</span><p><code>ollama list</code> shows what you have downloaded,
+         <code>ollama rm modelname</code> deletes one. They are large; check
+         occasionally with <a href="app-filelight.html">Filelight</a>.</p></li>
+        <li><span class="t">Give it a window</span><p>Ollama is a command-line tool with a local API. Several graphical front
+         ends exist on Flathub &mdash; search <a href="app-discover.html">Discover</a>
+         for an Ollama client &mdash; and they all talk to the same local
+         service.</p></li>
+      </ol>
+    </section>
+
+    <section>
+      <h2>One thing that will surprise you</h2>
+      <p><strong>This is the only Dagric helper that pipes a downloaded script into
+      a shell, and we would rather it did not.</strong> Ollama is not packaged in
+      Debian, and its official installation route is exactly the
+      <code>curl | sh</code> pattern that this manual tells you elsewhere to be
+      suspicious of. The helper is honest about it: it names the source, asks first,
+      and tells you how to remove it. If that trade is not one you want to make, do not
+      answer yes &mdash; nothing else on the machine depends on it.</p>
+    </section>
+
+    <section>
+      <h2>Where to find it</h2>
+      <p>Dagric Hub &rarr; <em>Local AI &mdash; Ollama</em>, or
+      <code>dagric-ai</code>. Afterwards it is the <code>ollama</code> command.</p>
+    </section>
+
+    <section>
+      <h2>See also</h2>
+      <div class="related"><a href="app-konsole.html">Konsole</a><a href="tool-dagric-drivers.html">NVIDIA driver helper</a><a href="app-upscayl.html">Upscayl</a><a href="app-discover.html">Discover</a></div>
+    </section>
+
+    <footer class="colophon">Dagric OS Manual &middot; stored on this computer, no internet needed &middot; <a href="index.html">every application</a></footer>
+
+  </main>
+</div>
+</body>
+</html>

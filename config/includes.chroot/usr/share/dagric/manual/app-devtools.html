@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Git, compilers and Python &mdash; Dagric OS Manual</title>
+<link rel="stylesheet" href="manual.css">
+<script src="manual.js"></script>
+</head>
+<body>
+<div class="shell">
+  <aside class="side">
+    <div class="sidebox">
+      <a class="brand" href="index.html">
+        <div class="mark">D</div>
+        <div class="brand-name">Dagric OS<small>Manual</small></div>
+      </a>
+      <nav class="toc">
+        <a class="back" href="index.html">&larr; All applications</a>
+        <div class="navgroup">For developers</div>
+        <a href="app-docker.html">Docker and Podman</a>
+        <a href="app-distrobox.html">Distrobox</a>
+        <a href="app-devtools.html" class="active">Git, compilers and Python</a>
+        <a href="app-ssh.html">SSH</a>
+        <a href="app-terminal-extras.html">nala, bat and zoxide</a>
+      </nav>
+    </div>
+  </aside>
+
+  <main class="content">
+
+    <header class="hero">
+      <div class="eyebrow">For developers</div>
+      <h1>Git, compilers and Python<span class="pill pro">PRO</span></h1>
+      <p class="sub">The toolchain is already there. No installers, no PATH surgery.</p>
+    </header>
+
+    <div class="swap"><span>On Windows this was</span><strong>Visual Studio Build Tools, Git for Windows, python.org installers</strong></div>
+
+    <div class="notice pro-notice"><div><strong>This one is part of Dagric&nbsp;OS Pro.</strong> You are reading the manual on the free edition, so it is not installed on this computer. The page is here on purpose &mdash; you should be able to see exactly what Pro adds before you decide whether you want it.</div></div>
+    <section>
+      <h2>What it is</h2>
+      <p>Dagric&nbsp;OS Pro arrives with <strong>git</strong>,
+      <strong>build-essential</strong> (GCC, make and the C library headers) and
+      <strong>Python</strong> with <code>pip</code> and <code>venv</code>. Nothing to
+      download, nothing to add to a PATH, and a C program compiles in a fresh terminal
+      on the first evening.</p>
+      <p>No editor is bundled. <a href="app-kate.html">Kate</a> is a capable one;
+      VS Code, VSCodium, Zed, the JetBrains tools and the rest are all a search away in
+      <a href="app-discover.html">Discover</a>.</p>
+    </section>
+
+    <section>
+      <h2>Five things you will actually do</h2>
+      <ol class="tasks">
+        <li><span class="t">Tell git who you are</span><p><code>git config --global user.name "Your Name"</code> and
+         <code>git config --global user.email "you@example.com"</code>. Do this once,
+         before your first commit, or you will be renaming authors later.</p></li>
+        <li><span class="t">Make an SSH key for GitHub or GitLab</span><p><code>ssh-keygen -t ed25519 -C "you@example.com"</code>, press Enter
+         through the prompts, then paste the contents of
+         <code>~/.ssh/id_ed25519.pub</code> into the site's SSH keys page. Never share
+         the file without <code>.pub</code>.</p></li>
+        <li><span class="t">Use a Python virtual environment</span><p><code>python3 -m venv .venv</code> then
+         <code>source .venv/bin/activate</code>. Install packages with
+         <code>pip install</code> inside it. Read the surprise below &mdash; on Debian
+         this is not optional advice.</p></li>
+        <li><span class="t">Build something from source</span><p>The usual <code>./configure &amp;&amp; make &amp;&amp; sudo make
+         install</code> works, but prefer <code>checkinstall</code> or a local prefix:
+         software installed outside the package manager is software the package
+         manager cannot update or remove.</p></li>
+        <li><span class="t">Get a library&#x27;s development headers</span><p><code>sudo apt install libfoo-dev</code>. Debian splits libraries into
+         a runtime package and a <code>-dev</code> package with the headers; a build
+         that fails on a missing <code>.h</code> file almost always wants the
+         latter.</p></li>
+      </ol>
+    </section>
+
+    <section>
+      <h2>One thing that will surprise you</h2>
+      <p><strong><code>pip install</code> outside a virtual environment will be
+      refused.</strong> You will see <em>error: externally-managed-environment</em>.
+      This is deliberate and it is protecting you: the system Python belongs to
+      Debian, and letting pip overwrite parts of it is a well-known way to break your
+      desktop, since a great deal of the system is written in Python.</p>
+      <p>The answer is a <code>venv</code> per project, or <code>pipx</code> for
+      command-line tools you want available everywhere. The
+      <code>--break-system-packages</code> flag exists, is named honestly, and should
+      be left alone.</p>
+    </section>
+
+    <section>
+      <h2>Where to find it</h2>
+      <p>A terminal. Everything here is a command, not an application.</p>
+    </section>
+
+    <section>
+      <h2>See also</h2>
+      <div class="related"><a href="app-konsole.html">Konsole</a><a href="app-docker.html">Docker and Podman</a><a href="app-distrobox.html">Distrobox</a><a href="app-ssh.html">SSH</a><a href="app-terminal-extras.html">nala, bat and zoxide</a></div>
+    </section>
+
+    <footer class="colophon">Dagric OS Manual &middot; stored on this computer, no internet needed &middot; <a href="index.html">every application</a></footer>
+
+  </main>
+</div>
+</body>
+</html>

@@ -36,10 +36,20 @@ else
     echo "WARNING: grub-btrfs download failed — snapshot recovery unavailable"
 fi
 
-# Enable the first-boot setup service. Its unit comes from includes.chroot,
-# which live-build copies AFTER hooks run — so `systemctl enable` here would
-# find no unit yet. Instead create the wants-symlink directly; it's a dangling
-# link until the unit file lands, which systemd resolves fine at boot.
+# Enable the first-boot setup service.
+#
+# CORRECTION, because this comment used to say the opposite and someone will
+# design around it again: includes.chroot lands BEFORE hooks, not after.
+# `lb chroot` runs `lb chroot_includes_after_packages` on line 51 and
+# `lb chroot_hooks` on line 52, and select_includes_chroot maps
+# config/includes.chroot to that after-packages stage. So the unit file IS
+# already at /etc/systemd/system/dagric-snapshot-setup.service by the time any
+# hook runs, and a plain `systemctl enable` would work here.
+#
+# The hand-made wants-symlink below is kept anyway: it is exactly what
+# `systemctl enable` writes for a WantedBy=multi-user.target unit, it has
+# shipped and been verified on an installed system, and swapping proven code
+# for equivalent code buys nothing. What was wrong was the reason, not the line.
 mkdir -p /etc/systemd/system/multi-user.target.wants
 ln -sf /etc/systemd/system/dagric-snapshot-setup.service \
     /etc/systemd/system/multi-user.target.wants/dagric-snapshot-setup.service

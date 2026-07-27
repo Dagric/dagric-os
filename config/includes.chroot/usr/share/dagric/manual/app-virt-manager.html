@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Virtual Machine Manager &mdash; Dagric OS Manual</title>
+<link rel="stylesheet" href="manual.css">
+<script src="manual.js"></script>
+</head>
+<body>
+<div class="shell">
+  <aside class="side">
+    <div class="sidebox">
+      <a class="brand" href="index.html">
+        <div class="mark">D</div>
+        <div class="brand-name">Dagric OS<small>Manual</small></div>
+      </a>
+      <nav class="toc">
+        <a class="back" href="index.html">&larr; All applications</a>
+        <div class="navgroup">Games and Windows programs</div>
+        <a href="app-steam.html">Steam</a>
+        <a href="app-lutris.html">Lutris</a>
+        <a href="app-heroic.html">Heroic Games Launcher</a>
+        <a href="app-wine.html">Wine</a>
+        <a href="app-bottles.html">Bottles</a>
+        <a href="app-protonup.html">ProtonUp-Qt</a>
+        <a href="app-gameperf.html">GameMode, MangoHud and GOverlay</a>
+        <a href="app-virt-manager.html" class="active">Virtual Machine Manager</a>
+      </nav>
+    </div>
+  </aside>
+
+  <main class="content">
+
+    <header class="hero">
+      <div class="eyebrow">Games and Windows programs</div>
+      <h1>Virtual Machine Manager<span class="pill pro">PRO</span></h1>
+      <p class="sub">Run a whole other operating system &mdash; including real Windows &mdash; in a window.</p>
+    </header>
+
+    <div class="swap"><span>On Windows this was</span><strong>Hyper-V, VirtualBox, VMware Workstation</strong></div>
+
+    <div class="notice pro-notice"><div><strong>This one is part of Dagric&nbsp;OS Pro.</strong> You are reading the manual on the free edition, so it is not installed on this computer. The page is here on purpose &mdash; you should be able to see exactly what Pro adds before you decide whether you want it.</div></div>
+    <section>
+      <h2>What it is</h2>
+      <p><strong>Virtual Machine Manager</strong> runs other operating systems
+      inside windows on this desktop, using KVM &mdash; the hypervisor built into the
+      Linux kernel itself, so performance is close to bare metal.</p>
+      <p>This is the honest answer for the one Windows program that
+      <a href="app-wine.html">Wine</a> cannot run: a real Windows, properly licensed,
+      isolated from your files, that you can pause, snapshot and delete.
+      <strong>Windows itself is never bundled with Dagric</strong> &mdash; you
+      download it from Microsoft.</p>
+    </section>
+
+    <section>
+      <h2>Switching it on</h2>
+      <p>The whole stack is preinstalled on Dagric&nbsp;OS Pro, but it is switched
+      <em>off</em> until you ask, so it costs nothing on a machine that never uses it.
+      Run <a href="tool-dagric-vm.html">the VM helper</a> &mdash; Dagric Hub &rarr;
+      <strong>Windows in a VM</strong> &mdash; and it checks your processor supports
+      virtualisation, adds you to the right groups, and starts the service. Log out
+      and back in once afterwards.</p>
+    </section>
+    <section>
+      <h2>Five things you will actually do</h2>
+      <ol class="tasks">
+        <li><span class="t">Get a Windows ISO</span><p>Microsoft publishes it at
+         <strong>microsoft.com/software-download/windows11</strong>. Windows runs
+         unactivated with minor cosmetic limits, or you can use a licence key you
+         already own.</p></li>
+        <li><span class="t">Create the virtual machine</span><p><em>New VM</em> &rarr; <em>Local install media</em> &rarr; choose the
+         ISO. Give it at least 4&nbsp;GB of memory, 2 processors and a 64&nbsp;GB
+         disk. Tick <em>Customise configuration before install</em> so you can set the
+         firmware.</p></li>
+        <li><span class="t">Satisfy Windows 11&#x27;s requirements</span><p>In that customisation screen, set the firmware to <em>UEFI</em> (Pro
+         ships the OVMF firmware) and add a <em>TPM</em> device version 2.0 (Pro ships
+         the software TPM). Those two settings are what Windows 11's installer is
+         checking for.</p></li>
+        <li><span class="t">Share a folder with the guest</span><p>Add a <em>Filesystem</em> device pointing at a folder, or simply use
+         the network. Nothing of yours is visible inside the VM unless you put it
+         there deliberately &mdash; which is the point of using one.</p></li>
+        <li><span class="t">Snapshot before you experiment</span><p>The VM's <em>Snapshots</em> tab takes an instant copy of the whole
+         machine. Break Windows, restore the snapshot, carry on. This is the freedom a
+         virtual machine buys you.</p></li>
+      </ol>
+    </section>
+
+    <section>
+      <h2>One thing that will surprise you</h2>
+      <p><strong>If the machine will not start, it is virtualisation in the
+      BIOS.</strong> Intel VT-x or AMD-V is switched off by default on a great many
+      consumer machines. The <a href="tool-dagric-vm.html">Dagric VM helper</a> checks
+      for this first and tells you plainly rather than letting the failure happen
+      later: reboot, enter the firmware setup (often <kbd>F2</kbd> or
+      <kbd>Del</kbd>), find <em>Virtualization</em>, <em>SVM</em> or <em>VT-x</em>,
+      switch it on, save.</p>
+    </section>
+
+    <section>
+      <h2>Where to find it</h2>
+      <p>Launcher &rarr; <em>Virtual Machine Manager</em>, after running the VM
+      helper once.</p>
+    </section>
+
+    <section>
+      <h2>See also</h2>
+      <div class="related"><a href="tool-dagric-vm.html">Windows in a window (VM setup)</a><a href="app-wine.html">Wine</a><a href="app-bottles.html">Bottles</a><a href="app-distrobox.html">Distrobox</a></div>
+    </section>
+
+    <footer class="colophon">Dagric OS Manual &middot; stored on this computer, no internet needed &middot; <a href="index.html">every application</a></footer>
+
+  </main>
+</div>
+</body>
+</html>

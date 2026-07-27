@@ -1,0 +1,152 @@
+#!/bin/sh
+# SPDX-FileCopyrightText: 2026 DGR Operations <repo@dagric.com>
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Dagric OS — pick a sensible text size for this screen, at first login,
+# without asking. Started from ~/.config/autostart/dagric-display-autoscale.
+#
+# WHY THIS EXISTS. A modern laptop with a 3K or 4K panel boots Plasma with
+# everything microscopic unless something measures the screen and says so.
+# Windows measured it before the machine ever shipped; that is why the same
+# laptop was readable yesterday and is not today. Asking the owner "what scale
+# would you like?" on their first login is the wrong fix — it is a question the
+# operating system can answer itself in a millisecond, phrased in vocabulary
+# they do not have. So this measures and sets it, and the welcome wizard tells
+# them afterwards what was set and where to change it.
+#
+# WHAT IT ACTUALLY CHANGES, WHICH IS LESS THAN YOU MIGHT THINK.
+# KWin already does this. OutputConfigurationStore::chooseScale() measures the
+# panel from its EDID the first time it sees it and writes the answer into
+# ~/.config/kwinoutputconfig.json before plasmashell starts. Reimplementing
+# that would be inventing a second, worse heuristic to fight the first one.
+# What KWin 6.3.6 — the version Trixie ships — does NOT have is the pair of
+# corrections that landed in 6.4, and those two gaps hit the two most common
+# panels in the market Dagric sells into:
+#
+#   * a 15.6" 1080p laptop and a 27" 1440p monitor both land on 1.15, which is
+#     too small to make anything more readable and large enough to make every
+#     XWayland app soft. 6.4 snaps anything under 1.20 down to a crisp 1x.
+#   * a 14" 2880x1800 OLED lands on 1.95 when 2.0 was right there. Fractional
+#     scaling is what makes older apps blurry; whole-number scaling is exact.
+#
+# So this reads what KWin chose, applies those two corrections, and stops.
+#
+# THE SAFETY RULE. Before changing anything we recompute the scale ourselves,
+# from the panel's own EDID, with KWin 6.3.6's formula (see display-common.sh).
+# If our number and KWin's number disagree, we assume WE misread the screen and
+# change nothing at all. Same for a panel that reports no size, or a size no
+# real screen could have: cheap panels, docks and virtual machines routinely
+# put an aspect ratio or a zero in that field, and it is far better to leave a
+# desktop slightly too small than to ship one that is comically large or, worse,
+# one where nothing fits on screen.
+#
+# It also runs on every login, not just the first, and does two things there:
+# it picks up a screen it has never seen (plug in a monitor, get a sane size
+# for it), and it undoes a text-size trial that Dagric Display was killed in
+# the middle of. That second one matters: a bad scale survives a reboot,
+# because KWin writes it to disk, so "turn it off and on again" is not a way
+# out on its own.
+#
+# No `set -e`: this runs at login with nobody watching, and every step below is
+# already guarded. Bailing out silently on the first unexpected non-zero would
+# most likely mean skipping the rescue in part 1, which is the one thing here
+# that has to happen.
+
+. /usr/lib/dagric/display-common.sh
+
+STATE=${XDG_STATE_HOME:-$HOME/.local/state}/dagric
+SEEN=$STATE/display-seen
+PENDING=$STATE/display-pending
+LOG=$STATE/display-autoscale.log
+
+note() { printf '%s dagric-display-autoscale: %s\n' "$(date '+%F %T')" "$1" >> "$LOG"; }
+
+dg_can_scale || exit 0
+mkdir -p "$STATE" 2>/dev/null || exit 0
+
+# KWin and kscreen are normally up well before XDG autostart runs, but a slow
+# or busy first boot can get here first. Wait for a real answer rather than
+# concluding there are no screens.
+i=0
+while [ "$i" -lt 20 ]; do
+    OUTS=$(dg_outputs)
+    [ -n "$OUTS" ] && break
+    i=$(( i + 1 ))
+    sleep 1
+done
+[ -n "$OUTS" ] || { note "no screens reported after 20s — nothing done"; exit 0; }
+
+# --- 1. rescue a trial that was interrupted ----------------------------------
+# Dagric Display writes this file for as long as a size is on trial and deletes
+# it the moment the owner keeps or undoes the change. Finding one here means
+# the tool was killed mid-trial — the countdown never fired, and the owner is
+# now looking at a size they never agreed to, on a desktop that will keep it
+# forever because KWin saved it.
+if [ -f "$PENDING" ]; then
+    while IFS='	' read -r p_out p_scale; do
+        [ -n "$p_out" ] || continue
+        case "$p_scale" in ''|*[!0-9.]*) continue ;; esac
+        if kscreen-doctor "output.$p_out.scale.$p_scale" >/dev/null 2>&1; then
+            note "restored $p_out to $p_scale after an interrupted trial"
+        fi
+    done < "$PENDING"
+    rm -f "$PENDING"
+    kdialog --title "Dagric Display" --passivepopup \
+        "The text size was put back — the last change was never confirmed." 8 \
+        >/dev/null 2>&1 || true
+fi
+
+# --- 2. correct the automatic choice, once per screen ------------------------
+# Keyed on the screen AND its resolution, so a monitor plugged in later gets
+# looked at, and a size the owner chose by hand is never overridden on a screen
+# we have already handled.
+[ -f "$SEEN" ] || : > "$SEEN"
+
+printf '%s\n' "$OUTS" | while IFS='	' read -r name pw ph cur_s100 cur_text; do
+    [ -n "$name" ] || continue
+    key="$name	${pw}x${ph}"
+    if grep -qxF "$key" "$SEEN" 2>/dev/null; then continue; fi
+
+    # Recorded before any decision, including the decision to do nothing:
+    # a screen we looked at and deliberately left alone must not be looked at
+    # again next login and left alone again, forever.
+    printf '%s\n' "$key" >> "$SEEN"
+
+    mm=$(dg_edid_mm "$name" 2>/dev/null) || mm=
+    set -- $mm
+    if [ "$#" -ne 2 ] || ! dg_mm_sane "$1" "$2"; then
+        note "$name: no usable physical size from EDID — left at ${cur_text}"
+        continue
+    fi
+    mmw=$1; mmh=$2
+
+    internal=0
+    dg_is_internal "$name" && internal=1
+    ours=$(dg_auto_scale100 "$pw" "$ph" "$mmw" "$mmh" "$internal")
+
+    # Do our number and KWin's describe the same screen? One 0.05 step apart is
+    # rounding, not disagreement — KWin picks in 0.05 steps and a millimetre of
+    # difference in how the panel was measured can move the answer by one of
+    # them. Anything further apart means either we misread the screen or this is
+    # not KWin's automatic choice at all: the owner set it, or Dagric's own
+    # setup wizard did. Both are answers we have no business overruling.
+    gap=$(( ours - cur_s100 )); [ "$gap" -lt 0 ] && gap=$(( -gap ))
+    if [ "$gap" -gt 5 ]; then
+        note "$name: KWin says $cur_s100, we compute $ours from ${mmw}x${mmh}mm — left alone"
+        continue
+    fi
+
+    # Correct the number KWin actually chose, not our own reconstruction of it.
+    want=$(dg_snap100 "$cur_s100")
+    if [ "$want" = "$cur_s100" ]; then
+        note "$name: ${pw}x${ph} on ${mmw}x${mmh}mm — ${cur_text} is already right"
+        continue
+    fi
+
+    if dg_apply_scale "$name" "$want"; then
+        note "$name: ${pw}x${ph} on ${mmw}x${mmh}mm — $cur_s100% corrected to $want%"
+    else
+        note "$name: could not set $want% — left at ${cur_text}"
+    fi
+done
+
+exit 0

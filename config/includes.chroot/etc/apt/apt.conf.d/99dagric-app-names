@@ -1,0 +1,21 @@
+// Dagric OS — keep the friendly app names true after every package operation.
+//
+// The renamed launcher entries live in /usr/local/share/applications, which
+// wins over /usr/share/applications by XDG precedence and which dpkg never
+// touches — so the rename itself already survives upgrades. What does NOT
+// survive on its own is the REST of each copied file: shadowing a .desktop
+// whole-file also freezes its Exec=, MimeType= and Desktop Actions at the
+// moment it was written, so a future dolphin/okular upgrade that adds a MIME
+// type or changes a command line would be masked by our stale copy.
+//
+// Re-deriving the overrides after each dpkg run fixes that: only the naming
+// keys stay ours, everything else tracks whatever upstream now ships.
+//
+// Post-Invoke-Success (not Post-Invoke) so it runs only after dpkg actually
+// succeeded, and the whole command is swallowed with `|| true`. An apt hook
+// that can fail is an apt that can scare a non-technical owner with a red
+// error over a cosmetic rename — this must never be the reason an update
+// looks broken.
+DPkg::Post-Invoke-Success {
+    "if [ -x /usr/bin/dagric-app-names ]; then /usr/bin/dagric-app-names >/dev/null 2>&1 || true; fi";
+};

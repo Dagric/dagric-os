@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>This manual &mdash; Dagric OS Manual</title>
+<link rel="stylesheet" href="manual.css">
+<script src="manual.js"></script>
+</head>
+<body>
+<div class="shell">
+  <aside class="side">
+    <div class="sidebox">
+      <a class="brand" href="index.html">
+        <div class="mark">D</div>
+        <div class="brand-name">Dagric OS<small>Manual</small></div>
+      </a>
+      <nav class="toc">
+        <a class="back" href="index.html">&larr; All applications</a>
+        <div class="navgroup">Dagric&#x27;s own tools</div>
+        <a href="tool-dagric-hub.html">Dagric Hub</a>
+        <a href="tool-dagric-setup.html">Finish Setup</a>
+        <a href="tool-dagric-firstrun.html">Set Up Dagric</a>
+        <a href="tool-dagric-migrate.html">Migration Assistant</a>
+        <a href="tool-dagric-appearance.html">Dagric Appearance</a>
+        <a href="tool-dagric-looks.html">Dagric Looks</a>
+        <a href="tool-dagric-style.html">Dagric Styles</a>
+        <a href="tool-dagric-display.html">Dagric Display</a>
+        <a href="tool-dagric-app-names.html">Why the apps have plain names</a>
+        <a href="tool-dagric-get-variety.html">Rotating wallpapers (Variety)</a>
+        <a href="tool-dagric-drivers.html">NVIDIA driver helper</a>
+        <a href="tool-dagric-security-checkup.html">Security Checkup</a>
+        <a href="tool-dagric-usb-protect.html">USB Protection</a>
+        <a href="tool-dagric-vm.html">Windows in a window (VM setup)</a>
+        <a href="tool-dagric-gaming.html">Proton-GE helper</a>
+        <a href="tool-dagric-ai.html">Local AI (Ollama)</a>
+        <a href="tool-dagric-manual.html" class="active">This manual</a>
+        <a href="tool-dagric-background.html">Helpers that run by themselves</a>
+        <a href="tool-dagric-commands.html">Every dagric command</a>
+      </nav>
+    </div>
+  </aside>
+
+  <main class="content">
+
+    <header class="hero">
+      <div class="eyebrow">Dagric&#x27;s own tools</div>
+      <h1>This manual</h1>
+      <p class="sub">How the manual works, how to search it, and how to reach a page from the terminal.</p>
+    </header>
+
+    <div class="swap"><span>On Windows this was</span><strong>Get Help, and searching the web for an answer</strong></div>
+
+    <section>
+      <h2>What it is</h2>
+      <p>What you are reading. <code>dagric-manual</code> opens it in your browser,
+      from files stored in <code>/usr/share/dagric/manual/</code> on this computer.
+      There is no internet connection involved and no page is ever fetched from
+      anywhere &mdash; which matters, because the most likely moment to need a manual
+      is before the wifi is working.</p>
+      <p>It is separate from the <strong>Welcome guide</strong> (Dagric Hub &rarr;
+      <em>Welcome guide</em>), which is a short read for your first week. This is the
+      reference: one page per application, and one page per Dagric tool.</p>
+    </section>
+
+    <section>
+      <h2>Five things you will actually do</h2>
+      <ol class="tasks">
+        <li><span class="t">Search it</span><p>The box at the top of the front page filters as you type, and it
+         searches the Windows names too &mdash; type <em>Notepad</em> and you get Kate,
+         type <em>Task Manager</em> and you get System Monitor. Press <kbd>/</kbd>
+         anywhere on that page to jump into the box, and <kbd>Esc</kbd> to clear
+         it.</p></li>
+        <li><span class="t">Jump straight to a page from a terminal</span><p><code>dagric-manual dolphin</code> opens the Dolphin page;
+         <code>dagric-manual migrate</code> opens the Migration Assistant. Partial
+         names work.</p></li>
+        <li><span class="t">List every page</span><p><code>dagric-manual --list</code> prints every topic name, which is
+         also the fastest way to find out whether something is covered.</p></li>
+        <li><span class="t">Hide what you do not have</span><p>On the front page there is a tick box: <em>Hide the things only
+         Dagric&nbsp;OS Pro has</em>. Tick it and the Pro-only entries disappear from
+         every list.</p></li>
+        <li><span class="t">Bookmark it</span><p>It is an ordinary web page. Bookmark the front page in Firefox, or drag
+         a page's address onto the desktop. The address begins
+         <code>file:///usr/share/dagric/manual/</code>.</p></li>
+      </ol>
+    </section>
+
+    <section>
+      <h2>One thing that will surprise you</h2>
+      <p><strong>The manual ships complete on both editions, Pro pages
+      included.</strong> That is a deliberate choice. Hiding the Pro pages on the free
+      edition would leave you believing Dagric cannot edit video or run virtual
+      machines, which is false; leaving them unmarked would send you hunting through
+      the launcher for software that is not installed, which is worse. So every page is
+      here, Pro pages carry a <span class="pill pro">PRO</span> badge everywhere they
+      appear, and on the free edition each one opens with a plain note saying it is not
+      installed on this computer.</p>
+      <p>The edition is passed to the manual by the <code>dagric-manual</code> command,
+      which reads it from the system. If you open the pages directly from the file
+      manager instead, the manual does not know which edition you are on and says
+      nothing either way &mdash; guessing wrong would be worse than staying quiet.</p>
+    </section>
+
+    <section>
+      <h2>Where to find it</h2>
+      <p>Launcher &rarr; <em>Dagric Manual</em>, Dagric Hub &rarr; <em>App
+      manual</em>, or <code>dagric-manual</code>. The files live in
+      <code>/usr/share/dagric/manual/</code>.</p>
+    </section>
+
+    <section>
+      <h2>See also</h2>
+      <div class="related"><a href="tool-dagric-hub.html">Dagric Hub</a><a href="tool-dagric-commands.html">Every dagric command</a><a href="app-firefox.html">Firefox</a></div>
+    </section>
+
+    <footer class="colophon">Dagric OS Manual &middot; stored on this computer, no internet needed &middot; <a href="index.html">every application</a></footer>
+
+  </main>
+</div>
+</body>
+</html>

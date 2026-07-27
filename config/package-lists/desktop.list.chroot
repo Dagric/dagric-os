@@ -7,6 +7,18 @@
 # Core Plasma shell
 plasma-desktop
 plasma-workspace
+# The X11 session, and it is a repair, not a preference. plasma-workspace ships
+# /usr/share/xsessions/plasmax11.desktop unconditionally, so SDDM has always
+# offered a "Plasma (X11)" entry — but kwin-x11 is only a Recommends alternative
+# and this build passes --apt-recommends false, so /usr/bin/kwin_x11 was never
+# on the image. Picking that entry gave you a desktop with no window manager:
+# no title bars, no way to move or close anything. The owner most likely to
+# pick it is the one whose Wayland session is already misbehaving on an older
+# NVIDIA card, which is the worst possible moment to hand them a broken screen.
+# 1.7 MB buys a working fallback. (0520-display-defaults removes the session
+# entry when this package is absent, so dropping this line is safe too — it
+# just takes the rescue option away with it.)
+kwin-x11
 plasma-nm
 plasma-pa
 powerdevil

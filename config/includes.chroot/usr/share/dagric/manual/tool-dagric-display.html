@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dagric Display &mdash; Dagric OS Manual</title>
+<link rel="stylesheet" href="manual.css">
+<script src="manual.js"></script>
+</head>
+<body>
+<div class="shell">
+  <aside class="side">
+    <div class="sidebox">
+      <a class="brand" href="index.html">
+        <div class="mark">D</div>
+        <div class="brand-name">Dagric OS<small>Manual</small></div>
+      </a>
+      <nav class="toc">
+        <a class="back" href="index.html">&larr; All applications</a>
+        <div class="navgroup">Dagric&#x27;s own tools</div>
+        <a href="tool-dagric-hub.html">Dagric Hub</a>
+        <a href="tool-dagric-setup.html">Finish Setup</a>
+        <a href="tool-dagric-firstrun.html">Set Up Dagric</a>
+        <a href="tool-dagric-migrate.html">Migration Assistant</a>
+        <a href="tool-dagric-appearance.html">Dagric Appearance</a>
+        <a href="tool-dagric-looks.html">Dagric Looks</a>
+        <a href="tool-dagric-style.html">Dagric Styles</a>
+        <a href="tool-dagric-display.html" class="active">Dagric Display</a>
+        <a href="tool-dagric-app-names.html">Why the apps have plain names</a>
+        <a href="tool-dagric-get-variety.html">Rotating wallpapers (Variety)</a>
+        <a href="tool-dagric-drivers.html">NVIDIA driver helper</a>
+        <a href="tool-dagric-security-checkup.html">Security Checkup</a>
+        <a href="tool-dagric-usb-protect.html">USB Protection</a>
+        <a href="tool-dagric-vm.html">Windows in a window (VM setup)</a>
+        <a href="tool-dagric-gaming.html">Proton-GE helper</a>
+        <a href="tool-dagric-ai.html">Local AI (Ollama)</a>
+        <a href="tool-dagric-manual.html">This manual</a>
+        <a href="tool-dagric-background.html">Helpers that run by themselves</a>
+        <a href="tool-dagric-commands.html">Every dagric command</a>
+      </nav>
+    </div>
+  </aside>
+
+  <main class="content">
+
+    <header class="hero">
+      <div class="eyebrow">Dagric&#x27;s own tools</div>
+      <h1>Dagric Display</h1>
+      <p class="sub">Make the text bigger and warm the screen up at night. Nothing else, on purpose.</p>
+    </header>
+
+    <div class="swap"><span>On Windows this was</span><strong>Display settings: Scale and layout, and Night light</strong></div>
+
+    <section>
+      <h2>What it is</h2>
+      <p><strong>Dagric Display</strong> asks two plain questions &mdash; how big
+      should the text be, and should the screen go warmer in the evening &mdash; and
+      offers a third row that opens the full System Settings display page for
+      everything else.</p>
+      <p>That page is a good one and a frightening one: resolution, refresh rate,
+      mirroring, variable refresh, HDR, rotation and a scale slider, every one of them
+      able to blank the picture. Somebody who left Windows because it stopped getting
+      updates wants bigger text, and should not have to walk past six ways to lose the
+      display to get it.</p>
+    </section>
+
+    <section>
+      <h2>Five things you will actually do</h2>
+      <ol class="tasks">
+        <li><span class="t">Make everything bigger</span><p>Pick <em>Text and icon size</em> and choose a size. The sizes are
+         described in words &mdash; &ldquo;Bigger &mdash; what Windows usually picks
+         for a laptop&rdquo; &mdash; with the percentage beside them for anyone who
+         thinks in percentages.</p></li>
+        <li><span class="t">Change your mind, safely</span><p>A new size is a <strong>trial</strong>. The old one comes back by
+         itself after twenty seconds unless you press Keep. This matters more than it
+         sounds: a text size that is too big can push the button that fixes it off the
+         bottom of the screen, and the setting survives a reboot &mdash; so turning
+         the machine off and on again is not a way out. The countdown is the way
+         out.</p></li>
+        <li><span class="t">Warm the screen up at night</span><p>Pick <em>Night colour</em>. It offers off, on from eight in the evening
+         until seven in the morning, or on all the time. Windows calls this Night
+         light and people go looking for it by that name, so it is here under a name
+         they will find.</p></li>
+        <li><span class="t">Choose which screen</span><p>With more than one display connected it asks which one first, naming
+         them in a way you can recognise rather than by connector code.</p></li>
+        <li><span class="t">Get to the full settings</span><p>The last row opens System Settings &rarr; <em>Display &amp;
+         Monitor</em> for resolution, arrangement, refresh rate and the rest. The
+         simple tool is a front door, not a wall.</p></li>
+      </ol>
+    </section>
+
+    <section>
+      <h2>One thing that will surprise you</h2>
+      <p><strong>Sizes your screen cannot carry are not offered at all.</strong> A
+      1366&times;768 laptop is never shown 150%, because at that scale the desktop
+      would have fewer usable pixels than many dialogue boxes need &mdash; including
+      the one you would use to undo it. Rather than let you choose it and then
+      discover the problem, the option is simply not there.</p>
+    </section>
+
+    <section>
+      <h2>Where to find it</h2>
+      <p>Launcher &rarr; <em>Text Size</em>, Dagric Hub &rarr; <em>Text size and
+      night light</em>, or <code>dagric-display</code>. The full page is System
+      Settings &rarr; <em>Display &amp; Monitor</em>.</p>
+    </section>
+
+    <section>
+      <h2>See also</h2>
+      <div class="related"><a href="app-system-settings.html">System Settings</a><a href="app-orca.html">Orca</a><a href="tool-dagric-firstrun.html">Set Up Dagric</a><a href="tool-dagric-style.html">Dagric Styles</a></div>
+    </section>
+
+    <footer class="colophon">Dagric OS Manual &middot; stored on this computer, no internet needed &middot; <a href="index.html">every application</a></footer>
+
+  </main>
+</div>
+</body>
+</html>

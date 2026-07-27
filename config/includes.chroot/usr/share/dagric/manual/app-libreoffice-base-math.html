@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LibreOffice Base and Math &mdash; Dagric OS Manual</title>
+<link rel="stylesheet" href="manual.css">
+<script src="manual.js"></script>
+</head>
+<body>
+<div class="shell">
+  <aside class="side">
+    <div class="sidebox">
+      <a class="brand" href="index.html">
+        <div class="mark">D</div>
+        <div class="brand-name">Dagric OS<small>Manual</small></div>
+      </a>
+      <nav class="toc">
+        <a class="back" href="index.html">&larr; All applications</a>
+        <div class="navgroup">Writing and documents</div>
+        <a href="app-libreoffice-writer.html">LibreOffice Writer</a>
+        <a href="app-libreoffice-calc.html">LibreOffice Calc</a>
+        <a href="app-libreoffice-impress.html">LibreOffice Impress</a>
+        <a href="app-libreoffice-draw.html">LibreOffice Draw</a>
+        <a href="app-libreoffice-base-math.html" class="active">LibreOffice Base and Math</a>
+        <a href="app-onlyoffice.html">ONLYOFFICE</a>
+        <a href="app-kate.html">Kate</a>
+        <a href="app-okular.html">Okular</a>
+        <a href="app-joplin.html">Joplin</a>
+        <a href="app-printing.html">Printers and scanners</a>
+      </nav>
+    </div>
+  </aside>
+
+  <main class="content">
+
+    <header class="hero">
+      <div class="eyebrow">Writing and documents</div>
+      <h1>LibreOffice Base and Math<span class="pill pro">PRO</span></h1>
+      <p class="sub">A desktop database, and a proper equation editor.</p>
+    </header>
+
+    <div class="swap"><span>On Windows this was</span><strong>Microsoft Access and the Equation Editor</strong></div>
+
+    <div class="notice pro-notice"><div><strong>This one is part of Dagric&nbsp;OS Pro.</strong> You are reading the manual on the free edition, so it is not installed on this computer. The page is here on purpose &mdash; you should be able to see exactly what Pro adds before you decide whether you want it.</div></div>
+    <section>
+      <h2>What it is</h2>
+      <p><strong>Base</strong> is the database part of the suite: tables, forms,
+      queries and printed reports, either in its own file or connected to a real
+      MySQL, PostgreSQL or SQLite database. It is what you reach for when a
+      spreadsheet has stopped being the right shape &mdash; a club membership list, a
+      collection catalogue, an invoice book.</p>
+      <p><strong>Math</strong> is the equation editor. It is not a calculator: you
+      type a formula in a compact notation and it renders the typeset mathematics for
+      a document.</p>
+    </section>
+
+    <section>
+      <h2>Five things you will actually do</h2>
+      <ol class="tasks">
+        <li><span class="t">Start a database</span><p>Open Base and let the wizard create a new embedded database. Design a
+         table, define its fields, then use the Form Wizard to build a data-entry
+         window over it. That is the whole Access workflow.</p></li>
+        <li><span class="t">Connect to an existing database</span><p>In the same wizard, choose <em>Connect to an existing database</em> and
+         pick the type. This is the useful mode: Base becomes a friendly front end
+         over a database that lives elsewhere.</p></li>
+        <li><span class="t">Ask a question of your data</span><p><em>Queries</em> &rarr; <em>Use Wizard to Create Query</em> for
+         point-and-click filtering and sorting, or <em>Create Query in SQL View</em>
+         if you already know SQL.</p></li>
+        <li><span class="t">Print a report</span><p><em>Reports</em> &rarr; <em>Use Wizard</em>. It builds a printable,
+         grouped, totalled document from a table or query.</p></li>
+        <li><span class="t">Put an equation in a document</span><p>In Writer, <em>Insert</em> &rarr; <em>Object</em> &rarr; <em>Formula
+         Object</em>. Type something like <code>sum from i=1 to n x_i^2</code> and it
+         renders as you type. The equation stays editable in the document
+         afterwards.</p></li>
+      </ol>
+    </section>
+
+    <section>
+      <h2>One thing that will surprise you</h2>
+      <p><strong>An Access <code>.accdb</code> file will not open here.</strong>
+      Access's file format is proprietary and Base cannot read it. If you have a real
+      Access database to bring across, export each table to CSV from Access while you
+      still can, and import those into Base &mdash; or keep Access running in
+      <a href="app-virt-manager.html">a Windows virtual machine</a>. Better to know
+      that now than the week after you wipe the old machine.</p>
+    </section>
+
+    <section>
+      <h2>Where to find it</h2>
+      <p>Launcher &rarr; <em>LibreOffice Base</em> and <em>LibreOffice Math</em>.
+      Math is normally reached from inside Writer rather than opened on its own.</p>
+    </section>
+
+    <section>
+      <h2>See also</h2>
+      <div class="related"><a href="app-libreoffice-calc.html">LibreOffice Calc</a><a href="app-libreoffice-writer.html">LibreOffice Writer</a><a href="app-virt-manager.html">Virtual Machine Manager</a></div>
+    </section>
+
+    <footer class="colophon">Dagric OS Manual &middot; stored on this computer, no internet needed &middot; <a href="index.html">every application</a></footer>
+
+  </main>
+</div>
+</body>
+</html>

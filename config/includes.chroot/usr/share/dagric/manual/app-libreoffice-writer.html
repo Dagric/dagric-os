@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LibreOffice Writer &mdash; Dagric OS Manual</title>
+<link rel="stylesheet" href="manual.css">
+<script src="manual.js"></script>
+</head>
+<body>
+<div class="shell">
+  <aside class="side">
+    <div class="sidebox">
+      <a class="brand" href="index.html">
+        <div class="mark">D</div>
+        <div class="brand-name">Dagric OS<small>Manual</small></div>
+      </a>
+      <nav class="toc">
+        <a class="back" href="index.html">&larr; All applications</a>
+        <div class="navgroup">Writing and documents</div>
+        <a href="app-libreoffice-writer.html" class="active">LibreOffice Writer</a>
+        <a href="app-libreoffice-calc.html">LibreOffice Calc</a>
+        <a href="app-libreoffice-impress.html">LibreOffice Impress</a>
+        <a href="app-libreoffice-draw.html">LibreOffice Draw</a>
+        <a href="app-libreoffice-base-math.html">LibreOffice Base and Math</a>
+        <a href="app-onlyoffice.html">ONLYOFFICE</a>
+        <a href="app-kate.html">Kate</a>
+        <a href="app-okular.html">Okular</a>
+        <a href="app-joplin.html">Joplin</a>
+        <a href="app-printing.html">Printers and scanners</a>
+      </nav>
+    </div>
+  </aside>
+
+  <main class="content">
+
+    <header class="hero">
+      <div class="eyebrow">Writing and documents</div>
+      <h1>LibreOffice Writer</h1>
+      <p class="sub">Letters, reports, CVs, anything with paragraphs in it.</p>
+    </header>
+
+    <div class="swap"><span>On Windows this was</span><strong>Microsoft Word</strong></div>
+
+    <section>
+      <h2>What it is</h2>
+      <p><strong>Writer</strong> is the word processor. It opens and saves
+      <code>.docx</code>, so the files you bring from Windows open, and the files you
+      send to a colleague on Word arrive intact.</p>
+      <p>Dagric also installs the Carlito and Caladea fonts, which are metrically
+      identical to Calibri and Cambria. That sounds like a footnote and is not:
+      without them, every Word document you own would reflow, repaginate and break
+      its layout the moment you opened it. With them, a document looks the same as
+      it did on Windows.</p>
+    </section>
+
+    <section>
+      <h2>Five things you will actually do</h2>
+      <ol class="tasks">
+        <li><span class="t">Open the Word documents you brought over</span><p>Double-click them in Dolphin. <code>.doc</code> and <code>.docx</code>
+         both open. If you used the
+         <a href="tool-dagric-migrate.html">Migration Assistant</a>, they are already
+         in your Documents folder.</p></li>
+        <li><span class="t">Send something back to a Word user</span><p><em>File</em> &rarr; <em>Save As</em> and choose <em>Word
+         2007-365 (.docx)</em>. Writer warns you that some formatting may not
+         survive; for ordinary documents it does. To make .docx the permanent
+         default, see the surprise below.</p></li>
+        <li><span class="t">Make a PDF</span><p>The PDF button on the toolbar, or <em>File</em> &rarr; <em>Export as
+         PDF</em> for the version with options &mdash; page range, image quality,
+         and a password on the finished PDF.</p></li>
+        <li><span class="t">Use styles instead of fighting formatting</span><p><kbd>F11</kbd> opens the Styles sidebar. Apply <em>Heading 1</em> to
+         your headings rather than manually bolding them, and the table of contents
+         (<em>Insert</em> &rarr; <em>Table of Contents and Index</em>) builds itself.
+         This is the single habit that makes long documents bearable.</p></li>
+        <li><span class="t">Track changes for someone else to review</span><p><em>Edit</em> &rarr; <em>Track Changes</em> &rarr; <em>Record</em>.
+         The marks are compatible with Word's, so a reviewer on Windows sees your
+         edits and you see theirs.</p></li>
+      </ol>
+    </section>
+
+    <section>
+      <h2>One thing that will surprise you</h2>
+      <p><strong>It saves as .odt unless you tell it otherwise, every single
+      time.</strong> ODF is the open standard and LibreOffice prefers it, so the
+      first time you press <kbd>Ctrl</kbd>+<kbd>S</kbd> on a new document you get a
+      <code>.odt</code> and a dialogue asking if you are sure.</p>
+      <p>If everyone you exchange documents with uses Word, change it once and stop
+      thinking about it: <em>Tools</em> &rarr; <em>Options</em> &rarr; <em>Load/Save</em>
+      &rarr; <em>General</em>, and set <em>Always save as</em> to <em>Word
+      2007-365</em>.</p>
+    </section>
+
+    <section>
+      <h2>Where to find it</h2>
+      <p>Launcher &rarr; <em>LibreOffice Writer</em>, or just <em>Word</em> &mdash;
+      the launcher search finds it under that name too. Double-clicking any
+      <code>.docx</code> opens it.</p>
+    </section>
+
+    <section>
+      <h2>See also</h2>
+      <div class="related"><a href="app-libreoffice-calc.html">LibreOffice Calc</a><a href="app-libreoffice-impress.html">LibreOffice Impress</a><a href="app-onlyoffice.html">ONLYOFFICE</a><a href="app-okular.html">Okular</a><a href="app-printing.html">Printers and scanners</a></div>
+    </section>
+
+    <footer class="colophon">Dagric OS Manual &middot; stored on this computer, no internet needed &middot; <a href="index.html">every application</a></footer>
+
+  </main>
+</div>
+</body>
+</html>

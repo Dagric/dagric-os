@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>KWallet &mdash; Dagric OS Manual</title>
+<link rel="stylesheet" href="manual.css">
+<script src="manual.js"></script>
+</head>
+<body>
+<div class="shell">
+  <aside class="side">
+    <div class="sidebox">
+      <a class="brand" href="index.html">
+        <div class="mark">D</div>
+        <div class="brand-name">Dagric OS<small>Manual</small></div>
+      </a>
+      <nav class="toc">
+        <a class="back" href="index.html">&larr; All applications</a>
+        <div class="navgroup">Files and getting around</div>
+        <a href="app-dolphin.html">Dolphin</a>
+        <a href="app-launcher.html">The launcher and search</a>
+        <a href="app-desktop.html">The desktop, panels and windows</a>
+        <a href="app-system-settings.html">System Settings</a>
+        <a href="app-discover.html">Discover</a>
+        <a href="app-konsole.html">Konsole</a>
+        <a href="app-ark.html">Ark</a>
+        <a href="app-kcalc.html">KCalc</a>
+        <a href="app-system-monitor.html">System Monitor</a>
+        <a href="app-gdebi.html">Installing downloaded software</a>
+        <a href="app-kwallet.html" class="active">KWallet</a>
+        <a href="app-filelight.html">Filelight</a>
+      </nav>
+    </div>
+  </aside>
+
+  <main class="content">
+
+    <header class="hero">
+      <div class="eyebrow">Files and getting around</div>
+      <h1>KWallet</h1>
+      <p class="sub">The keyring that remembers your Wi-Fi keys and app passwords so you do not have to.</p>
+    </header>
+
+    <div class="swap"><span>On Windows this was</span><strong>Windows Credential Manager</strong></div>
+
+    <section>
+      <h2>What it is</h2>
+      <p><strong>KWallet</strong> is the desktop's password store. When you tick
+      &ldquo;remember this&rdquo; for a Wi-Fi network, a network share or an app
+      login, that secret goes into an encrypted wallet rather than a plain file.
+      Windows has exactly the same thing in Credential Manager, equally
+      invisibly.</p>
+      <p>By default the wallet is unlocked by your login password, so you never see
+      it. <strong>KWallet Manager</strong> is the app that lets you look inside,
+      change the password, or delete a saved credential that has gone stale.</p>
+    </section>
+
+    <section>
+      <h2>Five things you will actually do</h2>
+      <ol class="tasks">
+        <li><span class="t">Forget a saved Wi-Fi password</span><p>Usually easier from the network applet: click the Wi-Fi icon,
+         right-click the network, <em>Delete Connection</em>. KWallet Manager is the
+         place to go when a stale credential survives that.</p></li>
+        <li><span class="t">See what is stored</span><p>Open KWallet Manager, unlock the wallet, and browse the folders. Each
+         entry shows which application saved it.</p></li>
+        <li><span class="t">Change the wallet password</span><p><em>Settings</em> &rarr; <em>Change Password</em>. Beware: if you set a
+         password different from your login password, you will be prompted for it
+         every session. That is the trade-off for a wallet that stays locked even
+         when you are logged in.</p></li>
+        <li><span class="t">Stop an app nagging for wallet access</span><p>System Settings &rarr; <em>KDE Wallet</em> lists which applications may
+         open it. Revoke one there and it will ask again next time.</p></li>
+        <li><span class="t">Keep your real passwords somewhere better</span><p>KWallet is for what the desktop needs to remember. For your own
+         logins &mdash; bank, email, everything &mdash; use a proper password manager:
+         Firefox's built-in one, or <a href="app-keepassxc.html">KeePassXC</a> on
+         Pro.</p></li>
+      </ol>
+    </section>
+
+    <section>
+      <h2>One thing that will surprise you</h2>
+      <p><strong>If you change your login password, the wallet keeps the old
+      one.</strong> The two are linked at setup but not afterwards, so a password
+      change can leave you with a prompt for a password you have half-forgotten.
+      Fix it in KWallet Manager under <em>Change Password</em>, and do it while the
+      old one is still fresh.</p>
+    </section>
+
+    <section>
+      <h2>Where to find it</h2>
+      <p>Launcher &rarr; <strong>Saved Passwords</strong> (also <em>KWallet</em>).
+      Settings for it live in System Settings &rarr; <em>KDE Wallet</em>.</p>
+    </section>
+
+    <section>
+      <h2>See also</h2>
+      <div class="related"><a href="app-keepassxc.html">KeePassXC</a><a href="app-firefox.html">Firefox</a><a href="app-network.html">Wi-Fi, wired networks and VPN</a><a href="app-accounts.html">Accounts, passwords and disk encryption</a></div>
+    </section>
+
+    <footer class="colophon">Dagric OS Manual &middot; stored on this computer, no internet needed &middot; <a href="index.html">every application</a></footer>
+
+  </main>
+</div>
+</body>
+</html>

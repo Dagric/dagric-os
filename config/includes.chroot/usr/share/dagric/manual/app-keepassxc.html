@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>KeePassXC &mdash; Dagric OS Manual</title>
+<link rel="stylesheet" href="manual.css">
+<script src="manual.js"></script>
+</head>
+<body>
+<div class="shell">
+  <aside class="side">
+    <div class="sidebox">
+      <a class="brand" href="index.html">
+        <div class="mark">D</div>
+        <div class="brand-name">Dagric OS<small>Manual</small></div>
+      </a>
+      <nav class="toc">
+        <a class="back" href="index.html">&larr; All applications</a>
+        <div class="navgroup">System and safety</div>
+        <a href="app-updates.html">Updates</a>
+        <a href="app-snapshots.html">Snapshot recovery</a>
+        <a href="app-timeshift.html">Timeshift</a>
+        <a href="app-kup.html">Kup</a>
+        <a href="app-vorta.html">Vorta and Borg</a>
+        <a href="app-firewall.html">The firewall</a>
+        <a href="app-opensnitch.html">OpenSnitch</a>
+        <a href="app-drive-health.html">Drive health</a>
+        <a href="app-keepassxc.html" class="active">KeePassXC</a>
+        <a href="app-cryptomator.html">Cryptomator</a>
+        <a href="app-bleachbit.html">BleachBit</a>
+        <a href="app-flatseal.html">Flatseal</a>
+        <a href="app-apparmor.html">AppArmor and the security baseline</a>
+        <a href="app-accounts.html">Accounts, passwords and disk encryption</a>
+        <a href="app-orca.html">Orca</a>
+      </nav>
+    </div>
+  </aside>
+
+  <main class="content">
+
+    <header class="hero">
+      <div class="eyebrow">System and safety</div>
+      <h1>KeePassXC<span class="pill pro">PRO</span></h1>
+      <p class="sub">A password vault that is a file on your disk, not an account with a company.</p>
+    </header>
+
+    <div class="swap"><span>On Windows this was</span><strong>LastPass, 1Password, Dashlane</strong></div>
+
+    <div class="notice pro-notice"><div><strong>This one is part of Dagric&nbsp;OS Pro.</strong> You are reading the manual on the free edition, so it is not installed on this computer. The page is here on purpose &mdash; you should be able to see exactly what Pro adds before you decide whether you want it.</div></div>
+    <section>
+      <h2>What it is</h2>
+      <p><strong>KeePassXC</strong> keeps your passwords in an encrypted database
+      file that you own. There is no subscription, no server and no company that can
+      be breached, sold or shut down. The file is yours to back up, sync or keep on a
+      USB stick.</p>
+      <p>It also stores two-factor codes, generates strong passwords, fills them into
+      Firefox through a browser extension, and can type them into desktop
+      applications.</p>
+    </section>
+
+    <section>
+      <h2>Five things you will actually do</h2>
+      <ol class="tasks">
+        <li><span class="t">Create your database</span><p><em>Database</em> &rarr; <em>New</em>. Choose a long passphrase &mdash;
+         four or five unrelated words beat a short jumble of symbols &mdash; and save
+         the <code>.kdbx</code> file somewhere your backups reach. This one passphrase
+         is the only one you have to remember.</p></li>
+        <li><span class="t">Import the passwords from your old machine</span><p>KeePassXC imports CSV. If you used the
+         <a href="tool-dagric-migrate.html">Migration Assistant</a> to recover Firefox
+         logins from Windows it produced <code>~/Windows-passwords.csv</code>; import
+         that, check it landed, then <strong>delete the CSV</strong> &mdash; it is
+         plain text. LastPass, Bitwarden and 1Password all export CSV too.</p></li>
+        <li><span class="t">Fill passwords into Firefox</span><p>Install the <em>KeePassXC-Browser</em> extension from Firefox's add-ons
+         site, then in KeePassXC enable browser integration under
+         <em>Settings</em>. The two connect once and you approve the link.</p></li>
+        <li><span class="t">Use it for two-factor codes</span><p>Right-click an entry &rarr; <em>TOTP</em> &rarr; <em>Set up TOTP</em>
+         and paste the secret the website gives you. Bear in mind that keeping the
+         password and its second factor in the same vault means the vault is now the
+         single thing protecting the account.</p></li>
+        <li><span class="t">Type a password into an app that has no extension</span><p>Select the entry and press the auto-type shortcut; KeePassXC types the
+         username, a tab and the password into the window that had focus. Works with
+         anything.</p></li>
+      </ol>
+    </section>
+
+    <section>
+      <h2>One thing that will surprise you</h2>
+      <p><strong>Nothing syncs it for you, and that is the trade.</strong> There is
+      no cloud behind KeePassXC, so getting the database onto your phone is your job
+      &mdash; <a href="app-syncthing.html">Syncthing</a>, a cloud folder, or a copy on
+      a USB stick. In exchange, no breach at a password company can ever involve your
+      passwords, because no password company has them.</p>
+      <p>Keep a copy of the database file in your backups. If the file is gone and the
+      passphrase is in your head, you have nothing.</p>
+    </section>
+
+    <section>
+      <h2>Where to find it</h2>
+      <p>Launcher &rarr; <em>KeePassXC</em>.</p>
+    </section>
+
+    <section>
+      <h2>See also</h2>
+      <div class="related"><a href="app-kwallet.html">KWallet</a><a href="app-firefox.html">Firefox</a><a href="app-syncthing.html">Syncthing</a><a href="tool-dagric-migrate.html">Migration Assistant</a></div>
+    </section>
+
+    <footer class="colophon">Dagric OS Manual &middot; stored on this computer, no internet needed &middot; <a href="index.html">every application</a></footer>
+
+  </main>
+</div>
+</body>
+</html>

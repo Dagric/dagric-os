@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+Name=Windows in a Virtual Machine
+GenericName=Run another OS in a window (KVM)
+Comment=Set up virtual machines so you can run real Windows in a window, walled off from your files
+Exec=konsole -e sh -c '/usr/bin/dagric-vm ; echo ; printf "Press Enter to close..." ; read x'
+Icon=dagric-logo
+Terminal=false
+Categories=System;Emulator;
+Keywords=vm;virtual machine;virtualbox;vmware;hyper-v;windows;kvm;qemu;libvirt;virt-manager;emulator;guest;dual boot;
+X-Dagric-Edition=pro

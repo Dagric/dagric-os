@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Finish Setup &mdash; Dagric OS Manual</title>
+<link rel="stylesheet" href="manual.css">
+<script src="manual.js"></script>
+</head>
+<body>
+<div class="shell">
+  <aside class="side">
+    <div class="sidebox">
+      <a class="brand" href="index.html">
+        <div class="mark">D</div>
+        <div class="brand-name">Dagric OS<small>Manual</small></div>
+      </a>
+      <nav class="toc">
+        <a class="back" href="index.html">&larr; All applications</a>
+        <div class="navgroup">Dagric&#x27;s own tools</div>
+        <a href="tool-dagric-hub.html">Dagric Hub</a>
+        <a href="tool-dagric-setup.html" class="active">Finish Setup</a>
+        <a href="tool-dagric-firstrun.html">Set Up Dagric</a>
+        <a href="tool-dagric-migrate.html">Migration Assistant</a>
+        <a href="tool-dagric-appearance.html">Dagric Appearance</a>
+        <a href="tool-dagric-looks.html">Dagric Looks</a>
+        <a href="tool-dagric-style.html">Dagric Styles</a>
+        <a href="tool-dagric-display.html">Dagric Display</a>
+        <a href="tool-dagric-app-names.html">Why the apps have plain names</a>
+        <a href="tool-dagric-get-variety.html">Rotating wallpapers (Variety)</a>
+        <a href="tool-dagric-drivers.html">NVIDIA driver helper</a>
+        <a href="tool-dagric-security-checkup.html">Security Checkup</a>
+        <a href="tool-dagric-usb-protect.html">USB Protection</a>
+        <a href="tool-dagric-vm.html">Windows in a window (VM setup)</a>
+        <a href="tool-dagric-gaming.html">Proton-GE helper</a>
+        <a href="tool-dagric-ai.html">Local AI (Ollama)</a>
+        <a href="tool-dagric-manual.html">This manual</a>
+        <a href="tool-dagric-background.html">Helpers that run by themselves</a>
+        <a href="tool-dagric-commands.html">Every dagric command</a>
+      </nav>
+    </div>
+  </aside>
+
+  <main class="content">
+
+    <header class="hero">
+      <div class="eyebrow">Dagric&#x27;s own tools</div>
+      <h1>Finish Setup</h1>
+      <p class="sub">The short list of things that cannot honestly be switched on for you.</p>
+    </header>
+
+    <div class="swap"><span>On Windows this was</span><strong>the out-of-box experience, minus the advertising</strong></div>
+
+    <section>
+      <h2>What it is</h2>
+      <p><strong>Finish Setup</strong> is a checklist of three things, and it is
+      short on purpose. Codecs, VPN support, scanners, printer drivers, firmware
+      updates and the security baseline are all already installed and working, so they
+      are not here.</p>
+      <p>What remains are the items that need either your consent or your hardware:</p>
+      <ul class="plain">
+        <li><strong>NVIDIA graphics driver</strong> &mdash; proprietary, so it is
+        never installed without you asking. Off by default.</li>
+        <li><strong>HP printer and scanner support</strong> &mdash; HP's own driver
+        package, which some HP all-in-ones need for scanning and ink levels. Off by
+        default.</li>
+        <li><strong>Enable Flathub in Discover</strong> &mdash; adds tens of thousands
+        of applications to the software centre. On by default.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>Five things you will actually do</h2>
+      <ol class="tasks">
+        <li><span class="t">Run it on a new machine</span><p>Tick what applies, press OK. Each selected item opens its own step; the
+         NVIDIA and HP ones open a terminal and ask for your password, and Flathub is
+         instant.</p></li>
+        <li><span class="t">Run it again later</span><p>It is not a one-time wizard. Open it from the Hub any time &mdash; when
+         you buy a printer, when you add a graphics card, or when you decide you do
+         want Flathub after all.</p></li>
+        <li><span class="t">Skip everything</span><p>Untick all three and press OK, or just close the window. Nothing
+         happens. The machine is fully usable without any of them.</p></li>
+        <li><span class="t">Understand the NVIDIA option</span><p>It hands over to <a href="tool-dagric-drivers.html">the driver
+         helper</a>, which detects your card and handles Secure Boot properly. There
+         is one implementation of that logic, not two.</p></li>
+        <li><span class="t">Understand the Flathub option</span><p>It adds Flathub as a source for <a href="app-discover.html">Discover</a>.
+         It downloads no applications, and it does not change anything already
+         installed &mdash; it only widens the catalogue you can search.</p></li>
+      </ol>
+    </section>
+
+    <section>
+      <h2>One thing that will surprise you</h2>
+      <p><strong>There are only three items, and that is the feature.</strong> The
+      list is short because the work was done before the ISO was built. On a new
+      Windows laptop the equivalent screen is long, half of it is advertising, and the
+      items that matter are mixed in with the ones that make somebody money. Here
+      everything that could be finished has been, and what is left is genuinely your
+      decision.</p>
+    </section>
+
+    <section>
+      <h2>Where to find it</h2>
+      <p>Dagric Hub &rarr; <em>Finish setup</em>, launcher &rarr; <em>Finish
+      Setup</em>, or <code>dagric-setup</code>.</p>
+    </section>
+
+    <section>
+      <h2>See also</h2>
+      <div class="related"><a href="tool-dagric-hub.html">Dagric Hub</a><a href="tool-dagric-drivers.html">NVIDIA driver helper</a><a href="app-discover.html">Discover</a><a href="app-printing.html">Printers and scanners</a></div>
+    </section>
+
+    <footer class="colophon">Dagric OS Manual &middot; stored on this computer, no internet needed &middot; <a href="index.html">every application</a></footer>
+
+  </main>
+</div>
+</body>
+</html>

@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Timeshift &mdash; Dagric OS Manual</title>
+<link rel="stylesheet" href="manual.css">
+<script src="manual.js"></script>
+</head>
+<body>
+<div class="shell">
+  <aside class="side">
+    <div class="sidebox">
+      <a class="brand" href="index.html">
+        <div class="mark">D</div>
+        <div class="brand-name">Dagric OS<small>Manual</small></div>
+      </a>
+      <nav class="toc">
+        <a class="back" href="index.html">&larr; All applications</a>
+        <div class="navgroup">System and safety</div>
+        <a href="app-updates.html">Updates</a>
+        <a href="app-snapshots.html">Snapshot recovery</a>
+        <a href="app-timeshift.html" class="active">Timeshift</a>
+        <a href="app-kup.html">Kup</a>
+        <a href="app-vorta.html">Vorta and Borg</a>
+        <a href="app-firewall.html">The firewall</a>
+        <a href="app-opensnitch.html">OpenSnitch</a>
+        <a href="app-drive-health.html">Drive health</a>
+        <a href="app-keepassxc.html">KeePassXC</a>
+        <a href="app-cryptomator.html">Cryptomator</a>
+        <a href="app-bleachbit.html">BleachBit</a>
+        <a href="app-flatseal.html">Flatseal</a>
+        <a href="app-apparmor.html">AppArmor and the security baseline</a>
+        <a href="app-accounts.html">Accounts, passwords and disk encryption</a>
+        <a href="app-orca.html">Orca</a>
+      </nav>
+    </div>
+  </aside>
+
+  <main class="content">
+
+    <header class="hero">
+      <div class="eyebrow">System and safety</div>
+      <h1>Timeshift<span class="pill pro">PRO</span></h1>
+      <p class="sub">Scheduled restore points, with a window and a calendar.</p>
+    </header>
+
+    <div class="swap"><span>On Windows this was</span><strong>System Restore</strong></div>
+
+    <div class="notice pro-notice"><div><strong>This one is part of Dagric&nbsp;OS Pro.</strong> You are reading the manual on the free edition, so it is not installed on this computer. The page is here on purpose &mdash; you should be able to see exactly what Pro adds before you decide whether you want it.</div></div>
+    <section>
+      <h2>What it is</h2>
+      <p><strong>Timeshift</strong> takes system restore points on a schedule you
+      choose &mdash; hourly, daily, weekly, monthly &mdash; and lets you restore one
+      from a window rather than from the boot menu.</p>
+      <p>It sits on top of the <a href="app-snapshots.html">snapshot recovery</a>
+      every edition gets, rather than replacing it. The automatic before-and-after
+      snapshots around each update are still there; Timeshift adds a calendar, a
+      graphical restore, and an rsync mode that works on ext4 installs where btrfs
+      snapshots cannot.</p>
+    </section>
+
+    <section>
+      <h2>Five things you will actually do</h2>
+      <ol class="tasks">
+        <li><span class="t">Choose a snapshot type</span><p>The first-run wizard offers <em>RSYNC</em> or <em>BTRFS</em>. On a
+         standard Dagric install pick BTRFS &mdash; the snapshots are instant and
+         nearly free. Pick RSYNC if you installed onto ext4, or if you want the
+         restore points on a different disk.</p></li>
+        <li><span class="t">Set a schedule</span><p><em>Settings</em> &rarr; <em>Schedule</em>. Daily with five kept is a
+         sensible desktop setting. More than that mostly consumes disk.</p></li>
+        <li><span class="t">Include your home folder — or deliberately not</span><p><em>Settings</em> &rarr; <em>Users</em>. By default your documents are
+         excluded, so a restore rolls back the <em>system</em> and leaves your work
+         alone. That is usually what you want; including home turns Timeshift into a
+         crude backup and it is not a good one.</p></li>
+        <li><span class="t">Restore</span><p>Select a snapshot, press <em>Restore</em>, confirm the target. It walks
+         through the changes it is about to make before doing anything.</p></li>
+        <li><span class="t">Restore a machine that will not boot</span><p>Boot the Dagric live USB, install or run Timeshift there, and point it
+         at the snapshots on the internal disk. This is the rescue path when the boot
+         menu itself is broken.</p></li>
+      </ol>
+    </section>
+
+    <section>
+      <h2>One thing that will surprise you</h2>
+      <p><strong>It is not a backup, twice over.</strong> Restore points on the same
+      disk die with the disk, and by default your documents are not in them at all.
+      Timeshift protects the operating system. Protecting your files is
+      <a href="app-vorta.html">Vorta</a> or <a href="app-kup.html">Kup</a>, onto
+      something you can unplug.</p>
+    </section>
+
+    <section>
+      <h2>Where to find it</h2>
+      <p>Launcher &rarr; <strong>System Restore</strong> (also <em>Timeshift</em>).
+      It asks for your password because it works on the whole system.</p>
+    </section>
+
+    <section>
+      <h2>See also</h2>
+      <div class="related"><a href="app-snapshots.html">Snapshot recovery</a><a href="app-vorta.html">Vorta and Borg</a><a href="app-kup.html">Kup</a><a href="app-updates.html">Updates</a></div>
+    </section>
+
+    <footer class="colophon">Dagric OS Manual &middot; stored on this computer, no internet needed &middot; <a href="index.html">every application</a></footer>
+
+  </main>
+</div>
+</body>
+</html>

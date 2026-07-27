@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>HandBrake &mdash; Dagric OS Manual</title>
+<link rel="stylesheet" href="manual.css">
+<script src="manual.js"></script>
+</head>
+<body>
+<div class="shell">
+  <aside class="side">
+    <div class="sidebox">
+      <a class="brand" href="index.html">
+        <div class="mark">D</div>
+        <div class="brand-name">Dagric OS<small>Manual</small></div>
+      </a>
+      <nav class="toc">
+        <a class="back" href="index.html">&larr; All applications</a>
+        <div class="navgroup">Photos and video</div>
+        <a href="app-gwenview.html">Gwenview</a>
+        <a href="app-spectacle.html">Spectacle</a>
+        <a href="app-mpv.html">mpv</a>
+        <a href="app-gimp.html">GIMP</a>
+        <a href="app-krita.html">Krita</a>
+        <a href="app-inkscape.html">Inkscape</a>
+        <a href="app-darktable.html">darktable</a>
+        <a href="app-blender.html">Blender</a>
+        <a href="app-kdenlive.html">Kdenlive</a>
+        <a href="app-obs-studio.html">OBS Studio</a>
+        <a href="app-handbrake.html" class="active">HandBrake</a>
+        <a href="app-upscayl.html">Upscayl</a>
+        <a href="app-davinci-resolve.html">DaVinci Resolve</a>
+      </nav>
+    </div>
+  </aside>
+
+  <main class="content">
+
+    <header class="hero">
+      <div class="eyebrow">Photos and video</div>
+      <h1>HandBrake<span class="pill pro">PRO</span></h1>
+      <p class="sub">Convert video into something that will actually play on the other device.</p>
+    </header>
+
+    <div class="swap"><span>On Windows this was</span><strong>HandBrake on Windows, and every dubious online converter</strong></div>
+
+    <div class="notice pro-notice"><div><strong>This one is part of Dagric&nbsp;OS Pro.</strong> You are reading the manual on the free edition, so it is not installed on this computer. The page is here on purpose &mdash; you should be able to see exactly what Pro adds before you decide whether you want it.</div></div>
+    <section>
+      <h2>What it is</h2>
+      <p><strong>HandBrake</strong> converts video from one format to another and,
+      more usefully, makes big files smaller. Feed it a 12&nbsp;GB camcorder file and
+      get back a 900&nbsp;MB MP4 that plays on a phone, a TV or a web page.</p>
+    </section>
+
+    <section>
+      <h2>Five things you will actually do</h2>
+      <ol class="tasks">
+        <li><span class="t">Shrink a video</span><p>Open the file, choose the preset <em>Fast 1080p30</em> from the preset
+         list, pick where to save, press <em>Start</em>. That preset is the right
+         answer roughly nine times in ten.</p></li>
+        <li><span class="t">Make something play on an old TV or phone</span><p>The preset list has device categories. Picking the matching one sets
+         the codec, resolution and profile so the device will accept it, which is
+         usually the actual problem rather than file size.</p></li>
+        <li><span class="t">Convert a batch overnight</span><p>Set up the first file, press <em>Add to Queue</em>, then open the next
+         and repeat. <em>Start Queue</em> works through them all.</p></li>
+        <li><span class="t">Keep the subtitles</span><p>The <em>Subtitles</em> tab. <em>Burn in</em> paints them permanently
+         into the picture &mdash; necessary for devices that cannot display subtitle
+         tracks; otherwise leave them as a selectable track.</p></li>
+        <li><span class="t">Trade quality against size deliberately</span><p>The <em>Video</em> tab has a constant-quality slider. Lower numbers
+         mean better quality and bigger files; 20&ndash;23 is the normal range for
+         H.264. Change one thing at a time and compare.</p></li>
+      </ol>
+    </section>
+
+    <section>
+      <h2>One thing that will surprise you</h2>
+      <p><strong>It will not copy a commercial DVD or Blu-ray.</strong> HandBrake
+      can read an unencrypted disc, but the copy protection on shop-bought discs
+      needs a decryption library that Debian does not ship, for legal reasons that
+      vary by country. Home-made discs and camcorder files are entirely fine. This is
+      a licensing boundary, not a missing feature, and Dagric will not pretend
+      otherwise.</p>
+    </section>
+
+    <section>
+      <h2>Where to find it</h2>
+      <p>Launcher &rarr; <em>HandBrake</em>.</p>
+    </section>
+
+    <section>
+      <h2>See also</h2>
+      <div class="related"><a href="app-mpv.html">mpv</a><a href="app-kdenlive.html">Kdenlive</a><a href="app-obs-studio.html">OBS Studio</a></div>
+    </section>
+
+    <footer class="colophon">Dagric OS Manual &middot; stored on this computer, no internet needed &middot; <a href="index.html">every application</a></footer>
+
+  </main>
+</div>
+</body>
+</html>

@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Discover &mdash; Dagric OS Manual</title>
+<link rel="stylesheet" href="manual.css">
+<script src="manual.js"></script>
+</head>
+<body>
+<div class="shell">
+  <aside class="side">
+    <div class="sidebox">
+      <a class="brand" href="index.html">
+        <div class="mark">D</div>
+        <div class="brand-name">Dagric OS<small>Manual</small></div>
+      </a>
+      <nav class="toc">
+        <a class="back" href="index.html">&larr; All applications</a>
+        <div class="navgroup">Files and getting around</div>
+        <a href="app-dolphin.html">Dolphin</a>
+        <a href="app-launcher.html">The launcher and search</a>
+        <a href="app-desktop.html">The desktop, panels and windows</a>
+        <a href="app-system-settings.html">System Settings</a>
+        <a href="app-discover.html" class="active">Discover</a>
+        <a href="app-konsole.html">Konsole</a>
+        <a href="app-ark.html">Ark</a>
+        <a href="app-kcalc.html">KCalc</a>
+        <a href="app-system-monitor.html">System Monitor</a>
+        <a href="app-gdebi.html">Installing downloaded software</a>
+        <a href="app-kwallet.html">KWallet</a>
+        <a href="app-filelight.html">Filelight</a>
+      </nav>
+    </div>
+  </aside>
+
+  <main class="content">
+
+    <header class="hero">
+      <div class="eyebrow">Files and getting around</div>
+      <h1>Discover</h1>
+      <p class="sub">Install and remove software, and see what needs updating.</p>
+    </header>
+
+    <div class="swap"><span>On Windows this was</span><strong>Microsoft Store</strong></div>
+
+    <section>
+      <h2>What it is</h2>
+      <p><strong>Discover</strong> is the software centre: the shopping-bag icon in
+      the taskbar. Search for what you want, press Install, and it appears in the
+      launcher. Everything in it is free, and removing an app really removes
+      it.</p>
+      <p>It draws on two sources. <em>Debian</em> packages are the tested software
+      the operating system itself is built from. <em>Flathub</em> is a much larger
+      catalogue of desktop apps that run in their own sandbox &mdash; usually newer
+      versions, and each one asks for its own permissions. Discover labels which is
+      which on every listing, and if two versions exist you may choose.</p>
+    </section>
+
+    <section>
+      <h2>Five things you will actually do</h2>
+      <ol class="tasks">
+        <li><span class="t">Install an app</span><p>Search, click the entry, press <em>Install</em>. You will be asked for
+         your password for Debian packages; Flatpak apps installed just for you do
+         not need it. It lands in the launcher when it finishes.</p></li>
+        <li><span class="t">Remove an app</span><p>Go to <em>Installed</em> in the sidebar, find it, press
+         <em>Remove</em>. It goes, and it stays gone &mdash; nothing reinstalls
+         itself after an update.</p></li>
+        <li><span class="t">Apply updates</span><p>The <em>Updates</em> page lists everything with a new version. Security
+         fixes have usually already been applied silently in the background; this
+         page is for the rest. See <a href="app-updates.html">Updates</a>.</p></li>
+        <li><span class="t">Update your laptop&#x27;s firmware</span><p>BIOS and firmware updates from the manufacturer appear on the Updates
+         page too, alongside software. Dagric ships the LVFS backend, so a Dell or
+         Lenovo firmware update is a normal click here rather than a bootable USB
+         stick.</p></li>
+        <li><span class="t">Turn on Flathub if it is not on yet</span><p><a href="tool-dagric-setup.html">Finish Setup</a> in the Dagric Hub has
+         a tick box for it. Once enabled, the catalogue in Discover grows from a few
+         thousand to tens of thousands of apps.</p></li>
+      </ol>
+    </section>
+
+    <section>
+      <h2>One thing that will surprise you</h2>
+      <p><strong>There is no account, no card on file and no purchase flow.</strong>
+      Nothing in Discover costs money, nothing tracks what you install, and there is
+      nobody to sign in as. The corollary is that Discover is not where you get
+      Steam, Chrome, Zoom or Spotify's proprietary builds &mdash; those are separate,
+      deliberate steps, because Dagric will not quietly hand you software under a
+      licence you have not seen. The
+      <a href="tool-dagric-hub.html">Dagric Hub</a> collects the honest one-click
+      versions of those.</p>
+    </section>
+
+    <section>
+      <h2>Where to find it</h2>
+      <p>The bag icon in the taskbar, or launcher &rarr; <strong>Software
+      Store</strong> (also found by typing <em>Discover</em> or <em>install</em>).</p>
+    </section>
+
+    <section>
+      <h2>See also</h2>
+      <div class="related"><a href="app-updates.html">Updates</a><a href="tool-dagric-setup.html">Finish Setup</a><a href="app-flatseal.html">Flatseal</a><a href="app-gdebi.html">Installing downloaded software</a></div>
+    </section>
+
+    <footer class="colophon">Dagric OS Manual &middot; stored on this computer, no internet needed &middot; <a href="index.html">every application</a></footer>
+
+  </main>
+</div>
+</body>
+</html>

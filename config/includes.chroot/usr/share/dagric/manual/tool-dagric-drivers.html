@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>NVIDIA driver helper &mdash; Dagric OS Manual</title>
+<link rel="stylesheet" href="manual.css">
+<script src="manual.js"></script>
+</head>
+<body>
+<div class="shell">
+  <aside class="side">
+    <div class="sidebox">
+      <a class="brand" href="index.html">
+        <div class="mark">D</div>
+        <div class="brand-name">Dagric OS<small>Manual</small></div>
+      </a>
+      <nav class="toc">
+        <a class="back" href="index.html">&larr; All applications</a>
+        <div class="navgroup">Dagric&#x27;s own tools</div>
+        <a href="tool-dagric-hub.html">Dagric Hub</a>
+        <a href="tool-dagric-setup.html">Finish Setup</a>
+        <a href="tool-dagric-firstrun.html">Set Up Dagric</a>
+        <a href="tool-dagric-migrate.html">Migration Assistant</a>
+        <a href="tool-dagric-appearance.html">Dagric Appearance</a>
+        <a href="tool-dagric-looks.html">Dagric Looks</a>
+        <a href="tool-dagric-style.html">Dagric Styles</a>
+        <a href="tool-dagric-display.html">Dagric Display</a>
+        <a href="tool-dagric-app-names.html">Why the apps have plain names</a>
+        <a href="tool-dagric-get-variety.html">Rotating wallpapers (Variety)</a>
+        <a href="tool-dagric-drivers.html" class="active">NVIDIA driver helper</a>
+        <a href="tool-dagric-security-checkup.html">Security Checkup</a>
+        <a href="tool-dagric-usb-protect.html">USB Protection</a>
+        <a href="tool-dagric-vm.html">Windows in a window (VM setup)</a>
+        <a href="tool-dagric-gaming.html">Proton-GE helper</a>
+        <a href="tool-dagric-ai.html">Local AI (Ollama)</a>
+        <a href="tool-dagric-manual.html">This manual</a>
+        <a href="tool-dagric-background.html">Helpers that run by themselves</a>
+        <a href="tool-dagric-commands.html">Every dagric command</a>
+      </nav>
+    </div>
+  </aside>
+
+  <main class="content">
+
+    <header class="hero">
+      <div class="eyebrow">Dagric&#x27;s own tools</div>
+      <h1>NVIDIA driver helper</h1>
+      <p class="sub">Install the proprietary NVIDIA driver properly, including the Secure Boot part.</p>
+    </header>
+
+    <div class="swap"><span>On Windows this was</span><strong>GeForce Experience and the manufacturer's driver download</strong></div>
+
+    <section>
+      <h2>What it is</h2>
+      <p><code>dagric-drivers</code> looks for an NVIDIA card, and if it finds one,
+      offers to install the proprietary driver from Debian's own non-free repository.
+      It is never run for you and nothing is installed unless you answer yes.</p>
+      <p>AMD and Intel graphics need nothing at all: their drivers are open source and
+      already in the kernel. The tool says so and stops.</p>
+      <p>Related: on the first login, if this machine has an NVIDIA card and no driver
+      yet, a one-off dialogue offers to run this for you. Decline it and it never asks
+      again &mdash; see <a href="tool-dagric-background.html">helpers that run by
+      themselves</a>.</p>
+    </section>
+
+    <section>
+      <h2>Five things you will actually do</h2>
+      <ol class="tasks">
+        <li><span class="t">Run it</span><p>Dagric Hub &rarr; <em>NVIDIA driver</em>, or
+         <code>sudo dagric-drivers</code> in a terminal. It must run with
+         administrator rights and will tell you so if it does not have them.</p></li>
+        <li><span class="t">Read what it found</span><p>It prints the exact card it detected before asking anything. If the
+         answer is &ldquo;no NVIDIA GPU found&rdquo;, that is the end of it and your
+         graphics are already fully driven.</p></li>
+        <li><span class="t">Handle Secure Boot</span><p>This is the part that matters. The NVIDIA driver builds a kernel module,
+         and under Secure Boot an unsigned module will not load &mdash; which means a
+         black screen after reboot. The tool checks Secure Boot <em>before</em>
+         installing, tells you, sets up a signing key, and asks you to choose a
+         one-time password.</p></li>
+        <li><span class="t">Finish the enrolment at the next boot</span><p>Restart. A blue <em>MOK Management</em> screen appears: choose
+         <em>Enroll MOK</em>, then <em>Continue</em>, and type the password you just
+         set. The machine then boots into the NVIDIA driver. Skip this and you simply
+         fall back to the open-source driver &mdash; you can re-run the tool any
+         time.</p></li>
+        <li><span class="t">Reboot when it is done</span><p>The driver takes effect at the next restart, and the tool says so.
+         Nothing reboots you.</p></li>
+      </ol>
+    </section>
+
+    <section>
+      <h2>One thing that will surprise you</h2>
+      <p><strong>The black screen after installing an NVIDIA driver is the classic
+      Linux disaster, and this tool exists to prevent it.</strong> Almost every guide
+      on the internet tells you to install the driver and reboot, without mentioning
+      Secure Boot at all &mdash; and on a modern laptop that is exactly the sequence
+      that leaves you looking at nothing. Dagric checks first and walks you through the
+      enrolment, because the alternative is a beginner's first evening ending in a
+      recovery console.</p>
+    </section>
+
+    <section>
+      <h2>Where to find it</h2>
+      <p>Dagric Hub &rarr; <em>NVIDIA driver</em>, Finish Setup's first tick box, or
+      <code>sudo dagric-drivers</code>.</p>
+    </section>
+
+    <section>
+      <h2>See also</h2>
+      <div class="related"><a href="tool-dagric-setup.html">Finish Setup</a><a href="app-gameperf.html">GameMode, MangoHud and GOverlay</a><a href="app-blender.html">Blender</a><a href="app-upscayl.html">Upscayl</a><a href="tool-dagric-background.html">Helpers that run by themselves</a></div>
+    </section>
+
+    <footer class="colophon">Dagric OS Manual &middot; stored on this computer, no internet needed &middot; <a href="index.html">every application</a></footer>
+
+  </main>
+</div>
+</body>
+</html>

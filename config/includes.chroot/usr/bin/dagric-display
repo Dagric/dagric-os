@@ -1,0 +1,323 @@
+#!/bin/sh
+# SPDX-FileCopyrightText: 2026 DGR Operations <repo@dagric.com>
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Dagric OS — "Display": make the text bigger, warm the screen up at night,
+# and nothing else. The full KDE display settings are one click away for
+# everything this deliberately does not do.
+#
+# WHY THIS EXISTS. System Settings ▸ Display & Monitor is a good page and a
+# frightening one: resolution, refresh rate, replica mode, VRR, HDR, overscan,
+# rotation and a Scale slider, all on one screen, all able to blank the display.
+# Somebody who left Windows 10 because it stopped getting updates wants one
+# thing from it — bigger text — and should not have to walk past six ways to
+# lose the picture to get there. So: three plain questions here, and a door to
+# the real page for anyone who wants it.
+#
+# THE PART THAT MATTERS MOST IS THE UNDO. A text size that is too big can put
+# the button that fixes it off the bottom of the screen, and the change SURVIVES
+# A REBOOT — KWin writes the scale to ~/.config/kwinoutputconfig.json — so
+# turning the machine off and on again is not a way out. Three things stand in
+# the way of that, and they are deliberately independent of each other:
+#
+#   1. Sizes that would not leave 800x600 usable pixels on this screen are not
+#      offered at all. That is KWin's own floor, and it is why a 1366x768
+#      laptop is never offered 150%.
+#   2. A change is a TRIAL. The old size comes back by itself after 20 seconds
+#      unless the owner presses Keep. The countdown lives in THIS SCRIPT, not
+#      in the dialog: if the dialog never appears, opens off-screen, or is
+#      unclickable at the new size, the undo still happens. That is the one
+#      improvement on the Keep/Revert bar in Dagric Appearance, whose timer
+#      runs inside the window it is protecting.
+#   3. Before the trial starts, the old size is written to
+#      ~/.local/state/dagric/display-pending. If this process is killed outright
+#      — the one case a trap cannot catch — /usr/lib/dagric/display-autoscale
+#      finds that file at the next login and puts the size back.
+#
+# WAYLAND ONLY, and that is not a shortcut: see the header of
+# /usr/lib/dagric/display-common.sh. Everything below changes the scale through
+# kscreen-doctor, which applies it live with no sign-out, and a live change is
+# the only kind that can be tried and taken back. Dagric does now ship a working
+# X11 session (kwin-x11, added as a rescue path for flaky Wayland on older
+# NVIDIA), so the "this session is not Wayland" branch above is reachable in
+# practice — it says so plainly and opens the System Settings display page.
+
+. /usr/lib/dagric/display-common.sh
+
+TITLE="Dagric Display"
+HOLD=20
+STATE=${XDG_STATE_HOME:-$HOME/.local/state}/dagric
+PENDING=$STATE/display-pending
+
+notify() { kdialog --title "$TITLE" --passivepopup "$1" 6 >/dev/null 2>&1 & }
+
+open_kcm() {
+    if command -v systemsettings >/dev/null 2>&1; then
+        systemsettings "$1" >/dev/null 2>&1 &
+    elif command -v kcmshell6 >/dev/null 2>&1; then
+        kcmshell6 "$1" >/dev/null 2>&1 &
+    else
+        kdialog --title "$TITLE" --sorry \
+            "System Settings is not installed on this system." 2>/dev/null
+        return 1
+    fi
+    return 0
+}
+
+# --- can we do anything at all here? -----------------------------------------
+if ! dg_can_scale; then
+    kdialog --title "$TITLE" --sorry \
+"Dagric changes the text size through the Wayland session, and this session is
+not one. Sign out and log back in with the standard Dagric session, or use
+System Settings ▸ Display & Monitor." 2>/dev/null
+    open_kcm kcm_kscreen
+    exit 1
+fi
+
+# --- putting a trial back ----------------------------------------------------
+# Held in variables rather than read back off disk so the undo still works if
+# $HOME has filled up or gone read-only under us.
+PEND_OUT=
+PEND_TEXT=
+
+undo_pending() {
+    [ -n "$PEND_OUT" ] || return 0
+    kscreen-doctor "output.$PEND_OUT.scale.$PEND_TEXT" >/dev/null 2>&1
+    PEND_OUT=
+    rm -f "$PENDING" 2>/dev/null
+    return 0
+}
+trap 'undo_pending; exit 130' INT TERM HUP
+trap 'undo_pending' EXIT
+
+# --- text and icon size ------------------------------------------------------
+# Plain words, not percentages, because "150%" answers a question nobody asked.
+# The percentage is still there for anyone who thinks in them.
+size_label() {
+    case "$1" in
+        100) printf 'Standard — the normal size' ;;
+        125) printf 'Bigger — what Windows usually picks for a laptop' ;;
+        150) printf 'Much bigger — recommended for high-resolution laptops' ;;
+        175) printf 'Very big — easier on the eyes' ;;
+        200) printf 'Biggest — for 4K screens, or sitting further away' ;;
+        *)   printf 'Chosen automatically for this screen' ;;
+    esac
+}
+
+# Pick a screen when there is more than one. Two identical monitors would
+# otherwise get two identical entries, so the connector name is added only
+# when it is the thing telling them apart.
+pick_output() {
+    _lines=$1
+    _n=$(printf '%s\n' "$_lines" | grep -c .)
+    if [ "$_n" -le 1 ]; then
+        printf '%s\n' "$_lines" | head -1
+        return 0
+    fi
+    _seen=
+    set --
+    while IFS='	' read -r _name _pw _ph _s100 _stext; do
+        [ -n "$_name" ] || continue
+        _lab=$(dg_friendly_name "$_name" "$_pw" "$_ph")
+        case "$_seen" in
+            *"|$_lab|"*) _lab="$_lab  $_name" ;;
+        esac
+        _seen="$_seen|$_lab|"
+        set -- "$@" "$_name" "$_lab"
+    done <<EOF
+$_lines
+EOF
+    _pick=$(kdialog --title "$TITLE" --icon dagric-logo --geometry 460x260 \
+        --menu "Which screen?" "$@" 2>/dev/null) || return 1
+    [ -n "$_pick" ] || return 1
+    printf '%s\n' "$_lines" | LC_ALL=C awk -F'\t' -v n="$_pick" '$1 == n { print; exit }'
+    return 0
+}
+
+do_size() {
+    _outs=$(dg_outputs)
+    if [ -z "$_outs" ]; then
+        kdialog --title "$TITLE" --sorry \
+            "No screen reported its settings, so there is nothing to change here." 2>/dev/null
+        return 1
+    fi
+
+    _line=$(pick_output "$_outs") || return 1
+    [ -n "$_line" ] || return 1
+    _out=$(printf '%s' "$_line" | cut -f1)
+    _pw=$(printf  '%s' "$_line" | cut -f2)
+    _ph=$(printf  '%s' "$_line" | cut -f3)
+    _cur=$(printf '%s' "$_line" | cut -f4)
+    _curtext=$(printf '%s' "$_line" | cut -f5)
+    _fr=$(dg_friendly_name "$_out" "$_pw" "$_ph")
+
+    # Only sizes this screen can actually carry. Offering 200% on a 1366x768
+    # panel is offering somebody a desktop with 683x384 usable pixels, where
+    # half the dialogs no longer fit — including this one.
+    _max=$(dg_max_scale100 "$_pw" "$_ph")
+
+    set --
+    _listed=
+    for _s in 100 125 150 175 200; do
+        [ "$_s" -le "$_max" ] || continue
+        _on=off
+        [ "$_s" = "$_cur" ] && { _on=on; _listed=1; }
+        set -- "$@" "$_s" "$_s% — $(size_label "$_s")" "$_on"
+    done
+    # KWin picks in 0.05 steps, so the size in use is very often not one of the
+    # five. Showing the list with nothing selected would tell the owner they
+    # are nowhere, so the real value gets its own row.
+    if [ -z "$_listed" ]; then
+        set -- "$_cur" "$_cur% — $(size_label "$_cur")" on "$@"
+    fi
+
+    _new=$(kdialog --title "$TITLE" --icon dagric-logo --geometry 520x330 \
+        --radiolist "Text and icon size on $_fr:" "$@" 2>/dev/null) || return 1
+    [ -n "$_new" ] || return 1
+    [ "$_new" = "$_cur" ] && return 0
+
+    # On disk BEFORE the screen changes, so an outright kill between here and
+    # the undo still has a record of what to go back to.
+    mkdir -p "$STATE" 2>/dev/null
+    printf '%s\t%s\n' "$_out" "$_curtext" > "$PENDING" 2>/dev/null
+    PEND_OUT=$_out
+    PEND_TEXT=$_curtext
+
+    # A failed read-back is NOT proof that nothing happened. kscreen-doctor
+    # exits 0 whether or not KWin honoured the value, and KWin is free to clamp
+    # or round it — so "the number we read back is not the number we asked for"
+    # can mean the screen is sitting at a size the owner never chose. Putting it
+    # back is the only safe reading. The earlier version threw the undo record
+    # away here instead, which stranded that owner at the new size with no
+    # trial, no countdown and nothing for the next login to rescue: the exact
+    # failure the rest of this file exists to prevent.
+    if ! dg_apply_scale "$_out" "$_new"; then
+        undo_pending
+        kdialog --title "$TITLE" --sorry \
+            "The size could not be changed on $_fr." 2>/dev/null
+        return 1
+    fi
+
+    # Short on purpose: this dialog is being drawn at the NEW size, and a long
+    # one is exactly the dialog that will not fit at 200%.
+    kdialog --title "$TITLE" --icon dagric-logo \
+        --yes-label "Keep this size" --no-label "Put it back" \
+        --warningyesno \
+"Text is now at $_new%.
+
+Keep it? If you do not answer, the old size comes
+back on its own in $HOLD seconds." >/dev/null 2>&1 &
+    _dpid=$!
+    ( sleep "$HOLD"; kill "$_dpid" ) >/dev/null 2>&1 &
+    _wpid=$!
+    wait "$_dpid"
+    _ans=$?
+    kill "$_wpid" >/dev/null 2>&1
+
+    if [ "$_ans" -eq 0 ]; then
+        PEND_OUT=
+        rm -f "$PENDING" 2>/dev/null
+        notify "Text size kept at $_new%."
+    else
+        undo_pending
+        notify "Text size put back to $_cur%."
+    fi
+    return 0
+}
+
+# --- night colour ------------------------------------------------------------
+# Windows calls it Night light and people go looking for it, so it is here.
+#
+# EVENINGS USES FIXED TIMES, NOT "sunset to sunrise", and that is deliberate.
+# KWin's automatic mode does no geolocation of its own: the Night Light page in
+# System Settings feeds it a position from QtPositioning, whose GeoClue2 backend
+# lives in libqt6positioning6-plugins — a package that is not on a Dagric image,
+# because auto/config builds with --apt-recommends false and nothing depends on
+# it. With no position, automatic mode falls back to latitude 0, longitude 0 and
+# computes sunset in the Gulf of Guinea. That is a screen that goes warm at the
+# wrong time of day, with no clue why. Fixed times need nothing, work offline,
+# and can be explained in one sentence.
+kw_write() {
+    kwriteconfig6 --file kwinrc --group NightColor --key "$1" --notify "$2" 2>/dev/null \
+        || kwriteconfig6 --file kwinrc --group NightColor --key "$1" "$2" 2>/dev/null
+}
+
+do_night() {
+    _act=$(kreadconfig6 --file kwinrc --group NightColor --key Active 2>/dev/null)
+    _mode=$(kreadconfig6 --file kwinrc --group NightColor --key Mode 2>/dev/null)
+    # "other" is night colour that is on but following sunset and sunrise, or a
+    # location, set on the full Night Light page. None of the three rows below
+    # describes that, so none of them is ticked — showing "on in the evening"
+    # selected would be telling the owner something about their machine that is
+    # not true.
+    _cur=off
+    _note=
+    if [ "$_act" = "true" ]; then
+        case "$_mode" in
+            Constant|constant) _cur=always ;;
+            Times|times)       _cur=evening ;;
+            *) _cur=other
+               _note="
+
+Right now it follows sunset and sunrise, which was set on the full Night Light page." ;;
+        esac
+    fi
+
+    set --
+    for _o in off evening always more; do
+        _on=off
+        [ "$_o" = "$_cur" ] && _on=on
+        case "$_o" in
+            off)     _t="Off — normal colours all day" ;;
+            evening) _t="On in the evening — warmer from 8pm until 7am" ;;
+            always)  _t="On all the time — always warm" ;;
+            more)    _t="More options — set your own times and warmth" ;;
+        esac
+        set -- "$@" "$_o" "$_t" "$_on"
+    done
+
+    _pick=$(kdialog --title "$TITLE" --icon dagric-logo --geometry 520x320 \
+        --radiolist "Night colour makes the screen warmer so it is easier on the eyes:$_note" \
+        "$@" 2>/dev/null) || return 1
+    [ -n "$_pick" ] || return 1
+
+    case "$_pick" in
+        off)
+            kw_write Active false
+            notify "Night colour is off." ;;
+        evening)
+            # 0700/2000 are "hhmm", the format KWin parses these two keys with.
+            # The warmth itself is left alone: unset means KDE's own 4500K, and
+            # writing it here would silently overwrite a value the owner may
+            # have set on the full page.
+            kw_write Mode Times
+            kw_write MorningBeginFixed 0700
+            kw_write EveningBeginFixed 2000
+            kw_write Active true
+            notify "Night colour is on from 8pm until 7am." ;;
+        always)
+            kw_write Mode Constant
+            kw_write Active true
+            notify "Night colour is on all the time." ;;
+        more)
+            open_kcm kcm_nightlight ;;
+    esac
+    return 0
+}
+
+# --- the menu ----------------------------------------------------------------
+while :; do
+    CHOICE=$(kdialog --title "$TITLE" --icon dagric-logo --geometry 460x260 \
+        --menu "What would you like to change?" \
+        size    "Text and icon size" \
+        night   "Night colour — a warmer screen in the evening" \
+        screens "More screens, resolution and refresh rate" \
+        2>/dev/null) || break
+    [ -n "$CHOICE" ] || break
+    case "$CHOICE" in
+        size)    do_size ;;
+        night)   do_night ;;
+        screens) open_kcm kcm_kscreen; break ;;
+    esac
+done
+
+exit 0

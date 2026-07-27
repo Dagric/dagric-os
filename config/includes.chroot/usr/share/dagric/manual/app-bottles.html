@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bottles &mdash; Dagric OS Manual</title>
+<link rel="stylesheet" href="manual.css">
+<script src="manual.js"></script>
+</head>
+<body>
+<div class="shell">
+  <aside class="side">
+    <div class="sidebox">
+      <a class="brand" href="index.html">
+        <div class="mark">D</div>
+        <div class="brand-name">Dagric OS<small>Manual</small></div>
+      </a>
+      <nav class="toc">
+        <a class="back" href="index.html">&larr; All applications</a>
+        <div class="navgroup">Games and Windows programs</div>
+        <a href="app-steam.html">Steam</a>
+        <a href="app-lutris.html">Lutris</a>
+        <a href="app-heroic.html">Heroic Games Launcher</a>
+        <a href="app-wine.html">Wine</a>
+        <a href="app-bottles.html" class="active">Bottles</a>
+        <a href="app-protonup.html">ProtonUp-Qt</a>
+        <a href="app-gameperf.html">GameMode, MangoHud and GOverlay</a>
+        <a href="app-virt-manager.html">Virtual Machine Manager</a>
+      </nav>
+    </div>
+  </aside>
+
+  <main class="content">
+
+    <header class="hero">
+      <div class="eyebrow">Games and Windows programs</div>
+      <h1>Bottles<span class="pill add" title="Not preinstalled — Dagric installs it for you when you ask">ADD-ON</span></h1>
+      <p class="sub">Wine with a window: one tidy container per Windows program.</p>
+    </header>
+
+    <div class="swap"><span>On Windows this was</span><strong>installing Windows software, the easy way</strong></div>
+
+
+    <section>
+      <h2>What it is</h2>
+      <p><strong>Bottles</strong> is a friendly front end to Wine. Each Windows
+      program gets its own &ldquo;bottle&rdquo; &mdash; a self-contained fake Windows
+      with its own settings, its own runtimes and its own registry &mdash; created
+      from a template tuned for gaming, for applications, or for a specific piece of
+      software.</p>
+      <p>It also carries a catalogue of installers for common programs, so a good deal
+      of the guesswork about which components a given application needs has already
+      been done.</p>
+    </section>
+
+    <section>
+      <h2>Getting it</h2>
+      <p>Two ways in, and they end up at the same app:</p>
+      <ul class="plain">
+        <li><strong>Dagric&nbsp;OS Pro</strong> &mdash; open the
+        <a href="tool-dagric-hub.html">Dagric Hub</a> and pick the row for it. A
+        terminal window explains what the app is and asks one yes/no question.</li>
+        <li><strong>Any edition</strong> &mdash; open
+        <a href="app-discover.html">Discover</a>, search for it, press Install.
+        It comes from Flathub, so turn Flathub on first if you have not:
+        <a href="tool-dagric-setup.html">Finish Setup</a> has a tick box for it.</li>
+      </ul>
+      <p>Either route installs it just for your user account, needs no
+      administrator password, and uninstalls cleanly from Discover's
+      <em>Installed</em> page.</p>
+    </section>
+    <section>
+      <h2>Five things you will actually do</h2>
+      <ol class="tasks">
+        <li><span class="t">Create a bottle</span><p>Press <em>+</em>, name it after the program, and choose
+         <em>Application</em> or <em>Gaming</em>. Gaming bottles arrive with DXVK and
+         the performance pieces already switched on.</p></li>
+        <li><span class="t">Install a program into it</span><p>Open the bottle, <em>Run Executable</em>, and pick the installer. The
+         program installs inside that bottle only and cannot see the others.</p></li>
+        <li><span class="t">Add dependencies</span><p>The bottle's <em>Dependencies</em> tab lists the usual runtimes
+         &mdash; Visual C++, .NET, fonts, codecs &mdash; and installs them with one
+         click. This replaces most of what winetricks does by hand.</p></li>
+        <li><span class="t">Make a launcher entry</span><p>Once installed, the program appears in the bottle's programs list;
+         its menu offers to add a desktop entry so it shows up in the Dagric launcher
+         like any other application.</p></li>
+        <li><span class="t">Throw it away and start again</span><p>Delete the bottle. Everything that program did &mdash; registry, DLLs,
+         config, the lot &mdash; goes with it, and nothing else is affected. That
+         disposability is the whole argument for using Bottles rather than raw
+         Wine.</p></li>
+      </ol>
+    </section>
+
+    <section>
+      <h2>One thing that will surprise you</h2>
+      <p><strong>&ldquo;It works&rdquo; is not one answer, it is four.</strong> A
+      Windows program under Bottles can run perfectly, run with cosmetic glitches, run
+      but fail at one specific feature (printing and scanning are common), or not
+      start at all. Try the actual thing you need it to do &mdash; not just the splash
+      screen &mdash; before you decide you have migrated successfully.</p>
+    </section>
+
+    <section>
+      <h2>Where to find it</h2>
+      <p>After installing: launcher &rarr; <em>Bottles</em>. Before installing:
+      Dagric Hub &rarr; <em>Windows apps &mdash; Bottles</em>, or Discover.</p>
+    </section>
+
+    <section>
+      <h2>See also</h2>
+      <div class="related"><a href="app-wine.html">Wine</a><a href="app-virt-manager.html">Virtual Machine Manager</a><a href="app-lutris.html">Lutris</a><a href="app-flatseal.html">Flatseal</a></div>
+    </section>
+
+    <footer class="colophon">Dagric OS Manual &middot; stored on this computer, no internet needed &middot; <a href="index.html">every application</a></footer>
+
+  </main>
+</div>
+</body>
+</html>

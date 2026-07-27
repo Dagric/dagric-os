@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Security Checkup &mdash; Dagric OS Manual</title>
+<link rel="stylesheet" href="manual.css">
+<script src="manual.js"></script>
+</head>
+<body>
+<div class="shell">
+  <aside class="side">
+    <div class="sidebox">
+      <a class="brand" href="index.html">
+        <div class="mark">D</div>
+        <div class="brand-name">Dagric OS<small>Manual</small></div>
+      </a>
+      <nav class="toc">
+        <a class="back" href="index.html">&larr; All applications</a>
+        <div class="navgroup">Dagric&#x27;s own tools</div>
+        <a href="tool-dagric-hub.html">Dagric Hub</a>
+        <a href="tool-dagric-setup.html">Finish Setup</a>
+        <a href="tool-dagric-firstrun.html">Set Up Dagric</a>
+        <a href="tool-dagric-migrate.html">Migration Assistant</a>
+        <a href="tool-dagric-appearance.html">Dagric Appearance</a>
+        <a href="tool-dagric-looks.html">Dagric Looks</a>
+        <a href="tool-dagric-style.html">Dagric Styles</a>
+        <a href="tool-dagric-display.html">Dagric Display</a>
+        <a href="tool-dagric-app-names.html">Why the apps have plain names</a>
+        <a href="tool-dagric-get-variety.html">Rotating wallpapers (Variety)</a>
+        <a href="tool-dagric-drivers.html">NVIDIA driver helper</a>
+        <a href="tool-dagric-security-checkup.html" class="active">Security Checkup</a>
+        <a href="tool-dagric-usb-protect.html">USB Protection</a>
+        <a href="tool-dagric-vm.html">Windows in a window (VM setup)</a>
+        <a href="tool-dagric-gaming.html">Proton-GE helper</a>
+        <a href="tool-dagric-ai.html">Local AI (Ollama)</a>
+        <a href="tool-dagric-manual.html">This manual</a>
+        <a href="tool-dagric-background.html">Helpers that run by themselves</a>
+        <a href="tool-dagric-commands.html">Every dagric command</a>
+      </nav>
+    </div>
+  </aside>
+
+  <main class="content">
+
+    <header class="hero">
+      <div class="eyebrow">Dagric&#x27;s own tools</div>
+      <h1>Security Checkup</h1>
+      <p class="sub">A security audit and a drive-health report, in one window, in plain language.</p>
+    </header>
+
+    <div class="swap"><span>On Windows this was</span><strong>Windows Security &mdash; without the subscription upsell</strong></div>
+
+    <section>
+      <h2>What it is</h2>
+      <p>The <strong>Security Checkup</strong> runs two things and shows you the
+      result: a <strong>Lynis</strong> security audit of the whole system, and a
+      <strong>SMART</strong> health check of every physical drive. It asks for your
+      password once and does both in one go.</p>
+      <p>The point is not to find problems &mdash; on a stock Dagric machine it will
+      not find many. The point is that a non-expert can see, in a number, that the
+      security they were promised is actually there.</p>
+    </section>
+
+    <section>
+      <h2>Five things you will actually do</h2>
+      <ol class="tasks">
+        <li><span class="t">Run it</span><p>Dagric Hub &rarr; <em>Security checkup</em>, or launcher &rarr;
+         <em>Security Checkup</em>. It takes about a minute and shows a notification
+         while it works.</p></li>
+        <li><span class="t">Read the hardening index</span><p>A score out of 100 from Lynis. Higher is better. It measures the
+         system's configuration against a long checklist &mdash; it is a posture
+         score, not a threat detection, and it will never be 100 on a desktop that is
+         also usable.</p></li>
+        <li><span class="t">Read the drive health line</span><p>Every physical disk is reported as healthy or not. If a drive reports a
+         SMART failure, the tool raises a separate warning telling you to back up
+         <em>now</em> and plan to replace it. Believe it.</p></li>
+        <li><span class="t">Look at the detail</span><p>The full audit is written to <code>/var/log/lynis.log</code>, and
+         <code>sudo lynis show details</code> in a terminal explains each finding and
+         what it suggests.</p></li>
+        <li><span class="t">Decide what to act on</span><p>Most Lynis warnings on a desktop are hardening suggestions aimed at
+         servers. Do not chase the score. The ones worth acting on are anything about
+         a failing disk, an outdated package set, or a service you did not know was
+         running.</p></li>
+      </ol>
+    </section>
+
+    <section>
+      <h2>One thing that will surprise you</h2>
+      <p><strong>It sells you nothing.</strong> There is no premium tier, no
+      &ldquo;3 issues found, upgrade to fix&rdquo;, and no button that installs
+      something. It runs two open-source audits and reports what they said. The
+      security itself &mdash; AppArmor, the hardened kernel, the firewall, the silent
+      updates &mdash; was already on before you ran this; the checkup just lets you
+      see it.</p>
+    </section>
+
+    <section>
+      <h2>Where to find it</h2>
+      <p>Dagric Hub &rarr; <em>Security checkup</em>, launcher &rarr; <em>Security
+      Checkup</em>, or <code>dagric-security-checkup</code>.</p>
+    </section>
+
+    <section>
+      <h2>See also</h2>
+      <div class="related"><a href="app-apparmor.html">AppArmor and the security baseline</a><a href="app-drive-health.html">Drive health</a><a href="app-firewall.html">The firewall</a><a href="app-updates.html">Updates</a></div>
+    </section>
+
+    <footer class="colophon">Dagric OS Manual &middot; stored on this computer, no internet needed &middot; <a href="index.html">every application</a></footer>
+
+  </main>
+</div>
+</body>
+</html>

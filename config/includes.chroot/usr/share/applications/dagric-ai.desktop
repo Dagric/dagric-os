@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=Install Local AI
+GenericName=Run AI models on this PC (Ollama)
+Comment=Install Ollama to run AI language models entirely on your own hardware — works offline, nothing is sent anywhere
+Exec=konsole -e sh -c '/usr/bin/dagric-ai ; echo ; printf "Press Enter to close..." ; read x'
+Icon=dagric-logo
+Terminal=false
+Categories=Utility;Development;
+Keywords=ai;ollama;llm;chatgpt;copilot;llama;local ai;offline ai;assistant;model;install;

@@ -13,6 +13,16 @@ auto/* text eol=lf
 packages/**/DEBIAN/* text eol=lf
 config/includes.chroot/usr/bin/* text eol=lf
 config/includes.chroot/usr/lib/live/config/* text eol=lf
+# usr/lib/dagric holds extensionless shell scripts (display-autoscale), which
+# *.sh does not match. Without this line they fall through to `* text=auto` and
+# a checkout with core.autocrlf=true writes them CRLF — build.ps1 mounts the
+# working tree straight into the build container, so that ships as "/bin/sh^M".
+config/includes.chroot/usr/lib/dagric/* text eol=lf
+# The offline manual and the guide/welcome pages: browsers do not care about
+# CRLF, but dagric-manual greps and rewrites these files, so keep them uniform.
+config/includes.chroot/usr/share/dagric/** text eol=lf
+# systemd drop-ins, sysctl.d, udev rules, /etc/default — same chroot, same rule
+config/includes.chroot/etc/** text eol=lf
 # Linux-side config that CRLF would break (KConfig, .desktop, skel dotfiles)
 config/includes.chroot/etc/skel/** text eol=lf
 *.desktop text eol=lf
@@ -20,9 +30,15 @@ config/includes.chroot/etc/skel/** text eol=lf
 # Windows scripts keep CRLF
 *.ps1 text eol=crlf
 
-# Binaries
+# Binaries. These come LAST on purpose: gitattributes lets a later line win,
+# and the directory rules above (etc/**, usr/share/dagric/**) would otherwise
+# claim the PNGs sitting inside those trees.
 *.png binary
 *.iso binary
+# SDDM's default avatar is a PNG that must not be named .png — SDDM looks for
+# this exact filename. `* text=auto` would guess right today, but a file whose
+# name says nothing about its contents should not depend on a guess.
+config/includes.chroot/usr/share/sddm/faces/default.face.icon binary
 
 # Verification artifacts must stay byte-exact (CRLF breaks sha256sum -c / gpg)
 site/SHA256SUMS text eol=lf

@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dagric Styles &mdash; Dagric OS Manual</title>
+<link rel="stylesheet" href="manual.css">
+<script src="manual.js"></script>
+</head>
+<body>
+<div class="shell">
+  <aside class="side">
+    <div class="sidebox">
+      <a class="brand" href="index.html">
+        <div class="mark">D</div>
+        <div class="brand-name">Dagric OS<small>Manual</small></div>
+      </a>
+      <nav class="toc">
+        <a class="back" href="index.html">&larr; All applications</a>
+        <div class="navgroup">Dagric&#x27;s own tools</div>
+        <a href="tool-dagric-hub.html">Dagric Hub</a>
+        <a href="tool-dagric-setup.html">Finish Setup</a>
+        <a href="tool-dagric-firstrun.html">Set Up Dagric</a>
+        <a href="tool-dagric-migrate.html">Migration Assistant</a>
+        <a href="tool-dagric-appearance.html">Dagric Appearance</a>
+        <a href="tool-dagric-looks.html">Dagric Looks</a>
+        <a href="tool-dagric-style.html" class="active">Dagric Styles</a>
+        <a href="tool-dagric-display.html">Dagric Display</a>
+        <a href="tool-dagric-app-names.html">Why the apps have plain names</a>
+        <a href="tool-dagric-get-variety.html">Rotating wallpapers (Variety)</a>
+        <a href="tool-dagric-drivers.html">NVIDIA driver helper</a>
+        <a href="tool-dagric-security-checkup.html">Security Checkup</a>
+        <a href="tool-dagric-usb-protect.html">USB Protection</a>
+        <a href="tool-dagric-vm.html">Windows in a window (VM setup)</a>
+        <a href="tool-dagric-gaming.html">Proton-GE helper</a>
+        <a href="tool-dagric-ai.html">Local AI (Ollama)</a>
+        <a href="tool-dagric-manual.html">This manual</a>
+        <a href="tool-dagric-background.html">Helpers that run by themselves</a>
+        <a href="tool-dagric-commands.html">Every dagric command</a>
+      </nav>
+    </div>
+  </aside>
+
+  <main class="content">
+
+    <header class="hero">
+      <div class="eyebrow">Dagric&#x27;s own tools</div>
+      <h1>Dagric Styles</h1>
+      <p class="sub">Change the mood &mdash; colours, accent, wallpaper and window effects.</p>
+    </header>
+
+    <div class="swap"><span>On Windows this was</span><strong>Personalisation: Colours, Themes and Background</strong></div>
+
+    <section>
+      <h2>What it is</h2>
+      <p><strong>Dagric Styles</strong> applies a coordinated look in one click:
+      colour scheme, accent colour, wallpaper, and KWin effects such as the glassy
+      blur behind panels. Every edition has three:</p>
+      <ul class="plain">
+        <li><strong>Daybreak</strong> &mdash; the Dagric default: bright, blue,
+        calm.</li>
+        <li><strong>Midnight</strong> &mdash; deep dark, easy on the eyes at
+        night.</li>
+        <li><strong>Dawn</strong> &mdash; light and airy with a soft warm accent.</li>
+      </ul>
+      <p>Pro adds <strong>Classy</strong> (dark glass and amber), <strong>Neon</strong>
+      (electric cyan with every effect on) and <strong>Forest</strong> (calm green for
+      long working days).</p>
+    </section>
+
+    <section>
+      <h2>Five things you will actually do</h2>
+      <ol class="tasks">
+        <li><span class="t">Apply a style</span><p>Pick a row. The desktop changes in a couple of seconds and a
+         notification names what was applied.</p></li>
+        <li><span class="t">Pick your own accent colour</span><p>The <em>Accent color</em> row opens a colour picker. Choose anything;
+         it is applied to buttons, highlights and window decorations across the whole
+         desktop.</p></li>
+        <li><span class="t">Go back to standard Dagric</span><p>The <em>Reset</em> row returns you to Daybreak &mdash; the exact look
+         the machine shipped with. Nothing else is disturbed.</p></li>
+        <li><span class="t">Keep the panels where they are</span><p>Styles never touches panel layout. If you have arranged your taskbar
+         the way you like it, changing style is safe.
+         <a href="tool-dagric-looks.html">Dagric Looks</a> is the one that
+         rearranges.</p></li>
+        <li><span class="t">Write your own style</span><p>Copy <code>/usr/share/dagric/styles/daybreak.style</code> to
+         <code>~/.local/share/dagric/styles/</code> and edit it. That file documents
+         every key: <code>SCHEME</code>, <code>ACCENT</code>, <code>WALLPAPER</code>,
+         <code>BLUR</code>, <code>TRANSLUCENCY</code> and <code>WOBBLY</code>. Leave a
+         key out and that part of the desktop is left alone.</p></li>
+      </ol>
+    </section>
+
+    <section>
+      <h2>One thing that will surprise you</h2>
+      <p><strong>Everything it does is a stock KDE setting.</strong> Nothing is
+      downloaded, nothing is installed, and no theme engine is involved &mdash; the
+      tool is a shell script driving Plasma's own commands. That means a style can
+      never break your desktop in a way that System Settings cannot undo, and it means
+      the <code>.style</code> files are readable text you can copy, edit and share.</p>
+    </section>
+
+    <section>
+      <h2>Where to find it</h2>
+      <p>Dagric Hub &rarr; <em>Colors and mood</em>, launcher &rarr; <em>Dagric
+      Styles</em>, or <code>dagric-style</code>.</p>
+    </section>
+
+    <section>
+      <h2>See also</h2>
+      <div class="related"><a href="tool-dagric-looks.html">Dagric Looks</a><a href="tool-dagric-appearance.html">Dagric Appearance</a><a href="app-desktop.html">The desktop, panels and windows</a><a href="tool-dagric-get-variety.html">Rotating wallpapers (Variety)</a></div>
+    </section>
+
+    <footer class="colophon">Dagric OS Manual &middot; stored on this computer, no internet needed &middot; <a href="index.html">every application</a></footer>
+
+  </main>
+</div>
+</body>
+</html>

@@ -1,7 +1,23 @@
 #!/bin/sh
 # SPDX-FileCopyrightText: 2026 DGR Operations <repo@dagric.com>
 # SPDX-License-Identifier: GPL-3.0-or-later
-# Dagric OS — first-run welcome. Opens the local welcome page once,
-# then removes its own autostart entry.
+# Dagric OS — open the welcome page.
+#
+# THIS IS NO LONGER THE FIRST-RUN EXPERIENCE. dagric-firstrun is: a real setup
+# wizard that sets the colours, the wallpaper, the text size and the taskbar,
+# and offers to fetch the owner's files off the Windows partition. A browser
+# tab cannot do any of that, and to somebody arriving from Windows 10 it has
+# exactly the shape of the OEM landing page they have been trained to close.
+#
+# The page is KEPT, and it is worth keeping: it is the short, readable account
+# of what Dagric is and the promises it makes. The wizard's last screen links
+# straight here, the Hub's "Welcome guide" opens it, and so does this command.
+#
+# The autostart line below stays for one reason only. Owners who installed
+# before the wizard existed still have dagric-welcome.desktop sitting in their
+# own ~/.config/autostart (skel is copied at account creation, so an update
+# cannot reach it). Dropping the removal here would mean the welcome page
+# reopened on EVERY login for exactly those people. New accounts never have
+# that file, so this is a no-op for them.
 rm -f "$HOME/.config/autostart/dagric-welcome.desktop"
 exec firefox file:///usr/share/dagric/welcome/index.html

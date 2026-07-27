@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>System Monitor &mdash; Dagric OS Manual</title>
+<link rel="stylesheet" href="manual.css">
+<script src="manual.js"></script>
+</head>
+<body>
+<div class="shell">
+  <aside class="side">
+    <div class="sidebox">
+      <a class="brand" href="index.html">
+        <div class="mark">D</div>
+        <div class="brand-name">Dagric OS<small>Manual</small></div>
+      </a>
+      <nav class="toc">
+        <a class="back" href="index.html">&larr; All applications</a>
+        <div class="navgroup">Files and getting around</div>
+        <a href="app-dolphin.html">Dolphin</a>
+        <a href="app-launcher.html">The launcher and search</a>
+        <a href="app-desktop.html">The desktop, panels and windows</a>
+        <a href="app-system-settings.html">System Settings</a>
+        <a href="app-discover.html">Discover</a>
+        <a href="app-konsole.html">Konsole</a>
+        <a href="app-ark.html">Ark</a>
+        <a href="app-kcalc.html">KCalc</a>
+        <a href="app-system-monitor.html" class="active">System Monitor</a>
+        <a href="app-gdebi.html">Installing downloaded software</a>
+        <a href="app-kwallet.html">KWallet</a>
+        <a href="app-filelight.html">Filelight</a>
+      </nav>
+    </div>
+  </aside>
+
+  <main class="content">
+
+    <header class="hero">
+      <div class="eyebrow">Files and getting around</div>
+      <h1>System Monitor</h1>
+      <p class="sub">What is running, what is slow, and how to stop something that has hung.</p>
+    </header>
+
+    <div class="swap"><span>On Windows this was</span><strong>Task Manager</strong></div>
+
+    <section>
+      <h2>What it is</h2>
+      <p><strong>System Monitor</strong> is the task manager &mdash; the launcher
+      calls it exactly that &mdash; and
+      <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>Esc</kbd> opens it. Dagric binds that
+      key deliberately: it is pure muscle memory for Windows users, and pressing
+      it and landing on nothing is a bad first impression. KDE's own
+      <kbd>Meta</kbd>+<kbd>Esc</kbd> still works too.</p>
+      <p>It shows CPU, memory, disk and network use over time, and a list of running
+      applications and processes that you can sort by whatever is eating the
+      machine.</p>
+    </section>
+
+    <section>
+      <h2>Five things you will actually do</h2>
+      <ol class="tasks">
+        <li><span class="t">Force-quit an app that has stopped responding</span><p>Find it in the <em>Applications</em> page, select it, press
+         <em>End</em>. If it will not go, use <em>Kill</em> from the right-click
+         menu.</p></li>
+        <li><span class="t">Find out what is making the fan spin</span><p>Sort the process list by CPU, descending. The top row is the culprit.
+         Do the same with Memory when the machine starts swapping and everything goes
+         treacly.</p></li>
+        <li><span class="t">Check whether you are short of RAM</span><p>The <em>Overview</em> page shows memory in use versus total. Dagric
+         also enables compressed swap, so a machine with 4&nbsp;GB copes noticeably
+         better than the raw number suggests.</p></li>
+        <li><span class="t">See what is using the network</span><p>The <em>History</em> page charts network throughput. The process list
+         can add per-process network columns from the column header's right-click
+         menu.</p></li>
+        <li><span class="t">Kill a frozen window instantly</span><p><kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>Esc</kbd> turns the mouse pointer
+         into a skull; click the offending window and it dies. Press
+         <kbd>Esc</kbd> to cancel without clicking anything.</p></li>
+      </ol>
+    </section>
+
+    <section>
+      <h2>One thing that will surprise you</h2>
+      <p><strong>The numbers add up differently to Windows.</strong> Linux
+      deliberately uses spare RAM as disk cache, so &ldquo;memory used&rdquo; often
+      looks alarmingly high on a machine that is perfectly happy. The figure to watch
+      is swap: if swap use is climbing and the disk is thrashing, you are genuinely
+      short of memory. Cache is not.</p>
+    </section>
+
+    <section>
+      <h2>Where to find it</h2>
+      <p><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>Esc</kbd> (or
+      <kbd>Meta</kbd>+<kbd>Esc</kbd>), or launcher &rarr; <strong>Task
+      Manager</strong> (also found by typing <em>taskmgr</em> or <em>System
+      Monitor</em>).</p>
+    </section>
+
+    <section>
+      <h2>See also</h2>
+      <div class="related"><a href="app-konsole.html">Konsole</a><a href="app-drive-health.html">Drive health</a><a href="app-desktop.html">The desktop, panels and windows</a></div>
+    </section>
+
+    <footer class="colophon">Dagric OS Manual &middot; stored on this computer, no internet needed &middot; <a href="index.html">every application</a></footer>
+
+  </main>
+</div>
+</body>
+</html>

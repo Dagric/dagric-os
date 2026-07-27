@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vorta and Borg &mdash; Dagric OS Manual</title>
+<link rel="stylesheet" href="manual.css">
+<script src="manual.js"></script>
+</head>
+<body>
+<div class="shell">
+  <aside class="side">
+    <div class="sidebox">
+      <a class="brand" href="index.html">
+        <div class="mark">D</div>
+        <div class="brand-name">Dagric OS<small>Manual</small></div>
+      </a>
+      <nav class="toc">
+        <a class="back" href="index.html">&larr; All applications</a>
+        <div class="navgroup">System and safety</div>
+        <a href="app-updates.html">Updates</a>
+        <a href="app-snapshots.html">Snapshot recovery</a>
+        <a href="app-timeshift.html">Timeshift</a>
+        <a href="app-kup.html">Kup</a>
+        <a href="app-vorta.html" class="active">Vorta and Borg</a>
+        <a href="app-firewall.html">The firewall</a>
+        <a href="app-opensnitch.html">OpenSnitch</a>
+        <a href="app-drive-health.html">Drive health</a>
+        <a href="app-keepassxc.html">KeePassXC</a>
+        <a href="app-cryptomator.html">Cryptomator</a>
+        <a href="app-bleachbit.html">BleachBit</a>
+        <a href="app-flatseal.html">Flatseal</a>
+        <a href="app-apparmor.html">AppArmor and the security baseline</a>
+        <a href="app-accounts.html">Accounts, passwords and disk encryption</a>
+        <a href="app-orca.html">Orca</a>
+      </nav>
+    </div>
+  </aside>
+
+  <main class="content">
+
+    <header class="hero">
+      <div class="eyebrow">System and safety</div>
+      <h1>Vorta and Borg<span class="pill pro">PRO</span></h1>
+      <p class="sub">Encrypted, deduplicated backups &mdash; the serious option, with a friendly window.</p>
+    </header>
+
+    <div class="swap"><span>On Windows this was</span><strong>File History, Backblaze, Acronis</strong></div>
+
+    <div class="notice pro-notice"><div><strong>This one is part of Dagric&nbsp;OS Pro.</strong> You are reading the manual on the free edition, so it is not installed on this computer. The page is here on purpose &mdash; you should be able to see exactly what Pro adds before you decide whether you want it.</div></div>
+    <section>
+      <h2>What it is</h2>
+      <p><strong>Borg</strong> is a backup engine with three properties that matter:
+      it deduplicates (the same data is stored once, however many times it appears),
+      it compresses, and it encrypts before anything is written. A daily backup of a
+      500&nbsp;GB home folder can occupy very little new space each day.</p>
+      <p><strong>Vorta</strong> is the window in front of it, so you never have to
+      learn Borg's command line. Repositories can live on a plugged-in drive, a NAS,
+      or a server you reach over SSH.</p>
+    </section>
+
+    <section>
+      <h2>Five things you will actually do</h2>
+      <ol class="tasks">
+        <li><span class="t">Create a repository</span><p>In Vorta, <em>Repository</em> &rarr; <em>New repository</em>. Pick a
+         local path or an SSH target, choose encryption (repokey with a passphrase is
+         the normal answer), and write the passphrase down somewhere physical.</p></li>
+        <li><span class="t">Choose what goes in</span><p>The <em>Sources</em> tab. Add your home folder, then use the exclusion
+         patterns to drop caches, Downloads, VM images and game libraries.</p></li>
+        <li><span class="t">Schedule it</span><p>The <em>Schedule</em> tab: an interval, or at a fixed time, or when a
+         particular drive appears. Vorta can also be told not to run on battery or on
+         a metered connection.</p></li>
+        <li><span class="t">Restore</span><p>The <em>Archives</em> tab lists every backup by date. <em>Extract</em>
+         opens the contents so you can pull out one file, or the whole thing. You can
+         also mount an archive as a folder and browse it in Dolphin.</p></li>
+        <li><span class="t">Prune old archives</span><p>The retention settings keep, for example, seven daily, four weekly and
+         six monthly archives and delete the rest. Without pruning, a repository grows
+         forever.</p></li>
+      </ol>
+    </section>
+
+    <section>
+      <h2>One thing that will surprise you</h2>
+      <p><strong>Lose the passphrase and the backup is gone.</strong> Borg's
+      encryption is real encryption &mdash; there is no recovery service, no reset
+      link and no support desk with a master key. That is precisely what you want
+      from a backup you might store on somebody else's server, and it is
+      unforgiving. Put the passphrase in
+      <a href="app-keepassxc.html">KeePassXC</a> <em>and</em> on paper somewhere
+      else.</p>
+      <p>Then do the other thing nobody does: restore a file, on purpose, a week
+      after you set this up. An untested backup is a hope.</p>
+    </section>
+
+    <section>
+      <h2>Where to find it</h2>
+      <p>Launcher &rarr; <strong>Encrypted Backup</strong> (also <em>Vorta</em>).
+      The engine underneath is <code>borg</code> in a terminal if you ever want
+      it.</p>
+    </section>
+
+    <section>
+      <h2>See also</h2>
+      <div class="related"><a href="app-kup.html">Kup</a><a href="app-cloud-storage.html">Cloud storage: rclone and Google Drive</a><a href="app-keepassxc.html">KeePassXC</a><a href="app-snapshots.html">Snapshot recovery</a></div>
+    </section>
+
+    <footer class="colophon">Dagric OS Manual &middot; stored on this computer, no internet needed &middot; <a href="index.html">every application</a></footer>
+
+  </main>
+</div>
+</body>
+</html>

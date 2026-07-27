@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Set Up Dagric &mdash; Dagric OS Manual</title>
+<link rel="stylesheet" href="manual.css">
+<script src="manual.js"></script>
+</head>
+<body>
+<div class="shell">
+  <aside class="side">
+    <div class="sidebox">
+      <a class="brand" href="index.html">
+        <div class="mark">D</div>
+        <div class="brand-name">Dagric OS<small>Manual</small></div>
+      </a>
+      <nav class="toc">
+        <a class="back" href="index.html">&larr; All applications</a>
+        <div class="navgroup">Dagric&#x27;s own tools</div>
+        <a href="tool-dagric-hub.html">Dagric Hub</a>
+        <a href="tool-dagric-setup.html">Finish Setup</a>
+        <a href="tool-dagric-firstrun.html" class="active">Set Up Dagric</a>
+        <a href="tool-dagric-migrate.html">Migration Assistant</a>
+        <a href="tool-dagric-appearance.html">Dagric Appearance</a>
+        <a href="tool-dagric-looks.html">Dagric Looks</a>
+        <a href="tool-dagric-style.html">Dagric Styles</a>
+        <a href="tool-dagric-display.html">Dagric Display</a>
+        <a href="tool-dagric-app-names.html">Why the apps have plain names</a>
+        <a href="tool-dagric-get-variety.html">Rotating wallpapers (Variety)</a>
+        <a href="tool-dagric-drivers.html">NVIDIA driver helper</a>
+        <a href="tool-dagric-security-checkup.html">Security Checkup</a>
+        <a href="tool-dagric-usb-protect.html">USB Protection</a>
+        <a href="tool-dagric-vm.html">Windows in a window (VM setup)</a>
+        <a href="tool-dagric-gaming.html">Proton-GE helper</a>
+        <a href="tool-dagric-ai.html">Local AI (Ollama)</a>
+        <a href="tool-dagric-manual.html">This manual</a>
+        <a href="tool-dagric-background.html">Helpers that run by themselves</a>
+        <a href="tool-dagric-commands.html">Every dagric command</a>
+      </nav>
+    </div>
+  </aside>
+
+  <main class="content">
+
+    <header class="hero">
+      <div class="eyebrow">Dagric&#x27;s own tools</div>
+      <h1>Set Up Dagric</h1>
+      <p class="sub">The wizard you meet at your first login, and can open again whenever you like.</p>
+    </header>
+
+    <div class="swap"><span>On Windows this was</span><strong>the Windows out-of-box experience</strong></div>
+
+    <section>
+      <h2>What it is</h2>
+      <p><strong>Set Up Dagric</strong> opens once, at your first login, and asks a
+      handful of questions that actually change the machine: light or dark, which
+      wallpaper, an accent colour, how big the text should be, where the taskbar
+      goes, and &mdash; if it finds a Windows installation on this disk &mdash;
+      whether to fetch your files across now.</p>
+      <p>Every step is skippable. Closing the window at any point leaves a desktop
+      that works, because every question has a sensible answer already
+      selected.</p>
+    </section>
+
+    <section>
+      <h2>Five things you will actually do</h2>
+      <ol class="tasks">
+        <li><span class="t">Answer or skip</span><p>Each screen has a way past it. Nothing is required, and nothing here is
+         a setting you cannot reach again from the
+         <a href="tool-dagric-hub.html">Dagric Hub</a> later.</p></li>
+        <li><span class="t">Undo the whole thing</span><p>The header carries <em>Undo my changes</em>, which puts the colours,
+         accent, wallpaper, text size and panels back exactly as they were when the
+         wizard opened. It is the answer to &ldquo;what if I make it worse&rdquo;, and
+         it is one button.</p></li>
+        <li><span class="t">Bring your files over during setup</span><p>If a Windows drive is on this PC the wizard offers to run the
+         <a href="tool-dagric-migrate.html">Migration Assistant</a> there and then.
+         Windows is only ever read. If you would rather do it later, say no &mdash;
+         it is in the Hub.</p></li>
+        <li><span class="t">Open it again</span><p>Launcher &rarr; <em>Set Up Dagric</em>, or <code>dagric-firstrun</code>.
+         It only opens <em>by itself</em> once; run by hand it always opens, so you
+         can redo the whole setup on a whim.</p></li>
+        <li><span class="t">Use it without the pictures</span><p>On a machine where the graphical window cannot start, the same journey
+         runs as a series of plain dialogues instead &mdash; light or dark, wallpaper,
+         text size, taskbar, files. A first run that never appears would be far worse
+         than a plain one.</p></li>
+      </ol>
+    </section>
+
+    <section>
+      <h2>One thing that will surprise you</h2>
+      <p><strong>It marks itself as done when the window actually appears &mdash;
+      not when it starts, and not when you press Finish.</strong> That sounds like a
+      detail and it is the difference between a wizard that works and one that
+      annoys. Marking it at start would mean a login where the desktop was not quite
+      ready burned your one chance to ever see it. Marking it at Finish would mean a
+      wizard you deliberately closed came back at the next login, uninvited. Closing
+      it is an answer, and Dagric treats it as one.</p>
+    </section>
+
+    <section>
+      <h2>Where to find it</h2>
+      <p>It opens itself at your first login. After that: launcher &rarr; <em>Set Up
+      Dagric</em>, Dagric Hub &rarr; <em>Set up Dagric (welcome wizard)</em>, or
+      <code>dagric-firstrun</code>.</p>
+    </section>
+
+    <section>
+      <h2>See also</h2>
+      <div class="related"><a href="tool-dagric-hub.html">Dagric Hub</a><a href="tool-dagric-migrate.html">Migration Assistant</a><a href="tool-dagric-display.html">Dagric Display</a><a href="tool-dagric-appearance.html">Dagric Appearance</a><a href="tool-dagric-background.html">Helpers that run by themselves</a></div>
+    </section>
+
+    <footer class="colophon">Dagric OS Manual &middot; stored on this computer, no internet needed &middot; <a href="index.html">every application</a></footer>
+
+  </main>
+</div>
+</body>
+</html>

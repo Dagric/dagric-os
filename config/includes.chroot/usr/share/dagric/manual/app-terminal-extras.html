@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>nala, bat and zoxide &mdash; Dagric OS Manual</title>
+<link rel="stylesheet" href="manual.css">
+<script src="manual.js"></script>
+</head>
+<body>
+<div class="shell">
+  <aside class="side">
+    <div class="sidebox">
+      <a class="brand" href="index.html">
+        <div class="mark">D</div>
+        <div class="brand-name">Dagric OS<small>Manual</small></div>
+      </a>
+      <nav class="toc">
+        <a class="back" href="index.html">&larr; All applications</a>
+        <div class="navgroup">For developers</div>
+        <a href="app-docker.html">Docker and Podman</a>
+        <a href="app-distrobox.html">Distrobox</a>
+        <a href="app-devtools.html">Git, compilers and Python</a>
+        <a href="app-ssh.html">SSH</a>
+        <a href="app-terminal-extras.html" class="active">nala, bat and zoxide</a>
+      </nav>
+    </div>
+  </aside>
+
+  <main class="content">
+
+    <header class="hero">
+      <div class="eyebrow">For developers</div>
+      <h1>nala, bat and zoxide<span class="pill pro">PRO</span></h1>
+      <p class="sub">Three small tools that make the terminal considerably more pleasant.</p>
+    </header>
+
+    <div class="swap"><span>On Windows this was</span><strong>nothing &mdash; these are quality-of-life additions</strong></div>
+
+    <div class="notice pro-notice"><div><strong>This one is part of Dagric&nbsp;OS Pro.</strong> You are reading the manual on the free edition, so it is not installed on this computer. The page is here on purpose &mdash; you should be able to see exactly what Pro adds before you decide whether you want it.</div></div>
+    <section>
+      <h2>What it is</h2>
+      <p>Dagric&nbsp;OS Pro adds three utilities that experienced Linux users install
+      on every machine they touch, so that you do not have to discover them
+      yourself.</p>
+      <ul class="plain">
+        <li><strong>nala</strong> &mdash; a readable front end to apt, with parallel
+        downloads, a proper progress display, and a history you can undo.</li>
+        <li><strong>bat</strong> &mdash; <code>cat</code> with syntax highlighting,
+        line numbers and paging.</li>
+        <li><strong>zoxide</strong> &mdash; a <code>cd</code> that learns the folders
+        you use, so you can jump to one by typing a fragment of its name.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>Five things you will actually do</h2>
+      <ol class="tasks">
+        <li><span class="t">Install and update the readable way</span><p><code>sudo nala install packagename</code> and
+         <code>sudo nala upgrade</code>. The output is laid out in a table instead of
+         a wall of text.</p></li>
+        <li><span class="t">Undo an apt operation</span><p><code>nala history</code> lists what you have done;
+         <code>sudo nala history undo &lt;id&gt;</code> reverses one. Worth knowing
+         about before the day you need it.</p></li>
+        <li><span class="t">Read a file properly</span><p><code>batcat somefile.py</code> &mdash; note the name, see the surprise
+         below. It highlights the syntax, numbers the lines and pages long files
+         automatically.</p></li>
+        <li><span class="t">Turn on zoxide</span><p>It needs one line in your shell configuration. Add
+         <code>eval "$(zoxide init bash)"</code> to the end of
+         <code>~/.bashrc</code> and open a new terminal.</p></li>
+        <li><span class="t">Jump to a folder</span><p>After zoxide has watched you for a while, <code>z proj</code> takes you
+         to the project folder you use most whose name contains &ldquo;proj&rdquo;. It
+         is a small thing that you will use forty times a day.</p></li>
+      </ol>
+    </section>
+
+    <section>
+      <h2>One thing that will surprise you</h2>
+      <p><strong>bat is called <code>batcat</code> on Debian.</strong> Another,
+      much older package already owned the name <code>bat</code>, and Debian will not
+      let two packages fight over one command &mdash; so it was renamed rather than
+      allowed to collide. Every tutorial on the internet says <code>bat</code>. If you
+      want it to be, add <code>alias bat=batcat</code> to your
+      <code>~/.bashrc</code>.</p>
+    </section>
+
+    <section>
+      <h2>Where to find it</h2>
+      <p>A terminal. All three are commands, not applications.</p>
+    </section>
+
+    <section>
+      <h2>See also</h2>
+      <div class="related"><a href="app-konsole.html">Konsole</a><a href="app-devtools.html">Git, compilers and Python</a><a href="app-updates.html">Updates</a><a href="app-distrobox.html">Distrobox</a></div>
+    </section>
+
+    <footer class="colophon">Dagric OS Manual &middot; stored on this computer, no internet needed &middot; <a href="index.html">every application</a></footer>
+
+  </main>
+</div>
+</body>
+</html>

@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Migration Assistant &mdash; Dagric OS Manual</title>
+<link rel="stylesheet" href="manual.css">
+<script src="manual.js"></script>
+</head>
+<body>
+<div class="shell">
+  <aside class="side">
+    <div class="sidebox">
+      <a class="brand" href="index.html">
+        <div class="mark">D</div>
+        <div class="brand-name">Dagric OS<small>Manual</small></div>
+      </a>
+      <nav class="toc">
+        <a class="back" href="index.html">&larr; All applications</a>
+        <div class="navgroup">Dagric&#x27;s own tools</div>
+        <a href="tool-dagric-hub.html">Dagric Hub</a>
+        <a href="tool-dagric-setup.html">Finish Setup</a>
+        <a href="tool-dagric-firstrun.html">Set Up Dagric</a>
+        <a href="tool-dagric-migrate.html" class="active">Migration Assistant</a>
+        <a href="tool-dagric-appearance.html">Dagric Appearance</a>
+        <a href="tool-dagric-looks.html">Dagric Looks</a>
+        <a href="tool-dagric-style.html">Dagric Styles</a>
+        <a href="tool-dagric-display.html">Dagric Display</a>
+        <a href="tool-dagric-app-names.html">Why the apps have plain names</a>
+        <a href="tool-dagric-get-variety.html">Rotating wallpapers (Variety)</a>
+        <a href="tool-dagric-drivers.html">NVIDIA driver helper</a>
+        <a href="tool-dagric-security-checkup.html">Security Checkup</a>
+        <a href="tool-dagric-usb-protect.html">USB Protection</a>
+        <a href="tool-dagric-vm.html">Windows in a window (VM setup)</a>
+        <a href="tool-dagric-gaming.html">Proton-GE helper</a>
+        <a href="tool-dagric-ai.html">Local AI (Ollama)</a>
+        <a href="tool-dagric-manual.html">This manual</a>
+        <a href="tool-dagric-background.html">Helpers that run by themselves</a>
+        <a href="tool-dagric-commands.html">Every dagric command</a>
+      </nav>
+    </div>
+  </aside>
+
+  <main class="content">
+
+    <header class="hero">
+      <div class="eyebrow">Dagric&#x27;s own tools</div>
+      <h1>Migration Assistant</h1>
+      <p class="sub">Bring your files, bookmarks, open tabs and Firefox logins across from Windows.</p>
+    </header>
+
+    <div class="swap"><span>On Windows this was</span><strong>Windows Easy Transfer, and a very long evening with a USB stick</strong></div>
+
+    <section>
+      <h2>What it is</h2>
+      <p>The <strong>Migration Assistant</strong> finds the Windows installation
+      still on this computer, shows you what is in it, and copies over what you pick.
+      It handles Documents, Desktop, Pictures, Music, Videos and Downloads, the
+      bookmarks from Chrome, Edge and Firefox, the tabs you had open, and &mdash;
+      for Firefox &mdash; your saved logins.</p>
+      <p><strong>The Windows partition is only ever mounted read-only.</strong>
+      Nothing there is moved, changed or deleted, so you can boot back into Windows
+      afterwards and find it exactly as you left it. Files are copied, and a copy
+      never overwrites something already in your new home folder.</p>
+    </section>
+
+    <section>
+      <h2>Five things you will actually do</h2>
+      <ol class="tasks">
+        <li><span class="t">Install first, then migrate</span><p>If you run it from the live USB it warns you, and it is right to: the
+         live session's home folder lives in memory and disappears at shutdown. Install
+         Dagric, then run this from the Hub.</p></li>
+        <li><span class="t">Choose what comes over</span><p>A tick list appears: Documents, Desktop, Pictures, Music and Videos are
+         on, Downloads is off, bookmarks and open tabs are on, saved passwords are off.
+         Untick Videos if space is tight &mdash; it checks free space before copying
+         and stops rather than filling the disk.</p></li>
+        <li><span class="t">Import your bookmarks afterwards</span><p>They arrive as <code>~/Windows-bookmarks.html</code>. In Firefox:
+         <em>Bookmarks</em> &rarr; <em>Manage Bookmarks</em> &rarr; <em>Import and
+         Backup</em> &rarr; <em>Import Bookmarks from HTML</em>. Your open tabs come as
+         <code>~/Windows-open-tabs.html</code> and import the same way, arriving as a
+         folder you can &ldquo;Open All in Tabs&rdquo;.</p></li>
+        <li><span class="t">Deal with saved passwords</span><p>Firefox logins can be recovered into
+         <code>~/Windows-passwords.csv</code>; if that profile had a Primary Password
+         you are asked for it. Import the file into Firefox or
+         <a href="app-keepassxc.html">KeePassXC</a>, then <strong>delete it</strong>
+         &mdash; it is plain text, and the tool says so twice for a reason.</p></li>
+        <li><span class="t">Run it more than once</span><p>It is safe to. Copies skip files that already exist, so a second run
+         picks up the folders you did not tick the first time without duplicating
+         anything.</p></li>
+      </ol>
+    </section>
+
+    <section>
+      <h2>One thing that will surprise you</h2>
+      <p><strong>Chrome and Edge passwords cannot be recovered, by anybody, and
+      that is a good thing.</strong> They are encrypted with a key tied to your
+      Windows user account, which does not exist on this machine. No tool can decrypt
+      them here &mdash; if one claims to, be suspicious of it.</p>
+      <p>The fix takes two minutes and must be done <em>while you still have
+      Windows</em>: in Chrome, <em>Settings</em> &rarr; <em>Autofill and passwords</em>
+      &rarr; <em>Google Password Manager</em> &rarr; <em>Settings</em> &rarr;
+      <em>Download file</em>; in Edge, <em>Settings</em> &rarr; <em>Profiles</em>
+      &rarr; <em>Passwords</em> &rarr; <em>Export passwords</em>. Save the CSV, then
+      run the migration &mdash; it looks for that file and tells you where it
+      found it.</p>
+      <p>One more thing to check before you wipe the old machine: if the Windows drive
+      is <strong>BitLocker</strong>-encrypted, Dagric cannot read it without the
+      recovery key. The tool detects that and says so plainly. Turn BitLocker off in
+      Windows first, or copy your files to a plain USB drive.</p>
+    </section>
+
+    <section>
+      <h2>Where to find it</h2>
+      <p>Dagric Hub &rarr; <em>Migrate from Windows</em>, launcher &rarr;
+      <em>Migration Assistant</em>, or <code>dagric-migrate</code>.</p>
+    </section>
+
+    <section>
+      <h2>See also</h2>
+      <div class="related"><a href="app-dolphin.html">Dolphin</a><a href="app-firefox.html">Firefox</a><a href="app-keepassxc.html">KeePassXC</a><a href="tool-dagric-hub.html">Dagric Hub</a></div>
+    </section>
+
+    <footer class="colophon">Dagric OS Manual &middot; stored on this computer, no internet needed &middot; <a href="index.html">every application</a></footer>
+
+  </main>
+</div>
+</body>
+</html>

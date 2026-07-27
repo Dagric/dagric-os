@@ -294,10 +294,13 @@
         <a href="#printers">Printers</a>
         <a href="#shortcuts">Keyboard shortcuts</a>
         <div class="navgroup">Make it yours</div>
+        <a href="#setup">The setup wizard</a>
         <a href="#looks">Looks and Styles</a>
+        <a href="#textsize">Text size &amp; night light</a>
         <a href="#migrate">Files from Windows</a>
         <a href="#drives">Drives &amp; USB sticks</a>
         <div class="navgroup">Going further</div>
+        <a href="#manual">The full manual</a>
         <a href="#phone">Pairing your phone</a>
         <a href="#usbguard">USB Protection</a>
         <a href="#backups">Backups &amp; drive health</a>
@@ -318,9 +321,10 @@
 
     <section id="apps">
       <h2>Installing apps</h2>
-      <p>Open <strong>Discover</strong> (the bag icon in the taskbar). Search, click
-      Install, done. Everything is free, checked, and removable. Removing an app
-      actually removes it — nothing comes back on its own.</p>
+      <p>Open the <strong>Software Store</strong> (the bag icon in the taskbar —
+      it is called Discover underneath, and that name still finds it). Search,
+      click Install, done. Everything is free, checked, and removable. Removing
+      an app actually removes it — nothing comes back on its own.</p>
     </section>
 
     <section id="updates">
@@ -352,22 +356,40 @@
           <div class="what"><strong>Open the app launcher</strong> — Meta is the ⊞ key</div>
         </div>
         <div class="key-card">
-          <div class="combo"><kbd>Ctrl</kbd><span class="plus">+</span><kbd>Esc</kbd></div>
-          <div class="what"><strong>System monitor</strong> — the task-manager reflex</div>
+          <div class="combo"><kbd>Ctrl</kbd><span class="plus">+</span><kbd>Shift</kbd><span class="plus">+</span><kbd>Esc</kbd></div>
+          <div class="what"><strong>Task Manager</strong> — the same keys as Windows, when something stops responding</div>
         </div>
         <div class="key-card">
           <div class="combo"><kbd>Meta</kbd><span class="plus">+</span><kbd>E</kbd></div>
-          <div class="what"><strong>File manager</strong></div>
+          <div class="what"><strong>Files</strong> — your file manager</div>
         </div>
         <div class="key-card">
           <div class="combo"><kbd>Print Screen</kbd></div>
-          <div class="what"><strong>Screenshots</strong> with Spectacle</div>
+          <div class="what"><strong>Screenshot</strong> — grab the screen or a region</div>
         </div>
         <div class="key-card">
           <div class="combo"><kbd>Meta</kbd><span class="plus">+</span><kbd>L</kbd></div>
           <div class="what"><strong>Lock the screen</strong></div>
         </div>
       </div>
+    </section>
+
+    <section id="setup">
+      <h2>The setup wizard is still there</h2>
+      <p>The first time you signed in, Dagric walked you through six short
+      screens — light or dark, an accent color, a wallpaper, how big the text
+      should be, where the taskbar goes, and bringing your files over from
+      Windows. That was <strong>Set Up Dagric</strong>, and it did not vanish
+      after the first run. Press the launcher, type <em>Set Up Dagric</em>, and
+      go through it again whenever you like (it is also in the Hub, under
+      <em>Get started</em>).</p>
+      <p>Everything in it applies as you click, so you see the real desktop
+      change rather than a preview. If you go too far, the <strong>Undo my
+      changes</strong> button at the top of the window puts back the colors,
+      wallpaper, text size and taskbar you started with.</p>
+      <div class="tip">It is also the shortest route to
+      <strong>Migrate from Windows</strong> if you skipped that step the first
+      time.</div>
     </section>
 
     <section id="looks">
@@ -392,6 +414,25 @@
       things costs nothing, so try everything.</p>
     </section>
 
+    <section id="textsize">
+      <h2>If everything looks too small</h2>
+      <p>On a laptop with a very sharp screen, text can come out tiny. Open
+      <strong>Text Size</strong> from the launcher (or the Hub &rarr;
+      <em>Text size and night light</em>) and pick a size between 100% and 200%.
+      Dagric only offers sizes that still leave room for windows and buttons on
+      your screen, so you cannot pick one that makes the desktop unusable.</p>
+      <p>The change happens straight away and then asks whether to keep it.
+      <strong>If you answer nothing, it puts itself back after twenty
+      seconds</strong> — so if the new size made everything unreadable, or the
+      question ended up off the edge of the screen, just wait and the desktop
+      returns to how it was. Dagric also measures your screen when you first
+      sign in and picks a sensible size on its own, the way Windows does.</p>
+      <p>The same tool has a <strong>night light</strong> — Windows calls it the
+      same thing. It warms the screen's colors so late-evening reading is easier
+      on your eyes. Pick <em>evenings only</em> (on from 8pm to 7am), <em>all the
+      time</em>, or off, and forget about it.</p>
+    </section>
+
     <section id="migrate">
       <h2>Bringing your files from Windows</h2>
       <p>Open the <strong>Dagric Hub</strong> and pick <strong>Migrate from
@@ -405,8 +446,27 @@
     <section id="drives">
       <h2>Your Windows drives and USB sticks</h2>
       <p>They just work. Plug in a USB stick or external drive (including
-      NTFS-formatted Windows drives) and it appears in <strong>Dolphin</strong>,
-      the file manager (folder icon in the taskbar).</p>
+      NTFS-formatted Windows drives) and it appears in <strong>Files</strong> —
+      the folder icon in the taskbar, and what Windows called File Explorer. If
+      you read a forum post that calls it <em>Dolphin</em>, that is the same
+      program: Dagric labels apps by what they do, and the original name still
+      finds them when you search the launcher.</p>
+    </section>
+
+    <section id="manual">
+      <h2>The full manual</h2>
+      <p>This page is your first week. For every application on the computer —
+      what it is, what it replaced on Windows, and the five things you will
+      actually do with it — open the <strong>Dagric Manual</strong> from the
+      launcher, or run <code>dagric-manual</code>. It is in the Hub too, under
+      <em>App manual</em>.</p>
+      <p>It works offline exactly like this page, and its search knows the
+      Windows names: type <em>Notepad</em> and you get the Text Editor, type
+      <em>Task Manager</em> and you get the system monitor, type <em>PDF</em> and
+      you get everything that opens one.</p>
+      <div class="tip">Two help entries, on purpose. This <strong>guide</strong>
+      is the short read for your first week. The <strong>manual</strong> is the
+      reference you come back to when you need one specific app.</div>
     </section>
 
     <section id="phone">
@@ -465,8 +525,11 @@
 
     <section id="help">
       <h2>Getting help</h2>
-      <p>Visit <strong>dagric.com/support</strong>. Your system details for any
-      support request: open Konsole and run <code>cat /etc/os-release</code>.</p>
+      <p>Try the <a href="#manual">Dagric Manual</a> first — it is on this
+      computer, it needs no internet, and it has a page for every app here.
+      After that, visit <strong>dagric.com/support</strong>. Your system details
+      for any support request: open the <strong>Terminal</strong> (Konsole) and
+      run <code>cat /etc/os-release</code>.</p>
     </section>
 
     <footer class="colophon">Dagric OS · This guide is stored on your computer and needs no internet connection.</footer>

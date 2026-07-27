@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cloud storage: rclone and Google Drive &mdash; Dagric OS Manual</title>
+<link rel="stylesheet" href="manual.css">
+<script src="manual.js"></script>
+</head>
+<body>
+<div class="shell">
+  <aside class="side">
+    <div class="sidebox">
+      <a class="brand" href="index.html">
+        <div class="mark">D</div>
+        <div class="brand-name">Dagric OS<small>Manual</small></div>
+      </a>
+      <nav class="toc">
+        <a class="back" href="index.html">&larr; All applications</a>
+        <div class="navgroup">Internet and communication</div>
+        <a href="app-firefox.html">Firefox</a>
+        <a href="app-chromium.html">Chromium</a>
+        <a href="app-thunderbird.html">Thunderbird</a>
+        <a href="app-network.html">Wi-Fi, wired networks and VPN</a>
+        <a href="app-kdeconnect.html">KDE Connect</a>
+        <a href="app-localsend.html">LocalSend</a>
+        <a href="app-syncthing.html">Syncthing</a>
+        <a href="app-cloud-storage.html" class="active">Cloud storage: rclone and Google Drive</a>
+        <a href="app-qbittorrent.html">qBittorrent</a>
+      </nav>
+    </div>
+  </aside>
+
+  <main class="content">
+
+    <header class="hero">
+      <div class="eyebrow">Internet and communication</div>
+      <h1>Cloud storage: rclone and Google Drive<span class="pill pro">PRO</span></h1>
+      <p class="sub">Reach Drive, Dropbox, OneDrive, S3 and seventy other services from this machine.</p>
+    </header>
+
+    <div class="swap"><span>On Windows this was</span><strong>the OneDrive, Google Drive and Dropbox desktop apps</strong></div>
+
+    <div class="notice pro-notice"><div><strong>This one is part of Dagric&nbsp;OS Pro.</strong> You are reading the manual on the free edition, so it is not installed on this computer. The page is here on purpose &mdash; you should be able to see exactly what Pro adds before you decide whether you want it.</div></div>
+    <section>
+      <h2>What it is</h2>
+      <p>Dagric&nbsp;OS Pro gives you two routes to cloud storage.</p>
+      <p><strong>Google Drive inside Dolphin</strong> is the friendly one: add your
+      Google account once in System Settings, and Drive appears in the file manager
+      like any other folder. <strong>rclone</strong> is the powerful one: a
+      command-line tool that speaks to more than seventy services &mdash; Drive,
+      Dropbox, OneDrive, Box, pCloud, Backblaze B2, Amazon S3 and the rest &mdash; and
+      can copy, sync, mount or encrypt against any of them.</p>
+    </section>
+
+    <section>
+      <h2>Five things you will actually do</h2>
+      <ol class="tasks">
+        <li><span class="t">Put Google Drive in the file manager</span><p>System Settings &rarr; <em>Online Accounts</em> &rarr; <em>Add
+         Account</em> &rarr; <em>Google</em>, and sign in through the window that
+         appears. Drive then shows up in Dolphin's Places list, and every application
+         can open and save there.</p></li>
+        <li><span class="t">Set up rclone for a service</span><p><code>rclone config</code> in a terminal walks through it with a
+         menu: name the remote, pick the provider, and it opens a browser for you to
+         authorise. Give the remote a short name &mdash; you will type it a lot.</p></li>
+        <li><span class="t">Copy files up or down</span><p><code>rclone copy ~/Documents mydrive:Documents</code> pushes a folder
+         up; swap the arguments to pull it back. Add <code>--progress</code> to watch
+         it work. <code>copy</code> never deletes anything; <code>sync</code> makes
+         the destination match exactly, so read it twice before you run it.</p></li>
+        <li><span class="t">Mount a cloud folder like a drive</span><p><code>rclone mount mydrive: ~/Drive --vfs-cache-mode writes</code>
+         makes the remote appear as a normal folder for as long as that command runs.
+         Good for browsing, less good for editing enormous files.</p></li>
+        <li><span class="t">Encrypt before it leaves</span><p>rclone's <em>crypt</em> remote encrypts file contents and names before
+         upload, so the provider stores nothing readable. For a friendlier version of
+         the same idea, use <a href="app-cryptomator.html">Cryptomator</a>.</p></li>
+      </ol>
+    </section>
+
+    <section>
+      <h2>One thing that will surprise you</h2>
+      <p><strong>There is no OneDrive that keeps working silently in the
+      background.</strong> Microsoft publishes no Linux client, and the third-party
+      ones are best-effort. rclone will happily copy to and from OneDrive on a
+      schedule, and Drive appears in Dolphin properly, but the always-there,
+      always-synced icon in the corner is a Windows and macOS arrangement. If
+      continuous sync is what you want, <a href="app-syncthing.html">Syncthing</a>
+      between your own machines does it better and without a landlord.</p>
+    </section>
+
+    <section>
+      <h2>Where to find it</h2>
+      <p>Google Drive: System Settings &rarr; <em>Online Accounts</em>, then
+      Dolphin. rclone: a terminal, starting with <code>rclone config</code>.</p>
+    </section>
+
+    <section>
+      <h2>See also</h2>
+      <div class="related"><a href="app-syncthing.html">Syncthing</a><a href="app-cryptomator.html">Cryptomator</a><a href="app-vorta.html">Vorta and Borg</a><a href="app-dolphin.html">Dolphin</a></div>
+    </section>
+
+    <footer class="colophon">Dagric OS Manual &middot; stored on this computer, no internet needed &middot; <a href="index.html">every application</a></footer>
+
+  </main>
+</div>
+</body>
+</html>

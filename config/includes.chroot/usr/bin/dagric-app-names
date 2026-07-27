@@ -1,0 +1,277 @@
+#!/bin/sh
+# SPDX-FileCopyrightText: 2026 DGR Operations <repo@dagric.com>
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+# Dagric OS — call the apps what they ARE.
+#
+# A Windows switcher opens the launcher and reads: Dolphin, Konsole, Gwenview,
+# Okular, Ark, Elisa, Spectacle, Kate. Not one of those words tells them what
+# the program does. This regenerates a renamed copy of each .desktop file so
+# the menu says Files, Terminal, Photos, Document Viewer, Archive Manager.
+#
+# WHY /usr/local/share/applications AND NOT AN EDIT IN PLACE
+# ----------------------------------------------------------
+# Editing /usr/share/applications/*.desktop is simpler, and it is what
+# 0500-desktop-defaults does to the Calamares entry. That is fine THERE: the
+# installer entry only has to survive the live session. It is wrong here.
+# Dagric is installed once and then updated for years, and dpkg restores the
+# packaged file on every upgrade of dolphin/konsole/okular/... — so an in-place
+# edit means "Files" silently turns back into "Dolphin" the first time KDE gets
+# a point release, on a machine whose owner has no idea why or how to fix it.
+# A rename that expires is worse than no rename.
+#
+# So we write a COMPLETE copy into /usr/local/share/applications instead.
+# Verified on the target, not assumed:
+#   * nothing in the base system sets XDG_DATA_DIRS (/etc/profile, /etc/profile.d,
+#     /etc/environment and the systemd user-environment generators are all clean),
+#     and startplasma-x11/startplasma-wayland reference XDG_CONFIG_DIRS only —
+#     never XDG_DATA_DIRS. So the spec default applies:
+#         ~/.local/share : /usr/local/share : /usr/share
+#   * for one desktop-file-id the FIRST directory wins, whole file. There is no
+#     key-level merge, which is why the copy has to be complete rather than a
+#     stub carrying just Name=.
+# dpkg never writes to /usr/local, so the rename cannot be reverted by an upgrade.
+#
+# The price of shadowing a whole file is that the copy freezes Exec=, MimeType=
+# and the Desktop Actions as they were the day it was written — so an upgrade
+# that adds a MIME type or changes a command line would be masked by our stale
+# copy. That is why this is a REGENERATOR and not a set of hand-written files,
+# and why /etc/apt/apt.conf.d/99dagric-app-names re-runs it after every package
+# operation: the override is re-derived from whatever upstream currently ships,
+# and only the naming keys are ours. Build time writes it once; apt keeps it true.
+#
+# KEEPING THE ORIGINAL NAME FINDABLE — the part that must not regress
+# -------------------------------------------------------------------
+# Someone reading a forum post that says "open Dolphin" has to be able to find
+# it. Verified from the shipped Trixie binary rather than assumed: the KRunner
+# services plugin
+#     /usr/lib/x86_64-linux-gnu/qt6/plugins/kf6/krunner/krunner_services.so
+# imports KService::keywords() (alongside name(), genericName() and
+# untranslatedName()), so Keywords= really is searched — and Kickoff, KRunner
+# and the Overview effect all sit on that same Plasma Search stack, so putting
+# the old name in Keywords= covers all three. Every rename below therefore keeps
+# the upstream name as a keyword, and repeats it in GenericName, which Kickoff
+# renders as the second line under the app name (appNameFormat defaults to
+# NameAndGenericName). The menu reads "Files / File manager (Dolphin)", so the
+# window title bar — which still says Dolphin, and which no .desktop file can
+# change — agrees with the menu instead of contradicting it.
+#
+# THE en_GB LANDMINE
+# ------------------
+# KDE ships Name[en_GB] on nearly every file, and Debian's gdebi also ships
+# Name[en_AU] and Name[en_CA]. Setting Name= alone leaves everyone who picked
+# English (UK/AU/CA) in the installer looking at "Dolphin" — a large slice of
+# exactly this audience. The rewriter drops every Name[en*]/GenericName[en*]/
+# Keywords[en*] line so our untranslated value is what they get.
+#
+# ONLY English locale lines are dropped, and that is a deliberate limit, not an
+# oversight. A German install keeps Name[de]=Dolphin and Keywords[de]=Dateien;…
+# so it is left exactly as upstream shipped it: still "Dolphin", still with a
+# translated description, still findable by typing Dolphin. Nothing regresses —
+# the rename simply does not reach non-English installs.
+# Making it reach them means deleting every Name[*]/GenericName[*]/Keywords[*],
+# which would show "Files" worldwide but would also throw away real translations
+# and hand a German owner an English description where they had a German one.
+# That is a product call about which markets Dagric is sold in, not a technical
+# one — and note Dagric's own UI (the Hub, the guide, the welcome page) is
+# English-only today, so the question is live. Flagged for the owner; changing
+# it later is a one-character edit to the three /^…\[en/ patterns below.
+set -e
+
+SRC_DIR=/usr/share/applications
+DST_DIR=/usr/local/share/applications
+
+# Marker written into every file we generate. Nothing is ever deleted unless it
+# carries this line, so a file an administrator dropped in by hand is safe.
+MARK='# Generated by dagric-app-names — edits here are overwritten on upgrade.'
+
+mkdir -p "$DST_DIR"
+
+# rename <desktop-id> <Name> <GenericName> <Keywords>
+#
+# Only the [Desktop Entry] group is rewritten. This matters more than it looks:
+# org.kde.spectacle.desktop carries 9 Desktop Actions ("Capture Entire Desktop",
+# "Record Screen", ...), systemsettings.desktop 5, konsole 2 and discover 1, each
+# with its own Name= line. A plain `sed s/^Name=.*/Name=Screenshot/` would rewrite
+# all of them and turn Spectacle's right-click menu into nine identical entries.
+#
+# Missing GenericName=/Keywords= are inserted at the END OF THE [Desktop Entry]
+# GROUP, not at end of file — appending at EOF would drop them inside the last
+# Desktop Action group of whichever app grows one later. Ark, Gwenview, Okular,
+# Elisa, KCalc and KWalletManager ship no Keywords= at all today, so this path
+# is exercised on every build.
+rename() {
+    _id=$1 _name=$2 _generic=$3 _keys=$4
+    _src="$SRC_DIR/$_id.desktop"
+    _dst="$DST_DIR/$_id.desktop"
+
+    # Not installed (a Pro app on a free image, or one the owner removed): drop
+    # any override we left behind, or the launcher would keep advertising an app
+    # that is no longer there. Only ever removes files we generated.
+    if [ ! -f "$_src" ]; then
+        if [ -f "$_dst" ] && head -n 1 "$_dst" | grep -qF "$MARK"; then
+            rm -f "$_dst"
+        fi
+        return 0
+    fi
+
+    printf '%s\n' "$MARK" > "$_dst.tmp"
+    awk -v n="$_name" -v g="$_generic" -v k="$_keys" '
+        function flush() {
+            if (!sn) print "Name=" n
+            if (!sg) print "GenericName=" g
+            if (!sk) print "Keywords=" k
+        }
+        /^\[/ {
+            if (inentry && !flushed) { flush(); flushed = 1 }
+            inentry = ($0 == "[Desktop Entry]")
+            print; next
+        }
+        inentry && /^Name=/           { print "Name=" n;        sn = 1; had = 1; next }
+        inentry && /^GenericName=/    { print "GenericName=" g; sg = 1; next }
+        inentry && /^Keywords=/       { print "Keywords=" k;    sk = 1; next }
+        inentry && /^Name\[en/        { next }
+        inentry && /^GenericName\[en/ { next }
+        inentry && /^Keywords\[en/    { next }
+        { print }
+        END {
+            if (inentry && !flushed) flush()
+            if (!had) print "dagric: no Name= in [Desktop Entry] of " FILENAME > "/dev/stderr"
+        }
+    ' "$_src" >> "$_dst.tmp"
+
+    # Swap in atomically so a launcher reading the directory mid-write never
+    # sees a half-file.
+    mv -f "$_dst.tmp" "$_dst"
+}
+
+# ---------------------------------------------------------------------------
+# The names.
+#
+# Rules these follow:
+#   * Name the job, not the product: "Files", not "Dolphin".
+#   * Never take a competitor's exact product name. "File Explorer", "Snipping
+#     Tool", "Phone Link" and "App Store" are Microsoft/Apple product names and
+#     belong in Keywords= as search terms, not in Name= as a claim. "Task
+#     Manager" is the one exception — it is plainly descriptive and the
+#     recognition win is too large to give up.
+#   * No "KDE" in anything user-facing. It leaks today through "KDE Wallet
+#     Management Tool" and "KDE Advanced Text Editor"; this audience has never
+#     heard of KDE and should not have to.
+#   * No "&" in Name= — Qt reads it as a menu accelerator and eats the letter.
+#   * Keywords are lowercase and carry the old Windows names and the common
+#     misspellings: notepad++, taskmgr, prtscn, "this pc", "windows media player".
+#
+# NOT renamed, deliberately: Firefox, LibreOffice, GIMP, Blender, Krita,
+# Inkscape, OBS, Thunderbird, KeePassXC, Audacity, HandBrake, qBittorrent,
+# Darktable. The brand IS what the user already knows and searches for; renaming
+# those would trade one confusion for a worse one. Orca is left alone too —
+# screen-reader users search for it by name and every accessibility guide on the
+# web calls it Orca.
+
+# --- Free edition: the eight names that give the game away, plus the rest of
+# --- the everyday set.
+rename org.kde.dolphin "Files" "File manager (Dolphin)" \
+    "dolphin;explorer;file explorer;windows explorer;my computer;this pc;folder;folders;browse;files;file management;file browsing;samba;network shares;Explorer;Finder;usb;drive;copy;paste;"
+
+rename org.kde.konsole "Terminal" "Command line (Konsole)" \
+    "konsole;terminal;console;command prompt;cmd;powershell;dos;shell;bash;sh;zsh;cli;commandline;command-line;script;run;execute;command;"
+
+rename org.kde.gwenview "Photos" "Photo and image viewer (Gwenview)" \
+    "gwenview;photos;photo;image;images;picture;pictures;viewer;gallery;jpg;jpeg;png;heic;webp;preview;crop;rotate;"
+
+# "Document Viewer" over "PDF Reader": Okular also opens epub, comics, XPS and
+# DjVu, and calling it a PDF reader would misdescribe it the moment someone
+# opens an ebook. PDF recognition is carried by GenericName and Keywords, where
+# "adobe" and "acrobat" also land.
+rename org.kde.okular "Document Viewer" "PDF, ebook and document viewer (Okular)" \
+    "okular;pdf;acrobat;adobe;adobe reader;reader;document;documents;ebook;epub;mobi;view;open;print;annotate;highlight;sign;comic;cbz;djvu;xps;"
+
+rename org.kde.ark "Archive Manager" "Open and create zip files (Ark)" \
+    "ark;zip;unzip;extract;compress;archive;archives;unpack;7z;7-zip;winzip;winrar;rar;tar;gz;xz;bz2;iso;"
+
+rename org.kde.kate "Text Editor" "Notes and code (Kate)" \
+    "kate;notepad;notepad++;text;txt;editor;notes;write;wordpad;code;source;programming;programmer;development;developer;"
+
+rename org.kde.elisa "Music" "Music player and library (Elisa)" \
+    "elisa;music;songs;song;audio;player;library;playlist;album;mp3;flac;m4a;ogg;itunes;groove;windows media player;wmp;radio;"
+
+rename org.kde.spectacle "Screenshot" "Screenshots and screen recording (Spectacle)" \
+    "spectacle;screenshot;snapshot;capture;print;printscreen;prtscn;print screen;snipping;snipping tool;snip;screen capture;record screen;screen recording;grab;"
+
+# "Software Store" not "App Store" (Apple's product name). Upstream also ships
+# GenericName[en_GB]=Software Centre, which the en* strip removes.
+rename org.kde.discover "Software Store" "Install and remove apps (Discover)" \
+    "discover;store;software store;app store;microsoft store;get apps;download apps;software center;software centre;program;software;repository;package;add;install;uninstall;remove;update;apps;applications;games;flatpak;snap;addons;add-ons;firmware;"
+
+rename org.kde.kwalletmanager "Saved Passwords" "Password vault (KWallet)" \
+    "kwallet;kwalletmanager;wallet;password;passwords;saved passwords;credential;credentials;credential manager;keyring;vault;wifi password;"
+
+rename org.kde.kcalc "Calculator" "Scientific calculator (KCalc)" \
+    "kcalc;calculator;calc;math;maths;arithmetic;scientific;percent;convert;"
+
+# Already reads "System Monitor", which is not wrong — but the thing a Windows
+# refugee hunts for when something hangs is Task Manager, and Ctrl+Shift+Esc is
+# muscle memory. (The matching shortcut is a defaults change, not a naming one —
+# flagged for whoever owns kglobalshortcutsrc.)
+rename org.kde.plasma-systemmonitor "Task Manager" "Running apps and system resources" \
+    "system monitor;task;manager;task manager;taskmgr;process;processes;cpu;memory;ram;disk;performance;resources;kill;end task;not responding;"
+
+rename mpv "Videos" "Video player (mpv)" \
+    "mpv;video;videos;movie;movies;film;films;player;media player;play;watch;mp4;mkv;avi;mov;webm;dvd;vlc;windows media player;movies and tv;"
+
+rename org.kde.skanlite "Scanner" "Scan photos and documents (Skanlite)" \
+    "skanlite;scan;scanner;scanning;sane;document;photo;copy;flatbed;all-in-one;printer;"
+
+# Double-clicking a downloaded .deb opens this. "GDebi" tells the owner nothing;
+# a .deb is the .exe installer of their new world.
+rename gdebi "Package Installer" "Install a downloaded .deb file (GDebi)" \
+    "gdebi;deb;package;installer;install;setup;exe;msi;software;downloaded;"
+
+# Okular registers the actual per-format MIME handlers in a second set of files,
+# all NoDisplay=true so they never reach the menu — but they are what the "Open
+# With" list and the file-properties dialog read their label from, and they all
+# say "Okular". Renaming them keeps the one story straight everywhere.
+for _okular in "$SRC_DIR"/okularApplication_*.desktop; do
+    [ -f "$_okular" ] || continue
+    _oid=${_okular##*/}
+    rename "${_oid%.desktop}" "Document Viewer" "PDF, ebook and document viewer (Okular)" \
+        "okular;pdf;acrobat;adobe;adobe reader;reader;document;documents;ebook;epub;mobi;view;open;print;annotate;highlight;sign;comic;cbz;djvu;xps;"
+done
+
+# --- Pro edition. These files simply are not present on a free image, so
+# --- rename() removes any override and moves on. No edition check needed here.
+
+rename org.kde.filelight "Disk Space" "See what is filling up your disk (Filelight)" \
+    "filelight;disk;drive;space;storage;usage;full;cleanup;clean up;big files;disk cleanup;free space;"
+
+# Not "Phone Link" — that is Microsoft's actual product name.
+rename org.kde.kdeconnect.app "Connect Your Phone" "Share files and texts with your phone (KDE Connect)" \
+    "kdeconnect;kde connect;phone;mobile;android;iphone;link;phone link;your phone;sms;text;texts;messages;share;send;clipboard;remote;notifications;airdrop;"
+
+rename org.kde.kdeconnect.sms "Phone Messages" "Send and read texts from your PC (KDE Connect)" \
+    "kdeconnect;kde connect;sms;text;texts;message;messages;phone;android;chat;"
+
+# Timeshift is System Restore, near enough exactly. Using the name the owner
+# already understands is the whole point.
+rename timeshift-gtk "System Restore" "Restore this PC to an earlier day (Timeshift)" \
+    "timeshift;restore;system restore;restore point;snapshot;snapshots;rollback;roll back;recovery;recover;undo;backup;"
+
+rename com.borgbase.Vorta "Encrypted Backup" "Scheduled encrypted backups (Vorta/Borg)" \
+    "vorta;borg;borgbackup;backup;backups;encrypted;archive;restore;schedule;file history;"
+
+# Windows calls this Disk Cleanup and it does the same job.
+rename org.bleachbit.BleachBit "Disk Cleanup" "Free up space and clear traces (BleachBit)" \
+    "bleachbit;clean;cleaner;cleanup;disk cleanup;free space;temp;temporary;cache;junk;privacy;traces;"
+
+rename bleachbit-root "Disk Cleanup (Administrator)" "Free up system-wide space (BleachBit)" \
+    "bleachbit;clean;cleaner;cleanup;disk cleanup;free space;temp;temporary;cache;junk;privacy;traces;root;administrator;admin;"
+
+# MIME associations for the shadowing directory. KDE reads desktop files through
+# KSycoca and does not need this, but the GTK apps Pro ships (GIMP, Inkscape)
+# resolve "Open With" through GIO, which does.
+if command -v update-desktop-database >/dev/null 2>&1; then
+    update-desktop-database "$DST_DIR" >/dev/null 2>&1 || true
+fi
+
+exit 0

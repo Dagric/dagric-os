@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=Install Cryptomator
+GenericName=Encrypt files before they reach the cloud
+Comment=Install Cryptomator to encrypt a folder so Dropbox, Google Drive or OneDrive only ever hold scrambled files
+Exec=konsole -e sh -c '/usr/bin/dagric-get-cryptomator ; echo ; printf "Press Enter to close..." ; read x'
+Icon=dagric-logo
+Terminal=false
+Categories=Utility;Security;
+Keywords=cryptomator;encrypt;encryption;vault;cloud;dropbox;google drive;onedrive;privacy;bitlocker;install;

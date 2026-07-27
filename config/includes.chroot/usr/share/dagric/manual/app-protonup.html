@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ProtonUp-Qt &mdash; Dagric OS Manual</title>
+<link rel="stylesheet" href="manual.css">
+<script src="manual.js"></script>
+</head>
+<body>
+<div class="shell">
+  <aside class="side">
+    <div class="sidebox">
+      <a class="brand" href="index.html">
+        <div class="mark">D</div>
+        <div class="brand-name">Dagric OS<small>Manual</small></div>
+      </a>
+      <nav class="toc">
+        <a class="back" href="index.html">&larr; All applications</a>
+        <div class="navgroup">Games and Windows programs</div>
+        <a href="app-steam.html">Steam</a>
+        <a href="app-lutris.html">Lutris</a>
+        <a href="app-heroic.html">Heroic Games Launcher</a>
+        <a href="app-wine.html">Wine</a>
+        <a href="app-bottles.html">Bottles</a>
+        <a href="app-protonup.html" class="active">ProtonUp-Qt</a>
+        <a href="app-gameperf.html">GameMode, MangoHud and GOverlay</a>
+        <a href="app-virt-manager.html">Virtual Machine Manager</a>
+      </nav>
+    </div>
+  </aside>
+
+  <main class="content">
+
+    <header class="hero">
+      <div class="eyebrow">Games and Windows programs</div>
+      <h1>ProtonUp-Qt<span class="pill add" title="Not preinstalled — Dagric installs it for you when you ask">ADD-ON</span></h1>
+      <p class="sub">Install and switch between Proton and Wine builds without a terminal.</p>
+    </header>
+
+    <div class="swap"><span>On Windows this was</span><strong>nothing on Windows &mdash; this is a Linux gaming convenience</strong></div>
+
+
+    <section>
+      <h2>What it is</h2>
+      <p><strong>ProtonUp-Qt</strong> downloads and manages compatibility layers
+      for Steam, Lutris and Heroic: Proton-GE, Wine-GE, Luxtorpeda and others. Pick a
+      version, press install, and it appears in the game launcher's compatibility
+      list.</p>
+      <p>It is the graphical alternative to
+      <a href="tool-dagric-gaming.html">Dagric's Proton-GE helper</a>, and it does
+      more: it manages several tools, several launchers, and removal as well as
+      installation.</p>
+    </section>
+
+    <section>
+      <h2>Getting it</h2>
+      <p>Two ways in, and they end up at the same app:</p>
+      <ul class="plain">
+        <li><strong>Dagric&nbsp;OS Pro</strong> &mdash; open the
+        <a href="tool-dagric-hub.html">Dagric Hub</a> and pick the row for it. A
+        terminal window explains what the app is and asks one yes/no question.</li>
+        <li><strong>Any edition</strong> &mdash; open
+        <a href="app-discover.html">Discover</a>, search for it, press Install.
+        It comes from Flathub, so turn Flathub on first if you have not:
+        <a href="tool-dagric-setup.html">Finish Setup</a> has a tick box for it.</li>
+      </ul>
+      <p>Either route installs it just for your user account, needs no
+      administrator password, and uninstalls cleanly from Discover's
+      <em>Installed</em> page.</p>
+    </section>
+    <section>
+      <h2>Five things you will actually do</h2>
+      <ol class="tasks">
+        <li><span class="t">Install Proton-GE</span><p>Choose Steam as the target, press <em>Add version</em>, pick the newest
+         GE-Proton, install. Restart Steam and it appears under
+         <em>Properties</em> &rarr; <em>Compatibility</em> for any game.</p></li>
+        <li><span class="t">Keep an old version on purpose</span><p>A game that worked last month and broke this month often runs fine on
+         the previous Proton. ProtonUp-Qt lets several versions coexist so you can pin
+         one game to one of them.</p></li>
+        <li><span class="t">Manage Lutris and Heroic too</span><p>The target selector at the top switches between launchers. Wine-GE is
+         the build to install for Lutris and Heroic; Proton-GE is for Steam.</p></li>
+        <li><span class="t">Clear out old builds</span><p>Each installed version has a remove button. They are several hundred
+         megabytes each and they accumulate.</p></li>
+        <li><span class="t">Check it landed</span><p>The list shows what is installed per launcher. If a new version does
+         not appear in Steam, close Steam completely and reopen it &mdash; it reads
+         the compatibility tools folder only at start-up.</p></li>
+      </ol>
+    </section>
+
+    <section>
+      <h2>One thing that will surprise you</h2>
+      <p><strong>Newer is not always better, and this is the tool that teaches you
+      that.</strong> Proton-GE releases weekly with fixes for specific games; it also
+      occasionally regresses one that used to work. Keeping two or three versions
+      installed and pinning individual games is normal practice, not a sign that
+      something is wrong.</p>
+    </section>
+
+    <section>
+      <h2>Where to find it</h2>
+      <p>After installing: launcher &rarr; <em>ProtonUp-Qt</em>. Before installing:
+      Dagric Hub &rarr; <em>ProtonUp-Qt</em>, or Discover.</p>
+    </section>
+
+    <section>
+      <h2>See also</h2>
+      <div class="related"><a href="tool-dagric-gaming.html">Proton-GE helper</a><a href="app-steam.html">Steam</a><a href="app-lutris.html">Lutris</a><a href="app-heroic.html">Heroic Games Launcher</a></div>
+    </section>
+
+    <footer class="colophon">Dagric OS Manual &middot; stored on this computer, no internet needed &middot; <a href="index.html">every application</a></footer>
+
+  </main>
+</div>
+</body>
+</html>

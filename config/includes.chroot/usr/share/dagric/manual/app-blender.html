@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Blender &mdash; Dagric OS Manual</title>
+<link rel="stylesheet" href="manual.css">
+<script src="manual.js"></script>
+</head>
+<body>
+<div class="shell">
+  <aside class="side">
+    <div class="sidebox">
+      <a class="brand" href="index.html">
+        <div class="mark">D</div>
+        <div class="brand-name">Dagric OS<small>Manual</small></div>
+      </a>
+      <nav class="toc">
+        <a class="back" href="index.html">&larr; All applications</a>
+        <div class="navgroup">Photos and video</div>
+        <a href="app-gwenview.html">Gwenview</a>
+        <a href="app-spectacle.html">Spectacle</a>
+        <a href="app-mpv.html">mpv</a>
+        <a href="app-gimp.html">GIMP</a>
+        <a href="app-krita.html">Krita</a>
+        <a href="app-inkscape.html">Inkscape</a>
+        <a href="app-darktable.html">darktable</a>
+        <a href="app-blender.html" class="active">Blender</a>
+        <a href="app-kdenlive.html">Kdenlive</a>
+        <a href="app-obs-studio.html">OBS Studio</a>
+        <a href="app-handbrake.html">HandBrake</a>
+        <a href="app-upscayl.html">Upscayl</a>
+        <a href="app-davinci-resolve.html">DaVinci Resolve</a>
+      </nav>
+    </div>
+  </aside>
+
+  <main class="content">
+
+    <header class="hero">
+      <div class="eyebrow">Photos and video</div>
+      <h1>Blender<span class="pill pro">PRO</span></h1>
+      <p class="sub">3D modelling, animation, rendering &mdash; and a surprisingly good video editor.</p>
+    </header>
+
+    <div class="swap"><span>On Windows this was</span><strong>3ds Max, Maya, Cinema 4D</strong></div>
+
+    <div class="notice pro-notice"><div><strong>This one is part of Dagric&nbsp;OS Pro.</strong> You are reading the manual on the free edition, so it is not installed on this computer. The page is here on purpose &mdash; you should be able to see exactly what Pro adds before you decide whether you want it.</div></div>
+    <section>
+      <h2>What it is</h2>
+      <p><strong>Blender</strong> is a complete 3D suite: modelling, sculpting, UV
+      unwrapping, materials, rigging, animation, physics simulation, and two renderers
+      (Cycles for accuracy, EEVEE for speed). It is used on television and in feature
+      films, and it is free.</p>
+      <p>It is also the steepest learning curve of anything on this computer. Budget
+      an evening for a beginner tutorial rather than expecting to poke at it
+      successfully.</p>
+    </section>
+
+    <section>
+      <h2>Five things you will actually do</h2>
+      <ol class="tasks">
+        <li><span class="t">Learn the navigation first</span><p>Middle mouse button orbits, <kbd>Shift</kbd>+middle pans, scroll zooms.
+         The numeric keypad jumps to standard views: <kbd>1</kbd> front, <kbd>3</kbd>
+         side, <kbd>7</kbd> top, <kbd>0</kbd> camera. Nothing else makes sense until
+         this is automatic.</p></li>
+        <li><span class="t">Move, rotate and scale</span><p><kbd>G</kbd> grabs, <kbd>R</kbd> rotates, <kbd>S</kbd> scales. Follow
+         any of them with <kbd>X</kbd>, <kbd>Y</kbd> or <kbd>Z</kbd> to constrain to
+         an axis, or type a number for an exact amount.</p></li>
+        <li><span class="t">Model something</span><p><kbd>Tab</kbd> enters Edit Mode on the selected object.
+         <kbd>E</kbd> extrudes a face, <kbd>Ctrl</kbd>+<kbd>R</kbd> adds a loop cut,
+         <kbd>I</kbd> insets. Those four keys build a startling amount.</p></li>
+        <li><span class="t">Render an image</span><p>Set the renderer and samples in the Render Properties tab, then
+         <kbd>F12</kbd>. On a machine with an NVIDIA card, install the proprietary
+         driver with <a href="tool-dagric-drivers.html">Dagric's driver helper</a>
+         first and enable GPU rendering in Preferences &mdash; it is often ten times
+         faster.</p></li>
+        <li><span class="t">Edit video in it</span><p>Switch the workspace to <em>Video Editing</em>. Blender's sequencer
+         handles cuts, transitions, colour and audio perfectly well, and it is worth
+         knowing about when you already have Blender open.</p></li>
+      </ol>
+    </section>
+
+    <section>
+      <h2>One thing that will surprise you</h2>
+      <p><strong>Almost every command is a keyboard shortcut, and the menus are an
+      afterthought.</strong> Blender was designed to be driven with one hand on the
+      keyboard and one on the mouse, and it does not try to hide that. This is why it
+      feels impenetrable for the first hour and extraordinarily fast afterwards. Do
+      not fight it &mdash; learn <kbd>G</kbd>, <kbd>R</kbd>, <kbd>S</kbd> and
+      <kbd>Tab</kbd> and the rest follows.</p>
+    </section>
+
+    <section>
+      <h2>Where to find it</h2>
+      <p>Launcher &rarr; <em>Blender</em>.</p>
+    </section>
+
+    <section>
+      <h2>See also</h2>
+      <div class="related"><a href="app-krita.html">Krita</a><a href="app-kdenlive.html">Kdenlive</a><a href="tool-dagric-drivers.html">NVIDIA driver helper</a></div>
+    </section>
+
+    <footer class="colophon">Dagric OS Manual &middot; stored on this computer, no internet needed &middot; <a href="index.html">every application</a></footer>
+
+  </main>
+</div>
+</body>
+</html>

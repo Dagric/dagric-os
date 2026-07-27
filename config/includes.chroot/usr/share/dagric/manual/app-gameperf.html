@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GameMode, MangoHud and GOverlay &mdash; Dagric OS Manual</title>
+<link rel="stylesheet" href="manual.css">
+<script src="manual.js"></script>
+</head>
+<body>
+<div class="shell">
+  <aside class="side">
+    <div class="sidebox">
+      <a class="brand" href="index.html">
+        <div class="mark">D</div>
+        <div class="brand-name">Dagric OS<small>Manual</small></div>
+      </a>
+      <nav class="toc">
+        <a class="back" href="index.html">&larr; All applications</a>
+        <div class="navgroup">Games and Windows programs</div>
+        <a href="app-steam.html">Steam</a>
+        <a href="app-lutris.html">Lutris</a>
+        <a href="app-heroic.html">Heroic Games Launcher</a>
+        <a href="app-wine.html">Wine</a>
+        <a href="app-bottles.html">Bottles</a>
+        <a href="app-protonup.html">ProtonUp-Qt</a>
+        <a href="app-gameperf.html" class="active">GameMode, MangoHud and GOverlay</a>
+        <a href="app-virt-manager.html">Virtual Machine Manager</a>
+      </nav>
+    </div>
+  </aside>
+
+  <main class="content">
+
+    <header class="hero">
+      <div class="eyebrow">Games and Windows programs</div>
+      <h1>GameMode, MangoHud and GOverlay<span class="pill pro">PRO</span></h1>
+      <p class="sub">An FPS counter, and a switch that tells the machine a game is running.</p>
+    </header>
+
+    <div class="swap"><span>On Windows this was</span><strong>the Xbox Game Bar overlay, MSI Afterburner, RivaTuner</strong></div>
+
+    <div class="notice pro-notice"><div><strong>This one is part of Dagric&nbsp;OS Pro.</strong> You are reading the manual on the free edition, so it is not installed on this computer. The page is here on purpose &mdash; you should be able to see exactly what Pro adds before you decide whether you want it.</div></div>
+    <section>
+      <h2>What it is</h2>
+      <p>Three small tools that work together.</p>
+      <ul class="plain">
+        <li><strong>GameMode</strong> tells the system a game has started, so the CPU
+        governor goes to performance, background housekeeping backs off, and the
+        machine stops being polite.</li>
+        <li><strong>MangoHud</strong> draws an overlay: framerate, frame times, CPU and
+        GPU load and temperature, memory. The Linux answer to an Afterburner
+        overlay.</li>
+        <li><strong>GOverlay</strong> is a window for configuring MangoHud so you never
+        have to edit its configuration file.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>Five things you will actually do</h2>
+      <ol class="tasks">
+        <li><span class="t">Turn the overlay on for one Steam game</span><p>Right-click the game &rarr; <em>Properties</em> &rarr; <em>Launch
+         Options</em>, and enter <code>mangohud %command%</code>. Combine them:
+         <code>gamemoderun mangohud %command%</code>.</p></li>
+        <li><span class="t">Choose what the overlay shows</span><p>Open GOverlay, tick the metrics you want, set the position and size,
+         and save. It writes MangoHud's config for you. A minimal overlay of framerate
+         and GPU temperature is usually enough.</p></li>
+        <li><span class="t">Toggle it while playing</span><p>MangoHud's default hides and shows the overlay on a keyboard shortcut
+         (<kbd>Shift</kbd>+<kbd>F12</kbd> unless you change it), and can start a frame
+         log for benchmarking on another.</p></li>
+        <li><span class="t">Use it outside Steam</span><p>Run any program with <code>mangohud programname</code>, or turn it on
+         per-game inside Lutris and Heroic, both of which have a tick box for
+         MangoHud and one for GameMode.</p></li>
+        <li><span class="t">Find out whether GameMode is actually active</span><p><code>gamemoded -s</code> in a terminal answers plainly. If it says
+         inactive while a game is running, the launch option did not take.</p></li>
+      </ol>
+    </section>
+
+    <section>
+      <h2>One thing that will surprise you</h2>
+      <p><strong>The overlay tells you which component is the problem, which the
+      Windows one never really did.</strong> Frame time graph flat and GPU at 99% means
+      you are GPU-limited &mdash; lower the settings. GPU at 60% and one CPU core
+      pinned means the game is CPU-limited, and lowering the resolution will not help.
+      Five minutes with MangoHud saves an evening of guessing.</p>
+    </section>
+
+    <section>
+      <h2>Where to find it</h2>
+      <p>Launcher &rarr; <em>GOverlay</em>. MangoHud and GameMode have no windows
+      of their own; they are switched on per game.</p>
+    </section>
+
+    <section>
+      <h2>See also</h2>
+      <div class="related"><a href="app-steam.html">Steam</a><a href="app-lutris.html">Lutris</a><a href="tool-dagric-drivers.html">NVIDIA driver helper</a><a href="app-system-monitor.html">System Monitor</a></div>
+    </section>
+
+    <footer class="colophon">Dagric OS Manual &middot; stored on this computer, no internet needed &middot; <a href="index.html">every application</a></footer>
+
+  </main>
+</div>
+</body>
+</html>

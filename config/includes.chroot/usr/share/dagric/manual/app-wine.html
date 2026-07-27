@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Wine &mdash; Dagric OS Manual</title>
+<link rel="stylesheet" href="manual.css">
+<script src="manual.js"></script>
+</head>
+<body>
+<div class="shell">
+  <aside class="side">
+    <div class="sidebox">
+      <a class="brand" href="index.html">
+        <div class="mark">D</div>
+        <div class="brand-name">Dagric OS<small>Manual</small></div>
+      </a>
+      <nav class="toc">
+        <a class="back" href="index.html">&larr; All applications</a>
+        <div class="navgroup">Games and Windows programs</div>
+        <a href="app-steam.html">Steam</a>
+        <a href="app-lutris.html">Lutris</a>
+        <a href="app-heroic.html">Heroic Games Launcher</a>
+        <a href="app-wine.html" class="active">Wine</a>
+        <a href="app-bottles.html">Bottles</a>
+        <a href="app-protonup.html">ProtonUp-Qt</a>
+        <a href="app-gameperf.html">GameMode, MangoHud and GOverlay</a>
+        <a href="app-virt-manager.html">Virtual Machine Manager</a>
+      </nav>
+    </div>
+  </aside>
+
+  <main class="content">
+
+    <header class="hero">
+      <div class="eyebrow">Games and Windows programs</div>
+      <h1>Wine<span class="pill pro">PRO</span></h1>
+      <p class="sub">Run Windows programs directly, with no Windows underneath.</p>
+    </header>
+
+    <div class="swap"><span>On Windows this was</span><strong>Windows itself, for a lot of software</strong></div>
+
+    <div class="notice pro-notice"><div><strong>This one is part of Dagric&nbsp;OS Pro.</strong> You are reading the manual on the free edition, so it is not installed on this computer. The page is here on purpose &mdash; you should be able to see exactly what Pro adds before you decide whether you want it.</div></div>
+    <section>
+      <h2>What it is</h2>
+      <p><strong>Wine</strong> is not an emulator: it reimplements the Windows
+      programming interfaces on Linux, so a Windows program's instructions run
+      directly on your processor. That means near-native speed, and it means
+      compatibility varies by program rather than by category.</p>
+      <p>Dagric&nbsp;OS Pro installs both the 64-bit and 32-bit halves, so the classic
+      thirty-year back catalogue of small Windows utilities runs as well as modern
+      software.</p>
+    </section>
+
+    <section>
+      <h2>Five things you will actually do</h2>
+      <ol class="tasks">
+        <li><span class="t">Run a program</span><p><code>wine setup.exe</code> in a terminal, or right-click the file in
+         Dolphin &rarr; <em>Open With</em> &rarr; <em>Wine Windows Program
+         Loader</em>. Installed programs land in
+         <code>~/.wine/drive_c/Program Files</code> and usually get a launcher
+         entry.</p></li>
+        <li><span class="t">Configure the fake Windows</span><p><code>winecfg</code> opens a control panel: which Windows version to
+         claim to be, drive mappings, graphics options, audio. Claiming an older
+         Windows version fixes a surprising number of installers.</p></li>
+        <li><span class="t">Add the missing pieces</span><p><code>winetricks</code> installs the runtimes programs expect &mdash;
+         the Visual C++ redistributables, .NET, DirectX components, core fonts. When a
+         program complains about a missing DLL, this is the tool.</p></li>
+        <li><span class="t">Keep programs apart</span><p>Give each application its own prefix:
+         <code>WINEPREFIX=~/.wine-appname wine setup.exe</code>. One program's
+         requirements then cannot break another's.
+         <a href="app-bottles.html">Bottles</a> does exactly this with a window
+         instead of environment variables, and is the easier route.</p></li>
+        <li><span class="t">Find out if your program works</span><p>The Wine Application Database at <strong>appdb.winehq.org</strong>
+         rates thousands of programs and lists what people had to do. Check before you
+         spend an evening.</p></li>
+      </ol>
+    </section>
+
+    <section>
+      <h2>One thing that will surprise you</h2>
+      <p><strong>It is often not slower &mdash; and occasionally it is faster.</strong>
+      Because Wine translates calls rather than emulating hardware, a Windows program
+      under Wine on Linux sometimes outperforms the same program on Windows on the
+      same machine. It is not magic and it is not universal, but the instinct that
+      &ldquo;compatibility layer&rdquo; must mean &ldquo;slow&rdquo; is simply
+      wrong.</p>
+      <p>What does fail: anything with kernel drivers, most anti-cheat, and software
+      that checks the hardware very closely. For those, use
+      <a href="app-virt-manager.html">a real Windows in a virtual machine</a>.</p>
+    </section>
+
+    <section>
+      <h2>Where to find it</h2>
+      <p>A terminal, or right-clicking a <code>.exe</code>. Configuration:
+      <code>winecfg</code> and <code>winetricks</code>.</p>
+    </section>
+
+    <section>
+      <h2>See also</h2>
+      <div class="related"><a href="app-bottles.html">Bottles</a><a href="app-virt-manager.html">Virtual Machine Manager</a><a href="app-lutris.html">Lutris</a><a href="app-gdebi.html">Installing downloaded software</a></div>
+    </section>
+
+    <footer class="colophon">Dagric OS Manual &middot; stored on this computer, no internet needed &middot; <a href="index.html">every application</a></footer>
+
+  </main>
+</div>
+</body>
+</html>

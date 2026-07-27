@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>OpenSnitch &mdash; Dagric OS Manual</title>
+<link rel="stylesheet" href="manual.css">
+<script src="manual.js"></script>
+</head>
+<body>
+<div class="shell">
+  <aside class="side">
+    <div class="sidebox">
+      <a class="brand" href="index.html">
+        <div class="mark">D</div>
+        <div class="brand-name">Dagric OS<small>Manual</small></div>
+      </a>
+      <nav class="toc">
+        <a class="back" href="index.html">&larr; All applications</a>
+        <div class="navgroup">System and safety</div>
+        <a href="app-updates.html">Updates</a>
+        <a href="app-snapshots.html">Snapshot recovery</a>
+        <a href="app-timeshift.html">Timeshift</a>
+        <a href="app-kup.html">Kup</a>
+        <a href="app-vorta.html">Vorta and Borg</a>
+        <a href="app-firewall.html">The firewall</a>
+        <a href="app-opensnitch.html" class="active">OpenSnitch</a>
+        <a href="app-drive-health.html">Drive health</a>
+        <a href="app-keepassxc.html">KeePassXC</a>
+        <a href="app-cryptomator.html">Cryptomator</a>
+        <a href="app-bleachbit.html">BleachBit</a>
+        <a href="app-flatseal.html">Flatseal</a>
+        <a href="app-apparmor.html">AppArmor and the security baseline</a>
+        <a href="app-accounts.html">Accounts, passwords and disk encryption</a>
+        <a href="app-orca.html">Orca</a>
+      </nav>
+    </div>
+  </aside>
+
+  <main class="content">
+
+    <header class="hero">
+      <div class="eyebrow">System and safety</div>
+      <h1>OpenSnitch<span class="pill pro">PRO</span></h1>
+      <p class="sub">See &mdash; and control &mdash; every outbound connection any program makes.</p>
+    </header>
+
+    <div class="swap"><span>On Windows this was</span><strong>Little Snitch, GlassWire</strong></div>
+
+    <div class="notice pro-notice"><div><strong>This one is part of Dagric&nbsp;OS Pro.</strong> You are reading the manual on the free edition, so it is not installed on this computer. The page is here on purpose &mdash; you should be able to see exactly what Pro adds before you decide whether you want it.</div></div>
+    <section>
+      <h2>What it is</h2>
+      <p>An ordinary firewall controls what can reach <em>in</em>. OpenSnitch
+      controls what can go <em>out</em>: it watches every connection a program tries
+      to make and can ask you, per application, whether to allow it.</p>
+      <p>It is the single most revealing tool on the machine. Run it for an afternoon
+      and you will find out exactly which of your programs talk to the internet, how
+      often, and to whom.</p>
+    </section>
+
+    <section>
+      <h2>Five things you will actually do</h2>
+      <ol class="tasks">
+        <li><span class="t">Watch first, block later</span><p>Dagric ships OpenSnitch in <strong>monitor mode</strong>: its default
+         action is to allow, and it does not intercept connections it has no rule for.
+         So out of the box it observes and never interrupts you. Leave it there for a
+         week before changing anything.</p></li>
+        <li><span class="t">See what has been happening</span><p>Open the OpenSnitch UI from the tray. The tabs list connections by
+         application, by host and by port, with counts. Sort by application and read
+         down the list.</p></li>
+        <li><span class="t">Turn on prompting</span><p>In the UI's preferences, change the default action to <em>deny</em> and
+         enable intercepting unknown connections. From then on a new connection raises
+         a dialogue: allow or deny, once or forever, for this program or this
+         destination.</p></li>
+        <li><span class="t">Write a rule</span><p>Rules can be as broad as &ldquo;allow this application anywhere&rdquo;
+         or as narrow as &ldquo;allow only to this host on port 443&rdquo;, and can
+         expire after a set time. Blocking a single telemetry endpoint while leaving
+         an application otherwise working is entirely possible.</p></li>
+        <li><span class="t">Back out safely</span><p>If a rule breaks something, set the default action back to allow in the
+         UI. Nothing is permanent and the daemon can be stopped with
+         <code>sudo systemctl stop opensnitch</code>.</p></li>
+      </ol>
+    </section>
+
+    <section>
+      <h2>One thing that will surprise you</h2>
+      <p><strong>The first hour is uncomfortable.</strong> Once you turn prompting
+      on you discover how much perfectly ordinary software connects to perfectly
+      ordinary places &mdash; update checks, certificate revocation lists, time
+      servers, font downloads &mdash; and the temptation is to block everything and
+      then spend the evening wondering why the browser is broken. Allow the things you
+      recognise, take your time, and remember that on a Dagric machine you started
+      from a far quieter baseline than you are used to.</p>
+    </section>
+
+    <section>
+      <h2>Where to find it</h2>
+      <p>The OpenSnitch icon in the system tray, or launcher &rarr;
+      <em>OpenSnitch</em>. The daemon starts with the system; the window is just a
+      view onto it.</p>
+    </section>
+
+    <section>
+      <h2>See also</h2>
+      <div class="related"><a href="app-firewall.html">The firewall</a><a href="app-flatseal.html">Flatseal</a><a href="tool-dagric-security-checkup.html">Security Checkup</a><a href="app-apparmor.html">AppArmor and the security baseline</a></div>
+    </section>
+
+    <footer class="colophon">Dagric OS Manual &middot; stored on this computer, no internet needed &middot; <a href="index.html">every application</a></footer>
+
+  </main>
+</div>
+</body>
+</html>

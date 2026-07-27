@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Konsole &mdash; Dagric OS Manual</title>
+<link rel="stylesheet" href="manual.css">
+<script src="manual.js"></script>
+</head>
+<body>
+<div class="shell">
+  <aside class="side">
+    <div class="sidebox">
+      <a class="brand" href="index.html">
+        <div class="mark">D</div>
+        <div class="brand-name">Dagric OS<small>Manual</small></div>
+      </a>
+      <nav class="toc">
+        <a class="back" href="index.html">&larr; All applications</a>
+        <div class="navgroup">Files and getting around</div>
+        <a href="app-dolphin.html">Dolphin</a>
+        <a href="app-launcher.html">The launcher and search</a>
+        <a href="app-desktop.html">The desktop, panels and windows</a>
+        <a href="app-system-settings.html">System Settings</a>
+        <a href="app-discover.html">Discover</a>
+        <a href="app-konsole.html" class="active">Konsole</a>
+        <a href="app-ark.html">Ark</a>
+        <a href="app-kcalc.html">KCalc</a>
+        <a href="app-system-monitor.html">System Monitor</a>
+        <a href="app-gdebi.html">Installing downloaded software</a>
+        <a href="app-kwallet.html">KWallet</a>
+        <a href="app-filelight.html">Filelight</a>
+      </nav>
+    </div>
+  </aside>
+
+  <main class="content">
+
+    <header class="hero">
+      <div class="eyebrow">Files and getting around</div>
+      <h1>Konsole</h1>
+      <p class="sub">The terminal. You can ignore it entirely &mdash; but it is the fastest way to be helped.</p>
+    </header>
+
+    <div class="swap"><span>On Windows this was</span><strong>Command Prompt and PowerShell</strong></div>
+
+    <section>
+      <h2>What it is</h2>
+      <p><strong>Konsole</strong> is a terminal: you type a command, it runs. Nothing
+      on this computer <em>requires</em> you to use it &mdash; every Dagric tool has a
+      window and a button. But when you ask for help online or from support, the
+      answer often arrives as a line of text to paste here, and it is worth knowing
+      where here is.</p>
+      <p>Two facts make it much less frightening. Commands do not run until you
+      press <kbd>Enter</kbd>, and anything that changes the system asks for your
+      password first (that is what <code>sudo</code> means at the front of a line).
+      If you have not typed a password, nothing important has happened.</p>
+    </section>
+
+    <section>
+      <h2>Five things you will actually do</h2>
+      <ol class="tasks">
+        <li><span class="t">Copy and paste properly</span><p><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>C</kbd> copies and
+         <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>V</kbd> pastes &mdash; note the extra
+         <kbd>Shift</kbd>. Right-click also offers Paste. Plain
+         <kbd>Ctrl</kbd>+<kbd>C</kbd> means something else here: it stops whatever
+         is currently running.</p></li>
+        <li><span class="t">Open a terminal already in the right folder</span><p>In Dolphin, press <kbd>F4</kbd> and a terminal panel opens at the
+         bottom, already in the folder you are looking at. That saves ever having to
+         type a path.</p></li>
+        <li><span class="t">Find out what version you are running</span><p><code>cat /etc/os-release</code>. Support will ask for this. Also
+         useful: <code>free -h</code> for memory and <code>df -h</code> for free disk
+         space.</p></li>
+        <li><span class="t">Split the window</span><p><em>View</em> &rarr; <em>Split View</em>, or open several tabs with
+         <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>T</kbd>. Each tab is its own
+         session.</p></li>
+        <li><span class="t">Undo a command you started by mistake</span><p><kbd>Ctrl</kbd>+<kbd>C</kbd> stops it. If the whole terminal is stuck,
+         close the window &mdash; nothing in a terminal survives its window except
+         work you explicitly started in the background.</p></li>
+      </ol>
+    </section>
+
+    <section>
+      <h2>One thing that will surprise you</h2>
+      <p><strong>Paste is not <kbd>Ctrl</kbd>+<kbd>V</kbd>, and that is on purpose.</strong>
+      In a terminal <kbd>Ctrl</kbd>+<kbd>C</kbd> has meant &ldquo;interrupt&rdquo;
+      since long before it meant copy, so terminals moved copy and paste onto
+      <kbd>Ctrl</kbd>+<kbd>Shift</kbd>. It feels wrong for about a week.</p>
+      <p>The other habit worth building: never paste a command you were sent by a
+      stranger without reading it, particularly one containing <code>sudo</code> or
+      ending in <code>| sh</code>. That is the one genuine way to hurt this machine
+      from a terminal.</p>
+    </section>
+
+    <section>
+      <h2>Where to find it</h2>
+      <p>Launcher &rarr; <strong>Terminal</strong> (it answers to <em>Konsole</em>,
+      <em>Command Prompt</em> and <em>PowerShell</em> as well). In Dolphin,
+      <kbd>F4</kbd>. The Dagric helpers open their own Konsole window when they need
+      one, and hold it open at the end so you can read what happened.</p>
+    </section>
+
+    <section>
+      <h2>See also</h2>
+      <div class="related"><a href="app-dolphin.html">Dolphin</a><a href="app-terminal-extras.html">nala, bat and zoxide</a><a href="app-devtools.html">Git, compilers and Python</a><a href="tool-dagric-hub.html">Dagric Hub</a></div>
+    </section>
+
+    <footer class="colophon">Dagric OS Manual &middot; stored on this computer, no internet needed &middot; <a href="index.html">every application</a></footer>
+
+  </main>
+</div>
+</body>
+</html>

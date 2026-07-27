@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SSH &mdash; Dagric OS Manual</title>
+<link rel="stylesheet" href="manual.css">
+<script src="manual.js"></script>
+</head>
+<body>
+<div class="shell">
+  <aside class="side">
+    <div class="sidebox">
+      <a class="brand" href="index.html">
+        <div class="mark">D</div>
+        <div class="brand-name">Dagric OS<small>Manual</small></div>
+      </a>
+      <nav class="toc">
+        <a class="back" href="index.html">&larr; All applications</a>
+        <div class="navgroup">For developers</div>
+        <a href="app-docker.html">Docker and Podman</a>
+        <a href="app-distrobox.html">Distrobox</a>
+        <a href="app-devtools.html">Git, compilers and Python</a>
+        <a href="app-ssh.html" class="active">SSH</a>
+        <a href="app-terminal-extras.html">nala, bat and zoxide</a>
+      </nav>
+    </div>
+  </aside>
+
+  <main class="content">
+
+    <header class="hero">
+      <div class="eyebrow">For developers</div>
+      <h1>SSH<span class="pill pro">PRO</span></h1>
+      <p class="sub">Reaching other machines, and letting other machines reach this one &mdash; carefully.</p>
+    </header>
+
+    <div class="swap"><span>On Windows this was</span><strong>PuTTY, and Windows OpenSSH</strong></div>
+
+    <div class="notice pro-notice"><div><strong>This one is part of Dagric&nbsp;OS Pro.</strong> You are reading the manual on the free edition, so it is not installed on this computer. The page is here on purpose &mdash; you should be able to see exactly what Pro adds before you decide whether you want it.</div></div>
+    <section>
+      <h2>What it is</h2>
+      <p>The <strong>SSH client</strong> is installed and ready:
+      <code>ssh user@host</code> and you are on another machine.</p>
+      <p>The <strong>SSH server</strong> is installed too, and it is deliberately
+      <em>off</em>, and its port is <em>closed in the firewall</em>. Turning it on is a
+      two-step decision you make on purpose. Dagric also ships a hardened
+      configuration in advance, so that if you ever do enable it, it starts with root
+      login refused, three authentication attempts, and X11 forwarding disabled
+      &mdash; rather than at stock defaults.</p>
+    </section>
+
+    <section>
+      <h2>Five things you will actually do</h2>
+      <ol class="tasks">
+        <li><span class="t">Connect to a server</span><p><code>ssh user@example.com</code>. The first connection shows a
+         fingerprint and asks you to confirm; that is the moment you are meant to check
+         it, because it is what protects you from being redirected to somebody
+         else's machine.</p></li>
+        <li><span class="t">Log in without a password</span><p><code>ssh-copy-id user@example.com</code> installs your public key on
+         the server. Afterwards the connection uses the key. This is both more
+         convenient and considerably more secure than a password.</p></li>
+        <li><span class="t">Copy files</span><p><code>scp file user@host:/path/</code>, or
+         <code>rsync -av folder/ user@host:/path/</code> for something resumable. In
+         Dolphin, press <kbd>Ctrl</kbd>+<kbd>L</kbd> and type
+         <code>sftp://user@host</code> to browse a server as if it were a folder.</p></li>
+        <li><span class="t">Save yourself typing</span><p>Put hosts in <code>~/.ssh/config</code> with a short alias, a user name
+         and a key file, and then <code>ssh myserver</code> is enough.</p></li>
+        <li><span class="t">Enable the server on this machine</span><p>Both halves are required:
+         <code>sudo systemctl enable --now ssh</code> and then
+         <code>sudo firewall-cmd --permanent --add-service=ssh</code> followed by
+         <code>sudo firewall-cmd --reload</code>. If you skip the second, nothing can
+         reach it &mdash; which is exactly how it ships.</p></li>
+      </ol>
+    </section>
+
+    <section>
+      <h2>One thing that will surprise you</h2>
+      <p><strong>Nothing is listening on this machine until you say so.</strong>
+      Installing an SSH server on most systems means it starts immediately, on every
+      network, accepting passwords. Dagric refuses that on your behalf: the service is
+      disabled and the firewall closed, and the hardened configuration is already in
+      place for the day you turn it on. If you were expecting to be able to SSH in
+      after installing, this is why you cannot.</p>
+    </section>
+
+    <section>
+      <h2>Where to find it</h2>
+      <p>A terminal. Server status: <code>systemctl status ssh</code>.</p>
+    </section>
+
+    <section>
+      <h2>See also</h2>
+      <div class="related"><a href="app-firewall.html">The firewall</a><a href="app-devtools.html">Git, compilers and Python</a><a href="app-konsole.html">Konsole</a><a href="app-cloud-storage.html">Cloud storage: rclone and Google Drive</a></div>
+    </section>
+
+    <footer class="colophon">Dagric OS Manual &middot; stored on this computer, no internet needed &middot; <a href="index.html">every application</a></footer>
+
+  </main>
+</div>
+</body>
+</html>

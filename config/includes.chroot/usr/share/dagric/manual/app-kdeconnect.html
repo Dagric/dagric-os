@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>KDE Connect &mdash; Dagric OS Manual</title>
+<link rel="stylesheet" href="manual.css">
+<script src="manual.js"></script>
+</head>
+<body>
+<div class="shell">
+  <aside class="side">
+    <div class="sidebox">
+      <a class="brand" href="index.html">
+        <div class="mark">D</div>
+        <div class="brand-name">Dagric OS<small>Manual</small></div>
+      </a>
+      <nav class="toc">
+        <a class="back" href="index.html">&larr; All applications</a>
+        <div class="navgroup">Internet and communication</div>
+        <a href="app-firefox.html">Firefox</a>
+        <a href="app-chromium.html">Chromium</a>
+        <a href="app-thunderbird.html">Thunderbird</a>
+        <a href="app-network.html">Wi-Fi, wired networks and VPN</a>
+        <a href="app-kdeconnect.html" class="active">KDE Connect</a>
+        <a href="app-localsend.html">LocalSend</a>
+        <a href="app-syncthing.html">Syncthing</a>
+        <a href="app-cloud-storage.html">Cloud storage: rclone and Google Drive</a>
+        <a href="app-qbittorrent.html">qBittorrent</a>
+      </nav>
+    </div>
+  </aside>
+
+  <main class="content">
+
+    <header class="hero">
+      <div class="eyebrow">Internet and communication</div>
+      <h1>KDE Connect<span class="pill pro">PRO</span></h1>
+      <p class="sub">Your phone and this computer, talking to each other over your own Wi-Fi.</p>
+    </header>
+
+    <div class="swap"><span>On Windows this was</span><strong>Phone Link (Your Phone)</strong></div>
+
+    <div class="notice pro-notice"><div><strong>This one is part of Dagric&nbsp;OS Pro.</strong> You are reading the manual on the free edition, so it is not installed on this computer. The page is here on purpose &mdash; you should be able to see exactly what Pro adds before you decide whether you want it.</div></div>
+    <section>
+      <h2>What it is</h2>
+      <p><strong>KDE Connect</strong> pairs your phone with this computer over the
+      local network. Phone notifications appear on the desktop, files move both ways
+      by drag and drop, the clipboard can be shared, the phone becomes a remote
+      control or a slide clicker, and you can find a mislaid handset by making it
+      ring.</p>
+      <p>Nothing goes through anybody's server. The two devices talk directly to each
+      other on your own network, which is why it also works when the internet is
+      down.</p>
+    </section>
+
+    <section>
+      <h2>Five things you will actually do</h2>
+      <ol class="tasks">
+        <li><span class="t">Pair the phone</span><p>Install <em>KDE Connect</em> from the Play Store or the App Store, put
+         both devices on the same Wi-Fi, open the app, and each side offers to pair
+         with the other. Accept on both. Pairing happens once.</p></li>
+        <li><span class="t">Send a file to the phone</span><p>Right-click the file in Dolphin &rarr; <em>Send to</em> &rarr; your
+         phone. Or drag it onto the phone's entry in the KDE Connect window. Going the
+         other way, share to KDE Connect from the phone.</p></li>
+        <li><span class="t">Read and reply to phone notifications</span><p>Enable notification access in the phone app. Messages then appear in
+         Plasma's notification area, and on Android you can reply straight from the
+         desktop.</p></li>
+        <li><span class="t">Use the phone as a presentation remote</span><p>The <em>Slideshow remote</em> plugin in the phone app moves through
+         slides in Impress or a PDF, with a virtual laser pointer.</p></li>
+        <li><span class="t">Share the clipboard</span><p>Turn on clipboard sync in the plugin list. Copy a link on the phone and
+         paste it here. It is the single most-used feature once you have it.</p></li>
+      </ol>
+    </section>
+
+    <section>
+      <h2>One thing that will surprise you</h2>
+      <p><strong>If pairing does not find your phone, it is almost always the
+      firewall zone.</strong> KDE Connect needs a range of ports open, and Dagric
+      opens them only on networks you have marked as <em>Home</em> &mdash; never on
+      café or airport Wi-Fi, because that range is a pairing surface that has no
+      business being reachable from strangers. Open System Settings &rarr;
+      <em>Firewall</em> and set the current connection's zone to <em>home</em>, and
+      the phone appears.</p>
+    </section>
+
+    <section>
+      <h2>Where to find it</h2>
+      <p>Launcher &rarr; <strong>Connect Your Phone</strong> (also <em>KDE
+      Connect</em>); texting is a second entry, <em>Phone Messages</em>. Once paired
+      it also lives in the system tray and in Dolphin's <em>Send to</em> menu.</p>
+    </section>
+
+    <section>
+      <h2>See also</h2>
+      <div class="related"><a href="app-localsend.html">LocalSend</a><a href="app-network.html">Wi-Fi, wired networks and VPN</a><a href="app-firewall.html">The firewall</a><a href="app-dolphin.html">Dolphin</a></div>
+    </section>
+
+    <footer class="colophon">Dagric OS Manual &middot; stored on this computer, no internet needed &middot; <a href="index.html">every application</a></footer>
+
+  </main>
+</div>
+</body>
+</html>

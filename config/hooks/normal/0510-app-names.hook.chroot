@@ -1,0 +1,122 @@
+#!/bin/sh
+# SPDX-FileCopyrightText: 2026 DGR Operations <repo@dagric.com>
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+# Dagric OS — generate the plain-English app names, and gate the Pro-only
+# launcher entries.
+#
+# The rename itself is done by /usr/bin/dagric-app-names, which is shipped on
+# the image rather than inlined here on purpose: the same script has to run
+# again after every apt operation (see /etc/apt/apt.conf.d/99dagric-app-names),
+# because the overrides shadow whole files and would otherwise freeze each app's
+# Exec=/MimeType=/Desktop Actions at build time. A build-time-only hook would
+# rename the apps once and then quietly rot. The full reasoning for writing to
+# /usr/local/share/applications instead of editing /usr/share/applications in
+# place lives at the top of that script.
+#
+# It lives in /usr/bin next to the other non-user-facing helpers
+# (dagric-brand-launcher, dagric-driver-offer) rather than under /usr/lib,
+# because .gitattributes pins config/includes.chroot/usr/bin/* to LF endings and
+# build.sh already chmod +x's that directory. A shell script checked out with
+# CRLF dies in the chroot as "/bin/sh^M" — this keeps it in the one place the
+# repo already guarantees both.
+set -e
+
+GEN=/usr/bin/dagric-app-names
+
+if [ ! -f "$GEN" ]; then
+    echo "ERROR: $GEN missing — the app-name overrides cannot be built." >&2
+    exit 1
+fi
+chmod 0755 "$GEN"
+
+# ---------------------------------------------------------------------------
+# Pro-only launcher entries.
+#
+# These ship as ordinary files in config/includes.chroot so they stay readable
+# and reviewable in git, and carry X-Dagric-Edition=pro. build.sh only strips
+# EDITION=pro drop-ins under share/dagric/looks and share/dagric/styles, so
+# nothing else would remove them from a free image — a free owner would get a
+# launcher full of entries for Pro helpers that either do nothing or tell them
+# to upgrade. That is precisely the "free edition feels BROKEN" failure, so they
+# are DELETED here rather than hidden: same reasoning as the Pro layouts, a flag
+# a user can edit out is not a gate.
+#
+# X-Dagric-Edition rather than a bare EDITION= line because unknown bare keys
+# make desktop-file-validate complain; X- prefixed keys are spec-legal.
+EDITION=$(cat /etc/dagric-edition 2>/dev/null || echo free)
+if [ "$EDITION" != "pro" ]; then
+    for drop in $(grep -rlx 'X-Dagric-Edition=pro' /usr/share/applications 2>/dev/null); do
+        rm -f "$drop"
+    done
+fi
+
+# ---------------------------------------------------------------------------
+# Build the overrides.
+"$GEN"
+
+# ---------------------------------------------------------------------------
+# Assert the result, because a silent no-op here ships an ISO whose whole
+# selling point — a launcher a Windows switcher can read — is missing, and
+# nothing else in the build would notice. Runtime is deliberately tolerant of a
+# missing app (the owner may uninstall one); build time is not.
+DST=/usr/local/share/applications
+fail=0
+
+# Every app in the free edition's own package lists must have been renamed.
+for id in org.kde.dolphin org.kde.konsole org.kde.gwenview org.kde.okular \
+          org.kde.ark org.kde.kate org.kde.elisa org.kde.spectacle \
+          org.kde.discover org.kde.kwalletmanager org.kde.kcalc \
+          org.kde.plasma-systemmonitor mpv org.kde.skanlite gdebi; do
+    if [ ! -f "$DST/$id.desktop" ]; then
+        echo "ERROR: no renamed launcher for $id — is it still in the package lists?" >&2
+        fail=1
+    fi
+done
+
+# The original names must still be searchable. KRunner scores Keywords=, so a
+# rename that dropped them would strand anyone following a forum post that says
+# "open Dolphin".
+for pair in org.kde.dolphin:dolphin org.kde.konsole:konsole \
+            org.kde.gwenview:gwenview org.kde.okular:okular org.kde.ark:ark \
+            org.kde.kate:kate org.kde.elisa:elisa org.kde.spectacle:spectacle; do
+    id=${pair%:*}; word=${pair#*:}
+    [ -f "$DST/$id.desktop" ] || continue
+    if ! grep -q "^Keywords=.*$word" "$DST/$id.desktop"; then
+        echo "ERROR: $id.desktop lost '$word' from Keywords — it is no longer searchable." >&2
+        fail=1
+    fi
+done
+
+# No English locale variant may survive in [Desktop Entry]: upstream ships
+# Name[en_GB] almost everywhere (and Name[en_AU]/[en_CA] on gdebi), and it would
+# beat our Name= for every owner who chose English (UK/AU/CA) at install time.
+for f in "$DST"/*.desktop; do
+    [ -f "$f" ] || continue
+    if awk '/^\[/ { e = ($0 == "[Desktop Entry]") }
+            e && /^(Name|GenericName|Keywords)\[en/ { found = 1 }
+            END { exit !found }' "$f"; then
+        echo "ERROR: ${f##*/} still carries an English locale override in [Desktop Entry]." >&2
+        fail=1
+    fi
+done
+
+# Spectacle's 9 Desktop Actions, systemsettings' 5, Konsole's 2 and Discover's 1
+# each carry their own Name=. If the rewriter ever leaks out of [Desktop Entry]
+# it would flatten them into duplicates of the app name, and the right-click
+# menu on the panel icon would become nine identical rows.
+for id in org.kde.spectacle org.kde.konsole org.kde.discover; do
+    [ -f "$DST/$id.desktop" ] || continue
+    src_actions=$(grep -c '^\[Desktop Action' "/usr/share/applications/$id.desktop" 2>/dev/null || echo 0)
+    src_names=$(grep -c '^Name=' "/usr/share/applications/$id.desktop" 2>/dev/null || echo 0)
+    dst_names=$(grep -c '^Name=' "$DST/$id.desktop" 2>/dev/null || echo 0)
+    if [ "$src_names" != "$dst_names" ]; then
+        echo "ERROR: $id.desktop has $dst_names Name= lines, upstream has $src_names —" >&2
+        echo "       the rewriter escaped [Desktop Entry] and ate its $src_actions Desktop Actions." >&2
+        fail=1
+    fi
+done
+
+[ "$fail" = 0 ] || exit 1
+
+echo "app-names: renamed $(ls -1 "$DST"/*.desktop 2>/dev/null | wc -l) launcher entries ($EDITION edition)"

@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>OBS Studio &mdash; Dagric OS Manual</title>
+<link rel="stylesheet" href="manual.css">
+<script src="manual.js"></script>
+</head>
+<body>
+<div class="shell">
+  <aside class="side">
+    <div class="sidebox">
+      <a class="brand" href="index.html">
+        <div class="mark">D</div>
+        <div class="brand-name">Dagric OS<small>Manual</small></div>
+      </a>
+      <nav class="toc">
+        <a class="back" href="index.html">&larr; All applications</a>
+        <div class="navgroup">Photos and video</div>
+        <a href="app-gwenview.html">Gwenview</a>
+        <a href="app-spectacle.html">Spectacle</a>
+        <a href="app-mpv.html">mpv</a>
+        <a href="app-gimp.html">GIMP</a>
+        <a href="app-krita.html">Krita</a>
+        <a href="app-inkscape.html">Inkscape</a>
+        <a href="app-darktable.html">darktable</a>
+        <a href="app-blender.html">Blender</a>
+        <a href="app-kdenlive.html">Kdenlive</a>
+        <a href="app-obs-studio.html" class="active">OBS Studio</a>
+        <a href="app-handbrake.html">HandBrake</a>
+        <a href="app-upscayl.html">Upscayl</a>
+        <a href="app-davinci-resolve.html">DaVinci Resolve</a>
+      </nav>
+    </div>
+  </aside>
+
+  <main class="content">
+
+    <header class="hero">
+      <div class="eyebrow">Photos and video</div>
+      <h1>OBS Studio<span class="pill pro">PRO</span></h1>
+      <p class="sub">Record your screen or stream live, with a proper mixer behind it.</p>
+    </header>
+
+    <div class="swap"><span>On Windows this was</span><strong>the Xbox Game Bar recorder, Camtasia, and Streamlabs</strong></div>
+
+    <div class="notice pro-notice"><div><strong>This one is part of Dagric&nbsp;OS Pro.</strong> You are reading the manual on the free edition, so it is not installed on this computer. The page is here on purpose &mdash; you should be able to see exactly what Pro adds before you decide whether you want it.</div></div>
+    <section>
+      <h2>What it is</h2>
+      <p><strong>OBS Studio</strong> composes a video from <em>sources</em> &mdash;
+      a screen, a window, a webcam, an image, some text &mdash; arranged into
+      <em>scenes</em> you switch between, and then either records it to a file or
+      streams it live to Twitch, YouTube or anywhere else that speaks RTMP.</p>
+      <p>It is what nearly every streamer and tutorial-maker uses, on every platform.
+      For a quick unadorned screen recording, <a href="app-spectacle.html">Spectacle</a>
+      is less setup.</p>
+    </section>
+
+    <section>
+      <h2>Five things you will actually do</h2>
+      <ol class="tasks">
+        <li><span class="t">Set it up the first time</span><p>Let the auto-configuration wizard run &mdash; it tests your machine and
+         picks sensible resolution and bitrate. You can change everything later in
+         <em>Settings</em>.</p></li>
+        <li><span class="t">Record your screen</span><p>In the Sources box press <em>+</em> &rarr; <em>Screen Capture
+         (PipeWire)</em>. A permission dialogue asks which screen or window to share
+         &mdash; that prompt is the desktop protecting you, not an error. Then press
+         <em>Start Recording</em>.</p></li>
+        <li><span class="t">Add your webcam and microphone</span><p><em>+</em> &rarr; <em>Video Capture Device</em> for the camera; drag
+         and scale it into a corner. Microphones appear in the Audio Mixer at the
+         bottom, where you can set levels and add noise suppression from the gear
+         icon &rarr; <em>Filters</em>.</p></li>
+        <li><span class="t">Build scenes you can switch between</span><p>Make one scene for &ldquo;full screen&rdquo;, one for &ldquo;camera
+         only&rdquo;, one for a title card. Click between them live, or bind them to
+         hotkeys in <em>Settings</em> &rarr; <em>Hotkeys</em> so they work while
+         another window has focus.</p></li>
+        <li><span class="t">Stream</span><p><em>Settings</em> &rarr; <em>Stream</em>, choose the service, paste
+         your stream key, press <em>Start Streaming</em>. Test with an unlisted or
+         private stream first &mdash; everybody's first attempt has the microphone
+         muted.</p></li>
+      </ol>
+    </section>
+
+    <section>
+      <h2>One thing that will surprise you</h2>
+      <p><strong>Screen capture goes through a permission prompt every time, and
+      that is a feature.</strong> On Wayland &mdash; the modern display system Plasma
+      uses &mdash; no application can silently read your screen. OBS must ask, and the
+      desktop shows you a picker. It feels like friction after Windows, where any
+      program could quietly capture everything. Tick &ldquo;remember&rdquo; in the
+      picker to reduce it to once per session.</p>
+    </section>
+
+    <section>
+      <h2>Where to find it</h2>
+      <p>Launcher &rarr; <em>OBS Studio</em>.</p>
+    </section>
+
+    <section>
+      <h2>See also</h2>
+      <div class="related"><a href="app-spectacle.html">Spectacle</a><a href="app-kdenlive.html">Kdenlive</a><a href="app-audacity.html">Audacity</a><a href="app-sound.html">Sound, headphones and microphones</a></div>
+    </section>
+
+    <footer class="colophon">Dagric OS Manual &middot; stored on this computer, no internet needed &middot; <a href="index.html">every application</a></footer>
+
+  </main>
+</div>
+</body>
+</html>

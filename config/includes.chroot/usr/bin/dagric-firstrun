@@ -1,0 +1,849 @@
+#!/bin/sh
+# SPDX-FileCopyrightText: 2026 DGR Operations <repo@dagric.com>
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Dagric OS — "Set Up Dagric": the wizard the owner meets on their first login.
+#
+# WHY THIS EXISTS. Until now the entire out-of-box experience was seven lines
+# that opened a Firefox tab. To somebody arriving from Windows 10 a browser tab
+# on first boot has exactly the shape of the OEM bloatware page they have been
+# trained to close without reading — and worse, a page cannot DO anything. It
+# cannot set the wallpaper, resize the text, move the taskbar, or fetch their
+# files off the Windows partition that is still sitting on the disk. This can.
+#
+# HOW IT IS PUT TOGETHER — the same split as Dagric Appearance, for the same
+# reason. The window is QML (/usr/share/dagric/firstrun/main.qml) and has no
+# power of its own: QML cannot run programs, and a setup wizard that could
+# would be a privilege problem rather than a convenience. This script does
+# every apply and every undo. It hands the window a catalogue of what is
+# actually installed on THIS machine and reads back one line per click:
+#
+#     @DAGRIC@READY               the window is really on screen
+#     @DAGRIC@MODE|dark           light or dark
+#     @DAGRIC@ACCENT|amber        an accent id from the catalogue
+#     @DAGRIC@WALL|DagricArctic   a wallpaper package id from the catalogue
+#     @DAGRIC@SCALE|125           100, 125 or 150
+#     @DAGRIC@LAYOUT|eleven       a .look id from the catalogue
+#     @DAGRIC@RUN|migrate         launch a helper (migrate/display/hub/...)
+#     @DAGRIC@UNDO                put everything back the way it was found
+#     @DAGRIC@DONE                the owner pressed Finish
+#     @DAGRIC@QUIT                the window closed
+#
+# Lines without the marker are ordinary Qt chatter and are ignored, and every
+# id is checked against the catalogue this script just wrote — the window can
+# only ever ask for something already found on disk.
+#
+# NOTHING HERE IS DESTRUCTIVE. Every step is skippable, closing the window at
+# any point leaves a desktop that works, and each choice is a setting the owner
+# can change again from the Hub. The header carries "Undo my changes", which
+# restores the colours, accent, wallpaper, text size and panels exactly as they
+# were when the wizard opened — the answer to "can my aunt undo this?".
+#
+# RUN ONCE, BUT RE-RUNNABLE. The autostart entry passes --autostart and we bail
+# out if the stamp file exists. Run without the flag (launcher, Hub) and it
+# always opens. The stamp is written when the window actually appears, not when
+# the script starts and not when Finish is pressed:
+#   * not at start — a login where the compositor was not ready yet would burn
+#     the one chance to ever show this. Same lesson as dagric-brand-launcher,
+#     which keeps its autostart entry until it has VERIFIED it succeeded.
+#   * not at Finish — a wizard that reappears uninvited after the owner
+#     deliberately closed it reads as broken. Closing it is an answer.
+# The autostart entry itself is left in place rather than deleted, so the stamp
+# is the single source of truth and a re-run can never resurrect the autostart.
+EDITION=$(cat /etc/dagric-edition 2>/dev/null || echo free)
+BRAND='#3fa9f5'
+WALLS=/usr/share/wallpapers
+QMLDIR=/usr/share/dagric/firstrun
+QMLFILE=$QMLDIR/main.qml
+XDG_DATA=${XDG_DATA_HOME:-$HOME/.local/share}
+XDG_CONF=${XDG_CONFIG_HOME:-$HOME/.config}
+LOOK_DIRS="/usr/share/dagric/looks /etc/dagric/looks $XDG_DATA/dagric/looks"
+THUMB_DIRS="/usr/share/dagric/appearance/thumbs /etc/dagric/appearance/thumbs $XDG_DATA/dagric/appearance/thumbs"
+STAMP=$XDG_CONF/dagric/firstrun-done
+TITLE="Set Up Dagric"
+
+# Same delimiter reasoning as dagric-appearance: ASCII Unit Separator, not a
+# tab, because tab is IFS whitespace and `read` folds two of them into one.
+SEP=$(printf '\037')
+ESC=$(printf '\033')
+
+case "$EDITION" in
+    pro) EDITION_NAME="Dagric OS Pro" ;;
+    *)   EDITION_NAME="Dagric OS" ;;
+esac
+
+# --- run once ----------------------------------------------------------------
+if [ "$1" = "--autostart" ] && [ -f "$STAMP" ]; then
+    exit 0
+fi
+
+notify() {
+    kdialog --title "$TITLE" --passivepopup "$1" 6 >/dev/null 2>&1 &
+}
+
+stamp() {
+    mkdir -p "$XDG_CONF/dagric" 2>/dev/null || return 0
+    [ -f "$STAMP" ] && return 0
+    {
+        printf '# Dagric OS: the first-run wizard has been shown to this user.\n'
+        printf '# Delete this file to have it open again at the next login,\n'
+        printf '# or just run "Set Up Dagric" from the launcher at any time.\n'
+        printf 'shown=%s\n' "$(date -u +%Y-%m-%dT%H:%M:%SZ 2>/dev/null || echo unknown)"
+    } > "$STAMP" 2>/dev/null
+    return 0
+}
+
+# --- what this machine can actually do ---------------------------------------
+# Every one of these decides whether a STEP IS SHOWN AT ALL. A wizard page whose
+# answer we already know, or whose button cannot work here, is a page that
+# teaches the owner their choices do not matter.
+
+LIVE=false
+[ -d /run/live/medium ] && LIVE=true
+
+session_type() {
+    _t=$XDG_SESSION_TYPE
+    if [ -z "$_t" ] && [ -n "$XDG_SESSION_ID" ]; then
+        _t=$(loginctl show-session "$XDG_SESSION_ID" -p Type --value 2>/dev/null)
+    fi
+    printf '%s' "$_t"
+}
+
+# kscreen-doctor colours its output when it thinks it is on a terminal; strip
+# escape sequences anyway rather than trusting that, and refuse any output name
+# that is not a plain identifier before it is ever passed back to a command.
+kscreen_outputs() {
+    command -v kscreen-doctor >/dev/null 2>&1 || return 0
+    kscreen-doctor -o 2>/dev/null | sed "s/$ESC\[[0-9;]*m//g" | awk '
+        /^Output:/                        { name = $3; next }
+        /^[[:space:]]*enabled[[:space:]]*$/ { if (name != "") { print name; name = "" } }
+    ' | while IFS= read -r _o; do
+        case "$_o" in ''|*[!A-Za-z0-9._-]*) continue ;; esac
+        printf '%s\n' "$_o"
+    done
+}
+
+SESSION=$(session_type)
+SCALE_MODE=none
+if command -v kscreen-doctor >/dev/null 2>&1 && [ "$SESSION" = "wayland" ]; then
+    # Wayland: KWin owns per-output scale and kscreen-doctor changes it live.
+    SCALE_MODE=wayland
+elif command -v kwriteconfig6 >/dev/null 2>&1 && [ "$SESSION" = "x11" ]; then
+    # X11 has no live per-output scale in Plasma 6 — only the global KScreen
+    # factor, read at session start. Deliberately NOT written on Wayland, where
+    # it is ignored and would only be a second, disagreeing source of truth.
+    SCALE_MODE=x11
+fi
+
+current_scale() {   # -> 100 | 125 | 150 | 0 (unknown / something else)
+    _s=
+    case "$SCALE_MODE" in
+        wayland)
+            _s=$(kscreen-doctor -o 2>/dev/null | sed "s/$ESC\[[0-9;]*m//g" \
+                 | sed -n 's/.*Scale: *\([0-9.]*\).*/\1/p' | head -1) ;;
+        x11)
+            _s=$(kreadconfig6 --file kdeglobals --group KScreen --key ScaleFactor 2>/dev/null) ;;
+    esac
+    # Compared as a NUMBER, not as text. kscreen-doctor is free to print "1",
+    # "1.0" or "1.000000" and a string match would call a perfectly ordinary
+    # 100% screen "unknown", leaving the owner looking at three buttons with
+    # none of them lit. Anything that is not one of our three sizes reports 0,
+    # which the window draws as "nothing selected" — honest, since the owner is
+    # then on a scale this step cannot express.
+    case "$_s" in ''|*[!0-9.]*) printf '0'; return 0 ;; esac
+    awk -v s="$_s" 'BEGIN {
+        v = s + 0
+        if      (v >= 0.99 && v <= 1.01) print 100
+        else if (v >= 1.24 && v <= 1.26) print 125
+        else if (v >= 1.49 && v <= 1.51) print 150
+        else                             print 0
+    }'
+}
+
+# A Windows-formatted partition anywhere on this machine is the trigger for the
+# migration step. READ-ONLY detection on purpose: lsblk reads what udev already
+# knows, so nothing is mounted and no polkit prompt appears just for asking the
+# question. dagric-migrate does the real, careful search when it is launched —
+# including the BitLocker case — so a false positive here costs one friendly
+# "no Windows found" message and a false negative costs the owner their files.
+HAS_WINDOWS=false
+if command -v lsblk >/dev/null 2>&1; then
+    if lsblk -Pno FSTYPE,TYPE 2>/dev/null \
+       | grep -q 'FSTYPE="\(ntfs3\?\|BitLocker\)" TYPE="part"'; then
+        HAS_WINDOWS=true
+    fi
+fi
+
+# /usr/bin/dagric-display is the dedicated text-size tool. Where it exists, the
+# step hands over to it rather than shipping a second, disagreeing control —
+# and it is the better tool for the job: its Keep/Revert countdown runs in the
+# script rather than in the dialog, so a size that puts the dialog off the
+# bottom of the screen still gets taken back. It works through kscreen-doctor
+# and is Wayland-only, so on an X11 session we keep the inline buttons instead
+# of handing the owner a door that opens onto an apology.
+HAS_DISPLAY_TOOL=false
+if [ -x /usr/bin/dagric-display ] && [ "$SCALE_MODE" != "x11" ]; then
+    HAS_DISPLAY_TOOL=true
+fi
+
+# --- the plasmashell handshake -----------------------------------------------
+# Wallpapers and panels are applied THROUGH plasmashell, and on a first login
+# plasmashell is not necessarily the one that started with the session:
+# dagric-brand-launcher deliberately quits and relaunches it to stamp the
+# Dagric logo on the launcher button. Applying into that gap silently does
+# nothing. Wait for the shell to answer the session bus first, and re-apply the
+# wallpaper once more when Finish is pressed, so a restart that landed in the
+# middle of the wizard cannot leave the owner with a choice that did not stick.
+wait_plasma() {
+    _i=0
+    while [ "$_i" -lt 15 ]; do
+        if dbus-send --session --dest=org.freedesktop.DBus --type=method_call \
+               --print-reply /org/freedesktop/DBus \
+               org.freedesktop.DBus.NameHasOwner string:org.kde.plasmashell 2>/dev/null \
+           | grep -q 'boolean true'; then
+            return 0
+        fi
+        _i=$((_i + 1))
+        sleep 1
+    done
+    return 1
+}
+
+# --- the QML runtime ---------------------------------------------------------
+# Debian's qml-qt6 package installs /usr/bin/qml6. If it is missing for any
+# reason we do NOT give up: a first run that fails to appear is worse than a
+# plain one, so fall through to the kdialog wizard at the bottom of this file.
+QML=
+for cand in qml6 /usr/lib/qt6/bin/qml /usr/lib/x86_64-linux-gnu/qt6/bin/qml; do
+    if command -v "$cand" >/dev/null 2>&1; then QML=$cand; break; fi
+done
+
+WORK=$(mktemp -d) || exit 1
+trap 'rm -rf "$WORK"' EXIT INT TERM
+CATALOG=$WORK/catalog.json
+CAPFILE=$WORK/captured
+PANFILE=$WORK/panels
+SCLFILE=$WORK/scales
+
+# --- reading the drop-in files ----------------------------------------------
+skey() { sed -n "s/^[[:space:]]*$2[[:space:]]*=[[:space:]]*//p" "$1" | head -1 | sed 's/[[:space:]]*$//'; }
+
+# Text out of a .look or a wallpaper's metadata lands inside a JSON string, so
+# quote it properly and drop control characters rather than trusting the file.
+jesc() { printf '%s' "$1" | tr -d '\001-\037' | sed 's/\\/\\\\/g; s/"/\\"/g'; }
+flat() { printf '%s' "$1" | tr -d '\001-\037'; }
+
+# --- catalogue: wallpapers ---------------------------------------------------
+# Only the Dagric packs. /usr/share/wallpapers also holds everything Plasma
+# ships, and forty tiles of which eighteen are stock Breeze is not a choice,
+# it is a haystack. The step says where the rest live. If a build ever renames
+# the packs the prefix stops matching, so fall back to listing everything
+# rather than showing an empty grid on the headline step.
+collect_walls() {
+    _pfx=$1
+    : > "$WORK/walls.tsv"
+    for _d in "$WALLS"/*/; do
+        _d=${_d%/}
+        [ -d "$_d" ] || continue
+        _id=$(basename "$_d")
+        case "$_id" in ''|*[!A-Za-z0-9._-]*) continue ;; esac
+        [ -n "$_pfx" ] && { case "$_id" in "$_pfx"*) : ;; *) continue ;; esac; }
+        _img=
+        for _res in 1920x1080 3840x2160; do
+            if [ -f "$_d/contents/images/$_res.png" ]; then
+                _img=$_d/contents/images/$_res.png
+                break
+            fi
+        done
+        [ -n "$_img" ] || continue
+        _nm=$(sed -n 's/.*"Name"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/p' \
+              "$_d/metadata.json" 2>/dev/null | head -1)
+        [ -n "$_nm" ] || _nm=$_id
+        printf "%s$SEP%s$SEP%s\n" "$_id" "$(flat "$_nm")" "$_img" >> "$WORK/walls.tsv"
+    done
+}
+
+collect_walls Dagric
+[ -s "$WORK/walls.tsv" ] || collect_walls ""
+
+emit_walls() {
+    _first=1
+    sort -t"$SEP" -k1,1 "$WORK/walls.tsv" 2>/dev/null | \
+    while IFS="$SEP" read -r _id _nm _img; do
+        [ -n "$_id" ] || continue
+        [ "$_first" -eq 1 ] || printf ',\n'
+        _first=0
+        printf '    {"id":"%s","name":"%s","thumb":"file://%s"}' \
+            "$(jesc "$_id")" "$(jesc "$_nm")" "$(jesc "$_img")"
+    done
+}
+
+# --- catalogue: taskbar layouts ----------------------------------------------
+# Exactly the files Dagric Looks reads, in the same three-directory order, so a
+# layout written by hand shows up here too. Pro-only layouts are stripped from
+# free images at build time; the flag is honoured again here, belt and braces.
+collect_layouts() {
+    : > "$WORK/layout.tsv"
+    for _dir in $LOOK_DIRS; do
+        [ -d "$_dir" ] || continue
+        for _f in "$_dir"/*.look; do
+            [ -f "$_f" ] || continue
+            _id=$(basename "$_f" .look)
+            case "$_id" in ''|*[!A-Za-z0-9._-]*) continue ;; esac
+            _need=$(skey "$_f" EDITION)
+            if [ "$_need" = "pro" ] && [ "$EDITION" != "pro" ]; then continue; fi
+            [ -n "$(skey "$_f" SCRIPT)" ] || continue
+            _name=$(flat "$(skey "$_f" NAME)"); [ -n "$_name" ] || _name=$_id
+            _desc=$(flat "$(skey "$_f" DESCRIPTION)")
+            _sort=$(skey "$_f" SORT)
+            case "$_sort" in ''|*[!0-9]*) _sort=50 ;; esac
+            _thumb=
+            for _td in $THUMB_DIRS; do
+                [ -f "$_td/$_id.png" ] && _thumb="file://$_td/$_id.png"
+            done
+            # Same precedence rule as Dagric Looks: a later directory replaces
+            # an entry with the same id, so a user copy overrides the shipped
+            # one. Compared as a whole field so a layout whose DESCRIPTION
+            # happens to read like another layout's id cannot evict it.
+            awk -F"$SEP" -v id="$_id" '$2 != id' "$WORK/layout.tsv" > "$WORK/layout.n" 2>/dev/null || true
+            mv -f "$WORK/layout.n" "$WORK/layout.tsv" 2>/dev/null || true
+            printf "%s$SEP%s$SEP%s$SEP%s$SEP%s$SEP%s\n" \
+                "$_sort" "$_id" "$_name" "$_desc" "$_thumb" "$_f" >> "$WORK/layout.tsv"
+        done
+    done
+}
+
+collect_layouts
+
+emit_layouts() {
+    _first=1
+    sort -t"$SEP" -k1,1n -k3,3 "$WORK/layout.tsv" 2>/dev/null | \
+    while IFS="$SEP" read -r _s _id _name _desc _thumb _file; do
+        [ -n "$_id" ] || continue
+        [ "$_first" -eq 1 ] || printf ',\n'
+        _first=0
+        printf '    {"id":"%s","name":"%s","desc":"%s","thumb":"%s"}' \
+            "$(jesc "$_id")" "$(jesc "$_name")" "$(jesc "$_desc")" "$(jesc "$_thumb")"
+    done
+}
+
+# --- catalogue: accents ------------------------------------------------------
+# id, label, "r,g,b" as kdeglobals wants it, and the hex the window paints the
+# swatch with. "default" means "whatever the colour scheme already highlights
+# with" — the same meaning ACCENT=default carries in a .style file.
+ACCENTS="default${SEP}Theme default${SEP}default${SEP}$BRAND
+blue${SEP}Dagric blue${SEP}63,169,245${SEP}#3fa9f5
+teal${SEP}Teal${SEP}38,180,166${SEP}#26b4a6
+green${SEP}Green${SEP}76,175,80${SEP}#4caf50
+amber${SEP}Amber${SEP}240,166,88${SEP}#f0a658
+coral${SEP}Coral${SEP}232,93,84${SEP}#e85d54
+violet${SEP}Violet${SEP}154,110,240${SEP}#9a6ef0
+pink${SEP}Pink${SEP}232,102,168${SEP}#e866a8
+slate${SEP}Slate${SEP}124,142,166${SEP}#7c8ea6"
+
+printf '%s\n' "$ACCENTS" > "$WORK/accent.tsv"
+
+emit_accents() {
+    _first=1
+    while IFS="$SEP" read -r _id _name _rgb _hex; do
+        [ -n "$_id" ] || continue
+        [ "$_first" -eq 1 ] || printf ',\n'
+        _first=0
+        printf '    {"id":"%s","name":"%s","hex":"%s"}' \
+            "$(jesc "$_id")" "$(jesc "$_name")" "$(jesc "$_hex")"
+    done < "$WORK/accent.tsv"
+}
+
+# Turning an id the window sent back into the thing it names. These match a
+# WHOLE FIELD, not a substring: the wallpaper table keeps the id in column one,
+# so the "$SEP$id$SEP" search the appearance gallery uses would have needed a
+# separator that is not there and every wallpaper click would have been quietly
+# dropped. A field comparison also means an id can never be found inside some
+# other entry's description, and needs no thought about regex metacharacters.
+lookup_layout() { awk -F"$SEP" -v id="$1" '$2 == id { print $6; exit }' "$WORK/layout.tsv" 2>/dev/null; }
+lookup_wall()   { awk -F"$SEP" -v id="$1" '$1 == id { print $3; exit }' "$WORK/walls.tsv"  2>/dev/null; }
+lookup_accent() { awk -F"$SEP" -v id="$1" '$1 == id { print $3; exit }' "$WORK/accent.tsv" 2>/dev/null; }
+
+# --- what the desktop shows when the owner has never chosen ------------------
+# On a freshly installed Dagric nobody has overridden the colour scheme or the
+# wallpaper, so kreadconfig6 reports nothing at all and a baseline captured
+# from it would be empty — which would make "Undo my changes" a lie. The
+# look-and-feel defaults file has the honest answer, and it is not a guess:
+# 0500-desktop-defaults.hook.chroot is what writes Image=Dagric into it.
+LNF=/usr/share/plasma/look-and-feel/org.kde.breeze.desktop/contents/defaults
+lnf_key() {   # <exact group line> <key>
+    [ -f "$LNF" ] || return 0
+    awk -v grp="$1" -v key="$2" '
+        $0 == grp { ins = 1; next }
+        /^\[/     { ins = 0 }
+        ins && index($0, key "=") == 1 { sub(/^[^=]*=/, ""); print; exit }
+    ' "$LNF"
+}
+
+current_wall_id() {
+    _p=$(sed -n 's/^Image=//p' \
+        "$XDG_CONF/plasma-org.kde.plasma.desktop-appletsrc" 2>/dev/null | head -1)
+    _p=${_p#file://}
+    _p=${_p%/}
+    if [ -z "$_p" ]; then
+        _p=$(lnf_key '[Wallpaper]' Image)
+    fi
+    # Either a package name or a path into one; reduce both to the package id.
+    case "$_p" in
+        "$WALLS"/*) _p=${_p#"$WALLS"/}; _p=${_p%%/*} ;;
+    esac
+    case "$_p" in ''|*[!A-Za-z0-9._-]*) printf ''; return 0 ;; esac
+    printf '%s' "$_p"
+}
+
+current_mode() {
+    _s=$(kreadconfig6 --file kdeglobals --group General --key ColorScheme 2>/dev/null)
+    [ -n "$_s" ] || _s=$(lnf_key '[kdeglobals][General]' ColorScheme)
+    case "$_s" in
+        *Dark*|*dark*) printf 'dark' ;;
+        *)             printf 'light' ;;
+    esac
+}
+
+# --- capture: exactly what we found, so Undo is honest ------------------------
+capture_base() {
+    [ -f "$CAPFILE" ] && return 0
+    _s=$(kreadconfig6 --file kdeglobals --group General --key ColorScheme 2>/dev/null)
+    [ -n "$_s" ] || _s=$(lnf_key '[kdeglobals][General]' ColorScheme)
+    _a=$(kreadconfig6 --file kdeglobals --group General --key AccentColor 2>/dev/null)
+    _w=$(current_wall_id)
+    {
+        printf 'SCHEME=%s\n' "$_s"
+        printf 'ACCENT=%s\n' "$_a"
+        printf 'WALL=%s\n'   "$_w"
+    } > "$CAPFILE"
+    return 0
+}
+
+# Called only from the SCALE branch, which is the only place this script ever
+# changes the text size. That is deliberate: when dagric-display owns the step,
+# no baseline is recorded and "Undo my changes" leaves the size alone. The
+# wizard undoes what the wizard did — dagric-display has its own Keep/Revert
+# and its own crash-recovery file, and two tools racing to restore the same
+# setting is how an owner ends up at a size neither of them offered.
+capture_scale() {
+    [ -f "$SCLFILE" ] && return 0
+    : > "$SCLFILE"
+    case "$SCALE_MODE" in
+        wayland)
+            kscreen-doctor -o 2>/dev/null | sed "s/$ESC\[[0-9;]*m//g" | awk '
+                /^Output:/ { name = $3; next }
+                /Scale:/   { if (name != "") { sub(/.*Scale: */, ""); sub(/ .*/, "");
+                                              print name " " $0; name = "" } }
+            ' >> "$SCLFILE" ;;
+        x11)
+            printf 'GLOBAL %s\n' \
+                "$(kreadconfig6 --file kdeglobals --group KScreen --key ScaleFactor 2>/dev/null)" \
+                >> "$SCLFILE" ;;
+    esac
+    return 0
+}
+
+# Reading the panels back out of Plasma is what lets Undo rebuild the taskbar
+# that was there. The whole description is assembled first and printed in one
+# go: if anything in the loop throws, nothing is printed, capture counts as
+# failed, and Undo falls back to the standard layout rather than half a desktop.
+SERIALIZE='try{var ps=panels(); var o=""; for(var i=0;i<ps.length;i++){var p=ps[i]; var ids=p.widgetIds; var n=[]; for(var j=0;j<ids.length;j++){var d=p.widgetById(ids[j]); if(d){n.push(d.type);}} o+="P|"+p.location+"|"+p.height+"|"+n.join(" ")+"\n";} print(o);}catch(e){}'
+CLEAR='var ps=panels(); for(var i=0;i<ps.length;i++){ps[i].remove();}'
+
+plasma_script() {
+    dbus-send --session --type=method_call --dest=org.kde.plasmashell \
+        /PlasmaShell org.kde.PlasmaShell.evaluateScript "string:$1" >/dev/null 2>&1
+}
+
+capture_panels() {
+    [ -s "$PANFILE" ] && return 0
+    wait_plasma || return 1
+    if ! _out=$(dbus-send --print-reply=literal --session --type=method_call \
+                --dest=org.kde.plasmashell /PlasmaShell \
+                org.kde.PlasmaShell.evaluateScript "string:$SERIALIZE" 2>/dev/null); then
+        return 1
+    fi
+    printf '%s\n' "$_out" | sed -n 's/^[[:space:]]*\(P|[a-z]*|[0-9]*|.*\)$/\1/p' > "$PANFILE"
+    [ -s "$PANFILE" ] || { rm -f "$PANFILE"; return 1; }
+    return 0
+}
+
+# --- applying ----------------------------------------------------------------
+set_mode() {
+    case "$1" in
+        light) plasma-apply-colorscheme DagricLight >/dev/null 2>&1 ;;
+        dark)  plasma-apply-colorscheme DagricDark  >/dev/null 2>&1 ;;
+        *) return 1 ;;
+    esac
+    dbus-send --session --type=method_call --dest=org.kde.KWin \
+        /KWin org.kde.KWin.reconfigure 2>/dev/null
+    return 0
+}
+
+set_accent() {
+    case "$1" in
+        "") return 1 ;;
+        default) kwriteconfig6 --file kdeglobals --group General --key AccentColor --delete 2>/dev/null ;;
+        *) kwriteconfig6 --file kdeglobals --group General --key AccentColor "$1" 2>/dev/null ;;
+    esac
+    # kdeglobals on its own does not repaint anything already running; re-applying
+    # the current scheme is what makes the accent appear without a re-login.
+    _cur=$(kreadconfig6 --file kdeglobals --group General --key ColorScheme 2>/dev/null)
+    [ -n "$_cur" ] && plasma-apply-colorscheme "$_cur" >/dev/null 2>&1
+    return 0
+}
+
+set_wall() {   # <wallpaper package id>
+    [ -n "$1" ] || return 1
+    wait_plasma || return 1
+    for _res in 3840x2160 1920x1080; do
+        if [ -f "$WALLS/$1/contents/images/$_res.png" ]; then
+            plasma-apply-wallpaperimage "$WALLS/$1/contents/images/$_res.png" >/dev/null 2>&1
+            return 0
+        fi
+    done
+    [ -d "$WALLS/$1" ] && plasma-apply-wallpaperimage "$WALLS/$1" >/dev/null 2>&1
+    return 0
+}
+
+set_layout() {   # <path to .look>
+    _sc=$(skey "$1" SCRIPT)
+    [ -n "$_sc" ] || return 1
+    wait_plasma || return 1
+    plasma_script "$CLEAR $_sc"
+    return 0
+}
+
+scale_factor() {
+    case "$1" in
+        100) printf '1' ;;
+        125) printf '1.25' ;;
+        150) printf '1.5' ;;
+        *)   return 1 ;;
+    esac
+}
+
+set_scale() {   # <100|125|150>
+    _f=$(scale_factor "$1") || return 1
+    case "$SCALE_MODE" in
+        wayland)
+            _any=0
+            for _o in $(kscreen_outputs); do
+                kscreen-doctor "output.$_o.scale.$_f" >/dev/null 2>&1 && _any=1
+            done
+            [ "$_any" = 1 ] || { notify "The text size could not be changed here. Open System Settings ▸ Display & Monitor to set it."; return 1; }
+            ;;
+        x11)
+            kwriteconfig6 --file kdeglobals --group KScreen --key ScaleFactor "$_f" 2>/dev/null
+            _list=
+            for _o in $(kscreen_outputs); do _list="$_list$_o=$_f;"; done
+            [ -n "$_list" ] && kwriteconfig6 --file kdeglobals --group KScreen \
+                --key ScreenScaleFactors "$_list" 2>/dev/null
+            ;;
+        *) return 1 ;;
+    esac
+    return 0
+}
+
+# --- putting it back ----------------------------------------------------------
+restore_scale() {
+    [ -s "$SCLFILE" ] || return 0
+    case "$SCALE_MODE" in
+        wayland)
+            while read -r _o _v; do
+                case "$_o" in ''|*[!A-Za-z0-9._-]*) continue ;; esac
+                case "$_v" in ''|*[!0-9.]*) continue ;; esac
+                kscreen-doctor "output.$_o.scale.$_v" >/dev/null 2>&1
+            done < "$SCLFILE" ;;
+        x11)
+            _v=$(cut -d' ' -f2 "$SCLFILE" | head -1)
+            if [ -n "$_v" ]; then
+                kwriteconfig6 --file kdeglobals --group KScreen --key ScaleFactor "$_v" 2>/dev/null
+            else
+                kwriteconfig6 --file kdeglobals --group KScreen --key ScaleFactor --delete 2>/dev/null
+                kwriteconfig6 --file kdeglobals --group KScreen --key ScreenScaleFactors --delete 2>/dev/null
+            fi ;;
+    esac
+    return 0
+}
+
+rebuild_panels() {
+    [ -s "$PANFILE" ] || return 1
+    wait_plasma || return 1
+    _js=$CLEAR
+    _n=0
+    while IFS='|' read -r _tag _loc _h _widgets; do
+        [ "$_tag" = "P" ] || continue
+        case "$_loc" in ''|*[!a-z]*) _loc=bottom ;; esac
+        case "$_h" in ''|*[!0-9]*) _h=44 ;; esac
+        _n=$((_n + 1))
+        _js="$_js var p$_n=new Panel; p$_n.location=\"$_loc\"; p$_n.height=$_h;"
+        for _w in $_widgets; do
+            case "$_w" in ''|*[!A-Za-z0-9._-]*) continue ;; esac
+            _js="$_js var w=p$_n.addWidget(\"$_w\");"
+            if [ "$_w" = "org.kde.plasma.kickoff" ]; then
+                _js="$_js w.currentConfigGroup=[\"General\"]; w.writeConfig(\"icon\",\"dagric-logo\");"
+            fi
+        done
+    done < "$PANFILE"
+    [ "$_n" -gt 0 ] || return 1
+    plasma_script "$_js"
+    return 0
+}
+
+fallback_layout() {
+    _f=$(sort -t"$SEP" -k1,1n "$WORK/layout.tsv" 2>/dev/null | head -1 | cut -d"$SEP" -f6)
+    [ -n "$_f" ] && set_layout "$_f"
+    return 0
+}
+
+undo_all() {
+    _did=0
+    if [ -f "$CAPFILE" ]; then
+        _s=; _a=; _w=
+        while IFS='=' read -r _k _v; do
+            case "$_k" in
+                SCHEME) _s=$_v ;;
+                ACCENT) _a=$_v ;;
+                WALL)   _w=$_v ;;
+            esac
+        done < "$CAPFILE"
+        # An empty capture means the key was never set, so DELETE it rather
+        # than writing back a value the owner never chose.
+        if [ -n "$_a" ]; then
+            kwriteconfig6 --file kdeglobals --group General --key AccentColor "$_a" 2>/dev/null
+        else
+            kwriteconfig6 --file kdeglobals --group General --key AccentColor --delete 2>/dev/null
+        fi
+        [ -n "$_s" ] && plasma-apply-colorscheme "$_s" >/dev/null 2>&1
+        [ -n "$_w" ] && set_wall "$_w"
+        dbus-send --session --type=method_call --dest=org.kde.KWin \
+            /KWin org.kde.KWin.reconfigure 2>/dev/null
+        _did=1
+    fi
+    if [ -s "$PANFILE" ]; then
+        rebuild_panels || fallback_layout
+        _did=1
+    fi
+    if [ -s "$SCLFILE" ]; then
+        restore_scale
+        _did=1
+    fi
+    [ "$_did" = 1 ] && notify "Your desktop is back the way it was."
+    return 0
+}
+
+run_helper() {
+    case "$1" in
+        migrate)
+            konsole -e sh -c \
+'/usr/bin/dagric-migrate ; echo ; printf "Press Enter to close..." ; read x' & ;;
+        display)  /usr/bin/dagric-display & ;;
+        hub)      /usr/bin/dagric-hub & ;;
+        guide)    firefox file:///usr/share/dagric/guide/index.html & ;;
+        # NOT a bare firefox call at the manual's index.html: dagric-manual
+        # passes the edition marker through, and that marker is what makes the
+        # Pro pages' "not installed on this edition" notes appear (or stay
+        # quiet) correctly. Opened without it the manual says nothing either way.
+        manual)   /usr/bin/dagric-manual & ;;
+        welcome)  /usr/bin/dagric-welcome & ;;
+        setup)    /usr/bin/dagric-setup & ;;
+    esac
+    return 0
+}
+
+# =============================================================== the plain path
+# kdialog wizard, used when qml6 or the window file is missing. It is the same
+# journey in the same order, just without the pictures — because a first run
+# that never appears is far worse than a plain one. Cancel on any screen skips
+# that step; every menu also carries an explicit way to stop.
+#
+# The accent colour is the one question the window asks and this does not. A
+# chain of modal dialogs is exactly where people give up, so the degraded path
+# spends its prompts on the three that change the most (light/dark, wallpaper,
+# text size) plus the taskbar and the files. The accent is one click away in
+# the Hub afterwards, and unlike the others nothing looks WRONG without it.
+fallback_wizard() {
+    stamp
+    kdialog --title "$TITLE" --icon dagric-logo --msgbox \
+"Welcome to $EDITION_NAME.
+
+The setup window could not be opened on this machine, so here is the
+short version. Every question can be skipped, and nothing here is
+permanent — you can change all of it later from the Dagric Hub." 2>/dev/null
+
+    _m=$(kdialog --title "$TITLE" --icon dagric-logo --menu \
+        "Light or dark?" light "Light" dark "Dark" quit "Stop here — I'll finish later" \
+        2>/dev/null) || _m=
+    [ "$_m" = "quit" ] && return 0
+    if [ -n "$_m" ]; then capture_base; set_mode "$_m"; fi
+
+    set --
+    while IFS="$SEP" read -r _id _nm _img; do
+        [ -n "$_id" ] || continue
+        set -- "$@" "$_id" "$_nm"
+    done < "$WORK/walls.tsv"
+    if [ "$#" -gt 0 ]; then
+        _w=$(kdialog --title "$TITLE" --icon dagric-logo --geometry 420x420 --menu \
+            "Pick a wallpaper:" "$@" quit "Stop here — I'll finish later" 2>/dev/null) || _w=
+        [ "$_w" = "quit" ] && return 0
+        if [ -n "$_w" ] && [ -n "$(lookup_wall "$_w")" ]; then capture_base; set_wall "$_w"; fi
+    fi
+
+    if [ "$SCALE_MODE" != "none" ]; then
+        _s=$(kdialog --title "$TITLE" --icon dagric-logo --menu \
+            "How big should everything be?" \
+            100 "Normal (100%)" 125 "Bigger (125%)" 150 "Biggest (150%)" \
+            quit "Stop here — I'll finish later" 2>/dev/null) || _s=
+        [ "$_s" = "quit" ] && return 0
+        if [ -n "$_s" ]; then capture_scale; set_scale "$_s"; fi
+    fi
+
+    set --
+    while IFS="$SEP" read -r _so _id _nm _de _th _fi; do
+        [ -n "$_id" ] || continue
+        _lbl=$_nm
+        [ -n "$_de" ] && _lbl="$_nm — $_de"
+        set -- "$@" "$_id" "$_lbl"
+    done < "$WORK/layout.tsv"
+    if [ "$#" -gt 0 ]; then
+        _l=$(kdialog --title "$TITLE" --icon dagric-logo --geometry 560x340 --menu \
+            "Where should the taskbar go?" "$@" quit "Stop here — I'll finish later" 2>/dev/null) || _l=
+        [ "$_l" = "quit" ] && return 0
+        _lf=$(lookup_layout "$_l")
+        if [ -n "$_lf" ]; then capture_panels || true; set_layout "$_lf"; fi
+    fi
+
+    if [ "$HAS_WINDOWS" = true ]; then
+        if kdialog --title "$TITLE" --icon dagric-logo --yesno \
+"A Windows drive was found on this PC.
+
+Bring your Documents, Pictures, Music, Videos and browser bookmarks
+across now? Windows is only ever READ — nothing there is changed." 2>/dev/null; then
+            run_helper migrate
+        fi
+    fi
+
+    kdialog --title "$TITLE" --icon dagric-logo --msgbox \
+"You're set up.
+
+Everything else lives in the Dagric Hub — press the launcher and type
+\"Dagric Hub\". The offline User Guide is in there, and so is the
+Dagric Manual: a page on every app on this computer and what it
+replaced on Windows.
+
+To see this again, open \"Set Up Dagric\" from the launcher." 2>/dev/null
+    return 0
+}
+
+if [ -z "$QML" ] || [ ! -r "$QMLFILE" ]; then
+    fallback_wizard
+    exit 0
+fi
+
+# =============================================================== the catalogue
+{
+    printf '{\n'
+    printf '  "edition": "%s",\n'     "$(jesc "$EDITION")"
+    printf '  "editionName": "%s",\n' "$(jesc "$EDITION_NAME")"
+    printf '  "live": %s,\n'          "$LIVE"
+    printf '  "scaleMode": "%s",\n'   "$(jesc "$SCALE_MODE")"
+    printf '  "currentScale": %s,\n'  "$(current_scale)"
+    printf '  "currentMode": "%s",\n' "$(current_mode)"
+    printf '  "currentWall": "%s",\n' "$(jesc "$(current_wall_id)")"
+    printf '  "hasDisplayTool": %s,\n' "$HAS_DISPLAY_TOOL"
+    printf '  "hasWindows": %s,\n'    "$HAS_WINDOWS"
+    printf '  "wallpapers": [\n'
+    emit_walls
+    printf '\n  ],\n'
+    printf '  "accents": [\n'
+    emit_accents
+    printf '\n  ],\n'
+    printf '  "layouts": [\n'
+    emit_layouts
+    printf '\n  ]\n}\n'
+} > "$CATALOG"
+
+# =============================================================== run the window
+# Same environment as Dagric Appearance, and for the same reasons: console.log()
+# from QML lands on stderr so stderr is merged into the pipe; QT_MESSAGE_PATTERN
+# strips Qt's "qml: " prefix; QT_LOGGING_RULES makes sure a stray user setting
+# cannot silence the protocol; the Basic control style is always present and is
+# fully restyled by main.qml, so the wizard looks the same whichever theme is
+# being applied underneath it; and QML_XHR_ALLOW_FILE_READ is what lets the
+# window read the catalogue at all — without it Qt refuses the local-file
+# request and the wizard comes up empty. It applies to this process only, and
+# the only local file the window ever asks for is the catalogue just written.
+QT_MESSAGE_PATTERN='%{message}'
+QT_LOGGING_RULES='qml.debug=true'
+QT_QUICK_CONTROLS_STYLE=Basic
+QML_XHR_ALLOW_FILE_READ=1
+export QT_MESSAGE_PATTERN QT_LOGGING_RULES QT_QUICK_CONTROLS_STYLE QML_XHR_ALLOW_FILE_READ
+
+last_wall=
+
+"$QML" "$QMLFILE" -- "--catalog=$CATALOG" 2>&1 | while IFS= read -r line; do
+    case "$line" in
+        *@DAGRIC@*) msg=${line#*@DAGRIC@} ;;
+        *) continue ;;
+    esac
+    cmd=${msg%%|*}
+    arg=
+    case "$msg" in *\|*) arg=${msg#*|} ;; esac
+    case "$arg" in *[!A-Za-z0-9._,-]*) arg= ;; esac
+
+    case "$cmd" in
+        READY)
+            stamp
+            ;;
+        MODE)
+            case "$arg" in light|dark) : ;; *) continue ;; esac
+            capture_base
+            set_mode "$arg"
+            ;;
+        ACCENT)
+            rgb=$(lookup_accent "$arg")
+            [ -n "$rgb" ] || continue
+            capture_base
+            set_accent "$rgb"
+            ;;
+        WALL)
+            [ -n "$(lookup_wall "$arg")" ] || continue
+            capture_base
+            set_wall "$arg"
+            last_wall=$arg
+            ;;
+        SCALE)
+            case "$arg" in 100|125|150) : ;; *) continue ;; esac
+            capture_scale
+            set_scale "$arg"
+            ;;
+        LAYOUT)
+            file=$(lookup_layout "$arg")
+            [ -n "$file" ] && [ -f "$file" ] || continue
+            capture_panels || true
+            set_layout "$file"
+            ;;
+        RUN)
+            case "$arg" in migrate|display|hub|guide|manual|welcome|setup) run_helper "$arg" ;; esac
+            ;;
+        UNDO)
+            undo_all
+            last_wall=
+            ;;
+        DONE)
+            # The one apply that is repeated. The wallpaper lives in
+            # plasmashell's in-memory applet config, so a plasmashell restart
+            # part-way through the wizard (dagric-brand-launcher does exactly
+            # that on a first login) can swallow it. Writing it once more at
+            # the end is invisible when it already stuck and rescues it when it
+            # did not. The taskbar is deliberately NOT re-applied: rebuilding
+            # the panels is visible, and a flicker on the last screen would
+            # look like something went wrong.
+            [ -n "$last_wall" ] && set_wall "$last_wall"
+            notify "Dagric is set up. Everything else lives in the Dagric Hub."
+            ;;
+        QUIT)
+            : ;;
+    esac
+done

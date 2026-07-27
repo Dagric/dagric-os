@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Accounts, passwords and disk encryption &mdash; Dagric OS Manual</title>
+<link rel="stylesheet" href="manual.css">
+<script src="manual.js"></script>
+</head>
+<body>
+<div class="shell">
+  <aside class="side">
+    <div class="sidebox">
+      <a class="brand" href="index.html">
+        <div class="mark">D</div>
+        <div class="brand-name">Dagric OS<small>Manual</small></div>
+      </a>
+      <nav class="toc">
+        <a class="back" href="index.html">&larr; All applications</a>
+        <div class="navgroup">System and safety</div>
+        <a href="app-updates.html">Updates</a>
+        <a href="app-snapshots.html">Snapshot recovery</a>
+        <a href="app-timeshift.html">Timeshift</a>
+        <a href="app-kup.html">Kup</a>
+        <a href="app-vorta.html">Vorta and Borg</a>
+        <a href="app-firewall.html">The firewall</a>
+        <a href="app-opensnitch.html">OpenSnitch</a>
+        <a href="app-drive-health.html">Drive health</a>
+        <a href="app-keepassxc.html">KeePassXC</a>
+        <a href="app-cryptomator.html">Cryptomator</a>
+        <a href="app-bleachbit.html">BleachBit</a>
+        <a href="app-flatseal.html">Flatseal</a>
+        <a href="app-apparmor.html">AppArmor and the security baseline</a>
+        <a href="app-accounts.html" class="active">Accounts, passwords and disk encryption</a>
+        <a href="app-orca.html">Orca</a>
+      </nav>
+    </div>
+  </aside>
+
+  <main class="content">
+
+    <header class="hero">
+      <div class="eyebrow">System and safety</div>
+      <h1>Accounts, passwords and disk encryption</h1>
+      <p class="sub">Who can use this computer, and what happens if it is stolen.</p>
+    </header>
+
+    <div class="swap"><span>On Windows this was</span><strong>User Accounts, Windows Hello and BitLocker</strong></div>
+
+    <section>
+      <h2>What it is</h2>
+      <p>The account you made when installing Dagric is an administrator: it can
+      change the system, but only after typing its password. There is no separate
+      &ldquo;run as administrator&rdquo; account, and nothing runs with full
+      privileges by accident.</p>
+      <p>Full-disk encryption is offered by the installer. If you took it, the disk is
+      unreadable without your passphrase and a stolen laptop is a lost piece of
+      hardware rather than a lost life. If you did not, it cannot be added afterwards
+      without reinstalling &mdash; which is worth knowing now rather than later.</p>
+    </section>
+
+    <section>
+      <h2>Five things you will actually do</h2>
+      <ol class="tasks">
+        <li><span class="t">Add another user</span><p>System Settings &rarr; <em>Users</em> &rarr; <em>Add New User</em>.
+         Leave the administrator box unticked for a child or a guest; they get their
+         own home folder that other users cannot read.</p></li>
+        <li><span class="t">Change your password</span><p>Same page. If you use <a href="app-kwallet.html">KWallet</a>, change
+         its password to match at the same time or you will get a prompt you do not
+         expect.</p></li>
+        <li><span class="t">Set up fingerprint login</span><p>System Settings &rarr; <em>Users</em> &rarr; <em>Configure
+         Fingerprint Authentication</em>, if the laptop has a reader. Dagric enables
+         the fingerprint module system-wide, so an enrolled finger works at the login
+         screen, the lock screen and for administrator prompts. Your password
+         continues to work as well.</p></li>
+        <li><span class="t">Lock the screen</span><p><kbd>Meta</kbd>+<kbd>L</kbd>. Set the automatic timeout in System
+         Settings &rarr; <em>Screen Locking</em>. On a laptop that leaves the house,
+         lock on lid-close.</p></li>
+        <li><span class="t">Check whether your disk is encrypted</span><p><code>lsblk -f</code> in a terminal: an encrypted install shows a
+         <code>crypto_LUKS</code> layer. If you see one, you are covered. If not, and
+         the machine travels, plan a reinstall or at least keep the sensitive material
+         inside a <a href="app-cryptomator.html">Cryptomator</a> vault.</p></li>
+      </ol>
+    </section>
+
+    <section>
+      <h2>One thing that will surprise you</h2>
+      <p><strong>Your password protects the running machine, not the disk.</strong>
+      Anyone who can pick the laptop up can boot it from a USB stick and read every
+      file on an unencrypted drive, in about four minutes, without knowing anything
+      about you. This was equally true of Windows without BitLocker; it is simply
+      not something most people are ever told. Encryption is the only setting that
+      changes it.</p>
+    </section>
+
+    <section>
+      <h2>Where to find it</h2>
+      <p>System Settings &rarr; <em>Users</em>. Encryption is chosen during
+      installation, in the disk step.</p>
+    </section>
+
+    <section>
+      <h2>See also</h2>
+      <div class="related"><a href="app-kwallet.html">KWallet</a><a href="app-keepassxc.html">KeePassXC</a><a href="app-cryptomator.html">Cryptomator</a><a href="app-apparmor.html">AppArmor and the security baseline</a><a href="app-system-settings.html">System Settings</a></div>
+    </section>
+
+    <footer class="colophon">Dagric OS Manual &middot; stored on this computer, no internet needed &middot; <a href="index.html">every application</a></footer>
+
+  </main>
+</div>
+</body>
+</html>

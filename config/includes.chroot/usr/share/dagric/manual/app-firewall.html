@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The firewall &mdash; Dagric OS Manual</title>
+<link rel="stylesheet" href="manual.css">
+<script src="manual.js"></script>
+</head>
+<body>
+<div class="shell">
+  <aside class="side">
+    <div class="sidebox">
+      <a class="brand" href="index.html">
+        <div class="mark">D</div>
+        <div class="brand-name">Dagric OS<small>Manual</small></div>
+      </a>
+      <nav class="toc">
+        <a class="back" href="index.html">&larr; All applications</a>
+        <div class="navgroup">System and safety</div>
+        <a href="app-updates.html">Updates</a>
+        <a href="app-snapshots.html">Snapshot recovery</a>
+        <a href="app-timeshift.html">Timeshift</a>
+        <a href="app-kup.html">Kup</a>
+        <a href="app-vorta.html">Vorta and Borg</a>
+        <a href="app-firewall.html" class="active">The firewall</a>
+        <a href="app-opensnitch.html">OpenSnitch</a>
+        <a href="app-drive-health.html">Drive health</a>
+        <a href="app-keepassxc.html">KeePassXC</a>
+        <a href="app-cryptomator.html">Cryptomator</a>
+        <a href="app-bleachbit.html">BleachBit</a>
+        <a href="app-flatseal.html">Flatseal</a>
+        <a href="app-apparmor.html">AppArmor and the security baseline</a>
+        <a href="app-accounts.html">Accounts, passwords and disk encryption</a>
+        <a href="app-orca.html">Orca</a>
+      </nav>
+    </div>
+  </aside>
+
+  <main class="content">
+
+    <header class="hero">
+      <div class="eyebrow">System and safety</div>
+      <h1>The firewall</h1>
+      <p class="sub">What can reach this computer from the network, and from which network.</p>
+    </header>
+
+    <div class="swap"><span>On Windows this was</span><strong>Windows Defender Firewall</strong></div>
+
+    <section>
+      <h2>What it is</h2>
+      <p>Dagric runs <strong>firewalld</strong>, switched on from the first boot,
+      with a settings page at System Settings &rarr; <em>Firewall</em>.</p>
+      <p>Its central idea is <em>zones</em>. Each network connection is assigned one:
+      <em>public</em> is suspicious and allows almost nothing in; <em>home</em> is
+      trusted and permits things like phone pairing and file sharing. The same laptop
+      can therefore be open on your own network and closed in a café, without you
+      remembering to change anything.</p>
+    </section>
+
+    <section>
+      <h2>Five things you will actually do</h2>
+      <ol class="tasks">
+        <li><span class="t">Check which zone you are in</span><p>System Settings &rarr; <em>Firewall</em> lists your connections and
+         their zones. New connections default to public, which is the safe way
+         round.</p></li>
+        <li><span class="t">Trust your home network</span><p>Set your home Wi-Fi's zone to <em>home</em>. This is what makes
+         <a href="app-kdeconnect.html">KDE Connect</a> pairing and local file sharing
+         work, and it is why they do not work at the airport.</p></li>
+        <li><span class="t">Open a port for something you are running</span><p>In the Firewall settings, add the service or port to the relevant zone.
+         Only do this for the zone that needs it &mdash; adding a rule to public opens
+         it on every untrusted network you ever join.</p></li>
+        <li><span class="t">Turn SSH on properly</span><p>Dagric ships with SSH removed even from the public zone's allowed
+         services, so enabling the server is a deliberate two-step:
+         <code>sudo systemctl enable --now ssh</code> and then
+         <code>sudo firewall-cmd --permanent --add-service=ssh</code> followed by
+         <code>sudo firewall-cmd --reload</code>. Both, or it is not reachable.</p></li>
+        <li><span class="t">See what is actually listening</span><p><code>ss -tulpn</code> in a terminal lists every port something is
+         waiting on. On a fresh Dagric desktop this list is very short, which is the
+         point.</p></li>
+      </ol>
+    </section>
+
+    <section>
+      <h2>One thing that will surprise you</h2>
+      <p><strong>You will almost never need to touch it, and that is not because it
+      is doing nothing.</strong> A desktop Linux system runs very few network services
+      to begin with &mdash; there is no equivalent of the sprawl of Windows services
+      listening by default &mdash; so the firewall is a second line rather than the
+      only one. The prompts you may remember from Windows Firewall asking whether to
+      allow a program are about <em>outbound</em> traffic; that is a different tool,
+      and on Pro it is <a href="app-opensnitch.html">OpenSnitch</a>.</p>
+    </section>
+
+    <section>
+      <h2>Where to find it</h2>
+      <p>System Settings &rarr; <em>Firewall</em>. From a terminal,
+      <code>firewall-cmd --get-active-zones</code>.</p>
+    </section>
+
+    <section>
+      <h2>See also</h2>
+      <div class="related"><a href="app-opensnitch.html">OpenSnitch</a><a href="app-network.html">Wi-Fi, wired networks and VPN</a><a href="app-kdeconnect.html">KDE Connect</a><a href="app-apparmor.html">AppArmor and the security baseline</a></div>
+    </section>
+
+    <footer class="colophon">Dagric OS Manual &middot; stored on this computer, no internet needed &middot; <a href="index.html">every application</a></footer>
+
+  </main>
+</div>
+</body>
+</html>

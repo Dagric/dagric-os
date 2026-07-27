@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>darktable &mdash; Dagric OS Manual</title>
+<link rel="stylesheet" href="manual.css">
+<script src="manual.js"></script>
+</head>
+<body>
+<div class="shell">
+  <aside class="side">
+    <div class="sidebox">
+      <a class="brand" href="index.html">
+        <div class="mark">D</div>
+        <div class="brand-name">Dagric OS<small>Manual</small></div>
+      </a>
+      <nav class="toc">
+        <a class="back" href="index.html">&larr; All applications</a>
+        <div class="navgroup">Photos and video</div>
+        <a href="app-gwenview.html">Gwenview</a>
+        <a href="app-spectacle.html">Spectacle</a>
+        <a href="app-mpv.html">mpv</a>
+        <a href="app-gimp.html">GIMP</a>
+        <a href="app-krita.html">Krita</a>
+        <a href="app-inkscape.html">Inkscape</a>
+        <a href="app-darktable.html" class="active">darktable</a>
+        <a href="app-blender.html">Blender</a>
+        <a href="app-kdenlive.html">Kdenlive</a>
+        <a href="app-obs-studio.html">OBS Studio</a>
+        <a href="app-handbrake.html">HandBrake</a>
+        <a href="app-upscayl.html">Upscayl</a>
+        <a href="app-davinci-resolve.html">DaVinci Resolve</a>
+      </nav>
+    </div>
+  </aside>
+
+  <main class="content">
+
+    <header class="hero">
+      <div class="eyebrow">Photos and video</div>
+      <h1>darktable<span class="pill pro">PRO</span></h1>
+      <p class="sub">Develop RAW photographs, non-destructively, across a whole shoot.</p>
+    </header>
+
+    <div class="swap"><span>On Windows this was</span><strong>Adobe Lightroom</strong></div>
+
+    <div class="notice pro-notice"><div><strong>This one is part of Dagric&nbsp;OS Pro.</strong> You are reading the manual on the free edition, so it is not installed on this computer. The page is here on purpose &mdash; you should be able to see exactly what Pro adds before you decide whether you want it.</div></div>
+    <section>
+      <h2>What it is</h2>
+      <p><strong>darktable</strong> is a RAW photo workflow: it catalogues a shoot in
+      its <em>lighttable</em> view and develops individual frames in its
+      <em>darkroom</em> view. It reads the RAW formats of essentially every camera
+      &mdash; CR2, CR3, NEF, ARW, RAF, ORF and the rest.</p>
+      <p>Nothing you do alters the original file. Every adjustment is stored as a
+      recipe alongside it, so you can change your mind about an edit you made two
+      years ago, and the untouched RAW is always there.</p>
+    </section>
+
+    <section>
+      <h2>Five things you will actually do</h2>
+      <ol class="tasks">
+        <li><span class="t">Import a card of photographs</span><p>In lighttable, use <em>import</em> to add a folder. darktable indexes
+         it in place &mdash; it does not move or copy your files into a library
+         folder.</p></li>
+        <li><span class="t">Fix exposure and white balance</span><p>Double-click a photo to enter darkroom. The core modules are
+         <em>exposure</em>, <em>white balance</em> (or <em>color calibration</em>),
+         and <em>filmic rgb</em> for pulling detail back out of bright skies and dark
+         shadows.</p></li>
+        <li><span class="t">Apply the same edit to a hundred photos</span><p>Develop one frame, then in lighttable use <em>history stack</em>
+         &rarr; <em>copy</em>, select the rest of the shoot, and <em>paste</em>. This
+         is the reason to use a program like this rather than editing photos one at a
+         time.</p></li>
+        <li><span class="t">Cull the shoot quickly</span><p>In lighttable, hover a photo and press <kbd>1</kbd> to <kbd>5</kbd> for
+         a star rating, or <kbd>R</kbd> to reject. Then filter the view to three stars
+         and up and work only on those.</p></li>
+        <li><span class="t">Export finished files</span><p>Select the photos, open <em>export</em> in the right-hand panel, choose
+         JPEG, a maximum size and a target folder. Presets remember the settings for
+         &ldquo;for print&rdquo; and &ldquo;for the web&rdquo;.</p></li>
+      </ol>
+    </section>
+
+    <section>
+      <h2>One thing that will surprise you</h2>
+      <p><strong>Your edits live in a sidecar file, not in the picture.</strong>
+      Next to <code>DSC_1234.NEF</code> darktable writes
+      <code>DSC_1234.NEF.xmp</code>. If you copy photos to another machine and leave
+      the little .xmp files behind, your work does not come with them. Copy the whole
+      folder, always &mdash; and if a backup tool is filtering by file type, make sure
+      .xmp is on the list.</p>
+    </section>
+
+    <section>
+      <h2>Where to find it</h2>
+      <p>Launcher &rarr; <em>darktable</em>.</p>
+    </section>
+
+    <section>
+      <h2>See also</h2>
+      <div class="related"><a href="app-gimp.html">GIMP</a><a href="app-gwenview.html">Gwenview</a><a href="app-vorta.html">Vorta and Borg</a></div>
+    </section>
+
+    <footer class="colophon">Dagric OS Manual &middot; stored on this computer, no internet needed &middot; <a href="index.html">every application</a></footer>
+
+  </main>
+</div>
+</body>
+</html>

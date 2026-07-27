@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AppArmor and the security baseline &mdash; Dagric OS Manual</title>
+<link rel="stylesheet" href="manual.css">
+<script src="manual.js"></script>
+</head>
+<body>
+<div class="shell">
+  <aside class="side">
+    <div class="sidebox">
+      <a class="brand" href="index.html">
+        <div class="mark">D</div>
+        <div class="brand-name">Dagric OS<small>Manual</small></div>
+      </a>
+      <nav class="toc">
+        <a class="back" href="index.html">&larr; All applications</a>
+        <div class="navgroup">System and safety</div>
+        <a href="app-updates.html">Updates</a>
+        <a href="app-snapshots.html">Snapshot recovery</a>
+        <a href="app-timeshift.html">Timeshift</a>
+        <a href="app-kup.html">Kup</a>
+        <a href="app-vorta.html">Vorta and Borg</a>
+        <a href="app-firewall.html">The firewall</a>
+        <a href="app-opensnitch.html">OpenSnitch</a>
+        <a href="app-drive-health.html">Drive health</a>
+        <a href="app-keepassxc.html">KeePassXC</a>
+        <a href="app-cryptomator.html">Cryptomator</a>
+        <a href="app-bleachbit.html">BleachBit</a>
+        <a href="app-flatseal.html">Flatseal</a>
+        <a href="app-apparmor.html" class="active">AppArmor and the security baseline</a>
+        <a href="app-accounts.html">Accounts, passwords and disk encryption</a>
+        <a href="app-orca.html">Orca</a>
+      </nav>
+    </div>
+  </aside>
+
+  <main class="content">
+
+    <header class="hero">
+      <div class="eyebrow">System and safety</div>
+      <h1>AppArmor and the security baseline</h1>
+      <p class="sub">What is protecting this machine while you are not thinking about it.</p>
+    </header>
+
+    <div class="swap"><span>On Windows this was</span><strong>Windows Defender, Smart App Control and UAC &mdash; loosely</strong></div>
+
+    <section>
+      <h2>What it is</h2>
+      <p>Dagric is hardened before you change anything, and the pieces are worth
+      knowing by name because none of them has an icon.</p>
+      <ul class="plain">
+        <li><strong>AppArmor</strong> confines programs to what they legitimately
+        need. A compromised PDF reader or browser cannot roam the filesystem, because
+        the kernel refuses.</li>
+        <li><strong>A hardened kernel configuration</strong>: kernel pointers and
+        the message log hidden from ordinary users, ptrace snooping restricted,
+        kexec disabled, the BPF and perf attack surfaces locked down, network spoofing
+        protections on.</li>
+        <li><strong>A firewall</strong>, on from first boot, and
+        <strong>silent security updates</strong> every day.</li>
+        <li><strong>Home folders that are not world-readable</strong>, so users on the
+        same machine cannot read each other's files.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>Five things you will actually do</h2>
+      <ol class="tasks">
+        <li><span class="t">See that it is on</span><p><code>sudo aa-status</code> lists the loaded profiles and which
+         processes are confined. <code>sudo lynis audit system</code> produces a full
+         audit with a hardening score.</p></li>
+        <li><span class="t">Run the friendly version of that audit</span><p>The <a href="tool-dagric-security-checkup.html">Security Checkup</a> in
+         the Dagric Hub runs Lynis for you and shows the score and the warning count
+         in a window, along with your drive health.</p></li>
+        <li><span class="t">Work out whether AppArmor blocked something</span><p>If a program mysteriously cannot read a file,
+         <code>sudo journalctl -k | grep -i apparmor</code> will say so plainly.
+         That is far quicker than guessing.</p></li>
+        <li><span class="t">Do you need an antivirus?</span><p>Almost certainly not. There is no meaningful population of desktop
+         Linux malware, software comes from signed repositories rather than download
+         sites, and nothing runs with your privileges unless you install it. If you
+         handle Windows files for other people, ClamAV from Discover will scan them
+         &mdash; for their sake, not yours.</p></li>
+        <li><span class="t">Encrypt the disk</span><p>This is chosen when you install Dagric, in the installer's
+         <em>Encrypt system</em> option, and it is the single most valuable security
+         setting on a laptop. See <a href="app-accounts.html">accounts and
+         encryption</a>.</p></li>
+      </ol>
+    </section>
+
+    <section>
+      <h2>One thing that will surprise you</h2>
+      <p><strong>Nothing here interrupts you.</strong> There is no equivalent of a
+      security centre with a red badge, no scan that runs while you are trying to
+      work, no subscription about to expire, and no dialogue asking whether you are
+      sure you want to run the file you just double-clicked. The protection is in the
+      kernel and in how software is distributed, not in a program that watches you and
+      asks questions. That is why the machine feels quiet.</p>
+    </section>
+
+    <section>
+      <h2>Where to find it</h2>
+      <p>Nowhere &mdash; it is running. The visible face of it is the
+      <a href="tool-dagric-security-checkup.html">Security Checkup</a> in the Dagric
+      Hub.</p>
+    </section>
+
+    <section>
+      <h2>See also</h2>
+      <div class="related"><a href="tool-dagric-security-checkup.html">Security Checkup</a><a href="app-firewall.html">The firewall</a><a href="app-flatseal.html">Flatseal</a><a href="app-updates.html">Updates</a><a href="app-accounts.html">Accounts, passwords and disk encryption</a></div>
+    </section>
+
+    <footer class="colophon">Dagric OS Manual &middot; stored on this computer, no internet needed &middot; <a href="index.html">every application</a></footer>
+
+  </main>
+</div>
+</body>
+</html>

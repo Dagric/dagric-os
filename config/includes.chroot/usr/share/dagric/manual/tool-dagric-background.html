@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Helpers that run by themselves &mdash; Dagric OS Manual</title>
+<link rel="stylesheet" href="manual.css">
+<script src="manual.js"></script>
+</head>
+<body>
+<div class="shell">
+  <aside class="side">
+    <div class="sidebox">
+      <a class="brand" href="index.html">
+        <div class="mark">D</div>
+        <div class="brand-name">Dagric OS<small>Manual</small></div>
+      </a>
+      <nav class="toc">
+        <a class="back" href="index.html">&larr; All applications</a>
+        <div class="navgroup">Dagric&#x27;s own tools</div>
+        <a href="tool-dagric-hub.html">Dagric Hub</a>
+        <a href="tool-dagric-setup.html">Finish Setup</a>
+        <a href="tool-dagric-firstrun.html">Set Up Dagric</a>
+        <a href="tool-dagric-migrate.html">Migration Assistant</a>
+        <a href="tool-dagric-appearance.html">Dagric Appearance</a>
+        <a href="tool-dagric-looks.html">Dagric Looks</a>
+        <a href="tool-dagric-style.html">Dagric Styles</a>
+        <a href="tool-dagric-display.html">Dagric Display</a>
+        <a href="tool-dagric-app-names.html">Why the apps have plain names</a>
+        <a href="tool-dagric-get-variety.html">Rotating wallpapers (Variety)</a>
+        <a href="tool-dagric-drivers.html">NVIDIA driver helper</a>
+        <a href="tool-dagric-security-checkup.html">Security Checkup</a>
+        <a href="tool-dagric-usb-protect.html">USB Protection</a>
+        <a href="tool-dagric-vm.html">Windows in a window (VM setup)</a>
+        <a href="tool-dagric-gaming.html">Proton-GE helper</a>
+        <a href="tool-dagric-ai.html">Local AI (Ollama)</a>
+        <a href="tool-dagric-manual.html">This manual</a>
+        <a href="tool-dagric-background.html" class="active">Helpers that run by themselves</a>
+        <a href="tool-dagric-commands.html">Every dagric command</a>
+      </nav>
+    </div>
+  </aside>
+
+  <main class="content">
+
+    <header class="hero">
+      <div class="eyebrow">Dagric&#x27;s own tools</div>
+      <h1>Helpers that run by themselves</h1>
+      <p class="sub">The four small things Dagric does without asking, what each one is, and how to stop it.</p>
+    </header>
+
+    <div class="swap"><span>On Windows this was</span><strong>the Windows first-run experience and OEM startup apps</strong></div>
+
+    <section>
+      <h2>What it is</h2>
+      <p>Almost everything on this machine waits to be asked. Four helpers do not,
+      and it is only fair to name them. All four are one-shot: each retires itself once
+      it has done its job.</p>
+      <ul class="plain">
+        <li><strong>dagric-firstrun</strong> &mdash; the
+        <a href="tool-dagric-firstrun.html">setup wizard</a> at your first login. It
+        records that it has run when the window is genuinely on screen, so a login
+        where the desktop was not yet ready does not waste its one chance.</li>
+        <li><strong>dagric-brand-launcher</strong> &mdash; puts the Dagric logo on the
+        launcher button. It changes the icon and nothing else, and if it cannot find
+        the launcher this session it leaves itself in place to try again next
+        time.</li>
+        <li><strong>dagric-driver-offer</strong> &mdash; on the first login only, if
+        this machine has an NVIDIA card and no driver installed, it offers to run
+        <a href="tool-dagric-drivers.html">the driver helper</a>. On any other machine
+        it exits silently.</li>
+        <li><strong>dagric-snapshot-setup</strong> &mdash; runs once on the first boot
+        of an installed system to configure
+        <a href="app-snapshots.html">snapshot recovery</a>. On a non-btrfs install it
+        does nothing and stands down.</li>
+      </ul>
+      <p>A fifth, <strong>dagric-app-names</strong>, runs at build time and again
+      after package operations. It never asks anything and never touches your files;
+      it is what makes the launcher say <em>Files</em> instead of <em>Dolphin</em>
+      &mdash; see <a href="tool-dagric-app-names.html">why the apps have plain
+      names</a>.</p>
+    </section>
+
+    <section>
+      <h2>Five things you will actually do</h2>
+      <ol class="tasks">
+        <li><span class="t">See what starts with your session</span><p>System Settings &rarr; <em>Autostart</em>. Everything Dagric adds is
+         listed there by name, and you may remove any of it.</p></li>
+        <li><span class="t">Open the welcome page again</span><p>The short written account of what Dagric is lives at
+         <code>/usr/share/dagric/welcome/index.html</code>. Reach it with
+         <code>dagric-welcome</code>, or from the Dagric Hub's <em>Welcome guide</em>
+         row. It is no longer the first-run experience &mdash; the
+         <a href="tool-dagric-firstrun.html">setup wizard</a> is &mdash; because a
+         browser tab cannot set your wallpaper or fetch your files.</p></li>
+        <li><span class="t">Refuse the driver offer permanently</span><p>Answer no. It removes its own autostart entry before it even asks, so
+         it will not ask twice. You can still run
+         <code>sudo dagric-drivers</code> whenever you like.</p></li>
+        <li><span class="t">Put the launcher icon back to stock</span><p>Right-click the launcher button &rarr; <em>Configure</em>, and choose a
+         different icon. Nothing will change it back.</p></li>
+        <li><span class="t">Check snapshot setup worked</span><p><code>sudo snapper -c root list</code> should show a baseline snapshot
+         taken at your first boot. If the list is empty and your disk is btrfs,
+         <code>sudo dagric-snapshot-setup</code> runs it again.</p></li>
+      </ol>
+    </section>
+
+    <section>
+      <h2>One thing that will surprise you</h2>
+      <p><strong>That is the complete list.</strong> Four small helpers, each of
+      which retires itself, and none of which sends anything anywhere. There is no
+      updater service, no telemetry agent, no vendor assistant, no registration
+      reminder and no trial countdown. If you find something in Autostart that is not
+      one of the four above, you or an application you installed put it there.</p>
+    </section>
+
+    <section>
+      <h2>Where to find it</h2>
+      <p>System Settings &rarr; <em>Autostart</em>. The scripts themselves are in
+      <code>/usr/bin/</code> and can all be run by hand.</p>
+    </section>
+
+    <section>
+      <h2>See also</h2>
+      <div class="related"><a href="tool-dagric-firstrun.html">Set Up Dagric</a><a href="tool-dagric-drivers.html">NVIDIA driver helper</a><a href="app-snapshots.html">Snapshot recovery</a><a href="tool-dagric-app-names.html">Why the apps have plain names</a><a href="app-system-settings.html">System Settings</a></div>
+    </section>
+
+    <footer class="colophon">Dagric OS Manual &middot; stored on this computer, no internet needed &middot; <a href="index.html">every application</a></footer>
+
+  </main>
+</div>
+</body>
+</html>

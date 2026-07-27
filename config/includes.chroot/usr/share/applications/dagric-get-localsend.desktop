@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=Install LocalSend
+GenericName=Send files to nearby devices
+Comment=Install LocalSend to move files between this PC and your phone over your own network — no cloud, no account
+Exec=konsole -e sh -c '/usr/bin/dagric-get-localsend ; echo ; printf "Press Enter to close..." ; read x'
+Icon=dagric-logo
+Terminal=false
+Categories=Network;FileTransfer;
+Keywords=localsend;airdrop;nearby share;quick share;send;share;transfer;files;phone;wifi;install;

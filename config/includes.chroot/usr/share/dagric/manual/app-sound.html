@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sound, headphones and microphones &mdash; Dagric OS Manual</title>
+<link rel="stylesheet" href="manual.css">
+<script src="manual.js"></script>
+</head>
+<body>
+<div class="shell">
+  <aside class="side">
+    <div class="sidebox">
+      <a class="brand" href="index.html">
+        <div class="mark">D</div>
+        <div class="brand-name">Dagric OS<small>Manual</small></div>
+      </a>
+      <nav class="toc">
+        <a class="back" href="index.html">&larr; All applications</a>
+        <div class="navgroup">Music and sound</div>
+        <a href="app-elisa.html">Elisa</a>
+        <a href="app-audacity.html">Audacity</a>
+        <a href="app-sound.html" class="active">Sound, headphones and microphones</a>
+      </nav>
+    </div>
+  </aside>
+
+  <main class="content">
+
+    <header class="hero">
+      <div class="eyebrow">Music and sound</div>
+      <h1>Sound, headphones and microphones</h1>
+      <p class="sub">Getting the audio out of the right speakers and into the right recording.</p>
+    </header>
+
+    <div class="swap"><span>On Windows this was</span><strong>the volume mixer and Sound settings</strong></div>
+
+    <section>
+      <h2>What it is</h2>
+      <p>Audio on Dagric is handled by <strong>PipeWire</strong>, a modern engine
+      that replaces the older PulseAudio and JACK systems at once. You mostly meet it
+      through the speaker icon in the system tray.</p>
+      <p>Click that icon for the volume slider; click the small arrow or open its
+      settings for the full mixer, where every running application has its own volume
+      and its own choice of output device.</p>
+    </section>
+
+    <section>
+      <h2>Five things you will actually do</h2>
+      <ol class="tasks">
+        <li><span class="t">Send sound to the TV or the headphones</span><p>Click the speaker tray icon and pick the output device from the list.
+         HDMI outputs appear when a screen is plugged in. Plugging in headphones
+         normally switches automatically.</p></li>
+        <li><span class="t">Turn one app down without turning everything down</span><p>Open the mixer from the tray icon (or System Settings &rarr;
+         <em>Audio</em>). Each application gets its own slider, and its own device
+         &mdash; so a video call can use your headset while music stays on the
+         speakers.</p></li>
+        <li><span class="t">Pair Bluetooth headphones</span><p>The Bluetooth tray icon &rarr; <em>Add New Device</em>, with the
+         headphones in pairing mode. Once connected they appear as an output device.
+         If the microphone on a headset is needed, choose the headset profile in the
+         mixer &mdash; it drops the audio quality, which is why it is not the
+         default.</p></li>
+        <li><span class="t">Pick the right microphone</span><p>System Settings &rarr; <em>Audio</em> &rarr; <em>Recording</em>. Set
+         the default input and its level. Applications that are recording show up
+         here live, so you can see which one is listening.</p></li>
+        <li><span class="t">Fix &amp;ldquo;no sound at all&amp;rdquo;</span><p>Three checks in order: is the right output device selected in the tray
+         menu; is the application muted in the mixer; is the physical volume wheel or
+         mute key on the laptop on. Nine times in ten it is the first.</p></li>
+      </ol>
+    </section>
+
+    <section>
+      <h2>One thing that will surprise you</h2>
+      <p><strong>Per-application volume is standard here, and it is better than
+      what you had.</strong> Windows has a volume mixer too, buried; on Plasma it is
+      one click from the tray, and it remembers each app's level and device between
+      sessions. Set the notification sounds to twenty per cent once and never think
+      about it again.</p>
+    </section>
+
+    <section>
+      <h2>Where to find it</h2>
+      <p>The speaker icon in the system tray. Full settings: System Settings &rarr;
+      <em>Audio</em>. Bluetooth: the Bluetooth tray icon or System Settings &rarr;
+      <em>Bluetooth</em>.</p>
+    </section>
+
+    <section>
+      <h2>See also</h2>
+      <div class="related"><a href="app-elisa.html">Elisa</a><a href="app-mpv.html">mpv</a><a href="app-system-settings.html">System Settings</a><a href="app-audacity.html">Audacity</a></div>
+    </section>
+
+    <footer class="colophon">Dagric OS Manual &middot; stored on this computer, no internet needed &middot; <a href="index.html">every application</a></footer>
+
+  </main>
+</div>
+</body>
+</html>

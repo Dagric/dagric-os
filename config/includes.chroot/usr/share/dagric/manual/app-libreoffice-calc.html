@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LibreOffice Calc &mdash; Dagric OS Manual</title>
+<link rel="stylesheet" href="manual.css">
+<script src="manual.js"></script>
+</head>
+<body>
+<div class="shell">
+  <aside class="side">
+    <div class="sidebox">
+      <a class="brand" href="index.html">
+        <div class="mark">D</div>
+        <div class="brand-name">Dagric OS<small>Manual</small></div>
+      </a>
+      <nav class="toc">
+        <a class="back" href="index.html">&larr; All applications</a>
+        <div class="navgroup">Writing and documents</div>
+        <a href="app-libreoffice-writer.html">LibreOffice Writer</a>
+        <a href="app-libreoffice-calc.html" class="active">LibreOffice Calc</a>
+        <a href="app-libreoffice-impress.html">LibreOffice Impress</a>
+        <a href="app-libreoffice-draw.html">LibreOffice Draw</a>
+        <a href="app-libreoffice-base-math.html">LibreOffice Base and Math</a>
+        <a href="app-onlyoffice.html">ONLYOFFICE</a>
+        <a href="app-kate.html">Kate</a>
+        <a href="app-okular.html">Okular</a>
+        <a href="app-joplin.html">Joplin</a>
+        <a href="app-printing.html">Printers and scanners</a>
+      </nav>
+    </div>
+  </aside>
+
+  <main class="content">
+
+    <header class="hero">
+      <div class="eyebrow">Writing and documents</div>
+      <h1>LibreOffice Calc</h1>
+      <p class="sub">Spreadsheets, budgets, lists and the sums that go with them.</p>
+    </header>
+
+    <div class="swap"><span>On Windows this was</span><strong>Microsoft Excel</strong></div>
+
+    <section>
+      <h2>What it is</h2>
+      <p><strong>Calc</strong> is the spreadsheet. Cells, formulas, charts and pivot
+      tables, and it reads and writes <code>.xlsx</code>. The function names are
+      the same as Excel's &mdash; <code>=SUM()</code>, <code>=VLOOKUP()</code>,
+      <code>=IF()</code>, <code>=XLOOKUP()</code> &mdash; so existing sheets
+      recalculate rather than break.</p>
+    </section>
+
+    <section>
+      <h2>Five things you will actually do</h2>
+      <ol class="tasks">
+        <li><span class="t">Open an Excel file</span><p>Double-click it. Formulas, formatting and multiple sheets come across.
+         Save back with <em>File</em> &rarr; <em>Save As</em> &rarr; <em>Excel
+         2007-365 (.xlsx)</em>.</p></li>
+        <li><span class="t">Add up a column</span><p>Click the cell underneath it and press the &Sigma; button on the
+         toolbar; Calc guesses the range. Or type <code>=SUM(B2:B40)</code>
+         yourself.</p></li>
+        <li><span class="t">Make a chart</span><p>Select the data including its headings, then <em>Insert</em> &rarr;
+         <em>Chart</em>. The wizard walks through type, data range and labels, and
+         the chart lands in the sheet where you can drag and resize it.</p></li>
+        <li><span class="t">Build a pivot table</span><p><em>Insert</em> &rarr; <em>Pivot Table</em>. LibreOffice calls the
+         fields Row, Column, Data and Filter, which is Excel's model under slightly
+         different names. Drag fields into the boxes and press OK.</p></li>
+        <li><span class="t">Import a CSV cleanly</span><p>Opening a <code>.csv</code> brings up an import dialogue &mdash; do not
+         skip it. Set the separator, and crucially set the column type to
+         <em>Text</em> for anything like a phone number or a postcode that must not
+         be turned into a number or a date.</p></li>
+      </ol>
+    </section>
+
+    <section>
+      <h2>One thing that will surprise you</h2>
+      <p><strong>Excel macros will not run.</strong> LibreOffice has its own macro
+      language (LibreOffice Basic) and a partial VBA compatibility layer, but a
+      workbook that depends on serious VBA will not work here, and no amount of
+      configuring will fix it. That is the one genuine incompatibility in the whole
+      office suite.</p>
+      <p>If that describes a workbook you cannot live without, the honest options are
+      <a href="app-onlyoffice.html">ONLYOFFICE</a> (better macro support in some
+      cases), the web version of Excel in
+      <a href="app-firefox.html">Firefox</a>, or real Excel inside
+      <a href="app-virt-manager.html">a Windows virtual machine</a> on Pro.</p>
+    </section>
+
+    <section>
+      <h2>Where to find it</h2>
+      <p>Launcher &rarr; <em>LibreOffice Calc</em>, or search <em>Excel</em> or
+      <em>spreadsheet</em>.</p>
+    </section>
+
+    <section>
+      <h2>See also</h2>
+      <div class="related"><a href="app-libreoffice-writer.html">LibreOffice Writer</a><a href="app-onlyoffice.html">ONLYOFFICE</a><a href="app-libreoffice-base-math.html">LibreOffice Base and Math</a><a href="app-kcalc.html">KCalc</a></div>
+    </section>
+
+    <footer class="colophon">Dagric OS Manual &middot; stored on this computer, no internet needed &middot; <a href="index.html">every application</a></footer>
+
+  </main>
+</div>
+</body>
+</html>

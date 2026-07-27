@@ -1,0 +1,123 @@
+#!/bin/sh
+# SPDX-FileCopyrightText: 2026 DGR Operations <repo@dagric.com>
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Dagric OS — display defaults.
+#
+# Two jobs, and neither of them is "set a scale". The right text size depends
+# on the panel in front of the owner, which the build cannot know, so a number
+# baked in here would be wrong for almost everybody. What ships instead is the
+# machinery that measures the screen at first login
+# (/usr/lib/dagric/display-autoscale) and the tool that lets the owner overrule
+# it afterwards (/usr/bin/dagric-display). This hook wires the first one into
+# the session and refuses to build if either is broken.
+#
+# NOTHING SCALE-RELATED BELONGS IN /etc/skel EITHER, and that is worth writing
+# down because it looks like an omission. kdeglobals [KScreen] ScaleFactor and
+# kcmfonts forceFontDPI are the X11 global-scale knobs — they do nothing on a
+# Wayland session, which is the only session this image can start, and a value
+# in skel would be applied to every machine regardless of its screen. Per-screen
+# scale is KWin's, and it lives in each owner's ~/.config/kwinoutputconfig.json,
+# written the first time KWin sees that screen. Font antialiasing and hinting
+# are left at Plasma's defaults on purpose too: XftSubPixel=rgb looks sharper on
+# a normal LCD and visibly wrong on an OLED or a rotated panel, and skel cannot
+# tell which one it is being copied onto.
+set -e
+
+LIB=/usr/lib/dagric
+AUTOSCALE=$LIB/display-autoscale
+COMMON=$LIB/display-common.sh
+TOOL=/usr/bin/dagric-display
+
+# ---------------------------------------------------------------------------
+# The pieces have to actually be on the image. A missing file here would ship
+# an ISO that boots microscopic on exactly the high-resolution laptops this
+# whole feature exists for, and nothing else in the build would notice.
+for f in "$AUTOSCALE" "$COMMON" "$TOOL"; do
+    if [ ! -f "$f" ]; then
+        echo "ERROR: $f missing — display defaults cannot be installed." >&2
+        exit 1
+    fi
+    # POSIX sh, not bash: /bin/sh is dash on Debian, so this is the real check.
+    if ! sh -n "$f"; then
+        echo "ERROR: $f is not valid POSIX sh." >&2
+        exit 1
+    fi
+done
+
+# build.sh and docker/container-build.sh chmod config/includes.chroot/usr/bin/*
+# but nothing under usr/lib/dagric, so that one has to be done here — the same
+# reason 0510-app-names chmods its generator.
+chmod 0755 "$AUTOSCALE"
+chmod 0644 "$COMMON"
+chmod 0755 "$TOOL"
+
+# Everything reads and writes the scale through kscreen-doctor, which comes
+# from libkscreen-bin — a hard Depends of the kscreen package in
+# desktop.list.chroot. It is a Depends and not a Recommends, which matters
+# because auto/config builds with --apt-recommends false. Check anyway: if that
+# dependency ever changes, the failure at runtime is a display tool that cannot
+# see any screens, which is a terrible way to find out.
+if [ ! -x /usr/bin/kscreen-doctor ]; then
+    echo "ERROR: kscreen-doctor missing — add libkscreen-bin to desktop.list.chroot." >&2
+    exit 1
+fi
+
+# ---------------------------------------------------------------------------
+# Run the measurement at every login.
+#
+# Written here rather than shipped in config/includes.chroot/etc/skel because
+# that directory is shared with other work in flight; a file created by this
+# hook cannot collide with one added there. The name sorts before
+# dagric-firstrun.desktop on purpose, so the size is already right by the time
+# the setup wizard shows the owner a text-size step.
+#
+# It stays for every login, not just the first, and the script explains why:
+# it picks up a monitor plugged in later, and it puts back a text-size trial
+# that Dagric Display was killed in the middle of. A bad scale survives a
+# reboot — KWin saves it — so there has to be something that undoes one.
+mkdir -p /etc/skel/.config/autostart
+cat > /etc/skel/.config/autostart/dagric-display-autoscale.desktop << 'EOF'
+[Desktop Entry]
+Type=Application
+Name=Dagric display defaults
+Comment=Choose a sensible text size for this screen at login
+Exec=/usr/lib/dagric/display-autoscale
+Icon=dagric-logo
+Terminal=false
+X-KDE-StartupNotify=false
+OnlyShowIn=KDE;
+EOF
+
+# ---------------------------------------------------------------------------
+# Take the X11 session out of the login screen, because it cannot work.
+#
+# plasma-workspace ships both /usr/share/wayland-sessions/plasma.desktop and
+# /usr/share/xsessions/plasmax11.desktop, but the X11 one needs kwin_x11, which
+# comes from the kwin-x11 package. Nothing on this image DEPENDED on it:
+# plasma-workspace hard-Depends kwin-wayland, plasma-desktop's
+# "kwin-wayland | kwin-x11" is a Recommends and auto/config builds with
+# --apt-recommends false. So "Plasma (X11)" sat in SDDM's session list as a
+# trap — pick it and you got a session with no window manager, which to
+# somebody who has just left Windows looks exactly like the new OS breaking.
+#
+# RESOLVED BY THE OTHER HALF: kwin-x11 is now an explicit line in
+# config/package-lists/desktop.list.chroot, so on a normal build this block is
+# a no-op and the X11 session works. The rescue path matters most for the owner
+# whose Wayland session is already misbehaving on an older NVIDIA card.
+#
+# The block stays, guarded on the binary rather than removed: if kwin-x11 is
+# ever dropped from the lists again, the broken session entry disappears with
+# it instead of quietly coming back.
+if [ -f /usr/share/xsessions/plasmax11.desktop ] && [ ! -x /usr/bin/kwin_x11 ]; then
+    rm -f /usr/share/xsessions/plasmax11.desktop
+    echo "Removed the Plasma X11 session entry (kwin_x11 is not installed)."
+fi
+
+# And assert the one that has to be there. An image with no session file at all
+# boots to a login screen that cannot log anybody in.
+if [ ! -f /usr/share/wayland-sessions/plasma.desktop ]; then
+    echo "ERROR: no Plasma Wayland session file — this image cannot start a desktop." >&2
+    exit 1
+fi
+
+echo "Display defaults installed: per-screen text size is chosen at first login."

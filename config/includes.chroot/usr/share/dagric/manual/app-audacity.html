@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Audacity &mdash; Dagric OS Manual</title>
+<link rel="stylesheet" href="manual.css">
+<script src="manual.js"></script>
+</head>
+<body>
+<div class="shell">
+  <aside class="side">
+    <div class="sidebox">
+      <a class="brand" href="index.html">
+        <div class="mark">D</div>
+        <div class="brand-name">Dagric OS<small>Manual</small></div>
+      </a>
+      <nav class="toc">
+        <a class="back" href="index.html">&larr; All applications</a>
+        <div class="navgroup">Music and sound</div>
+        <a href="app-elisa.html">Elisa</a>
+        <a href="app-audacity.html" class="active">Audacity</a>
+        <a href="app-sound.html">Sound, headphones and microphones</a>
+      </nav>
+    </div>
+  </aside>
+
+  <main class="content">
+
+    <header class="hero">
+      <div class="eyebrow">Music and sound</div>
+      <h1>Audacity<span class="pill pro">PRO</span></h1>
+      <p class="sub">Record and edit audio: voice-overs, podcasts, tidying up a recording.</p>
+    </header>
+
+    <div class="swap"><span>On Windows this was</span><strong>Voice Recorder, and Audacity on Windows</strong></div>
+
+    <div class="notice pro-notice"><div><strong>This one is part of Dagric&nbsp;OS Pro.</strong> You are reading the manual on the free edition, so it is not installed on this computer. The page is here on purpose &mdash; you should be able to see exactly what Pro adds before you decide whether you want it.</div></div>
+    <section>
+      <h2>What it is</h2>
+      <p><strong>Audacity</strong> records from a microphone and edits the result:
+      cut, fade, amplify, remove noise, and export to MP3, WAV or FLAC. It is the
+      standard tool for a podcast, a voice-over, or rescuing a recording of a
+      lecture.</p>
+      <p>Debian builds Audacity from source with the telemetry and update-check code
+      disabled, so the privacy row that surrounded it a few years ago does not apply
+      to the copy on this machine.</p>
+    </section>
+
+    <section>
+      <h2>Five things you will actually do</h2>
+      <ol class="tasks">
+        <li><span class="t">Record your voice</span><p>Choose the input device in the toolbar at the top, watch the level
+         meter while you speak (aim for peaks around &minus;12&nbsp;dB), then press
+         the red record button. <kbd>Space</kbd> stops.</p></li>
+        <li><span class="t">Remove background hiss</span><p>Select two seconds of silence, then <em>Effect</em> &rarr; <em>Noise
+         Removal and Repair</em> &rarr; <em>Noise Reduction</em> &rarr; <em>Get Noise
+         Profile</em>. Select the whole track, open the same effect again, and press
+         OK. Do not overdo it &mdash; heavy reduction makes voices sound
+         underwater.</p></li>
+        <li><span class="t">Cut out a mistake</span><p>Select the section and press <kbd>Delete</kbd>. Add a short crossfade
+         at the join (<em>Effect</em> &rarr; <em>Fading</em>) if the cut clicks.</p></li>
+        <li><span class="t">Even out the volume</span><p><em>Effect</em> &rarr; <em>Volume and Compression</em> &rarr;
+         <em>Compressor</em>, then <em>Normalize</em> to bring the whole thing up to a
+         consistent level. This is what makes a home recording sound
+         professional.</p></li>
+        <li><span class="t">Export</span><p><em>File</em> &rarr; <em>Export Audio</em>. MP3 for podcasts and
+         sharing, WAV or FLAC if it is going into a video editor. Audacity's own
+         <code>.aup3</code> project file keeps your tracks and edits; it is not an
+         audio file.</p></li>
+      </ol>
+    </section>
+
+    <section>
+      <h2>One thing that will surprise you</h2>
+      <p><strong>Saving does not produce an audio file.</strong> Just like GIMP,
+      Audacity's Save writes a project you can carry on editing. The MP3 comes from
+      <em>File</em> &rarr; <em>Export Audio</em>. Every new user loses ten minutes to
+      this once.</p>
+    </section>
+
+    <section>
+      <h2>Where to find it</h2>
+      <p>Launcher &rarr; <em>Audacity</em>.</p>
+    </section>
+
+    <section>
+      <h2>See also</h2>
+      <div class="related"><a href="app-obs-studio.html">OBS Studio</a><a href="app-kdenlive.html">Kdenlive</a><a href="app-sound.html">Sound, headphones and microphones</a><a href="app-elisa.html">Elisa</a></div>
+    </section>
+
+    <footer class="colophon">Dagric OS Manual &middot; stored on this computer, no internet needed &middot; <a href="index.html">every application</a></footer>
+
+  </main>
+</div>
+</body>
+</html>

@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LocalSend &mdash; Dagric OS Manual</title>
+<link rel="stylesheet" href="manual.css">
+<script src="manual.js"></script>
+</head>
+<body>
+<div class="shell">
+  <aside class="side">
+    <div class="sidebox">
+      <a class="brand" href="index.html">
+        <div class="mark">D</div>
+        <div class="brand-name">Dagric OS<small>Manual</small></div>
+      </a>
+      <nav class="toc">
+        <a class="back" href="index.html">&larr; All applications</a>
+        <div class="navgroup">Internet and communication</div>
+        <a href="app-firefox.html">Firefox</a>
+        <a href="app-chromium.html">Chromium</a>
+        <a href="app-thunderbird.html">Thunderbird</a>
+        <a href="app-network.html">Wi-Fi, wired networks and VPN</a>
+        <a href="app-kdeconnect.html">KDE Connect</a>
+        <a href="app-localsend.html" class="active">LocalSend</a>
+        <a href="app-syncthing.html">Syncthing</a>
+        <a href="app-cloud-storage.html">Cloud storage: rclone and Google Drive</a>
+        <a href="app-qbittorrent.html">qBittorrent</a>
+      </nav>
+    </div>
+  </aside>
+
+  <main class="content">
+
+    <header class="hero">
+      <div class="eyebrow">Internet and communication</div>
+      <h1>LocalSend<span class="pill add" title="Not preinstalled — Dagric installs it for you when you ask">ADD-ON</span></h1>
+      <p class="sub">AirDrop between whatever devices you happen to own, with no account.</p>
+    </header>
+
+    <div class="swap"><span>On Windows this was</span><strong>Nearby Sharing, AirDrop, and emailing yourself a file</strong></div>
+
+
+    <section>
+      <h2>What it is</h2>
+      <p><strong>LocalSend</strong> sends files and short messages directly between
+      devices on the same network. No account, no cloud, no internet connection
+      required, and nothing is stored anywhere in between. It is what AirDrop is,
+      except it works across Android, iOS, Windows, macOS and Linux at once.</p>
+    </section>
+
+    <section>
+      <h2>Getting it</h2>
+      <p>Two ways in, and they end up at the same app:</p>
+      <ul class="plain">
+        <li><strong>Dagric&nbsp;OS Pro</strong> &mdash; open the
+        <a href="tool-dagric-hub.html">Dagric Hub</a> and pick the row for it. A
+        terminal window explains what the app is and asks one yes/no question.</li>
+        <li><strong>Any edition</strong> &mdash; open
+        <a href="app-discover.html">Discover</a>, search for it, press Install.
+        It comes from Flathub, so turn Flathub on first if you have not:
+        <a href="tool-dagric-setup.html">Finish Setup</a> has a tick box for it.</li>
+      </ul>
+      <p>Either route installs it just for your user account, needs no
+      administrator password, and uninstalls cleanly from Discover's
+      <em>Installed</em> page.</p>
+      <p>Install the LocalSend app on the other device too &mdash; it exists for
+      Android, iOS, Windows and macOS &mdash; and the two find each other on their
+      own.</p>
+    </section>
+    <section>
+      <h2>Five things you will actually do</h2>
+      <ol class="tasks">
+        <li><span class="t">Send a file to your phone</span><p>Open LocalSend on both. The phone appears in the list; select the file,
+         pick the device, the phone asks whether to accept. That is the whole
+         process.</p></li>
+        <li><span class="t">Receive a file</span><p>Leave LocalSend open on the receiving machine. Incoming transfers ask
+         for confirmation and land in the folder set in its settings &mdash; Downloads
+         by default.</p></li>
+        <li><span class="t">Move a large video without the cloud</span><p>Transfers run at local network speed, so a 4&nbsp;GB file takes
+         seconds on wired Ethernet or a minute on decent Wi-Fi. No upload, no
+         download, no size limit imposed by anybody.</p></li>
+        <li><span class="t">Send text rather than a file</span><p>The message option sends a snippet of text or a link straight to the
+         other device's clipboard. Faster than emailing yourself a URL.</p></li>
+        <li><span class="t">Accept transfers automatically</span><p>Settings has a quick-save option for devices you trust. Leave it off on
+         a laptop you take to public places.</p></li>
+      </ol>
+    </section>
+
+    <section>
+      <h2>One thing that will surprise you</h2>
+      <p><strong>Both devices must be on the same network, and some networks
+      forbid it.</strong> Hotel, campus and many corporate Wi-Fi networks use client
+      isolation, which stops devices seeing each other on purpose. LocalSend will
+      show an empty list and nothing is wrong with it. A phone hotspot that both
+      devices join is the usual workaround.</p>
+    </section>
+
+    <section>
+      <h2>Where to find it</h2>
+      <p>After installing: launcher &rarr; <em>LocalSend</em>. Before installing:
+      Dagric Hub &rarr; <em>Local sharing &mdash; LocalSend</em>, or Discover.</p>
+    </section>
+
+    <section>
+      <h2>See also</h2>
+      <div class="related"><a href="app-kdeconnect.html">KDE Connect</a><a href="app-syncthing.html">Syncthing</a><a href="app-network.html">Wi-Fi, wired networks and VPN</a></div>
+    </section>
+
+    <footer class="colophon">Dagric OS Manual &middot; stored on this computer, no internet needed &middot; <a href="index.html">every application</a></footer>
+
+  </main>
+</div>
+</body>
+</html>

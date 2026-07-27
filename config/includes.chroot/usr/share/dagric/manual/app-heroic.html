@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Heroic Games Launcher &mdash; Dagric OS Manual</title>
+<link rel="stylesheet" href="manual.css">
+<script src="manual.js"></script>
+</head>
+<body>
+<div class="shell">
+  <aside class="side">
+    <div class="sidebox">
+      <a class="brand" href="index.html">
+        <div class="mark">D</div>
+        <div class="brand-name">Dagric OS<small>Manual</small></div>
+      </a>
+      <nav class="toc">
+        <a class="back" href="index.html">&larr; All applications</a>
+        <div class="navgroup">Games and Windows programs</div>
+        <a href="app-steam.html">Steam</a>
+        <a href="app-lutris.html">Lutris</a>
+        <a href="app-heroic.html" class="active">Heroic Games Launcher</a>
+        <a href="app-wine.html">Wine</a>
+        <a href="app-bottles.html">Bottles</a>
+        <a href="app-protonup.html">ProtonUp-Qt</a>
+        <a href="app-gameperf.html">GameMode, MangoHud and GOverlay</a>
+        <a href="app-virt-manager.html">Virtual Machine Manager</a>
+      </nav>
+    </div>
+  </aside>
+
+  <main class="content">
+
+    <header class="hero">
+      <div class="eyebrow">Games and Windows programs</div>
+      <h1>Heroic Games Launcher<span class="pill add" title="Not preinstalled — Dagric installs it for you when you ask">ADD-ON</span></h1>
+      <p class="sub">Your Epic, GOG and Amazon libraries, without their Windows launchers.</p>
+    </header>
+
+    <div class="swap"><span>On Windows this was</span><strong>the Epic Games Launcher and GOG Galaxy</strong></div>
+
+
+    <section>
+      <h2>What it is</h2>
+      <p><strong>Heroic</strong> signs into Epic Games, GOG and Amazon Prime Gaming
+      and installs your games from them, running Windows titles through Proton or Wine
+      automatically. It is a clean, open-source replacement for launchers that have no
+      Linux version at all.</p>
+      <p>Notably, it will claim the free Epic game every week, which is most people's
+      actual reason for having an Epic account.</p>
+    </section>
+
+    <section>
+      <h2>Getting it</h2>
+      <p>Two ways in, and they end up at the same app:</p>
+      <ul class="plain">
+        <li><strong>Dagric&nbsp;OS Pro</strong> &mdash; open the
+        <a href="tool-dagric-hub.html">Dagric Hub</a> and pick the row for it. A
+        terminal window explains what the app is and asks one yes/no question.</li>
+        <li><strong>Any edition</strong> &mdash; open
+        <a href="app-discover.html">Discover</a>, search for it, press Install.
+        It comes from Flathub, so turn Flathub on first if you have not:
+        <a href="tool-dagric-setup.html">Finish Setup</a> has a tick box for it.</li>
+      </ul>
+      <p>Either route installs it just for your user account, needs no
+      administrator password, and uninstalls cleanly from Discover's
+      <em>Installed</em> page.</p>
+    </section>
+    <section>
+      <h2>Five things you will actually do</h2>
+      <ol class="tasks">
+        <li><span class="t">Sign in</span><p>Each store is a separate log-in on Heroic's first screen. Epic and
+         Amazon open a browser window; GOG asks for your credentials. Your library
+         appears once it syncs.</p></li>
+        <li><span class="t">Install and play</span><p>Pick a game, choose an install folder, press Install. Heroic selects a
+         compatibility layer for you; Windows-only games get Proton and it says
+         so.</p></li>
+        <li><span class="t">Change the Proton or Wine version</span><p>The game's settings page has a Wine version selector, fed by whatever
+         is installed &mdash; including builds added by
+         <a href="app-protonup.html">ProtonUp-Qt</a> or
+         <a href="tool-dagric-gaming.html">the Proton-GE helper</a>.</p></li>
+        <li><span class="t">Get the weekly free Epic game</span><p>The store page inside Heroic shows it; claiming it adds it to your
+         library permanently, whether or not you ever install it.</p></li>
+        <li><span class="t">Move a game to another drive</span><p>The game's settings offer to move the installation. Doing it this way
+         keeps Heroic's records straight; dragging the folder in Dolphin does
+         not.</p></li>
+      </ol>
+    </section>
+
+    <section>
+      <h2>One thing that will surprise you</h2>
+      <p><strong>GOG games are yours to keep, and Heroic makes that obvious.</strong>
+      GOG sells DRM-free installers, so a game you buy there can be downloaded, backed
+      up, and run in ten years with no launcher and no account. Heroic can download the
+      offline installers directly. On a machine you own, that difference is worth
+      noticing.</p>
+    </section>
+
+    <section>
+      <h2>Where to find it</h2>
+      <p>After installing: launcher &rarr; <em>Heroic Games Launcher</em>. Before
+      installing: Dagric Hub &rarr; <em>Heroic &mdash; Epic, GOG, Amazon</em>, or
+      Discover.</p>
+    </section>
+
+    <section>
+      <h2>See also</h2>
+      <div class="related"><a href="app-steam.html">Steam</a><a href="app-lutris.html">Lutris</a><a href="app-protonup.html">ProtonUp-Qt</a><a href="app-wine.html">Wine</a></div>
+    </section>
+
+    <footer class="colophon">Dagric OS Manual &middot; stored on this computer, no internet needed &middot; <a href="index.html">every application</a></footer>
+
+  </main>
+</div>
+</body>
+</html>

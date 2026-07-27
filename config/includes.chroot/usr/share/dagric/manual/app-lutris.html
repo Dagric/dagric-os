@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lutris &mdash; Dagric OS Manual</title>
+<link rel="stylesheet" href="manual.css">
+<script src="manual.js"></script>
+</head>
+<body>
+<div class="shell">
+  <aside class="side">
+    <div class="sidebox">
+      <a class="brand" href="index.html">
+        <div class="mark">D</div>
+        <div class="brand-name">Dagric OS<small>Manual</small></div>
+      </a>
+      <nav class="toc">
+        <a class="back" href="index.html">&larr; All applications</a>
+        <div class="navgroup">Games and Windows programs</div>
+        <a href="app-steam.html">Steam</a>
+        <a href="app-lutris.html" class="active">Lutris</a>
+        <a href="app-heroic.html">Heroic Games Launcher</a>
+        <a href="app-wine.html">Wine</a>
+        <a href="app-bottles.html">Bottles</a>
+        <a href="app-protonup.html">ProtonUp-Qt</a>
+        <a href="app-gameperf.html">GameMode, MangoHud and GOverlay</a>
+        <a href="app-virt-manager.html">Virtual Machine Manager</a>
+      </nav>
+    </div>
+  </aside>
+
+  <main class="content">
+
+    <header class="hero">
+      <div class="eyebrow">Games and Windows programs</div>
+      <h1>Lutris<span class="pill pro">PRO</span></h1>
+      <p class="sub">One launcher for everything that is not Steam: Battle.net, EA, Ubisoft, emulators, old discs.</p>
+    </header>
+
+    <div class="swap"><span>On Windows this was</span><strong>a desktop full of separate game launchers</strong></div>
+
+    <div class="notice pro-notice"><div><strong>This one is part of Dagric&nbsp;OS Pro.</strong> You are reading the manual on the free edition, so it is not installed on this computer. The page is here on purpose &mdash; you should be able to see exactly what Pro adds before you decide whether you want it.</div></div>
+    <section>
+      <h2>What it is</h2>
+      <p><strong>Lutris</strong> collects every game you own into one library,
+      whatever it came from: Steam, GOG, Humble, Windows installers, emulators, or a
+      CD-ROM from 2003. For the awkward ones it uses community-written install scripts
+      that set up exactly the Wine version, libraries and registry tweaks a given game
+      needs.</p>
+    </section>
+
+    <section>
+      <h2>Five things you will actually do</h2>
+      <ol class="tasks">
+        <li><span class="t">Install a game with a community script</span><p>Search the game on Lutris's website (or from within the app), press
+         Install, and follow it. The script does the fiddly work &mdash; the right
+         Wine build, DXVK, the fonts, the workaround for that one launcher &mdash;
+         that you would otherwise be doing by hand.</p></li>
+        <li><span class="t">Add a Windows game you already have</span><p><em>+</em> &rarr; <em>Add locally installed game</em>, choose Wine as
+         the runner and point it at the <code>.exe</code>. Lutris makes it a proper
+         library entry with its own settings and its own Wine prefix.</p></li>
+        <li><span class="t">Give each game its own environment</span><p>Every Lutris game has a <em>prefix</em>: a private fake Windows
+         installation. This is why one game's DirectX requirement cannot break
+         another's, and it is the main advantage over running Wine by hand.</p></li>
+        <li><span class="t">Run emulators</span><p>Lutris handles console emulators as runners too, so a retro collection
+         and a modern library live in the same window with the same artwork.</p></li>
+        <li><span class="t">Tune a game that stutters</span><p>Right-click &rarr; <em>Configure</em>. Enable Esync/Fsync, DXVK, and
+         GameMode; set the Wine version; cap the framerate. Change one thing at a time
+         and note what helped.</p></li>
+      </ol>
+    </section>
+
+    <section>
+      <h2>One thing that will surprise you</h2>
+      <p><strong>Some launchers fight back.</strong> Battle.net, the EA app and
+      Ubisoft Connect all work under Lutris, and all of them occasionally break
+      themselves with an update and need the install script re-running. This is not
+      Lutris being unreliable &mdash; it is a third party changing an application that
+      was never meant to run here. The community usually has a fix within days; the
+      comments on the install script page are where to look.</p>
+    </section>
+
+    <section>
+      <h2>Where to find it</h2>
+      <p>Launcher &rarr; <em>Lutris</em>.</p>
+    </section>
+
+    <section>
+      <h2>See also</h2>
+      <div class="related"><a href="app-steam.html">Steam</a><a href="app-heroic.html">Heroic Games Launcher</a><a href="app-wine.html">Wine</a><a href="app-protonup.html">ProtonUp-Qt</a></div>
+    </section>
+
+    <footer class="colophon">Dagric OS Manual &middot; stored on this computer, no internet needed &middot; <a href="index.html">every application</a></footer>
+
+  </main>
+</div>
+</body>
+</html>

@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dagric Looks &mdash; Dagric OS Manual</title>
+<link rel="stylesheet" href="manual.css">
+<script src="manual.js"></script>
+</head>
+<body>
+<div class="shell">
+  <aside class="side">
+    <div class="sidebox">
+      <a class="brand" href="index.html">
+        <div class="mark">D</div>
+        <div class="brand-name">Dagric OS<small>Manual</small></div>
+      </a>
+      <nav class="toc">
+        <a class="back" href="index.html">&larr; All applications</a>
+        <div class="navgroup">Dagric&#x27;s own tools</div>
+        <a href="tool-dagric-hub.html">Dagric Hub</a>
+        <a href="tool-dagric-setup.html">Finish Setup</a>
+        <a href="tool-dagric-firstrun.html">Set Up Dagric</a>
+        <a href="tool-dagric-migrate.html">Migration Assistant</a>
+        <a href="tool-dagric-appearance.html">Dagric Appearance</a>
+        <a href="tool-dagric-looks.html" class="active">Dagric Looks</a>
+        <a href="tool-dagric-style.html">Dagric Styles</a>
+        <a href="tool-dagric-display.html">Dagric Display</a>
+        <a href="tool-dagric-app-names.html">Why the apps have plain names</a>
+        <a href="tool-dagric-get-variety.html">Rotating wallpapers (Variety)</a>
+        <a href="tool-dagric-drivers.html">NVIDIA driver helper</a>
+        <a href="tool-dagric-security-checkup.html">Security Checkup</a>
+        <a href="tool-dagric-usb-protect.html">USB Protection</a>
+        <a href="tool-dagric-vm.html">Windows in a window (VM setup)</a>
+        <a href="tool-dagric-gaming.html">Proton-GE helper</a>
+        <a href="tool-dagric-ai.html">Local AI (Ollama)</a>
+        <a href="tool-dagric-manual.html">This manual</a>
+        <a href="tool-dagric-background.html">Helpers that run by themselves</a>
+        <a href="tool-dagric-commands.html">Every dagric command</a>
+      </nav>
+    </div>
+  </aside>
+
+  <main class="content">
+
+    <header class="hero">
+      <div class="eyebrow">Dagric&#x27;s own tools</div>
+      <h1>Dagric Looks</h1>
+      <p class="sub">Change the shape of the desktop &mdash; where the taskbar and panels live.</p>
+    </header>
+
+    <div class="swap"><span>On Windows this was</span><strong>rearranging the taskbar, without the fear</strong></div>
+
+    <section>
+      <h2>What it is</h2>
+      <p><strong>Dagric Looks</strong> rebuilds the desktop's panels into a chosen
+      shape. Every edition has three:</p>
+      <ul class="plain">
+        <li><strong>Classic</strong> &mdash; a taskbar at the bottom, familiar and
+        comfortable.</li>
+        <li><strong>Focus</strong> &mdash; one tidy bar, nothing in your way.</li>
+        <li><strong>Eleven</strong> &mdash; a centred taskbar, clean and modern.</li>
+      </ul>
+      <p>Dagric&nbsp;OS Pro adds four more: <strong>Horizon</strong> (a menu bar up
+      top with a dock below), <strong>Command</strong> (a side dock),
+      <strong>Unity</strong> (a side dock with a global menu bar) and
+      <strong>Duo</strong> (two panels, top and bottom).</p>
+    </section>
+
+    <section>
+      <h2>Five things you will actually do</h2>
+      <ol class="tasks">
+        <li><span class="t">Switch layout</span><p>Open it, pick a row, and the panels rebuild in about a second. A small
+         notification confirms which layout was applied.</p></li>
+        <li><span class="t">Change your mind</span><p>Open it again and pick another. Each layout starts by clearing whatever
+         panels exist, so switching is always clean and never accumulates.</p></li>
+        <li><span class="t">Repair a panel you broke by accident</span><p>This is the fix. Dragged a widget into oblivion, deleted the clock, lost
+         the system tray? Pick your layout again and it is rebuilt from
+         scratch.</p></li>
+        <li><span class="t">Combine it with a mood</span><p>Looks changes the shape; <a href="tool-dagric-style.html">Dagric
+         Styles</a> changes the colours. A centred taskbar in deep Midnight, or a
+         classic taskbar in warm Dawn &mdash; they are independent.</p></li>
+        <li><span class="t">Write your own layout</span><p>Layouts are <code>.look</code> files: a name, a description, and one
+         line of Plasma's own scripting API. Copy one from
+         <code>/usr/share/dagric/looks/</code> to
+         <code>~/.local/share/dagric/looks/</code>, edit the script line, and it
+         appears in the menu next time.</p></li>
+      </ol>
+    </section>
+
+    <section>
+      <h2>One thing that will surprise you</h2>
+      <p><strong>Switching layout removes your panel customisations, because it
+      rebuilds the panels.</strong> Widgets you added by hand, a resized panel, a
+      pinned application &mdash; all of it is replaced by the layout's own definition.
+      That is precisely what makes it a reliable repair tool, and it is worth knowing
+      before you switch on a whim after an hour of arranging things.</p>
+      <p>Your files, settings, wallpaper and colours are untouched. Only the panels
+      are rebuilt.</p>
+    </section>
+
+    <section>
+      <h2>Where to find it</h2>
+      <p>Dagric Hub &rarr; <em>Desktop layout</em>, launcher &rarr; <em>Dagric
+      Looks</em>, or <code>dagric-looks</code>.</p>
+    </section>
+
+    <section>
+      <h2>See also</h2>
+      <div class="related"><a href="tool-dagric-style.html">Dagric Styles</a><a href="tool-dagric-appearance.html">Dagric Appearance</a><a href="app-desktop.html">The desktop, panels and windows</a></div>
+    </section>
+
+    <footer class="colophon">Dagric OS Manual &middot; stored on this computer, no internet needed &middot; <a href="index.html">every application</a></footer>
+
+  </main>
+</div>
+</body>
+</html>

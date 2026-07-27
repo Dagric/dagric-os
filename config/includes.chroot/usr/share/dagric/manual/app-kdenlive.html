@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kdenlive &mdash; Dagric OS Manual</title>
+<link rel="stylesheet" href="manual.css">
+<script src="manual.js"></script>
+</head>
+<body>
+<div class="shell">
+  <aside class="side">
+    <div class="sidebox">
+      <a class="brand" href="index.html">
+        <div class="mark">D</div>
+        <div class="brand-name">Dagric OS<small>Manual</small></div>
+      </a>
+      <nav class="toc">
+        <a class="back" href="index.html">&larr; All applications</a>
+        <div class="navgroup">Photos and video</div>
+        <a href="app-gwenview.html">Gwenview</a>
+        <a href="app-spectacle.html">Spectacle</a>
+        <a href="app-mpv.html">mpv</a>
+        <a href="app-gimp.html">GIMP</a>
+        <a href="app-krita.html">Krita</a>
+        <a href="app-inkscape.html">Inkscape</a>
+        <a href="app-darktable.html">darktable</a>
+        <a href="app-blender.html">Blender</a>
+        <a href="app-kdenlive.html" class="active">Kdenlive</a>
+        <a href="app-obs-studio.html">OBS Studio</a>
+        <a href="app-handbrake.html">HandBrake</a>
+        <a href="app-upscayl.html">Upscayl</a>
+        <a href="app-davinci-resolve.html">DaVinci Resolve</a>
+      </nav>
+    </div>
+  </aside>
+
+  <main class="content">
+
+    <header class="hero">
+      <div class="eyebrow">Photos and video</div>
+      <h1>Kdenlive<span class="pill pro">PRO</span></h1>
+      <p class="sub">Multi-track video editing: cut, title, colour and export.</p>
+    </header>
+
+    <div class="swap"><span>On Windows this was</span><strong>Windows Movie Maker, and much of Premiere Pro</strong></div>
+
+    <div class="notice pro-notice"><div><strong>This one is part of Dagric&nbsp;OS Pro.</strong> You are reading the manual on the free edition, so it is not installed on this computer. The page is here on purpose &mdash; you should be able to see exactly what Pro adds before you decide whether you want it.</div></div>
+    <section>
+      <h2>What it is</h2>
+      <p><strong>Kdenlive</strong> is a proper non-linear video editor: as many
+      video and audio tracks as you like, keyframed effects, titles, transitions,
+      colour correction, and export presets for YouTube and the rest.</p>
+      <p>It is the editor to reach for first on this machine. If you need studio
+      colour grading or an ecosystem of plug-ins,
+      <a href="app-davinci-resolve.html">DaVinci Resolve</a> is a free download away
+      &mdash; but most projects never need it.</p>
+    </section>
+
+    <section>
+      <h2>Five things you will actually do</h2>
+      <ol class="tasks">
+        <li><span class="t">Start a project at the right settings</span><p>When Kdenlive asks for a project profile, match your footage &mdash;
+         1080p at 30 frames per second for most phone video, 4K if that is what you
+         shot. Getting this right at the start avoids rendering surprises at the
+         end.</p></li>
+        <li><span class="t">Cut a clip</span><p>Drag footage from the Project Bin to the timeline. Position the
+         playhead and press <kbd>Shift</kbd>+<kbd>R</kbd> to razor the clip under it,
+         then select the unwanted piece and press <kbd>Delete</kbd>. Hold
+         <kbd>Shift</kbd> while deleting to close the gap.</p></li>
+        <li><span class="t">Add a title</span><p><em>Project</em> &rarr; <em>Add Title Clip</em>. Type, style, position,
+         then drag it onto a track above your video. Its length on the timeline is how
+         long it stays on screen.</p></li>
+        <li><span class="t">Fix shaky or dark footage</span><p>The Effects panel: <em>Stabilise</em> for shake (it analyses first,
+         which takes a while), and <em>Color Correction</em> or <em>Lift/Gamma/Gain</em>
+         for exposure. Drag an effect onto a clip and adjust it in the Effect Stack
+         panel.</p></li>
+        <li><span class="t">Export the finished film</span><p><em>Project</em> &rarr; <em>Render</em>. Pick <em>MP4-H264/AAC</em> for
+         something that plays everywhere, choose a file name, and press Render to
+         File. It runs in the background so you can carry on working.</p></li>
+      </ol>
+    </section>
+
+    <section>
+      <h2>One thing that will surprise you</h2>
+      <p><strong>Turn on proxy clips before you start, not after.</strong>
+      <em>Project</em> &rarr; <em>Project Settings</em> &rarr; <em>Proxy clips</em>
+      makes Kdenlive edit against small, low-quality copies and then render the final
+      film from the originals. On 4K or phone footage it is the difference between a
+      responsive timeline and a slideshow. Nearly every &ldquo;Kdenlive is slow&rdquo;
+      complaint is this setting.</p>
+      <p>Save often, too. It is stable but it is a video editor.</p>
+    </section>
+
+    <section>
+      <h2>Where to find it</h2>
+      <p>Launcher &rarr; <em>Kdenlive</em>, or search <em>video editor</em>.</p>
+    </section>
+
+    <section>
+      <h2>See also</h2>
+      <div class="related"><a href="app-obs-studio.html">OBS Studio</a><a href="app-davinci-resolve.html">DaVinci Resolve</a><a href="app-handbrake.html">HandBrake</a><a href="app-audacity.html">Audacity</a></div>
+    </section>
+
+    <footer class="colophon">Dagric OS Manual &middot; stored on this computer, no internet needed &middot; <a href="index.html">every application</a></footer>
+
+  </main>
+</div>
+</body>
+</html>

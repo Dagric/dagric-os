@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dolphin &mdash; Dagric OS Manual</title>
+<link rel="stylesheet" href="manual.css">
+<script src="manual.js"></script>
+</head>
+<body>
+<div class="shell">
+  <aside class="side">
+    <div class="sidebox">
+      <a class="brand" href="index.html">
+        <div class="mark">D</div>
+        <div class="brand-name">Dagric OS<small>Manual</small></div>
+      </a>
+      <nav class="toc">
+        <a class="back" href="index.html">&larr; All applications</a>
+        <div class="navgroup">Files and getting around</div>
+        <a href="app-dolphin.html" class="active">Dolphin</a>
+        <a href="app-launcher.html">The launcher and search</a>
+        <a href="app-desktop.html">The desktop, panels and windows</a>
+        <a href="app-system-settings.html">System Settings</a>
+        <a href="app-discover.html">Discover</a>
+        <a href="app-konsole.html">Konsole</a>
+        <a href="app-ark.html">Ark</a>
+        <a href="app-kcalc.html">KCalc</a>
+        <a href="app-system-monitor.html">System Monitor</a>
+        <a href="app-gdebi.html">Installing downloaded software</a>
+        <a href="app-kwallet.html">KWallet</a>
+        <a href="app-filelight.html">Filelight</a>
+      </nav>
+    </div>
+  </aside>
+
+  <main class="content">
+
+    <header class="hero">
+      <div class="eyebrow">Files and getting around</div>
+      <h1>Dolphin</h1>
+      <p class="sub">Your files and folders, and every drive plugged into this computer.</p>
+    </header>
+
+    <div class="swap"><span>On Windows this was</span><strong>File Explorer</strong></div>
+
+    <section>
+      <h2>What it is</h2>
+      <p><strong>Dolphin</strong> is the file manager &mdash; the folder icon in the
+      taskbar, and the window that opens when you go looking for your documents.
+      Your home folder holds Desktop, Documents, Downloads, Music, Pictures and
+      Videos, exactly as Windows did, and the Places list down the left is the
+      same idea as the Quick Access sidebar.</p>
+      <p>Anything you plug in appears in that Places list: USB sticks, external
+      drives, phones, and the Windows partition still sitting on this machine.
+      Dagric reads and writes NTFS and exFAT drives, so a disk you have been
+      using with Windows for years needs no conversion and no ceremony.</p>
+    </section>
+
+    <section>
+      <h2>Five things you will actually do</h2>
+      <ol class="tasks">
+        <li><span class="t">Open the Windows drive that is still on this PC</span><p>Look under <em>Devices</em> in the left-hand list &mdash; the Windows
+         partition is usually the biggest one. Click it once, type your password
+         if asked, and you are browsing your old files. To bring them across
+         properly rather than by hand, use the
+         <a href="tool-dagric-migrate.html">Migration Assistant</a> instead.</p></li>
+        <li><span class="t">Copy, move and rename</span><p><kbd>Ctrl</kbd>+<kbd>C</kbd> and <kbd>Ctrl</kbd>+<kbd>V</kbd> work
+         exactly as you expect, and so does dragging. <kbd>F2</kbd> renames.
+         Select several files, press <kbd>F2</kbd>, and Dolphin renames them all
+         as a numbered batch &mdash; useful for a folder of photos straight off a
+         camera.</p></li>
+        <li><span class="t">Get two folders side by side</span><p>Press <kbd>F3</kbd>. The window splits in two and each half browses
+         independently, which is the fastest way to move files from a USB stick
+         into Documents. <kbd>F3</kbd> again puts it back.</p></li>
+        <li><span class="t">Find a file you have lost</span><p><kbd>Ctrl</kbd>+<kbd>F</kbd> opens the search bar. It searches file
+         names and, for documents and PDFs, the words inside them. Searching from
+         your home folder covers everything you own.</p></li>
+        <li><span class="t">Reach a network drive or a server</span><p>Press <kbd>Ctrl</kbd>+<kbd>L</kbd> to turn the breadcrumb bar into a
+         typing box, then enter an address such as <code>smb://server/share</code>
+         for a Windows share, or <code>sftp://user@host</code> for a server.
+         It mounts in place, and every app can then open files from it as if they
+         were local.</p></li>
+      </ol>
+    </section>
+
+    <section>
+      <h2>One thing that will surprise you</h2>
+      <p><strong>Deleting is genuinely undoable, and permanent deleting is a
+      separate key.</strong> <kbd>Delete</kbd> moves a file to the Trash, which
+      lives in your home folder and keeps files until you empty it.
+      <kbd>Shift</kbd>+<kbd>Delete</kbd> is the one that skips the Trash. Dolphin
+      asks first either way.</p>
+      <p>The other small shock: Dagric is set to <em>double-click</em> to open,
+      the same as Windows. Most Linux desktops default to single-click and it
+      catches switchers out constantly, so we changed it. If you actually prefer
+      single-click, it is in System Settings &rarr; Workspace Behaviour &rarr;
+      General Behaviour.</p>
+    </section>
+
+    <section>
+      <h2>Where to find it</h2>
+      <p>The folder icon in the taskbar, or <kbd>Meta</kbd>+<kbd>E</kbd> (Meta is
+      the &#8862; key). In the launcher it is called <strong>Files</strong>; typing
+      <em>Dolphin</em> or <em>Explorer</em> finds it too &mdash; see
+      <a href="tool-dagric-app-names.html">why the apps have plain names</a>.</p>
+    </section>
+
+    <section>
+      <h2>See also</h2>
+      <div class="related"><a href="app-ark.html">Ark</a><a href="tool-dagric-migrate.html">Migration Assistant</a><a href="app-filelight.html">Filelight</a><a href="app-konsole.html">Konsole</a><a href="tool-dagric-app-names.html">Why the apps have plain names</a></div>
+    </section>
+
+    <footer class="colophon">Dagric OS Manual &middot; stored on this computer, no internet needed &middot; <a href="index.html">every application</a></footer>
+
+  </main>
+</div>
+</body>
+</html>

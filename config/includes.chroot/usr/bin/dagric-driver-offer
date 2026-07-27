@@ -7,6 +7,23 @@
 rm -f "$HOME/.config/autostart/dagric-driver-offer.desktop"
 sleep 8   # let the desktop settle before popping a dialog
 
+# WAIT FOR THE SETUP WIZARD TO FINISH. This and dagric-firstrun are both in
+# skel's autostart and both fire at login, so on an NVIDIA machine the owner
+# used to meet "Set Up Dagric" and then, eight seconds in, have a dialog about
+# graphics drivers steal focus on top of it. To someone who has just left
+# Windows because their PC kept surprising them, two windows arguing over the
+# screen on the very first login is the wrong first impression — and the driver
+# question means nothing until they have been told what this machine is.
+# Bounded on purpose: if the wizard is still open after five minutes it is
+# being read, not stuck, and we ask anyway rather than never asking. The
+# autostart entry was already removed above, so a delay can never cost the
+# offer entirely.
+i=0
+while [ "$i" -lt 150 ] && pgrep -f '/usr/bin/dagric-firstrun' >/dev/null 2>&1; do
+    i=$((i + 1))
+    sleep 2
+done
+
 command -v lspci >/dev/null 2>&1 || exit 0
 lspci 2>/dev/null | grep -qiE 'vga.*nvidia|3d.*nvidia' || exit 0
 dpkg -s nvidia-driver >/dev/null 2>&1 && exit 0

@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Thunderbird &mdash; Dagric OS Manual</title>
+<link rel="stylesheet" href="manual.css">
+<script src="manual.js"></script>
+</head>
+<body>
+<div class="shell">
+  <aside class="side">
+    <div class="sidebox">
+      <a class="brand" href="index.html">
+        <div class="mark">D</div>
+        <div class="brand-name">Dagric OS<small>Manual</small></div>
+      </a>
+      <nav class="toc">
+        <a class="back" href="index.html">&larr; All applications</a>
+        <div class="navgroup">Internet and communication</div>
+        <a href="app-firefox.html">Firefox</a>
+        <a href="app-chromium.html">Chromium</a>
+        <a href="app-thunderbird.html" class="active">Thunderbird</a>
+        <a href="app-network.html">Wi-Fi, wired networks and VPN</a>
+        <a href="app-kdeconnect.html">KDE Connect</a>
+        <a href="app-localsend.html">LocalSend</a>
+        <a href="app-syncthing.html">Syncthing</a>
+        <a href="app-cloud-storage.html">Cloud storage: rclone and Google Drive</a>
+        <a href="app-qbittorrent.html">qBittorrent</a>
+      </nav>
+    </div>
+  </aside>
+
+  <main class="content">
+
+    <header class="hero">
+      <div class="eyebrow">Internet and communication</div>
+      <h1>Thunderbird<span class="pill pro">PRO</span></h1>
+      <p class="sub">Email, calendar, contacts and feeds, in one window, stored on your machine.</p>
+    </header>
+
+    <div class="swap"><span>On Windows this was</span><strong>Microsoft Outlook and the Mail app</strong></div>
+
+    <div class="notice pro-notice"><div><strong>This one is part of Dagric&nbsp;OS Pro.</strong> You are reading the manual on the free edition, so it is not installed on this computer. The page is here on purpose &mdash; you should be able to see exactly what Pro adds before you decide whether you want it.</div></div>
+    <section>
+      <h2>What it is</h2>
+      <p><strong>Thunderbird</strong> is a full email client from the makers of
+      Firefox. It handles as many accounts as you like &mdash; Gmail, Outlook.com,
+      your own domain, a work Exchange server over IMAP &mdash; with a built-in
+      calendar, address book and task list.</p>
+      <p>Mail is stored on this computer, so it is searchable and readable with no
+      connection, and it is included in your backups like any other file.</p>
+    </section>
+
+    <section>
+      <h2>Five things you will actually do</h2>
+      <ol class="tasks">
+        <li><span class="t">Add your email account</span><p>Type your name, address and password. Thunderbird looks up the server
+         settings for you for nearly every provider. Gmail and Outlook.com open a
+         proper sign-in window for their own login and two-factor prompt.</p></li>
+        <li><span class="t">Choose IMAP, not POP</span><p>When offered, take IMAP. Your mail stays on the server and stays in
+         step with your phone; POP downloads it and removes it, which is a decision
+         you make once and regret for years.</p></li>
+        <li><span class="t">Use the calendar</span><p>The calendar tab is built in. <em>New Calendar</em> &rarr; <em>On the
+         Network</em> subscribes to a Google, Nextcloud or CalDAV calendar; invitations
+         arriving by email can be accepted straight into it.</p></li>
+        <li><span class="t">Set up a signature</span><p><em>Account Settings</em> &rarr; the account &rarr; <em>Signature
+         text</em>, ticking the HTML box if you want formatting. Per account, so work
+         and home can differ.</p></li>
+        <li><span class="t">Find an old message</span><p>The quick filter bar at the top of the message list, or
+         <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>F</kbd> for full search across every
+         account with proper conditions. Search works offline on everything already
+         downloaded.</p></li>
+      </ol>
+    </section>
+
+    <section>
+      <h2>One thing that will surprise you</h2>
+      <p><strong>An Outlook <code>.pst</code> file cannot be opened here.</strong>
+      There is no Linux tool that reads Outlook's archive format reliably, and
+      pretending otherwise would waste your evening. The clean answer is to set the
+      account up as IMAP: your mail is on the server and Thunderbird simply
+      downloads it. For mail that only exists inside an old .pst, export it to
+      <code>.eml</code> or copy it to an IMAP folder <em>while you still have
+      Windows and Outlook running</em>. Do that before you wipe the old
+      machine.</p>
+    </section>
+
+    <section>
+      <h2>Where to find it</h2>
+      <p>Launcher &rarr; <em>Thunderbird</em>, or search <em>email</em> or
+      <em>Outlook</em>.</p>
+    </section>
+
+    <section>
+      <h2>See also</h2>
+      <div class="related"><a href="app-firefox.html">Firefox</a><a href="app-keepassxc.html">KeePassXC</a><a href="app-kdeconnect.html">KDE Connect</a></div>
+    </section>
+
+    <footer class="colophon">Dagric OS Manual &middot; stored on this computer, no internet needed &middot; <a href="index.html">every application</a></footer>
+
+  </main>
+</div>
+</body>
+</html>

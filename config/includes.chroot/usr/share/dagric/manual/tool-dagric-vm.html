@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Windows in a window (VM setup) &mdash; Dagric OS Manual</title>
+<link rel="stylesheet" href="manual.css">
+<script src="manual.js"></script>
+</head>
+<body>
+<div class="shell">
+  <aside class="side">
+    <div class="sidebox">
+      <a class="brand" href="index.html">
+        <div class="mark">D</div>
+        <div class="brand-name">Dagric OS<small>Manual</small></div>
+      </a>
+      <nav class="toc">
+        <a class="back" href="index.html">&larr; All applications</a>
+        <div class="navgroup">Dagric&#x27;s own tools</div>
+        <a href="tool-dagric-hub.html">Dagric Hub</a>
+        <a href="tool-dagric-setup.html">Finish Setup</a>
+        <a href="tool-dagric-firstrun.html">Set Up Dagric</a>
+        <a href="tool-dagric-migrate.html">Migration Assistant</a>
+        <a href="tool-dagric-appearance.html">Dagric Appearance</a>
+        <a href="tool-dagric-looks.html">Dagric Looks</a>
+        <a href="tool-dagric-style.html">Dagric Styles</a>
+        <a href="tool-dagric-display.html">Dagric Display</a>
+        <a href="tool-dagric-app-names.html">Why the apps have plain names</a>
+        <a href="tool-dagric-get-variety.html">Rotating wallpapers (Variety)</a>
+        <a href="tool-dagric-drivers.html">NVIDIA driver helper</a>
+        <a href="tool-dagric-security-checkup.html">Security Checkup</a>
+        <a href="tool-dagric-usb-protect.html">USB Protection</a>
+        <a href="tool-dagric-vm.html" class="active">Windows in a window (VM setup)</a>
+        <a href="tool-dagric-gaming.html">Proton-GE helper</a>
+        <a href="tool-dagric-ai.html">Local AI (Ollama)</a>
+        <a href="tool-dagric-manual.html">This manual</a>
+        <a href="tool-dagric-background.html">Helpers that run by themselves</a>
+        <a href="tool-dagric-commands.html">Every dagric command</a>
+      </nav>
+    </div>
+  </aside>
+
+  <main class="content">
+
+    <header class="hero">
+      <div class="eyebrow">Dagric&#x27;s own tools</div>
+      <h1>Windows in a window (VM setup)<span class="pill pro">PRO</span></h1>
+      <p class="sub">Switch on the virtual-machine stack, with consent, and get pointed at a legal Windows ISO.</p>
+    </header>
+
+    <div class="swap"><span>On Windows this was</span><strong>turning on Hyper-V</strong></div>
+
+    <div class="notice pro-notice"><div><strong>This one is part of Dagric&nbsp;OS Pro.</strong> You are reading the manual on the free edition, so it is not installed on this computer. The page is here on purpose &mdash; you should be able to see exactly what Pro adds before you decide whether you want it.</div></div>
+    <section>
+      <h2>What it is</h2>
+      <p>Dagric&nbsp;OS Pro preinstalls a complete open-source virtualisation stack
+      &mdash; KVM, QEMU, libvirt, virt-manager, UEFI firmware and a software TPM
+      &mdash; but leaves every part of it <strong>switched off</strong>. A machine that
+      never runs a VM should not be running VM daemons or carrying a network bridge it
+      did not ask for.</p>
+      <p><code>dagric-vm</code> is the consent step that turns it on.</p>
+    </section>
+
+    <section>
+      <h2>Five things you will actually do</h2>
+      <ol class="tasks">
+        <li><span class="t">Run it</span><p>Dagric Hub &rarr; <em>Windows in a VM</em>, or <code>dagric-vm</code>.
+         It explains the three things it will do before doing any of them.</p></li>
+        <li><span class="t">Let it check your processor</span><p>It looks for Intel VT-x or AMD-V support first. If virtualisation is
+         switched off in your firmware it stops there and tells you how to switch it on
+         &mdash; reboot, enter setup (often <kbd>F2</kbd> or <kbd>Del</kbd>), find
+         <em>Virtualization</em>, <em>SVM</em> or <em>VT-x</em>, enable, save &mdash;
+         rather than letting you discover the problem an hour later.</p></li>
+        <li><span class="t">Approve the change</span><p>Answer yes and give your password. It adds your user to the
+         <code>libvirt</code> and <code>kvm</code> groups, starts the VM service, and
+         starts the default NAT network so new machines have working
+         networking.</p></li>
+        <li><span class="t">Log out and back in once</span><p>Group membership only takes effect at your next login. The tool says so.
+         Skip it and <a href="app-virt-manager.html">Virtual Machine Manager</a> will
+         complain that it cannot connect.</p></li>
+        <li><span class="t">Get Windows legally</span><p>The tool prints Microsoft's own download address. Windows in a VM runs
+         unactivated with minor cosmetic limits, or you can use a licence key you
+         already own. <strong>Dagric never bundles Windows</strong> &mdash; that would
+         not be legal and would not be honest.</p></li>
+      </ol>
+    </section>
+
+    <section>
+      <h2>One thing that will surprise you</h2>
+      <p><strong>Installing the software did not switch it on, and that is
+      unusual.</strong> Debian's libvirt package normally enables its daemons at boot,
+      which would mean every Pro owner ran a hypervisor service and a virtual network
+      bridge with its own DNS server whether or not they ever opened a VM. Dagric turns
+      all of that off at build time and lets this helper &mdash; and only this helper
+      &mdash; switch it on, so that what the tool tells you it is doing is genuinely
+      what is happening.</p>
+    </section>
+
+    <section>
+      <h2>Where to find it</h2>
+      <p>Dagric Hub &rarr; <em>Windows in a VM</em>, launcher &rarr; <em>Windows in
+      a Window (VMs)</em>, or <code>dagric-vm</code>.</p>
+    </section>
+
+    <section>
+      <h2>See also</h2>
+      <div class="related"><a href="app-virt-manager.html">Virtual Machine Manager</a><a href="app-wine.html">Wine</a><a href="app-bottles.html">Bottles</a><a href="tool-dagric-hub.html">Dagric Hub</a></div>
+    </section>
+
+    <footer class="colophon">Dagric OS Manual &middot; stored on this computer, no internet needed &middot; <a href="index.html">every application</a></footer>
+
+  </main>
+</div>
+</body>
+</html>

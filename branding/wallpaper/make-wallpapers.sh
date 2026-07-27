@@ -1,9 +1,9 @@
 #!/bin/sh
-# Dagric wallpaper generator -- second wave (DagricSlate .. DagricSand).
+# Dagric wallpaper generator -- every shipped pack, all twenty designs.
 #
-# Renders the eight second-wave wallpaper packs, plus the two no-branding
-# "Clean" variants, straight into config/includes.chroot/usr/share/wallpapers.
-# Needs ImageMagick 7 (`magick`) and the DejaVu Sans font.
+# Renders each design as a branded pack and a no-branding "Clean" twin,
+# straight into config/includes.chroot/usr/share/wallpapers. Needs
+# ImageMagick 7 (`magick`) and the DejaVu Sans font.
 #
 #   sh branding/wallpaper/make-wallpapers.sh [REPO_ROOT]
 #
@@ -12,12 +12,27 @@
 #   ONLY="DagricSlate DagricEmber"       # rebuild just these
 #   OUTROOT=/tmp/wpstage                 # render somewhere other than the tree
 #
-# House look, inherited from the first six packs: a deep vertical ground, a
-# wide soft radial bloom screened on, and the monogram + wordmark + tagline
-# centred in the upper third. What is new here is that each entry gets its own
-# COMPOSITION -- corner light, low horizon glow, contour rings, plain gradient,
-# light shafts, top-edge band, aurora curtains, dune strata -- so a grid of
-# thumbnails reads as eight pictures rather than one picture in eight colours.
+# House look: a deep vertical ground, a wide soft radial bloom screened on,
+# and the monogram + wordmark + tagline centred in the upper third. Each
+# design then gets its own COMPOSITION -- corner light, horizon glow, contour
+# rings, light shafts, aurora curtains, dune strata, iso-lines, mesh blobs,
+# facets, halftone -- so a grid of thumbnails reads as twenty pictures rather
+# than one picture in twenty colours.
+#
+# Three waves, in the order they were drawn:
+#
+#   1. Dagric, Dawn, Dusk, Forest, Midnight, Neon. These six shipped for
+#      months with NO generator -- they were drawn by hand and so could not be
+#      re-rendered, corrected or restyled, and five of them are named by a
+#      .style file. They are back under the generator now: `classic()` below
+#      is the composition recovered by fitting the shipped PNGs pixel by
+#      pixel (full-width bloom, 88% of H tall, centred at 45% of H, RMSE
+#      under one part in 255), so the art in the tree is what this script
+#      makes, not something nobody could reproduce.
+#   2. Slate, Ember, Violet, Arctic, Copper, Ink, Aurora, Sand.
+#   3. Contour, Mesh, Prism, Linen, Void, Halftone -- added for variety that
+#      is structural rather than chromatic: line work, blobs, flat facets, a
+#      paper grain, a true-black panel and a dot matrix.
 #
 # Every geometry below is a percentage of W or H, so 1080p and 4K come out as
 # the same picture rather than the same picture with differently-sized details.
@@ -87,6 +102,60 @@ sweeps() {                                # COLOR
       -draw "stroke-opacity 0.20 bezier 0,$((H*83/100)) $((W*36/100)),$((H*77/100)) $((W*72/100)),$((H*90/100)) $W,$((H*81/100))" \
       -draw "stroke-opacity 0.12 bezier 0,$((H*90/100)) $((W*40/100)),$((H*85/100)) $((W*76/100)),$((H*96/100)) $W,$((H*88/100))" \
       "$WK/c2.miff"
+    mv "$WK/c2.miff" "$C"
+}
+
+# The whole first-wave composition in one line. Recovered from the shipped
+# PNGs rather than guessed: the ground is a plain vertical gradient, the bloom
+# is an ellipse exactly as wide as the frame and 88% of H tall centred at 45%
+# of H, and the sweeps are drawn in the bloom's own colour. There is no
+# vignette -- the corners of the originals match their row exactly.
+classic() {                               # GTOP GBOT BLOOMCOL STRENGTH
+    ground "$1" "$2"
+    bloom "$W" $((H*88/100)) $((W/2)) $((H*45/100)) "$3" "$4"
+    sweeps "$3"
+}
+
+# A smooth grayscale height field: a handful of random cells blown up to the
+# full canvas and blurred until the noise becomes rolling terrain. The blur
+# is proportional to W so 4K gets the same landforms as 1080p rather than the
+# same landforms at half the size. -seed makes it reproducible; without it
+# every rebuild would churn the signed release checksums.
+field() {                                 # SEED COLS ROWS BLURPERMILL OUT
+    $M -size "${2}x${3}" -seed "$1" xc:gray50 +noise Random -colorspace gray \
+       -resize "${W}x${H}!" -blur "0x$((W*$4/1000))" -auto-level "$5"
+}
+
+# Fine grain, built once as a 256px tile and then tiled over the canvas. The
+# obvious way -- +noise straight onto a 4K canvas -- is 20x the bytes, because
+# PNG cannot predict random pixels. A repeating tile is periodic, so LZ77
+# matches it after the first row of tiles and the texture is nearly free.
+# At this amplitude the repeat is invisible; it reads as paper, not as tiling.
+# A woven texture: two thread directions alternating over a 2N pixel cell,
+# tiled across the frame and overlaid so it darkens and lightens the ground
+# without changing its colour.
+#
+# This started out as random grain, and random grain is a trap. Gaussian
+# noise fine enough to read as paper is invisible past arm's length, and it
+# costs 4.9 MB a frame because PNG's row filters cannot predict a random
+# pixel from its neighbours. The weave is PERIODIC, so LZ77 matches it after
+# the first band of tiles: the same picture, plainly visible, for 30 KB.
+#
+# -virtual-pixel tile makes the softening blur wrap around the tile's own
+# edges, so it still butts up against itself invisibly; blurring without it
+# leaves a faint lattice across the whole desktop. The tile is built at the
+# 4K cell size and scaled down, so 1080p gets the same weave at half the
+# pixels rather than a weave twice as fine per inch.
+weave() {                                 # HI LO
+    TS=$((W/320))                         # 6 px cell at 1080p, 12 at 4K
+    [ -f "$WK/weave_${TS}.png" ] || \
+        $M -size 12x12 xc:"#808080" \
+           -fill "#$1" -draw "rectangle 0,0 5,5"  -draw "rectangle 6,6 11,11" \
+           -fill "#$2" -draw "rectangle 6,0 11,5" -draw "rectangle 0,6 5,11" \
+           -virtual-pixel tile -blur 0x1.4 -resize "${TS}x${TS}!" \
+           "$WK/weave_${TS}.png"
+    $M -size "${W}x${H}" tile:"$WK/weave_${TS}.png" "$WK/_wv.miff"
+    $M "$C" "$WK/_wv.miff" -compose overlay -composite "$WK/c2.miff"
     mv "$WK/c2.miff" "$C"
 }
 
@@ -163,6 +232,42 @@ compose() {
     QW=$((W/4)); QH=$((H/4))              # quarter-res scratch for soft glows
 
     case $1 in
+
+    # =================================================== wave 1: classic ===
+    # Six colourways of one composition. They were built that way by hand and
+    # the .style files lean on the colour, not the shape, so the shape stays.
+
+    # --- the default: brand blue, near full strength -----------------------
+    Dagric)
+        classic 0d1728 060b14 40b0ff 0.962
+        INK=ffffff; SUB=cfe0f2 ;;
+
+    # --- the one light pack of the wave: pale sky, dark ink ----------------
+    DagricDawn)
+        classic e8eef6 c9d8ea 5ebfff 0.760
+        INK=16283c; SUB=3d5a78 ;;
+
+    # --- amber, the warm evening one ---------------------------------------
+    DagricDusk)
+        classic 1c1018 0a0509 ffab31 0.852
+        INK=ffffff; SUB=cfe0f2 ;;
+
+    # --- mint over a green-black ground ------------------------------------
+    DagricForest)
+        classic 0c1a15 050d0a 6fffc3 0.702
+        INK=ffffff; SUB=cfe0f2 ;;
+
+    # --- the same blue as Dagric, turned down two thirds -------------------
+    DagricMidnight)
+        classic 0a1018 03060b 42b3ff 0.618
+        INK=ffffff; SUB=cfe0f2 ;;
+
+    # --- hard cyan, the loudest of the six ---------------------------------
+    DagricNeon)
+        classic 081420 03080f 00ecff 0.848
+        INK=ffffff; SUB=cfe0f2 ;;
+
+    # ==================================================== wave 2: shapes ===
 
     # --- corner light: one hard-falloff source top-left, deep graphite ------
     DagricSlate)
@@ -294,6 +399,170 @@ compose() {
         vig 0.16
         INK=3b2b1b; SUB=7f6247 ;;
 
+    # ===================================================== wave 3: texture ===
+    # The first fourteen are all soft light on a gradient. These six are the
+    # other half of the gallery: line work, blobs, flat colour, grain, true
+    # black and a dot grid -- so somebody scrolling the Appearance page sees
+    # different KINDS of picture, not more colours of the same one.
+
+    # --- iso-lines off a smooth random terrain -----------------------------
+    DagricContour)
+        ground 08202a 03090d
+        bloom $((W*170/100)) $((H*120/100)) $((W*50/100)) $((H*64/100)) 1d7f8c 0.78
+        field 21 14 8 20 "$WK/_hf.miff"
+        # A sinusoid through the height field gives evenly spaced bands; the
+        # hard level keeps only each band's crest, which is exactly a contour
+        # line. The threshold sets line WEIGHT, and it has to be this high:
+        # a line here is as wide as the band's crest is flat, so at 86% the
+        # gentle ground swelled into fat blobs instead of hairlines.
+        $M "$WK/_hf.miff" -function Sinusoid 7,0,0.5,0.5 -level 93%,100% \
+           -blur 0x"$SWD" "$WK/_ln.miff"
+        # Hold the line work out of the top of the frame entirely, then ramp
+        # it in. The first cut faded it and that was not enough -- contours
+        # still crossed the wordmark, and hairlines behind small white text
+        # read as a dirty screen, not as art. Now the top is open sky and the
+        # terrain rises into the lower half, which is also how a map looks.
+        $M \( -size "${W}x$((H*38/100))"                   xc:"#050505" \) \
+           \( -size "${W}x$((H*28/100))" gradient:"#050505-#ffffff" \) \
+           \( -size "${W}x$((H - H*38/100 - H*28/100))"    xc:"#ffffff" \) \
+           -append "$WK/_lm.miff"
+        $M "$WK/_ln.miff" "$WK/_lm.miff" -compose multiply -composite \
+           \( -size "${W}x${H}" xc:"#7fe8d2" \) -compose multiply -composite \
+           "$WK/_ln2.miff"
+        screen_on "$WK/_ln2.miff" 0.62
+        vig 0.26
+        INK=ffffff; SUB=a6d6cd ;;
+
+    # --- five big soft blobs bleeding into each other ----------------------
+    DagricMesh)
+        ground 15122b 08061a
+        bloom $((W*95/100))  $((H*150/100)) $((W*16/100)) $((H*20/100)) c23f8a 0.85
+        bloom $((W*105/100)) $((H*140/100)) $((W*84/100)) $((H*26/100)) 3f5ce0 0.80
+        bloom $((W*120/100)) $((H*130/100)) $((W*38/100)) $((H*94/100)) 1f9e86 0.60
+        bloom $((W*70/100))  $((H*90/100))  $((W*96/100)) $((H*88/100)) d98a2b 0.42
+        bloom $((W*80/100))  $((H*80/100))  $((W*56/100)) $((H*54/100)) 5a7cf0 0.34
+        vig 0.22
+        INK=ffffff; SUB=d6cdec ;;
+
+    # --- flat low-poly facets, no gradient inside any one triangle ---------
+    DagricPrism)
+        ground 1a2433 070b12
+        CO=16; RO=9
+        CMD="$M '$C' -stroke none"
+        j=0
+        while [ $j -lt $RO ]; do
+            i=0
+            while [ $i -lt $CO ]; do
+                X0=$((W*i/CO));     Y0=$((H*j/RO))
+                X1=$((W*(i+1)/CO)); Y1=$((H*(j+1)/RO))
+                # Light falls from the top-left, so the base shade is a
+                # diagonal ramp. The hash is what stops it looking like a
+                # gradient with lines on it: each facet steps off the ramp by
+                # a fixed, repeatable amount, which is what makes it read as
+                # a folded surface. Nothing here is random at build time.
+                k=0
+                while [ $k -le 1 ]; do
+                    T=$(( (i*100/CO + (RO-1-j)*100/RO) / 2 ))
+                    T=$(( T + ((i*73 + j*151 + k*97) % 17) - 8 ))
+                    if [ $T -lt 0 ]; then T=0; fi
+                    if [ $T -gt 100 ]; then T=100; fi
+                    FR=$(( 24 + (108-24)*T/100 ))
+                    FG=$(( 34 + (150-34)*T/100 ))
+                    FB=$(( 50 + (205-50)*T/100 ))
+                    # alternate the split diagonal by cell parity so the
+                    # facets do not all lean the same way
+                    if [ $(( (i+j) % 2 )) -eq 0 ]; then
+                        if [ $k -eq 0 ]; then
+                            P="$X0,$Y0 $X1,$Y0 $X0,$Y1"
+                        else
+                            P="$X1,$Y0 $X1,$Y1 $X0,$Y1"
+                        fi
+                    else
+                        if [ $k -eq 0 ]; then
+                            P="$X0,$Y0 $X1,$Y0 $X1,$Y1"
+                        else
+                            P="$X0,$Y0 $X1,$Y1 $X0,$Y1"
+                        fi
+                    fi
+                    CMD="$CMD -fill 'rgb($FR,$FG,$FB)' -draw 'polygon $P'"
+                    k=$((k+1))
+                done
+                i=$((i+1))
+            done
+            j=$((j+1))
+        done
+        CMD="$CMD '$WK/c2.miff'"
+        eval "$CMD"; mv "$WK/c2.miff" "$C"
+        bloom $((W*130/100)) $((H*130/100)) $((W*10/100)) $((H*4/100)) dbe8ff 0.34
+        vig 0.30
+        INK=ffffff; SUB=c4d2e6 ;;
+
+    # --- warm cloth: a light ground carrying a woven texture ---------------
+    DagricLinen)
+        ground f4efe6 dbd0be
+        bloom $((W*160/100)) $((H*120/100)) $((W*50/100)) $((H*6/100)) ffffff 0.50
+        weave a8a8a8 585858
+        vig 0.14
+        INK=2c2620; SUB=6e6357 ;;
+
+    # --- true black for OLED panels, lit only along the bottom edge --------
+    # Every pixel outside the glow is #000000, so on an OLED those pixels are
+    # switched off: less power, and no grey haze in a dark room. The glow is
+    # what keeps it from looking like the monitor is broken.
+    DagricVoid)
+        ground 000000 000000
+        bloom $((W*185/100)) $((H*74/100)) $((W*50/100)) $((H*108/100)) 1e5f8f 0.72
+        INK=e8eef6; SUB=5f7186 ;;
+
+    # --- dot matrix, dots shrinking away from the light --------------------
+    DagricHalftone)
+        ground 101a33 04070e
+        CO=48; RO=27
+        RMAX=$((W*6/1000))
+        # The light sits low and left, so the dots gather in that corner and
+        # die out before they reach the wordmark. The first cut lit it from
+        # the top left with a falloff so slow that every cell still drew a
+        # near-full-size dot: 1296 identical dots across the whole frame read
+        # as a screen door over the text, and cost 800 KB to say nothing.
+        LX=$((W*20/100)); LY=$((H*82/100))
+        CMD="$M -size ${W}x${H} xc:black -stroke none -fill white"
+        j=0
+        while [ $j -lt $RO ]; do
+            i=0
+            while [ $i -lt $CO ]; do
+                CXP=$((W*(2*i+1)/(2*CO))); CYP=$((H*(2*j+1)/(2*RO)))
+                # distance from the light, in permille of W and H
+                DX=$(( (CXP - LX) * 1000 / W ))
+                DY=$(( (CYP - LY) * 1000 / H ))
+                D=$(( (DX*DX + DY*DY) / 1000 ))
+                R=$(( RMAX - RMAX*D/340 ))
+                # Past the cutoff no dot is drawn at all. That is what keeps
+                # two thirds of the frame flat, and flat is what compresses.
+                if [ $R -ge 1 ]; then
+                    CMD="$CMD -draw 'circle $CXP,$CYP $((CXP+R)),$CYP'"
+                fi
+                i=$((i+1))
+            done
+            j=$((j+1))
+        done
+        CMD="$CMD '$WK/_dot.miff'"
+        eval "$CMD"
+        # tint the dots and let a radial mask do the brightness falloff --
+        # cheaper and smoother than a fill-opacity on every single dot
+        $M -size 1600x1600 radial-gradient:"#ffffff-#0a0a0a" \
+           -resize "$((W*126/100))x$((H*126/100))!" "$WK/_dm.miff"
+        $M -size "${W}x${H}" xc:black "$WK/_dz.miff"
+        $M "$WK/_dz.miff" "$WK/_dm.miff" \
+           -geometry "$(geo $(( LX - W*63/100 )) $(( LY - H*63/100 )))" \
+           -compose plus -composite "$WK/_dmask.miff"
+        $M "$WK/_dot.miff" "$WK/_dmask.miff" -compose multiply -composite \
+           \( -size "${W}x${H}" xc:"#a8c8ff" \) -compose multiply -composite \
+           "$WK/_dot2.miff"
+        screen_on "$WK/_dot2.miff" 0.85
+        bloom $((W*150/100)) $((H*150/100)) "$LX" "$LY" 2f5ad0 0.46
+        vig 0.30
+        INK=ffffff; SUB=b9c8e8 ;;
+
     *) echo "unknown design $1" >&2; exit 1 ;;
     esac
 }
@@ -302,21 +571,48 @@ compose() {
 # NAME|TITLE|CLEAN(0/1)  -- CLEAN also emits a <Name>Clean pack from the same
 # base, written before brand() runs, for owners who want no logo on the desktop
 #
-# CLEAN is 1 for every pack on purpose. The branded art carries the logo and
-# the words "OWN IT OUTRIGHT", which is right for a screenshot or a store page
-# and wrong for the desktop somebody just paid for -- a slogan burned into the
-# wallpaper reads as an advertisement in your own house. Only Slate and Aurora
-# used to offer a logo-free twin, so fourteen of sixteen packs were unusable by
-# anyone who simply wanted the art. Both versions now ship for all eight; the
-# owner picks in the Appearance gallery, and the extra packs cost about 11 MB.
-SPECS="DagricSlate|Dagric Slate|1
+# CLEAN emits a second, logo-free pack from the same base. The branded art
+# carries the logo and the words "OWN IT OUTRIGHT", which is right for a
+# screenshot or a store page and wrong for the desktop somebody just paid for
+# -- a slogan burned into the wallpaper reads as an advertisement in your own
+# house. Only Slate and Aurora used to offer a logo-free twin, so fourteen of
+# sixteen packs were unusable by anyone who simply wanted the art.
+#
+# Wave 1 is the exception, and it is a BUDGET decision, not a design one. In
+# this house style a design costs about 3-6 MB once you count a branded cut, a
+# clean cut, 1080p and 4K -- most of it the ordered dither, which is half the
+# bytes of a smooth frame and is not negotiable because without it 4K gradients
+# band. Twenty designs with a twin each is 78 MB against a 70 MB ceiling, so
+# something had to give: either six designs or six duplicates. Six more
+# PICTURES beat six more copies of pictures already in the gallery, and the
+# fourteen clean cuts that do ship cover every mood in it.
+#
+# If the ceiling ever moves, this is a one-character change: flip these six to
+# 1 and the wave-1 clean twins cost 9.7 MB.
+#
+# The wave-1 names are load-bearing: classy.style, dawn.style, forest.style,
+# midnight.style and neon.style each name one of them, so these Ids cannot be
+# renamed without breaking a style.
+SPECS="Dagric|Dagric|0
+DagricDawn|Dagric Dawn|0
+DagricDusk|Dagric Dusk|0
+DagricForest|Dagric Forest|0
+DagricMidnight|Dagric Midnight|0
+DagricNeon|Dagric Neon|0
+DagricSlate|Dagric Slate|1
 DagricEmber|Dagric Ember|1
 DagricViolet|Dagric Violet|1
 DagricArctic|Dagric Arctic|1
 DagricCopper|Dagric Copper|1
 DagricInk|Dagric Ink|1
 DagricAurora|Dagric Aurora|1
-DagricSand|Dagric Sand|1"
+DagricSand|Dagric Sand|1
+DagricContour|Dagric Contour|1
+DagricMesh|Dagric Mesh|1
+DagricPrism|Dagric Prism|1
+DagricLinen|Dagric Linen|1
+DagricVoid|Dagric Void|1
+DagricHalftone|Dagric Halftone|1"
 
 mk_bayer
 

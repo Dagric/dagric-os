@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DaVinci Resolve &mdash; Dagric OS Manual</title>
+<link rel="stylesheet" href="manual.css">
+<script src="manual.js"></script>
+</head>
+<body>
+<div class="shell">
+  <aside class="side">
+    <div class="sidebox">
+      <a class="brand" href="index.html">
+        <div class="mark">D</div>
+        <div class="brand-name">Dagric OS<small>Manual</small></div>
+      </a>
+      <nav class="toc">
+        <a class="back" href="index.html">&larr; All applications</a>
+        <div class="navgroup">Photos and video</div>
+        <a href="app-gwenview.html">Gwenview</a>
+        <a href="app-spectacle.html">Spectacle</a>
+        <a href="app-mpv.html">mpv</a>
+        <a href="app-gimp.html">GIMP</a>
+        <a href="app-krita.html">Krita</a>
+        <a href="app-inkscape.html">Inkscape</a>
+        <a href="app-darktable.html">darktable</a>
+        <a href="app-blender.html">Blender</a>
+        <a href="app-kdenlive.html">Kdenlive</a>
+        <a href="app-obs-studio.html">OBS Studio</a>
+        <a href="app-handbrake.html">HandBrake</a>
+        <a href="app-upscayl.html">Upscayl</a>
+        <a href="app-davinci-resolve.html" class="active">DaVinci Resolve</a>
+      </nav>
+    </div>
+  </aside>
+
+  <main class="content">
+
+    <header class="hero">
+      <div class="eyebrow">Photos and video</div>
+      <h1>DaVinci Resolve<span class="pill add" title="Not preinstalled — Dagric installs it for you when you ask">ADD-ON</span></h1>
+      <p class="sub">Studio-grade video editing and colour grading &mdash; free, but you download it yourself.</p>
+    </header>
+
+    <div class="swap"><span>On Windows this was</span><strong>Premiere Pro and After Effects</strong></div>
+
+
+    <section>
+      <h2>What it is</h2>
+      <p><strong>DaVinci Resolve</strong> is a professional post-production suite:
+      editing, the industry's most respected colour grading tools, the Fusion
+      compositor for visual effects, and the Fairlight audio desk &mdash; in one
+      application. The free version is not a trial; it is genuinely free and is used
+      on real productions.</p>
+      <p>For most people <a href="app-kdenlive.html">Kdenlive</a> on Dagric&nbsp;OS
+      Pro is the faster, lighter answer. Resolve earns its weight when colour matters,
+      or when you are working to a specification someone else set.</p>
+    </section>
+
+    <section>
+      <h2>Getting it</h2>
+      <p>Resolve cannot be preinstalled by anybody. Blackmagic's licence forbids
+      redistributing it, so an OS that bundled it would be breaking that licence
+      &mdash; Dagric will not do that, and you should be suspicious of any distro
+      that claims to.</p>
+      <p>Instead there is a guided helper. Open the
+      <a href="tool-dagric-hub.html">Dagric Hub</a> &rarr; <strong>DaVinci
+      Resolve</strong> (or run <code>dagric-get-resolve</code>). It opens Blackmagic's
+      download page in your browser and prints the exact steps in the terminal
+      window:</p>
+      <ul class="plain">
+        <li>Download the free Linux version from Blackmagic and register with them.</li>
+        <li>Unzip it, then run the installer it contains with administrator rights.</li>
+        <li>On an NVIDIA machine, run
+        <a href="tool-dagric-drivers.html">the driver helper</a> first &mdash; Resolve
+        leans heavily on the proprietary driver.</li>
+      </ul>
+      <p>The helper itself installs nothing and changes nothing. It is a signpost.</p>
+    </section>
+    <section>
+      <h2>Five things you will actually do</h2>
+      <ol class="tasks">
+        <li><span class="t">Understand the pages</span><p>The icons along the bottom are the workflow: <em>Media</em> to import,
+         <em>Cut</em> or <em>Edit</em> to assemble, <em>Fusion</em> for effects,
+         <em>Color</em> to grade, <em>Fairlight</em> for audio, <em>Deliver</em> to
+         export. You move left to right through a project.</p></li>
+        <li><span class="t">Import footage that Resolve will accept</span><p>The free Linux build is fussy about formats: it does not handle H.264
+         or H.265 in an MP4 container from consumer cameras and phones. Convert those
+         to DNxHR or ProRes first &mdash;
+         <a href="app-handbrake.html">HandBrake</a> or <code>ffmpeg</code> will do it.
+         This is the single biggest stumbling block and it is not your fault.</p></li>
+        <li><span class="t">Grade a shot</span><p>On the Color page, use the primary colour wheels for lift, gamma and
+         gain, then add nodes for secondary corrections. Resolve's node graph is why
+         professionals use it.</p></li>
+        <li><span class="t">Keep the machine happy</span><p>Set optimised media and render cache in Project Settings, and give
+         Resolve a fast scratch disk. It expects a workstation and will use every
+         resource you allow it.</p></li>
+        <li><span class="t">Export</span><p>The <em>Deliver</em> page. Pick a preset, set the range, add to the
+         render queue and start it. H.264 export in the free Linux build may be
+         limited; DNxHR or ProRes out, then
+         <a href="app-handbrake.html">HandBrake</a> to MP4, always works.</p></li>
+      </ol>
+    </section>
+
+    <section>
+      <h2>One thing that will surprise you</h2>
+      <p><strong>&ldquo;Free&rdquo; here still means registering with
+      Blackmagic.</strong> The download asks for your name and email. That is their
+      condition, not Dagric's, and it is the reason this is a signposted download
+      rather than a one-click install. If that trade is not one you want to make,
+      <a href="app-kdenlive.html">Kdenlive</a> asks nothing of you at all.</p>
+    </section>
+
+    <section>
+      <h2>Where to find it</h2>
+      <p>Dagric Hub &rarr; <em>DaVinci Resolve</em>, or
+      <code>dagric-get-resolve</code> in a terminal. After installing, it appears in
+      the launcher as <em>DaVinci Resolve</em>.</p>
+    </section>
+
+    <section>
+      <h2>See also</h2>
+      <div class="related"><a href="app-kdenlive.html">Kdenlive</a><a href="app-handbrake.html">HandBrake</a><a href="tool-dagric-drivers.html">NVIDIA driver helper</a><a href="tool-dagric-hub.html">Dagric Hub</a></div>
+    </section>
+
+    <footer class="colophon">Dagric OS Manual &middot; stored on this computer, no internet needed &middot; <a href="index.html">every application</a></footer>
+
+  </main>
+</div>
+</body>
+</html>

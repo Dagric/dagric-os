@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Proton-GE helper &mdash; Dagric OS Manual</title>
+<link rel="stylesheet" href="manual.css">
+<script src="manual.js"></script>
+</head>
+<body>
+<div class="shell">
+  <aside class="side">
+    <div class="sidebox">
+      <a class="brand" href="index.html">
+        <div class="mark">D</div>
+        <div class="brand-name">Dagric OS<small>Manual</small></div>
+      </a>
+      <nav class="toc">
+        <a class="back" href="index.html">&larr; All applications</a>
+        <div class="navgroup">Dagric&#x27;s own tools</div>
+        <a href="tool-dagric-hub.html">Dagric Hub</a>
+        <a href="tool-dagric-setup.html">Finish Setup</a>
+        <a href="tool-dagric-firstrun.html">Set Up Dagric</a>
+        <a href="tool-dagric-migrate.html">Migration Assistant</a>
+        <a href="tool-dagric-appearance.html">Dagric Appearance</a>
+        <a href="tool-dagric-looks.html">Dagric Looks</a>
+        <a href="tool-dagric-style.html">Dagric Styles</a>
+        <a href="tool-dagric-display.html">Dagric Display</a>
+        <a href="tool-dagric-app-names.html">Why the apps have plain names</a>
+        <a href="tool-dagric-get-variety.html">Rotating wallpapers (Variety)</a>
+        <a href="tool-dagric-drivers.html">NVIDIA driver helper</a>
+        <a href="tool-dagric-security-checkup.html">Security Checkup</a>
+        <a href="tool-dagric-usb-protect.html">USB Protection</a>
+        <a href="tool-dagric-vm.html">Windows in a window (VM setup)</a>
+        <a href="tool-dagric-gaming.html" class="active">Proton-GE helper</a>
+        <a href="tool-dagric-ai.html">Local AI (Ollama)</a>
+        <a href="tool-dagric-manual.html">This manual</a>
+        <a href="tool-dagric-background.html">Helpers that run by themselves</a>
+        <a href="tool-dagric-commands.html">Every dagric command</a>
+      </nav>
+    </div>
+  </aside>
+
+  <main class="content">
+
+    <header class="hero">
+      <div class="eyebrow">Dagric&#x27;s own tools</div>
+      <h1>Proton-GE helper</h1>
+      <p class="sub">Add the community Proton build that fixes games weeks before the official one.</p>
+    </header>
+
+    <div class="swap"><span>On Windows this was</span><strong>nothing &mdash; a Linux gaming convenience</strong></div>
+
+
+    <section>
+      <h2>What it is</h2>
+      <p><strong>Proton-GE</strong> is a community build of Proton, maintained by
+      GloriousEggroll, carrying extra media codecs and game-specific patches that
+      often arrive weeks before Valve's official release. This helper downloads the
+      newest one and unpacks it into Steam's compatibility tools folder.</p>
+      <p>It also reminds you what Dagric&nbsp;OS Pro already installed for gaming:
+      Wine and winetricks, GameMode and MangoHud, and the 32-bit Vulkan libraries
+      Proton needs. Steam itself is never bundled &mdash; see
+      <a href="app-steam.html">Steam</a>.</p>
+    </section>
+
+    <section>
+      <h2>Running it</h2>
+      <p>Dagric Hub &rarr; <strong>Proton-GE for Steam</strong>, launcher &rarr;
+      <em>Gaming Setup</em>, or <code>dagric-gaming</code>. It opens a terminal,
+      summarises what is already installed, and asks whether to download the latest
+      Proton-GE from GitHub. Answer anything but yes and nothing happens.</p>
+      <p>It needs no administrator password &mdash; everything it installs goes into
+      your own Steam folder.</p>
+    </section>
+    <section>
+      <h2>Five things you will actually do</h2>
+      <ol class="tasks">
+        <li><span class="t">Launch Steam once first</span><p>The helper installs into Steam's own data folder, so that folder has to
+         exist. If Steam has never been run it says so plainly and stops rather than
+         creating directories Steam might later disagree with.</p></li>
+        <li><span class="t">Run the helper</span><p>Answer yes. It asks GitHub for the newest release, downloads it and
+         unpacks it. On a slow connection this takes a few minutes; the download URL
+         is printed so you can see exactly what is being fetched.</p></li>
+        <li><span class="t">Enable it in Steam</span><p><em>Steam</em> &rarr; <em>Settings</em> &rarr; <em>Compatibility</em>,
+         then per game under <em>Properties</em> &rarr; <em>Compatibility</em> choose
+         the GE-Proton version.</p></li>
+        <li><span class="t">Use the graphical alternative instead</span><p><a href="app-protonup.html">ProtonUp-Qt</a> does the same job with a
+         window, manages several versions at once, handles Lutris and Heroic as well,
+         and can remove old builds. If you expect to do this more than once, install
+         that.</p></li>
+        <li><span class="t">Undo it</span><p>Delete the version's folder from
+         <code>~/.local/share/Steam/compatibilitytools.d/</code>. Nothing outside your
+         home folder was touched.</p></li>
+      </ol>
+    </section>
+
+    <section>
+      <h2>One thing that will surprise you</h2>
+      <p><strong>It downloads from the internet, and it says so before it
+      does.</strong> This is one of the few Dagric helpers that fetches something from
+      outside Debian's archive or Flathub, and the reason is that Proton-GE is not
+      packaged anywhere else. The helper prints the exact URL it is about to use. If
+      the machine is offline it reports that it could not find the release and changes
+      nothing.</p>
+    </section>
+
+    <section>
+      <h2>Where to find it</h2>
+      <p>Dagric Hub &rarr; <em>Proton-GE for Steam</em>, or
+      <code>dagric-gaming</code>.</p>
+    </section>
+
+    <section>
+      <h2>See also</h2>
+      <div class="related"><a href="app-steam.html">Steam</a><a href="app-protonup.html">ProtonUp-Qt</a><a href="app-lutris.html">Lutris</a><a href="app-gameperf.html">GameMode, MangoHud and GOverlay</a></div>
+    </section>
+
+    <footer class="colophon">Dagric OS Manual &middot; stored on this computer, no internet needed &middot; <a href="index.html">every application</a></footer>
+
+  </main>
+</div>
+</body>
+</html>

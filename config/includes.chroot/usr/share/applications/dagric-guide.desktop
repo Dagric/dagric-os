@@ -1,10 +1,15 @@
 [Desktop Entry]
 Type=Application
-Name=Dagric Welcome & Guide
-GenericName=Getting started
-Comment=Open the Dagric welcome page and offline user guide
-Exec=firefox file:///usr/share/dagric/welcome/index.html
+Name=Welcome Guide
+GenericName=Your first week with Dagric
+Comment=The short read: updates, printers, Wi-Fi, shortcuts, and making the desktop yours
+# guide/, not welcome/. Everything above describes the user guide — updates,
+# printers, Wi-Fi, shortcuts, making the desktop yours are five of its headings
+# and one of the welcome page's — but this line opened the welcome page, so the
+# guide had no launcher entry at all and was reachable only from the setup
+# wizard's last screen, once. The welcome page keeps `dagric-welcome`.
+Exec=firefox file:///usr/share/dagric/guide/index.html
 Icon=dagric-logo
 Terminal=false
 Categories=System;Documentation;
-Keywords=welcome;guide;help;getting started;manual;docs;
+Keywords=welcome;guide;help;getting started;first week;start here;tour;intro;docs;faq;

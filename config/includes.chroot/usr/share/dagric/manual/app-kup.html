@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kup &mdash; Dagric OS Manual</title>
+<link rel="stylesheet" href="manual.css">
+<script src="manual.js"></script>
+</head>
+<body>
+<div class="shell">
+  <aside class="side">
+    <div class="sidebox">
+      <a class="brand" href="index.html">
+        <div class="mark">D</div>
+        <div class="brand-name">Dagric OS<small>Manual</small></div>
+      </a>
+      <nav class="toc">
+        <a class="back" href="index.html">&larr; All applications</a>
+        <div class="navgroup">System and safety</div>
+        <a href="app-updates.html">Updates</a>
+        <a href="app-snapshots.html">Snapshot recovery</a>
+        <a href="app-timeshift.html">Timeshift</a>
+        <a href="app-kup.html" class="active">Kup</a>
+        <a href="app-vorta.html">Vorta and Borg</a>
+        <a href="app-firewall.html">The firewall</a>
+        <a href="app-opensnitch.html">OpenSnitch</a>
+        <a href="app-drive-health.html">Drive health</a>
+        <a href="app-keepassxc.html">KeePassXC</a>
+        <a href="app-cryptomator.html">Cryptomator</a>
+        <a href="app-bleachbit.html">BleachBit</a>
+        <a href="app-flatseal.html">Flatseal</a>
+        <a href="app-apparmor.html">AppArmor and the security baseline</a>
+        <a href="app-accounts.html">Accounts, passwords and disk encryption</a>
+        <a href="app-orca.html">Orca</a>
+      </nav>
+    </div>
+  </aside>
+
+  <main class="content">
+
+    <header class="hero">
+      <div class="eyebrow">System and safety</div>
+      <h1>Kup</h1>
+      <p class="sub">Back up your files onto a drive you plug in, with no configuration to speak of.</p>
+    </header>
+
+    <div class="swap"><span>On Windows this was</span><strong>File History</strong></div>
+
+    <section>
+      <h2>What it is</h2>
+      <p><strong>Kup</strong> is KDE's backup tool and it lives inside System
+      Settings rather than as a separate application. You tell it which folders
+      matter and which drive to copy them to, and it prompts you to run a backup
+      whenever that drive is plugged in.</p>
+      <p>It offers two kinds. A <em>synchronised</em> backup is a plain mirror of your
+      files that you can browse in Dolphin without any special tool. A
+      <em>versioned</em> backup keeps history, so you can go back to how a file looked
+      last month.</p>
+    </section>
+
+    <section>
+      <h2>Five things you will actually do</h2>
+      <ol class="tasks">
+        <li><span class="t">Set up your first backup</span><p>System Settings &rarr; <em>Backups</em> &rarr; <em>Add New Plan</em>.
+         Choose the folders (your home folder, minus Downloads, is a good start),
+         choose the destination drive, choose the type, and give the plan a name.</p></li>
+        <li><span class="t">Run one</span><p>Plug the drive in. Kup notices and offers. You can also start it any
+         time from the tray icon or the settings page.</p></li>
+        <li><span class="t">Get a file back</span><p>For a synchronised backup, just open the drive in Dolphin and copy the
+         file back. For a versioned backup, use the restore browser from the backup
+         plan's page, which lets you pick a date first.</p></li>
+        <li><span class="t">Choose how often it nags</span><p>Each plan has a schedule: manual, on an interval, or on the amount of
+         data changed. &ldquo;Every time the drive is connected&rdquo; suits a
+         backup drive that lives in a drawer.</p></li>
+        <li><span class="t">Exclude the big pointless things</span><p>In the plan, exclude caches, Downloads, virtual machine disk images
+         and Steam libraries. They are enormous and re-downloadable, and leaving them
+         in is the usual reason a backup drive fills up.</p></li>
+      </ol>
+    </section>
+
+    <section>
+      <h2>One thing that will surprise you</h2>
+      <p><strong>It is in System Settings, not in the launcher, and so almost
+      nobody finds it.</strong> Searching the launcher for &ldquo;backup&rdquo; does
+      take you there, but if you were looking for an application icon you would
+      conclude the machine had no backup tool. It has; it is under
+      <em>Backups</em>.</p>
+      <p>And the usual reminder: a backup on a drive that lives permanently plugged
+      into the computer is one power surge, one theft or one piece of ransomware away
+      from being no backup. Unplug it.</p>
+    </section>
+
+    <section>
+      <h2>Where to find it</h2>
+      <p>System Settings &rarr; <em>Backups</em>. Or search <em>backup</em> in the
+      launcher.</p>
+    </section>
+
+    <section>
+      <h2>See also</h2>
+      <div class="related"><a href="app-vorta.html">Vorta and Borg</a><a href="app-snapshots.html">Snapshot recovery</a><a href="app-filelight.html">Filelight</a><a href="app-syncthing.html">Syncthing</a></div>
+    </section>
+
+    <footer class="colophon">Dagric OS Manual &middot; stored on this computer, no internet needed &middot; <a href="index.html">every application</a></footer>
+
+  </main>
+</div>
+</body>
+</html>

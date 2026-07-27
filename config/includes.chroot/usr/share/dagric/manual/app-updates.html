@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Updates &mdash; Dagric OS Manual</title>
+<link rel="stylesheet" href="manual.css">
+<script src="manual.js"></script>
+</head>
+<body>
+<div class="shell">
+  <aside class="side">
+    <div class="sidebox">
+      <a class="brand" href="index.html">
+        <div class="mark">D</div>
+        <div class="brand-name">Dagric OS<small>Manual</small></div>
+      </a>
+      <nav class="toc">
+        <a class="back" href="index.html">&larr; All applications</a>
+        <div class="navgroup">System and safety</div>
+        <a href="app-updates.html" class="active">Updates</a>
+        <a href="app-snapshots.html">Snapshot recovery</a>
+        <a href="app-timeshift.html">Timeshift</a>
+        <a href="app-kup.html">Kup</a>
+        <a href="app-vorta.html">Vorta and Borg</a>
+        <a href="app-firewall.html">The firewall</a>
+        <a href="app-opensnitch.html">OpenSnitch</a>
+        <a href="app-drive-health.html">Drive health</a>
+        <a href="app-keepassxc.html">KeePassXC</a>
+        <a href="app-cryptomator.html">Cryptomator</a>
+        <a href="app-bleachbit.html">BleachBit</a>
+        <a href="app-flatseal.html">Flatseal</a>
+        <a href="app-apparmor.html">AppArmor and the security baseline</a>
+        <a href="app-accounts.html">Accounts, passwords and disk encryption</a>
+        <a href="app-orca.html">Orca</a>
+      </nav>
+    </div>
+  </aside>
+
+  <main class="content">
+
+    <header class="hero">
+      <div class="eyebrow">System and safety</div>
+      <h1>Updates</h1>
+      <p class="sub">How Dagric keeps itself patched, and why it never reboots you.</p>
+    </header>
+
+    <div class="swap"><span>On Windows this was</span><strong>Windows Update</strong></div>
+
+    <section>
+      <h2>What it is</h2>
+      <p>Security updates install <strong>silently, in the background, every
+      day</strong>. You are not asked, because being asked whether you want a
+      security fix is not a real choice. Everything else &mdash; new versions of
+      applications, feature updates &mdash; waits for you on Discover's
+      <em>Updates</em> page.</p>
+      <p><strong>Dagric never restarts your computer for you.</strong> Not while you
+      are presenting, not overnight, not ever. A kernel update takes effect at the
+      next reboot, whenever you choose to have one. That is a deliberate promise and
+      the setting behind it is switched off in the shipped image.</p>
+    </section>
+
+    <section>
+      <h2>Five things you will actually do</h2>
+      <ol class="tasks">
+        <li><span class="t">Apply the waiting updates</span><p>Open <a href="app-discover.html">Discover</a> &rarr; <em>Updates</em>
+         and press <em>Update All</em>. It handles Debian packages, Flatpak apps and
+         firmware in one pass.</p></li>
+        <li><span class="t">Update from a terminal instead</span><p><code>sudo apt update &amp;&amp; sudo apt full-upgrade</code>, and
+         <code>flatpak update</code> for sandboxed apps. On Pro,
+         <code>sudo nala upgrade</code> is the same thing with a much more readable
+         display.</p></li>
+        <li><span class="t">Find out whether a restart is worth doing</span><p>Only a kernel update really needs one. Compare what you are running
+         with what is installed: <code>uname -r</code> against
+         <code>ls /boot/vmlinuz-*</code>. If the newest installed kernel is not the
+         one running, a restart will pick it up whenever suits you. There is no
+         nagging bubble &mdash; you have to ask.</p></li>
+        <li><span class="t">Update the laptop&#x27;s firmware</span><p>BIOS and device firmware from the manufacturer appear in Discover's
+         Updates list alongside software. From a terminal:
+         <code>fwupdmgr refresh</code> then <code>fwupdmgr update</code>.</p></li>
+        <li><span class="t">Undo an update that went wrong</span><p>On a standard install, reboot and pick a snapshot from the boot menu
+         &mdash; see <a href="app-snapshots.html">Snapshot recovery</a>. Every apt
+         run takes a snapshot before and after itself for exactly this.</p></li>
+      </ol>
+    </section>
+
+    <section>
+      <h2>One thing that will surprise you</h2>
+      <p><strong>An update never takes your software away.</strong> There is no
+      equivalent of a feature update that reinstalls apps you deleted, resets your
+      default browser, or re-enables a setting you turned off. Packages are updated
+      in place; your choices are yours. If you removed something, it stays
+      removed.</p>
+    </section>
+
+    <section>
+      <h2>Where to find it</h2>
+      <p>Discover &rarr; <em>Updates</em>. The tray notifies you when there are
+      some; there is no separate updater application.</p>
+    </section>
+
+    <section>
+      <h2>See also</h2>
+      <div class="related"><a href="app-discover.html">Discover</a><a href="app-snapshots.html">Snapshot recovery</a><a href="app-timeshift.html">Timeshift</a><a href="app-apparmor.html">AppArmor and the security baseline</a></div>
+    </section>
+
+    <footer class="colophon">Dagric OS Manual &middot; stored on this computer, no internet needed &middot; <a href="index.html">every application</a></footer>
+
+  </main>
+</div>
+</body>
+</html>

@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Syncthing &mdash; Dagric OS Manual</title>
+<link rel="stylesheet" href="manual.css">
+<script src="manual.js"></script>
+</head>
+<body>
+<div class="shell">
+  <aside class="side">
+    <div class="sidebox">
+      <a class="brand" href="index.html">
+        <div class="mark">D</div>
+        <div class="brand-name">Dagric OS<small>Manual</small></div>
+      </a>
+      <nav class="toc">
+        <a class="back" href="index.html">&larr; All applications</a>
+        <div class="navgroup">Internet and communication</div>
+        <a href="app-firefox.html">Firefox</a>
+        <a href="app-chromium.html">Chromium</a>
+        <a href="app-thunderbird.html">Thunderbird</a>
+        <a href="app-network.html">Wi-Fi, wired networks and VPN</a>
+        <a href="app-kdeconnect.html">KDE Connect</a>
+        <a href="app-localsend.html">LocalSend</a>
+        <a href="app-syncthing.html" class="active">Syncthing</a>
+        <a href="app-cloud-storage.html">Cloud storage: rclone and Google Drive</a>
+        <a href="app-qbittorrent.html">qBittorrent</a>
+      </nav>
+    </div>
+  </aside>
+
+  <main class="content">
+
+    <header class="hero">
+      <div class="eyebrow">Internet and communication</div>
+      <h1>Syncthing<span class="pill pro">PRO</span></h1>
+      <p class="sub">Keep a folder identical on several of your own machines, with no server in between.</p>
+    </header>
+
+    <div class="swap"><span>On Windows this was</span><strong>OneDrive and Dropbox &mdash; without the company</strong></div>
+
+    <div class="notice pro-notice"><div><strong>This one is part of Dagric&nbsp;OS Pro.</strong> You are reading the manual on the free edition, so it is not installed on this computer. The page is here on purpose &mdash; you should be able to see exactly what Pro adds before you decide whether you want it.</div></div>
+    <section>
+      <h2>What it is</h2>
+      <p><strong>Syncthing</strong> keeps chosen folders in step across your
+      devices. Change a file on the laptop and it appears on the desktop, and on your
+      phone, within seconds. The devices talk directly and everything between them is
+      encrypted; there is no account and no company holding a copy.</p>
+      <p>It is not a backup &mdash; a deletion syncs too. Pair it with
+      <a href="app-vorta.html">Vorta</a> or <a href="app-kup.html">Kup</a> for
+      that.</p>
+    </section>
+
+    <section>
+      <h2>Five things you will actually do</h2>
+      <ol class="tasks">
+        <li><span class="t">Start it and open the control panel</span><p>Syncthing runs as a background service and is configured through a web
+         page on this machine. Start it for your user with
+         <code>systemctl --user enable --now syncthing.service</code>, then open
+         <code>http://127.0.0.1:8384</code> in Firefox.</p></li>
+        <li><span class="t">Add another device</span><p>Each device has a long Device ID. Paste this machine's ID into the
+         other device and its ID into this one; both then ask you to confirm. The
+         QR code on the same page saves typing when the other device is a phone.</p></li>
+        <li><span class="t">Share a folder</span><p><em>Add Folder</em>, choose the path, then tick the devices to share it
+         with. They will be asked to accept and to choose where it lands on their
+         side.</p></li>
+        <li><span class="t">Keep a device from writing back</span><p>Set the folder type to <em>Receive Only</em> on a machine that should
+         only ever get a copy &mdash; a media box, or a server. It prevents an
+         accidental deletion there from propagating everywhere.</p></li>
+        <li><span class="t">Turn on file versioning</span><p>In a folder's settings, <em>File Versioning</em> &rarr; <em>Staggered</em>.
+         Overwritten and deleted files are kept for a while, which softens the sharpest
+         edge of continuous sync.</p></li>
+      </ol>
+    </section>
+
+    <section>
+      <h2>One thing that will surprise you</h2>
+      <p><strong>The settings page is a web page, and that alarms people.</strong>
+      Opening a browser to configure a file-sync tool feels like you have been sent
+      to a website. You have not: <code>127.0.0.1</code> is this computer, the page is
+      served by the program running on your own machine, and it is not reachable from
+      anywhere else unless you deliberately change that.</p>
+    </section>
+
+    <section>
+      <h2>Where to find it</h2>
+      <p><code>http://127.0.0.1:8384</code> in a browser once the service is
+      running. Launcher &rarr; <em>Syncthing</em> starts it with a tray icon in some
+      setups.</p>
+    </section>
+
+    <section>
+      <h2>See also</h2>
+      <div class="related"><a href="app-localsend.html">LocalSend</a><a href="app-vorta.html">Vorta and Borg</a><a href="app-cloud-storage.html">Cloud storage: rclone and Google Drive</a><a href="app-kup.html">Kup</a></div>
+    </section>
+
+    <footer class="colophon">Dagric OS Manual &middot; stored on this computer, no internet needed &middot; <a href="index.html">every application</a></footer>
+
+  </main>
+</div>
+</body>
+</html>

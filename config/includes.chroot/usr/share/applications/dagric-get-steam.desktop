@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=Install Steam
+GenericName=Valve's game store
+Comment=Install Steam, Valve's game store and launcher. Not preinstalled — its licence forbids bundling it.
+Exec=konsole -e sh -c '/usr/bin/dagric-get-steam ; echo ; printf "Press Enter to close..." ; read x'
+Icon=dagric-logo
+Terminal=false
+Categories=Game;
+Keywords=steam;valve;games;gaming;store;launcher;proton;library;install;

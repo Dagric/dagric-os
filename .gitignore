@@ -23,3 +23,12 @@ test/screen.png
 # Local-only R2 upload credentials - never commit
 r2-credentials.txt
 dagric-signing-key-PRIVATE-BACKUP.asc
+
+# Debug leftovers. Reading a Debian package's contents (to check what
+# live-build actually does, or what a KDE theme actually ships) means
+# `apt-get download` in whatever directory you happened to be in, and the .deb
+# lands in the repo root. They are 200 KB each and belong to nobody.
+# NOTE: kde-style-breeze-data_4%3a6.3.5-1_all.deb is already TRACKED from an
+# earlier session and nothing in the tree references it — this rule does not
+# untrack it. It should be removed in a deliberate commit.
+/*.deb

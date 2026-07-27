@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Orca &mdash; Dagric OS Manual</title>
+<link rel="stylesheet" href="manual.css">
+<script src="manual.js"></script>
+</head>
+<body>
+<div class="shell">
+  <aside class="side">
+    <div class="sidebox">
+      <a class="brand" href="index.html">
+        <div class="mark">D</div>
+        <div class="brand-name">Dagric OS<small>Manual</small></div>
+      </a>
+      <nav class="toc">
+        <a class="back" href="index.html">&larr; All applications</a>
+        <div class="navgroup">System and safety</div>
+        <a href="app-updates.html">Updates</a>
+        <a href="app-snapshots.html">Snapshot recovery</a>
+        <a href="app-timeshift.html">Timeshift</a>
+        <a href="app-kup.html">Kup</a>
+        <a href="app-vorta.html">Vorta and Borg</a>
+        <a href="app-firewall.html">The firewall</a>
+        <a href="app-opensnitch.html">OpenSnitch</a>
+        <a href="app-drive-health.html">Drive health</a>
+        <a href="app-keepassxc.html">KeePassXC</a>
+        <a href="app-cryptomator.html">Cryptomator</a>
+        <a href="app-bleachbit.html">BleachBit</a>
+        <a href="app-flatseal.html">Flatseal</a>
+        <a href="app-apparmor.html">AppArmor and the security baseline</a>
+        <a href="app-accounts.html">Accounts, passwords and disk encryption</a>
+        <a href="app-orca.html" class="active">Orca</a>
+      </nav>
+    </div>
+  </aside>
+
+  <main class="content">
+
+    <header class="hero">
+      <div class="eyebrow">System and safety</div>
+      <h1>Orca</h1>
+      <p class="sub">The screen reader: the desktop, read aloud.</p>
+    </header>
+
+    <div class="swap"><span>On Windows this was</span><strong>Narrator</strong></div>
+
+    <section>
+      <h2>What it is</h2>
+      <p><strong>Orca</strong> reads the screen aloud and drives a Braille display.
+      It ships on every edition of Dagric, with the speech engine and voice installed
+      &mdash; which sounds obvious and is not: Orca's speech backend is only a
+      recommended dependency in Debian, so a lean image can easily end up shipping a
+      silent screen reader. Dagric pins it explicitly.</p>
+      <p>Accessibility is also a procurement requirement in much of the world, so this
+      is part of the base system rather than an optional extra.</p>
+    </section>
+
+    <section>
+      <h2>Five things you will actually do</h2>
+      <ol class="tasks">
+        <li><span class="t">Start it</span><p>Launcher &rarr; <em>Orca</em>, or <code>orca</code> in a terminal.
+         Orca's own preferences window (<em>Orca modifier</em> + <kbd>Space</kbd>)
+         sets the voice, rate, pitch and verbosity.</p></li>
+        <li><span class="t">Learn the Orca modifier</span><p>Every Orca command is that key plus something. On a desktop keyboard it
+         is the keypad <kbd>Insert</kbd>; on a laptop it is <kbd>Caps Lock</kbd>, set
+         in preferences under <em>Keyboard</em>. Everything else follows from
+         it.</p></li>
+        <li><span class="t">Read the screen</span><p><em>Orca modifier</em> + <kbd>;</kbd> reads from the top; the flat
+         review keys on the numeric keypad move by line, word and character. Web pages
+         also have structural navigation &mdash; <kbd>H</kbd> for headings,
+         <kbd>K</kbd> for links &mdash; when browse mode is on.</p></li>
+        <li><span class="t">Magnify instead</span><p>If the need is low vision rather than blindness, start with
+         <a href="tool-dagric-display.html">Dagric Display</a>, which makes the text
+         and icons bigger and offers to put the change back if it goes too far.
+         System Settings &rarr; <em>Accessibility</em> adds a screen magnifier and
+         colour filters.</p></li>
+        <li><span class="t">Use a Braille display</span><p>Plug it in; Orca supports Braille output through BrlTTY. Its settings
+         are in Orca's preferences under <em>Braille</em>.</p></li>
+      </ol>
+    </section>
+
+    <section>
+      <h2>One thing that will surprise you</h2>
+      <p><strong>Orca works best in GTK applications, and Plasma is Qt.</strong>
+      Support in Qt and KDE software is real but historically less polished than in
+      GNOME's applications, so some parts of the desktop read better than others. It
+      is improving steadily. If a screen reader is your primary way of using a
+      computer, test the specific applications you depend on from the Dagric live USB
+      before you commit to installing.</p>
+    </section>
+
+    <section>
+      <h2>Where to find it</h2>
+      <p>Launcher &rarr; <em>Orca</em>. Related settings: System Settings &rarr;
+      <em>Accessibility</em>.</p>
+    </section>
+
+    <section>
+      <h2>See also</h2>
+      <div class="related"><a href="tool-dagric-display.html">Dagric Display</a><a href="app-system-settings.html">System Settings</a><a href="app-desktop.html">The desktop, panels and windows</a></div>
+    </section>
+
+    <footer class="colophon">Dagric OS Manual &middot; stored on this computer, no internet needed &middot; <a href="index.html">every application</a></footer>
+
+  </main>
+</div>
+</body>
+</html>

@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cryptomator &mdash; Dagric OS Manual</title>
+<link rel="stylesheet" href="manual.css">
+<script src="manual.js"></script>
+</head>
+<body>
+<div class="shell">
+  <aside class="side">
+    <div class="sidebox">
+      <a class="brand" href="index.html">
+        <div class="mark">D</div>
+        <div class="brand-name">Dagric OS<small>Manual</small></div>
+      </a>
+      <nav class="toc">
+        <a class="back" href="index.html">&larr; All applications</a>
+        <div class="navgroup">System and safety</div>
+        <a href="app-updates.html">Updates</a>
+        <a href="app-snapshots.html">Snapshot recovery</a>
+        <a href="app-timeshift.html">Timeshift</a>
+        <a href="app-kup.html">Kup</a>
+        <a href="app-vorta.html">Vorta and Borg</a>
+        <a href="app-firewall.html">The firewall</a>
+        <a href="app-opensnitch.html">OpenSnitch</a>
+        <a href="app-drive-health.html">Drive health</a>
+        <a href="app-keepassxc.html">KeePassXC</a>
+        <a href="app-cryptomator.html" class="active">Cryptomator</a>
+        <a href="app-bleachbit.html">BleachBit</a>
+        <a href="app-flatseal.html">Flatseal</a>
+        <a href="app-apparmor.html">AppArmor and the security baseline</a>
+        <a href="app-accounts.html">Accounts, passwords and disk encryption</a>
+        <a href="app-orca.html">Orca</a>
+      </nav>
+    </div>
+  </aside>
+
+  <main class="content">
+
+    <header class="hero">
+      <div class="eyebrow">System and safety</div>
+      <h1>Cryptomator<span class="pill add" title="Not preinstalled — Dagric installs it for you when you ask">ADD-ON</span></h1>
+      <p class="sub">Encrypt files before they ever reach Drive, Dropbox or OneDrive.</p>
+    </header>
+
+    <div class="swap"><span>On Windows this was</span><strong>BitLocker To Go, Boxcryptor, and hoping for the best</strong></div>
+
+
+    <section>
+      <h2>What it is</h2>
+      <p><strong>Cryptomator</strong> creates an encrypted <em>vault</em> inside a
+      folder you already sync to the cloud. You unlock it and it appears as an
+      ordinary drive; you work in it normally. What the cloud provider actually stores
+      is scrambled file contents and scrambled file names.</p>
+      <p>You hold the only key. There is no recovery, no company account, and nothing
+      to trust except mathematics.</p>
+    </section>
+
+    <section>
+      <h2>Getting it</h2>
+      <p>Two ways in, and they end up at the same app:</p>
+      <ul class="plain">
+        <li><strong>Dagric&nbsp;OS Pro</strong> &mdash; open the
+        <a href="tool-dagric-hub.html">Dagric Hub</a> and pick the row for it. A
+        terminal window explains what the app is and asks one yes/no question.</li>
+        <li><strong>Any edition</strong> &mdash; open
+        <a href="app-discover.html">Discover</a>, search for it, press Install.
+        It comes from Flathub, so turn Flathub on first if you have not:
+        <a href="tool-dagric-setup.html">Finish Setup</a> has a tick box for it.</li>
+      </ul>
+      <p>Either route installs it just for your user account, needs no
+      administrator password, and uninstalls cleanly from Discover's
+      <em>Installed</em> page.</p>
+    </section>
+    <section>
+      <h2>Five things you will actually do</h2>
+      <ol class="tasks">
+        <li><span class="t">Create a vault</span><p>Press <em>Add Vault</em> &rarr; <em>Create New Vault</em>, and put it
+         inside your synced folder (for instance <code>~/Dropbox/Vault</code>). Choose
+         a strong passphrase and save the recovery key it offers you somewhere
+         safe.</p></li>
+        <li><span class="t">Use it</span><p>Unlock the vault with its passphrase. It mounts as a folder; drag files
+         in, edit them, save. Lock it when you are finished and the plaintext
+         disappears.</p></li>
+        <li><span class="t">Open the same vault on another device</span><p>Let the cloud folder sync, then add the same vault in Cryptomator on
+         the other machine or phone and unlock it with the same passphrase. Nothing
+         is transferred except through the cloud folder you already had.</p></li>
+        <li><span class="t">Decide what belongs inside</span><p>Documents, scans of identity papers, tax records, anything with someone
+         else's personal data in it. Not your entire photo library &mdash; encrypted
+         files cannot be deduplicated or thumbnailed by the provider, so the sync gets
+         slower and dumber.</p></li>
+        <li><span class="t">Combine it with rclone</span><p>On Pro, <a href="app-cloud-storage.html">rclone</a> can push the
+         encrypted vault folder to any of seventy providers. The provider sees
+         ciphertext either way.</p></li>
+      </ol>
+    </section>
+
+    <section>
+      <h2>One thing that will surprise you</h2>
+      <p><strong>Cloud &ldquo;encryption&rdquo; usually means encrypted <em>from
+      everyone but the provider</em>.</strong> Drive, Dropbox and OneDrive all encrypt
+      your files at rest &mdash; with keys they hold, so they can read the contents,
+      hand them to anyone who compels them, and scan them. Cryptomator closes that
+      gap by encrypting on your machine first. It is the only way the sentence
+      &ldquo;my cloud files are private&rdquo; is actually true.</p>
+    </section>
+
+    <section>
+      <h2>Where to find it</h2>
+      <p>After installing: launcher &rarr; <em>Cryptomator</em>. Before
+      installing: Dagric Hub &rarr; <em>Cloud encryption &mdash; Cryptomator</em>, or
+      Discover.</p>
+    </section>
+
+    <section>
+      <h2>See also</h2>
+      <div class="related"><a href="app-cloud-storage.html">Cloud storage: rclone and Google Drive</a><a href="app-keepassxc.html">KeePassXC</a><a href="app-syncthing.html">Syncthing</a><a href="app-accounts.html">Accounts, passwords and disk encryption</a></div>
+    </section>
+
+    <footer class="colophon">Dagric OS Manual &middot; stored on this computer, no internet needed &middot; <a href="index.html">every application</a></footer>
+
+  </main>
+</div>
+</body>
+</html>

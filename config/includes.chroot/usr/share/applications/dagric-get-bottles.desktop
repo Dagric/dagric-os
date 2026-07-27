@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=Install Bottles
+GenericName=Run Windows programs
+Comment=Install Bottles, a friendly way to run Windows programs in tidy, self-contained per-app setups
+Exec=konsole -e sh -c '/usr/bin/dagric-get-bottles ; echo ; printf "Press Enter to close..." ; read x'
+Icon=dagric-logo
+Terminal=false
+Categories=System;Utility;
+Keywords=bottles;wine;windows;exe;programs;apps;run;compatibility;install;

@@ -1,0 +1,20 @@
+# Dagric OS — global shortcuts.
+#
+# The menu now calls plasma-systemmonitor "Task Manager" (see
+# /usr/bin/dagric-app-names). Ctrl+Shift+Esc is the reflex that goes with that
+# name, and on Windows it has opened Task Manager since Windows 7. Renaming the
+# app without binding the key would be half a promise.
+#
+# Plasma 6 binds Meta+Esc here (X-KDE-Shortcuts in
+# /usr/share/kglobalaccel/org.kde.plasma-systemmonitor.desktop). We ADD to it
+# rather than replace it, so anyone who already knows the KDE key keeps it.
+#
+# Note for whoever edits the docs: Ctrl+Esc is NOT bound in Plasma 6. It was
+# ksysguard's "Show System Activity" and that action no longer exists — grep
+# the shipped plasmashell and kwin binaries and it is simply gone. Older Dagric
+# pages told owners to press it; they were wrong and have been corrected.
+#
+# Format is kglobalaccel's: active shortcuts, then the defaults, then the
+# display name. Multiple shortcuts in a field are separated by \t.
+[services][org.kde.plasma-systemmonitor.desktop]
+_launch=Ctrl+Shift+Esc\tMeta+Esc,Meta+Esc,Task Manager

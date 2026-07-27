@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Wi-Fi, wired networks and VPN &mdash; Dagric OS Manual</title>
+<link rel="stylesheet" href="manual.css">
+<script src="manual.js"></script>
+</head>
+<body>
+<div class="shell">
+  <aside class="side">
+    <div class="sidebox">
+      <a class="brand" href="index.html">
+        <div class="mark">D</div>
+        <div class="brand-name">Dagric OS<small>Manual</small></div>
+      </a>
+      <nav class="toc">
+        <a class="back" href="index.html">&larr; All applications</a>
+        <div class="navgroup">Internet and communication</div>
+        <a href="app-firefox.html">Firefox</a>
+        <a href="app-chromium.html">Chromium</a>
+        <a href="app-thunderbird.html">Thunderbird</a>
+        <a href="app-network.html" class="active">Wi-Fi, wired networks and VPN</a>
+        <a href="app-kdeconnect.html">KDE Connect</a>
+        <a href="app-localsend.html">LocalSend</a>
+        <a href="app-syncthing.html">Syncthing</a>
+        <a href="app-cloud-storage.html">Cloud storage: rclone and Google Drive</a>
+        <a href="app-qbittorrent.html">qBittorrent</a>
+      </nav>
+    </div>
+  </aside>
+
+  <main class="content">
+
+    <header class="hero">
+      <div class="eyebrow">Internet and communication</div>
+      <h1>Wi-Fi, wired networks and VPN</h1>
+      <p class="sub">Getting online, staying online, and connecting to a work network.</p>
+    </header>
+
+    <div class="swap"><span>On Windows this was</span><strong>the network flyout and VPN settings</strong></div>
+
+    <section>
+      <h2>What it is</h2>
+      <p>Networking is <strong>NetworkManager</strong>, driven from the network icon
+      in the system tray. Click it for the list of Wi-Fi networks, the wired
+      connection, any VPNs you have set up, and an airplane-mode switch.</p>
+      <p>Wi-Fi hardware works out of the box on the overwhelming majority of laptops
+      because Dagric ships the firmware for Intel, Realtek, Atheros and Broadcom
+      cards. This is one of the classic reasons a Linux install used to fail on the
+      first evening, and it is the reason that firmware is in the base image rather
+      than an optional extra.</p>
+    </section>
+
+    <section>
+      <h2>Five things you will actually do</h2>
+      <ol class="tasks">
+        <li><span class="t">Join a Wi-Fi network</span><p>Click the network tray icon, pick the network, type the password, tick
+         to store it. It is remembered and rejoined automatically from then on.</p></li>
+        <li><span class="t">Import a VPN configuration</span><p>System Settings &rarr; <em>Connections</em> &rarr; <em>+</em> &rarr;
+         <em>Import VPN connection</em>, and choose the file your provider or
+         employer gave you. Dagric ships the OpenVPN, OpenConnect (Cisco AnyConnect)
+         and L2TP/IPsec handlers, and WireGuard support is built into the kernel, so
+         a <code>.ovpn</code> or <code>.conf</code> file just imports.</p></li>
+        <li><span class="t">Mark a network as trusted — or not</span><p>System Settings &rarr; <em>Firewall</em> shows each connection's zone.
+         <em>Home</em> allows things like phone pairing and file sharing;
+         <em>Public</em> shuts them. Set café and airport wifi to public and leave it
+         there.</p></li>
+        <li><span class="t">Share this machine&#x27;s connection</span><p>In the connection's settings, set the Wi-Fi mode to <em>Access
+         Point</em>. Useful for tethering a tablet through a wired connection in a
+         hotel.</p></li>
+        <li><span class="t">Diagnose a connection that will not work</span><p>In order: is the network icon showing a connection at all; does
+         <code>ping 1.1.1.1</code> in a terminal answer (that tests the network);
+         does <code>ping debian.org</code> answer (that tests DNS). Knowing which of
+         the three fails turns a mystery into a five-minute fix.</p></li>
+      </ol>
+    </section>
+
+    <section>
+      <h2>One thing that will surprise you</h2>
+      <p><strong>There is no captive-portal nag &mdash; there is a captive-portal
+      window.</strong> Hotel and airport networks that want you to accept terms are
+      detected, and Plasma offers to open the sign-in page. Read what you are
+      agreeing to; that page is the one part of the network you should be suspicious
+      of, and Dagric will not click it for you.</p>
+    </section>
+
+    <section>
+      <h2>Where to find it</h2>
+      <p>The network icon in the system tray. Full settings: System Settings &rarr;
+      <em>Connections</em>. Firewall zones: System Settings &rarr;
+      <em>Firewall</em>.</p>
+    </section>
+
+    <section>
+      <h2>See also</h2>
+      <div class="related"><a href="app-firewall.html">The firewall</a><a href="app-kdeconnect.html">KDE Connect</a><a href="app-system-settings.html">System Settings</a><a href="app-firefox.html">Firefox</a></div>
+    </section>
+
+    <footer class="colophon">Dagric OS Manual &middot; stored on this computer, no internet needed &middot; <a href="index.html">every application</a></footer>
+
+  </main>
+</div>
+</body>
+</html>

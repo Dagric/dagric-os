@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Every dagric command &mdash; Dagric OS Manual</title>
+<link rel="stylesheet" href="manual.css">
+<script src="manual.js"></script>
+</head>
+<body>
+<div class="shell">
+  <aside class="side">
+    <div class="sidebox">
+      <a class="brand" href="index.html">
+        <div class="mark">D</div>
+        <div class="brand-name">Dagric OS<small>Manual</small></div>
+      </a>
+      <nav class="toc">
+        <a class="back" href="index.html">&larr; All applications</a>
+        <div class="navgroup">Dagric&#x27;s own tools</div>
+        <a href="tool-dagric-hub.html">Dagric Hub</a>
+        <a href="tool-dagric-setup.html">Finish Setup</a>
+        <a href="tool-dagric-firstrun.html">Set Up Dagric</a>
+        <a href="tool-dagric-migrate.html">Migration Assistant</a>
+        <a href="tool-dagric-appearance.html">Dagric Appearance</a>
+        <a href="tool-dagric-looks.html">Dagric Looks</a>
+        <a href="tool-dagric-style.html">Dagric Styles</a>
+        <a href="tool-dagric-display.html">Dagric Display</a>
+        <a href="tool-dagric-app-names.html">Why the apps have plain names</a>
+        <a href="tool-dagric-get-variety.html">Rotating wallpapers (Variety)</a>
+        <a href="tool-dagric-drivers.html">NVIDIA driver helper</a>
+        <a href="tool-dagric-security-checkup.html">Security Checkup</a>
+        <a href="tool-dagric-usb-protect.html">USB Protection</a>
+        <a href="tool-dagric-vm.html">Windows in a window (VM setup)</a>
+        <a href="tool-dagric-gaming.html">Proton-GE helper</a>
+        <a href="tool-dagric-ai.html">Local AI (Ollama)</a>
+        <a href="tool-dagric-manual.html">This manual</a>
+        <a href="tool-dagric-background.html">Helpers that run by themselves</a>
+        <a href="tool-dagric-commands.html" class="active">Every dagric command</a>
+      </nav>
+    </div>
+  </aside>
+
+  <main class="content">
+
+    <header class="hero">
+      <div class="eyebrow">Dagric&#x27;s own tools</div>
+      <h1>Every dagric command</h1>
+      <p class="sub">The complete list of the dagric-* tools, what each does, and where each one lives.</p>
+    </header>
+
+    <div class="swap"><span>On Windows this was</span><strong>nothing &mdash; this is the index</strong></div>
+
+    <section>
+      <h2>What it is</h2>
+      <p>Every tool Dagric adds is a command beginning <code>dagric-</code>. Nearly
+      all of them also have a Hub row and a launcher entry, because a tool only
+      reachable from a terminal is a tool most owners will never use. Here is all of
+      them.</p>
+
+      <h3>Setting up and moving in</h3>
+      <ul class="plain">
+        <li><code>dagric-hub</code> &mdash;
+        <a href="tool-dagric-hub.html">the Hub</a>, the menu that gathers everything
+        else.</li>
+        <li><code>dagric-firstrun</code> &mdash;
+        <a href="tool-dagric-firstrun.html">Set Up Dagric</a>, the wizard at your
+        first login: colours, wallpaper, text size, taskbar, and your files.</li>
+        <li><code>dagric-setup</code> &mdash;
+        <a href="tool-dagric-setup.html">Finish Setup</a>: NVIDIA driver, HP printer
+        support, Flathub.</li>
+        <li><code>dagric-migrate</code> &mdash;
+        <a href="tool-dagric-migrate.html">the Migration Assistant</a>: files,
+        bookmarks, tabs and Firefox logins from Windows.</li>
+        <li><code>dagric-manual</code> &mdash;
+        <a href="tool-dagric-manual.html">this manual</a>.</li>
+        <li><code>dagric-welcome</code> &mdash; opens the written welcome page. See
+        <a href="tool-dagric-background.html">helpers that run by themselves</a>.</li>
+      </ul>
+
+      <h3>Making it look how you want</h3>
+      <ul class="plain">
+        <li><code>dagric-appearance</code> &mdash;
+        <a href="tool-dagric-appearance.html">the gallery</a>: styles and layouts as
+        pictures, with Keep and Revert.</li>
+        <li><code>dagric-looks</code> &mdash;
+        <a href="tool-dagric-looks.html">Dagric Looks</a>: the panel layout.</li>
+        <li><code>dagric-style</code> &mdash;
+        <a href="tool-dagric-style.html">Dagric Styles</a>: colours, accent, wallpaper
+        and effects.</li>
+        <li><code>dagric-display</code> &mdash;
+        <a href="tool-dagric-display.html">Dagric Display</a>: text size and night
+        colour, with a twenty-second undo.</li>
+        <li><code>dagric-get-variety</code> &mdash;
+        <a href="tool-dagric-get-variety.html">rotating wallpapers</a>, offered rather
+        than preinstalled.</li>
+        <li><code>dagric-app-names</code> &mdash;
+        <a href="tool-dagric-app-names.html">why the apps have plain names</a>: the
+        rewriter that makes the launcher say Files instead of Dolphin.</li>
+        <li><code>dagric-brand-launcher</code> &mdash; puts the logo on the launcher
+        button at first login.</li>
+      </ul>
+
+      <h3>Hardware, safety and recovery</h3>
+      <ul class="plain">
+        <li><code>dagric-drivers</code> &mdash;
+        <a href="tool-dagric-drivers.html">the NVIDIA driver helper</a>, including
+        Secure Boot enrolment. Needs <code>sudo</code>.</li>
+        <li><code>dagric-driver-offer</code> &mdash; the one-off first-login offer to
+        run the above.</li>
+        <li><code>dagric-security-checkup</code> &mdash;
+        <a href="tool-dagric-security-checkup.html">the security audit</a> and drive
+        health report.</li>
+        <li><code>dagric-snapshot-setup</code> &mdash; configures
+        <a href="app-snapshots.html">snapshot recovery</a> on the first boot of an
+        installed system.</li>
+        <li><code>dagric-usb-protect</code> <span class="pill pro">PRO</span> &mdash;
+        <a href="tool-dagric-usb-protect.html">USB Protection</a>: allow-list your
+        devices, block the rest.</li>
+        <li><code>dagric-vm</code> <span class="pill pro">PRO</span> &mdash;
+        <a href="tool-dagric-vm.html">switches on the virtual-machine stack</a> with
+        consent.</li>
+      </ul>
+
+      <h3>Install-on-request helpers</h3>
+      <p>Each of these opens a terminal, explains what the application is, and asks one
+      yes/no question. Nothing is downloaded before you answer. The Hub lists them on
+      Dagric&nbsp;OS Pro; on any edition you can also install these applications
+      straight from <a href="app-discover.html">Discover</a>.</p>
+      <ul class="plain">
+        <li><code>dagric-get-steam</code> &mdash; <a href="app-steam.html">Steam</a>,
+        never bundled.</li>
+        <li><code>dagric-get-heroic</code> &mdash;
+        <a href="app-heroic.html">Heroic</a>: Epic, GOG and Amazon libraries.</li>
+        <li><code>dagric-get-protonup</code> &mdash;
+        <a href="app-protonup.html">ProtonUp-Qt</a>.</li>
+        <li><code>dagric-gaming</code> &mdash;
+        <a href="tool-dagric-gaming.html">Proton-GE</a> for an installed Steam.</li>
+        <li><code>dagric-get-bottles</code> &mdash;
+        <a href="app-bottles.html">Bottles</a>: Windows programs in tidy
+        containers.</li>
+        <li><code>dagric-get-onlyoffice</code> &mdash;
+        <a href="app-onlyoffice.html">ONLYOFFICE</a>: the familiar Office look.</li>
+        <li><code>dagric-get-joplin</code> &mdash;
+        <a href="app-joplin.html">Joplin</a>: local-first notes.</li>
+        <li><code>dagric-get-localsend</code> &mdash;
+        <a href="app-localsend.html">LocalSend</a>: private device-to-device
+        sharing.</li>
+        <li><code>dagric-get-cryptomator</code> &mdash;
+        <a href="app-cryptomator.html">Cryptomator</a>: encrypt before the cloud.</li>
+        <li><code>dagric-get-upscayl</code> &mdash;
+        <a href="app-upscayl.html">Upscayl</a>: offline AI image upscaling.</li>
+        <li><code>dagric-get-resolve</code> &mdash; a guided walk through
+        <a href="app-davinci-resolve.html">DaVinci Resolve</a>'s official download.
+        Installs nothing itself.</li>
+        <li><code>dagric-ai</code> &mdash;
+        <a href="tool-dagric-ai.html">Ollama</a>: local language models.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>Where they are grouped</h2>
+      <ol class="tasks">
+        <li><span class="t">Everything asks first</span><p>Without exception. Every helper above states what it is about to do and
+         waits for a yes, and the ones that need administrator rights ask for your
+         password separately. Answering anything other than yes leaves the machine
+         exactly as it was.</p></li>
+        <li><span class="t">Everything is readable</span><p>They are all short shell scripts in <code>/usr/bin/</code>. If you want
+         to know exactly what one does before running it,
+         <code>cat /usr/bin/dagric-migrate</code> &mdash; or open it in
+         <a href="app-kate.html">Kate</a>. Nothing is compiled and nothing is
+         hidden.</p></li>
+        <li><span class="t">Most have a window as well as a command</span><p>Search the launcher for the friendly name &mdash; <em>Finish Setup</em>,
+         <em>Migration Assistant</em>, <em>Security Checkup</em>, <em>USB
+         Protection</em> &mdash; or open the
+         <a href="tool-dagric-hub.html">Dagric Hub</a>, which lists them all.</p></li>
+        <li><span class="t">Terminal helpers hold their window open</span><p>When one finishes it waits for you to press Enter before closing, so you
+         can read what happened. That is on purpose.</p></li>
+        <li><span class="t">Nothing runs on a schedule</span><p>None of these is a service, none has a timer, and none checks in with
+         anything. The only Dagric code that runs without you starting it is the four
+         one-shot helpers described in
+         <a href="tool-dagric-background.html">helpers that run by themselves</a>.</p></li>
+      </ol>
+    </section>
+
+    <section>
+      <h2>One thing that will surprise you</h2>
+      <p><strong>You could delete every one of them and the operating system would
+      carry on working perfectly.</strong> None of these tools is load-bearing: they
+      are convenience wrappers around things Debian and KDE can already do. That is a
+      deliberate design constraint &mdash; an owner should never be locked into a
+      vendor's helper to administer their own machine.</p>
+    </section>
+
+    <section>
+      <h2>Where to find it</h2>
+      <p>All of them are in <code>/usr/bin/</code>. The friendly route is the
+      <a href="tool-dagric-hub.html">Dagric Hub</a>.</p>
+    </section>
+
+    <section>
+      <h2>See also</h2>
+      <div class="related"><a href="tool-dagric-hub.html">Dagric Hub</a><a href="tool-dagric-manual.html">This manual</a><a href="tool-dagric-background.html">Helpers that run by themselves</a><a href="app-konsole.html">Konsole</a></div>
+    </section>
+
+    <footer class="colophon">Dagric OS Manual &middot; stored on this computer, no internet needed &middot; <a href="index.html">every application</a></footer>
+
+  </main>
+</div>
+</body>
+</html>

@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Elisa &mdash; Dagric OS Manual</title>
+<link rel="stylesheet" href="manual.css">
+<script src="manual.js"></script>
+</head>
+<body>
+<div class="shell">
+  <aside class="side">
+    <div class="sidebox">
+      <a class="brand" href="index.html">
+        <div class="mark">D</div>
+        <div class="brand-name">Dagric OS<small>Manual</small></div>
+      </a>
+      <nav class="toc">
+        <a class="back" href="index.html">&larr; All applications</a>
+        <div class="navgroup">Music and sound</div>
+        <a href="app-elisa.html" class="active">Elisa</a>
+        <a href="app-audacity.html">Audacity</a>
+        <a href="app-sound.html">Sound, headphones and microphones</a>
+      </nav>
+    </div>
+  </aside>
+
+  <main class="content">
+
+    <header class="hero">
+      <div class="eyebrow">Music and sound</div>
+      <h1>Elisa</h1>
+      <p class="sub">Your music collection, with albums, artists and playlists.</p>
+    </header>
+
+    <div class="swap"><span>On Windows this was</span><strong>Groove Music and Windows Media Player</strong></div>
+
+    <section>
+      <h2>What it is</h2>
+      <p><strong>Elisa</strong> is the music app: it indexes your Music folder and
+      presents it as albums, artists, genres and tracks, with cover art and playlists.
+      It is deliberately small and deliberately local &mdash; there is no streaming
+      service inside it, no account, and nothing about your listening leaves the
+      machine.</p>
+    </section>
+
+    <section>
+      <h2>Five things you will actually do</h2>
+      <ol class="tasks">
+        <li><span class="t">Get your music into it</span><p>Put the files in your <em>Music</em> folder and Elisa finds them. If
+         your collection lives elsewhere &mdash; another drive, a network share
+         &mdash; add that path in Elisa's settings under the indexed folders, and it
+         will scan there too.</p></li>
+        <li><span class="t">Build a playlist</span><p>Drag albums or tracks into the playlist panel on the right, or use the
+         <em>+</em> button on any item. Save it from the playlist menu; Elisa writes
+         standard <code>.m3u</code> files, which any other player can read.</p></li>
+        <li><span class="t">Fix a wrong album or missing cover</span><p>Elisa reads the tags embedded in your files, so the fix belongs in the
+         files. Right-click a track &rarr; <em>Show in folder</em>, then edit the tags
+         with a tagging tool (Picard from Discover is the usual choice). Elisa picks
+         up the change on the next scan.</p></li>
+        <li><span class="t">Control it without leaving what you are doing</span><p>The media controls in the system tray, and on the lock screen, work
+         with Elisa. Laptop media keys work too. Hovering the tray applet shows what
+         is playing.</p></li>
+        <li><span class="t">Play a single file quickly</span><p>Double-clicking one MP3 in Dolphin may open <a href="app-mpv.html">mpv</a>
+         rather than Elisa &mdash; that is fine, mpv plays audio perfectly. Elisa is
+         for browsing a collection, not for one file.</p></li>
+      </ol>
+    </section>
+
+    <section>
+      <h2>One thing that will surprise you</h2>
+      <p><strong>If it looks empty, it is not broken &mdash; it just has nothing to
+      index yet.</strong> Elisa shows music that is in the folders it watches, and on
+      a fresh install that is an empty <em>Music</em> folder. Copy your collection in
+      (the <a href="tool-dagric-migrate.html">Migration Assistant</a> does exactly
+      this from a Windows partition) and the library fills itself.</p>
+    </section>
+
+    <section>
+      <h2>Where to find it</h2>
+      <p>Launcher &rarr; <strong>Music</strong> (also <em>Elisa</em>).</p>
+    </section>
+
+    <section>
+      <h2>See also</h2>
+      <div class="related"><a href="app-mpv.html">mpv</a><a href="app-sound.html">Sound, headphones and microphones</a><a href="tool-dagric-migrate.html">Migration Assistant</a><a href="app-audacity.html">Audacity</a></div>
+    </section>
+
+    <footer class="colophon">Dagric OS Manual &middot; stored on this computer, no internet needed &middot; <a href="index.html">every application</a></footer>
+
+  </main>
+</div>
+</body>
+</html>

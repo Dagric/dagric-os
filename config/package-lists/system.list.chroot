@@ -142,6 +142,23 @@ gdebi
 # Compressed swap — snappier on low-RAM machines
 zram-tools
 
+# The other half of the low-RAM story. With zram on, the kernel's own OOM
+# killer becomes very reluctant to fire: it can always compress one more page,
+# so a 4 GB machine that runs out spends minutes thrashing instead of seconds
+# failing. To the owner that is not "out of memory", it is "the computer froze
+# and I had to hold the power button" — the exact experience they left Windows
+# to escape. earlyoom turns it into "Firefox closed". The 0250-performance hook
+# configures it (with an --avoid list that keeps the Plasma session itself
+# alive) and enables the service.
+earlyoom
+
+# update-desktop-database, for the plain-English app-name overrides in
+# /usr/local/share/applications (see /usr/bin/dagric-app-names). KDE reads
+# desktop files through KSycoca and does not need it, but the GTK apps Pro
+# ships resolve "Open With" through GIO, which reads mimeinfo.cache. ~50 kB,
+# and nothing else on the image pulls it in.
+desktop-file-utils
+
 # Snapshot recovery (free): snapper takes automatic pre-update snapshots of the
 # btrfs root; grub-btrfs (vendored in 0800 hook) exposes them in the boot menu
 # so a broken update can be rolled back from GRUB. inotify-tools drives the

@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Joplin &mdash; Dagric OS Manual</title>
+<link rel="stylesheet" href="manual.css">
+<script src="manual.js"></script>
+</head>
+<body>
+<div class="shell">
+  <aside class="side">
+    <div class="sidebox">
+      <a class="brand" href="index.html">
+        <div class="mark">D</div>
+        <div class="brand-name">Dagric OS<small>Manual</small></div>
+      </a>
+      <nav class="toc">
+        <a class="back" href="index.html">&larr; All applications</a>
+        <div class="navgroup">Writing and documents</div>
+        <a href="app-libreoffice-writer.html">LibreOffice Writer</a>
+        <a href="app-libreoffice-calc.html">LibreOffice Calc</a>
+        <a href="app-libreoffice-impress.html">LibreOffice Impress</a>
+        <a href="app-libreoffice-draw.html">LibreOffice Draw</a>
+        <a href="app-libreoffice-base-math.html">LibreOffice Base and Math</a>
+        <a href="app-onlyoffice.html">ONLYOFFICE</a>
+        <a href="app-kate.html">Kate</a>
+        <a href="app-okular.html">Okular</a>
+        <a href="app-joplin.html" class="active">Joplin</a>
+        <a href="app-printing.html">Printers and scanners</a>
+      </nav>
+    </div>
+  </aside>
+
+  <main class="content">
+
+    <header class="hero">
+      <div class="eyebrow">Writing and documents</div>
+      <h1>Joplin<span class="pill pro">PRO</span><span class="pill add" title="Not preinstalled — Dagric installs it for you when you ask">ADD-ON</span></h1>
+      <p class="sub">Notes and to-do lists that stay on your computer, in a format you can read.</p>
+    </header>
+
+    <div class="swap"><span>On Windows this was</span><strong>OneNote, Evernote, Notion and Sticky Notes</strong></div>
+
+    <section>
+      <h2>What it is</h2>
+      <p><strong>Joplin</strong> keeps notes, notebooks, tags and to-do lists. Every
+      note is plain Markdown stored on this machine &mdash; no account, no sign-up,
+      and it works with the wifi off.</p>
+      <p>Sync is optional and yours to choose: a folder, a Nextcloud or WebDAV
+      server, Dropbox, or nothing at all. Whatever you pick, Joplin can encrypt
+      end-to-end first, so the sync target only ever stores ciphertext.</p>
+    </section>
+
+    <section>
+      <h2>Getting it</h2>
+      <p>Joplin is not preinstalled. <a href="tool-dagric-hub.html">Dagric Hub</a>
+      &rarr; <strong>Private notes &mdash; Joplin</strong>, or search <em>Private
+      Notes</em> in the launcher. A terminal window explains what it is and asks
+      yes or no; nothing happens unless you say yes.</p>      <p>It installs from <strong>Flathub</strong>, just for your user account, so
+      it never asks for an administrator password and it uninstalls cleanly from
+      Discover's <em>Installed</em> page. Nothing else on the machine is
+      touched.</p>
+    </section>
+    <section>
+      <h2>Five things you will actually do</h2>
+      <ol class="tasks">
+        <li><span class="t">Start writing</span><p>Make a notebook in the left column, then a note. The editor is split:
+         Markdown on the left, formatted result on the right. If you never learn any
+         Markdown, the toolbar buttons for bold, lists and links write it for
+         you.</p></li>
+        <li><span class="t">Make a checklist</span><p>Create a note as a <em>to-do</em> rather than a note and it gets a
+         checkbox. Inside any note, <code>- [ ] thing</code> makes a tickable
+         line.</p></li>
+        <li><span class="t">Find an old note</span><p>The search box searches the full text of every note instantly. Tags
+         help too, and a note can carry as many as you like.</p></li>
+        <li><span class="t">Bring your OneNote or Evernote notes across</span><p>Evernote exports <code>.enex</code> files and Joplin imports them
+         directly (<em>File</em> &rarr; <em>Import</em>). OneNote has no clean export,
+         so the practical route is to export each section to PDF or Word from OneNote
+         on Windows before you leave, and attach those to Joplin notes.</p></li>
+        <li><span class="t">Sync to your phone</span><p><em>Tools</em> &rarr; <em>Options</em> &rarr; <em>Synchronisation</em>,
+         pick a target, then turn on end-to-end encryption in the same dialogue and
+         enter the same details in the Joplin app on your phone.</p></li>
+      </ol>
+    </section>
+
+    <section>
+      <h2>One thing that will surprise you</h2>
+      <p><strong>Your notes are just files, and that is the feature.</strong> There
+      is no proprietary database and no company between you and your writing. If
+      Joplin vanished tomorrow, the notes would still be readable Markdown you could
+      open in <a href="app-kate.html">Kate</a>. That is the difference between
+      software you use and a service you are a tenant of.</p>
+    </section>
+
+    <section>
+      <h2>Where to find it</h2>
+      <p>After installing: launcher &rarr; <em>Joplin</em>. Before installing:
+      Dagric Hub &rarr; <em>Private notes &mdash; Joplin</em>.</p>
+    </section>
+
+    <section>
+      <h2>See also</h2>
+      <div class="related"><a href="app-kate.html">Kate</a><a href="app-syncthing.html">Syncthing</a><a href="app-cryptomator.html">Cryptomator</a><a href="tool-dagric-hub.html">Dagric Hub</a></div>
+    </section>
+
+    <footer class="colophon">Dagric OS Manual &middot; stored on this computer, no internet needed &middot; <a href="index.html">every application</a></footer>
+
+  </main>
+</div>
+</body>
+</html>

@@ -1,0 +1,38 @@
+#!/bin/sh
+# SPDX-FileCopyrightText: 2026 DGR Operations <repo@dagric.com>
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Dagric OS — stop ldconfig re-running on every first boot.
+#
+# systemd's ldconfig.service is `Before=sysinit.target`, so it BLOCKS boot, and
+# on this image it fires every time. Its trigger is `ConditionNeedsUpdate=|/etc`,
+# which is true whenever /usr is newer than the /etc/.updated stamp — and
+# neither /etc/.updated nor /var/.updated exists in the squashfs, so the
+# condition is unconditionally true. Measured at ~5 s, the single largest entry
+# in `systemd-analyze blame`, and it is pure waste: dpkg's own triggers already
+# rebuilt /etc/ld.so.cache during the package install, so ldconfig runs, finds
+# nothing to do, and the owner watches the splash for five extra seconds.
+#
+# It costs that on EVERY live boot, because /etc on the live session is an
+# overlay that starts empty of the stamp each time — which means it is being
+# paid on exactly the boot where somebody is deciding whether to install this.
+#
+# We run ldconfig ourselves first and only then write the stamps, so the cache
+# is provably correct at the moment we declare it correct. Skipping the run and
+# just stamping would be the version of this that ships a broken image.
+#
+# THIS MUST BE THE LAST CHROOT HOOK. The stamp is a claim about /usr as it
+# stands; hooks 0100..0900 write to /usr (helpers, themes, wallpapers, the
+# vendored Plasma plugin), so stamping from any earlier hook would be claiming
+# something that later stops being true. If you add a hook that writes to /usr,
+# give it a number below this one.
+#
+# systemd-update-done.service rewrites both stamps at the end of every boot
+# anyway, so all we are doing is giving it a correct starting value instead of
+# making the first boot discover it the expensive way.
+set -e
+
+ldconfig
+
+touch /etc/.updated /var/.updated
+
+echo "boot-cache: ld.so.cache rebuilt and /etc,/var .updated stamped"

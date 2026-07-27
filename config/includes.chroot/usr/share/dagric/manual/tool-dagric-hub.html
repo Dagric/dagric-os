@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dagric Hub &mdash; Dagric OS Manual</title>
+<link rel="stylesheet" href="manual.css">
+<script src="manual.js"></script>
+</head>
+<body>
+<div class="shell">
+  <aside class="side">
+    <div class="sidebox">
+      <a class="brand" href="index.html">
+        <div class="mark">D</div>
+        <div class="brand-name">Dagric OS<small>Manual</small></div>
+      </a>
+      <nav class="toc">
+        <a class="back" href="index.html">&larr; All applications</a>
+        <div class="navgroup">Dagric&#x27;s own tools</div>
+        <a href="tool-dagric-hub.html" class="active">Dagric Hub</a>
+        <a href="tool-dagric-setup.html">Finish Setup</a>
+        <a href="tool-dagric-firstrun.html">Set Up Dagric</a>
+        <a href="tool-dagric-migrate.html">Migration Assistant</a>
+        <a href="tool-dagric-appearance.html">Dagric Appearance</a>
+        <a href="tool-dagric-looks.html">Dagric Looks</a>
+        <a href="tool-dagric-style.html">Dagric Styles</a>
+        <a href="tool-dagric-display.html">Dagric Display</a>
+        <a href="tool-dagric-app-names.html">Why the apps have plain names</a>
+        <a href="tool-dagric-get-variety.html">Rotating wallpapers (Variety)</a>
+        <a href="tool-dagric-drivers.html">NVIDIA driver helper</a>
+        <a href="tool-dagric-security-checkup.html">Security Checkup</a>
+        <a href="tool-dagric-usb-protect.html">USB Protection</a>
+        <a href="tool-dagric-vm.html">Windows in a window (VM setup)</a>
+        <a href="tool-dagric-gaming.html">Proton-GE helper</a>
+        <a href="tool-dagric-ai.html">Local AI (Ollama)</a>
+        <a href="tool-dagric-manual.html">This manual</a>
+        <a href="tool-dagric-background.html">Helpers that run by themselves</a>
+        <a href="tool-dagric-commands.html">Every dagric command</a>
+      </nav>
+    </div>
+  </aside>
+
+  <main class="content">
+
+    <header class="hero">
+      <div class="eyebrow">Dagric&#x27;s own tools</div>
+      <h1>Dagric Hub</h1>
+      <p class="sub">One window that gathers every Dagric tool, so nothing lives only on the command line.</p>
+    </header>
+
+    <div class="swap"><span>On Windows this was</span><strong>nothing &mdash; Windows scatters this across Settings, Control Panel and OEM apps</strong></div>
+
+    <section>
+      <h2>What it is</h2>
+      <p>The <strong>Dagric Hub</strong> is a menu. Open it, pick a row, and the
+      tool it names opens. That is the entire design, and it exists because the
+      alternative &mdash; a set of useful helpers that only people who read
+      documentation ever find &mdash; is not a product.</p>
+      <p>It knows which edition you are running and shows only what that edition
+      actually has. Nothing in the Hub changes anything on its own: picking a row
+      opens a tool, and every tool asks before it acts.</p>
+    </section>
+
+    <section>
+      <h2>Five things you will actually do</h2>
+      <ol class="tasks">
+        <li><span class="t">Find your way around it</span><p>The rows are grouped under headings. Every edition has
+         <em>Get started</em> (the setup wizard, finish setup, migrate from
+         Windows, the welcome guide, this manual),
+         <em>Appearance</em> (the gallery, text size and night light, desktop
+         layout, colours, rotating wallpapers) and <em>System</em> (NVIDIA
+         driver, security checkup).</p>
+         <p>Dagric&nbsp;OS Pro adds four more groups: <em>Windows and apps</em>,
+         <em>Privacy and files</em>, <em>Gaming</em>, and <em>Creator and AI</em>.</p></li>
+        <li><span class="t">Set up a brand-new machine</span><p>Work down the first group in order: <em>Set up Dagric</em> (the same
+         wizard you saw at first login &mdash; it is re-runnable), then
+         <em>Finish setup</em>, then <em>Migrate from Windows</em>, then read the
+         <em>Welcome guide</em>. That is a complete first hour.</p></li>
+        <li><span class="t">Install one of the offered applications</span><p>The rows that name an application &mdash; Bottles, ONLYOFFICE, Joplin,
+         LocalSend, Cryptomator, Steam, Heroic, Upscayl and the rest &mdash; open a
+         terminal window that explains what the app is and asks you a yes/no
+         question. Nothing is downloaded before you answer.</p></li>
+        <li><span class="t">Read what happened</span><p>Terminal helpers leave their window open when they finish, with
+         &ldquo;Press Enter to close&hellip;&rdquo; at the bottom. That is deliberate:
+         you should be able to read what a tool did to your computer, not watch a
+         window vanish.</p></li>
+        <li><span class="t">Get back to the menu</span><p>Clicking one of the grey heading rows simply reopens the Hub, so a
+         mis-click costs nothing. Closing the window or pressing <kbd>Esc</kbd> does
+         nothing at all.</p></li>
+      </ol>
+    </section>
+
+    <section>
+      <h2>One thing that will surprise you</h2>
+      <p><strong>The Hub never does anything itself.</strong> It has no
+      &ldquo;optimise&rdquo; button, no one-click tune-up, and nothing that runs in
+      the background afterwards. It is a signpost to tools that each ask for your
+      consent separately. If you close it, nothing is left running and nothing was
+      changed &mdash; which is not how the equivalent utility on a new Windows laptop
+      usually behaves.</p>
+    </section>
+
+    <section>
+      <h2>Where to find it</h2>
+      <p>Launcher &rarr; <em>Dagric Hub</em>, or <code>dagric-hub</code> in a
+      terminal.</p>
+    </section>
+
+    <section>
+      <h2>See also</h2>
+      <div class="related"><a href="tool-dagric-setup.html">Finish Setup</a><a href="tool-dagric-migrate.html">Migration Assistant</a><a href="tool-dagric-commands.html">Every dagric command</a><a href="tool-dagric-security-checkup.html">Security Checkup</a></div>
+    </section>
+
+    <footer class="colophon">Dagric OS Manual &middot; stored on this computer, no internet needed &middot; <a href="index.html">every application</a></footer>
+
+  </main>
+</div>
+</body>
+</html>

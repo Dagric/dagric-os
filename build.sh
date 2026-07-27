@@ -30,7 +30,8 @@ cd "$BUILD"
 
 chmod +x auto/* config/hooks/normal/*.hook.chroot 2>/dev/null || true
 chmod +x config/includes.chroot/usr/bin/* \
-         config/includes.chroot/usr/lib/live/config/* 2>/dev/null || true
+         config/includes.chroot/usr/lib/live/config/* \
+         config/includes.chroot/usr/lib/dagric/* 2>/dev/null || true
 
 if [ "$EDITION" != "pro" ]; then
     rm -f config/package-lists/pro-*.list.chroot
@@ -51,20 +52,36 @@ mkdir -p config/includes.chroot/etc
 printf '%s\n' "$EDITION" > config/includes.chroot/etc/dagric-edition
 export DAGRIC_EDITION="$EDITION"
 
-# Refuse to ship 16-bit wallpapers. Six of the packs predate
-# branding/wallpaper/make-wallpapers.sh and have no generator in the tree, so
-# the only thing standing between us and a repeat of the 43 MB regression --
-# where six packs were written as 16-bit RGBA and nobody noticed until the ISO
-# was measured -- is somebody remembering. Check it instead of remembering.
+# Refuse to ship 16-bit wallpapers. Every pack now comes out of
+# branding/wallpaper/make-wallpapers.sh, which writes -depth 8 -- the six wave-1
+# packs that used to have no generator were fitted and folded into it. So the
+# generator is no longer the risk; a hand-edited or re-exported PNG is. This
+# gate is what proves one never sneaks back in, and it is the only thing
+# standing between us and a repeat of the 43 MB regression, where six packs were
+# written as 16-bit RGBA and nobody noticed until the ISO was measured.
 #
 # Read the depth out of the PNG header directly (byte 24, right after IHDR's
 # width and height) rather than shelling out to ImageMagick: the build host is
 # a live-build chroot toolchain and is not required to have `identify`, and a
 # check that silently no-ops when its dependency is missing is worse than none.
+#
+# Every shipped PNG is checked, not just the wallpapers. The wallpapers were
+# where the regression happened, but they are not the only 4K art in the image:
+# usr/share/dagric/sddm/background.png is 3840x2160 and comes out of its own
+# generator (branding/sddm/make-login-art.sh), so it can regress exactly the
+# same way and used to sit outside this gate entirely.
+#
+# The test is "greater than 8", not "equal to 8". 16-bit is the thing that
+# doubles the file for no visible gain; a palette PNG with a depth of 1, 2 or 4
+# is SMALLER, and several of the icons and avatars here are one pngquant pass
+# away from being exactly that. An equality test would reject a file for being
+# too cheap, which is the opposite of what this gate is for.
 deep=
-for png in config/includes.chroot/usr/share/wallpapers/*/contents/images/*.png; do
+for png in $(find config/includes.chroot -name '*.png' | sort); do
     [ -f "$png" ] || continue
-    [ "$(od -An -tu1 -j24 -N1 "$png" | tr -d ' ')" = 8 ] || deep="$deep $png"
+    if [ "$(od -An -tu1 -j24 -N1 "$png" | tr -d ' ')" -gt 8 ]; then
+        deep="$deep $png"
+    fi
 done
 if [ -n "$deep" ]; then
     echo "ERROR: wallpapers are not 8-bit — this doubles their size for no" >&2

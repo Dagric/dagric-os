@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Distrobox &mdash; Dagric OS Manual</title>
+<link rel="stylesheet" href="manual.css">
+<script src="manual.js"></script>
+</head>
+<body>
+<div class="shell">
+  <aside class="side">
+    <div class="sidebox">
+      <a class="brand" href="index.html">
+        <div class="mark">D</div>
+        <div class="brand-name">Dagric OS<small>Manual</small></div>
+      </a>
+      <nav class="toc">
+        <a class="back" href="index.html">&larr; All applications</a>
+        <div class="navgroup">For developers</div>
+        <a href="app-docker.html">Docker and Podman</a>
+        <a href="app-distrobox.html" class="active">Distrobox</a>
+        <a href="app-devtools.html">Git, compilers and Python</a>
+        <a href="app-ssh.html">SSH</a>
+        <a href="app-terminal-extras.html">nala, bat and zoxide</a>
+      </nav>
+    </div>
+  </aside>
+
+  <main class="content">
+
+    <header class="hero">
+      <div class="eyebrow">For developers</div>
+      <h1>Distrobox<span class="pill pro">PRO</span></h1>
+      <p class="sub">An Ubuntu, Fedora or Arch userland in a terminal, sharing your home folder.</p>
+    </header>
+
+    <div class="swap"><span>On Windows this was</span><strong>WSL &mdash; the Windows Subsystem for Linux</strong></div>
+
+    <div class="notice pro-notice"><div><strong>This one is part of Dagric&nbsp;OS Pro.</strong> You are reading the manual on the free edition, so it is not installed on this computer. The page is here on purpose &mdash; you should be able to see exactly what Pro adds before you decide whether you want it.</div></div>
+    <section>
+      <h2>What it is</h2>
+      <p><strong>Distrobox</strong> gives you another distribution's userland inside
+      a container that shares your home folder, your display, your audio and your
+      graphics card. You can run an Ubuntu 24.04 shell, install an Ubuntu-only
+      package, run it, and see the results in your own Documents folder.</p>
+      <p>If you used WSL on Windows, this is the same idea from the other side, and
+      the integration is considerably deeper.</p>
+    </section>
+
+    <section>
+      <h2>Five things you will actually do</h2>
+      <ol class="tasks">
+        <li><span class="t">Create a box</span><p><code>distrobox create -i ubuntu:24.04 -n ubuntu</code>. Any OCI image
+         works: Fedora, Arch, openSUSE, an old Debian, a vendor's own image.</p></li>
+        <li><span class="t">Enter it</span><p><code>distrobox enter ubuntu</code>. You are at an Ubuntu prompt, in
+         your own home folder, as yourself. <code>sudo</code> inside the box affects
+         only the box.</p></li>
+        <li><span class="t">Install the thing that only exists for Ubuntu</span><p>Add the vendor's apt repository inside the box and install normally.
+         Your host system stays clean &mdash; which is the entire point.</p></li>
+        <li><span class="t">Put a container app in the Dagric launcher</span><p><code>distrobox-export --app someapp</code> from inside the box creates
+         a launcher entry on the host. The application runs in the container and looks
+         like a normal installed program.</p></li>
+        <li><span class="t">Throw it away</span><p><code>distrobox rm ubuntu</code>. Your files are in your home folder
+         and are untouched, because they were never inside the container to begin
+         with.</p></li>
+      </ol>
+    </section>
+
+    <section>
+      <h2>One thing that will surprise you</h2>
+      <p><strong>It shares your home folder by default, and that cuts both
+      ways.</strong> The convenience is enormous &mdash; no copying files in and out
+      &mdash; but a command run inside the box can delete your documents just as
+      easily as one run outside it. A container here is an isolation of
+      <em>software</em>, not of your data. Use <code>--home</code> to give a box its
+      own separate home directory when you are running something you do not
+      trust.</p>
+    </section>
+
+    <section>
+      <h2>Where to find it</h2>
+      <p>A terminal. Exported applications appear in the Dagric launcher like any
+      other.</p>
+    </section>
+
+    <section>
+      <h2>See also</h2>
+      <div class="related"><a href="app-docker.html">Docker and Podman</a><a href="app-devtools.html">Git, compilers and Python</a><a href="app-virt-manager.html">Virtual Machine Manager</a><a href="app-terminal-extras.html">nala, bat and zoxide</a></div>
+    </section>
+
+    <footer class="colophon">Dagric OS Manual &middot; stored on this computer, no internet needed &middot; <a href="index.html">every application</a></footer>
+
+  </main>
+</div>
+</body>
+</html>

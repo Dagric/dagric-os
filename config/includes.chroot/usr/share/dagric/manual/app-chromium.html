@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Chromium &mdash; Dagric OS Manual</title>
+<link rel="stylesheet" href="manual.css">
+<script src="manual.js"></script>
+</head>
+<body>
+<div class="shell">
+  <aside class="side">
+    <div class="sidebox">
+      <a class="brand" href="index.html">
+        <div class="mark">D</div>
+        <div class="brand-name">Dagric OS<small>Manual</small></div>
+      </a>
+      <nav class="toc">
+        <a class="back" href="index.html">&larr; All applications</a>
+        <div class="navgroup">Internet and communication</div>
+        <a href="app-firefox.html">Firefox</a>
+        <a href="app-chromium.html" class="active">Chromium</a>
+        <a href="app-thunderbird.html">Thunderbird</a>
+        <a href="app-network.html">Wi-Fi, wired networks and VPN</a>
+        <a href="app-kdeconnect.html">KDE Connect</a>
+        <a href="app-localsend.html">LocalSend</a>
+        <a href="app-syncthing.html">Syncthing</a>
+        <a href="app-cloud-storage.html">Cloud storage: rclone and Google Drive</a>
+        <a href="app-qbittorrent.html">qBittorrent</a>
+      </nav>
+    </div>
+  </aside>
+
+  <main class="content">
+
+    <header class="hero">
+      <div class="eyebrow">Internet and communication</div>
+      <h1>Chromium<span class="pill pro">PRO</span></h1>
+      <p class="sub">A second browser, for the site that insists on Chrome.</p>
+    </header>
+
+    <div class="swap"><span>On Windows this was</span><strong>Google Chrome</strong></div>
+
+    <div class="notice pro-notice"><div><strong>This one is part of Dagric&nbsp;OS Pro.</strong> You are reading the manual on the free edition, so it is not installed on this computer. The page is here on purpose &mdash; you should be able to see exactly what Pro adds before you decide whether you want it.</div></div>
+    <section>
+      <h2>What it is</h2>
+      <p><strong>Chromium</strong> is the open-source browser that Google Chrome is
+      built from, without Google's proprietary additions. It exists on this machine
+      for one reason: occasionally a banking site, a video-conference room or a
+      corporate portal is only tested against Chrome, and having one to hand saves an
+      afternoon.</p>
+    </section>
+
+    <section>
+      <h2>Five things you will actually do</h2>
+      <ol class="tasks">
+        <li><span class="t">Use it for the one site that needs it</span><p>Keep Firefox as the default and open Chromium only when something
+         misbehaves. Two browsers with separate cookies is also a genuinely useful
+         privacy arrangement.</p></li>
+        <li><span class="t">Import bookmarks from Firefox</span><p>&#8942; menu &rarr; <em>Bookmarks</em> &rarr; <em>Import bookmarks and
+         settings</em>. It can read Firefox's profile directly, or an HTML file such
+         as the one the Migration Assistant produced.</p></li>
+        <li><span class="t">Install extensions</span><p>The Chrome Web Store works. uBlock Origin is worth adding here too
+         &mdash; unlike Firefox, Chromium ships with no blocker at all.</p></li>
+        <li><span class="t">Open the developer tools</span><p><kbd>F12</kbd>. This is the reason many web developers keep Chromium
+         around; the tooling is excellent and identical to Chrome's.</p></li>
+        <li><span class="t">Change the default browser</span><p>System Settings &rarr; <em>Default Applications</em> &rarr;
+         <em>Web browser</em>. Both are listed there.</p></li>
+      </ol>
+    </section>
+
+    <section>
+      <h2>One thing that will surprise you</h2>
+      <p><strong>Chrome Sync does not work, and that is Debian being careful, not
+      a bug.</strong> Signing into a Google account to sync bookmarks needs private
+      API keys that Google only issues to Google, so Debian's build ships without
+      them. Everything else works normally. If you truly need Chrome Sync you can
+      install Google's own Chrome as a <code>.deb</code> &mdash; see
+      <a href="app-gdebi.html">installing downloaded software</a> &mdash; but be
+      aware that you are then running a proprietary browser that reports back, which
+      is precisely what Dagric is trying to save you from.</p>
+    </section>
+
+    <section>
+      <h2>Where to find it</h2>
+      <p>Launcher &rarr; <em>Chromium</em>.</p>
+    </section>
+
+    <section>
+      <h2>See also</h2>
+      <div class="related"><a href="app-firefox.html">Firefox</a><a href="app-gdebi.html">Installing downloaded software</a><a href="app-flatseal.html">Flatseal</a></div>
+    </section>
+
+    <footer class="colophon">Dagric OS Manual &middot; stored on this computer, no internet needed &middot; <a href="index.html">every application</a></footer>
+
+  </main>
+</div>
+</body>
+</html>

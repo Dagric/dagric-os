@@ -13,42 +13,64 @@ EDITION=$(cat /etc/dagric-edition 2>/dev/null || echo free)
 # Pro appends its own sections below the free ones.
 set -- \
     _start   "──  Get started  ──────────────────" \
-    setup    "      Finish setup" \
+    firstrun "      Set up Dagric (welcome wizard)" \
+    setup    "      Finish setup — drivers, printers" \
     migrate  "      Migrate from Windows" \
     guide    "      Welcome guide" \
+    manual   "      App manual" \
     _looks   "──  Appearance  ───────────────────" \
     gallery  "      Appearance gallery" \
+    display  "      Text size and night light" \
     looks    "      Desktop layout" \
     style    "      Colors and mood" \
     variety  "      Rotating wallpapers" \
     _system  "──  System  ───────────────────────" \
     drivers  "      NVIDIA driver" \
-    security "      Security checkup"
+    security "      Security checkup" \
+    _apps    "──  Add more apps  ────────────────" \
+    steam       "      Steam" \
+    heroic      "      Heroic — Epic, GOG, Amazon" \
+    protonup    "      ProtonUp-Qt" \
+    gaming      "      Proton-GE for Steam" \
+    bottles     "      Windows apps — Bottles" \
+    onlyoffice  "      Office suite — ONLYOFFICE" \
+    joplin      "      Private notes — Joplin" \
+    localsend   "      Local sharing — LocalSend" \
+    cryptomator "      Cloud encryption — Cryptomator" \
+    upscayl     "      Image upscaler — Upscayl" \
+    resolve     "      DaVinci Resolve" \
+    ai          "      Local AI — Ollama"
+# Pro adds only what Pro actually INSTALLS. The line is mechanical, not
+# marketing: a helper that just fetches a free app from Flathub, Debian or
+# upstream works identically on both editions, so it ships on both. The two
+# below are different in kind — dagric-vm enables the KVM/QEMU/virt-manager
+# stack and dagric-usb-protect arms USBGuard, and those packages are Pro-only,
+# so on free these rows would be buttons that cannot work.
+#
+# This block used to hold all fourteen helpers. That shipped a free edition
+# which DOCUMENTED Steam, Bottles, Heroic and Resolve in its own manual and
+# then offered no way to reach any of them — the exact "free feels broken"
+# failure the project forbids — while the thing being gated was a script that
+# runs `apt install steam`. Steam is free; gating the convenience of installing
+# it behind $39 protected no revenue and made the gate look petty. Pro's value
+# is that the creator and gaming stacks are already installed and tuned, not
+# that free users are forbidden to download things.
 if [ "$EDITION" = "pro" ]; then
     set -- "$@" \
-        _windows "──  Windows and apps  ─────────────" \
+        _windows "──  Windows and security  ─────────" \
         vm          "      Windows in a VM" \
-        bottles     "      Windows apps — Bottles" \
-        onlyoffice  "      Office suite — ONLYOFFICE" \
-        _privacy "──  Privacy and files  ────────────" \
-        usbprotect  "      USB protection" \
-        localsend   "      Local sharing — LocalSend" \
-        cryptomator "      Cloud encryption — Cryptomator" \
-        joplin      "      Private notes — Joplin" \
-        _gaming  "──  Gaming  ───────────────────────" \
-        steam       "      Steam" \
-        heroic      "      Heroic — Epic, GOG, Amazon" \
-        protonup    "      ProtonUp-Qt" \
-        gaming      "      Proton-GE for Steam" \
-        _creator "──  Creator and AI  ───────────────" \
-        upscayl     "      Image upscaler — Upscayl" \
-        resolve     "      DaVinci Resolve" \
-        ai          "      Local AI — Ollama"
+        usbprotect  "      USB protection"
 fi
 
-# A comfortable initial size; taller on Pro, which has more sections.
-GEOM=440x455
-[ "$EDITION" = "pro" ] && GEOM=440x705
+# A comfortable initial size; taller on Pro, which has one more section.
+# Both numbers are "chrome plus roughly 14px per row" — the ratio these sizes
+# have always encoded. Free now draws 28 rows (it gained the whole "Add more
+# apps" section, 13 rows, when the install helpers stopped being Pro-only);
+# Pro adds 3 more. The two editions are now much closer in height than they
+# were, which is the point. Guessing short only adds a scrollbar; guessing tall
+# only adds whitespace. Re-derive it if you add another row.
+GEOM=440x690
+[ "$EDITION" = "pro" ] && GEOM=440x735
 
 CHOICE=$(kdialog --title "Dagric Hub" --icon dagric-logo --geometry "$GEOM" \
     --menu "What would you like to do?" "$@" 2>/dev/null) || exit 0
@@ -61,6 +83,7 @@ run_term() {
 
 case "$CHOICE" in
     _*)       exec /usr/bin/dagric-hub ;;
+    firstrun) dagric-firstrun & ;;
     setup)    dagric-setup & ;;
     migrate)  run_term '/usr/bin/dagric-migrate' ;;
     vm)       run_term '/usr/bin/dagric-vm' ;;
@@ -69,10 +92,14 @@ case "$CHOICE" in
     variety)    run_term '/usr/bin/dagric-get-variety' ;;
     onlyoffice) run_term '/usr/bin/dagric-get-onlyoffice' ;;
     gallery)  dagric-appearance & ;;
+    display)  dagric-display & ;;
     looks)    dagric-looks & ;;
     style)    dagric-style & ;;
     security) dagric-security-checkup & ;;
     guide)    exec firefox file:///usr/share/dagric/welcome/index.html ;;
+    # Not a bare firefox call: dagric-manual passes the edition marker through,
+    # which is what makes the manual's "not on this edition" notes correct.
+    manual)   dagric-manual & ;;
     drivers)   run_term 'pkexec /usr/bin/dagric-drivers' ;;
     bottles)     run_term '/usr/bin/dagric-get-bottles' ;;
     localsend)   run_term '/usr/bin/dagric-get-localsend' ;;

@@ -1,0 +1,131 @@
+#!/bin/sh
+# SPDX-FileCopyrightText: 2026 DGR Operations <repo@dagric.com>
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Dagric OS — the manual. Opens the offline handbook in
+# /usr/share/dagric/manual: one page per application and per dagric-* tool,
+# with what it is, what it replaced on Windows, and how to actually use it.
+#
+# WHY THIS SCRIPT EXISTS AT ALL, rather than a .desktop pointing straight at
+# index.html: the manual has to know which edition it is running on, and the
+# HTML cannot find that out for itself. A page loaded over file:// may not read
+# /etc/dagric-edition, and there is no server to ask. So this script reads it
+# and states the edition in the URL fragment (#e=pro / #e=free); manual.js
+# carries that marker onto every internal link from there.
+#
+# That marker is what makes the Free/Pro decision honest. Every page ships on
+# both editions — hiding the Pro ones would leave a free owner believing Dagric
+# cannot edit video, which is false — and on the free edition the Pro pages open
+# with a plain note saying the software is not installed here. Open the files
+# directly from Dolphin instead and there is no marker: the manual then says
+# nothing either way, because telling a Pro owner that their installed software
+# "is not on this edition" would be worse than staying quiet.
+set -e
+
+ROOT=/usr/share/dagric/manual
+EDITION=$(cat /etc/dagric-edition 2>/dev/null || echo free)
+# Clamp it. This value is pasted straight into a URL, and the manual only knows
+# two editions — anything else (a truncated file, an experiment, a stray edit)
+# becomes "free", which is the reading that under-promises rather than over-.
+case "$EDITION" in
+    pro) ;;
+    *)   EDITION=free ;;
+esac
+
+if [ ! -d "$ROOT" ]; then
+    echo "The Dagric manual is not installed ($ROOT is missing)." >&2
+    exit 1
+fi
+
+usage() {
+    cat << 'EOF'
+Dagric manual — every application on this computer, offline.
+
+  dagric-manual              open the front page (search from there)
+  dagric-manual <topic>      open one page, e.g.  dagric-manual dolphin
+  dagric-manual --list       list every topic
+  dagric-manual --help       this text
+
+Topics are matched against PAGE NAMES: "kate", "app-kate" and "ate" all reach
+the Kate page. Windows names do not work here -- "notepad" matches no page
+name, so it fails. Search by Windows name in the manual's own search box
+instead; that index is what "notepad finds Kate" refers to.
+
+Pages live in /usr/share/dagric/manual and need no internet connection.
+EOF
+}
+
+# The topic list is derived from the pages themselves, so it can never drift
+# out of step with what is actually installed.
+list_topics() {
+    for f in "$ROOT"/*.html; do
+        [ -f "$f" ] || continue
+        b=${f##*/}
+        b=${b%.html}
+        if [ "$b" = index ]; then continue; fi
+        # No '$' anchor: git may check these pages out with CRLF endings on a
+        # contributor's machine, and a trailing carriage return would then make
+        # every description come out blank.
+        t=$(sed -n 's|^<title>\(.*\) &mdash; Dagric OS Manual</title>.*|\1|p' "$f" | head -1)
+        printf '  %-30s %s\n' "$b" "$t"
+    done
+}
+
+# Resolve a topic to a filename. Exact names first (so "app-kate" beats a
+# substring hit somewhere else), then the two prefixes, then a substring match.
+find_page() {
+    for cand in "$1" "app-$1" "tool-$1" "tool-dagric-$1" "app-dagric-$1"; do
+        if [ -f "$ROOT/$cand.html" ]; then
+            printf '%s\n' "$cand.html"
+            return 0
+        fi
+    done
+    for f in "$ROOT"/*.html; do
+        [ -f "$f" ] || continue
+        b=${f##*/}
+        case "$b" in
+            index.html) continue ;;
+            *"$1"*) printf '%s\n' "$b"; return 0 ;;
+        esac
+    done
+    return 1
+}
+
+PAGE=index.html
+case "${1:-}" in
+    "")            : ;;
+    -h|--help)     usage; exit 0 ;;
+    -l|--list)     list_topics; exit 0 ;;
+    -*)            usage >&2; exit 2 ;;
+    *)
+        # Normalise: lower-case, drop a trailing .html somebody pasted in.
+        TOPIC=$(printf '%s' "$1" | tr '[:upper:]' '[:lower:]')
+        TOPIC=${TOPIC%.html}
+        # Only letters, digits and hyphens are ever page names. Rejecting the
+        # rest here means no argument can walk out of $ROOT — no slashes, no
+        # dots, nothing to quote wrong later.
+        case "$TOPIC" in
+            ''|*[!a-z0-9-]*)
+                echo "No page called '$1'. Try: dagric-manual --list" >&2
+                exit 1 ;;
+        esac
+        if ! PAGE=$(find_page "$TOPIC"); then
+            echo "No page called '$1'. Try: dagric-manual --list" >&2
+            exit 1
+        fi ;;
+esac
+
+URL="file://$ROOT/$PAGE#e=$EDITION"
+
+# x-www-browser first — it is Debian's alternatives link to whichever browser
+# the machine actually uses, so a Pro owner who switched to Chromium is obeyed.
+# Then Firefox, which every edition ships. xdg-open is the last resort rather
+# than the first: it hands the URL to whatever claims text/html, and a handler
+# that drops the fragment would lose the edition marker without saying so.
+for b in x-www-browser firefox firefox-esr xdg-open; do
+    if command -v "$b" >/dev/null 2>&1; then
+        exec "$b" "$URL"
+    fi
+done
+
+echo "No browser found. The manual is at $ROOT/$PAGE" >&2
+exit 1

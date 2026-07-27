@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Why the apps have plain names &mdash; Dagric OS Manual</title>
+<link rel="stylesheet" href="manual.css">
+<script src="manual.js"></script>
+</head>
+<body>
+<div class="shell">
+  <aside class="side">
+    <div class="sidebox">
+      <a class="brand" href="index.html">
+        <div class="mark">D</div>
+        <div class="brand-name">Dagric OS<small>Manual</small></div>
+      </a>
+      <nav class="toc">
+        <a class="back" href="index.html">&larr; All applications</a>
+        <div class="navgroup">Dagric&#x27;s own tools</div>
+        <a href="tool-dagric-hub.html">Dagric Hub</a>
+        <a href="tool-dagric-setup.html">Finish Setup</a>
+        <a href="tool-dagric-firstrun.html">Set Up Dagric</a>
+        <a href="tool-dagric-migrate.html">Migration Assistant</a>
+        <a href="tool-dagric-appearance.html">Dagric Appearance</a>
+        <a href="tool-dagric-looks.html">Dagric Looks</a>
+        <a href="tool-dagric-style.html">Dagric Styles</a>
+        <a href="tool-dagric-display.html">Dagric Display</a>
+        <a href="tool-dagric-app-names.html" class="active">Why the apps have plain names</a>
+        <a href="tool-dagric-get-variety.html">Rotating wallpapers (Variety)</a>
+        <a href="tool-dagric-drivers.html">NVIDIA driver helper</a>
+        <a href="tool-dagric-security-checkup.html">Security Checkup</a>
+        <a href="tool-dagric-usb-protect.html">USB Protection</a>
+        <a href="tool-dagric-vm.html">Windows in a window (VM setup)</a>
+        <a href="tool-dagric-gaming.html">Proton-GE helper</a>
+        <a href="tool-dagric-ai.html">Local AI (Ollama)</a>
+        <a href="tool-dagric-manual.html">This manual</a>
+        <a href="tool-dagric-background.html">Helpers that run by themselves</a>
+        <a href="tool-dagric-commands.html">Every dagric command</a>
+      </nav>
+    </div>
+  </aside>
+
+  <main class="content">
+
+    <header class="hero">
+      <div class="eyebrow">Dagric&#x27;s own tools</div>
+      <h1>Why the apps have plain names</h1>
+      <p class="sub">Your menu says Files, Photos and Terminal. Forum posts say Dolphin, Gwenview and Konsole. Both are right.</p>
+    </header>
+
+    <div class="swap"><span>On Windows this was</span><strong>nothing — this is Dagric solving a Linux problem</strong></div>
+
+    <section>
+      <h2>What it is</h2>
+      <p>Open a stock KDE launcher and you are offered Dolphin, Konsole, Gwenview,
+      Okular, Ark, Elisa, Kate and Spectacle. Not one of those words tells you what
+      the program does. Dagric renames them for the job:</p>
+      <ul class="plain">
+        <li>Dolphin &rarr; <strong>Files</strong>, Konsole &rarr;
+        <strong>Terminal</strong>, Gwenview &rarr; <strong>Photos</strong>,
+        Okular &rarr; <strong>Document Viewer</strong>, Ark &rarr;
+        <strong>Archive Manager</strong>, Kate &rarr; <strong>Text Editor</strong>,
+        Elisa &rarr; <strong>Music</strong>, mpv &rarr; <strong>Videos</strong>.</li>
+        <li>Spectacle &rarr; <strong>Screenshot</strong>, Discover &rarr;
+        <strong>Software Store</strong>, KCalc &rarr; <strong>Calculator</strong>,
+        System Monitor &rarr; <strong>Task Manager</strong>, KWallet &rarr;
+        <strong>Saved Passwords</strong>, Skanlite &rarr; <strong>Scanner</strong>,
+        GDebi &rarr; <strong>Package Installer</strong>.</li>
+        <li>On Pro: Filelight &rarr; <strong>Disk Space</strong>, KDE Connect &rarr;
+        <strong>Connect Your Phone</strong>, Timeshift &rarr; <strong>System
+        Restore</strong>, Vorta &rarr; <strong>Encrypted Backup</strong>, BleachBit
+        &rarr; <strong>Disk Cleanup</strong>.</li>
+      </ul>
+      <p>Firefox, LibreOffice, GIMP, Blender, Krita, Inkscape, OBS, Thunderbird,
+      KeePassXC, Audacity, HandBrake and qBittorrent keep their own names &mdash;
+      those brands <em>are</em> what you already know and search for.</p>
+    </section>
+
+    <section>
+      <h2>Five things you will actually do</h2>
+      <ol class="tasks">
+        <li><span class="t">Search by either name</span><p>Typing <em>Dolphin</em> finds Files, and typing <em>File Explorer</em>
+         finds it too. Every renamed app keeps its original name as a search keyword,
+         along with the Windows name and the common misspellings &mdash;
+         <em>notepad++</em>, <em>taskmgr</em>, <em>prtscn</em>, <em>this pc</em>.</p></li>
+        <li><span class="t">Read the second line in the menu</span><p>Under each name the launcher shows what it is and, in brackets, what it
+         is really called: <em>File manager (Dolphin)</em>. So the menu agrees with the
+         window title bar rather than contradicting it.</p></li>
+        <li><span class="t">Follow a guide written for KDE</span><p>A forum post saying &ldquo;open Dolphin and press F4&rdquo; still works.
+         The program is unchanged; only its label in the menu is ours. That is why
+         both names appear on every page of this manual.</p></li>
+        <li><span class="t">Understand the window titles</span><p>Title bars still say Dolphin, Konsole, Gwenview. No menu entry can
+         change what a program calls its own window, and Dagric would rather show you
+         the real name there than pretend.</p></li>
+        <li><span class="t">Get the original names back</span><p>The renames live in <code>/usr/local/share/applications</code> as
+         complete overriding copies. Delete them and the upstream names return at
+         once. Note that they are regenerated after package operations, so an
+         administrator who wants them gone permanently should remove the apt hook
+         too.</p></li>
+      </ol>
+    </section>
+
+    <section>
+      <h2>One thing that will surprise you</h2>
+      <p><strong>The rename survives updates, which is the whole difficulty.</strong>
+      The obvious approach &mdash; editing the menu entries KDE installs &mdash; works
+      until the next KDE update, at which point the package manager restores the
+      original file and &ldquo;Files&rdquo; silently becomes &ldquo;Dolphin&rdquo;
+      again on a machine whose owner has no idea why. A rename that expires is worse
+      than no rename. So Dagric writes complete overriding copies into a directory the
+      package manager never touches, and regenerates them after every package
+      operation from whatever upstream currently ships.</p>
+      <p>One honest limit: the renames apply to English installs. Install in German or
+      French and the menu keeps the translated upstream names, because throwing away
+      real translations to impose English labels would be a worse trade.</p>
+    </section>
+
+    <section>
+      <h2>Where to find it</h2>
+      <p>Nowhere &mdash; it runs at build time and after package operations. The
+      generated files are in <code>/usr/local/share/applications</code>.</p>
+    </section>
+
+    <section>
+      <h2>See also</h2>
+      <div class="related"><a href="app-launcher.html">The launcher and search</a><a href="tool-dagric-commands.html">Every dagric command</a><a href="app-dolphin.html">Dolphin</a><a href="app-discover.html">Discover</a></div>
+    </section>
+
+    <footer class="colophon">Dagric OS Manual &middot; stored on this computer, no internet needed &middot; <a href="index.html">every application</a></footer>
+
+  </main>
+</div>
+</body>
+</html>

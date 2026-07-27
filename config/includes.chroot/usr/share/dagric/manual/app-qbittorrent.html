@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>qBittorrent &mdash; Dagric OS Manual</title>
+<link rel="stylesheet" href="manual.css">
+<script src="manual.js"></script>
+</head>
+<body>
+<div class="shell">
+  <aside class="side">
+    <div class="sidebox">
+      <a class="brand" href="index.html">
+        <div class="mark">D</div>
+        <div class="brand-name">Dagric OS<small>Manual</small></div>
+      </a>
+      <nav class="toc">
+        <a class="back" href="index.html">&larr; All applications</a>
+        <div class="navgroup">Internet and communication</div>
+        <a href="app-firefox.html">Firefox</a>
+        <a href="app-chromium.html">Chromium</a>
+        <a href="app-thunderbird.html">Thunderbird</a>
+        <a href="app-network.html">Wi-Fi, wired networks and VPN</a>
+        <a href="app-kdeconnect.html">KDE Connect</a>
+        <a href="app-localsend.html">LocalSend</a>
+        <a href="app-syncthing.html">Syncthing</a>
+        <a href="app-cloud-storage.html">Cloud storage: rclone and Google Drive</a>
+        <a href="app-qbittorrent.html" class="active">qBittorrent</a>
+      </nav>
+    </div>
+  </aside>
+
+  <main class="content">
+
+    <header class="hero">
+      <div class="eyebrow">Internet and communication</div>
+      <h1>qBittorrent<span class="pill pro">PRO</span></h1>
+      <p class="sub">A BitTorrent client with no advertising and no bundled anything.</p>
+    </header>
+
+    <div class="swap"><span>On Windows this was</span><strong>uTorrent</strong></div>
+
+    <div class="notice pro-notice"><div><strong>This one is part of Dagric&nbsp;OS Pro.</strong> You are reading the manual on the free edition, so it is not installed on this computer. The page is here on purpose &mdash; you should be able to see exactly what Pro adds before you decide whether you want it.</div></div>
+    <section>
+      <h2>What it is</h2>
+      <p><strong>qBittorrent</strong> transfers files over BitTorrent. It looks and
+      behaves like the uTorrent people remember from before uTorrent filled with
+      advertising, and it is open source with nothing bundled.</p>
+      <p>The everyday legitimate use is large open downloads &mdash; Linux ISOs,
+      public datasets, Internet Archive material, game patches. What you do with it
+      beyond that is between you and the law where you live.</p>
+    </section>
+
+    <section>
+      <h2>Five things you will actually do</h2>
+      <ol class="tasks">
+        <li><span class="t">Open a torrent or magnet link</span><p>Click a magnet link in Firefox and qBittorrent offers to take it, or
+         drag a <code>.torrent</code> file onto the window. It asks where to save
+         before starting.</p></li>
+        <li><span class="t">Check what you downloaded is genuine</span><p>Reputable projects publish a checksum. Verify with
+         <code>sha256sum thefile.iso</code> in a terminal and compare it to the
+         published value. BitTorrent guarantees the pieces match the torrent; the
+         checksum tells you the torrent itself was the real one.</p></li>
+        <li><span class="t">Limit the speed so the house can still use the internet</span><p><em>Tools</em> &rarr; <em>Options</em> &rarr; <em>Speed</em>. Set
+         global upload and download caps, and use the alternative-rate scheduler for
+         daytime versus overnight.</p></li>
+        <li><span class="t">Keep seeding, politely</span><p>Set a share-ratio or seeding-time limit in the options so completed
+         downloads stop on their own. Returning at least what you took is the
+         etiquette that keeps the system working.</p></li>
+        <li><span class="t">Bind it to a VPN</span><p><em>Options</em> &rarr; <em>Advanced</em> &rarr; <em>Network
+         interface</em> and select your VPN interface. Then, if the VPN drops,
+         qBittorrent stops rather than quietly falling back to your ordinary
+         connection.</p></li>
+      </ol>
+    </section>
+
+    <section>
+      <h2>One thing that will surprise you</h2>
+      <p><strong>Your address is visible to every peer, by design.</strong>
+      BitTorrent works by connecting you directly to strangers, so anyone in the swarm
+      can see your IP address. That is not a flaw to be patched &mdash; it is how the
+      protocol functions. Bind it to a VPN as above if that matters to you, and never
+      assume a torrent client is private.</p>
+    </section>
+
+    <section>
+      <h2>Where to find it</h2>
+      <p>Launcher &rarr; <em>qBittorrent</em>.</p>
+    </section>
+
+    <section>
+      <h2>See also</h2>
+      <div class="related"><a href="app-firefox.html">Firefox</a><a href="app-network.html">Wi-Fi, wired networks and VPN</a><a href="app-opensnitch.html">OpenSnitch</a></div>
+    </section>
+
+    <footer class="colophon">Dagric OS Manual &middot; stored on this computer, no internet needed &middot; <a href="index.html">every application</a></footer>
+
+  </main>
+</div>
+</body>
+</html>

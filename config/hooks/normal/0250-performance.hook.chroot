@@ -1,0 +1,403 @@
+#!/bin/sh
+# SPDX-FileCopyrightText: 2026 DGR Operations <repo@dagric.com>
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Dagric OS — make it feel fast on the hardware it is actually installed on:
+# 4-8 GB of RAM, integrated graphics, and a disk that is as often a 5400 rpm
+# platter as an SSD.
+#
+# Ground rule for this file: nothing goes in unless it was checked against the
+# built image, a real kernel config, or a running kernel. Everything that
+# turned out to be a no-op or a myth is listed at the bottom with the evidence,
+# so the next person does not have to disprove it a second time. A hook full of
+# superstition is worse than no hook — it makes every future "why is this
+# machine slow" investigation start with an audit of our own guesses.
+#
+# The static drop-ins this tuning needs ship from config/includes.chroot:
+#   /etc/sysctl.d/99-dagric-desktop.conf
+#   /etc/systemd/system/zramswap.service.d/10-dagric-vm-tuning.conf
+#   /etc/systemd/system.conf.d/10-dagric-stop-timeout.conf
+#   /etc/systemd/journald.conf.d/10-dagric-limits.conf
+# This hook handles the parts that have to modify files another package owns.
+set -e
+
+
+# ---------------------------------------------------------------------------
+# zram: compress with zstd, not lz4
+# ---------------------------------------------------------------------------
+# zram-tools is already installed and enabled (0300-hardening.hook.chroot), but
+# Debian's stock /etc/default/zramswap ships ALGO=lz4. The usual argument for
+# lz4 is that it compresses at GB/s where zstd manages hundreds of MB/s — true,
+# and irrelevant here. That argument assumes the thing you are racing is an
+# NVMe. On this hardware the alternative to holding a page in zram is a seek on
+# a 5400 rpm disk, so the right currency is compression ratio, not CPU. zstd
+# reaches roughly 3:1 on anonymous desktop memory against lz4's ~2.5:1, which
+# on a 4 GB machine is about one extra browser's worth of working set that
+# never touches the disk.
+#
+# Verified: kernel 6.12.96+deb13-amd64 has CONFIG_ZRAM_BACKEND_ZSTD=y (and no
+# LZO backend at all, so "lzo" is not even an option), and /usr/sbin/zramswap
+# writes $ALGO straight into /sys/block/zram0/comp_algorithm.
+#
+# This MUST be the config file rather than a systemd Environment= drop-in:
+# /usr/sbin/zramswap sources /etc/default/zramswap itself, so the file always
+# overwrites whatever the unit put in the environment.
+#
+# PERCENT is deliberately left at Debian's 50. It is a virtual cap, not an
+# allocation — at 50% of 4 GB the pool only costs real RAM as it fills, roughly
+# 650 MB once full at zstd ratios. Pushing it toward 100% (Fedora's choice)
+# makes the compressed pool itself a source of memory pressure on a small
+# machine, which is the problem we are trying to avoid.
+#
+# Risk: zstd burns more CPU per swapped page than lz4, and these are 2-core
+# machines. Accepted — a machine deep enough in swap for that to matter is one
+# where avoiding disk IO wins by an order of magnitude over saving cycles.
+ZRAMCFG=/etc/default/zramswap
+if [ -f "$ZRAMCFG" ]; then
+    # Match on the KEY, not on the value "lz4". If Debian changes its default
+    # the substitution must still fire instead of silently no-opping and
+    # shipping whatever upstream picked.
+    sed -i 's/^ALGO=.*/ALGO=zstd/' "$ZRAMCFG"
+    if ! grep -q '^ALGO=zstd' "$ZRAMCFG"; then
+        echo "WARNING: /etc/default/zramswap has no ALGO= key — zram is still on the stock algorithm" >&2
+    fi
+else
+    echo "WARNING: /etc/default/zramswap missing — is zram-tools still in the package list?" >&2
+fi
+
+
+# ---------------------------------------------------------------------------
+# Boot: stop waiting for things nothing is waiting for
+# ---------------------------------------------------------------------------
+# Both units below are enabled in the built image (verified in
+# /etc/systemd/system/multi-user.target.wants and network-online.target.wants).
+disable_unit() {
+    if [ -f "/usr/lib/systemd/system/$1" ] || [ -f "/etc/systemd/system/$1" ]; then
+        systemctl disable "$1" >/dev/null 2>&1 || true
+        # Belt and braces. `systemctl disable` inside a build chroot is not
+        # always willing to touch enablement symlinks, and a leftover .wants
+        # link would silently re-enable the unit on every installed machine
+        # while the build log claimed success.
+        rm -f /etc/systemd/system/*.target.wants/"$1"
+        echo "disabled $1"
+    else
+        echo "WARNING: $1 not found — expected to disable it; did a package list change?" >&2
+    fi
+}
+
+# NetworkManager-wait-online blocks boot until NetworkManager reports a usable
+# connection. Under QEMU's instant NAT that measured 1.2s; on a real laptop
+# associating with a saved Wi-Fi AP it routinely costs 5-30s, every single
+# boot, of a progress bar that looks like the machine is stuck.
+#
+# Nothing in the enabled unit set needs it: unattended-upgrades runs from
+# apt-daily.timer (not at boot), and cups and avahi do not wait for the
+# network. The only enabled unit that pulled in network-online.target at all
+# was strongswan-starter, which is disabled just below.
+#
+# Risk: a unit added later with After=network-online.target would race the
+# network coming up. That unit should then declare its own dependency and pull
+# NetworkManager-wait-online back in explicitly. Every mainstream desktop
+# distribution makes this same call.
+disable_unit NetworkManager-wait-online.service
+
+# strongswan-starter runs a full charon IPsec daemon (ExecStart=/usr/sbin/ipsec
+# start --nofork) at every boot. It is dragged in by network-manager-l2tp, and
+# that plugin does not need it — NetworkManager starts its own charon instance
+# for a VPN connection when the user actually connects to one. So this is a
+# daemon running permanently for nothing, and its unit carries
+# Wants=network-online.target, which is what made the wait-online delay above
+# actually bite.
+#
+# Risk: a hand-written /etc/ipsec.conf setup would stop starting at boot. That
+# is not this audience, and the Hub's VPN import path is unaffected.
+disable_unit strongswan-starter.service
+
+
+# ---------------------------------------------------------------------------
+# I/O scheduler: BFQ on spinning disks only
+# ---------------------------------------------------------------------------
+# The complaint this fixes is "copying files makes the whole desktop freeze".
+# On a rotational disk with mq-deadline (the kernel's default here) a single
+# large writer gets an equal share against the desktop's small latency-critical
+# reads, so plasmashell and Dolphin stall behind it. BFQ was written for
+# precisely this case.
+#
+# The concrete, checkable reason — not just "BFQ is for desktops": ionice /
+# systemd's IOSchedulingClass= are only honoured by BFQ in the blk-mq era.
+# mq-deadline and none ignore them entirely. The image already ships units that
+# politely mark themselves idle-priority and are currently getting no benefit
+# from it at all: plocate-updatedb.service sets IOSchedulingClass=idle and
+# Nice=19 (verified), and the snapper timers behave the same way. Switching
+# rotational disks to BFQ is what makes that existing politeness real.
+#
+# Verified: CONFIG_IOSCHED_BFQ=m in the shipped kernel, bfq.ko.xz present under
+# /lib/modules/6.12.96+deb13-amd64/kernel/block/. The rule below passes
+# `udevadm verify` on systemd 257.
+#
+# IMPORT{builtin}="kmod load bfq" rather than relying on the block layer
+# autoloading "bfq-iosched": if the module cannot be loaded the IMPORT fails,
+# udev abandons the rest of that rule line, and the device simply keeps
+# mq-deadline. Failure mode is "no change", not "no scheduler".
+#
+# Non-rotational devices are deliberately left alone. On an SSD or NVMe,
+# mq-deadline/none is the right answer and BFQ's extra bookkeeping costs
+# throughput. Detecting this at runtime through udev — rather than baking one
+# answer into the image — is also the only thing that gets an external USB hard
+# drive right when it is plugged in an hour after boot.
+cat > /etc/udev/rules.d/60-dagric-ioscheduler.rules << 'EOF'
+# Dagric OS — see config/hooks/normal/0250-performance.hook.chroot for the
+# reasoning. Rotational disks get BFQ so that interactive IO is not starved by
+# a big copy, and so that IOSchedulingClass=idle on background jobs (plocate,
+# snapper) actually means something. SSD and NVMe are left on the kernel
+# default on purpose.
+ACTION=="add|change", SUBSYSTEM=="block", KERNEL=="sd*[!0-9]", ATTR{queue/rotational}=="1", IMPORT{builtin}="kmod load bfq", ATTR{queue/scheduler}="bfq"
+EOF
+
+
+# ---------------------------------------------------------------------------
+# Installed-system mount options (Calamares)
+# ---------------------------------------------------------------------------
+# Read this before touching mount options anywhere else, because it is not
+# where anyone looks first:
+#
+# /etc/calamares/modules/fstab.conf contains mountOptions: and
+# ssdExtraMountOptions: keys. THOSE KEYS ARE DEAD. This Calamares' fstab module
+# reads the option strings out of global storage
+# (`global_storage.value("mountOptionsList")`, main.py line 408) and its own
+# schema declares `additionalProperties: false` with only crypttabOptions and
+# tmpOptions allowed. The keys are a leftover from an older Calamares and are
+# silently ignored. Editing them changes nothing — verified by reading
+# /usr/lib/x86_64-linux-gnu/calamares/modules/fstab/main.py in the built image.
+#
+# The live values come from the *mount* module, below, and mount.conf as
+# shipped has no mountOptions: block at all. Its main.py then does
+# `if mount_options is None: return "defaults"` — so today every Dagric install
+# mounts its root with a bare `defaults`. Not even noatime, despite fstab.conf
+# appearing to ask for it.
+#
+# What we set and why:
+#
+# noatime — free and correct, and worth exactly the honesty it deserves: Linux
+# has defaulted to relatime since 2.6.30, which already collapses atime updates
+# to one per file per day. This removes the remainder. It is not the reason a
+# desktop feels fast and it should never appear in marketing copy.
+#
+# compress=zstd:1 on btrfs — this is the real win, and it is largest on the
+# slowest machines. A compressed extent is fewer bytes off the platter, and the
+# target machine is IO-bound long before it is CPU-bound. zstd:1 is the
+# cheapest zstd level; btrfs detects incompressible extents and skips them, so
+# a disk full of JPEGs and MP4s pays almost nothing. It also speeds up the
+# install itself, since unpackfs writes several GB through this mount.
+#
+# Applied to every btrfs disk, not just SSDs, for two reasons: HDDs benefit
+# more, and Calamares' SSD detection is broken for NVMe anyway — its
+# disk_name_for_partition() tests `name.startswith("/dev/nvme")` against a
+# value that has already been through os.path.basename(), so the NVMe branch
+# can never fire and every NVMe partition is misreported as rotational
+# (verified in the image's mount/main.py). Any option split across
+# ssdOptions/hddOptions would be applied to the wrong drives.
+#
+# Boot safety, checked rather than assumed: /boot lives on the btrfs root here,
+# so GRUB must be able to read zstd-compressed extents. GRUB 2.12-9+deb13u2 in
+# this image declares `btrfs: gzio lzopio raid6rec zstd` in moddep.lst for both
+# x86_64-efi and i386-pc, and zstd.mod is present for both. grub-install pulls
+# it in automatically.
+#
+# The efi entry restates `defaults` so the ESP keeps exactly the mount options
+# it has today. Without it the ESP would fall through to the default entry and
+# silently change, and the ESP's permissions are the security story's call, not
+# a performance one.
+#
+# Risk: compression is a one-way door for a given install — existing extents
+# stay as they were written, and a user who dislikes it has to edit /etc/fstab.
+# It is the standard choice on Fedora and openSUSE and has been stable in btrfs
+# for years.
+#
+# discard is deliberately NOT set. fstrim.timer is already enabled in the image
+# (verified in timers.target.wants), so continuous discard is redundant, and
+# plain `discard` on btrfs is a synchronous trim — a well-known source of
+# multi-second stalls on exactly the cheap SSDs with weak TRIM firmware that
+# these rescued machines contain. Weekly fstrim is what Ubuntu and Fedora do.
+MOUNTCFG=/etc/calamares/modules/mount.conf
+if [ -f "$MOUNTCFG" ]; then
+    if grep -q '^mountOptions:' "$MOUNTCFG"; then
+        echo "NOTE: $MOUNTCFG already defines mountOptions — leaving it alone"
+    else
+        cat >> "$MOUNTCFG" << 'EOF'
+
+# --- Dagric OS -------------------------------------------------------------
+# Mount options for the installed system. This is the file that matters: the
+# mountOptions:/ssdExtraMountOptions: keys in modules/fstab.conf are dead
+# config for this Calamares version and are ignored. Change options HERE.
+#
+# noatime: free, and mostly already done by relatime — kept for correctness.
+# compress=zstd:1: fewer bytes off a slow disk, which is the bottleneck on the
+#   hardware this OS targets. Cheapest zstd level; btrfs skips incompressible
+#   data. GRUB 2.12 in this image can read zstd-compressed btrfs (zstd.mod is
+#   present for both x86_64-efi and i386-pc), which matters because /boot is on
+#   the btrfs root.
+# No discard: fstrim.timer already runs weekly, and synchronous discard stalls
+#   cheap SSDs.
+# ssdOptions/hddOptions are unused on purpose — Calamares misdetects every NVMe
+#   as rotational, so anything split that way lands on the wrong drives.
+mountOptions:
+    - filesystem: default
+      options: [ defaults, noatime ]
+    - filesystem: btrfs
+      options: [ defaults, noatime, compress=zstd:1 ]
+    - filesystem: efi
+      options: [ defaults ]
+EOF
+        echo "mount.conf: installed mount options (noatime + btrfs zstd:1)"
+    fi
+else
+    echo "WARNING: $MOUNTCFG missing — installed systems will mount with bare 'defaults'" >&2
+fi
+
+
+# ---------------------------------------------------------------------------
+# earlyoom — only if the package made it into the image
+# ---------------------------------------------------------------------------
+# On 4 GB with zram the kernel's own OOM killer is famously reluctant to fire.
+# The machine thrashes and livelocks for minutes while the mouse pointer moves
+# and nothing else does, and the user concludes the OS is garbage and reaches
+# for the power button. earlyoom acts before that, so the symptom becomes
+# "Firefox closed" instead of "the computer died". Both outcomes lose the same
+# unsaved work; only one of them loses the customer.
+#
+# earlyoom IS now in system.list.chroot, so this block runs on every build.
+# The `-x` guard is kept anyway: it is what let this ship before the package
+# landed, and it is what keeps the build green rather than red if somebody
+# removes the package line without reading this far.
+#
+# Thresholds are left at earlyoom's defaults (-m 10 -s 10): it acts only when
+# available memory is under 10% AND free swap is under 10%, i.e. when a 4 GB
+# machine has ~400 MB available and its 2 GB zram is ~90% full. That is exactly
+# the right moment and upstream tuned it deliberately; changing it without
+# measuring would be the sort of guesswork this file exists to avoid. -r 3600
+# is Debian's default hourly memory report — one journal line an hour, worth
+# keeping for support.
+#
+# --avoid keeps the desktop shell itself off the kill list, so a kill reads as
+# an application closing rather than the session dying. Every name is under the
+# 15-character limit of /proc/pid/comm, which is what earlyoom matches against
+# (earlyoom(1): "avoid killing processes whose comm name matches REGEX").
+# No shell quotes around the regex: systemd expands $EARLYOOM_ARGS by splitting
+# on whitespace WITHOUT removing quotes, so quoting it would pass literal
+# apostrophes into the pattern and it would silently never match anything.
+#
+# Two of these names were wrong and are worth naming rather than quietly fixing:
+#
+#   sddm-greeter    The binary sddm ships is /usr/bin/sddm-greeter-qt6, which is
+#                   16 characters, so the kernel truncates comm to
+#                   "sddm-greeter-qt" and the anchored alternative never
+#                   matched. Both spellings are listed now; the old one costs
+#                   nothing and covers a rename back.
+#
+#   kwin_x11        Simply missing. It did not matter while Wayland was the only
+#                   session this image could start, and it does now: kwin-x11 is
+#                   in desktop.list.chroot as the rescue path for an owner whose
+#                   Wayland session misbehaves on an older NVIDIA card. Killing
+#                   the window manager out from under exactly that owner — the
+#                   one already having a bad day — is the worst possible target.
+#
+# --prefer is not set. The obvious candidates are the browser's content
+# processes, but their comm values are truncated by the kernel and were not
+# verified against a running session, and a --prefer regex that matches nothing
+# is worse than none: it reads as if it works.
+if [ -x /usr/bin/earlyoom ]; then
+    cat > /etc/default/earlyoom << 'EOF'
+# Dagric OS — see config/hooks/normal/0250-performance.hook.chroot.
+# Defaults for when to act are upstream's and deliberately unchanged. The only
+# addition is --avoid, which keeps the Plasma session itself alive so an
+# out-of-memory event looks like an app closing, not a crash.
+EARLYOOM_ARGS="-r 3600 --avoid ^(systemd|sddm|sddm-greeter|sddm-greeter-qt|kwin_wayland|kwin_x11|plasmashell|Xwayland|kded6|ksmserver)$"
+EOF
+    systemctl enable earlyoom.service 2>/dev/null || true
+    echo "earlyoom: configured and enabled"
+else
+    echo "NOTE: earlyoom not installed — add it to config/package-lists/system.list.chroot" \
+         "to get out-of-memory protection; this hook will configure it automatically."
+fi
+
+
+# ---------------------------------------------------------------------------
+# REJECTED — checked, and deliberately not shipped. Do not re-add these
+# without new evidence; each one was tested against this image or kernel.
+# ---------------------------------------------------------------------------
+# openvpn.service (enabled, and left enabled)
+#   Its ExecStart is literally /bin/true — it is a oneshot standing in for a
+#   target, not a daemon. Disabling it saves one fork and nothing measurable.
+#   Reported elsewhere as a boot-time win; it is not one.
+#
+# vm.dirty_bytes / vm.dirty_background_bytes
+#   The theory is sound: on 4 GB the defaults let ~800 MB of dirty pages
+#   accumulate, and flushing that to a 5400 rpm disk is the classic "copying a
+#   file froze my desktop" stall. But lowering them measurably reduces large
+#   sequential write throughput, so a user copying 40 GB of photos off an old
+#   drive sees a slower total. That trade needs a benchmark on real spinning
+#   rust, and shipping it on theory is exactly what this file refuses to do.
+#   BFQ above attacks the same symptom with better evidence; measure this only
+#   if BFQ turns out not to be enough.
+#
+# vm.swappiness = 10
+#   The single most repeated Linux tweak on the internet, and wrong here. It
+#   was written for disk swap. This image ships zram, where the cost of
+#   swapping is a memcpy and the cost of dropping cache is a seek later, so the
+#   correct direction is the opposite one. See the zramswap drop-in.
+#
+# vm.max_map_count
+#   Already 1048576, set by systemd's own /usr/lib/sysctl.d/50-default.conf in
+#   this image. Setting it again is noise.
+#
+# net.core.default_qdisc = fq_codel
+#   Already set by the same systemd file.
+#
+# fs.inotify.max_user_watches
+#   Already 524288 on this kernel. Nothing observed is hitting it.
+#
+# space_cache=v2 in mount options
+#   The btrfs default since kernel 5.15. Textbook cargo cult.
+#
+# zswap alongside zram
+#   CONFIG_ZSWAP=y but CONFIG_ZSWAP_DEFAULT_ON is not set, and it should stay
+#   that way. Running zswap in front of a zram device compresses everything
+#   twice into two pools competing for the same RAM. That is a
+#   misconfiguration, not a stacking bonus.
+#
+# preload (0.6.4-5+b2 in Trixie)
+#   Upstream dead since 2009, and on a 4 GB box it competes for the very page
+#   cache it exists to warm.
+#
+# irqbalance (1.9.4-1+deb13u1 in Trixie)
+#   A server tool. Meaningless on 2-4 cores.
+#
+# CPU governor forcing (performance / schedutil)
+#   power-profiles-daemon 0.30-1.1 is installed and enabled via
+#   graphical.target.wants (verified), which is what KDE's PowerDevil drives.
+#   Overriding the governor underneath it means fighting the battery slider the
+#   user can actually see, and on old laptops "performance" mostly buys heat,
+#   fan noise, and thermal throttling.
+#
+# Disabling plocate-updatedb.timer
+#   Its service already sets IOSchedulingClass=idle, Nice=19 and
+#   ConditionACPower=true (verified). It is already well behaved — and with BFQ
+#   on rotational disks that idle priority finally does something.
+#
+# Disabling smartmontools / thermald / firewalld / snapper timers
+#   thermald keeps old laptops out of thermal throttling, i.e. it helps
+#   sustained performance. smartmontools is how a user finds out their 12-year
+#   old disk is dying. firewalld and the snapper timers are advertised product
+#   features. None of them are free, all of them are worth their cost.
+#
+# I/O scheduler changes on SSD/NVMe
+#   No evidence BFQ beats mq-deadline/none there, and good reason to think it
+#   loses throughput. Left alone.
+#
+# A first-boot detection script (dagric-tune-firstboot)
+#   Not written, on purpose. Both settings that genuinely need to be
+#   conditional got a better mechanism: the I/O scheduler is decided per device
+#   by udev, which also handles a USB disk plugged in later, and the zram
+#   sysctls hang off zramswap.service, so they follow zram being on rather than
+#   a one-shot guess made once at first boot. A firstboot script would have
+#   been strictly worse at both.

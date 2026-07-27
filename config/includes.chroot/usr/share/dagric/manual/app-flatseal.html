@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Flatseal &mdash; Dagric OS Manual</title>
+<link rel="stylesheet" href="manual.css">
+<script src="manual.js"></script>
+</head>
+<body>
+<div class="shell">
+  <aside class="side">
+    <div class="sidebox">
+      <a class="brand" href="index.html">
+        <div class="mark">D</div>
+        <div class="brand-name">Dagric OS<small>Manual</small></div>
+      </a>
+      <nav class="toc">
+        <a class="back" href="index.html">&larr; All applications</a>
+        <div class="navgroup">System and safety</div>
+        <a href="app-updates.html">Updates</a>
+        <a href="app-snapshots.html">Snapshot recovery</a>
+        <a href="app-timeshift.html">Timeshift</a>
+        <a href="app-kup.html">Kup</a>
+        <a href="app-vorta.html">Vorta and Borg</a>
+        <a href="app-firewall.html">The firewall</a>
+        <a href="app-opensnitch.html">OpenSnitch</a>
+        <a href="app-drive-health.html">Drive health</a>
+        <a href="app-keepassxc.html">KeePassXC</a>
+        <a href="app-cryptomator.html">Cryptomator</a>
+        <a href="app-bleachbit.html">BleachBit</a>
+        <a href="app-flatseal.html" class="active">Flatseal</a>
+        <a href="app-apparmor.html">AppArmor and the security baseline</a>
+        <a href="app-accounts.html">Accounts, passwords and disk encryption</a>
+        <a href="app-orca.html">Orca</a>
+      </nav>
+    </div>
+  </aside>
+
+  <main class="content">
+
+    <header class="hero">
+      <div class="eyebrow">System and safety</div>
+      <h1>Flatseal<span class="pill pro">PRO</span></h1>
+      <p class="sub">Decide what each sandboxed app is allowed to touch.</p>
+    </header>
+
+    <div class="swap"><span>On Windows this was</span><strong>App permissions in Windows Settings</strong></div>
+
+    <div class="notice pro-notice"><div><strong>This one is part of Dagric&nbsp;OS Pro.</strong> You are reading the manual on the free edition, so it is not installed on this computer. The page is here on purpose &mdash; you should be able to see exactly what Pro adds before you decide whether you want it.</div></div>
+    <section>
+      <h2>What it is</h2>
+      <p>Apps installed from Flathub run in a sandbox: they can only reach the
+      files, devices and services their manifest asks for.
+      <strong>Flatseal</strong> is the window that shows you those requests and lets
+      you change them.</p>
+      <p>It only governs Flatpak apps. Software installed as Debian packages &mdash;
+      most of what Dagric ships &mdash; is confined by
+      <a href="app-apparmor.html">AppArmor</a> instead, which is not adjustable from a
+      window.</p>
+    </section>
+
+    <section>
+      <h2>Five things you will actually do</h2>
+      <ol class="tasks">
+        <li><span class="t">See what an app can reach</span><p>Pick it from the list on the left. The panel shows filesystem access,
+         network, devices, and which system services it may talk to. Anything
+         highlighted has been changed from the app's own defaults.</p></li>
+        <li><span class="t">Stop an app seeing your whole home folder</span><p>Turn off <em>All user files</em> and add only the folders it actually
+         needs under <em>Other files</em>. A media player needs Music; it does not
+         need your tax returns.</p></li>
+        <li><span class="t">Take the camera or microphone away</span><p>Toggle the device permissions off. If the app then genuinely needs
+         them, it will ask through the desktop's portal instead &mdash; which is
+         better, because you get to say yes each time.</p></li>
+        <li><span class="t">Cut an app off from the network</span><p>Turn <em>Network</em> off for anything that has no business online: an
+         image editor, a PDF reader, a game you play alone.</p></li>
+        <li><span class="t">Undo</span><p>The reset button at the top of each app's page puts every permission
+         back to what the app shipped with. Nothing here is irreversible.</p></li>
+      </ol>
+    </section>
+
+    <section>
+      <h2>One thing that will surprise you</h2>
+      <p><strong>Many Flatpak apps ask for far more than they need, and the
+      sandbox is only as tight as the manifest.</strong> Plenty of them request access
+      to your entire home folder simply because it was easier than declaring
+      specifics. Flatseal is where you find that out, and it is a genuinely
+      illuminating half hour. Tighten one app at a time and test it; if something
+      breaks, the reset button is right there.</p>
+    </section>
+
+    <section>
+      <h2>Where to find it</h2>
+      <p>Launcher &rarr; <em>Flatseal</em>.</p>
+    </section>
+
+    <section>
+      <h2>See also</h2>
+      <div class="related"><a href="app-discover.html">Discover</a><a href="app-apparmor.html">AppArmor and the security baseline</a><a href="app-opensnitch.html">OpenSnitch</a></div>
+    </section>
+
+    <footer class="colophon">Dagric OS Manual &middot; stored on this computer, no internet needed &middot; <a href="index.html">every application</a></footer>
+
+  </main>
+</div>
+</body>
+</html>

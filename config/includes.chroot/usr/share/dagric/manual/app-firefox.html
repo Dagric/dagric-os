@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Firefox &mdash; Dagric OS Manual</title>
+<link rel="stylesheet" href="manual.css">
+<script src="manual.js"></script>
+</head>
+<body>
+<div class="shell">
+  <aside class="side">
+    <div class="sidebox">
+      <a class="brand" href="index.html">
+        <div class="mark">D</div>
+        <div class="brand-name">Dagric OS<small>Manual</small></div>
+      </a>
+      <nav class="toc">
+        <a class="back" href="index.html">&larr; All applications</a>
+        <div class="navgroup">Internet and communication</div>
+        <a href="app-firefox.html" class="active">Firefox</a>
+        <a href="app-chromium.html">Chromium</a>
+        <a href="app-thunderbird.html">Thunderbird</a>
+        <a href="app-network.html">Wi-Fi, wired networks and VPN</a>
+        <a href="app-kdeconnect.html">KDE Connect</a>
+        <a href="app-localsend.html">LocalSend</a>
+        <a href="app-syncthing.html">Syncthing</a>
+        <a href="app-cloud-storage.html">Cloud storage: rclone and Google Drive</a>
+        <a href="app-qbittorrent.html">qBittorrent</a>
+      </nav>
+    </div>
+  </aside>
+
+  <main class="content">
+
+    <header class="hero">
+      <div class="eyebrow">Internet and communication</div>
+      <h1>Firefox</h1>
+      <p class="sub">The web browser, set up for privacy before you ever open it.</p>
+    </header>
+
+    <div class="swap"><span>On Windows this was</span><strong>Microsoft Edge</strong></div>
+
+    <section>
+      <h2>What it is</h2>
+      <p><strong>Firefox</strong> is the browser Dagric ships. It is the Extended
+      Support Release, which means it takes security fixes continuously but changes
+      its interface only about once a year &mdash; the right trade for a machine
+      somebody depends on.</p>
+      <p>Dagric configures it before you first open it: telemetry off, Firefox
+      Studies off, Pocket removed, sponsored tiles off the home page, enhanced
+      tracking protection on including cryptominers and fingerprinters, and the
+      <strong>uBlock Origin</strong> ad blocker set up. There is no onboarding tour
+      and no request that you sign in to anything.</p>
+    </section>
+
+    <section>
+      <h2>Five things you will actually do</h2>
+      <ol class="tasks">
+        <li><span class="t">Bring your bookmarks over from Windows</span><p>The <a href="tool-dagric-migrate.html">Migration Assistant</a> collects
+         them from Chrome, Edge and Firefox into
+         <code>~/Windows-bookmarks.html</code>. In Firefox:
+         <em>Bookmarks</em> &rarr; <em>Manage Bookmarks</em> &rarr; <em>Import and
+         Backup</em> &rarr; <em>Import Bookmarks from HTML</em>.</p></li>
+        <li><span class="t">Reopen the tabs you had open on the old PC</span><p>The same tool can recover them into
+         <code>~/Windows-open-tabs.html</code>. Import it the same way; the tabs
+         arrive as a bookmark folder, and right-clicking the folder offers
+         <em>Open All in Tabs</em>.</p></li>
+        <li><span class="t">Sign in and sync</span><p>Optional and entirely up to you. A Firefox Account syncs bookmarks,
+         passwords, history and open tabs between this machine and your phone,
+         end-to-end encrypted. Nothing pesters you to create one.</p></li>
+        <li><span class="t">Add or remove an extension</span><p>&#9776; menu &rarr; <em>Add-ons and themes</em>. uBlock Origin is
+         already there; if you do not want it, remove it like any other add-on. That
+         is a deliberate choice on our part &mdash; software you did not ask for
+         should always be removable.</p></li>
+        <li><span class="t">Watch Netflix, Spotify and the rest</span><p>They work. Dagric enables the DRM playback component Firefox needs
+         (Widevine) so streaming services play instead of showing an error. It is the
+         one proprietary component in the browser, it is enabled rather than locked
+         on, and you can switch it off in Firefox's settings.</p></li>
+      </ol>
+    </section>
+
+    <section>
+      <h2>One thing that will surprise you</h2>
+      <p><strong>The ad blocker arrives on your first connection, not in the
+      ISO.</strong> uBlock Origin is set up by policy but Firefox fetches it from
+      Mozilla's add-ons site the first time it runs, so on a machine that has never
+      been online you will briefly see an unfiltered web. Connect once and it appears
+      by itself.</p>
+      <p>The other thing worth knowing: ESR looks a version or two behind whatever
+      you read about online. That is intentional. Security updates land on the same
+      day as everyone else's.</p>
+    </section>
+
+    <section>
+      <h2>Where to find it</h2>
+      <p>The Firefox icon in the taskbar, or launcher &rarr; <em>Firefox</em>.</p>
+    </section>
+
+    <section>
+      <h2>See also</h2>
+      <div class="related"><a href="tool-dagric-migrate.html">Migration Assistant</a><a href="app-chromium.html">Chromium</a><a href="app-thunderbird.html">Thunderbird</a><a href="app-network.html">Wi-Fi, wired networks and VPN</a></div>
+    </section>
+
+    <footer class="colophon">Dagric OS Manual &middot; stored on this computer, no internet needed &middot; <a href="index.html">every application</a></footer>
+
+  </main>
+</div>
+</body>
+</html>

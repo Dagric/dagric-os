@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Snapshot recovery &mdash; Dagric OS Manual</title>
+<link rel="stylesheet" href="manual.css">
+<script src="manual.js"></script>
+</head>
+<body>
+<div class="shell">
+  <aside class="side">
+    <div class="sidebox">
+      <a class="brand" href="index.html">
+        <div class="mark">D</div>
+        <div class="brand-name">Dagric OS<small>Manual</small></div>
+      </a>
+      <nav class="toc">
+        <a class="back" href="index.html">&larr; All applications</a>
+        <div class="navgroup">System and safety</div>
+        <a href="app-updates.html">Updates</a>
+        <a href="app-snapshots.html" class="active">Snapshot recovery</a>
+        <a href="app-timeshift.html">Timeshift</a>
+        <a href="app-kup.html">Kup</a>
+        <a href="app-vorta.html">Vorta and Borg</a>
+        <a href="app-firewall.html">The firewall</a>
+        <a href="app-opensnitch.html">OpenSnitch</a>
+        <a href="app-drive-health.html">Drive health</a>
+        <a href="app-keepassxc.html">KeePassXC</a>
+        <a href="app-cryptomator.html">Cryptomator</a>
+        <a href="app-bleachbit.html">BleachBit</a>
+        <a href="app-flatseal.html">Flatseal</a>
+        <a href="app-apparmor.html">AppArmor and the security baseline</a>
+        <a href="app-accounts.html">Accounts, passwords and disk encryption</a>
+        <a href="app-orca.html">Orca</a>
+      </nav>
+    </div>
+  </aside>
+
+  <main class="content">
+
+    <header class="hero">
+      <div class="eyebrow">System and safety</div>
+      <h1>Snapshot recovery</h1>
+      <p class="sub">Roll the whole system back to before that update, from the boot menu.</p>
+    </header>
+
+    <div class="swap"><span>On Windows this was</span><strong>System Restore</strong></div>
+
+    <section>
+      <h2>What it is</h2>
+      <p>On a standard Dagric install the disk uses <strong>btrfs</strong>, a
+      filesystem that can take an instant, near-free copy of the entire system.
+      Dagric uses that: <strong>every time software is installed, updated or removed,
+      a snapshot is taken before and after</strong>.</p>
+      <p>Those snapshots appear as a submenu in the boot menu. If an update leaves the
+      machine broken &mdash; even so broken that it will not reach the desktop &mdash;
+      you restart, choose yesterday, and you are back. No recovery media, no
+      reinstall, no phone call.</p>
+    </section>
+
+    <section>
+      <h2>Five things you will actually do</h2>
+      <ol class="tasks">
+        <li><span class="t">Boot into an older snapshot</span><p>Restart. At the boot menu choose the snapshots submenu and pick one by
+         date. The system starts as it was at that moment. Your documents are in your
+         home folder and are <em>not</em> part of the snapshot, so nothing you wrote
+         is lost.</p></li>
+        <li><span class="t">See what snapshots exist</span><p><code>sudo snapper -c root list</code> in a terminal. Each row shows
+         the number, the date, and why it was taken &mdash; &ldquo;apt (pre)&rdquo;
+         and &ldquo;apt (post)&rdquo; around every package operation, plus the
+         baseline taken on your first boot.</p></li>
+        <li><span class="t">Take one yourself before you do something risky</span><p><code>sudo snapper -c root create -d "before I edit the grub
+         config"</code>. It costs almost no disk space and takes about a second. Do it
+         before hand-editing anything in <code>/etc</code>.</p></li>
+        <li><span class="t">Make the rollback permanent</span><p>Booting a snapshot is a look, not a commitment. To keep it, run
+         <code>sudo snapper -c root rollback</code> from inside the booted snapshot
+         and restart. Do nothing and the next normal boot returns you to the current
+         system.</p></li>
+        <li><span class="t">Recover one file rather than the whole system</span><p>Snapshots are mounted under <code>/.snapshots/</code>. Browse to the
+         one you want and copy the file straight out of it with Dolphin. Far less
+         drastic than rolling the machine back.</p></li>
+      </ol>
+    </section>
+
+    <section>
+      <h2>One thing that will surprise you</h2>
+      <p><strong>Snapshots are not backups, and it matters which one you
+      need.</strong> They live on the same disk. They protect you brilliantly from a
+      bad update, a mis-typed command or a package that broke something; they protect
+      you not at all from a failed drive, a fire or a stolen laptop. Use
+      <a href="app-kup.html">Kup</a> or <a href="app-vorta.html">Vorta</a> onto a
+      separate disk for that. You want both.</p>
+      <p>One caveat: this needs btrfs. If you chose ext4 when installing, snapshot
+      recovery is not available and the setup helper quietly stands down. Pro's
+      <a href="app-timeshift.html">Timeshift</a> covers ext4 with its rsync
+      mode.</p>
+    </section>
+
+    <section>
+      <h2>Where to find it</h2>
+      <p>The boot menu, at restart. Setup is automatic on the first boot of an
+      installed system, done by <code>dagric-snapshot-setup</code> &mdash; see
+      <a href="tool-dagric-background.html">helpers that run by themselves</a>.</p>
+    </section>
+
+    <section>
+      <h2>See also</h2>
+      <div class="related"><a href="app-updates.html">Updates</a><a href="app-timeshift.html">Timeshift</a><a href="app-kup.html">Kup</a><a href="tool-dagric-background.html">Helpers that run by themselves</a></div>
+    </section>
+
+    <footer class="colophon">Dagric OS Manual &middot; stored on this computer, no internet needed &middot; <a href="index.html">every application</a></footer>
+
+  </main>
+</div>
+</body>
+</html>

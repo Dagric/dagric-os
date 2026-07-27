@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Installing downloaded software &mdash; Dagric OS Manual</title>
+<link rel="stylesheet" href="manual.css">
+<script src="manual.js"></script>
+</head>
+<body>
+<div class="shell">
+  <aside class="side">
+    <div class="sidebox">
+      <a class="brand" href="index.html">
+        <div class="mark">D</div>
+        <div class="brand-name">Dagric OS<small>Manual</small></div>
+      </a>
+      <nav class="toc">
+        <a class="back" href="index.html">&larr; All applications</a>
+        <div class="navgroup">Files and getting around</div>
+        <a href="app-dolphin.html">Dolphin</a>
+        <a href="app-launcher.html">The launcher and search</a>
+        <a href="app-desktop.html">The desktop, panels and windows</a>
+        <a href="app-system-settings.html">System Settings</a>
+        <a href="app-discover.html">Discover</a>
+        <a href="app-konsole.html">Konsole</a>
+        <a href="app-ark.html">Ark</a>
+        <a href="app-kcalc.html">KCalc</a>
+        <a href="app-system-monitor.html">System Monitor</a>
+        <a href="app-gdebi.html" class="active">Installing downloaded software</a>
+        <a href="app-kwallet.html">KWallet</a>
+        <a href="app-filelight.html">Filelight</a>
+      </nav>
+    </div>
+  </aside>
+
+  <main class="content">
+
+    <header class="hero">
+      <div class="eyebrow">Files and getting around</div>
+      <h1>Installing downloaded software</h1>
+      <p class="sub">What to do with a .deb, a .AppImage, a .flatpakref &mdash; and what a .exe is not.</p>
+    </header>
+
+    <div class="swap"><span>On Windows this was</span><strong>double-clicking a .exe or .msi installer</strong></div>
+
+    <section>
+      <h2>What it is</h2>
+      <p>Most software should come from <a href="app-discover.html">Discover</a>.
+      But sometimes a vendor hands you a file, and it helps to know which is
+      which.</p>
+      <p>A <strong>.deb</strong> is the Debian equivalent of an .msi &mdash; the
+      native installer format. Dagric ships <strong>GDebi</strong>, so
+      double-clicking a .deb opens a small window that shows what it is, warns you if
+      it looks unhealthy, and installs it after you type your password. Zoom, Chrome
+      and Visual Studio Code all ship this way.</p>
+    </section>
+
+    <section>
+      <h2>Five things you will actually do</h2>
+      <ol class="tasks">
+        <li><span class="t">Install a .deb you downloaded</span><p>Double-click it in Dolphin. GDebi opens, tells you what the package is
+         and what it will pull in, and installs on your word. It goes into the
+         launcher like anything else.</p></li>
+        <li><span class="t">Run an AppImage</span><p>An <strong>.AppImage</strong> is a whole application in one file and is
+         not installed at all. Right-click &rarr; <em>Properties</em> &rarr;
+         <em>Permissions</em> &rarr; tick <em>Is executable</em>, then double-click
+         it. To remove it, delete the file.</p></li>
+        <li><span class="t">Open a .flatpakref</span><p>Double-click it; Discover takes over and installs the app from
+         Flathub. This is the tidiest of the three &mdash; it is sandboxed, it
+         updates with everything else, and it uninstalls cleanly.</p></li>
+        <li><span class="t">Deal with a .exe or .msi</span><p>These are Windows programs and will not run on their own. On
+         Dagric&nbsp;OS Pro, <a href="app-wine.html">Wine</a> runs many of them
+         directly and <a href="app-bottles.html">Bottles</a> gives each one a tidy
+         home. For the ones that refuse, there is
+         <a href="app-virt-manager.html">a real Windows in a window</a>.</p></li>
+        <li><span class="t">Remove something you installed by hand</span><p>Discover's <em>Installed</em> page lists .deb packages alongside
+         everything else, so removal is the same button. AppImages you simply
+         delete.</p></li>
+      </ol>
+    </section>
+
+    <section>
+      <h2>One thing that will surprise you</h2>
+      <p><strong>You will barely ever need this page.</strong> The Windows habit of
+      searching the web for an installer, judging whether the download site is a fake,
+      and clicking through a wizard that offers you a toolbar &mdash; that entire
+      ritual is gone. Nearly everything is one search in Discover, already checked,
+      already signed, and updated with the rest of the system. Downloading installers
+      from websites is the exception here, not the rule.</p>
+    </section>
+
+    <section>
+      <h2>Where to find it</h2>
+      <p>Mostly it appears by itself when you open a <code>.deb</code>. In the
+      launcher it is <strong>Package Installer</strong>; to force it onto a file,
+      right-click &rarr; <em>Open With</em> &rarr; <em>Package Installer</em>.</p>
+    </section>
+
+    <section>
+      <h2>See also</h2>
+      <div class="related"><a href="app-discover.html">Discover</a><a href="app-wine.html">Wine</a><a href="app-flatseal.html">Flatseal</a><a href="app-virt-manager.html">Virtual Machine Manager</a></div>
+    </section>
+
+    <footer class="colophon">Dagric OS Manual &middot; stored on this computer, no internet needed &middot; <a href="index.html">every application</a></footer>
+
+  </main>
+</div>
+</body>
+</html>

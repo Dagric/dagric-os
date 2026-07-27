@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dagric OS Manual</title>
+<link rel="stylesheet" href="manual.css">
+<script src="manual.js"></script>
+</head>
+<body>
+<div class="shell">
+
+  <aside class="side">
+    <div class="sidebox">
+      <a class="brand" href="index.html">
+        <div class="mark">D</div>
+        <div class="brand-name">Dagric OS<small>Manual</small></div>
+      </a>
+      <nav class="toc" aria-label="Sections">
+        <div class="navgroup">Jump to</div>
+        <a href="#" data-goto="g-files">Files and getting around<span class="count">12</span></a>
+        <a href="#" data-goto="g-documents">Writing and documents<span class="count">10</span></a>
+        <a href="#" data-goto="g-photos">Photos and video<span class="count">13</span></a>
+        <a href="#" data-goto="g-sound">Music and sound<span class="count">3</span></a>
+        <a href="#" data-goto="g-internet">Internet and communication<span class="count">9</span></a>
+        <a href="#" data-goto="g-safety">System and safety<span class="count">15</span></a>
+        <a href="#" data-goto="g-games">Games and Windows programs<span class="count">8</span></a>
+        <a href="#" data-goto="g-dev">For developers<span class="count">5</span></a>
+        <a href="#" data-goto="g-dagric">Dagric&#x27;s own tools<span class="count">19</span></a>
+      </nav>
+    </div>
+  </aside>
+
+  <main class="content">
+
+    <header class="hero">
+      <div class="eyebrow">Manual</div>
+      <h1>Every app on this computer</h1>
+      <p class="sub">What it is, what it replaces on Windows, and the five things
+      you will actually do with it. All of it stored on this machine &mdash; no
+      internet required.</p>
+    </header>
+
+    <div class="searchwrap">
+      <input id="q" type="search" autocomplete="off" spellcheck="false"
+             placeholder="Search &mdash; try &ldquo;pdf&rdquo;, &ldquo;photos&rdquo;, &ldquo;word&rdquo;, &ldquo;task manager&rdquo;">
+    </div>
+    <div class="searchbar">
+      <span id="count">94 pages</span>
+      <label class="toggle"><input type="checkbox" id="hidepro">
+        Hide the things only Dagric&nbsp;OS Pro has</label>
+    </div>
+    <p class="noresults" id="noresults">Nothing matched that. Try a plainer word
+    &mdash; the manual is indexed by what things <em>do</em>, so
+    &ldquo;snipping tool&rdquo;, &ldquo;zip&rdquo; and &ldquo;task manager&rdquo;
+    all find something.</p>
+
+    <div class="tip">Searching looks at the Windows name too. Type
+    <strong>Notepad</strong> and you get Kate; type <strong>Explorer</strong>
+    and you get Dolphin.</div>
+
+    <section class="group" id="g-files">
+      <h2>Files and getting around</h2>
+      <p class="groupdesc">The desktop itself: where your files live, how to find things, how to install software.</p>
+      <div class="cards">
+        <a class="card" href="app-dolphin.html" data-avail="free" data-s="dolphin file explorer your files and folders, and every drive plugged into this computer. files folders explorer copy move rename usb drive network ntfs trash split terminal files and getting around app-dolphin dolphin">
+          <div class="card-top"><span class="card-name">Dolphin</span></div>
+          <div class="card-swap">File Explorer</div>
+          <div class="card-desc">Your files and folders, and every drive plugged into this computer.</div>
+        </a>
+        <a class="card" href="app-launcher.html" data-avail="free" data-s="the launcher and search start menu and windows search the start menu, and the fastest way to open anything on this computer. start menu launcher krunner search run open apps kickoff meta alt-space calculator files and getting around app-launcher">
+          <div class="card-top"><span class="card-name">The launcher and search</span></div>
+          <div class="card-swap">Start menu and Windows Search</div>
+          <div class="card-desc">The Start menu, and the fastest way to open anything on this computer.</div>
+        </a>
+        <a class="card" href="app-desktop.html" data-avail="free" data-s="the desktop, panels and windows taskbar, snap assist and task view taskbars, virtual desktops, window snapping, and how to put it all back. taskbar panel widget desktop wallpaper snap tiling virtual desktops workspaces kwin plasma window files and getting around app-desktop">
+          <div class="card-top"><span class="card-name">The desktop, panels and windows</span></div>
+          <div class="card-swap">Taskbar, Snap Assist and Task View</div>
+          <div class="card-desc">Taskbars, virtual desktops, window snapping, and how to put it all back.</div>
+        </a>
+        <a class="card" href="app-system-settings.html" data-avail="free" data-s="system settings settings and control panel one window for the whole computer: displays, sound, keyboard, printers, accounts. settings control panel display monitor resolution keyboard mouse night colour theme users accounts time date files and getting around app-system-settings systemsettings">
+          <div class="card-top"><span class="card-name">System Settings</span></div>
+          <div class="card-swap">Settings and Control Panel</div>
+          <div class="card-desc">One window for the whole computer: displays, sound, keyboard, printers, accounts.</div>
+        </a>
+        <a class="card" href="app-discover.html" data-avail="free" data-s="discover microsoft store install and remove software, and see what needs updating. discover store install software apps flatpak flathub add remove update firmware plasma-discover files and getting around app-discover plasma-discover">
+          <div class="card-top"><span class="card-name">Discover</span></div>
+          <div class="card-swap">Microsoft Store</div>
+          <div class="card-desc">Install and remove software, and see what needs updating.</div>
+        </a>
+        <a class="card" href="app-konsole.html" data-avail="free" data-s="konsole command prompt and powershell the terminal. you can ignore it entirely — but it is the fastest way to be helped. terminal konsole command line shell bash prompt cmd powershell sudo apt files and getting around app-konsole konsole">
+          <div class="card-top"><span class="card-name">Konsole</span></div>
+          <div class="card-swap">Command Prompt and PowerShell</div>
+          <div class="card-desc">The terminal. You can ignore it entirely &mdash; but it is the fastest way to be helped.</div>
+        </a>
+        <a class="card" href="app-ark.html" data-avail="free" data-s="ark the built-in zip support, winrar and 7-zip zip files, and the dozen other archive formats things arrive in. ark zip unzip archive extract compress 7z tar rar gz password winrar files and getting around app-ark ark">
+          <div class="card-top"><span class="card-name">Ark</span></div>
+          <div class="card-swap">the built-in Zip support, WinRAR and 7-Zip</div>
+          <div class="card-desc">Zip files, and the dozen other archive formats things arrive in.</div>
+        </a>
+        <a class="card" href="app-kcalc.html" data-avail="free" data-s="kcalc calculator a calculator that goes from shopping arithmetic to hexadecimal. calculator kcalc maths arithmetic scientific hex binary percent statistics files and getting around app-kcalc kcalc">
+          <div class="card-top"><span class="card-name">KCalc</span></div>
+          <div class="card-swap">Calculator</div>
+          <div class="card-desc">A calculator that goes from shopping arithmetic to hexadecimal.</div>
+        </a>
+        <a class="card" href="app-system-monitor.html" data-avail="free" data-s="system monitor task manager what is running, what is slow, and how to stop something that has hung. task manager system monitor cpu ram memory processes kill end task performance ctrl esc files and getting around app-system-monitor plasma-systemmonitor">
+          <div class="card-top"><span class="card-name">System Monitor</span></div>
+          <div class="card-swap">Task Manager</div>
+          <div class="card-desc">What is running, what is slow, and how to stop something that has hung.</div>
+        </a>
+        <a class="card" href="app-gdebi.html" data-avail="free" data-s="installing downloaded software double-clicking a .exe or .msi installer what to do with a .deb, a .appimage, a .flatpakref — and what a .exe is not. deb install download appimage flatpak exe msi setup package gdebi software files and getting around app-gdebi gdebi">
+          <div class="card-top"><span class="card-name">Installing downloaded software</span></div>
+          <div class="card-swap">double-clicking a .exe or .msi installer</div>
+          <div class="card-desc">What to do with a .deb, a .AppImage, a .flatpakref &mdash; and what a .exe is not.</div>
+        </a>
+        <a class="card" href="app-kwallet.html" data-avail="free" data-s="kwallet windows credential manager the keyring that remembers your wi-fi keys and app passwords so you do not have to. kwallet keyring password credential manager wifi saved passwords vault unlock files and getting around app-kwallet kwalletmanager5">
+          <div class="card-top"><span class="card-name">KWallet</span></div>
+          <div class="card-swap">Windows Credential Manager</div>
+          <div class="card-desc">The keyring that remembers your Wi-Fi keys and app passwords so you do not have to.</div>
+        </a>
+        <a class="card" href="app-filelight.html" data-avail="pro" data-s="filelight windirstat, treesize, or storage settings find out where the disk space actually went, in one picture. filelight disk space storage full usage windirstat treesize big files cleanup pie files and getting around app-filelight filelight pro paid upgrade">
+          <div class="card-top"><span class="card-name">Filelight</span><span class="pill pro">PRO</span></div>
+          <div class="card-swap">WinDirStat, TreeSize, or Storage settings</div>
+          <div class="card-desc">Find out where the disk space actually went, in one picture.</div>
+        </a>
+      </div>
+    </section>
+
+    <section class="group" id="g-documents">
+      <h2>Writing and documents</h2>
+      <p class="groupdesc">Letters, spreadsheets, slides, notes, PDFs, and getting paper in and out of the computer.</p>
+      <div class="cards">
+        <a class="card" href="app-libreoffice-writer.html" data-avail="free" data-s="libreoffice writer microsoft word letters, reports, cvs, anything with paragraphs in it. writer word document docx odt letter cv resume report text processor mail merge writing and documents app-libreoffice-writer libreoffice --writer">
+          <div class="card-top"><span class="card-name">LibreOffice Writer</span></div>
+          <div class="card-swap">Microsoft Word</div>
+          <div class="card-desc">Letters, reports, CVs, anything with paragraphs in it.</div>
+        </a>
+        <a class="card" href="app-libreoffice-calc.html" data-avail="free" data-s="libreoffice calc microsoft excel spreadsheets, budgets, lists and the sums that go with them. calc excel spreadsheet xlsx ods formula pivot chart sum budget csv writing and documents app-libreoffice-calc libreoffice --calc">
+          <div class="card-top"><span class="card-name">LibreOffice Calc</span></div>
+          <div class="card-swap">Microsoft Excel</div>
+          <div class="card-desc">Spreadsheets, budgets, lists and the sums that go with them.</div>
+        </a>
+        <a class="card" href="app-libreoffice-impress.html" data-avail="free" data-s="libreoffice impress microsoft powerpoint slide decks, and presenting them without a fight. impress powerpoint pptx slides presentation deck projector presenter notes writing and documents app-libreoffice-impress libreoffice --impress">
+          <div class="card-top"><span class="card-name">LibreOffice Impress</span></div>
+          <div class="card-swap">Microsoft PowerPoint</div>
+          <div class="card-desc">Slide decks, and presenting them without a fight.</div>
+        </a>
+        <a class="card" href="app-libreoffice-draw.html" data-avail="pro" data-s="libreoffice draw microsoft publisher, light visio work, and a paid pdf editor diagrams, posters, and the best way to edit a pdf on this computer. draw diagram poster flowchart visio publisher pdf edit vector layout writing and documents app-libreoffice-draw libreoffice --draw pro paid upgrade">
+          <div class="card-top"><span class="card-name">LibreOffice Draw</span><span class="pill pro">PRO</span></div>
+          <div class="card-swap">Microsoft Publisher, light Visio work, and a paid PDF editor</div>
+          <div class="card-desc">Diagrams, posters, and the best way to edit a PDF on this computer.</div>
+        </a>
+        <a class="card" href="app-libreoffice-base-math.html" data-avail="pro" data-s="libreoffice base and math microsoft access and the equation editor a desktop database, and a proper equation editor. base access database math equation formula mysql odb records forms queries reports writing and documents app-libreoffice-base-math libreoffice --base pro paid upgrade">
+          <div class="card-top"><span class="card-name">LibreOffice Base and Math</span><span class="pill pro">PRO</span></div>
+          <div class="card-swap">Microsoft Access and the Equation Editor</div>
+          <div class="card-desc">A desktop database, and a proper equation editor.</div>
+        </a>
+        <a class="card" href="app-onlyoffice.html" data-avail="free" data-s="onlyoffice microsoft office — the ribbon and all an office suite that looks like microsoft office, for when libreoffice feels foreign. onlyoffice office ribbon word excel powerpoint docx xlsx pptx microsoft familiar writing and documents app-onlyoffice dagric-get-onlyoffice install add optional not preinstalled">
+          <div class="card-top"><span class="card-name">ONLYOFFICE</span><span class="pill pro">PRO</span><span class="pill add" title="Not preinstalled — Dagric installs it for you when you ask">ADD-ON</span></div>
+          <div class="card-swap">Microsoft Office &mdash; the ribbon and all</div>
+          <div class="card-desc">An office suite that looks like Microsoft Office, for when LibreOffice feels foreign.</div>
+        </a>
+        <a class="card" href="app-kate.html" data-avail="free" data-s="kate notepad, and most of notepad++ a plain-text editor that scales from a shopping list to a config file. kate notepad text editor plain txt code config syntax highlighting notepad++ find replace writing and documents app-kate kate">
+          <div class="card-top"><span class="card-name">Kate</span></div>
+          <div class="card-swap">Notepad, and most of Notepad++</div>
+          <div class="card-desc">A plain-text editor that scales from a shopping list to a config file.</div>
+        </a>
+        <a class="card" href="app-okular.html" data-avail="free" data-s="okular adobe acrobat reader, and edge&#x27;s pdf viewer read, annotate, fill in and sign pdfs — and about a dozen other formats. okular pdf reader annotate highlight sign form fill epub comic djvu print presentation writing and documents app-okular okular">
+          <div class="card-top"><span class="card-name">Okular</span></div>
+          <div class="card-swap">Adobe Acrobat Reader, and Edge's PDF viewer</div>
+          <div class="card-desc">Read, annotate, fill in and sign PDFs &mdash; and about a dozen other formats.</div>
+        </a>
+        <a class="card" href="app-joplin.html" data-avail="free" data-s="joplin onenote, evernote, notion and sticky notes notes and to-do lists that stay on your computer, in a format you can read. joplin notes notebook markdown onenote evernote notion todo checklist sync encrypted offline writing and documents app-joplin dagric-get-joplin install add optional not preinstalled">
+          <div class="card-top"><span class="card-name">Joplin</span><span class="pill pro">PRO</span><span class="pill add" title="Not preinstalled — Dagric installs it for you when you ask">ADD-ON</span></div>
+          <div class="card-swap">OneNote, Evernote, Notion and Sticky Notes</div>
+          <div class="card-desc">Notes and to-do lists that stay on your computer, in a format you can read.</div>
+        </a>
+        <a class="card" href="app-printing.html" data-avail="free" data-s="printers and scanners devices and printers, and windows fax and scan getting paper into the computer and out of it again, including print to pdf. printer print scan scanner pdf cups skanlite hp airprint driverless duplex paper ink writing and documents app-printing skanlite">
+          <div class="card-top"><span class="card-name">Printers and scanners</span></div>
+          <div class="card-swap">Devices and Printers, and Windows Fax and Scan</div>
+          <div class="card-desc">Getting paper into the computer and out of it again, including Print to PDF.</div>
+        </a>
+      </div>
+    </section>
+
+    <section class="group" id="g-photos">
+      <h2>Photos and video</h2>
+      <p class="groupdesc">Looking at pictures, taking screenshots, editing photos, and making video.</p>
+      <div class="cards">
+        <a class="card" href="app-gwenview.html" data-avail="free" data-s="gwenview photos, and windows photo viewer look through your photos, and fix the obvious things without a photo editor. gwenview photos image viewer picture jpg png crop rotate resize red eye slideshow photos and video app-gwenview gwenview">
+          <div class="card-top"><span class="card-name">Gwenview</span></div>
+          <div class="card-swap">Photos, and Windows Photo Viewer</div>
+          <div class="card-desc">Look through your photos, and fix the obvious things without a photo editor.</div>
+        </a>
+        <a class="card" href="app-spectacle.html" data-avail="free" data-s="spectacle snipping tool, print screen, and the xbox game bar recorder screenshots and screen recordings, on one key. spectacle screenshot snip print screen capture region window record video screencast photos and video app-spectacle spectacle">
+          <div class="card-top"><span class="card-name">Spectacle</span></div>
+          <div class="card-swap">Snipping Tool, Print Screen, and the Xbox Game Bar recorder</div>
+          <div class="card-desc">Screenshots and screen recordings, on one key.</div>
+        </a>
+        <a class="card" href="app-mpv.html" data-avail="free" data-s="mpv movies &amp; tv, windows media player, and vlc plays every video and audio file you own, with nothing in the way. mpv video player movie mp4 mkv avi subtitle playback dvd codec vlc media photos and video app-mpv mpv">
+          <div class="card-top"><span class="card-name">mpv</span></div>
+          <div class="card-swap">Movies &amp; TV, Windows Media Player, and VLC</div>
+          <div class="card-desc">Plays every video and audio file you own, with nothing in the way.</div>
+        </a>
+        <a class="card" href="app-gimp.html" data-avail="pro" data-s="gimp adobe photoshop serious photo editing: layers, masks, retouching, the lot. gimp photoshop photo editor layers mask retouch clone heal png jpeg xcf photogimp photos and video app-gimp gimp pro paid upgrade">
+          <div class="card-top"><span class="card-name">GIMP</span><span class="pill pro">PRO</span></div>
+          <div class="card-swap">Adobe Photoshop</div>
+          <div class="card-desc">Serious photo editing: layers, masks, retouching, the lot.</div>
+        </a>
+        <a class="card" href="app-krita.html" data-avail="pro" data-s="krita photoshop for painting, corel painter, clip studio paint digital painting and illustration, built by and for artists. krita paint draw digital art illustration brush tablet wacom animation comic photos and video app-krita krita pro paid upgrade">
+          <div class="card-top"><span class="card-name">Krita</span><span class="pill pro">PRO</span></div>
+          <div class="card-swap">Photoshop for painting, Corel Painter, Clip Studio Paint</div>
+          <div class="card-desc">Digital painting and illustration, built by and for artists.</div>
+        </a>
+        <a class="card" href="app-inkscape.html" data-avail="pro" data-s="inkscape adobe illustrator and coreldraw vector drawing: logos, signs, cut files, diagrams that scale forever. inkscape vector svg illustrator coreldraw logo path node trace cricut laser cut eps pdf photos and video app-inkscape inkscape pro paid upgrade">
+          <div class="card-top"><span class="card-name">Inkscape</span><span class="pill pro">PRO</span></div>
+          <div class="card-swap">Adobe Illustrator and CorelDRAW</div>
+          <div class="card-desc">Vector drawing: logos, signs, cut files, diagrams that scale forever.</div>
+        </a>
+        <a class="card" href="app-darktable.html" data-avail="pro" data-s="darktable adobe lightroom develop raw photographs, non-destructively, across a whole shoot. darktable raw lightroom photo develop camera cr2 nef arw exposure white balance catalogue export photos and video app-darktable darktable pro paid upgrade">
+          <div class="card-top"><span class="card-name">darktable</span><span class="pill pro">PRO</span></div>
+          <div class="card-swap">Adobe Lightroom</div>
+          <div class="card-desc">Develop RAW photographs, non-destructively, across a whole shoot.</div>
+        </a>
+        <a class="card" href="app-blender.html" data-avail="pro" data-s="blender 3ds max, maya, cinema 4d 3d modelling, animation, rendering — and a surprisingly good video editor. blender 3d model animation render sculpt cycles eevee video sequencer vfx game asset photos and video app-blender blender pro paid upgrade">
+          <div class="card-top"><span class="card-name">Blender</span><span class="pill pro">PRO</span></div>
+          <div class="card-swap">3ds Max, Maya, Cinema 4D</div>
+          <div class="card-desc">3D modelling, animation, rendering &mdash; and a surprisingly good video editor.</div>
+        </a>
+        <a class="card" href="app-kdenlive.html" data-avail="pro" data-s="kdenlive windows movie maker, and much of premiere pro multi-track video editing: cut, title, colour and export. kdenlive video editor edit timeline cut title transition render export movie maker premiere proxy photos and video app-kdenlive kdenlive pro paid upgrade">
+          <div class="card-top"><span class="card-name">Kdenlive</span><span class="pill pro">PRO</span></div>
+          <div class="card-swap">Windows Movie Maker, and much of Premiere Pro</div>
+          <div class="card-desc">Multi-track video editing: cut, title, colour and export.</div>
+        </a>
+        <a class="card" href="app-obs-studio.html" data-avail="pro" data-s="obs studio the xbox game bar recorder, camtasia, and streamlabs record your screen or stream live, with a proper mixer behind it. obs studio record screen stream twitch youtube webcam capture scene microphone game capture photos and video app-obs-studio obs pro paid upgrade">
+          <div class="card-top"><span class="card-name">OBS Studio</span><span class="pill pro">PRO</span></div>
+          <div class="card-swap">the Xbox Game Bar recorder, Camtasia, and Streamlabs</div>
+          <div class="card-desc">Record your screen or stream live, with a proper mixer behind it.</div>
+        </a>
+        <a class="card" href="app-handbrake.html" data-avail="pro" data-s="handbrake handbrake on windows, and every dubious online converter convert video into something that will actually play on the other device. handbrake convert video transcode mp4 mkv compress shrink dvd rip encode h264 h265 photos and video app-handbrake ghb pro paid upgrade">
+          <div class="card-top"><span class="card-name">HandBrake</span><span class="pill pro">PRO</span></div>
+          <div class="card-swap">HandBrake on Windows, and every dubious online converter</div>
+          <div class="card-desc">Convert video into something that will actually play on the other device.</div>
+        </a>
+        <a class="card" href="app-upscayl.html" data-avail="free" data-s="upscayl topaz gigapixel, and the “enhance” websites enlarge and sharpen a small or old photo, using ai that runs on your own machine. upscayl upscale ai enhance enlarge photo resolution sharpen old picture restore offline photos and video app-upscayl dagric-get-upscayl install add optional not preinstalled">
+          <div class="card-top"><span class="card-name">Upscayl</span><span class="pill add" title="Not preinstalled — Dagric installs it for you when you ask">ADD-ON</span></div>
+          <div class="card-swap">Topaz Gigapixel, and the &ldquo;enhance&rdquo; websites</div>
+          <div class="card-desc">Enlarge and sharpen a small or old photo, using AI that runs on your own machine.</div>
+        </a>
+        <a class="card" href="app-davinci-resolve.html" data-avail="free" data-s="davinci resolve premiere pro and after effects studio-grade video editing and colour grading — free, but you download it yourself. davinci resolve blackmagic video editor colour grading fusion fairlight professional nvidia photos and video app-davinci-resolve dagric-get-resolve install add optional not preinstalled">
+          <div class="card-top"><span class="card-name">DaVinci Resolve</span><span class="pill add" title="Not preinstalled — Dagric installs it for you when you ask">ADD-ON</span></div>
+          <div class="card-swap">Premiere Pro and After Effects</div>
+          <div class="card-desc">Studio-grade video editing and colour grading &mdash; free, but you download it yourself.</div>
+        </a>
+      </div>
+    </section>
+
+    <section class="group" id="g-sound">
+      <h2>Music and sound</h2>
+      <p class="groupdesc">Playing your music, recording, and getting the right speakers and headphones.</p>
+      <div class="cards">
+        <a class="card" href="app-elisa.html" data-avail="free" data-s="elisa groove music and windows media player your music collection, with albums, artists and playlists. elisa music player library album artist playlist mp3 flac m3u tags cover art radio music and sound app-elisa elisa">
+          <div class="card-top"><span class="card-name">Elisa</span></div>
+          <div class="card-swap">Groove Music and Windows Media Player</div>
+          <div class="card-desc">Your music collection, with albums, artists and playlists.</div>
+        </a>
+        <a class="card" href="app-audacity.html" data-avail="pro" data-s="audacity voice recorder, and audacity on windows record and edit audio: voice-overs, podcasts, tidying up a recording. audacity audio record edit podcast voice noise removal mp3 wav microphone amplify music and sound app-audacity audacity pro paid upgrade">
+          <div class="card-top"><span class="card-name">Audacity</span><span class="pill pro">PRO</span></div>
+          <div class="card-swap">Voice Recorder, and Audacity on Windows</div>
+          <div class="card-desc">Record and edit audio: voice-overs, podcasts, tidying up a recording.</div>
+        </a>
+        <a class="card" href="app-sound.html" data-avail="free" data-s="sound, headphones and microphones the volume mixer and sound settings getting the audio out of the right speakers and into the right recording. sound audio volume mixer speakers headphones bluetooth microphone input output pipewire hdmi music and sound app-sound">
+          <div class="card-top"><span class="card-name">Sound, headphones and microphones</span></div>
+          <div class="card-swap">the volume mixer and Sound settings</div>
+          <div class="card-desc">Getting the audio out of the right speakers and into the right recording.</div>
+        </a>
+      </div>
+    </section>
+
+    <section class="group" id="g-internet">
+      <h2>Internet and communication</h2>
+      <p class="groupdesc">The web, email, your phone, and moving files between your own machines.</p>
+      <div class="cards">
+        <a class="card" href="app-firefox.html" data-avail="free" data-s="firefox microsoft edge the web browser, set up for privacy before you ever open it. firefox browser web internet bookmarks tabs ublock adblock privacy tracking esr edge chrome internet and communication app-firefox firefox">
+          <div class="card-top"><span class="card-name">Firefox</span></div>
+          <div class="card-swap">Microsoft Edge</div>
+          <div class="card-desc">The web browser, set up for privacy before you ever open it.</div>
+        </a>
+        <a class="card" href="app-chromium.html" data-avail="pro" data-s="chromium google chrome a second browser, for the site that insists on chrome. chromium chrome browser second web google blink compatibility devtools internet and communication app-chromium chromium pro paid upgrade">
+          <div class="card-top"><span class="card-name">Chromium</span><span class="pill pro">PRO</span></div>
+          <div class="card-swap">Google Chrome</div>
+          <div class="card-desc">A second browser, for the site that insists on Chrome.</div>
+        </a>
+        <a class="card" href="app-thunderbird.html" data-avail="pro" data-s="thunderbird microsoft outlook and the mail app email, calendar, contacts and feeds, in one window, stored on your machine. thunderbird email mail outlook imap smtp calendar contacts address book gmail pop3 signature internet and communication app-thunderbird thunderbird pro paid upgrade">
+          <div class="card-top"><span class="card-name">Thunderbird</span><span class="pill pro">PRO</span></div>
+          <div class="card-swap">Microsoft Outlook and the Mail app</div>
+          <div class="card-desc">Email, calendar, contacts and feeds, in one window, stored on your machine.</div>
+        </a>
+        <a class="card" href="app-network.html" data-avail="free" data-s="wi-fi, wired networks and vpn the network flyout and vpn settings getting online, staying online, and connecting to a work network. wifi wireless network ethernet vpn openvpn wireguard openconnect hotspot proxy dns airplane mode internet and communication app-network">
+          <div class="card-top"><span class="card-name">Wi-Fi, wired networks and VPN</span></div>
+          <div class="card-swap">the network flyout and VPN settings</div>
+          <div class="card-desc">Getting online, staying online, and connecting to a work network.</div>
+        </a>
+        <a class="card" href="app-kdeconnect.html" data-avail="pro" data-s="kde connect phone link (your phone) your phone and this computer, talking to each other over your own wi-fi. kde connect phone android ios notifications clipboard sms file transfer remote presenter pairing internet and communication app-kdeconnect kdeconnect-app pro paid upgrade">
+          <div class="card-top"><span class="card-name">KDE Connect</span><span class="pill pro">PRO</span></div>
+          <div class="card-swap">Phone Link (Your Phone)</div>
+          <div class="card-desc">Your phone and this computer, talking to each other over your own Wi-Fi.</div>
+        </a>
+        <a class="card" href="app-localsend.html" data-avail="free" data-s="localsend nearby sharing, airdrop, and emailing yourself a file airdrop between whatever devices you happen to own, with no account. localsend airdrop share files transfer phone laptop nearby wifi no cloud cross platform internet and communication app-localsend dagric-get-localsend install add optional not preinstalled">
+          <div class="card-top"><span class="card-name">LocalSend</span><span class="pill add" title="Not preinstalled — Dagric installs it for you when you ask">ADD-ON</span></div>
+          <div class="card-swap">Nearby Sharing, AirDrop, and emailing yourself a file</div>
+          <div class="card-desc">AirDrop between whatever devices you happen to own, with no account.</div>
+        </a>
+        <a class="card" href="app-syncthing.html" data-avail="pro" data-s="syncthing onedrive and dropbox — without the company keep a folder identical on several of your own machines, with no server in between. syncthing sync folder devices peer to peer dropbox onedrive continuous backup private encrypted internet and communication app-syncthing syncthing pro paid upgrade">
+          <div class="card-top"><span class="card-name">Syncthing</span><span class="pill pro">PRO</span></div>
+          <div class="card-swap">OneDrive and Dropbox &mdash; without the company</div>
+          <div class="card-desc">Keep a folder identical on several of your own machines, with no server in between.</div>
+        </a>
+        <a class="card" href="app-cloud-storage.html" data-avail="pro" data-s="cloud storage: rclone and google drive the onedrive, google drive and dropbox desktop apps reach drive, dropbox, onedrive, s3 and seventy other services from this machine. rclone google drive dropbox onedrive cloud storage s3 mount sync kio-gdrive online accounts backup internet and communication app-cloud-storage rclone pro paid upgrade">
+          <div class="card-top"><span class="card-name">Cloud storage: rclone and Google Drive</span><span class="pill pro">PRO</span></div>
+          <div class="card-swap">the OneDrive, Google Drive and Dropbox desktop apps</div>
+          <div class="card-desc">Reach Drive, Dropbox, OneDrive, S3 and seventy other services from this machine.</div>
+        </a>
+        <a class="card" href="app-qbittorrent.html" data-avail="pro" data-s="qbittorrent utorrent a bittorrent client with no advertising and no bundled anything. qbittorrent torrent bittorrent download magnet seed peer iso linux utorrent internet and communication app-qbittorrent qbittorrent pro paid upgrade">
+          <div class="card-top"><span class="card-name">qBittorrent</span><span class="pill pro">PRO</span></div>
+          <div class="card-swap">uTorrent</div>
+          <div class="card-desc">A BitTorrent client with no advertising and no bundled anything.</div>
+        </a>
+      </div>
+    </section>
+
+    <section class="group" id="g-safety">
+      <h2>System and safety</h2>
+      <p class="groupdesc">Updates, backups, passwords, the firewall, and undoing a bad day.</p>
+      <div class="cards">
+        <a class="card" href="app-updates.html" data-avail="free" data-s="updates windows update how dagric keeps itself patched, and why it never reboots you. updates upgrade security patch unattended reboot restart discover apt flatpak firmware system and safety app-updates">
+          <div class="card-top"><span class="card-name">Updates</span></div>
+          <div class="card-swap">Windows Update</div>
+          <div class="card-desc">How Dagric keeps itself patched, and why it never reboots you.</div>
+        </a>
+        <a class="card" href="app-snapshots.html" data-avail="free" data-s="snapshot recovery system restore roll the whole system back to before that update, from the boot menu. snapshot snapper btrfs grub rollback restore recovery undo update broken boot menu system and safety app-snapshots dagric-snapshot-setup">
+          <div class="card-top"><span class="card-name">Snapshot recovery</span></div>
+          <div class="card-swap">System Restore</div>
+          <div class="card-desc">Roll the whole system back to before that update, from the boot menu.</div>
+        </a>
+        <a class="card" href="app-timeshift.html" data-avail="pro" data-s="timeshift system restore scheduled restore points, with a window and a calendar. timeshift restore point snapshot schedule rsync btrfs backup system recovery system and safety app-timeshift timeshift-gtk pro paid upgrade">
+          <div class="card-top"><span class="card-name">Timeshift</span><span class="pill pro">PRO</span></div>
+          <div class="card-swap">System Restore</div>
+          <div class="card-desc">Scheduled restore points, with a window and a calendar.</div>
+        </a>
+        <a class="card" href="app-kup.html" data-avail="free" data-s="kup file history back up your files onto a drive you plug in, with no configuration to speak of. kup backup files copy external drive rsync bup versioned schedule restore file history system and safety app-kup">
+          <div class="card-top"><span class="card-name">Kup</span></div>
+          <div class="card-swap">File History</div>
+          <div class="card-desc">Back up your files onto a drive you plug in, with no configuration to speak of.</div>
+        </a>
+        <a class="card" href="app-vorta.html" data-avail="pro" data-s="vorta and borg file history, backblaze, acronis encrypted, deduplicated backups — the serious option, with a friendly window. vorta borg backup encrypted deduplicated repository archive restore ssh remote prune system and safety app-vorta vorta pro paid upgrade">
+          <div class="card-top"><span class="card-name">Vorta and Borg</span><span class="pill pro">PRO</span></div>
+          <div class="card-swap">File History, Backblaze, Acronis</div>
+          <div class="card-desc">Encrypted, deduplicated backups &mdash; the serious option, with a friendly window.</div>
+        </a>
+        <a class="card" href="app-firewall.html" data-avail="free" data-s="the firewall windows defender firewall what can reach this computer from the network, and from which network. firewall firewalld zones public home ports block incoming plasma-firewall ssh network security system and safety app-firewall">
+          <div class="card-top"><span class="card-name">The firewall</span></div>
+          <div class="card-swap">Windows Defender Firewall</div>
+          <div class="card-desc">What can reach this computer from the network, and from which network.</div>
+        </a>
+        <a class="card" href="app-opensnitch.html" data-avail="pro" data-s="opensnitch little snitch, glasswire see — and control — every outbound connection any program makes. opensnitch outbound firewall application connections monitor block phone home privacy nftables ebpf system and safety app-opensnitch pro paid upgrade">
+          <div class="card-top"><span class="card-name">OpenSnitch</span><span class="pill pro">PRO</span></div>
+          <div class="card-swap">Little Snitch, GlassWire</div>
+          <div class="card-desc">See &mdash; and control &mdash; every outbound connection any program makes.</div>
+        </a>
+        <a class="card" href="app-drive-health.html" data-avail="free" data-s="drive health nothing — windows has no equivalent it shows you dagric watches your disks and warns you before one dies. smart disk health drive failing hdd ssd warning plasma-disks smartctl sector backup system and safety app-drive-health">
+          <div class="card-top"><span class="card-name">Drive health</span></div>
+          <div class="card-swap">nothing &mdash; Windows has no equivalent it shows you</div>
+          <div class="card-desc">Dagric watches your disks and warns you before one dies.</div>
+        </a>
+        <a class="card" href="app-keepassxc.html" data-avail="pro" data-s="keepassxc lastpass, 1password, dashlane a password vault that is a file on your disk, not an account with a company. keepassxc password manager vault kdbx totp two factor browser autotype secure database system and safety app-keepassxc keepassxc pro paid upgrade">
+          <div class="card-top"><span class="card-name">KeePassXC</span><span class="pill pro">PRO</span></div>
+          <div class="card-swap">LastPass, 1Password, Dashlane</div>
+          <div class="card-desc">A password vault that is a file on your disk, not an account with a company.</div>
+        </a>
+        <a class="card" href="app-cryptomator.html" data-avail="free" data-s="cryptomator bitlocker to go, boxcryptor, and hoping for the best encrypt files before they ever reach drive, dropbox or onedrive. cryptomator encrypt vault cloud dropbox google drive onedrive zero knowledge privacy password system and safety app-cryptomator dagric-get-cryptomator install add optional not preinstalled">
+          <div class="card-top"><span class="card-name">Cryptomator</span><span class="pill add" title="Not preinstalled — Dagric installs it for you when you ask">ADD-ON</span></div>
+          <div class="card-swap">BitLocker To Go, Boxcryptor, and hoping for the best</div>
+          <div class="card-desc">Encrypt files before they ever reach Drive, Dropbox or OneDrive.</div>
+        </a>
+        <a class="card" href="app-bleachbit.html" data-avail="pro" data-s="bleachbit disk cleanup and ccleaner reclaim disk space from caches and logs, and shred files properly. bleachbit clean cache logs temp disk space ccleaner shred wipe free space privacy system and safety app-bleachbit bleachbit pro paid upgrade">
+          <div class="card-top"><span class="card-name">BleachBit</span><span class="pill pro">PRO</span></div>
+          <div class="card-swap">Disk Cleanup and CCleaner</div>
+          <div class="card-desc">Reclaim disk space from caches and logs, and shred files properly.</div>
+        </a>
+        <a class="card" href="app-flatseal.html" data-avail="pro" data-s="flatseal app permissions in windows settings decide what each sandboxed app is allowed to touch. flatseal flatpak permissions sandbox camera microphone home folder network access privacy system and safety app-flatseal flatseal pro paid upgrade">
+          <div class="card-top"><span class="card-name">Flatseal</span><span class="pill pro">PRO</span></div>
+          <div class="card-swap">App permissions in Windows Settings</div>
+          <div class="card-desc">Decide what each sandboxed app is allowed to touch.</div>
+        </a>
+        <a class="card" href="app-apparmor.html" data-avail="free" data-s="apparmor and the security baseline windows defender, smart app control and uac — loosely what is protecting this machine while you are not thinking about it. apparmor security hardening antivirus virus malware confinement kernel sandbox lynis baseline system and safety app-apparmor">
+          <div class="card-top"><span class="card-name">AppArmor and the security baseline</span></div>
+          <div class="card-swap">Windows Defender, Smart App Control and UAC &mdash; loosely</div>
+          <div class="card-desc">What is protecting this machine while you are not thinking about it.</div>
+        </a>
+        <a class="card" href="app-accounts.html" data-avail="free" data-s="accounts, passwords and disk encryption user accounts, windows hello and bitlocker who can use this computer, and what happens if it is stolen. user account password sudo administrator fingerprint hello lock screen luks encryption bitlocker login system and safety app-accounts">
+          <div class="card-top"><span class="card-name">Accounts, passwords and disk encryption</span></div>
+          <div class="card-swap">User Accounts, Windows Hello and BitLocker</div>
+          <div class="card-desc">Who can use this computer, and what happens if it is stolen.</div>
+        </a>
+        <a class="card" href="app-orca.html" data-avail="free" data-s="orca narrator the screen reader: the desktop, read aloud. orca screen reader accessibility blind speech braille narrator voice a11y zoom magnifier system and safety app-orca orca">
+          <div class="card-top"><span class="card-name">Orca</span></div>
+          <div class="card-swap">Narrator</div>
+          <div class="card-desc">The screen reader: the desktop, read aloud.</div>
+        </a>
+      </div>
+    </section>
+
+    <section class="group" id="g-games">
+      <h2>Games and Windows programs</h2>
+      <p class="groupdesc">Playing games on Linux, and running the Windows software you did not want to leave behind.</p>
+      <div class="cards">
+        <a class="card" href="app-steam.html" data-avail="free" data-s="steam steam on windows your steam library, running on linux — usually with no effort at all. steam valve games library proton play windows games install store deck games and windows programs app-steam dagric-get-steam install add optional not preinstalled">
+          <div class="card-top"><span class="card-name">Steam</span><span class="pill add" title="Not preinstalled — Dagric installs it for you when you ask">ADD-ON</span></div>
+          <div class="card-swap">Steam on Windows</div>
+          <div class="card-desc">Your Steam library, running on Linux &mdash; usually with no effort at all.</div>
+        </a>
+        <a class="card" href="app-lutris.html" data-avail="pro" data-s="lutris a desktop full of separate game launchers one launcher for everything that is not steam: battle.net, ea, ubisoft, emulators, old discs. lutris games launcher battlenet ea origin ubisoft gog emulator wine runner install script games and windows programs app-lutris lutris pro paid upgrade">
+          <div class="card-top"><span class="card-name">Lutris</span><span class="pill pro">PRO</span></div>
+          <div class="card-swap">a desktop full of separate game launchers</div>
+          <div class="card-desc">One launcher for everything that is not Steam: Battle.net, EA, Ubisoft, emulators, old discs.</div>
+        </a>
+        <a class="card" href="app-heroic.html" data-avail="free" data-s="heroic games launcher the epic games launcher and gog galaxy your epic, gog and amazon libraries, without their windows launchers. heroic epic games gog amazon prime launcher library free games download proton wine games and windows programs app-heroic dagric-get-heroic install add optional not preinstalled">
+          <div class="card-top"><span class="card-name">Heroic Games Launcher</span><span class="pill add" title="Not preinstalled — Dagric installs it for you when you ask">ADD-ON</span></div>
+          <div class="card-swap">the Epic Games Launcher and GOG Galaxy</div>
+          <div class="card-desc">Your Epic, GOG and Amazon libraries, without their Windows launchers.</div>
+        </a>
+        <a class="card" href="app-wine.html" data-avail="pro" data-s="wine windows itself, for a lot of software run windows programs directly, with no windows underneath. wine windows exe program run compatibility winecfg winetricks prefix dll msi legacy games and windows programs app-wine wine pro paid upgrade">
+          <div class="card-top"><span class="card-name">Wine</span><span class="pill pro">PRO</span></div>
+          <div class="card-swap">Windows itself, for a lot of software</div>
+          <div class="card-desc">Run Windows programs directly, with no Windows underneath.</div>
+        </a>
+        <a class="card" href="app-bottles.html" data-avail="free" data-s="bottles installing windows software, the easy way wine with a window: one tidy container per windows program. bottles wine windows apps container prefix installer gui exe dependencies sandbox games and windows programs app-bottles dagric-get-bottles install add optional not preinstalled">
+          <div class="card-top"><span class="card-name">Bottles</span><span class="pill add" title="Not preinstalled — Dagric installs it for you when you ask">ADD-ON</span></div>
+          <div class="card-swap">installing Windows software, the easy way</div>
+          <div class="card-desc">Wine with a window: one tidy container per Windows program.</div>
+        </a>
+        <a class="card" href="app-protonup.html" data-avail="free" data-s="protonup-qt nothing on windows — this is a linux gaming convenience install and switch between proton and wine builds without a terminal. protonup proton ge wine ge compatibility tool steam lutris heroic version manager install games and windows programs app-protonup dagric-get-protonup install add optional not preinstalled">
+          <div class="card-top"><span class="card-name">ProtonUp-Qt</span><span class="pill add" title="Not preinstalled — Dagric installs it for you when you ask">ADD-ON</span></div>
+          <div class="card-swap">nothing on Windows &mdash; this is a Linux gaming convenience</div>
+          <div class="card-desc">Install and switch between Proton and Wine builds without a terminal.</div>
+        </a>
+        <a class="card" href="app-gameperf.html" data-avail="pro" data-s="gamemode, mangohud and goverlay the xbox game bar overlay, msi afterburner, rivatuner an fps counter, and a switch that tells the machine a game is running. gamemode mangohud goverlay fps overlay performance governor cpu gpu temperature frametime benchmark games and windows programs app-gameperf goverlay pro paid upgrade">
+          <div class="card-top"><span class="card-name">GameMode, MangoHud and GOverlay</span><span class="pill pro">PRO</span></div>
+          <div class="card-swap">the Xbox Game Bar overlay, MSI Afterburner, RivaTuner</div>
+          <div class="card-desc">An FPS counter, and a switch that tells the machine a game is running.</div>
+        </a>
+        <a class="card" href="app-virt-manager.html" data-avail="pro" data-s="virtual machine manager hyper-v, virtualbox, vmware workstation run a whole other operating system — including real windows — in a window. virt-manager vm virtual machine kvm qemu windows 11 tpm uefi guest iso libvirt snapshot games and windows programs app-virt-manager virt-manager pro paid upgrade install add optional not preinstalled">
+          <div class="card-top"><span class="card-name">Virtual Machine Manager</span><span class="pill pro">PRO</span></div>
+          <div class="card-swap">Hyper-V, VirtualBox, VMware Workstation</div>
+          <div class="card-desc">Run a whole other operating system &mdash; including real Windows &mdash; in a window.</div>
+        </a>
+      </div>
+    </section>
+
+    <section class="group" id="g-dev">
+      <h2>For developers</h2>
+      <p class="groupdesc">The toolchain Dagric OS Pro sets up for you before you ask.</p>
+      <div class="cards">
+        <a class="card" href="app-docker.html" data-avail="pro" data-s="docker and podman docker desktop containers, both the familiar way and the rootless way. docker podman container compose image registry kubernetes rootless daemon dockerfile for developers app-docker docker pro paid upgrade">
+          <div class="card-top"><span class="card-name">Docker and Podman</span><span class="pill pro">PRO</span></div>
+          <div class="card-swap">Docker Desktop</div>
+          <div class="card-desc">Containers, both the familiar way and the rootless way.</div>
+        </a>
+        <a class="card" href="app-distrobox.html" data-avail="pro" data-s="distrobox wsl — the windows subsystem for linux an ubuntu, fedora or arch userland in a terminal, sharing your home folder. distrobox container ubuntu fedora arch wsl toolbox userland shell development environment export for developers app-distrobox distrobox pro paid upgrade">
+          <div class="card-top"><span class="card-name">Distrobox</span><span class="pill pro">PRO</span></div>
+          <div class="card-swap">WSL &mdash; the Windows Subsystem for Linux</div>
+          <div class="card-desc">An Ubuntu, Fedora or Arch userland in a terminal, sharing your home folder.</div>
+        </a>
+        <a class="card" href="app-devtools.html" data-avail="pro" data-s="git, compilers and python visual studio build tools, git for windows, python.org installers the toolchain is already there. no installers, no path surgery. git compiler gcc build-essential make python pip venv development toolchain ssh key clone for developers app-devtools git pro paid upgrade">
+          <div class="card-top"><span class="card-name">Git, compilers and Python</span><span class="pill pro">PRO</span></div>
+          <div class="card-swap">Visual Studio Build Tools, Git for Windows, python.org installers</div>
+          <div class="card-desc">The toolchain is already there. No installers, no PATH surgery.</div>
+        </a>
+        <a class="card" href="app-ssh.html" data-avail="pro" data-s="ssh putty, and windows openssh reaching other machines, and letting other machines reach this one — carefully. ssh remote server terminal key scp sftp openssh sshd port 22 tunnel login for developers app-ssh ssh pro paid upgrade">
+          <div class="card-top"><span class="card-name">SSH</span><span class="pill pro">PRO</span></div>
+          <div class="card-swap">PuTTY, and Windows OpenSSH</div>
+          <div class="card-desc">Reaching other machines, and letting other machines reach this one &mdash; carefully.</div>
+        </a>
+        <a class="card" href="app-terminal-extras.html" data-avail="pro" data-s="nala, bat and zoxide nothing — these are quality-of-life additions three small tools that make the terminal considerably more pleasant. nala bat batcat zoxide apt readable syntax highlight cd jump directory history undo for developers app-terminal-extras nala pro paid upgrade">
+          <div class="card-top"><span class="card-name">nala, bat and zoxide</span><span class="pill pro">PRO</span></div>
+          <div class="card-swap">nothing &mdash; these are quality-of-life additions</div>
+          <div class="card-desc">Three small tools that make the terminal considerably more pleasant.</div>
+        </a>
+      </div>
+    </section>
+
+    <section class="group" id="g-dagric">
+      <h2>Dagric&#x27;s own tools</h2>
+      <p class="groupdesc">The dagric-* helpers this OS adds. Every one of them asks before it changes anything.</p>
+      <div class="cards">
+        <a class="card" href="tool-dagric-hub.html" data-avail="free" data-s="dagric hub nothing — windows scatters this across settings, control panel and oem apps one window that gathers every dagric tool, so nothing lives only on the command line. hub dagric menu tools setup drivers security gallery helpers one place kdialog dagric&#x27;s own tools tool-dagric-hub dagric-hub">
+          <div class="card-top"><span class="card-name">Dagric Hub</span></div>
+          <div class="card-swap">nothing &mdash; Windows scatters this across Settings, Control Panel and OEM apps</div>
+          <div class="card-desc">One window that gathers every Dagric tool, so nothing lives only on the command line.</div>
+        </a>
+        <a class="card" href="tool-dagric-setup.html" data-avail="free" data-s="finish setup the out-of-box experience, minus the advertising the short list of things that cannot honestly be switched on for you. setup finish first run nvidia driver hp printer flathub checklist onboarding dagric&#x27;s own tools tool-dagric-setup dagric-setup">
+          <div class="card-top"><span class="card-name">Finish Setup</span></div>
+          <div class="card-swap">the out-of-box experience, minus the advertising</div>
+          <div class="card-desc">The short list of things that cannot honestly be switched on for you.</div>
+        </a>
+        <a class="card" href="tool-dagric-firstrun.html" data-avail="free" data-s="set up dagric the windows out-of-box experience the wizard you meet at your first login, and can open again whenever you like. firstrun first run setup wizard welcome onboarding wallpaper dark light text size taskbar undo dagric&#x27;s own tools tool-dagric-firstrun dagric-firstrun">
+          <div class="card-top"><span class="card-name">Set Up Dagric</span></div>
+          <div class="card-swap">the Windows out-of-box experience</div>
+          <div class="card-desc">The wizard you meet at your first login, and can open again whenever you like.</div>
+        </a>
+        <a class="card" href="tool-dagric-migrate.html" data-avail="free" data-s="migration assistant windows easy transfer, and a very long evening with a usb stick bring your files, bookmarks, open tabs and firefox logins across from windows. migrate migration windows files transfer bookmarks tabs passwords ntfs onedrive switch move copy dagric&#x27;s own tools tool-dagric-migrate dagric-migrate">
+          <div class="card-top"><span class="card-name">Migration Assistant</span></div>
+          <div class="card-swap">Windows Easy Transfer, and a very long evening with a USB stick</div>
+          <div class="card-desc">Bring your files, bookmarks, open tabs and Firefox logins across from Windows.</div>
+        </a>
+        <a class="card" href="tool-dagric-appearance.html" data-avail="free" data-s="dagric appearance personalisation, but with an undo every desktop style and layout as a picture. try one for real; keep it only if you like it. appearance gallery theme style layout preview thumbnail keep revert try desktop look qml dagric&#x27;s own tools tool-dagric-appearance dagric-appearance">
+          <div class="card-top"><span class="card-name">Dagric Appearance</span></div>
+          <div class="card-swap">Personalisation, but with an undo</div>
+          <div class="card-desc">Every desktop style and layout as a picture. Try one for real; keep it only if you like it.</div>
+        </a>
+        <a class="card" href="tool-dagric-looks.html" data-avail="free" data-s="dagric looks rearranging the taskbar, without the fear change the shape of the desktop — where the taskbar and panels live. looks layout panel taskbar dock top bar classic focus eleven horizon command unity duo plasma dagric&#x27;s own tools tool-dagric-looks dagric-looks">
+          <div class="card-top"><span class="card-name">Dagric Looks</span></div>
+          <div class="card-swap">rearranging the taskbar, without the fear</div>
+          <div class="card-desc">Change the shape of the desktop &mdash; where the taskbar and panels live.</div>
+        </a>
+        <a class="card" href="tool-dagric-style.html" data-avail="free" data-s="dagric styles personalisation: colours, themes and background change the mood — colours, accent, wallpaper and window effects. styles theme colour color scheme accent wallpaper dark light blur midnight daybreak dawn reset dagric&#x27;s own tools tool-dagric-style dagric-style">
+          <div class="card-top"><span class="card-name">Dagric Styles</span></div>
+          <div class="card-swap">Personalisation: Colours, Themes and Background</div>
+          <div class="card-desc">Change the mood &mdash; colours, accent, wallpaper and window effects.</div>
+        </a>
+        <a class="card" href="tool-dagric-display.html" data-avail="free" data-s="dagric display display settings: scale and layout, and night light make the text bigger and warm the screen up at night. nothing else, on purpose. display text size scale bigger zoom night light colour warm screen resolution monitor eyes readable dagric&#x27;s own tools tool-dagric-display dagric-display">
+          <div class="card-top"><span class="card-name">Dagric Display</span></div>
+          <div class="card-swap">Display settings: Scale and layout, and Night light</div>
+          <div class="card-desc">Make the text bigger and warm the screen up at night. Nothing else, on purpose.</div>
+        </a>
+        <a class="card" href="tool-dagric-app-names.html" data-avail="free" data-s="why the apps have plain names nothing — this is dagric solving a linux problem your menu says files, photos and terminal. forum posts say dolphin, gwenview and konsole. both are right. app names rename dolphin files konsole terminal gwenview photos okular launcher menu confusing kde dagric&#x27;s own tools tool-dagric-app-names dagric-app-names">
+          <div class="card-top"><span class="card-name">Why the apps have plain names</span></div>
+          <div class="card-swap">nothing — this is Dagric solving a Linux problem</div>
+          <div class="card-desc">Your menu says Files, Photos and Terminal. Forum posts say Dolphin, Gwenview and Konsole. Both are right.</div>
+        </a>
+        <a class="card" href="tool-dagric-get-variety.html" data-avail="free" data-s="rotating wallpapers (variety) windows spotlight and the wallpaper slideshow install the wallpaper changer — and find out why it is not preinstalled. variety wallpaper rotate change slideshow desktop background daily picture tray dagric&#x27;s own tools tool-dagric-get-variety dagric-get-variety install add optional not preinstalled">
+          <div class="card-top"><span class="card-name">Rotating wallpapers (Variety)</span><span class="pill add" title="Not preinstalled — Dagric installs it for you when you ask">ADD-ON</span></div>
+          <div class="card-swap">Windows Spotlight and the wallpaper slideshow</div>
+          <div class="card-desc">Install the wallpaper changer &mdash; and find out why it is not preinstalled.</div>
+        </a>
+        <a class="card" href="tool-dagric-drivers.html" data-avail="free" data-s="nvidia driver helper geforce experience and the manufacturer&#x27;s driver download install the proprietary nvidia driver properly, including the secure boot part. nvidia driver graphics gpu proprietary secure boot mok dkms black screen amd intel dagric&#x27;s own tools tool-dagric-drivers dagric-drivers">
+          <div class="card-top"><span class="card-name">NVIDIA driver helper</span></div>
+          <div class="card-swap">GeForce Experience and the manufacturer's driver download</div>
+          <div class="card-desc">Install the proprietary NVIDIA driver properly, including the Secure Boot part.</div>
+        </a>
+        <a class="card" href="tool-dagric-security-checkup.html" data-avail="free" data-s="security checkup windows security — without the subscription upsell a security audit and a drive-health report, in one window, in plain language. security checkup audit lynis hardening score smart disk health warnings report scan dagric&#x27;s own tools tool-dagric-security-checkup dagric-security-checkup">
+          <div class="card-top"><span class="card-name">Security Checkup</span></div>
+          <div class="card-swap">Windows Security &mdash; without the subscription upsell</div>
+          <div class="card-desc">A security audit and a drive-health report, in one window, in plain language.</div>
+        </a>
+        <a class="card" href="tool-dagric-usb-protect.html" data-avail="pro" data-s="usb protection nothing — windows has no consumer equivalent block malicious usb devices — without locking out your own keyboard. usb protection usbguard badusb rubber ducky block device allow list security lockdown ports dagric&#x27;s own tools tool-dagric-usb-protect dagric-usb-protect pro paid upgrade">
+          <div class="card-top"><span class="card-name">USB Protection</span><span class="pill pro">PRO</span></div>
+          <div class="card-swap">nothing &mdash; Windows has no consumer equivalent</div>
+          <div class="card-desc">Block malicious USB devices &mdash; without locking out your own keyboard.</div>
+        </a>
+        <a class="card" href="tool-dagric-vm.html" data-avail="pro" data-s="windows in a window (vm setup) turning on hyper-v switch on the virtual-machine stack, with consent, and get pointed at a legal windows iso. vm virtual machine setup kvm libvirt enable groups virtualization vt-x svm bios windows iso dagric&#x27;s own tools tool-dagric-vm dagric-vm pro paid upgrade">
+          <div class="card-top"><span class="card-name">Windows in a window (VM setup)</span><span class="pill pro">PRO</span></div>
+          <div class="card-swap">turning on Hyper-V</div>
+          <div class="card-desc">Switch on the virtual-machine stack, with consent, and get pointed at a legal Windows ISO.</div>
+        </a>
+        <a class="card" href="tool-dagric-gaming.html" data-avail="free" data-s="proton-ge helper nothing — a linux gaming convenience add the community proton build that fixes games weeks before the official one. gaming proton ge glorious eggroll steam compatibility tool download codecs fixes dagric&#x27;s own tools tool-dagric-gaming dagric-gaming install add optional not preinstalled">
+          <div class="card-top"><span class="card-name">Proton-GE helper</span></div>
+          <div class="card-swap">nothing &mdash; a Linux gaming convenience</div>
+          <div class="card-desc">Add the community Proton build that fixes games weeks before the official one.</div>
+        </a>
+        <a class="card" href="tool-dagric-ai.html" data-avail="free" data-s="local ai (ollama) chatgpt and copilot — on your machine, without the account run a large language model on your own hardware, offline, with nothing sent anywhere. ai ollama llm local model offline privacy chatgpt copilot llama gpu prompt dagric&#x27;s own tools tool-dagric-ai dagric-ai install add optional not preinstalled">
+          <div class="card-top"><span class="card-name">Local AI (Ollama)</span><span class="pill add" title="Not preinstalled — Dagric installs it for you when you ask">ADD-ON</span></div>
+          <div class="card-swap">ChatGPT and Copilot &mdash; on your machine, without the account</div>
+          <div class="card-desc">Run a large language model on your own hardware, offline, with nothing sent anywhere.</div>
+        </a>
+        <a class="card" href="tool-dagric-manual.html" data-avail="free" data-s="this manual get help, and searching the web for an answer how the manual works, how to search it, and how to reach a page from the terminal. manual help documentation offline search dagric-manual guide handbook pages topics dagric&#x27;s own tools tool-dagric-manual dagric-manual">
+          <div class="card-top"><span class="card-name">This manual</span></div>
+          <div class="card-swap">Get Help, and searching the web for an answer</div>
+          <div class="card-desc">How the manual works, how to search it, and how to reach a page from the terminal.</div>
+        </a>
+        <a class="card" href="tool-dagric-background.html" data-avail="free" data-s="helpers that run by themselves the windows first-run experience and oem startup apps the four small things dagric does without asking, what each one is, and how to stop it. autostart background welcome brand launcher driver offer snapshot setup first boot login startup dagric&#x27;s own tools tool-dagric-background dagric-welcome">
+          <div class="card-top"><span class="card-name">Helpers that run by themselves</span></div>
+          <div class="card-swap">the Windows first-run experience and OEM startup apps</div>
+          <div class="card-desc">The four small things Dagric does without asking, what each one is, and how to stop it.</div>
+        </a>
+        <a class="card" href="tool-dagric-commands.html" data-avail="free" data-s="every dagric command nothing — this is the index the complete list of the dagric-* tools, what each does, and where each one lives. commands list reference dagric-* cli terminal index every tool complete dagric&#x27;s own tools tool-dagric-commands dagric">
+          <div class="card-top"><span class="card-name">Every dagric command</span></div>
+          <div class="card-swap">nothing &mdash; this is the index</div>
+          <div class="card-desc">The complete list of the dagric-* tools, what each does, and where each one lives.</div>
+        </a>
+      </div>
+    </section>
+
+
+    <footer class="colophon">Dagric OS Manual &middot; open it any time from the
+    launcher, or run <code>dagric-manual</code> in a terminal. Add an app name to
+    go straight there: <code>dagric-manual dolphin</code>.</footer>
+
+  </main>
+</div>
+</body>
+</html>

@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Upscayl &mdash; Dagric OS Manual</title>
+<link rel="stylesheet" href="manual.css">
+<script src="manual.js"></script>
+</head>
+<body>
+<div class="shell">
+  <aside class="side">
+    <div class="sidebox">
+      <a class="brand" href="index.html">
+        <div class="mark">D</div>
+        <div class="brand-name">Dagric OS<small>Manual</small></div>
+      </a>
+      <nav class="toc">
+        <a class="back" href="index.html">&larr; All applications</a>
+        <div class="navgroup">Photos and video</div>
+        <a href="app-gwenview.html">Gwenview</a>
+        <a href="app-spectacle.html">Spectacle</a>
+        <a href="app-mpv.html">mpv</a>
+        <a href="app-gimp.html">GIMP</a>
+        <a href="app-krita.html">Krita</a>
+        <a href="app-inkscape.html">Inkscape</a>
+        <a href="app-darktable.html">darktable</a>
+        <a href="app-blender.html">Blender</a>
+        <a href="app-kdenlive.html">Kdenlive</a>
+        <a href="app-obs-studio.html">OBS Studio</a>
+        <a href="app-handbrake.html">HandBrake</a>
+        <a href="app-upscayl.html" class="active">Upscayl</a>
+        <a href="app-davinci-resolve.html">DaVinci Resolve</a>
+      </nav>
+    </div>
+  </aside>
+
+  <main class="content">
+
+    <header class="hero">
+      <div class="eyebrow">Photos and video</div>
+      <h1>Upscayl<span class="pill add" title="Not preinstalled — Dagric installs it for you when you ask">ADD-ON</span></h1>
+      <p class="sub">Enlarge and sharpen a small or old photo, using AI that runs on your own machine.</p>
+    </header>
+
+    <div class="swap"><span>On Windows this was</span><strong>Topaz Gigapixel, and the &ldquo;enhance&rdquo; websites</strong></div>
+
+
+    <section>
+      <h2>What it is</h2>
+      <p><strong>Upscayl</strong> enlarges images using AI models, recovering
+      plausible detail rather than just making the pixels bigger. It is the right tool
+      for a scanned family photograph, an old avatar, or a logo somebody sent you at
+      200 pixels wide.</p>
+      <p>Everything happens on this computer. Nothing is uploaded, there is no
+      account, and it works with the wifi off &mdash; which is worth caring about
+      when the pictures are of your family.</p>
+    </section>
+
+    <section>
+      <h2>Getting it</h2>
+      <p>Two ways in, and they end up at the same app:</p>
+      <ul class="plain">
+        <li><strong>Dagric&nbsp;OS Pro</strong> &mdash; open the
+        <a href="tool-dagric-hub.html">Dagric Hub</a> and pick the row for it. A
+        terminal window explains what the app is and asks one yes/no question.</li>
+        <li><strong>Any edition</strong> &mdash; open
+        <a href="app-discover.html">Discover</a>, search for it, press Install.
+        It comes from Flathub, so turn Flathub on first if you have not:
+        <a href="tool-dagric-setup.html">Finish Setup</a> has a tick box for it.</li>
+      </ul>
+      <p>Either route installs it just for your user account, needs no
+      administrator password, and uninstalls cleanly from Discover's
+      <em>Installed</em> page.</p>
+    </section>
+    <section>
+      <h2>Five things you will actually do</h2>
+      <ol class="tasks">
+        <li><span class="t">Upscale one image</span><p>Select the image, choose an output folder, pick a model, press
+         <em>Upscayl</em>. The first run downloads nothing extra; the models ship with
+         the app.</p></li>
+        <li><span class="t">Pick the right model</span><p><em>Digital Art</em> for drawings, logos and screenshots.
+         <em>Ultrasharp</em> or <em>Ultramix Balanced</em> for photographs.
+         Try two on the same image and compare &mdash; the difference is
+         obvious.</p></li>
+        <li><span class="t">Do a whole folder</span><p>Switch to <em>Batch Upscayl</em>, choose the input folder and an output
+         folder. Leave it running; it is slow by nature.</p></li>
+        <li><span class="t">Compare before and after</span><p>The result view has a slider you drag across the image. Use it &mdash;
+         AI upscaling sometimes invents texture that looks wrong on faces, and you
+         want to notice that before you print it.</p></li>
+        <li><span class="t">Give it the GPU</span><p>In settings, select your graphics card if it is offered. On an NVIDIA
+         machine, install the proprietary driver first with
+         <a href="tool-dagric-drivers.html">Dagric's driver helper</a>; the difference
+         is minutes versus seconds.</p></li>
+      </ol>
+    </section>
+
+    <section>
+      <h2>One thing that will surprise you</h2>
+      <p><strong>It invents detail, it does not recover it.</strong> The extra
+      sharpness in an upscaled photo is the model's best guess at what was probably
+      there. For a family snapshot that is a gift. For anything where accuracy matters
+      &mdash; a document, a licence plate, evidence of any kind &mdash; the output is
+      a fabrication and should never be treated as a better copy of the
+      original.</p>
+    </section>
+
+    <section>
+      <h2>Where to find it</h2>
+      <p>After installing: launcher &rarr; <em>Upscayl</em>. Before installing:
+      Dagric Hub &rarr; <em>Image upscaler &mdash; Upscayl</em>, or Discover.</p>
+    </section>
+
+    <section>
+      <h2>See also</h2>
+      <div class="related"><a href="app-gimp.html">GIMP</a><a href="app-gwenview.html">Gwenview</a><a href="tool-dagric-drivers.html">NVIDIA driver helper</a><a href="tool-dagric-ai.html">Local AI (Ollama)</a></div>
+    </section>
+
+    <footer class="colophon">Dagric OS Manual &middot; stored on this computer, no internet needed &middot; <a href="index.html">every application</a></footer>
+
+  </main>
+</div>
+</body>
+</html>

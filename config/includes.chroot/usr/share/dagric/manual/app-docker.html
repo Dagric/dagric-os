@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Docker and Podman &mdash; Dagric OS Manual</title>
+<link rel="stylesheet" href="manual.css">
+<script src="manual.js"></script>
+</head>
+<body>
+<div class="shell">
+  <aside class="side">
+    <div class="sidebox">
+      <a class="brand" href="index.html">
+        <div class="mark">D</div>
+        <div class="brand-name">Dagric OS<small>Manual</small></div>
+      </a>
+      <nav class="toc">
+        <a class="back" href="index.html">&larr; All applications</a>
+        <div class="navgroup">For developers</div>
+        <a href="app-docker.html" class="active">Docker and Podman</a>
+        <a href="app-distrobox.html">Distrobox</a>
+        <a href="app-devtools.html">Git, compilers and Python</a>
+        <a href="app-ssh.html">SSH</a>
+        <a href="app-terminal-extras.html">nala, bat and zoxide</a>
+      </nav>
+    </div>
+  </aside>
+
+  <main class="content">
+
+    <header class="hero">
+      <div class="eyebrow">For developers</div>
+      <h1>Docker and Podman<span class="pill pro">PRO</span></h1>
+      <p class="sub">Containers, both the familiar way and the rootless way.</p>
+    </header>
+
+    <div class="swap"><span>On Windows this was</span><strong>Docker Desktop</strong></div>
+
+    <div class="notice pro-notice"><div><strong>This one is part of Dagric&nbsp;OS Pro.</strong> You are reading the manual on the free edition, so it is not installed on this computer. The page is here on purpose &mdash; you should be able to see exactly what Pro adds before you decide whether you want it.</div></div>
+    <section>
+      <h2>What it is</h2>
+      <p>Dagric&nbsp;OS Pro installs <strong>Docker</strong> with Compose, and
+      <strong>Podman</strong> alongside it. Both run OCI containers and both take
+      almost identical commands.</p>
+      <p>There is no Docker Desktop, and you do not need one: on Linux, containers run
+      natively on your own kernel. The virtual machine that Docker Desktop runs on
+      Windows and macOS exists only because those systems cannot do this
+      themselves.</p>
+    </section>
+
+    <section>
+      <h2>Five things you will actually do</h2>
+      <ol class="tasks">
+        <li><span class="t">Use Docker without typing sudo every time</span><p><code>sudo usermod -aG docker $USER</code>, then log out and back in.
+         Read the surprise below before you do &mdash; this is a real security
+         decision, not a convenience setting.</p></li>
+        <li><span class="t">Run something</span><p><code>docker run --rm -it debian:trixie bash</code> gets you a shell in
+         a fresh Debian in about a second. <code>--rm</code> throws it away
+         afterwards.</p></li>
+        <li><span class="t">Bring up a stack</span><p>With a <code>compose.yaml</code> in the folder,
+         <code>docker compose up -d</code> starts it and
+         <code>docker compose logs -f</code> follows the output. Debian's package
+         provides the <code>docker-compose</code> command as well.</p></li>
+        <li><span class="t">Use Podman rootless instead</span><p><code>podman run --rm -it debian:trixie bash</code>. Podman needs no
+         daemon and no group membership: containers run as your own user, so a
+         container escape does not hand out root. Most <code>docker</code> commands
+         work unchanged if you substitute <code>podman</code>.</p></li>
+        <li><span class="t">Reclaim the disk</span><p><code>docker system df</code> shows what is being used and
+         <code>docker system prune -a</code> removes unused images, containers and
+         networks. Container images accumulate tens of gigabytes quietly.</p></li>
+      </ol>
+    </section>
+
+    <section>
+      <h2>One thing that will surprise you</h2>
+      <p><strong>Membership of the <code>docker</code> group is equivalent to
+      root.</strong> Anyone in it can start a container that mounts the whole
+      filesystem and become root in one command &mdash; without a password, and
+      without a sudo log entry. That is not a Docker bug; it is what a root-owned
+      daemon accepting instructions from a socket means.</p>
+      <p>On a personal workstation it is a reasonable trade and everybody makes it.
+      On a shared or high-value machine, use Podman rootless instead. Dagric
+      deliberately does not add you to that group for you.</p>
+    </section>
+
+    <section>
+      <h2>Where to find it</h2>
+      <p>A terminal. There is no graphical Docker application; Podman Desktop is on
+      Flathub if you want one.</p>
+    </section>
+
+    <section>
+      <h2>See also</h2>
+      <div class="related"><a href="app-distrobox.html">Distrobox</a><a href="app-devtools.html">Git, compilers and Python</a><a href="app-virt-manager.html">Virtual Machine Manager</a><a href="app-ssh.html">SSH</a></div>
+    </section>
+
+    <footer class="colophon">Dagric OS Manual &middot; stored on this computer, no internet needed &middot; <a href="index.html">every application</a></footer>
+
+  </main>
+</div>
+</body>
+</html>

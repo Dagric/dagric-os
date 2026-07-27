@@ -15,7 +15,8 @@ EDITION="${EDITION:-free}"
 rsync -a --exclude 'out/' --exclude '.git/' /src/ /build/
 cd /build
 chmod +x auto/* config/hooks/normal/*.hook.chroot 2>/dev/null || true
-chmod +x config/includes.chroot/usr/bin/* config/includes.chroot/usr/lib/live/config/* 2>/dev/null || true
+chmod +x config/includes.chroot/usr/bin/* config/includes.chroot/usr/lib/live/config/* \
+         config/includes.chroot/usr/lib/dagric/* 2>/dev/null || true
 
 if [ "$EDITION" != "pro" ]; then
     rm -f config/package-lists/pro-*.list.chroot
@@ -36,15 +37,18 @@ mkdir -p config/includes.chroot/etc
 printf '%s\n' "$EDITION" > config/includes.chroot/etc/dagric-edition
 export DAGRIC_EDITION="$EDITION"
 
-# Same 8-bit wallpaper guard as build.sh — see the comment there for why this
-# reads the PNG header directly instead of asking ImageMagick. (`identify`
-# reports the *effective* depth and calls a 16-bit-header file "8-bit" when its
-# samples happen to fit in 8 bits, which is precisely the case that doubles the
-# file size and the case we are trying to catch.)
+# Same 8-bit art guard as build.sh — see the comment there for why this reads
+# the PNG header directly instead of asking ImageMagick (`identify` reports the
+# *effective* depth and calls a 16-bit-header file "8-bit" when its samples
+# happen to fit in 8 bits, which is precisely the case that doubles the file
+# size and the case we are trying to catch), why it covers every shipped PNG
+# rather than only the wallpapers, and why it tests "> 8" rather than "= 8".
 deep=
-for png in config/includes.chroot/usr/share/wallpapers/*/contents/images/*.png; do
+for png in $(find config/includes.chroot -name '*.png' | sort); do
     [ -f "$png" ] || continue
-    [ "$(od -An -tu1 -j24 -N1 "$png" | tr -d ' ')" = 8 ] || deep="$deep $png"
+    if [ "$(od -An -tu1 -j24 -N1 "$png" | tr -d ' ')" -gt 8 ]; then
+        deep="$deep $png"
+    fi
 done
 if [ -n "$deep" ]; then
     echo "ERROR: wallpapers are not 8-bit — this doubles their size for no" >&2
