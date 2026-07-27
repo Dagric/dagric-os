@@ -1,0 +1,79 @@
+# Dagric OS — accessibility settings for the session (read by kaccess, and on
+# Wayland by KWin's StickyKeysPlugin and BounceKeysPlugin).
+#
+# THIS FILE SHIPS WITH EVERYTHING OFF, AND THAT IS THE POINT. Sticky keys turns
+# Shift into a latch; slow keys makes the keyboard ignore a keypress shorter
+# than a set delay; bounce keys ignores a second press of the same key. To
+# somebody who needs them they are the difference between using a computer and
+# not. To everybody else, switched on by default, they are a keyboard that has
+# broken — and the audience for this OS is people who have just left Windows
+# and are already braced for the new system to break. So: shipped off, written
+# down here so they can be found, and reachable in two clicks from the
+# Accessibility entry in the menu (System Settings -> Accessibility).
+#
+# Where each one is actually implemented on this image, because it is not all
+# one program and the answer changes what works:
+#
+#   Sticky keys  -> KWin, /usr/lib/*/qt6/plugins/kwin/plugins/StickyKeysPlugin.so
+#   Bounce keys  -> KWin, .../BounceKeysPlugin.so
+#   Mouse keys   -> KWin, .../MouseKeysPlugin.so
+#   Visible bell -> kaccess
+#   Screen reader-> kaccess (it launches and kills Orca)
+#
+# All three KWin plugins are EnabledByDefault=true in their own metadata, so
+# they are already loaded and already watching this file; they simply do
+# nothing while the switches below are false. Nothing needs turning on first.
+#
+# SLOW KEYS IS THE EXCEPTION AND IT IS AN HONEST GAP. There is no
+# SlowKeysPlugin in kwin 4:6.3.6-1 — the plugin directory contains sticky,
+# bounce and mouse keys and nothing else. kaccess still knows the word, but it
+# applies slow keys through XkbSetControls, which only reaches XWayland
+# clients; Dagric's session is Wayland. Writing SlowKeys=true here would look
+# like a feature and behave like nothing. Section 508 502.4(B) / ANSI-HFES
+# 9.3.4 is therefore NOT satisfied on the Wayland session and should be
+# reported as "Does Not Support" in any VPAT, not glossed.
+
+[Bell]
+SystemBell=true
+# VisibleBell flashes the screen instead of beeping — 508 502.4(D), a visual
+# alternative to audio output. Off by default: a full-screen inversion on every
+# terminal bell is startling if you did not ask for it.
+VisibleBell=false
+VisibleBellInvert=false
+VisibleBellPause=500
+
+[Keyboard]
+# 508 502.4(A) / ANSI-HFES 9.3.3 — press Ctrl, release it, then press C.
+StickyKeys=false
+StickyKeysLatch=true
+StickyKeysAutoOff=false
+StickyKeysBeep=false
+# 508 502.4(C) / ANSI-HFES 9.3.5 — ignore a repeat of the same key inside
+# BounceKeysDelay milliseconds. BounceKeysDelay is read by BounceKeysPlugin.so;
+# it is not in the Plasma 6.3 settings schema, so it is written here rather
+# than left to a KCM that will not offer it.
+BounceKeys=false
+BounceKeysDelay=200
+# The key name really is kNotifyModifiers; the schema entry is called
+# KeyboardNotifyModifiers. Do not "fix" it.
+kNotifyModifiers=false
+
+[Mouse]
+# Drive the pointer from the number pad. Off by default for the obvious reason:
+# it takes the number pad away from anyone who wanted to type numbers with it.
+MouseKeys=false
+MKDelay=160
+MKInterval=40
+MKTimeToMax=30
+MKMaxSpeed=30
+MKCurve=0
+
+[ScreenReader]
+# Orca off at login. Turn it on with Meta+Alt+S (bound in kglobalshortcutsrc),
+# or from System Settings -> Accessibility. kaccess reads this key and launches
+# Orca itself; do not add an Orca autostart entry as well or two copies race.
+#
+# This key is also what the systemd user environment generator
+# /usr/lib/systemd/user-environment-generators/60-dagric-accessibility looks
+# at to decide whether to export QT_LINUX_ACCESSIBILITY_ALWAYS_ON.
+Enabled=false

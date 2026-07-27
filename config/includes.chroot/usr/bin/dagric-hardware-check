@@ -1,0 +1,1509 @@
+#!/bin/sh
+# SPDX-FileCopyrightText: 2026 DGR Operations <repo@dagric.com>
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Dagric OS — Hardware Check. Answers, BEFORE anything is installed, the one
+# question the live USB otherwise leaves hanging: "will this actually work on
+# my computer?"
+#
+# WHY THIS EXISTS. Today someone boots the stick, likes the look of it, clicks
+# Install, waits twenty minutes, restarts — and only then discovers their Wi-Fi
+# card needs a firmware blob that is not on the disc, or that their drive is
+# BitLocker'd and the migration tool cannot read a single file. Finding that
+# out afterwards is what turns a curious Windows 10 refugee into a refund
+# request and a bad review. Finding it out beforehand turns the same facts into
+# an informed decision: "plug in a network cable for the install", or "go back
+# into Windows and turn BitLocker off first". The facts are identical. The
+# order they arrive in is the entire product experience.
+#
+# THIS TOOL IS READ-ONLY AND MUST STAY THAT WAY. It reads /sys, /proc, the
+# kernel log, and block-device metadata. It mounts nothing, unlocks nothing,
+# installs nothing, and writes exactly one file — the report, and only to a
+# path the owner picked in a save dialog. There is deliberately no code path
+# that can touch a partition. That constraint is why the "how full is Windows"
+# question is answered with instructions instead of a number (see the STORAGE
+# section): every way to measure it means opening the NTFS volume, and a
+# diagnostic that people run while nervous is the last place to put a tool
+# whose name starts with "ntfsresize".
+#
+# IT RUNS UNPRIVILEGED, ON PURPOSE, AND NEVER PROMPTS. Somebody evaluating the
+# OS should not meet a password box in the first five minutes. Where a probe
+# genuinely needs root — the kernel log, because 99-dagric-hardening.conf sets
+# kernel.dmesg_restrict=1 — it is attempted with `sudo -n` and simply skipped
+# if that would ask. In the live session sudo is passwordless, so the full
+# check runs there; on an installed system one probe degrades and says so.
+#
+# EVERY READ IS GUARDED. This runs on hardware nobody here has ever seen. There
+# is no /sys path, no command and no table lookup below whose absence is
+# allowed to be fatal — the worst case for any one probe is a line that says it
+# could not tell, and the report still prints.
+
+TITLE="Dagric Hardware Check"
+DATA=/usr/share/dagric/hwcheck
+NETCHIPS=$DATA/net-chips
+GPUTAB=$DATA/gpu-drivers
+FWMAP=$DATA/firmware-map
+
+# The specification the product claims. Defaults first, then the shipped file
+# overrides them — so a missing or unreadable table degrades to sane numbers
+# rather than to an empty comparison that says every machine is fine.
+ram_min_mb=3500
+ram_ok_mb=7000
+disk_min_gb=25
+disk_ok_gb=60
+[ -r "$DATA/minimums" ] && . "$DATA/minimums"
+
+TEXTMODE=no
+case "$1" in
+    --text|-t) TEXTMODE=yes ;;
+    --help|-h)
+        echo "Usage: dagric-hardware-check [--text]"
+        echo "  Checks this computer for the things that commonly go wrong"
+        echo "  when installing Linux, and explains them in plain language."
+        echo "  --text   print the report to the terminal instead of a window"
+        exit 0 ;;
+esac
+
+WORK=$(mktemp -d /tmp/dagric-hwcheck.XXXXXX 2>/dev/null) || WORK=/tmp/dagric-hwcheck.$$
+mkdir -p "$WORK" 2>/dev/null || { echo "Cannot create a working directory."; exit 1; }
+trap 'rm -rf "$WORK"' EXIT
+trap 'rm -rf "$WORK"; exit 130' INT TERM HUP
+
+BODY=$WORK/body.txt
+TECH=$WORK/tech.txt
+FLAGS=$WORK/flags.txt
+KLOG=$WORK/klog.txt
+REPORT=$WORK/report.txt
+: > "$BODY"; : > "$TECH"; : > "$FLAGS"; : > "$KLOG"
+
+# --- small, boring plumbing -------------------------------------------------
+
+p()  { printf '%s\n' "$*" >> "$BODY"; }
+t()  { printf '%s\n' "$*" >> "$TECH"; }
+sec() {
+    printf '\n%s\n%s\n' "$1" \
+        "----------------------------------------------------------------" >> "$BODY"
+}
+# Headline findings, collected as they are discovered and printed at the TOP
+# of the report — because the one thing we can be certain of is that the top
+# is the part that gets read. Three levels, printed in this order:
+#   A  do this BEFORE installing, or you will regret it (BitLocker)
+#   P  will bite you during or after the install
+#   W  worth knowing, blocks nothing
+# The order matters more than it looks. Findings are discovered in the order
+# the sections happen to run, and storage runs last — so without an explicit
+# ranking, "your drive is encrypted and the installer may break Windows" would
+# sit underneath "your battery is old".
+flag() { printf '%s|%s\n' "$1" "$2" >> "$FLAGS"; }
+
+# Print one headline finding, wrapped with a hanging indent. The rest of the
+# report is hand-wrapped to fit; these are not, because they are written as
+# single sentences and are read in a fixed-size window. Left long, the most
+# important lines in the whole report are the only ones needing a horizontal
+# scrollbar to finish reading.
+headline() {
+    # `fold -s` breaks after the space it wrapped on, so each line but the
+    # last keeps a trailing blank. Harmless on screen, untidy in the saved
+    # file people paste into a support request.
+    printf '%s\n' "$2" | fold -s -w 66 2>/dev/null | sed 's/[[:space:]]*$//' | \
+        sed "1s/^/  $1  /; 2,\$s/^/       /" 2>/dev/null
+}
+
+# Read a /sys or /proc file, or fail quietly. Nothing below may assume a path
+# exists: this machine is not one of ours.
+rd() { [ -r "$1" ] || return 1; cat "$1" 2>/dev/null; }
+trim() { printf '%s' "$1" | sed 's/^[[:space:]]*//; s/[[:space:]]*$//'; }
+
+have() { command -v "$1" >/dev/null 2>&1; }
+
+# Root, but only if it costs the owner nothing. `sudo -n` fails rather than
+# prompting, which is the whole point — see the header.
+ROOTWAY=none
+if [ "$(id -u)" = "0" ]; then
+    ROOTWAY=direct
+elif have sudo && sudo -n true 2>/dev/null; then
+    ROOTWAY=sudo
+fi
+as_root() {
+    case $ROOTWAY in
+        direct) "$@" ;;
+        sudo)   sudo -n "$@" ;;
+        *)      return 127 ;;
+    esac
+}
+
+# Bytes to something a person reads. awk because sh cannot do decimals and
+# "3.7 GB" is worth more here than "3969249280".
+hbytes() {
+    LC_ALL=C awk -v b="$1" 'BEGIN{
+        if (b == "" || b+0 <= 0) { print "unknown"; exit }
+        if (b >= 1099511627776) { printf "%.1f TB", b/1099511627776 }
+        else if (b >= 1073741824) { printf "%.1f GB", b/1073741824 }
+        else if (b >= 1048576) { printf "%.0f MB", b/1048576 }
+        else { printf "%d bytes", b }
+    }'
+}
+gb() { LC_ALL=C awk -v b="$1" 'BEGIN{ printf "%d", (b+0)/1073741824 }'; }
+
+# Pull field N out of a |-separated row and trim it.
+fld() { printf '%s' "$1" | cut -d'|' -f"$2" 2>/dev/null | sed 's/^[[:space:]]*//; s/[[:space:]]*$//'; }
+
+# Exact-key lookup in a |-separated table. Returns the row minus its key.
+# A missing table returns nothing and that is fine everywhere it is called.
+table_row() {
+    [ -r "$1" ] || return 1
+    LC_ALL=C awk -F'|' -v key="$2" '
+        /^[[:space:]]*#/ { next }
+        NF < 2 { next }
+        { k = $1; gsub(/^[ \t]+|[ \t]+$/, "", k)
+          if (k != key) next
+          out = ""
+          for (i = 2; i <= NF; i++) {
+              f = $i; gsub(/^[ \t]+|[ \t]+$/, "", f)
+              out = out (i > 2 ? "|" : "") f
+          }
+          print out; exit }
+    ' "$1" 2>/dev/null
+}
+
+# Glob lookup, first match wins, for firmware paths. The pattern is expanded
+# UNQUOTED in the case so that it is treated as a pattern; that is why the
+# table forbids spaces inside a pattern field.
+fw_row() {
+    [ -r "$FWMAP" ] || return 1
+    while IFS= read -r _fl; do
+        case $_fl in ''|\#*) continue ;; esac
+        case $_fl in *'|'*) : ;; *) continue ;; esac
+        _fp=$(fld "$_fl" 1)
+        [ -n "$_fp" ] || continue
+        case $1 in
+            $_fp) printf '%s' "$_fl" | cut -d'|' -f2- ; return 0 ;;
+        esac
+    done < "$FWMAP"
+    return 1
+}
+
+dmi() {
+    _d=$(rd "/sys/class/dmi/id/$1") || return 1
+    _d=$(trim "$_d")
+    # Machines ship with the DMI strings unset far more often than you would
+    # hope. Treating the placeholder as a real model name puts "To Be Filled
+    # By O.E.M." at the top of a support request.
+    case $_d in
+        ''|*"To Be Filled"*|*"To be filled"*|"System Product Name"|\
+        "Default string"|"Not Applicable"|"Not Specified"|"None"|"O.E.M."|\
+        "System manufacturer"|"System Manufacturer") return 1 ;;
+    esac
+    printf '%s' "$_d"
+}
+
+# Name a PCI device the way pci.ids does. pciutils ships that database on the
+# ISO, so this works with no network — which is the only environment that
+# matters for a tool people run before they have any.
+pci_name() {
+    _pn=""
+    if have lspci; then
+        _pn=$(lspci -s "$1" 2>/dev/null | head -1 | sed 's/^[^ ]* //; s/^[^:]*: *//')
+    fi
+    if [ -z "$_pn" ]; then
+        _pv=$(rd "/sys/bus/pci/devices/$1/vendor")
+        _pd=$(rd "/sys/bus/pci/devices/$1/device")
+        _pn="unrecognised device ${_pv:-?}:${_pd:-?}"
+    fi
+    printf '%s' "$_pn"
+}
+
+# Which kernel module is bound to a device directory, if any.
+#
+# Falls back to the raw symlink when `readlink -f` comes back empty, which it
+# does for a link whose target does not resolve. Only the last component is
+# wanted here — the driver's name — so canonicalising is a convenience, not a
+# requirement, and letting it be a requirement means a machine with an unusual
+# sysfs layout gets told its hardware is unsupported when it is working fine.
+# A false "Dagric has no driver for your Wi-Fi card" is the most damaging
+# single line this tool could print.
+dev_driver() {
+    [ -h "$1/driver" ] || [ -e "$1/driver" ] || return 1
+    _dd=$(readlink -f "$1/driver" 2>/dev/null)
+    [ -n "$_dd" ] || _dd=$(readlink "$1/driver" 2>/dev/null)
+    [ -n "$_dd" ] || return 1
+    basename "$_dd"
+}
+
+# --- the kernel log ---------------------------------------------------------
+# Needed for firmware-load failures, and awkward to get: dmesg_restrict=1 in
+# the hardening baseline means an ordinary user cannot read it. Try the cheap
+# ways in order and record whether we got it, because "no firmware errors
+# found" and "could not look for firmware errors" are very different claims
+# and the report must never make the first one when it means the second.
+KLOG_OK=no
+if dmesg > "$KLOG" 2>/dev/null && [ -s "$KLOG" ]; then
+    KLOG_OK=yes
+elif as_root dmesg > "$KLOG" 2>/dev/null && [ -s "$KLOG" ]; then
+    KLOG_OK=yes
+elif have journalctl && journalctl -k -b --no-pager > "$KLOG" 2>/dev/null && [ -s "$KLOG" ]; then
+    KLOG_OK=yes
+else
+    : > "$KLOG"
+fi
+
+# Firmware files the kernel asked for and did not get.
+#
+# READ THIS BEFORE "IMPROVING" THE WI-FI CHECK. A failed firmware load is NOT
+# by itself a fault. iwlwifi in particular walks its API versions downwards —
+# it asks for -89, then -88, then -87 — and every attempt above the one that
+# exists logs "Direct firmware load ... failed". A card that works perfectly
+# still prints several of these. Reporting them as breakage would frighten
+# people whose Wi-Fi is fine, which is worse than saying nothing at all. So
+# these lines are only ever used to EXPLAIN a card that sysfs has already
+# shown to be broken, never to decide that one is.
+FWFAIL=$WORK/fwfail.txt
+: > "$FWFAIL"
+if [ "$KLOG_OK" = yes ]; then
+    grep -oE 'Direct firmware load for [^ ]+ failed|[Ff]ailed to load firmware [^ ]*|firmware: failed to load [^ ]+' "$KLOG" 2>/dev/null \
+        | sed 's/^Direct firmware load for //; s/ failed$//; s/^[Ff]ailed to load firmware //; s/^firmware: failed to load //' \
+        | sed 's/[(),]*$//' | sort -u > "$FWFAIL" 2>/dev/null || : > "$FWFAIL"
+fi
+
+# Does the kernel log complain about firmware belonging to a given driver?
+# Matched loosely on purpose: iwlwifi's files are "iwlwifi-*", ath10k's live
+# under "ath10k/". Returns the first offending filename.
+fw_fail_for() {
+    [ -s "$FWFAIL" ] || return 1
+    _pfx=$1
+    while IFS= read -r _ff; do
+        [ -n "$_ff" ] || continue
+        case $_ff in
+            "$_pfx"*|"$_pfx"/*) printf '%s' "$_ff"; return 0 ;;
+        esac
+    done < "$FWFAIL"
+    return 1
+}
+
+# ============================================================================
+# 1. THE MACHINE
+# ============================================================================
+NOW=$(date '+%A %e %B %Y, %H:%M' 2>/dev/null)
+VENDOR=$(dmi sys_vendor) || VENDOR=""
+MODEL=$(dmi product_name) || MODEL=""
+MACHINE=$(trim "$VENDOR $MODEL")
+[ -n "$MACHINE" ] || MACHINE="this computer (its maker did not fill in a model name)"
+
+# Laptop or desktop. The battery is the honest answer; the chassis code is the
+# fallback for the machines that report no battery until one is fitted.
+ISLAPTOP=no
+for _ps in /sys/class/power_supply/*; do
+    [ -d "$_ps" ] || continue
+    _pt=$(rd "$_ps/type")
+    [ "$_pt" = "Battery" ] && ISLAPTOP=yes
+done
+CHASSIS=$(rd /sys/class/dmi/id/chassis_type)
+case "$CHASSIS" in 8|9|10|11|14|30|31|32) ISLAPTOP=yes ;; esac
+
+sec "YOUR COMPUTER"
+p "  $MACHINE"
+if [ "$ISLAPTOP" = yes ]; then
+    p "  This looks like a laptop."
+else
+    p "  This looks like a desktop or all-in-one."
+fi
+
+# --- how it started ---------------------------------------------------------
+# UEFI vs legacy BIOS decides which bootloader the installer writes, and
+# 32-bit UEFI decides whether it can be installed at all.
+if [ -d /sys/firmware/efi ]; then
+    BOOTMODE=UEFI
+    FWBITS=$(rd /sys/firmware/efi/fw_platform_size)
+    if [ "$FWBITS" = "32" ]; then
+        p "  Started in: 32-bit UEFI mode"
+        p ""
+        p "  This is a rare and awkward one. Your computer's firmware is"
+        p "  32-bit even though the processor is 64-bit — a handful of cheap"
+        p "  Windows tablets and netbooks were built this way. Dagric is"
+        p "  64-bit only and cannot install itself on this firmware."
+        flag A "This computer has 32-bit firmware. Dagric cannot be installed on it."
+    else
+        p "  Started in: UEFI mode (the modern way, same as Windows 10 and 11)"
+    fi
+else
+    BOOTMODE="legacy BIOS"
+    FWBITS=""
+    p "  Started in: legacy BIOS mode (the older way)"
+    p ""
+    p "  This is fine — Dagric installs either way. It is worth knowing"
+    p "  though: if Windows on this PC was installed in UEFI mode and you"
+    p "  booted this USB stick in BIOS mode, the installer will not offer to"
+    p "  put Dagric alongside it. If you meant to keep Windows, restart, open"
+    p "  the boot menu, and pick the entry for this USB that starts with"
+    p "  \"UEFI\"."
+    flag W "You booted in legacy BIOS mode. If you want to keep Windows alongside Dagric, boot the USB in UEFI mode instead."
+fi
+
+# --- processor --------------------------------------------------------------
+CPU=$(LC_ALL=C awk -F': *' '/^model name/{print $2; exit}' /proc/cpuinfo 2>/dev/null)
+[ -n "$CPU" ] || CPU=$(LC_ALL=C awk -F': *' '/^Model|^Processor/{print $2; exit}' /proc/cpuinfo 2>/dev/null)
+[ -n "$CPU" ] || CPU="not reported"
+CORES=$(grep -c '^processor' /proc/cpuinfo 2>/dev/null)
+case "$CORES" in ''|*[!0-9]*) CORES=0 ;; esac
+if [ "$CORES" -gt 0 ]; then
+    p "  Processor:  $CPU  ($CORES cores)"
+else
+    p "  Processor:  $CPU"
+fi
+
+# --- memory -----------------------------------------------------------------
+MEMKB=$(LC_ALL=C awk '/^MemTotal:/{print $2; exit}' /proc/meminfo 2>/dev/null)
+case "$MEMKB" in ''|*[!0-9]*) MEMKB=0 ;; esac
+MEMMB=$((MEMKB / 1024))
+if [ "$MEMMB" -le 0 ]; then
+    p "  Memory:     could not be read"
+else
+    MEMGB=$(LC_ALL=C awk -v m="$MEMMB" 'BEGIN{printf "%.1f", m/1024}')
+    if [ "$MEMMB" -lt "$ram_min_mb" ]; then
+        p "  Memory:     ${MEMGB} GB  — below the ${ram_min_mb} MB minimum"
+        p ""
+        p "  Dagric will probably still start, but it will feel slow and"
+        p "  browser tabs will close on their own. If you can add a memory"
+        p "  stick to this machine, it is the single cheapest thing you can"
+        p "  do for it."
+        flag P "This computer has ${MEMGB} GB of memory, which is under the minimum Dagric is designed for."
+    elif [ "$MEMMB" -lt "$ram_ok_mb" ]; then
+        p "  Memory:     ${MEMGB} GB  — enough"
+        p "              (Dagric is built to be light; this is a fine amount"
+        p "              for browsing, email, documents and video.)"
+    else
+        p "  Memory:     ${MEMGB} GB  — plenty"
+    fi
+fi
+
+t "Dagric OS hardware check — technical summary"
+t "Generated: $NOW"
+t ""
+t "MACHINE"
+t "  sys_vendor      : ${VENDOR:-unset}"
+t "  product_name    : ${MODEL:-unset}"
+t "  product_version : $(dmi product_version 2>/dev/null || echo unset)"
+t "  board_name      : $(dmi board_name 2>/dev/null || echo unset)"
+t "  bios_vendor     : $(dmi bios_vendor 2>/dev/null || echo unset)"
+t "  bios_version    : $(dmi bios_version 2>/dev/null || echo unset)"
+t "  bios_date       : $(rd /sys/class/dmi/id/bios_date 2>/dev/null || echo unset)"
+t "  chassis_type    : ${CHASSIS:-unset}"
+t "  kernel          : $(uname -srm 2>/dev/null)"
+t "  boot mode       : $BOOTMODE${FWBITS:+ (${FWBITS}-bit firmware)}"
+t "  cpu             : $CPU"
+t "  cores           : $CORES"
+t "  MemTotal        : ${MEMKB} kB"
+t "  kernel log read : $KLOG_OK (root without prompting: $ROOTWAY)"
+t ""
+
+# ============================================================================
+# 2. WI-FI AND NETWORK
+# ============================================================================
+sec "WI-FI AND NETWORK"
+
+t "NETWORK DEVICES"
+
+# Walk the PCI bus rather than the interface list, because the failure this
+# section exists to catch is precisely the one where the interface never
+# appears. A card whose firmware did not load is still a PCI device with a
+# driver bound to it — it just has no net/ directory underneath. That single
+# sysfs fact is a better missing-firmware detector than the kernel log,
+# because it is readable without root and it cannot be confused by iwlwifi's
+# normal downward version probing.
+WIFI_FOUND=no
+WIRED_FOUND=no
+NETDEV_LIST=$WORK/netdevs.txt
+PCI_NETIFS=""
+: > "$NETDEV_LIST"
+
+for _d in /sys/bus/pci/devices/*; do
+    [ -d "$_d" ] || continue
+    _cls=$(rd "$_d/class") || continue
+    case "$_cls" in
+        0x02*) : ;;
+        *) continue ;;
+    esac
+    _addr=$(basename "$_d")
+    _name=$(pci_name "$_addr")
+    _drv=$(dev_driver "$_d") || _drv=""
+    # Subclass 00 is Ethernet; 80 ("other") is where wireless cards land.
+    case "$_cls" in
+        0x0200*) _kind=wired ;;
+        *)       _kind=wireless ;;
+    esac
+    # A netdev under the device means the card came all the way up.
+    _hasnet=no
+    for _n in "$_d"/net/*; do
+        [ -e "$_n" ] || continue
+        _hasnet=yes
+        PCI_NETIFS="$PCI_NETIFS|$(basename "$_n")|"
+    done
+    printf '%s|%s|%s|%s|%s\n' "$_kind" "$_addr" "$_drv" "$_hasnet" "$_name" >> "$NETDEV_LIST"
+    t "  $_addr  class=$_cls driver=${_drv:-none} netdev=$_hasnet"
+    t "      $_name"
+done
+
+# Network hardware that is not on the PCI bus: USB Wi-Fi dongles, phones
+# tethered over USB, the SDIO Wi-Fi in cheap tablets, and the virtual cards in
+# a VM. Found from the interface side, because there is no usbutils on the ISO
+# — which is sound rather than a compromise: a USB adapter with no driver has
+# no interface, and it is equally invisible to lsusb-style probing, so "no
+# wireless found" remains the correct answer either way.
+#
+# Interfaces already accounted for by the PCI walk above are skipped, and so
+# is anything with no `device` link at all — that is how docker0, bridges, VPN
+# tunnels and veth pairs stay out of a report about physical hardware.
+for _if in /sys/class/net/*; do
+    [ -d "$_if" ] || continue
+    _ifn=$(basename "$_if")
+    [ "$_ifn" = "lo" ] && continue
+    case "$PCI_NETIFS" in *"|$_ifn|"*) continue ;; esac
+    [ -e "$_if/device" ] || continue
+    _real=$(readlink -f "$_if/device" 2>/dev/null) || continue
+    _drv=$(dev_driver "$_if/device") || _drv=""
+    if [ -d "$_if/wireless" ] || [ -e "$_if/phy80211" ]; then
+        _kind=wireless
+    else
+        _kind=wired
+    fi
+    case "$_real" in
+        *"/usb"*)   _bus="plugged into USB" ;;
+        *"/mmc"*)   _bus="built in (SDIO)" ;;
+        *"/vmbus"*) _bus="virtual (VM)" ;;
+        *"/virtio"*) _bus="virtual (VM)" ;;
+        *)          _bus="built in" ;;
+    esac
+    printf '%s|%s|%s|yes|network adapter, %s\n' "$_kind" "$_ifn" "$_drv" "$_bus" >> "$NETDEV_LIST"
+    t "  $_ifn  bus=$_bus driver=${_drv:-none} ($_kind)"
+done
+
+# Wireless kill switches. A physical switch or an Fn-key left in the off
+# position is a startlingly common cause of "the new OS has no Wi-Fi", and it
+# is the one cause with a five-second fix, so it is checked first.
+RFKILL_SOFT=no
+RFKILL_HARD=no
+for _rf in /sys/class/rfkill/*; do
+    [ -d "$_rf" ] || continue
+    _rt=$(rd "$_rf/type")
+    [ "$_rt" = "wlan" ] || continue
+    [ "$(rd "$_rf/soft")" = "1" ] && RFKILL_SOFT=yes
+    [ "$(rd "$_rf/hard")" = "1" ] && RFKILL_HARD=yes
+done
+
+if [ -s "$NETDEV_LIST" ]; then
+    while IFS='|' read -r _kind _addr _drv _hasnet _name; do
+        [ -n "$_kind" ] || continue
+        _row=$(table_row "$NETCHIPS" "$_drv")
+        _plain=$(fld "$_row" 1)
+        _fwpkg=$(fld "$_row" 2)
+        _ships=$(fld "$_row" 3)
+
+        if [ "$_kind" = wireless ]; then
+            WIFI_FOUND=yes
+            [ -n "$_plain" ] || _plain="a wireless card"
+            # Order matters here. A live network interface is proof that the
+            # card came up, and it outranks anything we think we know about
+            # the driver: if the lookup failed but the hardware is plainly
+            # working, the hardware wins. Getting this backwards told a
+            # working laptop that its Wi-Fi was unsupported.
+            if [ "$_hasnet" = yes ]; then
+                p "  Wi-Fi:      working — $_plain"
+                p "              The card is: $_name"
+            elif [ -z "$_drv" ]; then
+                # No driver bound at all: the kernel does not know this chip.
+                p "  Wi-Fi:      found, but Dagric has no driver for it"
+                p "              The card is: $_name"
+                p ""
+                p "  Dagric cannot use this wireless card. Use a network cable,"
+                p "  or plug your phone in by USB and turn on its personal"
+                p "  hotspot / USB tethering — both work without any setup."
+                flag P "Your Wi-Fi card is not supported by Dagric's drivers. You will need a network cable or phone tethering."
+            else
+                # Driver bound, no interface. Nearly always firmware.
+                _ff=$(fw_fail_for "$_drv") || _ff=""
+                p "  Wi-Fi:      $_plain — the driver loaded, but the card did"
+                p "              not start"
+                p "              The card is: $_name"
+                p ""
+                p "  Almost always this means one file is missing: the small"
+                p "  piece of software that gets loaded into the Wi-Fi chip"
+                p "  itself when the computer starts."
+                if [ -n "$_ff" ]; then
+                    p "  The file it asked for: $_ff"
+                fi
+                if [ "$_ships" = "no" ] && [ -n "$_fwpkg" ]; then
+                    p ""
+                    p "  This particular chip needs a file that Debian is not"
+                    p "  allowed to put on the disc, so it is not there and no"
+                    p "  amount of waiting will make it appear. Install Dagric"
+                    p "  with a network cable plugged in (or your phone"
+                    p "  tethered by USB), then run \"Finish setup\" from the"
+                    p "  Dagric Hub and it will fetch it."
+                elif [ -n "$_fwpkg" ]; then
+                    p ""
+                    p "  Dagric does ship the file for this chip ($_fwpkg),"
+                    p "  which means your card is probably newer than the disc"
+                    p "  and wants a newer version. Connect a network cable"
+                    p "  once, install the updates, and Wi-Fi usually starts"
+                    p "  working. If you cannot, plug your phone in by USB and"
+                    p "  turn on USB tethering."
+                else
+                    p ""
+                    p "  Connect a network cable, or tether your phone by USB,"
+                    p "  and install the updates — that fixes most cases."
+                fi
+                flag P "Your Wi-Fi card needs a driver file that is not installed. Plan to plug in a network cable for the installation."
+            fi
+        else
+            WIRED_FOUND=yes
+            [ -n "$_plain" ] || _plain="a wired network port"
+            # Same order, same reason: a live interface settles the question.
+            if [ "$_hasnet" = yes ]; then
+                p "  Wired:      working — $_plain"
+            elif [ -z "$_drv" ]; then
+                p "  Wired:      a network socket was found, but Dagric has no"
+                p "              driver for it ($_name)"
+            else
+                p "  Wired:      $_plain — present but not starting"
+            fi
+        fi
+    done < "$NETDEV_LIST"
+fi
+
+if [ "$WIFI_FOUND" = no ]; then
+    if [ "$WIRED_FOUND" = yes ]; then
+        p "  Wi-Fi:      none found"
+        p ""
+        p "  No wireless card was detected. Many desktop PCs genuinely do not"
+        p "  have one — you have a network socket, so use a cable, or add a"
+        p "  USB Wi-Fi adapter later."
+        flag W "No Wi-Fi card was found. This computer has a wired network socket, so use a cable."
+    else
+        p "  Network:    nothing found at all"
+        p ""
+        p "  No network hardware of any kind was detected. If this is a real"
+        p "  computer and not a virtual machine, that is unusual — the"
+        p "  technical summary below is worth sending to support."
+        flag W "No network hardware was found on this computer."
+    fi
+fi
+
+if [ "$RFKILL_HARD" = yes ]; then
+    p ""
+    p "  Note:       this computer's wireless switch is currently OFF."
+    p "              Look for a physical switch on the side, or a keyboard key"
+    p "              with an aerial symbol on it (often F2 or F12, held with"
+    p "              the Fn key). Wi-Fi will not work until it is on, in any"
+    p "              operating system."
+    flag P "This computer's wireless hardware switch is turned off."
+elif [ "$RFKILL_SOFT" = yes ]; then
+    p ""
+    p "  Note:       wireless is switched off in software (aeroplane mode)."
+    p "              Click the network icon near the clock to turn it back on."
+    flag W "Wireless is switched off in software — aeroplane mode is on."
+fi
+
+# What NetworkManager thinks right now. Purely informational, and skipped
+# without complaint on a system that has no NetworkManager running.
+if have nmcli; then
+    NMSTATE=$(nmcli -t -f STATE general status 2>/dev/null | head -1)
+    if [ -n "$NMSTATE" ]; then
+        p ""
+        case "$NMSTATE" in
+            *connected*global*|connected) p "  Right now:  this computer is online." ;;
+            *connecting*)                 p "  Right now:  connecting…" ;;
+            *)                            p "  Right now:  not connected to any network." ;;
+        esac
+        t "  NetworkManager state: $NMSTATE"
+    fi
+fi
+
+if [ "$KLOG_OK" = no ]; then
+    p ""
+    p "  (One check was skipped: reading the start-up log needs administrator"
+    p "  rights, which this tool deliberately does not ask for. Everything"
+    p "  above was read from the hardware directly and is accurate.)"
+fi
+
+t ""
+
+# ============================================================================
+# 3. GRAPHICS
+# ============================================================================
+sec "GRAPHICS AND SCREEN"
+
+t "GRAPHICS DEVICES"
+GPU_FOUND=no
+NVIDIA_NOUVEAU=no
+NVIDIA_NODRV=no
+HYBRID_INTEL=no
+HYBRID_NVIDIA=no
+
+for _d in /sys/bus/pci/devices/*; do
+    [ -d "$_d" ] || continue
+    _cls=$(rd "$_d/class") || continue
+    case "$_cls" in
+        0x03*) : ;;
+        *) continue ;;
+    esac
+    GPU_FOUND=yes
+    _addr=$(basename "$_d")
+    _name=$(pci_name "$_addr")
+    _drv=$(dev_driver "$_d") || _drv=""
+    _vid=$(rd "$_d/vendor")
+    _row=$(table_row "$GPUTAB" "$_drv")
+    _plain=$(fld "$_row" 1)
+    _note=$(fld "$_row" 2)
+
+    t "  $_addr  class=$_cls vendor=$_vid driver=${_drv:-none}"
+    t "      $_name"
+
+    case "$_vid" in 0x8086) HYBRID_INTEL=yes ;; esac
+    case "$_vid" in 0x10de) HYBRID_NVIDIA=yes ;; esac
+
+    p "  Graphics:   $_name"
+    if [ -z "$_drv" ]; then
+        p "              No driver is loaded for this chip."
+        if [ "$_vid" = "0x10de" ]; then
+            # An NVIDIA card with nothing bound at all is a different
+            # situation from one running on nouveau, and saying "it is
+            # currently running on the community driver" when nothing is
+            # loaded would be simply false. Kept apart on purpose.
+            NVIDIA_NODRV=yes
+        else
+            p "              The picture you are looking at is being drawn the"
+            p "              slow, basic way. Video and animations will"
+            p "              stutter. This is worth reporting to support."
+            flag W "No graphics driver is loaded for $_name, so the display is running in a basic mode."
+        fi
+    else
+        if [ -n "$_plain" ]; then
+            p "              In use:  $_plain"
+        else
+            p "              In use:  the \"$_drv\" driver"
+        fi
+        [ -n "$_note" ] && p "              $_note"
+        [ "$_drv" = "nouveau" ] && NVIDIA_NOUVEAU=yes
+    fi
+done
+
+if [ "$GPU_FOUND" = no ]; then
+    p "  Graphics:   no graphics chip was found on the PCI bus."
+    p "              On a real computer that should not happen; in a virtual"
+    p "              machine it is normal."
+fi
+
+# The screens actually in use, straight from the kernel's display list. This
+# is the check that tells a laptop owner their external monitor is seen.
+DRM_CONNECTED=0
+for _c in /sys/class/drm/*/status; do
+    [ -r "$_c" ] || continue
+    [ "$(rd "$_c")" = "connected" ] && DRM_CONNECTED=$((DRM_CONNECTED + 1))
+    t "  $(dirname "$_c" | sed 's|.*/||') : $(rd "$_c")"
+done
+if [ "$DRM_CONNECTED" -gt 0 ]; then
+    p ""
+    if [ "$DRM_CONNECTED" = 1 ]; then
+        p "  Screens:    1 screen connected"
+    else
+        p "  Screens:    $DRM_CONNECTED screens connected"
+    fi
+fi
+
+if [ "$NVIDIA_NOUVEAU" = yes ] || [ "$NVIDIA_NODRV" = yes ]; then
+    p ""
+    if [ "$NVIDIA_NOUVEAU" = yes ]; then
+        p "  You have an NVIDIA graphics card, and it is currently running on"
+        p "  the community-written driver rather than NVIDIA's own. Everything"
+        p "  works — the desktop, video, your monitors — but games and 3D will"
+        p "  be a long way below what the card can do, and on a laptop the"
+        p "  battery will not last as long."
+    else
+        p "  You have an NVIDIA graphics card and nothing is driving it at the"
+        p "  moment. That is normal in this live session on newer cards: the"
+        p "  picture you are looking at is coming from the other graphics chip"
+        p "  or from a basic fallback, and the NVIDIA card is simply idle."
+    fi
+    p ""
+    p "  After you install Dagric, open the Dagric Hub and choose"
+    p "  \"NVIDIA driver\". It installs NVIDIA's official driver from"
+    p "  Debian's own archive and walks you through the Secure Boot step."
+    p "  Nothing is installed unless you ask for it."
+    if [ "$HYBRID_INTEL" = yes ] && [ "$HYBRID_NVIDIA" = yes ]; then
+        p ""
+        p "  This computer has two graphics chips — an Intel one for everyday"
+        p "  work and the NVIDIA one for heavy jobs. That is normal and both"
+        p "  are supported."
+    fi
+    flag W "You have an NVIDIA card. Dagric works now, but install the NVIDIA driver afterwards for full speed — it is one click in the Hub."
+fi
+t ""
+
+# ============================================================================
+# 4. SECURE BOOT
+# ============================================================================
+sec "SECURE BOOT"
+
+# The EFI variable, read properly. It is NOT a plain boolean file: efivarfs
+# prepends a 4-byte little-endian attributes word to every variable, so the
+# byte that actually answers the question is the fifth one. Reading the file
+# as text gets you a control character and a wrong answer, which is how this
+# check is usually got wrong.
+SB_GUID=8be4df61-93ca-11d2-aa0d-00e098032b8c
+SB_VAR=/sys/firmware/efi/efivars/SecureBoot-$SB_GUID
+SM_VAR=/sys/firmware/efi/efivars/SetupMode-$SB_GUID
+SB_STATE=unknown
+SB_RAW=""
+
+efivar_byte() {
+    [ -r "$1" ] || return 1
+    _b=$(od -An -tu1 -N5 "$1" 2>/dev/null | tr -s ' ' ' ' | sed 's/^ //' | cut -d' ' -f5)
+    case "$_b" in ''|*[!0-9]*) return 1 ;; esac
+    printf '%s' "$_b"
+}
+
+if [ ! -d /sys/firmware/efi ]; then
+    SB_STATE=notefi
+else
+    SB_RAW=$(efivar_byte "$SB_VAR") || SB_RAW=""
+    SM_RAW=$(efivar_byte "$SM_VAR") || SM_RAW=""
+    if [ "$SB_RAW" = "1" ]; then
+        SB_STATE=on
+    elif [ "$SB_RAW" = "0" ]; then
+        SB_STATE=off
+    fi
+    # Setup mode means the firmware has no keys enrolled, so Secure Boot is
+    # not enforcing regardless of what the flag says.
+    [ "$SM_RAW" = "1" ] && SB_STATE=setup
+fi
+
+# Fallbacks, both optional. mokutil is not on the ISO; bootctl arrives with
+# systemd. Neither is allowed to be required.
+if [ "$SB_STATE" = unknown ]; then
+    if have mokutil; then
+        _mk=$(mokutil --sb-state 2>/dev/null)
+        case "$_mk" in
+            *[Ee]nabled*)  SB_STATE=on ;;
+            *[Dd]isabled*) SB_STATE=off ;;
+        esac
+    fi
+fi
+if [ "$SB_STATE" = unknown ] && have bootctl; then
+    _bc=$(bootctl status 2>/dev/null | LC_ALL=C awk -F': *' '/Secure Boot/{print $2; exit}')
+    case "$_bc" in
+        *enabled*) SB_STATE=on ;;
+        *disabled*) SB_STATE=off ;;
+        *setup*)   SB_STATE=setup ;;
+    esac
+fi
+
+case "$SB_STATE" in
+    on)
+        p "  Secure Boot is ON."
+        p ""
+        p "  Secure Boot is a firmware feature that refuses to start an"
+        p "  operating system that has not been signed by someone it trusts."
+        p "  It is on by default on every PC sold with Windows 11."
+        p ""
+        p "  You do not need to turn it off. Dagric is signed with the same"
+        p "  Microsoft-issued key Debian and Ubuntu use, so it installs and"
+        p "  starts normally with Secure Boot left on."
+        # Only raise the MOK screen with people who will actually meet it.
+        # On an Intel or AMD machine there is no proprietary driver to enrol,
+        # and describing a blue firmware screen that will never appear is a
+        # worry manufactured out of nothing.
+        if [ "$HYBRID_NVIDIA" = yes ]; then
+            p ""
+            p "  One thing to expect: if you later install the NVIDIA graphics"
+            p "  driver, Secure Boot will not trust it until you approve it"
+            p "  once. Dagric handles that for you — it asks you to choose a"
+            p "  password, and at the next restart a blue screen called"
+            p "  \"MOK Management\" appears where you enter it. That screen is"
+            p "  meant to happen. It is not a fault, and it appears exactly"
+            p "  once."
+        fi
+        ;;
+    off)
+        p "  Secure Boot is OFF."
+        p ""
+        p "  Secure Boot is a firmware feature that only starts operating"
+        p "  systems signed by someone it trusts. It is currently switched off"
+        p "  on this computer."
+        p ""
+        p "  Dagric installs and runs perfectly well either way, so there is"
+        p "  nothing you need to do. If you would like it on, you can turn it"
+        p "  on in your computer's firmware settings after installing —"
+        p "  Dagric is signed and will still start."
+        ;;
+    setup)
+        p "  Secure Boot is in \"setup mode\"."
+        p ""
+        p "  The firmware's list of trusted signatures has been cleared, so"
+        p "  Secure Boot is not currently enforcing anything. Dagric will"
+        p "  install and run normally. If you want Secure Boot working again"
+        p "  afterwards, your firmware settings will have an option along the"
+        p "  lines of \"restore factory keys\"."
+        ;;
+    notefi)
+        p "  Secure Boot does not apply to this computer."
+        p ""
+        p "  It started in legacy BIOS mode, which predates Secure Boot"
+        p "  entirely. There is nothing to check and nothing to change."
+        ;;
+    *)
+        p "  Secure Boot: could not be determined."
+        p ""
+        p "  This computer's firmware did not report its Secure Boot setting"
+        p "  in the usual place. It is not a problem in itself — Dagric is"
+        p "  signed and starts with Secure Boot either on or off."
+        ;;
+esac
+t "SECURE BOOT"
+t "  state           : $SB_STATE"
+t "  SecureBoot byte : ${SB_RAW:-unreadable}"
+t "  SetupMode byte  : ${SM_RAW:-unreadable}"
+t ""
+
+# ============================================================================
+# 5. STORAGE — including the BitLocker question
+# ============================================================================
+sec "DRIVES AND SPACE"
+
+# Which device did we boot from? Excluded from everything below, because
+# "there is no room on your drive" would otherwise be reported about the USB
+# stick the tool is running from.
+LIVEDISK=""
+if [ -d /run/live/medium ] && have findmnt; then
+    _lsrc=$(findmnt -no SOURCE /run/live/medium 2>/dev/null | head -1)
+    if [ -n "$_lsrc" ] && have lsblk; then
+        LIVEDISK=$(lsblk -no PKNAME "$_lsrc" 2>/dev/null | head -1)
+        [ -n "$LIVEDISK" ] || LIVEDISK=$(basename "$_lsrc" | sed 's/[0-9]*$//')
+    fi
+fi
+
+# Read a filesystem type without opening the disk. lsblk answers from the udev
+# database when udev is running, which it is in the live session, so this needs
+# no privileges and reads nothing off the platter.
+# Not `-r`: raw mode escapes a space as \x20, and volume labels routinely have
+# spaces in them ("Local Disk"). One column at a time means there is no
+# separator to be ambiguous about, so plain output plus a trim is both safer
+# and more readable.
+fstype_of() {
+    have lsblk || return 1
+    trim "$(lsblk -dno FSTYPE "/dev/$1" 2>/dev/null | head -1)"
+}
+fslabel_of() {
+    have lsblk || return 1
+    trim "$(lsblk -dno LABEL "/dev/$1" 2>/dev/null | head -1)"
+}
+
+t "STORAGE"
+DISKS_SEEN=0
+BEST_FREE=0
+BEST_DISK=""
+BITLOCKER_LIST=""
+WINDOWS_SEEN=no
+UNKNOWN_BIG=""
+
+for _bd in /sys/block/*; do
+    [ -d "$_bd" ] || continue
+    _dn=$(basename "$_bd")
+    # Loop devices, ramdisks, optical drives, compressed swap and device-mapper
+    # nodes are not drives anyone installs onto.
+    case "$_dn" in
+        loop*|ram*|sr*|zram*|dm-*|md*|fd*|nbd*) continue ;;
+    esac
+    [ -e "$_bd/device" ] || continue
+    _sect=$(rd "$_bd/size") || continue
+    case "$_sect" in ''|*[!0-9]*) continue ;; esac
+    [ "$_sect" -gt 0 ] || continue
+    _bytes=$((_sect * 512))
+    _model=$(trim "$(rd "$_bd/device/model" 2>/dev/null)")
+    _rot=$(rd "$_bd/queue/rotational")
+    _rem=$(rd "$_bd/removable")
+
+    t "  /dev/$_dn  size=$_bytes model=${_model:-unknown} rotational=${_rot:-?} removable=${_rem:-?}"
+
+    if [ "$_dn" = "$LIVEDISK" ]; then
+        p "  USB stick:  /dev/$_dn — this is the stick Dagric is running from."
+        p "              It is left out of the calculations below."
+        t "      (this is the live boot medium)"
+        continue
+    fi
+
+    DISKS_SEEN=$((DISKS_SEEN + 1))
+    if [ "$_rot" = "1" ]; then
+        _kindtxt="a spinning hard disk"
+    elif [ "$_rot" = "0" ]; then
+        _kindtxt="a solid-state drive"
+    else
+        _kindtxt="a drive"
+    fi
+    p ""
+    # Model on its own line: it comes from the drive's own firmware and can be
+    # any length at all ("KXG60ZNV512G NVMe KIOXIA 512GB"), so keeping it out
+    # of the measurement line is what stops one verbose manufacturer pushing
+    # the report wider than the window.
+    p "  Drive:      /dev/$_dn — $(hbytes "$_bytes"), $_kindtxt"
+    [ -n "$_model" ] && p "              $_model"
+    [ "$_rem" = "1" ] && p "              (this one is removable — a USB drive or card)"
+
+    # Partitions, straight from sysfs. No mounting, no reading the platter.
+    _used=0
+    _pcount=0
+    for _pd in "$_bd"/*; do
+        [ -d "$_pd" ] || continue
+        [ -f "$_pd/partition" ] || continue
+        _pn=$(basename "$_pd")
+        _ps=$(rd "$_pd/size")
+        case "$_ps" in ''|*[!0-9]*) _ps=0 ;; esac
+        _pb=$((_ps * 512))
+        _used=$((_used + _pb))
+        _pcount=$((_pcount + 1))
+        _fs=$(fstype_of "$_pn")
+        _lb=$(fslabel_of "$_pn")
+        t "      /dev/$_pn  size=$_pb fstype=${_fs:-unknown} label=${_lb:-none}"
+
+        case "$_fs" in
+            BitLocker|bitlocker|BITLOCKER)
+                BITLOCKER_LIST="$BITLOCKER_LIST /dev/$_pn"
+                p "              /dev/$_pn — $(hbytes "$_pb") — BITLOCKER ENCRYPTED"
+                ;;
+            ntfs|ntfs3)
+                WINDOWS_SEEN=yes
+                p "              /dev/$_pn — $(hbytes "$_pb") — Windows${_lb:+ ($_lb)}"
+                ;;
+            vfat)
+                p "              /dev/$_pn — $(hbytes "$_pb") — start-up partition"
+                ;;
+            ext4|ext3|btrfs|xfs)
+                p "              /dev/$_pn — $(hbytes "$_pb") — Linux ($_fs)"
+                ;;
+            swap)
+                p "              /dev/$_pn — $(hbytes "$_pb") — swap"
+                ;;
+            crypto_LUKS)
+                p "              /dev/$_pn — $(hbytes "$_pb") — encrypted (Linux)"
+                ;;
+            '')
+                # An unrecognised filesystem on a large partition is worth a
+                # second look: a BitLocker volume that libblkid does not
+                # recognise looks exactly like this, and so does a partition
+                # damaged by a bad shutdown.
+                p "              /dev/$_pn — $(hbytes "$_pb") — unrecognised"
+                [ "$_pb" -gt 21474836480 ] 2>/dev/null && UNKNOWN_BIG="$UNKNOWN_BIG /dev/$_pn"
+                ;;
+            *)
+                p "              /dev/$_pn — $(hbytes "$_pb") — $_fs"
+                ;;
+        esac
+
+        # If the filesystem is already mounted we can report real free space
+        # for nothing, without opening anything. This is the post-install case
+        # and the "user already opened the Windows drive" case.
+        if have findmnt; then
+            _mp=$(findmnt -nro TARGET -S "/dev/$_pn" 2>/dev/null | head -1)
+            if [ -n "$_mp" ]; then
+                _avail=$(LC_ALL=C df -B1 --output=avail "$_mp" 2>/dev/null | tail -1 | tr -d ' ')
+                case "$_avail" in
+                    ''|*[!0-9]*) : ;;
+                    *) p "                  currently mounted at $_mp, $(hbytes "$_avail") free" ;;
+                esac
+            fi
+        fi
+    done
+
+    # A drive with no partition table at all. Two very different situations
+    # wear the same shape in sysfs, and telling them apart matters: a genuinely
+    # blank drive is free space, while a drive carrying a filesystem directly
+    # on the whole device (common for data drives, and for every disk inside a
+    # VM) is completely full. Without this branch the second kind is reported
+    # as entirely free — the worst direction for this particular error to go.
+    if [ "$_pcount" = 0 ]; then
+        _wholefs=$(fstype_of "$_dn")
+        if [ -n "$_wholefs" ]; then
+            p "              No partitions — the whole drive is one $_wholefs"
+            p "              filesystem. It is in use, not free."
+            _used=$_bytes
+            t "      whole-device filesystem: $_wholefs"
+        else
+            p "              This drive is completely empty — no partitions at all."
+        fi
+    fi
+
+    # Unallocated space. A megabyte or two of partition-table overhead at each
+    # end is normal and is not worth mentioning, so only speak up above 1 GB.
+    _free=$((_bytes - _used))
+    [ "$_free" -lt 0 ] && _free=0
+    if [ "$_free" -gt 1073741824 ]; then
+        p "              Unused space on this drive: $(hbytes "$_free")"
+        if [ "$_free" -gt "$BEST_FREE" ]; then
+            BEST_FREE=$_free
+            BEST_DISK=/dev/$_dn
+        fi
+    fi
+    t "      unpartitioned: $_free bytes"
+done
+
+if [ "$DISKS_SEEN" = 0 ]; then
+    p "  No drives were found to install onto."
+    p ""
+    p "  If this is a real computer, the most likely cause is that its"
+    p "  drive controller is set to \"RAID\" or \"Intel RST\" mode in the"
+    p "  firmware settings, which hides the drive from anything that is not"
+    p "  Windows. Changing that setting to \"AHCI\" makes the drive visible."
+    p "  Look it up for your model before changing it — on some machines"
+    p "  Windows needs a small change of its own to keep starting afterwards."
+    flag A "No drive was found to install onto. Your firmware may be set to RAID / Intel RST mode instead of AHCI."
+fi
+
+# --- BitLocker --------------------------------------------------------------
+# The single most consequential thing this tool reports. It is deliberately
+# given its own block, in the plainest words available, and it explicitly
+# refuses to touch anything.
+if [ -n "$BITLOCKER_LIST" ]; then
+    p ""
+    p "  ---------------------------------------------------------------"
+    p "  YOUR WINDOWS DRIVE IS ENCRYPTED (BitLocker)"
+    p "  ---------------------------------------------------------------"
+    p ""
+    p "  Encrypted:$BITLOCKER_LIST"
+    p ""
+    p "  Windows 11 switches this on by default, so most people who have it"
+    p "  never chose it and have never seen the recovery key. Two things"
+    p "  follow from it, and both matter before you install anything:"
+    p ""
+    p "  1. Dagric cannot read your files. The Migration Assistant, which"
+    p "     copies your documents, photos and browser bookmarks across, sees"
+    p "     an encrypted drive as a wall of noise. It will find nothing."
+    p ""
+    p "  2. Shrinking Windows to make room is risky. Resizing an encrypted"
+    p "     partition from outside Windows can leave it unable to start."
+    p ""
+    p "  What to do — go back into Windows first, and pick one:"
+    p ""
+    p "     Easiest: turn BitLocker off."
+    p "       Windows key, type \"BitLocker\", open \"Manage BitLocker\", and"
+    p "       choose \"Turn off BitLocker\". It takes a while to decrypt and"
+    p "       the PC must stay on, but nothing is lost and there is nothing"
+    p "       to remember afterwards."
+    p ""
+    p "     Or: copy the files out yourself."
+    p "       Copy your Documents, Pictures, Desktop and Downloads onto a"
+    p "       plain USB drive from inside Windows, and skip the Migration"
+    p "       Assistant entirely."
+    p ""
+    p "     Either way: find your recovery key first and write it down."
+    p "       It is stored in your Microsoft account. Sign in at"
+    p "       aka.ms/myrecoverykey on your phone or another computer. Without"
+    p "       it, a change to how this PC starts up can lock you out of"
+    p "       Windows permanently. Do this even if you plan to erase Windows"
+    p "       — it costs two minutes and it is the difference between an"
+    p "       inconvenience and a disaster."
+    p ""
+    p "  This check has not touched the encrypted drive and never will. It"
+    p "  only noticed that it is there."
+    flag A "Your Windows drive is encrypted with BitLocker. Sort that out in Windows BEFORE installing — see the drives section."
+fi
+
+if [ -n "$UNKNOWN_BIG" ]; then
+    p ""
+    p "  Note:       one large partition could not be identified"
+    p "             $UNKNOWN_BIG"
+    p "              This can mean encryption Dagric does not recognise, or a"
+    p "              partition left in a bad state by a Windows shutdown. Do"
+    p "              not let the installer erase or resize it until you know"
+    p "              what it is."
+    flag W "A large partition on this computer could not be identified. Do not let the installer resize it until you know what it is."
+fi
+
+# --- room to install --------------------------------------------------------
+if [ "$DISKS_SEEN" -gt 0 ]; then
+    p ""
+    p "  Room to install"
+    p "  ---------------"
+    _need=$((disk_min_gb * 1073741824))
+    _comfy=$((disk_ok_gb * 1073741824))
+    if [ "$BEST_FREE" -ge "$_comfy" ]; then
+        p "  There is $(hbytes "$BEST_FREE") of unused space on $BEST_DISK."
+        p "  That is comfortably more than the ${disk_min_gb} GB Dagric needs,"
+        p "  and the installer can use it without disturbing anything else on"
+        p "  the drive."
+    elif [ "$BEST_FREE" -ge "$_need" ]; then
+        p "  There is $(hbytes "$BEST_FREE") of unused space on $BEST_DISK."
+        p "  Dagric needs ${disk_min_gb} GB, so it will fit — though ${disk_ok_gb} GB"
+        p "  would leave more room for updates and apps later."
+    elif [ "$WINDOWS_SEEN" = yes ] || [ -n "$BITLOCKER_LIST" ]; then
+        # Do not say "there is no unused space" when the drive report two
+        # paragraphs up has just printed a number. Either say the number or
+        # say there is none — the two must agree or the whole report stops
+        # being believed.
+        if [ "$BEST_FREE" -gt 0 ]; then
+            p "  There is only $(hbytes "$BEST_FREE") of unused space on this"
+            p "  computer's drive — not enough on its own. Windows is using"
+            p "  the rest, which is completely normal and does not stop you:"
+            p "  the installer can make Windows smaller to fit Dagric next to"
+            p "  it, or replace Windows entirely if you would rather."
+        else
+            p "  There is no unused space on this computer's drive — Windows is"
+            p "  using all of it. That is completely normal, and it does not"
+            p "  stop you: the installer can make Windows smaller to fit Dagric"
+            p "  next to it, or replace Windows entirely if you would rather."
+        fi
+        p ""
+        p "  Dagric needs ${disk_min_gb} GB, and ${disk_ok_gb} GB is comfortable."
+        p ""
+        p "  This check does not open your Windows drive — nothing here reads"
+        p "  or changes a single file on it — so it cannot see how full"
+        p "  Windows is. Check that in Windows before you commit: open File"
+        p "  Explorer, click \"This PC\", and look at the free space under"
+        p "  Local Disk (C:). Windows itself needs room to work, so leaving"
+        p "  it under about 20 GB free will make it miserable."
+        p ""
+        p "  Two things to do in Windows first, if you are keeping it:"
+        p "    - Empty the Recycle Bin and run Disk Cleanup, so the installer"
+        p "      has more it can free up."
+        p "    - Turn off Fast Startup (Control Panel, Power Options, \"Choose"
+        p "      what the power buttons do\"). Left on, it saves the drive in"
+        p "      a half-shut-down state, and the installer will refuse to"
+        p "      resize it — or worse, resize something Windows then does not"
+        p "      recognise."
+    else
+        p "  There is no unused space and no Windows installation was found."
+        p "  The installer will offer to use the whole drive. Anything already"
+        p "  on it will be erased, so if there is something on this computer"
+        p "  you want, copy it off first."
+    fi
+fi
+t ""
+
+# ============================================================================
+# 6. THE REST OF THE HARDWARE
+# ============================================================================
+sec "SOUND, CAMERA AND PRINTER"
+
+# Sound. /proc/asound is the kernel's own list and is there whether or not
+# PipeWire has started, which makes it the right thing to ask in a live
+# session that may still be settling.
+SOUND_LIST=""
+if [ -r /proc/asound/cards ]; then
+    SOUND_LIST=$(LC_ALL=C sed -n 's/^[[:space:]]*[0-9]\{1,\}[[:space:]]*\[[^]]*\][[:space:]]*:[[:space:]]*//p' /proc/asound/cards 2>/dev/null)
+fi
+if [ -n "$SOUND_LIST" ]; then
+    _first=yes
+    printf '%s\n' "$SOUND_LIST" | while IFS= read -r _sc; do
+        [ -n "$_sc" ] || continue
+        if [ "$_first" = yes ]; then
+            printf '  Sound:      %s\n' "$_sc" >> "$BODY"
+            _first=no
+        else
+            printf '              %s\n' "$_sc" >> "$BODY"
+        fi
+    done
+    t "SOUND"
+    t "$(cat /proc/asound/cards 2>/dev/null)"
+else
+    p "  Sound:      no sound device was found."
+    p "              In a virtual machine that is normal. On a real computer"
+    p "              it usually means the sound chip needs a driver Dagric"
+    p "              does not have — worth telling support about."
+    flag W "No sound device was found on this computer."
+    t "SOUND"
+    t "  none detected"
+fi
+
+# Camera. /dev/video* is misleading — modern webcams also register a metadata
+# node, so a single camera shows up twice. The names in sysfs deduplicate it.
+CAM_LIST=""
+for _v in /sys/class/video4linux/*; do
+    [ -d "$_v" ] || continue
+    _vn=$(trim "$(rd "$_v/name" 2>/dev/null)")
+    [ -n "$_vn" ] || continue
+    case "$CAM_LIST" in
+        *"|$_vn|"*) continue ;;
+    esac
+    CAM_LIST="$CAM_LIST|$_vn|"
+    p "  Camera:     $_vn"
+    t "CAMERA: $_vn"
+done
+if [ -z "$CAM_LIST" ]; then
+    p "  Camera:     none found."
+    if [ "$ISLAPTOP" = yes ]; then
+        p "              If this laptop has a built-in camera, check that its"
+        p "              privacy shutter or switch is not closed."
+    fi
+fi
+
+# Printers. There is no usbutils on the ISO, so a directly-attached printer is
+# spotted through the kernel's own printer device node, and configured or
+# network-discovered printers through CUPS. Both are best-effort: in a live
+# session most people have neither, and that is not a fault.
+PRINTER_SEEN=no
+for _lp in /dev/usb/lp* /dev/lp*; do
+    [ -e "$_lp" ] || continue
+    PRINTER_SEEN=yes
+done
+if [ "$PRINTER_SEEN" = yes ]; then
+    p "  Printer:    a printer is plugged into this computer's USB."
+    p "              Dagric will set it up for you after installing —"
+    p "              most printers need nothing but plugging in."
+elif have lpstat; then
+    _pl=$(lpstat -e 2>/dev/null | head -5)
+    if [ -n "$_pl" ]; then
+        p "  Printer:    found on the network:"
+        printf '%s\n' "$_pl" | while IFS= read -r _pp; do
+            [ -n "$_pp" ] && printf '              %s\n' "$_pp" >> "$BODY"
+        done
+    else
+        p "  Printer:    none connected right now."
+        p "              Plug one in after installing — Dagric includes the"
+        p "              drivers for most printers and scanners already."
+    fi
+else
+    p "  Printer:    not checked (the printing system is not running yet)."
+fi
+t ""
+
+# --- battery ----------------------------------------------------------------
+if [ "$ISLAPTOP" = yes ]; then
+    sec "BATTERY"
+    BATT_SEEN=no
+    for _ps in /sys/class/power_supply/*; do
+        [ -d "$_ps" ] || continue
+        [ "$(rd "$_ps/type")" = "Battery" ] || continue
+        BATT_SEEN=yes
+        _bn=$(basename "$_ps")
+        _cap=$(rd "$_ps/capacity")
+        _stat=$(rd "$_ps/status")
+        # Wear. energy_* on most laptops, charge_* on some — try both rather
+        # than reporting nothing on half the machines in the world.
+        _full=$(rd "$_ps/energy_full"); _design=$(rd "$_ps/energy_full_design")
+        if [ -z "$_full" ] || [ -z "$_design" ]; then
+            _full=$(rd "$_ps/charge_full"); _design=$(rd "$_ps/charge_full_design")
+        fi
+        case "$_cap" in ''|*[!0-9]*) _cap="" ;; esac
+        if [ -n "$_cap" ]; then
+            p "  Battery:    ${_cap}% charged${_stat:+ ($_stat)}"
+        else
+            p "  Battery:    present"
+        fi
+        t "BATTERY $_bn: capacity=${_cap:-?} status=${_stat:-?} full=${_full:-?} design=${_design:-?}"
+        case "$_full$_design" in
+            ''|*[!0-9]*) ;;
+            *)
+                if [ "$_design" -gt 0 ] 2>/dev/null; then
+                    _health=$(LC_ALL=C awk -v f="$_full" -v d="$_design" 'BEGIN{printf "%d", (f*100)/d}')
+                    p "  Condition:  holds ${_health}% of what it did when new"
+                    if [ "$_health" -lt 60 ] 2>/dev/null; then
+                        p "              This battery is well worn. Dagric will run"
+                        p "              fine, but expect short unplugged time —"
+                        p "              that is the battery's age, not the OS."
+                        flag W "This laptop's battery is worn (holds ${_health}% of its original capacity). Short battery life is the battery, not Dagric."
+                    fi
+                fi
+                ;;
+        esac
+    done
+    [ "$BATT_SEEN" = no ] && p "  Battery:    none fitted (running on mains power)."
+    p ""
+    p "  Dagric manages laptop power out of the box — screen dimming, sleep"
+    p "  on lid close, and a battery/performance switch in the system tray."
+fi
+
+# ============================================================================
+# 7. WHAT TO DO NEXT
+# ============================================================================
+sec "WHAT TO DO NEXT"
+if [ -n "$BITLOCKER_LIST" ]; then
+    p "  1. Go back into Windows and deal with BitLocker (see above). This is"
+    p "     the one thing that is genuinely worth doing before anything else."
+    p "  2. Find your BitLocker recovery key at aka.ms/myrecoverykey and"
+    p "     write it down."
+    p "  3. Then come back to this USB stick and install."
+else
+    p "  1. Have a look round. Nothing you do in this live session is saved,"
+    p "     and nothing on your computer has been changed by it."
+    p "  2. Back up anything you care about before installing. Any install"
+    p "     changes how the drive is laid out, and backups are what turn a"
+    p "     mistake into an inconvenience."
+    p "  3. When you are ready, use the \"Install Dagric OS\" icon."
+fi
+p ""
+p "  Things worth having to hand: a network cable if your Wi-Fi needs one,"
+p "  and the name of your Wi-Fi network and its password."
+p ""
+p "  Nothing on this computer has been changed by this check. It only read."
+
+# ============================================================================
+# Assemble: findings first, then the detail.
+# ============================================================================
+{
+    echo "DAGRIC OS — HARDWARE CHECK"
+    echo "=================================================================="
+    echo "$MACHINE"
+    echo "Checked ${NOW:-just now}"
+    echo ""
+    echo "WHAT THIS MEANS FOR YOU"
+    echo "------------------------------------------------------------------"
+    _nP=0
+    _nW=0
+    if [ -s "$FLAGS" ]; then
+        while IFS='|' read -r _lv _msg; do
+            [ "$_lv" = "A" ] || continue
+            headline "[!]" "$_msg"
+            _nP=$((_nP + 1))
+        done < "$FLAGS"
+        while IFS='|' read -r _lv _msg; do
+            [ "$_lv" = "P" ] || continue
+            headline "[!]" "$_msg"
+            _nP=$((_nP + 1))
+        done < "$FLAGS"
+        while IFS='|' read -r _lv _msg; do
+            [ "$_lv" = "W" ] || continue
+            headline "[i]" "$_msg"
+            _nW=$((_nW + 1))
+        done < "$FLAGS"
+    fi
+    _tail="The rest of this report explains each of these in full."
+    if [ "$_nP" = 0 ] && [ "$_nW" = 0 ]; then
+        echo "  [OK] Nothing on this computer looks like it will give you"
+        echo "       trouble. Wi-Fi, graphics, sound and disk space all check"
+        echo "       out. You can install with confidence."
+        _tail="The rest of this report is the detail behind that, piece by piece."
+    else
+        echo ""
+        # Only explain the markers actually used. A legend for [!] on a report
+        # that has none reads as a warning in its own right.
+        [ "$_nP" -gt 0 ] && echo "  [!] is worth acting on before you install."
+        [ "$_nW" -gt 0 ] && echo "  [i] is worth knowing, but nothing is blocked by it."
+        [ "$_nP" = 0 ] && echo "      Nothing here blocks the installation."
+    fi
+    echo ""
+    echo "$_tail"
+} > "$REPORT"
+cat "$BODY" >> "$REPORT"
+
+{
+    echo ""
+    echo "=================================================================="
+    echo "TECHNICAL SUMMARY — this is the part to paste into a support"
+    echo "request. It contains no serial numbers, no network addresses and"
+    echo "no names of your files."
+    echo "=================================================================="
+    echo ""
+    cat "$TECH"
+    if have lspci; then
+        echo "LSPCI"
+        lspci -nn 2>/dev/null | sed 's/^/  /'
+        echo ""
+    fi
+    echo "NETWORK INTERFACES"
+    for _if in /sys/class/net/*; do
+        [ -d "$_if" ] || continue
+        _ifn=$(basename "$_if")
+        [ "$_ifn" = "lo" ] && continue
+        _d=$(dev_driver "$_if/device") || _d="none"
+        _w=no
+        { [ -d "$_if/wireless" ] || [ -e "$_if/phy80211" ]; } && _w=yes
+        echo "  $_ifn driver=$_d wireless=$_w operstate=$(rd "$_if/operstate" 2>/dev/null)"
+    done
+    echo ""
+    echo "RFKILL"
+    for _rf in /sys/class/rfkill/*; do
+        [ -d "$_rf" ] || continue
+        echo "  $(basename "$_rf") type=$(rd "$_rf/type") soft=$(rd "$_rf/soft") hard=$(rd "$_rf/hard")"
+    done
+    echo ""
+    echo "BLOCK DEVICES"
+    if have lsblk; then
+        lsblk -o NAME,SIZE,TYPE,FSTYPE,MOUNTPOINT 2>/dev/null | sed 's/^/  /'
+    else
+        echo "  lsblk not available"
+    fi
+    echo ""
+    echo "FIRMWARE FILES THE KERNEL COULD NOT LOAD"
+    if [ "$KLOG_OK" = no ]; then
+        echo "  (not checked — reading the kernel log needs root, and this"
+        echo "   tool does not ask for it)"
+    elif [ -s "$FWFAIL" ]; then
+        while IFS= read -r _ff; do
+            [ -n "$_ff" ] || continue
+            _fr=$(fw_row "$_ff") || _fr=""
+            if [ -n "$_fr" ]; then
+                echo "  $_ff  -> $(fld "$_fr" 1) ($(fld "$_fr" 2)), on the ISO: $(fld "$_fr" 3)"
+            else
+                echo "  $_ff  -> no package known for this file"
+            fi
+        done < "$FWFAIL"
+        echo ""
+        echo "  NOTE: these lines alone do NOT mean anything is broken."
+        echo "  Some drivers ask for several versions of a file and use the"
+        echo "  first one that exists, logging a failure for each of the"
+        echo "  others. The plain-language section above only reports a fault"
+        echo "  when the hardware itself failed to start."
+    else
+        echo "  none"
+    fi
+    echo ""
+    echo "MINIMUMS THIS CHECK COMPARED AGAINST"
+    echo "  memory: ${ram_min_mb} MB minimum, ${ram_ok_mb} MB comfortable"
+    echo "  disk:   ${disk_min_gb} GB minimum, ${disk_ok_gb} GB comfortable"
+} > "$WORK/techfull.txt"
+
+# ============================================================================
+# Show it
+# ============================================================================
+if [ "$TEXTMODE" = yes ] || ! have kdialog || [ -z "${DISPLAY:-}${WAYLAND_DISPLAY:-}" ]; then
+    cat "$REPORT"
+    cat "$WORK/techfull.txt"
+    exit 0
+fi
+
+SAVEBASE="dagric-hardware-check.txt"
+save_report() {
+    _dir=""
+    if have xdg-user-dir; then
+        _dir=$(xdg-user-dir DESKTOP 2>/dev/null)
+    fi
+    [ -n "$_dir" ] && [ -d "$_dir" ] || _dir="$HOME/Desktop"
+    [ -d "$_dir" ] || _dir="$HOME"
+    _target=$(kdialog --title "$TITLE" --getsavefilename "$_dir/$SAVEBASE" "*.txt|Text files" 2>/dev/null) || return 0
+    [ -n "$_target" ] || return 0
+    if { cat "$REPORT"; cat "$WORK/techfull.txt"; } > "$_target" 2>/dev/null; then
+        if [ -d /run/live/medium ]; then
+            kdialog --title "$TITLE" --msgbox \
+"Saved to:
+$_target
+
+You are in the live session, so this file lives in memory and will
+be gone when you shut down. Copy it to a USB stick if you need it
+after restarting." 2>/dev/null
+        else
+            kdialog --title "$TITLE" --msgbox "Saved to:
+$_target" 2>/dev/null
+        fi
+    else
+        kdialog --title "$TITLE" --sorry \
+            "The report could not be written to that location." 2>/dev/null
+    fi
+    return 0
+}
+
+kdialog --title "$TITLE" --textbox "$REPORT" 800 640 2>/dev/null
+
+while :; do
+    CHOICE=$(kdialog --title "$TITLE" --icon dagric-logo --geometry 460x280 \
+        --menu "What next?" \
+        again "Read the report again" \
+        tech  "Technical summary — for a support request" \
+        save  "Save a copy of the report" \
+        close "Close" 2>/dev/null) || break
+    case "$CHOICE" in
+        again) kdialog --title "$TITLE" --textbox "$REPORT" 800 640 2>/dev/null ;;
+        tech)  kdialog --title "$TITLE — technical summary" \
+                   --textbox "$WORK/techfull.txt" 800 640 2>/dev/null ;;
+        save)  save_report ;;
+        *)     break ;;
+    esac
+done
+
+exit 0

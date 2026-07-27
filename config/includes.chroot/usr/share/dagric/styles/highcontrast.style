@@ -1,0 +1,26 @@
+# Maximum legibility. Pure black surfaces, white text, a gold focus ring, and
+# every soft effect switched off — blur and translucency are exactly the things
+# that put a low-contrast wash over text, so a high-contrast style that left
+# them on would be arguing with itself.
+#
+# SORT=15 puts it directly under Daybreak. Somebody who needs this is not going
+# to enjoy hunting for it at the bottom of a list.
+#
+# No EDITION line, on purpose: this is the one style that must never be behind
+# the paywall. See docs/EDITIONS.md — free is leaner, not broken, and a person
+# who cannot read the screen is not a Pro upsell.
+#
+# WALLPAPER points at a flat black image written by
+# config/hooks/normal/0530-accessibility.hook.chroot rather than at a wallpaper
+# package, because desktop icon labels are drawn straight onto the wallpaper
+# and a photograph underneath them is an unmeasurable contrast ratio. Windows
+# High Contrast removes the wallpaper for the same reason.
+NAME=High Contrast
+DESCRIPTION=black and white, gold focus ring, no soft effects
+SORT=15
+SCHEME=DagricHighContrast
+ACCENT=default
+WALLPAPER=/usr/share/dagric/accessibility/highcontrast-wallpaper.png
+BLUR=false
+TRANSLUCENCY=false
+WOBBLY=false

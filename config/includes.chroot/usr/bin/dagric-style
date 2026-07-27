@@ -18,6 +18,18 @@
 # Copy any shipped .style file to ~/.local/share/dagric/styles/, edit it, and
 # it appears in this menu next time. See the shipped files for the format;
 # every key is optional.
+#
+# Language: NAME and DESCRIPTION are data, so xgettext cannot see them from
+# here — tools/i18n-extract.sh reads the shipped .style files and puts them in
+# the .pot. A style an administrator or an owner adds themselves is shown
+# exactly as they wrote it, which is the only honest thing to do with a string
+# we have never seen.
+. /usr/bin/dagric-i18n.sh
+
+# "Dagric Styles" is the tool's own name and stays in English, like Dagric Hub
+# and Dagric Looks.
+TITLE="Dagric Styles"
+
 EDITION=$(cat /etc/dagric-edition 2>/dev/null || echo free)
 WALLS=/usr/share/wallpapers
 STYLE_DIRS="/usr/share/dagric/styles /etc/dagric/styles ${XDG_DATA_HOME:-$HOME/.local/share}/dagric/styles"
@@ -69,7 +81,8 @@ for dir in $STYLE_DIRS; do
         # A style may require Pro; free hides those rather than failing later.
         if [ "$need" = "pro" ] && [ "$EDITION" != "pro" ]; then continue; fi
         name=$(skey "$f" NAME); [ -n "$name" ] || name="$id"
-        desc=$(skey "$f" DESCRIPTION)
+        name=$(dg_tr "$name")
+        desc=$(dg_tr "$(skey "$f" DESCRIPTION)")
         sort=$(skey "$f" SORT); [ -n "$sort" ] || sort=50
         label="$name"
         [ -n "$desc" ] && label="$name  —  $desc"
@@ -82,8 +95,8 @@ for dir in $STYLE_DIRS; do
 done
 
 if [ ! -s "$TMPLIST" ]; then
-    kdialog --title "Dagric Styles" --sorry \
-        "No styles are installed. Reinstall the dagric-branding package to restore them." 2>/dev/null
+    kdialog --title "$TITLE" --sorry \
+        "$(gettext "No styles are installed. Reinstall the dagric-branding package to restore them.")" 2>/dev/null
     exit 1
 fi
 
@@ -99,13 +112,16 @@ EOF
 done
 IFS=$OLDIFS
 
+# The tags (_sep, accent, reset) are what kdialog hands back and the case
+# below matches on, so they are never translated. The separator row is drawn
+# from box-drawing characters, not words, so it is not translated either.
 set -- "$@" \
     _sep   "───────────────────────────────" \
-    accent "Accent color — pick any color" \
-    reset  "Reset — standard Dagric look"
+    accent "$(gettext "Accent color — pick any color")" \
+    reset  "$(gettext "Reset — standard Dagric look")"
 
-CHOICE=$(kdialog --title "Dagric Styles" --icon dagric-logo --geometry 520x380 \
-    --menu "Pick a mood — colors, wallpaper, effects. Panels stay put:" \
+CHOICE=$(kdialog --title "$TITLE" --icon dagric-logo --geometry 520x380 \
+    --menu "$(gettext "Pick a mood — colors, wallpaper, effects. Panels stay put:")" \
     "$@" 2>/dev/null) || exit 0
 [ -n "$CHOICE" ] || exit 0
 
@@ -125,20 +141,20 @@ case "$CHOICE" in
         rm -f "$TMPLIST" "$TMPLIST.n"
         exec /usr/bin/dagric-style ;;
     accent)
-        HEX=$(kdialog --title "Dagric Styles — accent color" --getcolor 2>/dev/null) || exit 0
+        HEX=$(kdialog --title "$TITLE — $(gettext "accent color")" --getcolor 2>/dev/null) || exit 0
         case "$HEX" in
             \#??????)
                 R=$(printf '%d' "0x$(printf '%s' "$HEX" | cut -c2-3)")
                 G=$(printf '%d' "0x$(printf '%s' "$HEX" | cut -c4-5)")
                 B=$(printf '%d' "0x$(printf '%s' "$HEX" | cut -c6-7)")
                 set_accent "$R,$G,$B"
-                POPUP="Accent color set to $HEX" ;;
+                POPUP=$(eval_gettext 'Accent color set to $HEX') ;;
             *) exit 0 ;;
         esac ;;
     reset)
         RESET=$(grep -F "	daybreak	" "$TMPLIST" | head -1 | cut -f4)
         [ -n "$RESET" ] && apply_file "$RESET"
-        POPUP="Reset to the standard Dagric look" ;;
+        POPUP=$(gettext "Reset to the standard Dagric look") ;;
     *)
         ROW=$(grep -F "	$CHOICE	" "$TMPLIST" | head -1)
         FILE=$(printf '%s\n' "$ROW" | cut -f4)
@@ -149,9 +165,10 @@ case "$CHOICE" in
         # when the row the owner clicked said "Midnight — deep blues, blurred".
         NAME=$(printf '%s\n' "$ROW" | cut -f5)
         [ -n "$NAME" ] || NAME=$CHOICE
-        POPUP="Style applied: $NAME" ;;
+        # $NAME is already translated: it was put into the list through dg_tr.
+        POPUP=$(eval_gettext 'Style applied: $NAME') ;;
 esac
 kwin_reload
 
-kdialog --title "Dagric Styles" \
+kdialog --title "$TITLE" \
     --passivepopup "$POPUP" 4 2>/dev/null

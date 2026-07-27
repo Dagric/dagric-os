@@ -8,6 +8,7 @@
 <script src="manual.js"></script>
 </head>
 <body>
+<a class="skip" href="#main">Skip to content</a>
 <div class="shell">
 
   <aside class="side">
@@ -16,22 +17,22 @@
         <div class="mark">D</div>
         <div class="brand-name">Dagric OS<small>Manual</small></div>
       </a>
-      <nav class="toc" aria-label="Sections">
+      <nav class="toc" aria-label="Sections of this page">
         <div class="navgroup">Jump to</div>
-        <a href="#" data-goto="g-files">Files and getting around<span class="count">12</span></a>
-        <a href="#" data-goto="g-documents">Writing and documents<span class="count">10</span></a>
-        <a href="#" data-goto="g-photos">Photos and video<span class="count">13</span></a>
-        <a href="#" data-goto="g-sound">Music and sound<span class="count">3</span></a>
-        <a href="#" data-goto="g-internet">Internet and communication<span class="count">9</span></a>
-        <a href="#" data-goto="g-safety">System and safety<span class="count">15</span></a>
-        <a href="#" data-goto="g-games">Games and Windows programs<span class="count">8</span></a>
-        <a href="#" data-goto="g-dev">For developers<span class="count">5</span></a>
-        <a href="#" data-goto="g-dagric">Dagric&#x27;s own tools<span class="count">19</span></a>
+        <a href="#g-files" data-goto="g-files">Files and getting around<span class="count">12</span></a>
+        <a href="#g-documents" data-goto="g-documents">Writing and documents<span class="count">10</span></a>
+        <a href="#g-photos" data-goto="g-photos">Photos and video<span class="count">13</span></a>
+        <a href="#g-sound" data-goto="g-sound">Music and sound<span class="count">3</span></a>
+        <a href="#g-internet" data-goto="g-internet">Internet and communication<span class="count">9</span></a>
+        <a href="#g-safety" data-goto="g-safety">System and safety<span class="count">15</span></a>
+        <a href="#g-games" data-goto="g-games">Games and Windows programs<span class="count">8</span></a>
+        <a href="#g-dev" data-goto="g-dev">For developers<span class="count">5</span></a>
+        <a href="#g-dagric" data-goto="g-dagric">Dagric&#x27;s own tools<span class="count">19</span></a>
       </nav>
     </div>
   </aside>
 
-  <main class="content">
+  <main class="content" id="main" tabindex="-1">
 
     <header class="hero">
       <div class="eyebrow">Manual</div>
@@ -42,13 +43,24 @@
     </header>
 
     <div class="searchwrap">
+      <!-- A placeholder is not a name: it disappears the moment you type, and
+           several screen readers ignore it entirely. The real label is here,
+           off-screen but in the accessibility tree. -->
+      <label class="sr-only" for="q">Search the manual by app name, Windows name, or what you want to do</label>
       <input id="q" type="search" autocomplete="off" spellcheck="false"
              placeholder="Search &mdash; try &ldquo;pdf&rdquo;, &ldquo;photos&rdquo;, &ldquo;word&rdquo;, &ldquo;task manager&rdquo;">
     </div>
     <div class="searchbar">
-      <span id="count">94 pages</span>
+      <!-- role=status makes this a polite live region, so filtering the list
+           is announced ("12 of 94 pages") instead of happening in silence. -->
+      <span id="count" role="status">94 pages</span>
       <label class="toggle"><input type="checkbox" id="hidepro">
         Hide the things only Dagric&nbsp;OS Pro has</label>
+      <!-- The off switch for the "/" shortcut. It exists because a shortcut on
+           a bare character key must be switchable off (WCAG 2.1.4) — someone
+           dictating to this machine says "slash" without meaning to. -->
+      <label class="toggle"><input type="checkbox" id="slashkey" checked>
+        Press <kbd>/</kbd> to jump to the search box</label>
     </div>
     <p class="noresults" id="noresults">Nothing matched that. Try a plainer word
     &mdash; the manual is indexed by what things <em>do</em>, so

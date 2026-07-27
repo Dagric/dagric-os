@@ -1,0 +1,35 @@
+# Dagric OS — declare the default browser, system-wide.
+#
+# THE BUG THIS FIXES, caught by booting the Pro ISO in QEMU and looking at the
+# taskbar: free pins Firefox, Pro pins Chromium. Same panel configuration, same
+# `x-www-browser` alternative (both point at firefox-esr) — the difference is
+# that nothing anywhere declared a default, and Pro is the only edition with
+# two browsers installed to choose between.
+#
+# Plasma resolves its `preferred://browser` launcher through the XDG mimeapps
+# default for x-scheme-handler/http, NOT through Debian's update-alternatives.
+# With no default set, it takes whichever handler it happens to find first, and
+# on Pro that is Chromium.
+#
+# Which is the wrong answer, and wrong in the direction that matters. Firefox is
+# the browser Dagric actually hardens: telemetry off, Pocket off, studies off,
+# tracking protection on, uBlock Origin. Chromium as packaged has none of that.
+# So the edition somebody PAID for was the one that quietly handed them an
+# unhardened Google browser as the default for every link they click — while the
+# manual, the guide and the sales page all say Firefox. Free was correct only by
+# accident, because it has nothing else to pick.
+#
+# Chromium stays installed and one click away on Pro; it is offered, not
+# defaulted. Declaring the default explicitly also means this cannot drift again
+# when a future edition adds a third browser.
+#
+# /etc/xdg is the system-wide layer of the XDG spec, so any owner who changes
+# their default browser in System Settings overrides this in their own
+# ~/.config/mimeapps.list and is never overridden back.
+[Default Applications]
+x-scheme-handler/http=firefox-esr.desktop
+x-scheme-handler/https=firefox-esr.desktop
+x-scheme-handler/about=firefox-esr.desktop
+x-scheme-handler/unknown=firefox-esr.desktop
+text/html=firefox-esr.desktop
+application/xhtml+xml=firefox-esr.desktop

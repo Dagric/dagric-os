@@ -8,23 +8,26 @@
 # the NVIDIA driver and DaVinci Resolve helpers. The 32-bit libraries Steam
 # needs (i386 multiarch, Wine32, 32-bit Vulkan) are already in place on Pro,
 # so this is a quick download.
-cat << 'EOF'
-Dagric — install Steam
+. /usr/bin/dagric-i18n.sh
+
+# TRANSLATORS: this paragraph explains a LICENCE position — Dagric does not
+# bundle Steam because Valve's licence forbids it. Keep that meaning exact;
+# it is the reason the helper exists. "Steam" and "Valve" are product names.
+dg_say "$(gettext "Dagric — install Steam
 
 Steam is Valve's proprietary game store and launcher. Dagric doesn't ship it
 preinstalled (its licence forbids anyone bundling it), but installing it is one
 step. Everything it depends on is already set up on Dagric Pro.
 
 You'll be asked for your administrator password, then Steam downloads and
-installs. Afterwards, launch "Steam" from the application launcher.
-EOF
+installs. Afterwards, launch \"Steam\" from the application launcher.")"
 
-printf '\nInstall Steam now? [y/N] '
+printf '\n%s ' "$(gettext "Install Steam now? [y/N]")"
 read ans
-case "$ans" in
-    y|Y|yes|YES) ;;
-    *) echo "No changes made."; exit 0 ;;
-esac
+if ! dg_is_yes "$ans"; then
+    dg_say "$(gettext "No changes made.")"
+    exit 0
+fi
 
 # steam-installer pulls the rest of its i386 deps; multiarch was enabled at
 # build time on Pro. Run under pkexec so this works when launched from the GUI.
@@ -32,10 +35,13 @@ pkexec sh -c 'dpkg --add-architecture i386 && apt-get update && apt-get install 
 RC=$?
 if [ "$RC" -eq 0 ]; then
     echo
-    echo "Steam installed. Launch it from the application launcher; on first"
-    echo "run it finishes updating itself."
+    dg_say "$(gettext "Steam installed. Launch it from the application launcher; on first
+run it finishes updating itself.")"
 else
     echo
-    echo "Steam installation did not complete (exit $RC). You can retry from"
-    echo "the Dagric Hub, or check your network connection."
+    # Single quotes are MANDATORY around an eval_gettext msgid: with double
+    # quotes the shell expands $RC before gettext looks the string up, the
+    # lookup misses, and the message comes out in English with no warning.
+    dg_say "$(eval_gettext 'Steam installation did not complete (exit $RC). You can retry from
+the Dagric Hub, or check your network connection.')"
 fi

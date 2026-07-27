@@ -4,280 +4,10 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Dagric OS — User Guide</title>
-<style>
-  :root {
-    --bg:        #0a111c;
-    --bg-raise:  #0e1726;
-    --panel:     #101b2c;
-    --panel-2:   #132033;
-    --line:      rgba(148,178,214,.12);
-    --line-soft: rgba(148,178,214,.07);
-    --ink:       #e7eef7;
-    --ink-soft:  #c3cfdd;
-    --muted:     #8496ac;
-    --faint:     #5f7186;
-    --accent:    #3fa9f5;
-    --accent-dim:#2b76ad;
-    --accent-bg: rgba(63,169,245,.10);
-    --accent-brd:rgba(63,169,245,.28);
-    --radius:    12px;
-  }
-
-  * { box-sizing:border-box; margin:0; padding:0; }
-
-  html { scroll-behavior:smooth; scroll-padding-top:28px; }
-
-  body {
-    background:var(--bg);
-    color:var(--ink);
-    font:16px/1.7 -apple-system, "Segoe UI", "Noto Sans", Ubuntu, Cantarell, system-ui, sans-serif;
-    -webkit-font-smoothing:antialiased;
-    text-rendering:optimizeLegibility;
-  }
-
-  ::selection { background:rgba(63,169,245,.30); }
-
-  a { color:var(--accent); text-decoration:none; }
-  a:hover { text-decoration:underline; text-underline-offset:3px; }
-  :focus-visible { outline:2px solid var(--accent); outline-offset:2px; border-radius:4px; }
-
-  /* ---------- shell ---------- */
-  .shell {
-    max-width:1120px;
-    margin:0 auto;
-    padding:0 32px;
-    display:grid;
-    grid-template-columns:224px minmax(0,1fr);
-    gap:56px;
-  }
-
-  /* ---------- sidebar ---------- */
-  .side {
-    padding:44px 0 64px;
-  }
-  .sidebox {
-    position:sticky;
-    top:24px;
-    max-height:calc(100vh - 48px);
-    overflow-y:auto;
-    scrollbar-width:thin;
-    scrollbar-color:var(--line) transparent;
-  }
-  .brand {
-    display:flex; align-items:center; gap:11px;
-    padding-bottom:18px; margin-bottom:14px;
-    border-bottom:1px solid var(--line-soft);
-  }
-  .mark {
-    width:34px; height:34px; flex:none;
-    border-radius:9px;
-    background:linear-gradient(145deg, #17293f, #0e1a2b);
-    border:1px solid var(--accent-brd);
-    display:grid; place-items:center;
-    color:var(--accent);
-    font-weight:700; font-size:17px;
-    letter-spacing:.02em;
-  }
-  .brand-name { font-size:.95rem; font-weight:600; letter-spacing:.01em; }
-  .brand-name small { display:block; font-size:.72rem; font-weight:500; color:var(--muted); letter-spacing:.08em; text-transform:uppercase; margin-top:1px; }
-
-  .navgroup { margin:16px 0 4px; font-size:.68rem; font-weight:600; letter-spacing:.14em; text-transform:uppercase; color:var(--faint); }
-  nav.toc a {
-    display:block;
-    padding:5px 10px;
-    margin:1px 0 1px -10px;
-    font-size:.85rem;
-    color:var(--muted);
-    border-radius:7px;
-    border-left:2px solid transparent;
-    line-height:1.45;
-  }
-  nav.toc a:hover { color:var(--ink); background:var(--line-soft); text-decoration:none; }
-  nav.toc a.active {
-    color:var(--accent);
-    background:var(--accent-bg);
-    border-left-color:var(--accent);
-    border-radius:0 7px 7px 0;
-  }
-
-  /* ---------- content ---------- */
-  .content { padding:44px 0 110px; max-width:660px; }
-
-  header.hero { margin-bottom:20px; }
-  .eyebrow {
-    font-size:.72rem; font-weight:600;
-    letter-spacing:.18em; text-transform:uppercase;
-    color:var(--accent);
-    margin-bottom:10px;
-  }
-  h1 {
-    font-size:clamp(1.9rem, 3.4vw, 2.5rem);
-    font-weight:650;
-    letter-spacing:-.015em;
-    line-height:1.15;
-  }
-  .sub {
-    color:var(--muted);
-    font-size:1.02rem;
-    margin-top:12px;
-    max-width:46ch;
-  }
-
-  section {
-    padding:36px 0 6px;
-    margin-top:14px;
-    border-top:1px solid var(--line-soft);
-    scroll-margin-top:24px;
-  }
-  section:first-of-type { border-top:none; margin-top:26px; padding-top:14px; }
-
-  h2 {
-    font-size:1.22rem;
-    font-weight:600;
-    letter-spacing:-.008em;
-    color:var(--ink);
-    margin-bottom:14px;
-    display:flex; align-items:center; gap:10px;
-  }
-  .pro {
-    flex:none;
-    font-size:.62rem; font-weight:700;
-    letter-spacing:.12em;
-    color:var(--accent);
-    background:var(--accent-bg);
-    border:1px solid var(--accent-brd);
-    border-radius:99px;
-    padding:2.5px 9px 2px;
-    transform:translateY(1px);
-  }
-
-  p { color:var(--ink-soft); font-size:.96rem; margin-bottom:12px; }
-  p strong { color:var(--ink); font-weight:600; }
-  em { color:var(--ink); font-style:italic; }
-
-  kbd {
-    display:inline-block;
-    background:linear-gradient(180deg, var(--panel-2), var(--panel));
-    border:1px solid var(--line);
-    border-bottom-width:2px;
-    border-radius:6px;
-    padding:1px 8px;
-    font:600 .8em/1.6 ui-monospace, "Cascadia Mono", Consolas, monospace;
-    color:var(--ink);
-    white-space:nowrap;
-  }
-  code {
-    background:var(--accent-bg);
-    border:1px solid rgba(63,169,245,.16);
-    border-radius:6px;
-    padding:1.5px 7px;
-    font:.85em ui-monospace, "Cascadia Mono", Consolas, monospace;
-    color:#8ecdf8;
-    white-space:nowrap;
-  }
-
-  /* ---------- shortcut cards ---------- */
-  .keys {
-    display:grid;
-    grid-template-columns:repeat(auto-fill, minmax(280px, 1fr));
-    gap:12px;
-    margin:18px 0 10px;
-  }
-  .key-card {
-    background:var(--bg-raise);
-    border:1px solid var(--line-soft);
-    border-radius:var(--radius);
-    padding:14px 16px 13px;
-  }
-  .key-card .combo { margin-bottom:7px; display:flex; align-items:center; gap:5px; flex-wrap:wrap; }
-  .key-card .combo .plus { color:var(--faint); font-size:.78rem; }
-  .key-card .what { font-size:.86rem; color:var(--muted); line-height:1.5; }
-  .key-card .what strong { color:var(--ink-soft); font-weight:500; }
-
-  /* ---------- terminal helpers panel ---------- */
-  .helpers {
-    background:var(--bg-raise);
-    border:1px solid var(--line-soft);
-    border-radius:var(--radius);
-    padding:18px 20px 8px;
-    margin:20px 0 10px;
-  }
-  .helpers-title {
-    font-size:.78rem; font-weight:600;
-    letter-spacing:.1em; text-transform:uppercase;
-    color:var(--muted);
-    margin-bottom:4px;
-  }
-  .helpers-sub { font-size:.86rem; color:var(--faint); margin-bottom:12px; }
-  .helper-row {
-    display:flex; align-items:baseline; gap:14px;
-    padding:9px 0;
-    border-top:1px solid var(--line-soft);
-    font-size:.9rem;
-  }
-  .helper-row code { flex:none; }
-  .helper-row span { color:var(--muted); font-size:.87rem; }
-
-  /* ---------- tip callout ---------- */
-  .tip {
-    background:var(--accent-bg);
-    border:1px solid rgba(63,169,245,.18);
-    border-radius:var(--radius);
-    padding:13px 16px;
-    margin:14px 0;
-    font-size:.9rem;
-    color:var(--ink-soft);
-    display:flex; gap:11px; align-items:baseline;
-  }
-  .tip::before {
-    content:"i";
-    flex:none;
-    width:17px; height:17px;
-    border-radius:50%;
-    background:var(--accent);
-    color:#06121f;
-    font:700 .68rem/17px ui-monospace, monospace;
-    text-align:center;
-    transform:translateY(2px);
-  }
-
-  footer.colophon {
-    margin-top:56px;
-    padding-top:22px;
-    border-top:1px solid var(--line-soft);
-    font-size:.8rem;
-    color:var(--faint);
-  }
-
-  /* ---------- narrow screens ---------- */
-  @media (max-width:900px) {
-    .shell { display:block; padding:0 22px; }
-    .side { padding:20px 0 0; }
-    .sidebox {
-      position:sticky; top:0; z-index:5;
-      max-height:none; overflow:visible;
-      background:rgba(10,17,28,.92);
-      backdrop-filter:blur(10px);
-      margin:0 -22px; padding:12px 22px 10px;
-      border-bottom:1px solid var(--line-soft);
-    }
-    .brand { border-bottom:none; padding-bottom:8px; margin-bottom:2px; }
-    .navgroup { display:none; }
-    nav.toc { display:flex; gap:6px; overflow-x:auto; padding-bottom:4px; scrollbar-width:none; }
-    nav.toc::-webkit-scrollbar { display:none; }
-    nav.toc a {
-      flex:none; margin:0;
-      border:1px solid var(--line-soft);
-      border-radius:99px;
-      padding:4px 12px;
-      font-size:.8rem;
-    }
-    nav.toc a.active { border-color:var(--accent-brd); border-radius:99px; }
-    .content { padding-top:30px; max-width:none; }
-  }
-</style>
+<link rel="stylesheet" href="guide.css">
 </head>
 <body>
+<a class="skip" href="#main">Skip to content</a>
 <div class="shell">
 
   <aside class="side">
@@ -286,7 +16,7 @@
         <div class="mark">D</div>
         <div class="brand-name">Dagric OS<small>User Guide</small></div>
       </div>
-      <nav class="toc" aria-label="Sections">
+      <nav class="toc" aria-label="Sections of this guide">
         <div class="navgroup">Everyday</div>
         <a href="#apps">Installing apps</a>
         <a href="#updates">Updates</a>
@@ -297,6 +27,7 @@
         <a href="#setup">The setup wizard</a>
         <a href="#looks">Looks and Styles</a>
         <a href="#textsize">Text size &amp; night light</a>
+        <a href="#access">Accessibility</a>
         <a href="#migrate">Files from Windows</a>
         <a href="#drives">Drives &amp; USB sticks</a>
         <div class="navgroup">Going further</div>
@@ -311,7 +42,13 @@
     </div>
   </aside>
 
-  <main class="content">
+  <main class="content" id="main" tabindex="-1">
+
+    <div class="langbar">
+      <span class="label">Language</span>
+      <strong lang="en">English</strong>
+      <a lang="de" hreflang="de" href="de/index.html">Deutsch</a>
+    </div>
 
     <header class="hero">
       <div class="eyebrow">User Guide</div>
@@ -433,6 +170,48 @@
       time</em>, or off, and forget about it.</p>
     </section>
 
+    <!-- This section is not decoration. Documentation that ships with a
+         product is required to say what the product's accessibility features
+         are and how to use them (EN 301 549 clause 12.1, and the same question
+         appears on every institutional procurement form). It only claims what
+         is installed and working today, including the part that is not. -->
+    <section id="access">
+      <h2>Accessibility</h2>
+      <p>All of it is already on this computer &mdash; nothing to download, no
+      account, no extra edition.</p>
+      <p><strong>Reading the screen aloud.</strong> The <strong>Orca</strong>
+      screen reader is installed on every edition, together with its speech
+      engine and voice &mdash; a screen reader with no voice installed is a
+      common and useless outcome, so Dagric pins both deliberately. Turn it on
+      with <kbd>Meta</kbd>+<kbd>Alt</kbd>+<kbd>S</kbd>, or in
+      <strong>System Settings &rarr; Accessibility &rarr; Screen Reader</strong>.
+      The manual has a full page on Orca, including the Braille display
+      support.</p>
+      <p><strong>Making things bigger.</strong> <strong>Text Size</strong>
+      (above) scales the whole desktop between 100% and 200% and puts itself
+      back if you say nothing. For a magnifier that follows the mouse instead,
+      <strong>System Settings &rarr; Accessibility</strong> switches on the
+      screen zoom; the same page lists the keys that drive it.</p>
+      <p><strong>Keyboard and mouse.</strong> Sticky modifier keys (for pressing
+      <kbd>Ctrl</kbd>+<kbd>C</kbd> one key at a time), a visible flash instead of
+      the system beep, and moving the pointer with the number pad are all in
+      <strong>System Settings &rarr; Accessibility</strong>. Colour filters for
+      colour blindness are there too.</p>
+      <p><strong>This guide and the manual</strong> are built to be read with a
+      screen reader and driven from the keyboard: press <kbd>Tab</kbd> on any
+      page and the first stop is <em>Skip to content</em>, which jumps you past
+      the sidebar.</p>
+      <div class="tip"><strong>One thing Dagric cannot do yet, said plainly:
+      the login screen cannot read itself aloud.</strong> The screen reader
+      starts with your session, not before it, and the login screen Dagric uses
+      has no screen-reader support of its own. Two ways round it: the live USB
+      signs itself in automatically, so you can try the whole system with Orca
+      before installing; and on an installed machine you can switch on automatic
+      sign-in (<strong>System Settings &rarr; Startup and Shutdown &rarr; Login
+      Screen</strong>). That is a real security trade-off on a shared computer,
+      and it is yours to make.</div>
+    </section>
+
     <section id="migrate">
       <h2>Bringing your files from Windows</h2>
       <p>Open the <strong>Dagric Hub</strong> and pick <strong>Migrate from
@@ -537,30 +316,6 @@
   </main>
 </div>
 
-<script>
-(function () {
-  var links = Array.prototype.slice.call(document.querySelectorAll('nav.toc a'));
-  var map = {};
-  links.forEach(function (a) { map[a.getAttribute('href').slice(1)] = a; });
-  var sections = Array.prototype.slice.call(document.querySelectorAll('main section'));
-  function setActive(id) {
-    links.forEach(function (a) { a.classList.remove('active'); });
-    if (map[id]) map[id].classList.add('active');
-  }
-  if ('IntersectionObserver' in window) {
-    var visible = {};
-    var io = new IntersectionObserver(function (entries) {
-      entries.forEach(function (e) { visible[e.target.id] = e.isIntersecting; });
-      for (var i = 0; i < sections.length; i++) {
-        if (visible[sections[i].id]) { setActive(sections[i].id); break; }
-      }
-    }, { rootMargin: '-15% 0px -70% 0px' });
-    sections.forEach(function (s) { io.observe(s); });
-  }
-  links.forEach(function (a) {
-    a.addEventListener('click', function () { setActive(a.getAttribute('href').slice(1)); });
-  });
-})();
-</script>
+<script src="guide.js"></script>
 </body>
 </html>

@@ -35,6 +35,20 @@ SAFE="$LIVE  (safe graphics mode)"
 esc() { printf '%s' "$1" | sed -e 's/[\/&]/\\&/g'; }
 L=$(esc "$LIVE"); T=$(esc "$TITLE"); S=$(esc "$SAFE")
 
+# How long the menu waits before booting the default entry, in seconds.
+# It used to wait FOREVER on both paths — isolinux shipped "timeout 0", which
+# in syslinux means "no timeout, ever", and live-build's grub.cfg sets no
+# timeout at all, which GRUB also treats as wait-forever. Booted in QEMU, the
+# menu sat unchanged for the full run.
+#
+# For this audience that is close to the worst possible default. Someone boots
+# the USB, sees a menu they were not expecting, does not know that Enter is
+# required, waits, decides the machine has hung, and power-cycles back into
+# Windows. The OS never gets to make a first impression at all. Ten seconds is
+# long enough to read three entries and pick one, short enough that walking
+# away still ends up at a desktop.
+WAIT=10
+
 # --- legacy BIOS (isolinux/syslinux) ---------------------------------------
 for f in isolinux/live.cfg isolinux/menu.cfg isolinux/stdmenu.cfg isolinux/isolinux.cfg; do
     [ -f "$f" ] || continue
@@ -43,25 +57,189 @@ for f in isolinux/live.cfg isolinux/menu.cfg isolinux/stdmenu.cfg isolinux/isoli
     sed -i "s/menu label .*Live system (amd64 fail-safe mode).*/menu label $S/" "$f"
     sed -i "s/menu label \^Live system (amd64)/menu label ^$L/" "$f"
     sed -i "s/^\(\s*\)menu title Boot menu/\1menu title $T/" "$f"
+    # syslinux counts in tenths of a second, so 10s is 100.
+    sed -i "s/^\([[:space:]]*\)timeout[[:space:]]\+0[[:space:]]*$/\1timeout $((WAIT * 10))/" "$f"
 done
 
 # --- UEFI (GRUB) ------------------------------------------------------------
-for f in boot/grub/grub.cfg boot/grub/config.cfg boot/grub/theme.cfg; do
+for f in boot/grub/grub.cfg boot/grub/config.cfg; do
     [ -f "$f" ] || continue
     sed -i "s/menuentry \"Live system (amd64 fail-safe mode)\"/menuentry \"$S\"/" "$f"
     sed -i "s/menuentry \"Live system (amd64)\"/menuentry \"$L\"/" "$f"
-    sed -i "s/^\(\s*title-text:\s*\).*/\1\"$T\"/" "$f"
 done
 
-# Verify the rename actually took — a silent sed miss would put us straight
-# back to two identically-labelled ISOs.
-HIT=0
+# --- the accessible boot entry ----------------------------------------------
+#
+# A second live entry that appends `dagric.a11y=1` to the kernel command line.
+# /usr/lib/dagric/a11y-live (installed by 0530-accessibility.hook.chroot) runs
+# at every login, greps /proc/cmdline for that flag, and starts Orca if it is
+# there. Until this entry existed that responder was inert.
+#
+# WHY IT HAS TO BE A BOOT ENTRY. The installed system's login screen cannot
+# host a screen reader — SDDM has no way to publish an AT-SPI bus its Qt
+# greeter would join, and the whole dead-end analysis is written into
+# /etc/sddm.conf.d/20-accessibility.conf. The live ISO is different because it
+# autologs in: there is no password prompt to be locked out of. So the boot
+# menu is the ONE place a blind person can get into this OS unaided, and it is
+# also the moment that decides everything — it is where they find out whether
+# the product is usable by them at all, before anyone has paid anybody. This
+# is the same pattern as Debian Installer's "Install with speech synthesis".
+#
+# NOTHING GOES IN auto/config. The obvious-looking move is to add the flag to
+# --bootappend-live, and that would switch the screen reader on for every owner
+# of every machine. The flag has to be on ONE entry, which means editing the
+# assembled menu, which means here.
+#
+# The entry is built by COPYING the normal live block rather than by writing a
+# new one, because the copy inherits whatever live-build put on the kernel line
+# (boot=live, the username, the hostname, the persistence options) and cannot
+# drift from it. `menu default` is dropped from the copy — a bug here would
+# make the screen reader the default boot for everybody. If the block cannot be
+# found the file is left exactly as it was and the check at the bottom warns.
+A11Y="$LIVE  (with screen reader)"
+
+for f in isolinux/live.cfg; do
+    [ -f "$f" ] || continue
+    grep -q 'dagric\.a11y' "$f" && continue
+    rc=0
+    awk -v lbl="$A11Y" '
+    { L[NR] = $0 }
+    END {
+        n = NR; start = 0
+        for (i = 1; i <= n; i++) {
+            if (L[i] !~ /^[[:space:]]*label[[:space:]]/) continue
+            e = n
+            for (j = i + 1; j <= n; j++)
+                if (L[j] ~ /^[[:space:]]*label[[:space:]]/) { e = j - 1; break }
+            ok = 0; bad = 0
+            for (j = i; j <= e; j++) {
+                if (L[j] ~ /boot=live/) ok = 1
+                if (L[j] ~ /nomodeset/ || L[j] ~ /fail-safe/) bad = 1
+            }
+            if (ok && !bad) { start = i; end = e; break }
+        }
+        if (start == 0) { for (i = 1; i <= n; i++) print L[i]; exit 3 }
+        for (i = 1; i <= n; i++) {
+            print L[i]
+            if (i != end) continue
+            print ""
+            for (j = start; j <= end; j++) {
+                s = L[j]
+                sub(/[[:space:]]+$/, "", s)
+                if (s ~ /^[[:space:]]*label[[:space:]]/)        { print s "-a11y"; continue }
+                if (s ~ /^[[:space:]]*menu[[:space:]]+default/) continue
+                p = index(s, "menu label")
+                if (p > 0)                                     { print substr(s, 1, p - 1) "menu label " lbl; continue }
+                if (s ~ /^[[:space:]]*append[[:space:]]/)       { print s " dagric.a11y=1"; continue }
+                print s
+            }
+        }
+        exit 0
+    }' "$f" > "$f.a11y" || rc=$?
+    if [ "$rc" -eq 0 ] && [ -s "$f.a11y" ]; then mv "$f.a11y" "$f"; else rm -f "$f.a11y"; fi
+done
+
+for f in boot/grub/grub.cfg boot/grub/config.cfg; do
+    [ -f "$f" ] || continue
+    grep -q 'dagric\.a11y' "$f" && continue
+    rc=0
+    awk -v lbl="$A11Y" '
+    { L[NR] = $0 }
+    END {
+        n = NR; start = 0
+        for (i = 1; i <= n; i++) {
+            if (L[i] !~ /^[[:space:]]*menuentry[[:space:]]/) continue
+            e = 0
+            for (j = i; j <= n; j++)
+                if (L[j] ~ /^[[:space:]]*}[[:space:]]*$/) { e = j; break }
+            if (e == 0) continue
+            ok = 0; bad = 0
+            for (j = i; j <= e; j++) {
+                if (L[j] ~ /boot=live/) ok = 1
+                if (L[j] ~ /nomodeset/ || L[j] ~ /fail-safe/) bad = 1
+            }
+            if (ok && !bad) { start = i; end = e; break }
+            i = e
+        }
+        if (start == 0) { for (i = 1; i <= n; i++) print L[i]; exit 3 }
+        for (i = 1; i <= n; i++) {
+            print L[i]
+            if (i != end) continue
+            print ""
+            for (j = start; j <= end; j++) {
+                s = L[j]
+                sub(/[[:space:]]+$/, "", s)
+                if (j == start) {
+                    # Retitle in place so any --class/--id options survive.
+                    q1 = index(s, "\"")
+                    if (q1 == 0) { print s; continue }
+                    rest = substr(s, q1 + 1)
+                    q2 = index(rest, "\"")
+                    if (q2 == 0) { print s; continue }
+                    print substr(s, 1, q1) lbl substr(rest, q2)
+                    continue
+                }
+                if (s ~ /^[[:space:]]*linux/) { print s " dagric.a11y=1"; continue }
+                print s
+            }
+        }
+        exit 0
+    }' "$f" > "$f.a11y" || rc=$?
+    if [ "$rc" -eq 0 ] && [ -s "$f.a11y" ]; then mv "$f.a11y" "$f"; else rm -f "$f.a11y"; fi
+done
+
+# GRUB has no timeout line to rewrite — live-build never writes one — so add it
+# rather than sed it. Prepended, because a menuentry block must not be split and
+# the first line is the only position guaranteed to be outside one.
+if [ -f boot/grub/grub.cfg ] && ! grep -q '^set timeout=' boot/grub/grub.cfg; then
+    printf 'set default=0\nset timeout=%s\n%s\n' "$WAIT" "$(cat boot/grub/grub.cfg)" \
+        > boot/grub/grub.cfg.new && mv boot/grub/grub.cfg.new boot/grub/grub.cfg
+fi
+
+# The GRUB theme's title. This is NOT boot/grub/theme.cfg — that file only
+# points at the theme — it is theme.txt inside the theme directory, which is
+# why the previous sed here silently did nothing for months while the check
+# below reported success: it verified the MENU ENTRY text, which did apply.
+#
+# The title is blanked rather than branded. It renders centred at the top of the
+# screen, which is exactly where splash.png already puts the DAGRIC wordmark and
+# the tagline, so any title at all prints straight through the logo — the ISO
+# in hand renders "Live Boot Menu with GRUB" as a second line of text embossed
+# over "DAGRIC". The art already says whose OS this is; the edition is named in
+# the menu entries, which is where someone actually looks.
+THEMES=$(find boot/grub -name theme.txt 2>/dev/null)
+for f in $THEMES; do
+    sed -i 's/^\([[:space:]]*title-text:[[:space:]]*\).*/\1""/' "$f"
+done
+
+# Verify what was actually CHANGED, not merely something nearby. The old check
+# passed on the menu entries alone and so never noticed the title miss.
+HIT=0; MISS=""
 for f in isolinux/live.cfg boot/grub/grub.cfg; do
     [ -f "$f" ] || continue
     grep -q "$LIVE" "$f" && HIT=$((HIT+1))
 done
-if [ "$HIT" -ge 1 ]; then
-    echo "Boot menu branded for the $EDITION edition: \"$LIVE\""
+[ "$HIT" -ge 1 ] || MISS="$MISS edition-label"
+if [ -f boot/grub/grub.cfg ]; then
+    grep -q "^set timeout=$WAIT" boot/grub/grub.cfg || MISS="$MISS grub-timeout"
+fi
+if [ -f isolinux/isolinux.cfg ]; then
+    grep -qE "^[[:space:]]*timeout[[:space:]]+0[[:space:]]*$" isolinux/isolinux.cfg \
+        && MISS="$MISS isolinux-timeout"
+fi
+for f in $THEMES; do
+    grep -qE '^[[:space:]]*title-text:[[:space:]]*""' "$f" || MISS="$MISS theme-title"
+done
+# The accessible entry, checked in every menu file that actually holds live
+# entries. A file with no boot=live in it has no entry to have copied.
+for f in isolinux/live.cfg boot/grub/grub.cfg boot/grub/config.cfg; do
+    [ -f "$f" ] || continue
+    grep -q 'boot=live' "$f" || continue
+    grep -q 'dagric\.a11y=1' "$f" || MISS="$MISS a11y-entry:$f"
+done
+if [ -z "$MISS" ]; then
+    echo "Boot menu branded for the $EDITION edition: \"$LIVE\" (${WAIT}s timeout)"
+    echo "Accessible boot entry added: \"$A11Y\" (dagric.a11y=1)"
 else
-    echo "WARNING: boot-menu branding did not apply (upstream label changed?)"
+    echo "WARNING: boot-menu branding incomplete —$MISS"
 fi

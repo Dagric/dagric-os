@@ -14,7 +14,12 @@ EDITION="${EDITION:-free}"
 
 rsync -a --exclude 'out/' --exclude '.git/' /src/ /build/
 cd /build
-chmod +x auto/* config/hooks/normal/*.hook.chroot 2>/dev/null || true
+# *.hook.* and not *.hook.chroot: the boot-menu branding is a .hook.BINARY, so
+# it was outside this line and depended on the executable bit surviving a
+# Windows checkout and an rsync. A binary hook live-build declines to run fails
+# in silence — the ISO just comes out with Debian's generic boot menu and no
+# accessible ("with screen reader") entry.
+chmod +x auto/* config/hooks/normal/*.hook.* 2>/dev/null || true
 chmod +x config/includes.chroot/usr/bin/* config/includes.chroot/usr/lib/live/config/* \
          config/includes.chroot/usr/lib/dagric/* 2>/dev/null || true
 
@@ -55,6 +60,21 @@ if [ -n "$deep" ]; then
     echo "visible gain. Re-encode with: mogrify -depth 8 <file>" >&2
     for d in $deep; do echo "  $d" >&2; done
     exit 1
+fi
+
+# Same translation-drift gates as build.sh, and skipped the same way when the
+# tooling is absent — see the comment there. This container is a live-build
+# toolchain, not a translator's workstation, so the skip is the expected path
+# here; the catalogues are committed, so a skipped check costs nothing.
+if command -v msgfmt >/dev/null 2>&1; then
+    sh tools/i18n-build.sh --check
+else
+    echo "i18n: msgfmt not installed — skipping the catalogue drift check"
+fi
+if command -v python3 >/dev/null 2>&1; then
+    python3 tools/i18n-desktop.py --check
+else
+    echo "i18n: python3 not installed — skipping the .desktop drift check"
 fi
 
 lb clean

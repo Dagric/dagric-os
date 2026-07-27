@@ -4,3 +4,39 @@ FocusPolicy=ClickToFocus
 [Plugins]
 # No wobbly-window gimmicks eating GPU by default; users can turn them on.
 wobblywindowsEnabled=false
+# The magnifier. KDE documents its bindings as Meta++ to zoom in, Meta+- to
+# zoom back out and Meta+0 for actual size, and the effect registers them
+# itself — but be careful about repeating that as fact: `strings` over the
+# shipped kwin_wayland finds not one "Meta+" anywhere, because KWin sets those
+# defaults as compiled Qt key enums. So the bindings cannot be confirmed from
+# this image, only the KDE documentation, and they are NOT written out into
+# kglobalshortcutsrc: the action names are equally invisible in the binary, and
+# an entry under a guessed action name would shadow a working default with a
+# dead one. Meta+Alt+S was worth that risk (nothing else can start a screen
+# reader); a magnifier the owner can also reach through System Settings is not.
+#
+# What IS in Dagric's control, and what this line is for, is whether the effect
+# is loaded at all. KWin loads zoom by default today; a default we do not
+# control is not a promise we can make, and this is the one effect where "it
+# used to work" means somebody can no longer read their screen.
+zoomEnabled=true
+
+[Effect-zoom]
+# Deliberately left at KWin's defaults, with the keys named so they can be
+# found:
+#
+#   EnableFocusTracking=false      keep the zoomed view on the focused control
+#   EnableTextCaretTracking=false  keep it on the text cursor
+#
+# Both are what make the magnifier usable for real work rather than a party
+# trick, and both are off here on purpose, because neither does anything unless
+# the application being tracked has Qt's AT-SPI bridge switched on. Turning
+# them on in System Settings -> Accessibility is what triggers
+# /usr/lib/systemd/user-environment-generators/60-dagric-accessibility to
+# export QT_LINUX_ACCESSIBILITY_ALWAYS_ON=1 at the next login, which is what
+# makes them work. Setting them true here would enable a feature that silently
+# does nothing until a reboot nobody told the owner to perform.
+#
+# MousePointer=0 scales the pointer with the zoom (1 keeps it, 2 hides it).
+ZoomFactor=1.2
+MousePointer=0

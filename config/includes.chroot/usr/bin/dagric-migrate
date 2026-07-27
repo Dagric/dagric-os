@@ -7,23 +7,34 @@
 # touched, so the owner can go back any time. Copies never overwrite files
 # that already exist in the Linux home (--ignore-existing).
 # Free edition: this is the switcher's onboarding moment, so it ships everywhere.
+#
+# TRANSLATION: every string in this file is TIER ONE. This is the tool that
+# touches the owner's Windows partition, and the whole product rests on the
+# promise that Windows is only ever READ. A translation that loses "Windows
+# keeps its own untouched", or that renders "copied" as "moved", tells a
+# frightened Windows 10 refugee that their files are about to be taken away
+# from the machine they may still need to boot. Nothing here ships to a
+# customer until a native speaker has read it. Negation and modality are where
+# machine translation fails, and they are exactly what this file is made of.
+. /usr/bin/dagric-i18n.sh
 
-TITLE="Dagric Migration Assistant"
+TITLE=$(gettext "Dagric Migration Assistant")
 err() { kdialog --title "$TITLE" --sorry "$1" 2>/dev/null; }
 
 # --- 0. Live-session warning: the live home lives in RAM -------------------
 if [ -d /run/live/medium ]; then
     kdialog --title "$TITLE" --warningcontinuecancel \
-"You are running the LIVE session (from the USB stick).
+"$(gettext "You are running the LIVE session (from the USB stick).
 
 Anything copied here lands in memory and disappears at shutdown.
 Best order: install Dagric first, then run Migration from the Hub.
 
-Continue anyway (e.g. to rescue a few files)?" 2>/dev/null || exit 0
+Continue anyway (e.g. to rescue a few files)?")" 2>/dev/null || exit 0
 fi
 
 # --- 1. Find Windows: NTFS partitions that contain \Windows and \Users -----
-kdialog --title "$TITLE" --passivepopup "Looking for a Windows installation…" 6 2>/dev/null &
+kdialog --title "$TITLE" --passivepopup \
+    "$(gettext "Looking for a Windows installation…")" 6 2>/dev/null &
 
 CAND=/tmp/dagric-migrate-candidates.$$
 : > "$CAND"
@@ -64,20 +75,25 @@ trap cleanup EXIT
 
 if [ ! -s "$CAND" ]; then
     if [ -n "$BITLOCKER" ]; then
-        err "A BitLocker-encrypted drive was found ($BITLOCKER) but Dagric cannot
+        # TRANSLATORS: "Settings > Privacy & security > Device encryption" is
+        # a path through the WINDOWS settings app — use the wording Windows
+        # itself uses in your language, because that is what the owner will be
+        # reading on the other machine. "BitLocker" is a product name.
+        # "Nothing on the drive was changed" is a promise; keep it.
+        err "$(eval_gettext 'A BitLocker-encrypted drive was found ($BITLOCKER) but Dagric cannot
 unlock it without the recovery key.
 
 In Windows: turn off BitLocker (Settings > Privacy & security >
 Device encryption), or copy your files to a plain USB drive instead.
-Nothing on the drive was changed."
+Nothing on the drive was changed.')"
     else
-        err "No Windows installation was found on this PC's drives.
+        err "$(gettext "No Windows installation was found on this PC's drives.
 
 If a password prompt appeared and was cancelled, Dagric could not open
 the Windows drive to look inside — run this again and approve it.
 
 If Windows lives on a drive that isn't plugged in, connect it and
-run Migration again from the Dagric Hub. Nothing was changed."
+run Migration again from the Dagric Hub. Nothing was changed.")"
     fi
     exit 1
 fi
@@ -89,14 +105,23 @@ if [ "$N" -gt 1 ]; then
     # device path and an NTFS volume label, both attacker-influencable: a drive
     # named  x";rm -rf $HOME;"  would otherwise be EXECUTED when the menu string
     # was eval'd. `set --` passes each label as one argument, verbatim.
+    #
+    # The translated label goes through eval_gettext, which is still safe for
+    # exactly the same reason: eval_gettext does NOT eval. It pipes the msgstr
+    # through envsubst, which can only substitute variables the msgid already
+    # names, so neither the device path nor a msgstr from a translator can
+    # become code. The size is lifted into $sz first because envsubst
+    # interpolates variables, not command substitutions.
     set --
     i=0
     while IFS='	' read -r dev mnt; do
         i=$((i+1))
-        set -- "$@" "$i" "$dev — $(du -sh "$mnt/Users" 2>/dev/null | cut -f1) of user files"
+        sz=$(du -sh "$mnt/Users" 2>/dev/null | cut -f1)
+        set -- "$@" "$i" "$(eval_gettext '$dev — $sz of user files')"
     done < "$CAND"
     PICK=$(kdialog --title "$TITLE" \
-        --menu "Several Windows installations were found. Which one?" "$@" 2>/dev/null) || exit 0
+        --menu "$(gettext "Several Windows installations were found. Which one?")" \
+        "$@" 2>/dev/null) || exit 0
 else
     PICK=1
 fi
@@ -109,7 +134,8 @@ find "$WINMNT/Users" -mindepth 1 -maxdepth 1 -type d 2>/dev/null \
     | grep -viE '/(Public|Default|Default User|All Users)$' > "$PROFILES"
 PN=$(wc -l < "$PROFILES")
 if [ "$PN" -eq 0 ]; then
-    err "No user profiles were found in $WINMNT/Users."; rm -f "$PROFILES"; exit 1
+    err "$(eval_gettext 'No user profiles were found in $WINMNT/Users.')"
+    rm -f "$PROFILES"; exit 1
 elif [ "$PN" -gt 1 ]; then
     # Same reasoning as above, and more pressing: these are Windows USER FOLDER
     # names, which routinely contain spaces and apostrophes ("Dave O'Brien") and
@@ -121,7 +147,8 @@ elif [ "$PN" -gt 1 ]; then
         set -- "$@" "$i" "$(basename "$p")"
     done < "$PROFILES"
     UPICK=$(kdialog --title "$TITLE" \
-        --menu "Which Windows user are you?" "$@" 2>/dev/null) || { rm -f "$PROFILES"; exit 0; }
+        --menu "$(gettext "Which Windows user are you?")" \
+        "$@" 2>/dev/null) || { rm -f "$PROFILES"; exit 0; }
 else
     UPICK=1
 fi
@@ -130,18 +157,26 @@ WINUSER=$(basename "$WINUSER_DIR")
 rm -f "$PROFILES"
 
 # --- 4. What to bring over --------------------------------------------------
+# The tags (docs, desk, pics, …) are what kdialog hands back and pairs_for()
+# maps to real Windows directory names, so they are never translated — only
+# the labels beside them are. Translating a tag would silently select nothing.
+#
+# TRANSLATORS: "(Files are COPIED — Windows keeps its own untouched.)" is the
+# single most important sentence in this tool. The owner is about to point it
+# at a Windows installation they may still need to boot. It must not read as
+# "moved", and the reassurance must survive.
 CHOICES=$(kdialog --title "$TITLE" --separate-output --checklist \
-"Found Windows user \"$WINUSER\". What should come over to Dagric?
-(Files are COPIED — Windows keeps its own untouched.)" \
- docs   "Documents"                        on \
- desk   "Desktop"                          on \
- pics   "Pictures"                         on \
- music  "Music"                            on \
- vids   "Videos"                           on \
- downl  "Downloads"                        off \
- marks  "Browser bookmarks (Chrome / Edge / Firefox)" on \
- tabs   "Browser tabs you had open"        on \
- pwds   "Saved passwords (Firefox only - Chrome explains why)" off \
+"$(eval_gettext 'Found Windows user "$WINUSER". What should come over to Dagric?
+(Files are COPIED — Windows keeps its own untouched.)')" \
+ docs   "$(gettext "Documents")"                        on \
+ desk   "$(gettext "Desktop")"                          on \
+ pics   "$(gettext "Pictures")"                         on \
+ music  "$(gettext "Music")"                            on \
+ vids   "$(gettext "Videos")"                           on \
+ downl  "$(gettext "Downloads")"                        off \
+ marks  "$(gettext "Browser bookmarks (Chrome / Edge / Firefox)")" on \
+ tabs   "$(gettext "Browser tabs you had open")"        on \
+ pwds   "$(gettext "Saved passwords (Firefox only - Chrome explains why)")" off \
  2>/dev/null) || exit 0
 [ -n "$CHOICES" ] || exit 0
 
@@ -165,26 +200,37 @@ for c in $CHOICES; do
 done
 FREE_KB=$(df -k "$HOME" | awk 'NR==2{print $4}')
 if [ "$NEED_KB" -gt "$FREE_KB" ]; then
-    err "Not enough space: your selection is $((NEED_KB/1024/1024)) GB but this
-disk only has $((FREE_KB/1024/1024)) GB free. Deselect some folders
-(Videos are usually the big one) and try again. Nothing was copied."
+    # envsubst interpolates VARIABLES, not arithmetic — $((...)) inside a
+    # msgid would come out literally — so the two figures are worked out here.
+    NEED_GB=$((NEED_KB/1024/1024))
+    FREE_GB=$((FREE_KB/1024/1024))
+    err "$(eval_gettext 'Not enough space: your selection is $NEED_GB GB but this
+disk only has $FREE_GB GB free. Deselect some folders
+(Videos are usually the big one) and try again. Nothing was copied.')"
     exit 1
 fi
 
 # --- 6. Copy (rsync: resumable, never overwrites existing Linux files) ------
 echo
-echo "=== Dagric Migration: copying from Windows user '$WINUSER' ==="
-echo "    reading $WINDEV mounted at $WINMNT (read-only; Windows is not modified)"
+# TRANSLATORS: "read-only; Windows is not modified" is the promise the whole
+# tool rests on. It is a statement of fact about what is happening right now —
+# keep it, and keep it in the present tense.
+dg_say "$(eval_gettext '=== Dagric Migration: copying from Windows user "$WINUSER" ===')"
+dg_say "$(eval_gettext '    reading $WINDEV mounted at $WINMNT (read-only; Windows is not modified)')"
 echo
+SKIPPED=$(gettext "    (some files could not be read — skipped)")
 for c in $CHOICES; do
     d=$(pairs_for "$c"); [ -n "$d" ] || continue
     for src in "$WINUSER_DIR/$d" "$WINUSER_DIR/OneDrive/$d"; do
         [ -d "$src" ] || continue
+        # Left untranslated on purpose: this is "SOURCE -> DESTINATION", two
+        # file paths and an arrow. There is no English in it to translate, and
+        # a translator cannot improve a path.
         echo "--- $src  ->  $HOME/$d"
         mkdir -p "$HOME/$d"
         rsync -rt --ignore-existing --info=progress2 \
             --exclude 'desktop.ini' --exclude 'Thumbs.db' --exclude '*.lnk' \
-            "$src/" "$HOME/$d/" || echo "    (some files could not be read — skipped)"
+            "$src/" "$HOME/$d/" || dg_say "$SKIPPED"
     done
 done
 
@@ -262,9 +308,13 @@ print("BOOKMARKS=%d" % len(rows))
 PYEOF
     if [ -s "$OUT" ]; then
         echo
-        echo "Bookmarks saved to: $OUT"
-        echo "Import them in Firefox:  Bookmarks > Manage Bookmarks >"
-        echo "Import and Backup > Import Bookmarks from HTML."
+        # TRANSLATORS: "Bookmarks > Manage Bookmarks > Import and Backup >
+        # Import Bookmarks from HTML" is a path through FIREFOX's own menus.
+        # Use the wording Firefox shows in your language, not a literal
+        # translation, or the owner will look for a menu item that is not there.
+        dg_say "$(eval_gettext 'Bookmarks saved to: $OUT')"
+        dg_say "$(gettext "Import them in Firefox:  Bookmarks > Manage Bookmarks >
+Import and Backup > Import Bookmarks from HTML.")"
     fi
 ;; esac
 
@@ -277,17 +327,19 @@ done
 
 if [ "$WANT_TABS" = yes ] || [ "$WANT_PWDS" = yes ]; then
     echo
-    echo "--- browser tabs and logins ---"
+    dg_say "$(gettext "--- browser tabs and logins ---")"
     PRIMARY=""
     if [ "$WANT_PWDS" = yes ]; then
         # A Firefox Primary Password can't be guessed; ask rather than fail.
         if grep -rqs '"encryptedPassword"' \
              "$WINUSER_DIR/AppData/Roaming/Mozilla/Firefox/Profiles" 2>/dev/null; then
+            # TRANSLATORS: "Primary Password" is Firefox's own term for the
+            # master password — use whatever Firefox calls it in your language.
             PRIMARY=$(kdialog --title "$TITLE" --password \
-"If this person set a Primary Password in Firefox, type it so the saved
+"$(gettext "If this person set a Primary Password in Firefox, type it so the saved
 logins can be unlocked.
 
-Leave it blank if they never set one (most people haven't)." 2>/dev/null) || PRIMARY=""
+Leave it blank if they never set one (most people haven't).")" 2>/dev/null) || PRIMARY=""
         fi
     fi
 
@@ -303,46 +355,67 @@ Leave it blank if they never set one (most people haven't)." 2>/dev/null) || PRI
     EXPORTED=$(printf '%s\n' "$RES" | sed -n 's/^EXPORTED=//p')
     MIGFAIL=$(printf '%s\n' "$RES" | sed -n 's/^FAILED=//p')
     # No TABS= line at all means the helper died outright rather than reporting.
+    #
+    # $MIGFAIL is either this sentence or the FAILED= line the Python helper
+    # printed. The helper's own text is not translated here — it comes from
+    # /usr/share/dagric/migrate-browser.py, which has its own strings; wrapping
+    # a value that arrived from another program in gettext() would look up a
+    # msgid that is not in the catalogue and change nothing.
     if ! printf '%s\n' "$RES" | grep -q '^TABS='; then
-        MIGFAIL="the browser recovery helper did not finish"
+        MIGFAIL=$(gettext "the browser recovery helper did not finish")
     fi
     if [ -n "$MIGFAIL" ]; then
-        echo "Some browser data could not be read: $MIGFAIL"
+        dg_say "$(eval_gettext 'Some browser data could not be read: $MIGFAIL')"
         [ -s "$BROWSER_LOG" ] && sed 's/^/  /' "$BROWSER_LOG"
     fi
     rm -f "$BROWSER_LOG"
 
     if [ "$WANT_TABS" = yes ]; then
         if [ "${N_TABS:-0}" -gt 0 ] 2>/dev/null; then
-            echo "Recovered ${N_TABS} open tabs -> ~/Windows-open-tabs.html"
+            # eval_ngettext, not eval_gettext: "1 open tabs" is wrong in
+            # English and much more wrong in the languages with three or four
+            # plural forms. ngettext picks the form from the target language's
+            # own Plural-Forms rule in the .po header.
+            dg_say "$(eval_ngettext \
+                'Recovered $N_TABS open tab -> ~/Windows-open-tabs.html' \
+                'Recovered $N_TABS open tabs -> ~/Windows-open-tabs.html' "$N_TABS")"
         elif [ -n "$MIGFAIL" ]; then
-            echo "No open tabs could be recovered - the session files could not be read."
-            echo "  A half-written session file (an unclean Windows shutdown) can cause this."
+            dg_say "$(gettext "No open tabs could be recovered - the session files could not be read.
+  A half-written session file (an unclean Windows shutdown) can cause this.")"
         else
-            echo "No open tabs were found (the browsers may have been closed cleanly)."
+            dg_say "$(gettext "No open tabs were found (the browsers may have been closed cleanly).")"
         fi
     fi
 
     if [ "$WANT_PWDS" = yes ]; then
         if [ "${N_PWDS:-0}" -gt 0 ] 2>/dev/null; then
-            echo "Recovered ${N_PWDS} Firefox logins -> ~/Windows-passwords.csv"
-            echo "  This file is PLAIN TEXT and readable only by you."
-            echo "  Import it, then delete it."
+            dg_say "$(eval_ngettext \
+                'Recovered $N_PWDS Firefox login -> ~/Windows-passwords.csv' \
+                'Recovered $N_PWDS Firefox logins -> ~/Windows-passwords.csv' "$N_PWDS")"
+            # TRANSLATORS: a plain-text file of the owner's passwords now
+            # exists on disk. "Import it, then delete it" is an instruction,
+            # and PLAIN TEXT must stay emphatic.
+            dg_say "$(gettext "  This file is PLAIN TEXT and readable only by you.
+  Import it, then delete it.")"
         else
-            echo "No Firefox logins were recovered."
+            dg_say "$(gettext "No Firefox logins were recovered.")"
             [ -n "$PWNOTE" ] && echo "  ($PWNOTE)"
         fi
         # Chrome/Edge: be straight about the cryptography.
         if [ "${CHROMEISH:-0}" = 1 ]; then
             if [ -n "$EXPORTED" ]; then
                 echo
-                echo "Found a password file exported from Chrome:"
+                dg_say "$(gettext "Found a password file exported from Chrome:")"
                 printf '%s\n' "$EXPORTED" | tr '|' '\n' | sed 's/^/  /'
-                echo "  Copy it to your home folder and import it the same way."
+                dg_say "$(gettext "  Copy it to your home folder and import it the same way.")"
             else
-                cat << 'EOF'
-
-Chrome / Edge passwords could NOT be read, and no tool can read them here:
+                echo
+                # TRANSLATORS: the two indented lines are paths through
+                # CHROME's and EDGE's settings, on the Windows machine — use
+                # the wording those browsers show in your language. The first
+                # paragraph explains WHY this cannot work; it is a security
+                # property, not an apology, and should not be softened into one.
+                dg_say "$(gettext "Chrome / Edge passwords could NOT be read, and no tool can read them here:
 they are encrypted with a Windows key tied to that Windows account, which
 does not exist on this system. That is a security feature, not a fault.
 
@@ -350,16 +423,22 @@ To bring them over, do this ONCE while still in Windows:
   Chrome : Settings > Autofill and passwords > Google Password Manager
            > Settings > Download file
   Edge   : Settings > Profiles > Passwords > ... > Export passwords
-Save the .csv, then run this migration again - it will pick it up.
-EOF
+Save the .csv, then run this migration again - it will pick it up.")"
             fi
         fi
     fi
 fi
 
 echo
-echo "=== Migration finished ==="
-SUMMARY="Done! Your Windows files are now in your Dagric home folder.
+dg_say "$(gettext "=== Migration finished ===")"
+# TRANSLATORS: the closing promise of the whole tool — "Windows itself was not
+# modified — it was only ever read" is the sentence the owner will remember,
+# and the one that decides whether they trust this product. Do not weaken the
+# negation. The ▸ chains are menu paths inside FIREFOX; use Firefox's own
+# wording in your language. File names (Windows-bookmarks.html,
+# Windows-open-tabs.html, Windows-passwords.csv) are literal and must not be
+# translated — the owner has to find them on disk.
+SUMMARY=$(gettext "Done! Your Windows files are now in your Dagric home folder.
 
 Windows itself was not modified — it was only ever read.
 
@@ -367,14 +446,16 @@ To finish up, in Firefox:
 • Bookmarks — Bookmarks ▸ Manage Bookmarks ▸ Import and Backup ▸
   Import Bookmarks from HTML ▸ Windows-bookmarks.html
 • Open tabs — import Windows-open-tabs.html the same way; they arrive as a
-  bookmark folder you can 'Open All in Tabs'"
+  bookmark folder you can 'Open All in Tabs'")
 
 if [ "${N_PWDS:-0}" -gt 0 ] 2>/dev/null; then
+    # TRANSLATORS: a warning that a plain-text password file is sitting in the
+    # owner's home folder. "Delete it once imported" must survive translation.
     SUMMARY="$SUMMARY
-• Passwords — Firefox ▸ Passwords ▸ ⋯ ▸ Import from a File ▸
+$(gettext "• Passwords — Firefox ▸ Passwords ▸ ⋯ ▸ Import from a File ▸
   Windows-passwords.csv   (KeePassXC on Pro can import the same file)
 
-⚠ Windows-passwords.csv is PLAIN TEXT. Delete it once imported."
+⚠ Windows-passwords.csv is PLAIN TEXT. Delete it once imported.")"
 fi
 
 kdialog --title "$TITLE" --msgbox "$SUMMARY" 2>/dev/null

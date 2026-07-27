@@ -5,22 +5,27 @@
 # ProtonUp-Qt (GPL-3.0) is a GUI for installing and managing Proton-GE / Wine-GE
 # compatibility versions for Steam and Lutris — a friendlier alternative to the
 # CLI `dagric-gaming` helper. Installed from Flathub as a per-user Flatpak.
-cat << 'EOF'
-Dagric — install ProtonUp-Qt
+. /usr/bin/dagric-i18n.sh
+
+# TRANSLATORS: "ProtonUp-Qt", "Proton-GE", "Wine-GE", "Steam", "Lutris" and
+# "Flathub" are product names — leave them exactly as they are.
+dg_say "$(gettext "Dagric — install ProtonUp-Qt
 
 ProtonUp-Qt is a free, open-source app for installing and switching between
 Proton-GE and Wine-GE versions for Steam and Lutris — no terminal needed.
-It installs from Flathub.
-EOF
+It installs from Flathub.")"
 
-printf '\nInstall ProtonUp-Qt now? [y/N] '
+printf '\n%s ' "$(gettext "Install ProtonUp-Qt now? [y/N]")"
 read ans
-case "$ans" in y|Y|yes|YES) ;; *) echo "No changes made."; exit 0 ;; esac
+if ! dg_is_yes "$ans"; then
+    dg_say "$(gettext "No changes made.")"
+    exit 0
+fi
 
 flatpak remote-add --user --if-not-exists flathub \
     https://dl.flathub.org/repo/flathub.flatpakrepo 2>/dev/null || true
 if flatpak install --user -y --noninteractive flathub net.davidotek.pupgui2; then
-    echo; echo "ProtonUp-Qt installed — launch it from the application launcher."
+    echo; dg_say "$(gettext "ProtonUp-Qt installed — launch it from the application launcher.")"
 else
-    echo; echo "Install did not complete. Check your network and try again."
+    echo; dg_say "$(gettext "Install did not complete. Check your network and try again.")"
 fi

@@ -28,7 +28,13 @@ mkdir -p "$BUILD"
 rsync -a --exclude 'out/' --exclude '.git/' "$SRC/" "$BUILD/"
 cd "$BUILD"
 
-chmod +x auto/* config/hooks/normal/*.hook.chroot 2>/dev/null || true
+# *.hook.* and not *.hook.chroot: the boot-menu branding is a .hook.BINARY and
+# was outside this line, so it depended entirely on the executable bit
+# surviving the checkout. On a Windows clone that bit is synthesised by the
+# drvfs mount rather than stored, and a binary hook live-build declines to run
+# fails silently — the ISO simply comes out with Debian's generic boot menu and
+# no accessible entry.
+chmod +x auto/* config/hooks/normal/*.hook.* 2>/dev/null || true
 chmod +x config/includes.chroot/usr/bin/* \
          config/includes.chroot/usr/lib/live/config/* \
          config/includes.chroot/usr/lib/dagric/* 2>/dev/null || true
@@ -88,6 +94,30 @@ if [ -n "$deep" ]; then
     echo "visible gain. Re-encode with: mogrify -depth 8 <file>" >&2
     for d in $deep; do echo "  $d" >&2; done
     exit 1
+fi
+
+# Translation drift. The .mo catalogues and the localised .desktop keys are
+# COMMITTED build products (see tools/i18n-build.sh for why), so the failure
+# this catches is somebody editing an English string and forgetting to
+# recompile: the catalogue still loads, still says the old thing, and the only
+# symptom is a language that quietly goes stale. Both checks are read-only and
+# exit non-zero on drift.
+#
+# SKIPPED rather than fatal when the tooling is absent. gettext and python3 are
+# build-HOST packages that the image does not need and the live-build container
+# is not required to carry; the catalogues are committed, so a host without
+# them still produces a fully translated ISO. Making this a hard requirement
+# would break the build for a check, which is the wrong trade — but it is
+# announced, because a gate that skips in silence is a gate nobody trusts.
+if command -v msgfmt >/dev/null 2>&1; then
+    sh tools/i18n-build.sh --check
+else
+    echo "i18n: msgfmt not installed — skipping the catalogue drift check"
+fi
+if command -v python3 >/dev/null 2>&1; then
+    python3 tools/i18n-desktop.py --check
+else
+    echo "i18n: python3 not installed — skipping the .desktop drift check"
 fi
 
 lb clean

@@ -6,40 +6,98 @@
 # so they're discoverable from the launcher instead of hidden on the CLI.
 # Edition-aware: Pro-only tools appear only on Pro. Nothing here changes the
 # system without the owner picking it and confirming.
+. /usr/bin/dagric-i18n.sh
+
 EDITION=$(cat /etc/dagric-edition 2>/dev/null || echo free)
+
+# The live USB, detected the same way dagric-firstrun does it. Used for exactly
+# one thing below: the wording of the hardware-check row, which is a decision
+# ("should I install this?") before the install and a diagnostic ("why is there
+# no Wi-Fi?") afterwards. It is NOT used to hide the row — see below.
+LIVE=no
+[ -d /run/live/medium ] && LIVE=yes
+
+# The text the konsole helpers print before waiting. It is looked up HERE, in
+# this process, and handed to the sub-shell as a positional parameter — never
+# pasted into the quoted script text. A msgstr is data written by a translator:
+# a French translation containing an apostrophe would close the single-quoted
+# script early. As an argument to printf it can only ever be printed.
+CLOSE=$(gettext "Press Enter to close...")
 
 # Build the menu: pairs of "tag" "label", grouped into sections. Rows whose
 # tag starts with "_" are section headers — picking one just reopens the Hub.
 # Pro appends its own sections below the free ones.
+#
+# TAGS ARE NEVER TRANSLATED. kdialog hands the tag back and the `case` at the
+# bottom matches on it, so a translated tag is a row that silently does
+# nothing. Only the labels go through gettext. Every tag added here needs a
+# matching case arm; a tag without one is a dead button that looks alive.
+#
+# The six leading spaces are indentation, not text, so they stay OUTSIDE the
+# gettext call — a translator should never be handed a string whose leading
+# whitespace is load-bearing.
+#
+# A few labels are bare product names (Steam, ProtonUp-Qt, DaVinci Resolve).
+# Those are deliberately NOT wrapped: a brand is the same word in every
+# language, and putting one in the catalogue only invites it to be "improved".
+
+# TRANSLATORS: a section heading in the Dagric Hub menu. The ── dashes are
+# decoration that pads the row to a comfortable width; re-cut them to whatever
+# length your words need. The row width is not load-bearing.
+H_START=$(gettext "──  Get started  ──────────────────")
+# TRANSLATORS: section heading — see the note on "Get started". Decoration only.
+H_LOOKS=$(gettext "──  Appearance  ───────────────────")
+# TRANSLATORS: section heading — see the note on "Get started". Decoration only.
+H_SYSTEM=$(gettext "──  System  ───────────────────────")
+# TRANSLATORS: section heading — see the note on "Get started". Decoration only.
+H_APPS=$(gettext "──  Add more apps  ────────────────")
+
+# The hardware check reads differently either side of an install, so it says
+# something different. Before the install it answers the question that decides
+# whether there is a sale at all; after it, the same report is what someone
+# pastes into a support request. One label cannot do both honestly.
+if [ "$LIVE" = yes ]; then
+    # TRANSLATORS: Hub row, live USB only. This is shown BEFORE anything is
+    # installed and it is the question the person is actually asking.
+    L_HWCHECK=$(gettext "Check this PC — will Dagric work here?")
+else
+    # TRANSLATORS: Hub row, installed system. Same tool as the live-USB row
+    # above, worded as the diagnostic it becomes once Dagric is on the disk.
+    L_HWCHECK=$(gettext "Check this PC — Wi-Fi, graphics, disk, Secure Boot")
+fi
+
 set -- \
-    _start   "──  Get started  ──────────────────" \
-    firstrun "      Set up Dagric (welcome wizard)" \
-    setup    "      Finish setup — drivers, printers" \
-    migrate  "      Migrate from Windows" \
-    guide    "      Welcome guide" \
-    manual   "      App manual" \
-    _looks   "──  Appearance  ───────────────────" \
-    gallery  "      Appearance gallery" \
-    display  "      Text size and night light" \
-    looks    "      Desktop layout" \
-    style    "      Colors and mood" \
-    variety  "      Rotating wallpapers" \
-    _system  "──  System  ───────────────────────" \
-    drivers  "      NVIDIA driver" \
-    security "      Security checkup" \
-    _apps    "──  Add more apps  ────────────────" \
+    _start   "$H_START" \
+    hwcheck  "      $L_HWCHECK" \
+    firstrun "      $(gettext "Set up Dagric (welcome wizard)")" \
+    setup    "      $(gettext "Finish setup — drivers, printers")" \
+    migrate  "      $(gettext "Migrate from Windows")" \
+    guide    "      $(gettext "Welcome page — what Dagric promises")" \
+    userguide "      $(gettext "User guide — your first week")" \
+    manual   "      $(gettext "App manual")" \
+    _looks   "$H_LOOKS" \
+    gallery  "      $(gettext "Appearance gallery")" \
+    display  "      $(gettext "Text size and night light")" \
+    looks    "      $(gettext "Desktop layout")" \
+    style    "      $(gettext "Colors and mood")" \
+    variety  "      $(gettext "Rotating wallpapers")" \
+    _system  "$H_SYSTEM" \
+    drivers  "      $(gettext "NVIDIA driver")" \
+    security "      $(gettext "Security Checkup")" \
+    access   "      $(gettext "Accessibility — screen reader, magnifier, contrast")" \
+    _apps    "$H_APPS" \
     steam       "      Steam" \
-    heroic      "      Heroic — Epic, GOG, Amazon" \
+    heroic      "      $(gettext "Heroic — Epic, GOG, Amazon")" \
     protonup    "      ProtonUp-Qt" \
-    gaming      "      Proton-GE for Steam" \
-    bottles     "      Windows apps — Bottles" \
-    onlyoffice  "      Office suite — ONLYOFFICE" \
-    joplin      "      Private notes — Joplin" \
-    localsend   "      Local sharing — LocalSend" \
-    cryptomator "      Cloud encryption — Cryptomator" \
-    upscayl     "      Image upscaler — Upscayl" \
+    gaming      "      $(gettext "Proton-GE for Steam")" \
+    bottles     "      $(gettext "Windows apps — Bottles")" \
+    onlyoffice  "      $(gettext "Office suite — ONLYOFFICE")" \
+    joplin      "      $(gettext "Private notes — Joplin")" \
+    localsend   "      $(gettext "Local sharing — LocalSend")" \
+    cryptomator "      $(gettext "Cloud encryption — Cryptomator")" \
+    upscayl     "      $(gettext "Image upscaler — Upscayl")" \
     resolve     "      DaVinci Resolve" \
-    ai          "      Local AI — Ollama"
+    ai          "      $(gettext "Local AI — Ollama")"
 # Pro adds only what Pro actually INSTALLS. The line is mechanical, not
 # marketing: a helper that just fetches a free app from Flathub, Debian or
 # upstream works identically on both editions, so it ships on both. The two
@@ -57,32 +115,62 @@ set -- \
 # that free users are forbidden to download things.
 if [ "$EDITION" = "pro" ]; then
     set -- "$@" \
-        _windows "──  Windows and security  ─────────" \
-        vm          "      Windows in a VM" \
-        usbprotect  "      USB protection"
+        _windows "$(gettext "──  Windows and security  ─────────")" \
+        vm          "      $(gettext "Windows in a VM")" \
+        usbprotect  "      $(gettext "USB protection")"
 fi
+
+# THE HARDWARE CHECK IS ON BOTH THE LIVE USB AND THE INSTALLED SYSTEM, on
+# purpose, and that is the less obvious of the two choices — the tool was
+# written to be run before an install.
+#
+# It stays after the install for three reasons. Its launcher entry
+# (dagric-hardware-check.desktop) is unconditional, so hiding the row here
+# would give the Hub and the application menu two different answers about
+# whether the tool exists — the kind of inconsistency that makes a nervous
+# owner think something is broken. Its report is the support artifact: "run
+# Check This PC and send me the report" is the first thing anyone answering a
+# question needs, and it cannot be the first thing they ask for if the tool is
+# only on a USB stick the owner has since reformatted. And the single most
+# common post-install complaint from this audience — "there is no Wi-Fi" — is
+# exactly what the tool diagnoses, naming the missing firmware file and saying
+# whether it is on the disc. Only the wording changes; see LIVE above.
 
 # A comfortable initial size; taller on Pro, which has one more section.
 # Both numbers are "chrome plus roughly 14px per row" — the ratio these sizes
-# have always encoded. Free now draws 28 rows (it gained the whole "Add more
-# apps" section, 13 rows, when the install helpers stopped being Pro-only);
-# Pro adds 3 more. The two editions are now much closer in height than they
-# were, which is the point. Guessing short only adds a scrollbar; guessing tall
+# have always encoded. Free draws 31 rows, three more than the 28 that 690
+# encoded: the hardware check, the accessibility row and the user guide.
+# Pro adds 3 more, for 34. Guessing short only adds a scrollbar; guessing tall
 # only adds whitespace. Re-derive it if you add another row.
-GEOM=440x690
-[ "$EDITION" = "pro" ] && GEOM=440x735
+#
+# The width went 440 -> 500 when the labels started being translated. German
+# runs roughly 30% longer than English and "Accessibility — screen reader,
+# magnifier, contrast" is the longest row in the file; kdialog treats geometry
+# as a hint and honours widget minimums, so 440 would not have truncated
+# anything — it would have quietly grown the window past the number written
+# here and made this comment a lie.
+GEOM=500x732
+[ "$EDITION" = "pro" ] && GEOM=500x777
 
 CHOICE=$(kdialog --title "Dagric Hub" --icon dagric-logo --geometry "$GEOM" \
-    --menu "What would you like to do?" "$@" 2>/dev/null) || exit 0
+    --menu "$(gettext "What would you like to do?")" "$@" 2>/dev/null) || exit 0
 [ -n "$CHOICE" ] || exit 0
 
 # Run a terminal helper in konsole and hold the window open afterwards.
+#
+# Two different "$1"s, and the difference matters. The one in double quotes is
+# expanded by THIS shell and becomes the command text. The one inside the
+# single quotes survives as literal text into the sub-shell, where it is that
+# shell's first positional parameter — i.e. $CLOSE, passed after the `sh`
+# placeholder that becomes its $0. The translated string therefore never
+# appears in the script text, only in its argument list.
 run_term() {
-    konsole -e sh -c "$1"' ; echo ; printf "Press Enter to close..." ; read x' &
+    konsole -e sh -c "$1"' ; echo ; printf "%s" "$1" ; read x' sh "$CLOSE" &
 }
 
 case "$CHOICE" in
     _*)       exec /usr/bin/dagric-hub ;;
+    hwcheck)  dagric-hardware-check & ;;
     firstrun) dagric-firstrun & ;;
     setup)    dagric-setup & ;;
     migrate)  run_term '/usr/bin/dagric-migrate' ;;
@@ -96,9 +184,28 @@ case "$CHOICE" in
     looks)    dagric-looks & ;;
     style)    dagric-style & ;;
     security) dagric-security-checkup & ;;
-    guide)    exec firefox file:///usr/share/dagric/welcome/index.html ;;
-    # Not a bare firefox call: dagric-manual passes the edition marker through,
-    # which is what makes the manual's "not on this edition" notes correct.
+    # kcm_access is the one page that gathers the screen reader, the magnifier,
+    # sticky/slow/bounce keys and the visible bell. It is reached this way
+    # rather than through dagric-accessibility.desktop because that file is
+    # written by 0530-accessibility.hook.chroot at build time, and a Hub row
+    # should not depend on a hook having run.
+    access)   systemsettings kcm_access & ;;
+    # THREE different documents, which is why the labels above spell out which
+    # is which. They used to read "Welcome guide" and "App manual", while the
+    # launcher carried an entry called "Welcome Guide" that opened a third
+    # thing — the user guide, which had no Hub row at all.
+    #
+    #   welcome/  what Dagric is and the promises it makes (one page)
+    #   guide/    the first week: updates, printers, Wi-Fi, shortcuts
+    #   manual/   95 pages, one per application, searchable by Windows name
+    #
+    # None is a bare firefox call. Each wrapper picks the owner's language
+    # (welcome/de/, guide/de/), and dagric-manual also passes the edition
+    # marker through, which is what makes the manual's "not on this edition"
+    # notes correct. Hardcoding a path here was how the Hub became the one
+    # door that always opened English.
+    guide)     exec /usr/bin/dagric-welcome ;;
+    userguide) dagric-guide & ;;
     manual)   dagric-manual & ;;
     drivers)   run_term 'pkexec /usr/bin/dagric-drivers' ;;
     bottles)     run_term '/usr/bin/dagric-get-bottles' ;;

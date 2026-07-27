@@ -1,0 +1,55 @@
+# Dagric OS — missing-firmware file paths, translated.
+# pattern | package | what the file is for | does that package ship on this ISO?
+#
+# The pattern is a shell glob matched against the firmware path the kernel
+# printed, e.g. "iwlwifi-so-a0-gf-a0-89.ucode" or "brcm/brcmfmac43455-sdio.bin".
+# FIRST MATCH WINS — specific rows must come before general ones. `intel/ibt-*`
+# is Bluetooth and lives above `intel/*`, which is everything else Intel.
+
+# --- Wi-Fi ------------------------------------------------------------------
+iwlwifi/*        | firmware-iwlwifi     | your Intel Wi-Fi card            | yes
+iwlwifi-*        | firmware-iwlwifi     | your Intel Wi-Fi card            | yes
+ath10k/*         | firmware-atheros     | your Qualcomm Wi-Fi card         | yes
+ath11k/*         | firmware-atheros     | your Qualcomm Wi-Fi card         | yes
+ath12k/*         | firmware-atheros     | your Qualcomm Wi-Fi card         | yes
+ath9k_htc/*      | firmware-atheros     | your Qualcomm USB Wi-Fi adapter  | yes
+ath6k/*          | firmware-atheros     | your Qualcomm Wi-Fi card         | yes
+qca/*            | firmware-atheros     | your Qualcomm Bluetooth          | yes
+brcm/*           | firmware-brcm80211   | your Broadcom Wi-Fi or Bluetooth | yes
+b43/*            | firmware-b43-installer | your Broadcom Wi-Fi card       | no
+rtw88/*          | firmware-realtek     | your Realtek Wi-Fi card          | yes
+rtw89/*          | firmware-realtek     | your Realtek Wi-Fi card          | yes
+rtlwifi/*        | firmware-realtek     | your Realtek Wi-Fi card          | yes
+rtl_bt/*         | firmware-realtek     | your Realtek Bluetooth           | yes
+rtl_nic/*        | firmware-realtek     | your Realtek wired network port  | yes
+mediatek/*       | firmware-misc-nonfree | your MediaTek Wi-Fi or Bluetooth | yes
+mrvl/*           | firmware-misc-nonfree | your Marvell Wi-Fi card         | yes
+ti-connectivity/* | firmware-ti-connectivity | your TI Wi-Fi card          | no
+regulatory.db*   | wireless-regdb       | the Wi-Fi radio rules database   | yes
+
+# --- Bluetooth (before the general Intel row) -------------------------------
+intel/ibt-*      | firmware-iwlwifi     | your Intel Bluetooth             | yes
+
+# --- Sound ------------------------------------------------------------------
+intel/sof/*      | firmware-sof-signed  | your laptop's sound chip         | yes
+intel/sof-tplg/* | firmware-sof-signed  | your laptop's sound chip         | yes
+cirrus/*         | firmware-sof-signed  | your laptop's speakers           | yes
+cs35l41-*        | firmware-sof-signed  | your laptop's speakers           | yes
+
+# --- Graphics ---------------------------------------------------------------
+amdgpu/*         | firmware-amd-graphics | your AMD graphics               | yes
+radeon/*         | firmware-amd-graphics | your AMD graphics               | yes
+i915/*           | firmware-misc-nonfree | your Intel graphics             | yes
+xe/*             | firmware-misc-nonfree | your Intel graphics             | yes
+nvidia/*         | firmware-nvidia-gsp  | your NVIDIA graphics             | no
+
+# --- Everything else Intel --------------------------------------------------
+intel/*          | firmware-misc-nonfree | an Intel component              | yes
+
+# --- Common harmless ones ---------------------------------------------------
+# These are asked for on machines that do not have the hardware at all, or are
+# optional tuning blobs. They are listed so the check can name them and move
+# on rather than presenting them as a fault.
+amd/*            | amd64-microcode      | your AMD processor               | yes
+amd-ucode/*      | amd64-microcode      | your AMD processor               | yes
+intel-ucode/*    | intel-microcode      | your Intel processor             | yes

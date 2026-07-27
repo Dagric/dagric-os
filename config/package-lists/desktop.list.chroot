@@ -65,9 +65,28 @@ plasma-systemmonitor
 # Accessibility — a screen reader is a legal procurement requirement in many
 # markets (EU EN 301 549, US Section 508); without it the OS can't be sold
 # to institutions and is unusable for blind users. Orca is MUTE without a
-# speech backend: speech-dispatcher + the espeak-ng voice are Recommends, and
-# --apt-recommends false drops them — verified absent in the built image, so
-# the accessibility claim was non-functional. Pin them explicitly.
+# voice module, and exactly ONE of the three lines below is what keeps it
+# talking. Naming which one matters, because the wrong reason gets "cleaned up"
+# by the next person:
+#
+#   speech-dispatcher            hard Depends of orca. Never at risk.
+#   speech-dispatcher-audio-plugins  hard Depends of speech-dispatcher
+#                                (versioned =). Never at risk either; it is
+#                                what provides spd_pipewire.so / spd_pulse.so.
+#   speech-dispatcher-espeak-ng  ** THE LOAD-BEARING PIN. ** It is only a
+#                                Recommends of speech-dispatcher, and
+#                                auto/config builds --apt-recommends false, so
+#                                without this line spd runs and says nothing.
+#                                Verified absent in the built image once.
+#   espeak-ng                    the CLI. NOT what makes Orca speak —
+#                                speech-dispatcher-espeak-ng pulls
+#                                libespeak-ng1 + espeak-ng-data itself. Kept
+#                                because spd-say/espeak-ng is what a spoken
+#                                boot prompt would use, and it costs little.
+#
+# 0530-accessibility.hook.chroot re-checks this whole chain on the built image
+# and fails the build if any link is missing. Debian's orca package ships no
+# .desktop file at all, so that hook also adds the menu entries — see it.
 orca
 speech-dispatcher-espeak-ng
 espeak-ng

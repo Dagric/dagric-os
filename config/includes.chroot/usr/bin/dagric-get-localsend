@@ -6,23 +6,27 @@
 # your local network — like AirDrop, but cross-platform and with no account,
 # no cloud, and no internet required. Deeply on-brand for a private OS.
 # Installed from the already-enabled Flathub as a per-user Flatpak (no root).
-cat << 'EOF'
-Dagric — install LocalSend (share files, privately)
+. /usr/bin/dagric-i18n.sh
+
+dg_say "$(gettext "Dagric — install LocalSend (share files, privately)
 
 LocalSend sends files and messages straight between your devices on the same
 network — phone, laptop, desktop — with no account, no cloud, and nothing
-leaving your network. It's the private alternative to AirDrop. From Flathub.
-EOF
+leaving your network. It's the private alternative to AirDrop. From Flathub.")"
 
-printf '\nInstall LocalSend now? [y/N] '
+printf '\n%s ' "$(gettext "Install LocalSend now? [y/N]")"
 read ans
-case "$ans" in y|Y|yes|YES) ;; *) echo "No changes made."; exit 0 ;; esac
+if ! dg_is_yes "$ans"; then
+    dg_say "$(gettext "No changes made.")"
+    exit 0
+fi
 
 flatpak remote-add --user --if-not-exists flathub \
     https://dl.flathub.org/repo/flathub.flatpakrepo 2>/dev/null || true
 if flatpak install --user -y --noninteractive flathub org.localsend.localsend_app; then
-    echo; echo "LocalSend installed — launch it from the application launcher."
-    echo "Install it on your phone too (same name) and they'll find each other."
+    echo
+    dg_say "$(gettext "LocalSend installed — launch it from the application launcher.")"
+    dg_say "$(gettext "Install it on your phone too (same name) and they'll find each other.")"
 else
-    echo; echo "Install did not complete. Check your network and try again."
+    echo; dg_say "$(gettext "Install did not complete. Check your network and try again.")"
 fi

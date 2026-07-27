@@ -59,7 +59,15 @@ XDG_CONF=${XDG_CONFIG_HOME:-$HOME/.config}
 LOOK_DIRS="/usr/share/dagric/looks /etc/dagric/looks $XDG_DATA/dagric/looks"
 THUMB_DIRS="/usr/share/dagric/appearance/thumbs /etc/dagric/appearance/thumbs $XDG_DATA/dagric/appearance/thumbs"
 STAMP=$XDG_CONF/dagric/firstrun-done
-TITLE="Set Up Dagric"
+
+# Language. The QML window's own chrome is not translated yet — that needs a
+# .qm and `qml6 --translation`, which is a separate piece of work. What IS
+# translated already is everything the SHELL hands the window: every wallpaper
+# name, layout name, layout description and accent label crosses into
+# catalog.json as data, so translating it here reaches the window for free.
+. /usr/bin/dagric-i18n.sh
+
+TITLE=$(gettext "Set Up Dagric")
 
 # Same delimiter reasoning as dagric-appearance: ASCII Unit Separator, not a
 # tab, because tab is IFS whitespace and `read` folds two of them into one.
@@ -212,8 +220,25 @@ wait_plasma() {
 # Debian's qml-qt6 package installs /usr/bin/qml6. If it is missing for any
 # reason we do NOT give up: a first run that fails to appear is worse than a
 # plain one, so fall through to the kdialog wizard at the bottom of this file.
+#
+# /usr/lib/dagric/wm/dagric-firstrun comes FIRST, and it is not a different
+# program — it is a symlink to the same interpreter, installed by
+# 0540-qml-wmclass.hook.chroot, that exists purely to change argv[0].
+#
+# Qt takes a window's WM_CLASS (X11) / app_id (Wayland) from
+# basename(argv[0]). Launched as `qml6`, this wizard came up as WM_CLASS
+# "qml6", which matches no .desktop file — so Plasma could not find
+# dagric-firstrun.desktop, ignored its Icon=dagric-logo, and put the Qt Quick
+# runtime's own gold "W" in the taskbar and title bar of the first window a
+# customer ever sees. It also meant this wizard and the appearance gallery
+# shared one window class and got grouped into a single taskbar button.
+#
+# Measured under Xvfb with xprop, not assumed:
+#   qml6                            -> WM_CLASS = "qml6", "Qml Runtime"
+#   symlink named dagric-firstrun   -> WM_CLASS = "dagric-firstrun", "Qml Runtime"
 QML=
-for cand in qml6 /usr/lib/qt6/bin/qml /usr/lib/x86_64-linux-gnu/qt6/bin/qml; do
+for cand in /usr/lib/dagric/wm/dagric-firstrun qml6 \
+            /usr/lib/qt6/bin/qml /usr/lib/x86_64-linux-gnu/qt6/bin/qml; do
     if command -v "$cand" >/dev/null 2>&1; then QML=$cand; break; fi
 done
 
@@ -258,7 +283,12 @@ collect_walls() {
         _nm=$(sed -n 's/.*"Name"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/p' \
               "$_d/metadata.json" 2>/dev/null | head -1)
         [ -n "$_nm" ] || _nm=$_id
-        printf "%s$SEP%s$SEP%s\n" "$_id" "$(flat "$_nm")" "$_img" >> "$WORK/walls.tsv"
+        # dg_tr, not gettext: a wallpaper with no "Name" in its metadata would
+        # otherwise ask the catalogue for the empty msgid, and gettext answers
+        # that with the .mo HEADER — "Project-Id-Version: dagric 1.0…" — as the
+        # wallpaper's name. The shipped names reach the .pot through
+        # tools/i18n-extract.sh, which reads the same metadata.json files.
+        printf "%s$SEP%s$SEP%s\n" "$_id" "$(dg_tr "$(flat "$_nm")")" "$_img" >> "$WORK/walls.tsv"
     done
 }
 
@@ -293,7 +323,8 @@ collect_layouts() {
             if [ "$_need" = "pro" ] && [ "$EDITION" != "pro" ]; then continue; fi
             [ -n "$(skey "$_f" SCRIPT)" ] || continue
             _name=$(flat "$(skey "$_f" NAME)"); [ -n "$_name" ] || _name=$_id
-            _desc=$(flat "$(skey "$_f" DESCRIPTION)")
+            _name=$(dg_tr "$_name")
+            _desc=$(dg_tr "$(flat "$(skey "$_f" DESCRIPTION)")")
             _sort=$(skey "$_f" SORT)
             case "$_sort" in ''|*[!0-9]*) _sort=50 ;; esac
             _thumb=
@@ -330,15 +361,19 @@ emit_layouts() {
 # id, label, "r,g,b" as kdeglobals wants it, and the hex the window paints the
 # swatch with. "default" means "whatever the colour scheme already highlights
 # with" — the same meaning ACCENT=default carries in a .style file.
-ACCENTS="default${SEP}Theme default${SEP}default${SEP}$BRAND
-blue${SEP}Dagric blue${SEP}63,169,245${SEP}#3fa9f5
-teal${SEP}Teal${SEP}38,180,166${SEP}#26b4a6
-green${SEP}Green${SEP}76,175,80${SEP}#4caf50
-amber${SEP}Amber${SEP}240,166,88${SEP}#f0a658
-coral${SEP}Coral${SEP}232,93,84${SEP}#e85d54
-violet${SEP}Violet${SEP}154,110,240${SEP}#9a6ef0
-pink${SEP}Pink${SEP}232,102,168${SEP}#e866a8
-slate${SEP}Slate${SEP}124,142,166${SEP}#7c8ea6"
+#
+# The ids in column one are matched by lookup_accent and are never translated;
+# only the labels are. "Dagric blue" keeps the brand word and translates the
+# colour: a German owner should read "Dagric Blau", not "Dagric blue".
+ACCENTS="default${SEP}$(gettext "Theme default")${SEP}default${SEP}$BRAND
+blue${SEP}$(gettext "Dagric blue")${SEP}63,169,245${SEP}#3fa9f5
+teal${SEP}$(gettext "Teal")${SEP}38,180,166${SEP}#26b4a6
+green${SEP}$(gettext "Green")${SEP}76,175,80${SEP}#4caf50
+amber${SEP}$(gettext "Amber")${SEP}240,166,88${SEP}#f0a658
+coral${SEP}$(gettext "Coral")${SEP}232,93,84${SEP}#e85d54
+violet${SEP}$(gettext "Violet")${SEP}154,110,240${SEP}#9a6ef0
+pink${SEP}$(gettext "Pink")${SEP}232,102,168${SEP}#e866a8
+slate${SEP}$(gettext "Slate")${SEP}124,142,166${SEP}#7c8ea6"
 
 printf '%s\n' "$ACCENTS" > "$WORK/accent.tsv"
 
@@ -531,7 +566,7 @@ set_scale() {   # <100|125|150>
             for _o in $(kscreen_outputs); do
                 kscreen-doctor "output.$_o.scale.$_f" >/dev/null 2>&1 && _any=1
             done
-            [ "$_any" = 1 ] || { notify "The text size could not be changed here. Open System Settings ▸ Display & Monitor to set it."; return 1; }
+            [ "$_any" = 1 ] || { notify "$(gettext "The text size could not be changed here. Open System Settings ▸ Display & Monitor to set it.")"; return 1; }
             ;;
         x11)
             kwriteconfig6 --file kdeglobals --group KScreen --key ScaleFactor "$_f" 2>/dev/null
@@ -629,7 +664,7 @@ undo_all() {
         restore_scale
         _did=1
     fi
-    [ "$_did" = 1 ] && notify "Your desktop is back the way it was."
+    [ "$_did" = 1 ] && notify "$(gettext "Your desktop is back the way it was.")"
     return 0
 }
 
@@ -665,15 +700,20 @@ run_helper() {
 # the Hub afterwards, and unlike the others nothing looks WRONG without it.
 fallback_wizard() {
     stamp
+    # $EDITION_NAME is "Dagric OS" or "Dagric OS Pro" — a product name, so it
+    # interpolates untranslated.
     kdialog --title "$TITLE" --icon dagric-logo --msgbox \
-"Welcome to $EDITION_NAME.
+"$(eval_gettext 'Welcome to $EDITION_NAME.
 
 The setup window could not be opened on this machine, so here is the
 short version. Every question can be skipped, and nothing here is
-permanent — you can change all of it later from the Dagric Hub." 2>/dev/null
+permanent — you can change all of it later from the Dagric Hub.')" 2>/dev/null
 
+    # light/dark/quit are tags the code below matches on — never translated.
     _m=$(kdialog --title "$TITLE" --icon dagric-logo --menu \
-        "Light or dark?" light "Light" dark "Dark" quit "Stop here — I'll finish later" \
+        "$(gettext "Light or dark?")" \
+        light "$(gettext "Light")" dark "$(gettext "Dark")" \
+        quit "$(gettext "Stop here — I'll finish later")" \
         2>/dev/null) || _m=
     [ "$_m" = "quit" ] && return 0
     if [ -n "$_m" ]; then capture_base; set_mode "$_m"; fi
@@ -685,16 +725,19 @@ permanent — you can change all of it later from the Dagric Hub." 2>/dev/null
     done < "$WORK/walls.tsv"
     if [ "$#" -gt 0 ]; then
         _w=$(kdialog --title "$TITLE" --icon dagric-logo --geometry 420x420 --menu \
-            "Pick a wallpaper:" "$@" quit "Stop here — I'll finish later" 2>/dev/null) || _w=
+            "$(gettext "Pick a wallpaper:")" "$@" \
+            quit "$(gettext "Stop here — I'll finish later")" 2>/dev/null) || _w=
         [ "$_w" = "quit" ] && return 0
         if [ -n "$_w" ] && [ -n "$(lookup_wall "$_w")" ]; then capture_base; set_wall "$_w"; fi
     fi
 
     if [ "$SCALE_MODE" != "none" ]; then
         _s=$(kdialog --title "$TITLE" --icon dagric-logo --menu \
-            "How big should everything be?" \
-            100 "Normal (100%)" 125 "Bigger (125%)" 150 "Biggest (150%)" \
-            quit "Stop here — I'll finish later" 2>/dev/null) || _s=
+            "$(gettext "How big should everything be?")" \
+            100 "$(gettext "Normal (100%)")" \
+            125 "$(gettext "Bigger (125%)")" \
+            150 "$(gettext "Biggest (150%)")" \
+            quit "$(gettext "Stop here — I'll finish later")" 2>/dev/null) || _s=
         [ "$_s" = "quit" ] && return 0
         if [ -n "$_s" ]; then capture_scale; set_scale "$_s"; fi
     fi
@@ -708,31 +751,41 @@ permanent — you can change all of it later from the Dagric Hub." 2>/dev/null
     done < "$WORK/layout.tsv"
     if [ "$#" -gt 0 ]; then
         _l=$(kdialog --title "$TITLE" --icon dagric-logo --geometry 560x340 --menu \
-            "Where should the taskbar go?" "$@" quit "Stop here — I'll finish later" 2>/dev/null) || _l=
+            "$(gettext "Where should the taskbar go?")" "$@" \
+            quit "$(gettext "Stop here — I'll finish later")" 2>/dev/null) || _l=
         [ "$_l" = "quit" ] && return 0
         _lf=$(lookup_layout "$_l")
         if [ -n "$_lf" ]; then capture_panels || true; set_layout "$_lf"; fi
     fi
 
     if [ "$HAS_WINDOWS" = true ]; then
+        # TRANSLATORS: "Windows is only ever READ — nothing there is changed"
+        # is the product's central promise, said to somebody who is afraid of
+        # losing the Windows install they may still need. Keep the negation and
+        # keep the emphasis on READ.
         if kdialog --title "$TITLE" --icon dagric-logo --yesno \
-"A Windows drive was found on this PC.
+"$(gettext "A Windows drive was found on this PC.
 
 Bring your Documents, Pictures, Music, Videos and browser bookmarks
-across now? Windows is only ever READ — nothing there is changed." 2>/dev/null; then
+across now? Windows is only ever READ — nothing there is changed.")" 2>/dev/null; then
             run_helper migrate
         fi
     fi
 
+    # TRANSLATORS: "Dagric Hub", "Dagric Manual" and "Set Up Dagric" are the
+    # names the owner has to TYPE into the launcher to find these things, so
+    # they must match the Name= of dagric-hub.desktop, dagric-manual.desktop
+    # and dagric-firstrun.desktop in your language, exactly. "Dagric Hub" is
+    # not translated at all — it is a product name.
     kdialog --title "$TITLE" --icon dagric-logo --msgbox \
-"You're set up.
+"$(gettext "You're set up.
 
 Everything else lives in the Dagric Hub — press the launcher and type
 \"Dagric Hub\". The offline User Guide is in there, and so is the
 Dagric Manual: a page on every app on this computer and what it
 replaced on Windows.
 
-To see this again, open \"Set Up Dagric\" from the launcher." 2>/dev/null
+To see this again, open \"Set Up Dagric\" from the launcher.")" 2>/dev/null
     return 0
 }
 
@@ -774,11 +827,24 @@ fi
 # window read the catalogue at all — without it Qt refuses the local-file
 # request and the wizard comes up empty. It applies to this process only, and
 # the only local file the window ever asks for is the catalogue just written.
+#
+# QT_LINUX_ACCESSIBILITY_ALWAYS_ON is the one that is easy to delete by
+# accident, because nothing visibly changes when it goes. Qt only builds an
+# application's accessible tree if D-Bus org.a11y.Status.IsEnabled was true
+# when the process started, or if this variable is set. This wizard AUTOSTARTS
+# at first login — before anyone has had a chance to switch a screen reader on,
+# and quite possibly before the a11y bus exists at all — so without this line
+# it is born mute and stays mute for its whole life, and every accessible name,
+# role and announcement in firstrun/main.qml is unreachable. It is set for this
+# process only; the session-wide equivalent is deliberately conditional, see
+# /usr/lib/systemd/user-environment-generators/60-dagric-accessibility.
 QT_MESSAGE_PATTERN='%{message}'
 QT_LOGGING_RULES='qml.debug=true'
 QT_QUICK_CONTROLS_STYLE=Basic
 QML_XHR_ALLOW_FILE_READ=1
+QT_LINUX_ACCESSIBILITY_ALWAYS_ON=1
 export QT_MESSAGE_PATTERN QT_LOGGING_RULES QT_QUICK_CONTROLS_STYLE QML_XHR_ALLOW_FILE_READ
+export QT_LINUX_ACCESSIBILITY_ALWAYS_ON
 
 last_wall=
 
@@ -841,7 +907,7 @@ last_wall=
             # the panels is visible, and a flicker on the last screen would
             # look like something went wrong.
             [ -n "$last_wall" ] && set_wall "$last_wall"
-            notify "Dagric is set up. Everything else lives in the Dagric Hub."
+            notify "$(gettext "Dagric is set up. Everything else lives in the Dagric Hub.")"
             ;;
         QUIT)
             : ;;

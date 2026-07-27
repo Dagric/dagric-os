@@ -6,22 +6,32 @@
 # containers, with a curated database of installers and gaming launchers —
 # a much friendlier front-end than raw Wine (which Pro also ships). Installed
 # from the already-enabled Flathub as a per-user Flatpak (no root needed).
-cat << 'EOF'
-Dagric — install Bottles (run Windows apps)
+#
+# The `cat << 'EOF'` block this file used to open with is now one gettext()
+# call. xgettext cannot see inside a heredoc at all, so left as it was this
+# helper would have stayed English while the Hub that launched it turned
+# German. The blank line inside the msgid is deliberate: the whole thing is
+# ONE translation unit, so a translator can rebuild the paragraph in an order
+# that reads naturally in their language instead of sentence by sentence.
+. /usr/bin/dagric-i18n.sh
+
+dg_say "$(gettext "Dagric — install Bottles (run Windows apps)
 
 Bottles is a free, open-source app that runs Windows programs and games on
-Linux inside self-contained "bottles", tuned per app for the best chance of
-working. It's the easy way to bring a Windows app across. Installs from Flathub.
-EOF
+Linux inside self-contained \"bottles\", tuned per app for the best chance of
+working. It's the easy way to bring a Windows app across. Installs from Flathub.")"
 
-printf '\nInstall Bottles now? [y/N] '
+printf '\n%s ' "$(gettext "Install Bottles now? [y/N]")"
 read ans
-case "$ans" in y|Y|yes|YES) ;; *) echo "No changes made."; exit 0 ;; esac
+if ! dg_is_yes "$ans"; then
+    dg_say "$(gettext "No changes made.")"
+    exit 0
+fi
 
 flatpak remote-add --user --if-not-exists flathub \
     https://dl.flathub.org/repo/flathub.flatpakrepo 2>/dev/null || true
 if flatpak install --user -y --noninteractive flathub com.usebottles.bottles; then
-    echo; echo "Bottles installed — launch it from the application launcher."
+    echo; dg_say "$(gettext "Bottles installed — launch it from the application launcher.")"
 else
-    echo; echo "Install did not complete. Check your network and try again."
+    echo; dg_say "$(gettext "Install did not complete. Check your network and try again.")"
 fi

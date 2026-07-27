@@ -20,4 +20,15 @@
 # reopened on EVERY login for exactly those people. New accounts never have
 # that file, so this is a no-op for them.
 rm -f "$HOME/.config/autostart/dagric-welcome.desktop"
-exec firefox file:///usr/share/dagric/welcome/index.html
+
+# The welcome page ships per language as welcome/<lang>/index.html, so open the
+# owner's copy rather than the English one. dg_localised falls back through
+# de_AT -> de -> English, which means a language nobody has translated lands on
+# a real page instead of a 404 — and this line does not have to change when a
+# language is added.
+. /usr/bin/dagric-i18n.sh
+PAGE=$(dg_localised /usr/share/dagric/welcome index.html) || {
+    dg_say "$(gettext "The Dagric welcome page is not installed.")" >&2
+    exit 1
+}
+exec firefox "file://$PAGE"

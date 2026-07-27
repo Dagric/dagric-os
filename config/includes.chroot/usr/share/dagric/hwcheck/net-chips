@@ -1,0 +1,76 @@
+# Dagric OS — network chips in plain words.
+# driver | plain name | firmware package | does that package ship on this ISO?
+#
+# The "ships" column is the whole point. "Your Wi-Fi needs firmware" is a
+# shrug; "Dagric already has that firmware, it just needs to be a newer
+# version" and "Dagric does not have it and you will need a cable once" are
+# two completely different afternoons for the owner.
+
+# --- Wi-Fi ------------------------------------------------------------------
+iwlwifi      | Intel Wi-Fi                       | firmware-iwlwifi     | yes
+iwlmvm       | Intel Wi-Fi                       | firmware-iwlwifi     | yes
+iwldvm       | Intel Wi-Fi (older)               | firmware-iwlwifi     | yes
+ath5k        | Qualcomm Atheros Wi-Fi (older)    |                      | yes
+ath9k        | Qualcomm Atheros Wi-Fi            | firmware-atheros     | yes
+ath9k_htc    | Qualcomm Atheros USB Wi-Fi        | firmware-atheros     | yes
+ath10k_pci   | Qualcomm Atheros Wi-Fi            | firmware-atheros     | yes
+ath10k_sdio  | Qualcomm Atheros Wi-Fi            | firmware-atheros     | yes
+ath11k_pci   | Qualcomm Wi-Fi 6                  | firmware-atheros     | yes
+ath12k       | Qualcomm Wi-Fi 7                  | firmware-atheros     | yes
+brcmfmac     | Broadcom Wi-Fi                    | firmware-brcm80211   | yes
+brcmsmac     | Broadcom Wi-Fi                    | firmware-brcm80211   | yes
+# b43 and wl are the old Broadcom cards in pre-2013 MacBooks and budget
+# laptops. Debian cannot redistribute either blob, so neither is on the ISO
+# and neither can be fixed without plugging in a cable first. Saying so is the
+# single most useful thing this table does.
+b43          | Broadcom Wi-Fi (older)            | firmware-b43-installer | no
+b43legacy    | Broadcom Wi-Fi (very old)         | firmware-b43legacy-installer | no
+wl           | Broadcom Wi-Fi (proprietary)      | broadcom-sta-dkms    | no
+rtw88_pci    | Realtek Wi-Fi                     | firmware-realtek     | yes
+rtw88_usb    | Realtek USB Wi-Fi                 | firmware-realtek     | yes
+rtw89_pci    | Realtek Wi-Fi 6                   | firmware-realtek     | yes
+rtl8xxxu     | Realtek USB Wi-Fi                 | firmware-realtek     | yes
+rtl8192cu    | Realtek USB Wi-Fi                 | firmware-realtek     | yes
+rtlwifi      | Realtek Wi-Fi                     | firmware-realtek     | yes
+mt7601u      | MediaTek USB Wi-Fi                | firmware-misc-nonfree | yes
+mt76x0u      | MediaTek USB Wi-Fi                | firmware-misc-nonfree | yes
+mt76x2u      | MediaTek USB Wi-Fi                | firmware-misc-nonfree | yes
+mt7921e      | MediaTek Wi-Fi 6                  | firmware-misc-nonfree | yes
+mt7922       | MediaTek Wi-Fi 6E                 | firmware-misc-nonfree | yes
+mt7925e      | MediaTek Wi-Fi 7                  | firmware-misc-nonfree | yes
+mt7663       | MediaTek Wi-Fi                    | firmware-misc-nonfree | yes
+rt2800pci    | Ralink Wi-Fi                      | firmware-misc-nonfree | yes
+rt2800usb    | Ralink USB Wi-Fi                  | firmware-misc-nonfree | yes
+mwifiex_pcie | Marvell Wi-Fi                     | firmware-misc-nonfree | yes
+mwifiex_sdio | Marvell Wi-Fi                     | firmware-misc-nonfree | yes
+wilc1000     | Microchip Wi-Fi                   | firmware-misc-nonfree | yes
+
+# --- Wired network ports ----------------------------------------------------
+# Nearly all of these work with no firmware at all, which is why the wired
+# port is the reliable rescue path when Wi-Fi is the thing that is broken.
+e1000        | Intel wired network port          |                      | yes
+e1000e       | Intel wired network port          |                      | yes
+igb          | Intel wired network port          |                      | yes
+igc          | Intel 2.5-gigabit wired port      |                      | yes
+ixgbe        | Intel 10-gigabit wired port       |                      | yes
+r8169        | Realtek wired network port        | firmware-realtek     | yes
+r8125        | Realtek 2.5-gigabit wired port    | firmware-realtek     | yes
+atl1c        | Atheros wired network port        |                      | yes
+tg3          | Broadcom wired network port       |                      | yes
+bnx2         | Broadcom wired network port       | firmware-bnx2        | no
+sky2         | Marvell wired network port        |                      | yes
+via-rhine    | VIA wired network port            |                      | yes
+cdc_ether    | USB or phone-tethered network     |                      | yes
+cdc_ncm      | USB or phone-tethered network     |                      | yes
+rndis_host   | phone-tethered network            |                      | yes
+ax88179_178a | USB network adapter               |                      | yes
+r8152        | Realtek USB network adapter       |                      | yes
+asix         | USB network adapter               |                      | yes
+
+# --- Virtual machines -------------------------------------------------------
+# Not real hardware. Named anyway so a report from a VM does not read as a
+# fault, which matters because most of our own testing happens in one.
+virtio_net   | virtual network card (VM)         |                      | yes
+e1000_virtio | virtual network card (VM)         |                      | yes
+vmxnet3      | VMware virtual network card       |                      | yes
+hv_netvsc    | Hyper-V virtual network card      |                      | yes

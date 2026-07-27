@@ -4,23 +4,28 @@
 # Dagric OS — proprietary driver setup, done honestly.
 # Detects an NVIDIA GPU and installs the driver from Debian's own
 # non-free repository. Nothing runs without the owner asking for it.
+#
+# This runs as root, under sudo or pkexec. Both keep LANG/LC_* from the calling
+# session — polkit's env whitelist includes the locale variables — so the owner
+# still reads this in their own language after authenticating.
 set -e
+. /usr/bin/dagric-i18n.sh
 
 if [ "$(id -u)" != "0" ]; then
-    echo "Run with sudo: sudo dagric-drivers"
+    # TRANSLATORS: "sudo dagric-drivers" is a command typed verbatim.
+    dg_say "$(gettext "Run with sudo: sudo dagric-drivers")"
     exit 1
 fi
 
-echo "Dagric driver check"
+dg_say "$(gettext "Dagric driver check")"
 echo "---------------------"
 if lspci | grep -qi 'vga.*nvidia\|3d.*nvidia'; then
-    echo "NVIDIA GPU detected:"
+    dg_say "$(gettext "NVIDIA GPU detected:")"
     lspci | grep -i nvidia
     echo ""
-    printf "Install the NVIDIA proprietary driver from Debian non-free? [y/N] "
+    printf '%s ' "$(gettext "Install the NVIDIA proprietary driver from Debian non-free? [y/N]")"
     read -r answer
-    case "$answer" in
-        y|Y)
+    if dg_is_yes "$answer"; then
             # Secure Boot check UP FRONT: an unsigned DKMS module won't load
             # under enforcing Secure Boot, which strands the user at a black
             # screen after reboot. Detect it so we can walk them through MOK
@@ -31,10 +36,13 @@ if lspci | grep -qi 'vga.*nvidia\|3d.*nvidia'; then
             fi
             if [ "$SB" = "enabled" ]; then
                 echo ""
-                echo "NOTE: Secure Boot is ON. The NVIDIA driver builds a kernel"
-                echo "module that must be signed and enrolled, or it won't load"
-                echo "(black screen). Dagric will set up the signing key and ask"
-                echo "you to enroll it — you'll finish that at the next reboot."
+                # TRANSLATORS: this warns that skipping the enrollment step
+                # leaves the machine at a BLACK SCREEN after reboot. Keep that
+                # consequence explicit — it is the whole point of the notice.
+                dg_say "$(gettext "NOTE: Secure Boot is ON. The NVIDIA driver builds a kernel
+module that must be signed and enrolled, or it won't load
+(black screen). Dagric will set up the signing key and ask
+you to enroll it — you'll finish that at the next reboot.")"
                 echo ""
             fi
 
@@ -49,23 +57,27 @@ if lspci | grep -qi 'vga.*nvidia\|3d.*nvidia'; then
                     update-secureboot-policy --enroll-key 2>/dev/null || true
                 fi
                 echo ""
-                echo "IMPORTANT — finish Secure Boot enrollment:"
-                echo "  1. Reboot now."
-                echo "  2. At the blue 'MOK Management' screen, choose"
-                echo "     'Enroll MOK' -> 'Continue' and enter the password"
-                echo "     you were just asked for."
-                echo "  3. The system boots into the NVIDIA driver."
-                echo "If you skip this, the driver won't load and you'll fall"
-                echo "back to the open-source driver. You can re-run this anytime."
+                # TRANSLATORS: 'MOK Management', 'Enroll MOK' and 'Continue' are
+                # the literal words on the blue firmware screen at the next
+                # boot. That screen is ENGLISH ONLY and cannot be translated, so
+                # these three must stay in English or the owner will hunt for a
+                # button that is not there. Everything around them should be
+                # translated.
+                dg_say "$(gettext "IMPORTANT — finish Secure Boot enrollment:
+  1. Reboot now.
+  2. At the blue 'MOK Management' screen, choose
+     'Enroll MOK' -> 'Continue' and enter the password
+     you were just asked for.
+  3. The system boots into the NVIDIA driver.
+If you skip this, the driver won't load and you'll fall
+back to the open-source driver. You can re-run this anytime.")"
             else
-                echo "Done. Reboot to switch to the NVIDIA driver."
+                dg_say "$(gettext "Done. Reboot to switch to the NVIDIA driver.")"
             fi
-            ;;
-        *)
-            echo "Nothing changed."
-            ;;
-    esac
+    else
+            dg_say "$(gettext "Nothing changed.")"
+    fi
 else
-    echo "No NVIDIA GPU found. AMD and Intel graphics use the built-in"
-    echo "open-source drivers — nothing to install."
+    dg_say "$(gettext "No NVIDIA GPU found. AMD and Intel graphics use the built-in
+open-source drivers — nothing to install.")"
 fi

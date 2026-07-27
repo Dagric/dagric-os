@@ -1,0 +1,49 @@
+#!/bin/sh
+# Dagric OS live session: put "Check This PC" on the desktop, next to
+# "Install Dagric OS".
+#
+# WHY THIS IS THE PLACEMENT THAT MATTERS. dagric-hardware-check answers the one
+# question the live USB otherwise leaves hanging — will the Wi-Fi work, is the
+# disk BitLocker'd, is this machine even 64-bit UEFI — and it is worth nothing
+# if it is found AFTER the install. The application menu is not good enough:
+# somebody evaluating an unfamiliar OS for ten minutes clicks what is on the
+# screen. The installer icon is already there, and the whole point is that this
+# should be the thing you click FIRST.
+#
+# Live-only, on purpose. live-config never runs on an installed system, so this
+# does not litter the desktop of a machine somebody has actually installed —
+# there the tool stays in the launcher and in the Hub, where a support request
+# can send them.
+#
+# The .desktop is copied rather than symlinked because KDE marks a desktop
+# launcher trusted by writing to the file, and a symlink into /usr/share would
+# either fail (read-only medium) or scribble on the system copy.
+Dagric_hwcheck_icon ()
+{
+    SRC=/usr/share/applications/dagric-hardware-check.desktop
+    [ -f "$SRC" ] || return 0
+
+    for H in /home/*; do
+        [ -d "$H" ] || continue
+        U=$(basename "$H")
+        # Honour the localised Desktop folder name if xdg-user-dirs has already
+        # written one (Schreibtisch, Bureau, Escritorio); fall back to Desktop,
+        # which is what Plasma creates when it has nothing else to go on.
+        D=$H/Desktop
+        if [ -r "$H/.config/user-dirs.dirs" ]; then
+            X=$(sed -n 's/^XDG_DESKTOP_DIR="\(.*\)"$/\1/p' "$H/.config/user-dirs.dirs" | head -1)
+            case "$X" in
+                '$HOME'/*) D=$H/${X#\$HOME/} ;;
+                /*)        D=$X ;;
+            esac
+        fi
+        mkdir -p "$D" || continue
+        cp "$SRC" "$D/dagric-hardware-check.desktop" || continue
+        # 0755: Plasma refuses to run a desktop launcher that is not executable
+        # and shows it as a text file instead, which looks broken.
+        chmod 0755 "$D/dagric-hardware-check.desktop"
+        chown "$U:$U" "$D/dagric-hardware-check.desktop" 2>/dev/null || true
+        chown "$U:$U" "$D" 2>/dev/null || true
+    done
+}
+Dagric_hwcheck_icon

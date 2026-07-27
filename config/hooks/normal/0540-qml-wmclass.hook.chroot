@@ -1,0 +1,57 @@
+#!/bin/sh
+# SPDX-FileCopyrightText: 2026 DGR Operations <repo@dagric.com>
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Dagric OS — give the QML apps their own window class, so the taskbar shows
+# the Dagric logo instead of a stranger's icon.
+#
+# THE BUG THIS FIXES, seen in a QEMU boot of the shipping ISO: the first-run
+# wizard appears in the taskbar as a gold "W" on a tan circle. Not the Dagric
+# D, not anything to do with this product — the Qt Quick runtime's own icon.
+# It is the first window a customer ever sees and it is wearing someone else's
+# badge.
+#
+# WHY. Plasma decides which launcher entry a window belongs to by matching its
+# WM_CLASS (X11) / app_id (Wayland) against the .desktop files it knows. Both
+# QML apps here are started by running the shared interpreter, /usr/bin/qml6,
+# and Qt takes the window class from basename(argv[0]) — so both windows come
+# up as "qml6", which matches no .desktop file at all. Icon=dagric-logo in
+# dagric-firstrun.desktop is correct and was never being consulted.
+#
+# Measured, not assumed. Under Xvfb with xprop:
+#   launched as qml6              -> WM_CLASS = "qml6", "Qml Runtime"
+#   launched via a renamed symlink -> WM_CLASS = "dagric-firstrun", "Qml Runtime"
+#
+# So each app gets its own name for the interpreter. A symlink costs nothing,
+# needs no compiler, and survives a qml-qt6 upgrade because it points at the
+# packaged path rather than copying anything.
+#
+# There is a second bug fixed for free here: with both windows reporting the
+# same class, Plasma grouped the wizard and the appearance gallery into one
+# taskbar button, so opening one while the other was up looked like the window
+# had vanished.
+set -e
+
+QML=
+for c in /usr/bin/qml6 /usr/lib/qt6/bin/qml /usr/lib/x86_64-linux-gnu/qt6/bin/qml; do
+    [ -x "$c" ] && { QML=$c; break; }
+done
+
+if [ -z "$QML" ]; then
+    # Not fatal: both launchers already fall back to a kdialog version when the
+    # QML runtime is absent, and that path has no window class to fix.
+    echo "0540-qml-wmclass: no QML runtime found, skipping" >&2
+    exit 0
+fi
+
+mkdir -p /usr/lib/dagric/wm
+for app in dagric-firstrun dagric-appearance; do
+    ln -sf "$QML" "/usr/lib/dagric/wm/$app"
+done
+
+# Verify, because a silently-missing symlink puts the gold W straight back.
+for app in dagric-firstrun dagric-appearance; do
+    if [ ! -x "/usr/lib/dagric/wm/$app" ]; then
+        echo "WARNING: /usr/lib/dagric/wm/$app is not executable" >&2
+    fi
+done
+echo "0540-qml-wmclass: window classes wired to $QML"

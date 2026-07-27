@@ -1,9 +1,98 @@
 #!/bin/sh
 # SPDX-FileCopyrightText: 2026 DGR Operations <repo@dagric.com>
 # SPDX-License-Identifier: GPL-3.0-or-later
-# Dagric OS — generate the default locale.
+# Dagric OS — generate the locales the image can actually be used in.
 # Without this every terminal session complains "cannot change locale".
+#
+# WHY THIS FILE NO LONGER DOES  echo ... > /etc/locale.gen
+# ---------------------------------------------------------
+# It used to, and that broke every non-English install.
+#
+# The `locales` package ships /etc/locale.gen as a 509-line template in which
+# every locale is present but COMMENTED OUT. Both of the mechanisms that are
+# supposed to give a user a non-English system work by UNCOMMENTING a line in
+# that template:
+#
+#   * the live session — /usr/lib/live/config/0050-locales handles the
+#     `locales=de_DE.UTF-8` boot parameter with
+#         sed -i -e "s|# ${_LOCALE} ${_CHARSET}|${_LOCALE} ${_CHARSET}|" /etc/locale.gen
+#         locale-gen --keep-existing
+#
+#   * the installed system — Calamares' localecfg/main.py calls
+#     rewrite_locale_gen(), which only enables locales it can find as
+#     COMMENTED lines in the target's /etc/locale.gen.
+#
+# Overwriting the file with a single line left both of them nothing to
+# uncomment. The sed matched nothing; Calamares fell through to writing
+# "# Missing: de_DE.UTF-8" and generated only en_US.UTF-8 — and then wrote
+# LANG=de_DE.UTF-8 into /etc/locale.conf and /etc/default/locale anyway. The
+# result was an installed system whose LANG pointed at a locale that had never
+# been generated: setlocale fails, everything falls back to C, the "cannot
+# change locale" warnings this hook exists to prevent come back, and all 219
+# language directories of KDE and Debian translation already sitting on the
+# disk are ignored. For non-English users only, and silently.
+#
+# So: uncomment, never clobber. The template is plain text and costs nothing.
 set -e
-echo "en_US.UTF-8 UTF-8" > /etc/locale.gen
+
+# The languages Dagric itself ships a catalogue for, plus English. These are
+# GENERATED here rather than merely left uncommented, because the live session
+# has no installer to run locale-gen for it — somebody booting the USB stick to
+# try Dagric in French before buying it gets French only if fr_FR.UTF-8 already
+# exists on the medium. Each generated UTF-8 locale costs a few hundred KB in
+# /usr/lib/locale/locale-archive, so this list stops at the languages we ship
+# and deliberately does not become "all 509".
+#
+# KEEP THIS IN STEP WITH po/*.po. A .mo on disk is worthless if its locale was
+# never generated: gettext looks the string up under a locale that does not
+# exist, misses, and the owner gets English with no explanation at all.
+DAGRIC_LOCALES="en_US.UTF-8 de_DE.UTF-8 fr_FR.UTF-8 es_ES.UTF-8 pt_BR.UTF-8 it_IT.UTF-8"
+
+for loc in $DAGRIC_LOCALES; do
+    # Uncomment the template's line if it is there ...
+    sed -i "s/^# *\($loc UTF-8\)\$/\1/" /etc/locale.gen
+    # ... and append it if the template never carried it, so a future `locales`
+    # package that drops a line cannot silently drop one of our languages.
+    grep -q "^$loc UTF-8" /etc/locale.gen || printf '%s UTF-8\n' "$loc" >> /etc/locale.gen
+done
+
 locale-gen
 update-locale LANG=en_US.UTF-8
+
+# ---------------------------------------------------------------------------
+# Assert that the translations are actually on the image.
+#
+# The .mo catalogues are compiled on the BUILD HOST by tools/i18n-build.sh and
+# committed under config/includes.chroot, because msgfmt lives in the `gettext`
+# package and that is a build tool with no business on a desktop ISO. The
+# failure mode that buys is a quiet one: somebody edits an English string,
+# forgets to re-run the script, and the ISO ships a catalogue that no longer
+# matches — or adds po/xx.po and never compiles it, and the only symptom is a
+# language that mysteriously stays English.
+#
+# Build time is the right place to be strict about that. Runtime deliberately
+# is not: dagric-i18n.sh degrades to English rather than refusing to run.
+LOCALEDIR=/usr/share/locale
+missing=
+for lang in de fr es pt_BR it; do
+    [ -s "$LOCALEDIR/$lang/LC_MESSAGES/dagric.mo" ] || missing="$missing $lang"
+done
+if [ -n "$missing" ]; then
+    echo "ERROR: no dagric.mo for:$missing" >&2
+    echo "       Run  sh tools/i18n-build.sh  and commit the result." >&2
+    exit 1
+fi
+
+# gettext-base ships /usr/bin/gettext.sh, which every dagric-* tool sources.
+# It is Priority: standard so it arrives on its own today, but auto/config
+# builds with --apt-recommends false, and a tool that speaks English because a
+# dependency quietly stopped arriving is a bug nobody would notice in testing.
+# Say so loudly here; the fix is one line in config/package-lists.
+if [ ! -r /usr/bin/gettext.sh ]; then
+    echo "WARNING: gettext-base is not installed — /usr/bin/gettext.sh is missing." >&2
+    echo "         The dagric-* tools will fall back to English on every locale." >&2
+    echo "         Add gettext-base to config/package-lists/system.list.chroot." >&2
+fi
+
+echo "locales: generated $DAGRIC_LOCALES"
+echo "locales: dagric.mo present for de fr es pt_BR it"

@@ -54,6 +54,16 @@ fwupd
 # Locales — without this, every terminal shows locale warnings
 # (found by the install run-through test)
 locales
+# gettext-base ships /usr/bin/gettext and /usr/bin/gettext.sh, which every
+# dagric-* tool now sources through /usr/bin/dagric-i18n.sh. It is Priority:
+# standard and does arrive implicitly today (verified in out/build-free.log),
+# but arriving implicitly is exactly how Orca lost its speech engine and how
+# python3 nearly lost the migration assistant: --apt-recommends false plus a
+# changed Priority upstream is all it takes. The failure mode is silent — every
+# tool keeps running and every one of them speaks English on a German machine —
+# so pin it. 0150-locales.hook.chroot warns at build time if it is absent, but
+# a warning is not a gate.
+gettext-base
 
 # Windows-switcher care: read the drives people bring with them
 ntfs-3g

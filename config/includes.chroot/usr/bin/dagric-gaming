@@ -5,9 +5,12 @@
 # Installs the community Proton-GE build (extra codecs, game fixes that
 # land weeks before upstream) into Steam's compatibility tools folder.
 set -e
+. /usr/bin/dagric-i18n.sh
 
-cat << 'EOF'
-Dagric gaming setup
+# TRANSLATORS: "wine setup.exe" and "dagric-get-steam" are commands typed
+# verbatim. Wine, winetricks, gamemode, mangohud, Vulkan, Proton, Proton-GE,
+# Steam and GloriousEggroll are product names — leave them all as they are.
+dg_say "$(gettext "Dagric gaming setup
 =====================
 Already preinstalled on Dagric Pro:
   * Wine + winetricks       run Windows apps:  wine setup.exe
@@ -18,29 +21,33 @@ Steam itself is NEVER bundled (it is proprietary) — install it any time
 with one click from the Dagric Hub, or run:  dagric-get-steam
 
 This helper adds Proton-GE (GloriousEggroll's community Proton with
-extra media codecs and game-specific fixes) for a Steam you've installed.
-EOF
-printf "Download the latest Proton-GE from GitHub? [y/N] "
+extra media codecs and game-specific fixes) for a Steam you've installed.")"
+printf '%s ' "$(gettext "Download the latest Proton-GE from GitHub? [y/N]")"
 read -r answer
-case "$answer" in y|Y) ;; *) echo "Nothing changed."; exit 0 ;; esac
+if ! dg_is_yes "$answer"; then
+    dg_say "$(gettext "Nothing changed.")"
+    exit 0
+fi
 
 # Use the real Steam data dir, not ~/.steam/root (a symlink Steam creates
 # on first launch — mkdir'ing it there can collide with Steam's own setup).
 DEST="$HOME/.local/share/Steam/compatibilitytools.d"
 if [ ! -d "$HOME/.local/share/Steam" ]; then
-    echo "Steam data dir not found. Launch Steam once first, then re-run this."
+    dg_say "$(gettext "Steam data dir not found. Launch Steam once first, then re-run this.")"
     exit 1
 fi
 mkdir -p "$DEST"
 URL=$(curl -fsSL https://api.github.com/repos/GloriousEggroll/proton-ge-custom/releases/latest \
       | grep browser_download_url | grep '\.tar\.gz"' | head -1 | cut -d '"' -f 4)
 if [ -z "$URL" ]; then
-    echo "Could not find the latest release (offline?). Try again later."
+    dg_say "$(gettext "Could not find the latest release (offline?). Try again later.")"
     exit 1
 fi
-echo "Downloading: $URL"
+dg_say "$(eval_gettext 'Downloading: $URL')"
 curl -fL "$URL" | tar xz -C "$DEST"
 echo ""
-echo "Installed to $DEST"
-echo "In Steam: Settings > Compatibility > enable, then pick the GE-Proton"
-echo "version per game under Properties > Compatibility."
+dg_say "$(eval_gettext 'Installed to $DEST')"
+# TRANSLATORS: "Settings", "Compatibility" and "Properties" are Steam's own
+# menu labels — use the words Steam shows in your language, if you know them.
+dg_say "$(gettext "In Steam: Settings > Compatibility > enable, then pick the GE-Proton
+version per game under Properties > Compatibility.")"

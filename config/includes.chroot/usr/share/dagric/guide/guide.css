@@ -1,0 +1,330 @@
+/* Dagric OS User Guide — offline stylesheet.
+   Lifted out of index.html when the guide gained a German translation: two
+   copies of 270 lines of CSS drift apart within a release, and the German
+   page must never look like a lesser one. The manual's manual.css is its
+   sibling — same tokens, same voice, deliberately. */
+:root {
+  --bg:        #0a111c;
+  --bg-raise:  #0e1726;
+  --panel:     #101b2c;
+  --panel-2:   #132033;
+  --line:      rgba(148,178,214,.12);
+  --line-soft: rgba(148,178,214,.07);
+  --ink:       #e7eef7;
+  --ink-soft:  #c3cfdd;
+  --muted:     #8496ac;
+  /* Was #5f7186, which measured 3.78:1 on --bg and 3.59:1 on --bg-raise —
+     under the 4.5:1 WCAG 1.4.3 (AA) asks of body text, and every place this
+     token is used here is small text: the sidebar group headings at 10.9px,
+     the "+" between key caps at 12.5px, the helpers subtitle, the colophon.
+     Same hue, lifted until the darkest of those surfaces clears 4.5:1. */
+  --faint:     #77899f;
+  --accent:    #3fa9f5;
+  --accent-dim:#2b76ad;
+  --accent-bg: rgba(63,169,245,.10);
+  --accent-brd:rgba(63,169,245,.28);
+  --radius:    12px;
+}
+
+* { box-sizing:border-box; margin:0; padding:0; }
+
+html { scroll-behavior:smooth; scroll-padding-top:28px; }
+
+body {
+  background:var(--bg);
+  color:var(--ink);
+  font:16px/1.7 -apple-system, "Segoe UI", "Noto Sans", Ubuntu, Cantarell, system-ui, sans-serif;
+  -webkit-font-smoothing:antialiased;
+  text-rendering:optimizeLegibility;
+}
+
+::selection { background:rgba(63,169,245,.30); }
+
+a { color:var(--accent); text-decoration:none; }
+a:hover { text-decoration:underline; text-underline-offset:3px; }
+:focus-visible { outline:2px solid var(--accent); outline-offset:2px; border-radius:4px; }
+
+/* Smooth scrolling is a nicety; for somebody with a vestibular disorder it is
+   nausea. KDE's "Reduce animations" already says so — listen to it. */
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior:auto; }
+}
+
+/* ---------- skip link ---------- */
+/* Eighteen sidebar links stand between the top of this page and its first
+   sentence. Without this, a keyboard or screen-reader user walks all eighteen
+   every time — WCAG 2.4.1, Level A. */
+.skip { position:absolute; left:-9999px; }
+.skip:focus {
+  left:16px; top:10px; z-index:100;
+  background:var(--panel); color:var(--ink);
+  padding:8px 14px; border-radius:8px; border:1px solid var(--accent-brd);
+}
+main:focus:not(:focus-visible), section:focus:not(:focus-visible) { outline:none; }
+
+/* ---------- language ---------- */
+/* This guide and the welcome page are the two documents Dagric translates in
+   full. The bar names only languages that actually exist; the note under the
+   German one admits it has not been through a native speaker yet. Both are
+   deliberate: a language you cannot stand behind should not be offered, and
+   one you offer with a caveat is an invitation to come and fix it. */
+.langbar {
+  display:flex; align-items:center; gap:10px; flex-wrap:wrap;
+  margin:0 0 18px; font-size:.85rem; color:var(--muted);
+}
+.langbar .label {
+  font-size:.68rem; font-weight:600; letter-spacing:.14em;
+  text-transform:uppercase; color:var(--faint);
+}
+.langbar a, .langbar strong {
+  border:1px solid var(--line-soft); border-radius:99px;
+  padding:3px 12px; background:var(--bg-raise); font-weight:500;
+}
+.langbar strong { color:var(--ink); border-color:var(--accent-brd); }
+.langbar a:hover { color:var(--ink); border-color:var(--accent-brd); text-decoration:none; }
+.langnote {
+  background:var(--bg-raise); border:1px solid var(--line-soft);
+  border-radius:var(--radius); padding:12px 16px; margin:0 0 20px;
+  font-size:.86rem; color:var(--muted);
+}
+.langnote strong { color:var(--ink-soft); font-weight:600; }
+
+/* ---------- shell ---------- */
+.shell {
+  max-width:1120px;
+  margin:0 auto;
+  padding:0 32px;
+  display:grid;
+  grid-template-columns:224px minmax(0,1fr);
+  gap:56px;
+}
+
+/* ---------- sidebar ---------- */
+.side {
+  padding:44px 0 64px;
+}
+.sidebox {
+  position:sticky;
+  top:24px;
+  max-height:calc(100vh - 48px);
+  overflow-y:auto;
+  scrollbar-width:thin;
+  scrollbar-color:var(--line) transparent;
+}
+.brand {
+  display:flex; align-items:center; gap:11px;
+  padding-bottom:18px; margin-bottom:14px;
+  border-bottom:1px solid var(--line-soft);
+}
+.mark {
+  width:34px; height:34px; flex:none;
+  border-radius:9px;
+  background:linear-gradient(145deg, #17293f, #0e1a2b);
+  border:1px solid var(--accent-brd);
+  display:grid; place-items:center;
+  color:var(--accent);
+  font-weight:700; font-size:17px;
+  letter-spacing:.02em;
+}
+.brand-name { font-size:.95rem; font-weight:600; letter-spacing:.01em; }
+.brand-name small { display:block; font-size:.72rem; font-weight:500; color:var(--muted); letter-spacing:.08em; text-transform:uppercase; margin-top:1px; }
+
+.navgroup { margin:16px 0 4px; font-size:.68rem; font-weight:600; letter-spacing:.14em; text-transform:uppercase; color:var(--faint); }
+nav.toc a {
+  display:block;
+  padding:5px 10px;
+  margin:1px 0 1px -10px;
+  font-size:.85rem;
+  color:var(--muted);
+  border-radius:7px;
+  border-left:2px solid transparent;
+  line-height:1.45;
+}
+nav.toc a:hover { color:var(--ink); background:var(--line-soft); text-decoration:none; }
+nav.toc a.active {
+  color:var(--accent);
+  background:var(--accent-bg);
+  border-left-color:var(--accent);
+  border-radius:0 7px 7px 0;
+}
+
+/* ---------- content ---------- */
+.content { padding:44px 0 110px; max-width:660px; }
+
+header.hero { margin-bottom:20px; }
+.eyebrow {
+  font-size:.72rem; font-weight:600;
+  letter-spacing:.18em; text-transform:uppercase;
+  color:var(--accent);
+  margin-bottom:10px;
+}
+h1 {
+  font-size:clamp(1.9rem, 3.4vw, 2.5rem);
+  font-weight:650;
+  letter-spacing:-.015em;
+  line-height:1.15;
+}
+.sub {
+  color:var(--muted);
+  font-size:1.02rem;
+  margin-top:12px;
+  max-width:46ch;
+}
+
+section {
+  padding:36px 0 6px;
+  margin-top:14px;
+  border-top:1px solid var(--line-soft);
+  scroll-margin-top:24px;
+}
+section:first-of-type { border-top:none; margin-top:26px; padding-top:14px; }
+
+h2 {
+  font-size:1.22rem;
+  font-weight:600;
+  letter-spacing:-.008em;
+  color:var(--ink);
+  margin-bottom:14px;
+  display:flex; align-items:center; gap:10px;
+}
+.pro {
+  flex:none;
+  font-size:.62rem; font-weight:700;
+  letter-spacing:.12em;
+  color:var(--accent);
+  background:var(--accent-bg);
+  border:1px solid var(--accent-brd);
+  border-radius:99px;
+  padding:2.5px 9px 2px;
+  transform:translateY(1px);
+}
+
+p { color:var(--ink-soft); font-size:.96rem; margin-bottom:12px; }
+p strong { color:var(--ink); font-weight:600; }
+em { color:var(--ink); font-style:italic; }
+
+kbd {
+  display:inline-block;
+  background:linear-gradient(180deg, var(--panel-2), var(--panel));
+  border:1px solid var(--line);
+  border-bottom-width:2px;
+  border-radius:6px;
+  padding:1px 8px;
+  font:600 .8em/1.6 ui-monospace, "Cascadia Mono", Consolas, monospace;
+  color:var(--ink);
+  white-space:nowrap;
+}
+code {
+  background:var(--accent-bg);
+  border:1px solid rgba(63,169,245,.16);
+  border-radius:6px;
+  padding:1.5px 7px;
+  font:.85em ui-monospace, "Cascadia Mono", Consolas, monospace;
+  color:#8ecdf8;
+  white-space:nowrap;
+}
+
+/* ---------- shortcut cards ---------- */
+.keys {
+  display:grid;
+  grid-template-columns:repeat(auto-fill, minmax(280px, 1fr));
+  gap:12px;
+  margin:18px 0 10px;
+}
+.key-card {
+  background:var(--bg-raise);
+  border:1px solid var(--line-soft);
+  border-radius:var(--radius);
+  padding:14px 16px 13px;
+}
+.key-card .combo { margin-bottom:7px; display:flex; align-items:center; gap:5px; flex-wrap:wrap; }
+.key-card .combo .plus { color:var(--faint); font-size:.78rem; }
+.key-card .what { font-size:.86rem; color:var(--muted); line-height:1.5; }
+.key-card .what strong { color:var(--ink-soft); font-weight:500; }
+
+/* ---------- terminal helpers panel ---------- */
+.helpers {
+  background:var(--bg-raise);
+  border:1px solid var(--line-soft);
+  border-radius:var(--radius);
+  padding:18px 20px 8px;
+  margin:20px 0 10px;
+}
+.helpers-title {
+  font-size:.78rem; font-weight:600;
+  letter-spacing:.1em; text-transform:uppercase;
+  color:var(--muted);
+  margin-bottom:4px;
+}
+.helpers-sub { font-size:.86rem; color:var(--faint); margin-bottom:12px; }
+.helper-row {
+  display:flex; align-items:baseline; gap:14px;
+  padding:9px 0;
+  border-top:1px solid var(--line-soft);
+  font-size:.9rem;
+}
+.helper-row code { flex:none; }
+.helper-row span { color:var(--muted); font-size:.87rem; }
+
+/* ---------- tip callout ---------- */
+/* Block, not flex, with the badge positioned. As a flex container every
+   <strong> inside a tip became its own column, so an emphasised sentence came
+   out as stacked columns of ragged text — and the tips are where the warnings
+   live ("Windows is only ever read"). Same fix as manual.css. */
+.tip {
+  position:relative;
+  background:var(--accent-bg);
+  border:1px solid rgba(63,169,245,.18);
+  border-radius:var(--radius);
+  padding:13px 16px 13px 44px;
+  margin:14px 0;
+  font-size:.9rem;
+  color:var(--ink-soft);
+}
+.tip::before {
+  content:"i";
+  position:absolute; left:16px; top:15px;
+  width:17px; height:17px;
+  border-radius:50%;
+  background:var(--accent);
+  color:#06121f;
+  font:700 .68rem/17px ui-monospace, monospace;
+  text-align:center;
+}
+.tip p { margin:0; }
+.tip p + p { margin-top:8px; }
+
+footer.colophon {
+  margin-top:56px;
+  padding-top:22px;
+  border-top:1px solid var(--line-soft);
+  font-size:.8rem;
+  color:var(--faint);
+}
+
+/* ---------- narrow screens ---------- */
+@media (max-width:900px) {
+  .shell { display:block; padding:0 22px; }
+  .side { padding:20px 0 0; }
+  .sidebox {
+    position:sticky; top:0; z-index:5;
+    max-height:none; overflow:visible;
+    background:rgba(10,17,28,.92);
+    backdrop-filter:blur(10px);
+    margin:0 -22px; padding:12px 22px 10px;
+    border-bottom:1px solid var(--line-soft);
+  }
+  .brand { border-bottom:none; padding-bottom:8px; margin-bottom:2px; }
+  .navgroup { display:none; }
+  nav.toc { display:flex; gap:6px; overflow-x:auto; padding-bottom:4px; scrollbar-width:none; }
+  nav.toc::-webkit-scrollbar { display:none; }
+  nav.toc a {
+    flex:none; margin:0;
+    border:1px solid var(--line-soft);
+    border-radius:99px;
+    padding:4px 12px;
+    font-size:.8rem;
+  }
+  nav.toc a.active { border-color:var(--accent-brd); border-radius:99px; }
+  .content { padding-top:30px; max-width:none; }
+}

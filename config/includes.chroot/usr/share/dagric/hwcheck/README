@@ -1,0 +1,38 @@
+Dagric OS — Hardware Check data tables
+======================================
+
+/usr/bin/dagric-hardware-check reads these files at run time. They exist so the
+plain-English hardware knowledge lives in data, not buried in shell `case`
+statements, and so a name can be corrected without touching the logic.
+
+Every file is optional. If one is missing or unreadable the check still runs —
+it just falls back to the raw kernel driver name, which is uglier but honest.
+Never make the tool depend on a lookup succeeding.
+
+Format, in all tables: `#` at column 0 is a comment, blank lines are ignored,
+fields are separated by `|`, and leading/trailing spaces around a field are
+stripped. Do not use `|` inside a field.
+
+  minimums    key=value. The machine specification Dagric claims to run on.
+              Sourced by the script, so keep it to plain `key=value` lines.
+
+  net-chips   driver | plain name | firmware package | ships on this ISO
+              Kernel module that binds a network card -> what to call the card
+              in front of a human. "ships" is yes/no: whether the firmware
+              package is on the Dagric ISO. That answers the only question the
+              owner cares about — is this fixable without internet, or do they
+              need to plug in a cable first.
+
+  gpu-drivers driver | plain name | note
+              Kernel module bound to the graphics chip -> what it is. The note
+              is appended verbatim to the graphics line when it is non-empty,
+              so keep it under 62 characters — the report is written to fit an
+              78-column window and nothing wraps it for you.
+
+  firmware-map  pattern | package | what it is | ships
+              A glob matched against the firmware FILE PATH the kernel said it
+              could not load (e.g. `iwlwifi-so-a0-gf-a0-89.ucode`). First match
+              wins, so order matters: put `intel/ibt-*` above `intel/*`.
+
+Adding hardware: append a row. Do not reorder net-chips or gpu-drivers (they
+are looked up by exact driver name), but DO mind the order of firmware-map.

@@ -19,9 +19,29 @@
 # directly from Dolphin instead and there is no marker: the manual then says
 # nothing either way, because telling a Pro owner that their installed software
 # "is not on this edition" would be worse than staying quiet.
+#
+# LANGUAGE. The tool speaks the owner's language; the PAGES are still English,
+# and that is a staging decision rather than an oversight. The manual is
+# ~46,000 words across 95 pages — by far the most expensive surface in the
+# product — and a German wizard with an English handbook is a normal, forgivable
+# state of affairs, while an English wizard is not.
+#
+# The mechanism for the pages is already here and costs nothing until it is
+# used: ROOT is resolved through the same lang/lang_COUNTRY/English fallback as
+# the welcome page, so dropping a translated manual/de/ tree in is all it takes.
+# Nothing has to change in this file. That fallback is also what makes po4a's
+# -k threshold safe — a page below the translation threshold is simply not
+# shipped for that language, and the English one is found instead of a
+# half-translated page being shown.
 set -e
+. /usr/bin/dagric-i18n.sh
 
 ROOT=/usr/share/dagric/manual
+# A per-language manual tree if one is installed, English otherwise. Resolved
+# once, on index.html, so every page in the session comes from the same tree —
+# picking per page would give a half-German, half-English handbook whenever one
+# page happened to be missing.
+_loc=$(dg_localised "$ROOT" index.html) && ROOT=${_loc%/index.html}
 EDITION=$(cat /etc/dagric-edition 2>/dev/null || echo free)
 # Clamp it. This value is pasted straight into a URL, and the manual only knows
 # two editions — anything else (a truncated file, an experiment, a stray edit)
@@ -32,26 +52,27 @@ case "$EDITION" in
 esac
 
 if [ ! -d "$ROOT" ]; then
-    echo "The Dagric manual is not installed ($ROOT is missing)." >&2
+    dg_say "$(eval_gettext 'The Dagric manual is not installed ($ROOT is missing).')" >&2
     exit 1
 fi
 
 usage() {
-    cat << 'EOF'
-Dagric manual — every application on this computer, offline.
+    # TRANSLATORS: the four indented lines are the command's own syntax and
+    # are typed verbatim — "dagric-manual", "--list", "--help" and the example
+    # "dolphin" must not be translated. <topic> is a placeholder and may be.
+    dg_say "$(gettext "Dagric manual — every application on this computer, offline.
 
   dagric-manual              open the front page (search from there)
   dagric-manual <topic>      open one page, e.g.  dagric-manual dolphin
   dagric-manual --list       list every topic
   dagric-manual --help       this text
 
-Topics are matched against PAGE NAMES: "kate", "app-kate" and "ate" all reach
-the Kate page. Windows names do not work here -- "notepad" matches no page
+Topics are matched against PAGE NAMES: \"kate\", \"app-kate\" and \"ate\" all reach
+the Kate page. Windows names do not work here -- \"notepad\" matches no page
 name, so it fails. Search by Windows name in the manual's own search box
-instead; that index is what "notepad finds Kate" refers to.
+instead; that index is what \"notepad finds Kate\" refers to.
 
-Pages live in /usr/share/dagric/manual and need no internet connection.
-EOF
+Pages live in /usr/share/dagric/manual and need no internet connection.")"
 }
 
 # The topic list is derived from the pages themselves, so it can never drift
@@ -97,6 +118,14 @@ case "${1:-}" in
     -l|--list)     list_topics; exit 0 ;;
     -*)            usage >&2; exit 2 ;;
     *)
+        # ASKED is a copy of $1 purely so the message below can be translated:
+        # eval_gettext interpolates through envsubst, and envsubst only knows
+        # environment-variable names — "$1" is not one, so a msgid mentioning
+        # it would come out with a literal "$1" in it. The quotes around the
+        # name also changed from ' to " for a quoting reason: an eval_gettext
+        # msgid has to be single-quoted, and a single-quoted shell string
+        # cannot contain an apostrophe.
+        ASKED=$1
         # Normalise: lower-case, drop a trailing .html somebody pasted in.
         TOPIC=$(printf '%s' "$1" | tr '[:upper:]' '[:lower:]')
         TOPIC=${TOPIC%.html}
@@ -105,16 +134,36 @@ case "${1:-}" in
         # dots, nothing to quote wrong later.
         case "$TOPIC" in
             ''|*[!a-z0-9-]*)
-                echo "No page called '$1'. Try: dagric-manual --list" >&2
+                dg_say "$(eval_gettext 'No page called "$ASKED". Try: dagric-manual --list')" >&2
                 exit 1 ;;
         esac
         if ! PAGE=$(find_page "$TOPIC"); then
-            echo "No page called '$1'. Try: dagric-manual --list" >&2
+            dg_say "$(eval_gettext 'No page called "$ASKED". Try: dagric-manual --list')" >&2
             exit 1
         fi ;;
 esac
 
 URL="file://$ROOT/$PAGE#e=$EDITION"
+
+# ...and the language, when there is a translated page to point at.
+#
+# The manual itself is deliberately NOT translated — its whole value is that
+# the search index knows the ENGLISH Windows names, so typing "notepad" finds
+# the Text Editor, and a half-translated index breaks that promise. What manual
+# .js does with "l=" is show a short notice, in the owner's language, saying so
+# and linking to the translated user guide, which IS complete.
+#
+# Without this line the notice only appears when the BROWSER's own locale is
+# German — so a German owner running an English-only Firefox under LANG=de_DE
+# got an English manual with no explanation and no way back to the guide. That
+# is the common case on this OS, because Firefox's locale is decided by the
+# .xpi language pack, not by LANG.
+#
+# Only languages that actually have a guide are listed. Advertising a
+# translation that is not there is worse than saying nothing.
+case "$(dg_lang)" in
+    de*) URL="$URL&l=de" ;;
+esac
 
 # x-www-browser first — it is Debian's alternatives link to whichever browser
 # the machine actually uses, so a Pro owner who switched to Chromium is obeyed.
@@ -127,5 +176,5 @@ for b in x-www-browser firefox firefox-esr xdg-open; do
     fi
 done
 
-echo "No browser found. The manual is at $ROOT/$PAGE" >&2
+dg_say "$(eval_gettext 'No browser found. The manual is at $ROOT/$PAGE')" >&2
 exit 1

@@ -1,0 +1,18 @@
+# Dagric OS — the machine this product claims to run on.
+# Sourced by /usr/bin/dagric-hardware-check. Plain key=value only: this file is
+# read with `.` so anything else here executes.
+#
+# WHY THE RAM NUMBERS LOOK ODD. A "4 GB" machine never reports 4096 MB — the
+# firmware and the integrated graphics carve out their share before Linux ever
+# sees the stick, so MemTotal comes back around 3700-3900 MB. Comparing against
+# a round 4096 would tell every genuine 4 GB laptop that it is under the
+# minimum, which is both wrong and exactly the kind of scare this tool exists
+# to prevent. 3500 is under the worst reservation we have seen and above any
+# real 2 GB machine.
+ram_min_mb=3500
+ram_ok_mb=7000
+
+# Disk. 25 GB is a working install with room for updates and a few apps;
+# below that the owner runs out within months. 60 GB is comfortable.
+disk_min_gb=25
+disk_ok_gb=60

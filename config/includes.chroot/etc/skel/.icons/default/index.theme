@@ -1,0 +1,12 @@
+[Icon Theme]
+# Dagric OS — the cursor theme, for everything that does not read kcminputrc.
+#
+# Plasma tells its own session which cursor to use through kcminputrc, but
+# XWayland clients, GTK applications and anything started outside the session
+# look here instead: ~/.icons/default is the X cursor library's own lookup, and
+# without it those windows fall back to the X core cursor while every Plasma
+# window shows Breeze. Plasma writes this file itself the first time the owner
+# changes cursor theme; shipping it means the very first login already agrees
+# with itself. Size is not settable here — it comes from kcminputrc cursorSize,
+# which Plasma exports as XCURSOR_SIZE.
+Inherits=breeze_cursors

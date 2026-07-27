@@ -1,0 +1,497 @@
+#!/bin/sh
+# SPDX-FileCopyrightText: 2026 DGR Operations <repo@dagric.com>
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Dagric OS — accessibility.
+#
+# The job here is not "add a screen reader". The screen reader is already in
+# desktop.list.chroot. The job is to make the accessible parts of this system
+# REACHABLE, and reachable specifically by the person who needs them, who by
+# definition cannot use the normal way of finding things. That reordering is
+# what most of this file is about:
+#
+#   - A blind owner cannot click "Accessibility" in a menu they cannot see, so
+#     the screen reader has to be on a key that already works on a machine
+#     nobody has configured. -> Meta+Alt+S, written out in skel rather than
+#     assumed (see etc/skel/.config/kglobalshortcutsrc for why).
+#   - A blind owner cannot enable a screen reader from the login screen. SDDM
+#     cannot host one and no amount of scripting changes that; the whole
+#     analysis, including the two approaches that look like they should work
+#     and do not, is in /etc/sddm.conf.d/20-accessibility.conf. What IS
+#     possible is the live ISO, which autologs in — so that is where the
+#     unaided path lives, via /usr/lib/dagric/a11y-live below.
+#   - A low-vision owner cannot read a menu entry that does not exist. Debian's
+#     orca 48.1-1+deb13u2 ships NO .desktop file — the package contains
+#     /usr/bin/orca, /usr/bin/orca-dm-wrapper and a GNOME-only autostart entry
+#     with NoDisplay=true, and nothing else. So on a stock build there is
+#     literally nothing in the application menu called "Orca", "screen reader"
+#     or anything else. This hook adds the entry.
+#
+# And one thing this hook does NOT do: it does not switch sticky keys, slow
+# keys, bounce keys, mouse keys or the visible bell on. Turning those on for
+# everybody would hand a Windows switcher a keyboard that appears to be
+# malfunctioning on day one. They are shipped documented and two clicks away
+# instead — see /etc/skel/.config/kaccessrc, which explains each one and names
+# where it is implemented.
+set -e
+
+SHARE=/usr/share/dagric/accessibility
+LIB=/usr/lib/dagric
+SCHEME=/usr/share/color-schemes/DagricHighContrast.colors
+STYLE=/usr/share/dagric/styles/highcontrast.style
+ENVGEN=/usr/lib/systemd/user-environment-generators/60-dagric-accessibility
+
+# ---------------------------------------------------------------------------
+# 1. Orca has to actually SPEAK. Verify the whole chain, not just the binary.
+#
+# docs/EDITIONS.md sells "a screen reader" as a free-edition feature, and
+# desktop.list.chroot pins packages to keep that true. A screen reader that
+# runs and says nothing is indistinguishable from a broken one to the only
+# person who needs it, and nothing else in this build would notice — so the
+# claim is checked here, on the real image, every build.
+#
+# The chain, in the order it breaks:
+#   /usr/bin/orca                       the reader
+#   python3-speechd + speech-dispatcher its link to speech (both hard Depends
+#                                       of orca, so these are belt and braces)
+#   sd_espeak-ng                        the voice MODULE. This is the one that
+#                                       actually goes missing: it comes from
+#                                       speech-dispatcher-espeak-ng, which is a
+#                                       *Recommends* of speech-dispatcher, and
+#                                       auto/config builds --apt-recommends
+#                                       false. Without it spd runs and is mute.
+#   libespeak-ng + its voice data       what the module drives
+#   an audio output plugin              spd_pipewire.so / spd_pulse.so; Dagric
+#                                       ships pipewire + pipewire-pulse
+#   at-spi2-core                        the bus Orca reads the screen over
+for f in /usr/bin/orca /usr/bin/spd-say /usr/libexec/at-spi-bus-launcher; do
+    if [ ! -x "$f" ]; then
+        echo "ERROR: $f missing — the screen reader claim in docs/EDITIONS.md is false." >&2
+        exit 1
+    fi
+done
+
+# The voice modules are NOT multiarch (/usr/lib/speech-dispatcher-modules)
+# while the audio plugins are (/usr/lib/<triplet>/speech-dispatcher). Search
+# both shapes and take the one that actually holds the module rather than the
+# first directory that happens to exist — an empty directory in the other
+# layout would otherwise fail a perfectly good build, and a check that cries
+# wolf is a check somebody deletes.
+# (The plain `if` rather than `[ ... ] && VAR=x` is deliberate: under `set -e`
+# a failed AND-list as the last command of a loop body takes the whole loop's
+# exit status with it.)
+SPD_MOD=
+for d in /usr/lib/speech-dispatcher-modules /usr/lib/*/speech-dispatcher-modules; do
+    if [ -x "$d/sd_espeak-ng" ]; then SPD_MOD=$d/sd_espeak-ng; fi
+done
+if [ -z "$SPD_MOD" ]; then
+    echo "ERROR: sd_espeak-ng missing — Orca would run and say nothing." >&2
+    echo "       Add speech-dispatcher-espeak-ng to desktop.list.chroot; it is only" >&2
+    echo "       a Recommends of speech-dispatcher and --apt-recommends false drops it." >&2
+    exit 1
+fi
+
+# ...and something for the module to play through. Dagric ships pipewire and
+# pipewire-pulse (system.list.chroot), so either plugin is a working path to
+# the speakers.
+SPD_AUDIO=
+for d in /usr/lib/speech-dispatcher /usr/lib/*/speech-dispatcher; do
+    if [ -e "$d/spd_pipewire.so" ] || [ -e "$d/spd_pulse.so" ]; then SPD_AUDIO=$d; fi
+done
+if [ -z "$SPD_AUDIO" ]; then
+    echo "ERROR: no PipeWire/Pulse output plugin for speech-dispatcher — Orca would be mute." >&2
+    echo "       Add speech-dispatcher-audio-plugins to desktop.list.chroot." >&2
+    exit 1
+fi
+
+# Debian's /etc/speech-dispatcher/speechd.conf has every AddModule line
+# commented out. That is fine and deliberate: speech-dispatcher 0.12 detects
+# installed modules by scanning at startup ("Detecting modules from %s" in the
+# binary). Assert the espeak-ng module config it will find, because a module
+# binary with no .conf is skipped in silence.
+if [ ! -f /etc/speech-dispatcher/modules/espeak-ng.conf ]; then
+    echo "ERROR: /etc/speech-dispatcher/modules/espeak-ng.conf missing — module autodetect will skip espeak-ng." >&2
+    exit 1
+fi
+
+# ---------------------------------------------------------------------------
+# 2. The pieces of Plasma the skel files talk to.
+#
+# kaccess is what launches and kills Orca, and what Meta+Alt+S is registered
+# against. It comes from plasma-desktop. If it ever stops shipping, the skel
+# shortcut silently binds to nothing.
+if [ ! -x /usr/bin/kaccess ]; then
+    echo "ERROR: /usr/bin/kaccess missing — Meta+Alt+S cannot toggle the screen reader." >&2
+    exit 1
+fi
+if [ ! -f /etc/xdg/autostart/kaccess.desktop ] && [ ! -f /usr/lib/systemd/user/plasma-kaccess.service ]; then
+    echo "ERROR: kaccess has no autostart — nothing will read ~/.config/kaccessrc." >&2
+    exit 1
+fi
+
+# Sticky keys and bounce keys are KWin plugins on Wayland, not kaccess. Warn
+# rather than fail: their absence costs two features, it does not break the
+# desktop, and failing the whole build over it would be out of proportion.
+KWINPLUG=$(ls -d /usr/lib/*/qt6/plugins/kwin/plugins 2>/dev/null | head -1)
+for p in StickyKeysPlugin BounceKeysPlugin MouseKeysPlugin; do
+    if [ -z "$KWINPLUG" ] || [ ! -e "$KWINPLUG/$p.so" ]; then
+        echo "WARNING: KWin $p missing — that switch in kaccessrc will do nothing." >&2
+    fi
+done
+
+# ---------------------------------------------------------------------------
+# 3. Measure the high-contrast colour scheme. Do not take its name on trust.
+#
+# WCAG 2.x relative luminance, then (L_lighter + 0.05) / (L_darker + 0.05).
+# Every Foreground* and Decoration* in each [Colors:*] group is checked against
+# both that group's BackgroundNormal and its BackgroundAlternate, and the bar
+# is 7:1 — WCAG 1.4.6 "Contrast (Enhanced)", not the 4.5:1 that ordinary body
+# text needs. A scheme called High Contrast that only clears the ordinary bar
+# is a scheme that has been named rather than designed.
+#
+# This runs on the built image rather than in a test suite on purpose: the file
+# it grades is the file that ships. Nothing here is measured against the two
+# default schemes — DagricLight and DagricDark inherit Breeze's own accent
+# colours, which fail 4.5:1 in a lot of places, and quietly repainting the
+# brand from an accessibility hook would be the wrong call to make here. That
+# is reported to the integrator, not fixed by ambush.
+if [ ! -f "$SCHEME" ]; then
+    echo "ERROR: $SCHEME missing — the High Contrast style would apply nothing." >&2
+    exit 1
+fi
+
+echo "Measuring $SCHEME ..."
+if ! awk -v min=7 '
+function lin(c,   x) {
+    x = c / 255.0
+    if (x <= 0.04045) return x / 12.92
+    return ((x + 0.055) / 1.055) ^ 2.4
+}
+function lum(s,   a) {
+    split(s, a, ",")
+    return 0.2126 * lin(a[1]) + 0.7152 * lin(a[2]) + 0.0722 * lin(a[3])
+}
+function ratio(f, b,   lf, lb, hi, lo) {
+    lf = lum(f); lb = lum(b)
+    hi = (lf > lb) ? lf : lb
+    lo = (lf > lb) ? lb : lf
+    return (hi + 0.05) / (lo + 0.05)
+}
+{
+    line = $0
+    gsub(/\r/, "", line)
+    sub(/^[ \t]+/, "", line)
+    sub(/[ \t]+$/, "", line)
+    if (line == "" || substr(line, 1, 1) == "#") next
+    if (substr(line, 1, 1) == "[") { sec = line; next }
+    if (substr(sec, 1, 8) != "[Colors:") next
+    p = index(line, "=")
+    if (p == 0) next
+    key = substr(line, 1, p - 1)
+    val = substr(line, p + 1)
+    gsub(/[ \t]/, "", key)
+    gsub(/[ \t]/, "", val)
+    if (key == "BackgroundNormal" || key == "BackgroundAlternate") {
+        bg[sec, key] = val
+    } else if (key ~ /^Foreground/ || key ~ /^Decoration/) {
+        n++; fsec[n] = sec; fkey[n] = key; fval[n] = val
+    }
+}
+END {
+    split("BackgroundNormal BackgroundAlternate", B, " ")
+    bad = 0; pairs = 0; worst = 999
+    for (i = 1; i <= n; i++) {
+        for (j = 1; j <= 2; j++) {
+            if (!((fsec[i], B[j]) in bg)) continue
+            r = ratio(fval[i], bg[fsec[i], B[j]])
+            pairs++
+            if (r < worst) { worst = r; wat = fsec[i] " " fkey[i] " on " B[j] }
+            if (r < min) {
+                bad++
+                printf "  %.2f:1 FAIL %s %s on %s\n", r, fsec[i], fkey[i], B[j]
+            }
+        }
+    }
+    if (pairs == 0) { print "  no colour pairs found — is this a .colors file?"; exit 1 }
+    printf "  %d pair(s) measured, worst %.2f:1 (%s)\n", pairs, worst, wat
+    exit (bad > 0)
+}' "$SCHEME"; then
+    echo "ERROR: DagricHighContrast fails the 7:1 bar its own name promises." >&2
+    exit 1
+fi
+
+if [ ! -f "$STYLE" ]; then
+    echo "ERROR: $STYLE missing — the scheme ships with no way to reach it." >&2
+    exit 1
+fi
+chmod 0644 "$SCHEME" "$STYLE"
+
+# ---------------------------------------------------------------------------
+# 4. A flat wallpaper for the High Contrast style.
+#
+# Desktop icon labels are drawn straight onto the wallpaper, so a photograph
+# under them has no contrast ratio you can state — which defeats the point of
+# the style. Windows High Contrast drops the wallpaper for exactly this reason.
+#
+# It is decoded from base64 here rather than committed as a binary because it
+# is 141 bytes of solid black and because there is no image tooling inside the
+# chroot to generate one. 256x256; Plasma's default fill mode scales it, and
+# scaling one colour gives back the same colour.
+mkdir -p "$SHARE"
+base64 -d > "$SHARE/highcontrast-wallpaper.png" << 'EOF'
+iVBORw0KGgoAAAANSUhEUgAAAQAAAAEACAAAAAB5Gfe6AAAAVElEQVR42u3BAQEAAACAkP6v7ggK
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAGAEPAAEccgnDAAAAAElFTkSuQmCC
+EOF
+chmod 0644 "$SHARE/highcontrast-wallpaper.png"
+if [ ! -s "$SHARE/highcontrast-wallpaper.png" ]; then
+    echo "ERROR: high-contrast wallpaper did not decode." >&2
+    exit 1
+fi
+
+# ---------------------------------------------------------------------------
+# 5. Put accessibility in the application menu.
+#
+# Two entries, and both of them are filling a hole rather than duplicating
+# something.
+#
+# The screen reader entry exists because Debian's orca package has no .desktop
+# file at all (checked with dpkg-deb -c on orca 48.1-1+deb13u2). Searching the
+# menu for "orca", "screen reader", "narrator" or "blind" on a stock build
+# returns nothing whatsoever.
+#
+# The settings entry exists because plasma-desktop's kcm_access.desktop is
+# NoDisplay=true — correct for a KCM, since System Settings lists it in its own
+# sidebar, but it means the menu has no answer for somebody typing "sticky
+# keys" or "magnifier". The Keywords lines below are the whole value of these
+# files: they are what someone types when they do not know what the feature is
+# called on Linux. "Narrator" is the Windows name and belongs there.
+mkdir -p /usr/share/applications
+cat > /usr/share/applications/dagric-screen-reader.desktop << 'EOF'
+[Desktop Entry]
+Type=Application
+Name=Screen Reader
+GenericName=Reads the screen aloud (Orca)
+Comment=Read the screen aloud. Press Meta+Alt+S to turn it on or off at any time.
+Exec=orca
+Icon=preferences-desktop-accessibility
+Terminal=false
+Categories=Utility;Accessibility;
+Keywords=orca;screen reader;screenreader;narrator;voiceover;jaws;nvda;blind;blindness;low vision;speech;speak;talk;talking;voice;tts;text to speech;braille;accessibility;a11y;
+StartupNotify=false
+EOF
+cat > /usr/share/applications/dagric-accessibility.desktop << 'EOF'
+[Desktop Entry]
+Type=Application
+Name=Accessibility
+GenericName=Make the computer easier to use
+Comment=Screen reader, magnifier, high contrast, sticky keys, slow keys, bounce keys
+Exec=systemsettings kcm_access
+Icon=preferences-desktop-accessibility
+Terminal=false
+Categories=Settings;DesktopSettings;Accessibility;
+Keywords=accessibility;a11y;ease of access;accessible;disability;disabled;impaired;screen reader;narrator;magnifier;magnify;zoom;enlarge;high contrast;contrast;colour blind;color blind;colorblind;sticky keys;slow keys;bounce keys;filter keys;mouse keys;visible bell;flash screen;deaf;hard of hearing;blind;low vision;large cursor;big pointer;
+StartupNotify=true
+EOF
+chmod 0644 /usr/share/applications/dagric-screen-reader.desktop \
+           /usr/share/applications/dagric-accessibility.desktop
+
+# systemsettings is what the second entry runs; it is an explicit line in
+# desktop.list.chroot, but an entry that opens nothing is worse than no entry.
+if [ ! -x /usr/bin/systemsettings ]; then
+    echo "ERROR: systemsettings missing — the Accessibility menu entry would do nothing." >&2
+    exit 1
+fi
+
+# ---------------------------------------------------------------------------
+# 6. Turn Qt's AT-SPI bridge on — but only for the owners who need it.
+#
+# Qt only publishes an application's accessible tree when D-Bus
+# org.a11y.Status.IsEnabled says so, or when QT_LINUX_ACCESSIBILITY_ALWAYS_ON
+# is set. That second one is not folklore: KWin's own zoom settings page says
+# in as many words that focus tracking "needs QAccessible to be enabled per
+# application (export QT_LINUX_ACCESSIBILITY_ALWAYS_ON=1)". Without it, the
+# magnifier's focus and caret tracking — the two settings that make the
+# magnifier usable for work rather than a demo — are switches that appear to
+# turn on and then do nothing at all.
+#
+# The obvious fix is a line in /etc/environment.d for everybody. This does not
+# do that. Setting it globally makes every Qt application on every machine
+# build and maintain an accessibility tree and register on the a11y bus,
+# forever, for the benefit of the small minority who asked. Dagric spends a
+# whole hook (0250-performance) not doing things like that.
+#
+# So it is a systemd user environment generator instead: it runs at session
+# start, reads the owner's own settings, and exports the variable only if they
+# have switched on something that needs it. Nothing is paid by anyone who has
+# not. The directory is systemd's own — /usr/lib/systemd/user-environment-
+# generators already holds 30-systemd-environment-d-generator — and generators
+# are plain executables that print KEY=VALUE on stdout.
+#
+# The one thing this cannot fix is the first session: a variable read at login
+# cannot appear mid-session. It does not need to. Qt watches org.a11y.Status
+# for changes at runtime, so turning Orca on with Meta+Alt+S works immediately;
+# the variable is the belt to that pair of braces, and it is what makes the
+# magnifier's tracking work from the next login on.
+mkdir -p /usr/lib/systemd/user-environment-generators
+cat > "$ENVGEN" << 'EOF'
+#!/bin/sh
+# Dagric OS — export QT_LINUX_ACCESSIBILITY_ALWAYS_ON only when this owner has
+# actually asked for something that needs it. Printing nothing is the normal,
+# correct outcome; never fail, or systemd logs an error at every login.
+[ -n "$HOME" ] || exit 0
+
+# Read one boolean out of a KConfig INI file without starting Qt. kreadconfig6
+# would be clearer and would also drag a Qt process into every single session
+# startup, twice, to read two files that are usually four lines long.
+ini_true() {
+    [ -r "$1" ] || return 1
+    awk -v want_group="[$2]" -v want_key="$3" '
+    {
+        line = $0
+        gsub(/\r/, "", line)
+        sub(/^[ \t]+/, "", line)
+        sub(/[ \t]+$/, "", line)
+        if (line == "" || substr(line, 1, 1) == "#") next
+        if (substr(line, 1, 1) == "[") { in_group = (line == want_group); next }
+        if (!in_group) next
+        p = index(line, "=")
+        if (p == 0) next
+        key = substr(line, 1, p - 1); val = substr(line, p + 1)
+        gsub(/[ \t]/, "", key); gsub(/[ \t]/, "", val)
+        if (key == want_key && (val == "true" || val == "1")) found = 1
+    }
+    END { exit !found }' "$1" 2>/dev/null
+}
+
+CFG=${XDG_CONFIG_HOME:-$HOME/.config}
+if ini_true "$CFG/kaccessrc" ScreenReader Enabled ||
+   ini_true "$CFG/kwinrc" Effect-zoom EnableFocusTracking ||
+   ini_true "$CFG/kwinrc" Effect-zoom EnableTextCaretTracking; then
+    echo "QT_LINUX_ACCESSIBILITY_ALWAYS_ON=1"
+fi
+exit 0
+EOF
+chmod 0755 "$ENVGEN"
+# /bin/sh is dash on Debian, so this is the check that matters.
+if ! sh -n "$ENVGEN"; then
+    echo "ERROR: $ENVGEN is not valid POSIX sh." >&2
+    exit 1
+fi
+
+# ---------------------------------------------------------------------------
+# 7. The live ISO: the one place a blind owner can get in unaided.
+#
+# The installed system's login screen cannot host a screen reader (the full
+# reasoning is in /etc/sddm.conf.d/20-accessibility.conf). The live ISO can,
+# because it autologs in — there is no password prompt to be locked out of.
+# That also happens to be the moment that decides everything: it is where
+# somebody finds out whether this OS is usable by them at all, before they have
+# paid anybody anything.
+#
+# This is the same pattern as Debian Installer's "Install with speech
+# synthesis" and Ubuntu's accessible boot entry: a second menu entry that adds
+# a kernel argument, and something in the session that acts on it.
+#
+# THE MENU ENTRY IS NOT MINE TO ADD — it lives in
+# config/hooks/normal/0950-boot-branding.hook.binary and auto/config, which
+# other work owns. This is the half that reads the flag. Until the entry
+# exists, this script is inert and costs one grep of /proc/cmdline per login.
+# See the report accompanying this change.
+mkdir -p "$LIB"
+cat > "$LIB/a11y-live" << 'EOF'
+#!/bin/sh
+# Dagric OS — start the screen reader when the machine was booted from the
+# accessible boot entry (kernel argument dagric.a11y or dagric.a11y=1).
+#
+# Runs at every login from ~/.config/autostart/dagric-a11y-live.desktop and
+# does nothing at all unless the flag is there, so it is harmless on an
+# installed system where /proc/cmdline never carries it.
+CMDLINE=$(cat /proc/cmdline 2>/dev/null) || exit 0
+case " $CMDLINE " in
+    *" dagric.a11y "* | *" dagric.a11y=1 "*) ;;
+    *) exit 0 ;;
+esac
+
+command -v orca >/dev/null 2>&1 || exit 0
+
+# Record it as a setting, not just a running process: kaccess owns the screen
+# reader, and if the owner later presses Meta+Alt+S to stop and start it again
+# kaccess needs to already agree that it is on. This also carries the choice
+# into a Calamares install that copies the live user's config.
+if command -v kwriteconfig6 >/dev/null 2>&1; then
+    kwriteconfig6 --file kaccessrc --group ScreenReader --key Enabled true 2>/dev/null || true
+fi
+
+# Qt applications that started before this point were born without an
+# accessible tree; the variable makes every one started afterwards publish
+# theirs regardless of when the a11y bus came up.
+QT_LINUX_ACCESSIBILITY_ALWAYS_ON=1
+export QT_LINUX_ACCESSIBILITY_ALWAYS_ON
+
+# --replace rather than a pgrep guard: it is the documented way to make sure
+# exactly one Orca is talking, and it is what orca-dm-wrapper does. --no-setup
+# skips the first-run configuration dialogue, which cannot be answered by
+# somebody who has not got a working screen reader yet.
+orca --replace --no-setup >/dev/null 2>&1 &
+exit 0
+EOF
+chmod 0755 "$LIB/a11y-live"
+if ! sh -n "$LIB/a11y-live"; then
+    echo "ERROR: $LIB/a11y-live is not valid POSIX sh." >&2
+    exit 1
+fi
+
+# Sorted to run before dagric-firstrun.desktop, so the wizard is already being
+# announced by the time it appears rather than after.
+mkdir -p /etc/skel/.config/autostart
+cat > /etc/skel/.config/autostart/dagric-a11y-live.desktop << 'EOF'
+[Desktop Entry]
+Type=Application
+Name=Dagric accessible boot
+Comment=Start the screen reader if this machine was booted with it requested
+Exec=/usr/lib/dagric/a11y-live
+Icon=preferences-desktop-accessibility
+Terminal=false
+X-KDE-StartupNotify=false
+OnlyShowIn=KDE;
+EOF
+chmod 0644 /etc/skel/.config/autostart/dagric-a11y-live.desktop
+
+# ---------------------------------------------------------------------------
+# 8. The skel files have to actually be on the image.
+#
+# These are shipped in config/includes.chroot rather than written here, so the
+# failure mode is a silent omission: the desktop comes up looking perfectly
+# normal and the screen-reader key does nothing. Assert them, and assert the
+# one line in each that carries the weight.
+for f in /etc/skel/.config/kaccessrc \
+         /etc/skel/.config/kglobalshortcutsrc \
+         /etc/skel/.config/kcminputrc \
+         /etc/skel/.config/kwinrc \
+         /etc/skel/.icons/default/index.theme; do
+    if [ ! -f "$f" ]; then
+        echo "ERROR: $f missing from the image." >&2
+        exit 1
+    fi
+    chmod 0644 "$f"
+done
+
+if ! grep -q '^Toggle Screen Reader On and Off=Meta+Alt+S' /etc/skel/.config/kglobalshortcutsrc; then
+    echo "ERROR: Meta+Alt+S is not bound in skel — a blind owner has no way to start Orca." >&2
+    exit 1
+fi
+
+# The cursor theme is named by DIRECTORY, and a wrong name falls back to the
+# 1987 X core cursor rather than erroring.
+CURSOR=$(sed -n 's/^cursorTheme=//p' /etc/skel/.config/kcminputrc | head -1)
+if [ -n "$CURSOR" ] && [ ! -d "/usr/share/icons/$CURSOR" ]; then
+    echo "ERROR: cursor theme '$CURSOR' is not installed (add breeze-cursor-theme)." >&2
+    exit 1
+fi
+
+# And the login screen should match the desktop it leads to.
+if [ ! -f /etc/sddm.conf.d/20-accessibility.conf ]; then
+    echo "WARNING: /etc/sddm.conf.d/20-accessibility.conf missing — login pointer stays small." >&2
+fi
+
+echo "Accessibility installed: Meta+Alt+S toggles Orca, High Contrast style measured at 7:1 or better."

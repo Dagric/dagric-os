@@ -6,23 +6,26 @@
 # LOCALLY in open Markdown — no account, no forced cloud, works offline.
 # End-to-end-encrypted sync is optional and self-hostable. The private
 # alternative to OneNote/Notion. Installed from Flathub per-user (no root).
-cat << 'EOF'
-Dagric — install Joplin (notes that stay yours)
+. /usr/bin/dagric-i18n.sh
+
+dg_say "$(gettext "Dagric — install Joplin (notes that stay yours)
 
 Joplin keeps notes, notebooks, and to-dos in plain Markdown on YOUR disk.
 No account required, works fully offline, and if you ever want sync it's
 end-to-end encrypted — to a folder, Syncthing, or your own server.
-The private alternative to OneNote and Notion. From Flathub.
-EOF
+The private alternative to OneNote and Notion. From Flathub.")"
 
-printf '\nInstall Joplin now? [y/N] '
+printf '\n%s ' "$(gettext "Install Joplin now? [y/N]")"
 read ans
-case "$ans" in y|Y|yes|YES) ;; *) echo "No changes made."; exit 0 ;; esac
+if ! dg_is_yes "$ans"; then
+    dg_say "$(gettext "No changes made.")"
+    exit 0
+fi
 
 flatpak remote-add --user --if-not-exists flathub \
     https://dl.flathub.org/repo/flathub.flatpakrepo 2>/dev/null || true
 if flatpak install --user -y --noninteractive flathub net.cozic.joplin_desktop; then
-    echo; echo "Joplin installed — launch it from the application launcher."
+    echo; dg_say "$(gettext "Joplin installed — launch it from the application launcher.")"
 else
-    echo; echo "Install did not complete. Check your network and try again."
+    echo; dg_say "$(gettext "Install did not complete. Check your network and try again.")"
 fi

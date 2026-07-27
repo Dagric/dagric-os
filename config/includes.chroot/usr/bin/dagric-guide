@@ -1,0 +1,26 @@
+#!/bin/sh
+# SPDX-FileCopyrightText: 2026 DGR Operations <repo@dagric.com>
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Dagric OS — open the user guide: the short read about the first week
+# (updates, printers, Wi-Fi, shortcuts, making the desktop yours).
+#
+# WHY THIS FILE EXISTS. It is one line of work that a .desktop file cannot do.
+# dagric-guide.desktop used to say
+#
+#     Exec=firefox file:///usr/share/dagric/guide/index.html
+#
+# and a .desktop Exec is a fixed string, so that entry could only ever open the
+# English page. The guide now also ships as guide/de/index.html; without this
+# wrapper a German owner got a German menu entry that opened English text,
+# which is worse than an English entry — it looks like the translation broke.
+#
+# Same shape and same fallback chain as dagric-welcome: de_AT -> de -> English,
+# so a language nobody has translated lands on a real page rather than a 404,
+# and adding a language needs no change here.
+. /usr/bin/dagric-i18n.sh
+
+PAGE=$(dg_localised /usr/share/dagric/guide index.html) || {
+    dg_say "$(gettext "The Dagric user guide is not installed.")" >&2
+    exit 1
+}
+exec firefox "file://$PAGE"

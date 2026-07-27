@@ -19,6 +19,18 @@
 #
 # Edition: Pro-only layouts carry EDITION=pro. On the free edition those
 # files are REMOVED AT BUILD TIME, not merely hidden.
+#
+# Language: a layout's NAME and DESCRIPTION are data, so xgettext cannot see
+# them here — tools/i18n-extract.sh reads the .look files themselves and puts
+# them in the .pot. That means a layout an administrator drops into
+# /etc/dagric/looks is shown exactly as written, which is right: we have no
+# translation for a string we have never seen.
+. /usr/bin/dagric-i18n.sh
+
+# "Dagric Looks" is the tool's own name and stays in English everywhere, the
+# same way Dagric, Dagric Hub and Dagric Styles do.
+TITLE="Dagric Looks"
+
 EDITION=$(cat /etc/dagric-edition 2>/dev/null || echo free)
 LOOK_DIRS="/usr/share/dagric/looks /etc/dagric/looks ${XDG_DATA_HOME:-$HOME/.local/share}/dagric/looks"
 
@@ -47,7 +59,8 @@ for dir in $LOOK_DIRS; do
         if [ "$need" = "pro" ] && [ "$EDITION" != "pro" ]; then continue; fi
         [ -n "$(lkey "$f" SCRIPT)" ] || continue
         name=$(lkey "$f" NAME); [ -n "$name" ] || name="$id"
-        desc=$(lkey "$f" DESCRIPTION)
+        name=$(dg_tr "$name")
+        desc=$(dg_tr "$(lkey "$f" DESCRIPTION)")
         sort=$(lkey "$f" SORT); [ -n "$sort" ] || sort=50
         label="$name"
         [ -n "$desc" ] && label="$name  —  $desc"
@@ -59,8 +72,8 @@ for dir in $LOOK_DIRS; do
 done
 
 if [ ! -s "$TMPLIST" ]; then
-    kdialog --title "Dagric Looks" --sorry \
-        "No layouts are installed. Reinstall the dagric-branding package to restore them." 2>/dev/null
+    kdialog --title "$TITLE" --sorry \
+        "$(gettext "No layouts are installed. Reinstall the dagric-branding package to restore them.")" 2>/dev/null
     exit 1
 fi
 
@@ -75,8 +88,8 @@ EOF
 done
 IFS=$OLDIFS
 
-CHOICE=$(kdialog --title "Dagric Looks" --icon dagric-logo --geometry 520x320 \
-    --menu "Pick a layout — switch back anytime:" "$@" 2>/dev/null) || exit 0
+CHOICE=$(kdialog --title "$TITLE" --icon dagric-logo --geometry 520x320 \
+    --menu "$(gettext "Pick a layout — switch back anytime:")" "$@" 2>/dev/null) || exit 0
 [ -n "$CHOICE" ] || exit 0
 
 ROW=$(grep -F "	$CHOICE	" "$TMPLIST" | head -1)
@@ -93,5 +106,7 @@ apply "$CLEAR $SCRIPT"
 NAME=$(printf '%s\n' "$ROW" | cut -f5)
 [ -n "$NAME" ] || NAME=$CHOICE
 
-kdialog --title "Dagric Looks" \
-    --passivepopup "Layout applied: $NAME" 4 2>/dev/null
+# eval_gettext, and its msgid in SINGLE quotes: double quotes would expand
+# $NAME before the lookup and the popup would silently come out in English.
+kdialog --title "$TITLE" \
+    --passivepopup "$(eval_gettext 'Layout applied: $NAME')" 4 2>/dev/null

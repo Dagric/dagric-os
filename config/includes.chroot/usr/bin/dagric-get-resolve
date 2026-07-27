@@ -6,12 +6,19 @@
 # so no OS may legally preinstall it. This walks you through the
 # official 2-minute download instead. (Kdenlive is preinstalled if you
 # want to start editing right now.)
-cat << 'EOF'
-DaVinci Resolve on Dagric OS
+. /usr/bin/dagric-i18n.sh
+
+# TRANSLATORS: the four indented lines are COMMANDS the owner types verbatim
+# into a terminal — cd, unzip, sudo and the file names must not be translated
+# or reflowed, or the instructions stop working. The last paragraph is a
+# LICENCE statement (Blackmagic forbids redistribution, which is why Dagric
+# does not bundle Resolve); keep that meaning exact. "DaVinci Resolve",
+# "Blackmagic", "NVIDIA" and "Dagric" are names.
+dg_say "$(gettext "DaVinci Resolve on Dagric OS
 ==============================
 1. Visit  https://www.blackmagicdesign.com/products/davinciresolve
    (opening it in your browser now if possible...)
-2. Click "Free Download", pick the Linux version, and register.
+2. Click \"Free Download\", pick the Linux version, and register.
 3. Unzip the download, then run the installer:
        cd ~/Downloads
        unzip DaVinci_Resolve_*_Linux.zip
@@ -20,7 +27,7 @@ DaVinci Resolve on Dagric OS
    performs best with the proprietary driver.
 
 Why isn't it preinstalled? Blackmagic's license forbids redistribution.
-Any OS that bundles it is violating that license — Dagric won't.
-EOF
+Any OS that bundles it is violating that license — Dagric won't.")"
+
 command -v xdg-open >/dev/null 2>&1 && \
     xdg-open "https://www.blackmagicdesign.com/products/davinciresolve" 2>/dev/null || true

@@ -26,6 +26,16 @@ config/includes.chroot/etc/** text eol=lf
 # Linux-side config that CRLF would break (KConfig, .desktop, skel dotfiles)
 config/includes.chroot/etc/skel/** text eol=lf
 *.desktop text eol=lf
+# Plasma colour schemes are KConfig INI files and were falling through to
+# `* text=auto`, so a clone with core.autocrlf=true wrote CRLF into them —
+# and build.ps1 mounts the working tree straight into the build container.
+# This has always applied to DagricLight/DagricDark, not just the newer
+# high-contrast scheme; same class of bug as the usr/lib/dagric line above.
+config/includes.chroot/usr/share/color-schemes/** text eol=lf
+# The gettext SOURCE catalogues. Read by msgmerge/msgfmt on a build host that
+# may be Windows; CRLF in a .po is tolerated but produces a pointless diff on
+# every round trip. (The compiled .mo files are binary — see the bottom.)
+po/*.po text eol=lf
 
 # Windows scripts keep CRLF
 *.ps1 text eol=crlf
@@ -35,6 +45,11 @@ config/includes.chroot/etc/skel/** text eol=lf
 # claim the PNGs sitting inside those trees.
 *.png binary
 *.iso binary
+# Compiled gettext catalogues. Git's NUL-byte heuristic already detects these
+# as binary, so this is insurance rather than a live bug — but a .mo checked
+# out with CRLF conversion is a CORRUPT catalogue, and the failure mode is a
+# language that silently reverts to English with nothing in any log.
+*.mo binary
 # SDDM's default avatar is a PNG that must not be named .png — SDDM looks for
 # this exact filename. `* text=auto` would guess right today, but a file whose
 # name says nothing about its contents should not depend on a guess.

@@ -2,3 +2,27 @@
 # Turn NumLock on at login — desktops with a numpad expect it. (0 = on,
 # 1 = off, 2 = leave unchanged.) Harmless on laptops without a numpad.
 NumLock=0
+
+[Mouse]
+# Cursor theme and size.
+#
+# The theme is breeze_cursors, not "Breeze": KDE renamed the directory years
+# ago and the value here is the DIRECTORY name under /usr/share/icons. Getting
+# it wrong falls back to the X core cursor, which is the black-and-white X of
+# 1987 and reads to a switcher as a broken install. The package that provides
+# it, breeze-cursor-theme, is a hard Depends of the `breeze` metapackage which
+# plasma-desktop itself Depends on, so it survives --apt-recommends false;
+# checked with `apt-get install -s --no-install-recommends plasma-desktop`.
+cursorTheme=breeze_cursors
+# 32, not Breeze's 24. This is the one accessibility default Dagric changes for
+# everybody rather than merely offering, and the reason is the audience:
+# Windows 10 draws its default pointer at 32 logical pixels, so 24 is not
+# "normal" to a switcher, it is "smaller than my old computer" — and losing the
+# pointer is the most common complaint from people with any degree of low
+# vision. The value is in logical pixels, so it keeps its apparent size on a
+# HiDPI screen; unlike a scale factor (see 0520-display-defaults, which
+# deliberately keeps scale OUT of skel because it depends on the panel) this is
+# safe to set once for every machine. System Settings -> Mouse & Touchpad ->
+# Cursors overrides it, and the login screen is matched separately in
+# /etc/sddm.conf.d/20-accessibility.conf.
+cursorSize=32

@@ -18,3 +18,39 @@
 # display name. Multiple shortcuts in a field are separated by \t.
 [services][org.kde.plasma-systemmonitor.desktop]
 _launch=Ctrl+Shift+Esc\tMeta+Esc,Meta+Esc,Task Manager
+
+# ---------------------------------------------------------------------------
+# Screen reader on/off.
+#
+# THE ONE SHORTCUT THAT CANNOT BE LEFT TO A DEFAULT. Somebody who needs Orca
+# cannot go and find the switch for Orca, because finding it is the thing Orca
+# is for. So the key has to already be there on a machine nobody has configured
+# — the same contract Windows has with Ctrl+Win+Enter for Narrator and macOS
+# has with Cmd+F5 for VoiceOver.
+#
+# Plasma does bind Meta+Alt+S, but it binds it in code: kaccess registers the
+# action with KGlobalAccel::setGlobalShortcut and the key sequence is a
+# compiled Qt enum, not a string. `strings /usr/bin/kaccess` on
+# plasma-desktop 4:6.3.6-1 shows the action name "Toggle Screen Reader On and
+# Off" and the shortcut category, but no key sequence anywhere in the binary —
+# so the default cannot be confirmed from the shipped image, only assumed. An
+# accessibility promise resting on an assumption is not a promise. It is
+# written out here instead. If the compiled default already agrees, this line
+# is a harmless restatement of it; if a future Plasma changes or drops it,
+# Dagric keeps the key.
+#
+# Both fields carry the same value: the first is the active shortcut, the
+# second is what "Reset to default" in System Settings restores. Resetting
+# should not silently take the screen reader key away.
+#
+# On Wayland this shortcut is not a convenience, it is the only way in. Orca's
+# own keystrokes reach it through each toolkit's AT-SPI DeviceEventController
+# (libQt6Gui exports org.a11y.atspi.DeviceEventController; GTK does the
+# equivalent), which means they only work while an accessible application has
+# focus. KWin implements no AT-SPI keyboard integration at all — grep the whole
+# of kwin-common and kwin-wayland for "a11y" or "atspi" and there is nothing —
+# so there is no global Orca key. Meta+Alt+S goes through KGlobalAccel, which
+# KWin does implement, and works from anywhere including a bare desktop.
+[kaccess]
+_k_friendly_name=Accessibility
+Toggle Screen Reader On and Off=Meta+Alt+S,Meta+Alt+S,Toggle Screen Reader On and Off

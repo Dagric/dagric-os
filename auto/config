@@ -18,6 +18,14 @@ esac
 # non-free is enabled so Pro's driver helper can install NVIDIA drivers
 # from the standard repos post-install; nothing from non-free is
 # preinstalled on either edition.
+#
+# --bootappend-live is EVERY entry's kernel command line, so nothing that is
+# meant to be a choice belongs in it. In particular `dagric.a11y=1` — the flag
+# that starts the screen reader on the live ISO — is deliberately NOT here:
+# putting it here would start Orca talking on every machine that boots the
+# stick. It goes on a second, copied menu entry instead, which
+# config/hooks/normal/0950-boot-branding.hook.binary builds on the assembled
+# ISO tree. Read that hook before adding a kernel argument here.
 lb config noauto \
     --distribution trixie \
     --architectures amd64 \

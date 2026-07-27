@@ -6,22 +6,25 @@
 # run entirely on YOUR hardware — no upload, no account, no cloud. A natural
 # companion to the Pro creative suite and the local-AI story.
 # Installed from the already-enabled Flathub as a per-user Flatpak (no root).
-cat << 'EOF'
-Dagric — install Upscayl (AI image upscaler, offline)
+. /usr/bin/dagric-i18n.sh
+
+dg_say "$(gettext "Dagric — install Upscayl (AI image upscaler, offline)
 
 Upscayl enlarges and sharpens photos and artwork using AI that runs locally on
 your machine — nothing is uploaded. Great for rescuing small or old images.
-A capable GPU helps but isn't required. From Flathub.
-EOF
+A capable GPU helps but isn't required. From Flathub.")"
 
-printf '\nInstall Upscayl now? [y/N] '
+printf '\n%s ' "$(gettext "Install Upscayl now? [y/N]")"
 read ans
-case "$ans" in y|Y|yes|YES) ;; *) echo "No changes made."; exit 0 ;; esac
+if ! dg_is_yes "$ans"; then
+    dg_say "$(gettext "No changes made.")"
+    exit 0
+fi
 
 flatpak remote-add --user --if-not-exists flathub \
     https://dl.flathub.org/repo/flathub.flatpakrepo 2>/dev/null || true
 if flatpak install --user -y --noninteractive flathub org.upscayl.Upscayl; then
-    echo; echo "Upscayl installed — launch it from the application launcher."
+    echo; dg_say "$(gettext "Upscayl installed — launch it from the application launcher.")"
 else
-    echo; echo "Install did not complete. Check your network and try again."
+    echo; dg_say "$(gettext "Install did not complete. Check your network and try again.")"
 fi

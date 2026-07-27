@@ -6,8 +6,13 @@
 # real Windows inside a VM. Everything here is open source and preinstalled on
 # Pro; this helper only ENABLES it (group membership + service) with consent,
 # and points to Microsoft's own ISO download — Dagric never bundles Windows.
-cat << 'EOF'
-Dagric — Windows in a window (virtual machines)
+. /usr/bin/dagric-i18n.sh
+
+# TRANSLATORS: 'libvirt' and 'kvm' are Linux group names typed verbatim —
+# never translate them. KVM, QEMU and "Virtual Machine Manager" are product
+# names; use the name the app shows in your language for the last one only if
+# it really is translated there.
+dg_say "$(gettext "Dagric — Windows in a window (virtual machines)
 
 Pro ships a complete, open-source VM stack: KVM (the Linux kernel's own
 hypervisor), QEMU, and the Virtual Machine Manager app. A virtual machine
@@ -17,26 +22,30 @@ walled off from your files.
 This setup will:
   1. check that your CPU's virtualization is enabled,
   2. add your user to the 'libvirt' and 'kvm' groups (needs your password),
-  3. make sure the VM service is running.
-EOF
+  3. make sure the VM service is running.")"
 
 # --- 1. CPU virtualization check -------------------------------------------
 if ! grep -qE 'vmx|svm' /proc/cpuinfo; then
-    cat << 'EOF'
-
-Your CPU's virtualization (Intel VT-x / AMD-V) is OFF or unsupported.
+    echo
+    # TRANSLATORS: "Virtualization", "SVM" and "VT-x" are the literal words on
+    # the BIOS/UEFI setup screen, which is firmware and is usually English —
+    # keep them in English so the owner can find the setting. F2 and Del are
+    # keyboard keys.
+    dg_say "$(gettext "Your CPU's virtualization (Intel VT-x / AMD-V) is OFF or unsupported.
 Usually it just needs switching on in the BIOS/UEFI: reboot, enter setup
-(often F2 or Del), find "Virtualization" / "SVM" / "VT-x", enable, save.
-Then run this again. No changes were made.
-EOF
+(often F2 or Del), find \"Virtualization\" / \"SVM\" / \"VT-x\", enable, save.
+Then run this again. No changes were made.")"
     exit 1
 fi
 echo
-echo "CPU virtualization: available."
+dg_say "$(gettext "CPU virtualization: available.")"
 
-printf '\nEnable VM support now? [y/N] '
+printf '\n%s ' "$(gettext "Enable VM support now? [y/N]")"
 read ans
-case "$ans" in y|Y|yes|YES) ;; *) echo "No changes made."; exit 0 ;; esac
+if ! dg_is_yes "$ans"; then
+    dg_say "$(gettext "No changes made.")"
+    exit 0
+fi
 
 # --- 2. Groups + service (single privileged step) ---------------------------
 ME=$(id -un)
@@ -46,15 +55,21 @@ ME=$(id -un)
 if pkexec sh -c "usermod -aG libvirt,kvm '$ME' && \
     systemctl enable --now libvirtd.service virtlogd.service && \
     (virsh net-autostart default 2>/dev/null; virsh net-start default 2>/dev/null; true)"; then
-    echo "User '$ME' added to libvirt+kvm; VM service running."
+    # Double quotes around $ME inside the msgid, where the original had
+    # apostrophes: an eval_gettext msgid must be single-quoted, and a
+    # single-quoted shell string cannot contain an apostrophe.
+    dg_say "$(eval_gettext 'User "$ME" added to libvirt+kvm; VM service running.')"
 else
-    echo "Could not enable VM support (administrator access is required)."
+    dg_say "$(gettext "Could not enable VM support (administrator access is required).")"
     exit 1
 fi
 
-cat << 'EOF'
-
-Done. One thing to know: group changes apply at your NEXT login —
+echo
+# TRANSLATORS: the numbered steps are a walkthrough of Microsoft's download
+# page and of Virtual Machine Manager. The URL, "swtpm", "OVMF" and "TPM" are
+# literal. The last line is a PRIVACY promise — the owner's files stay outside
+# the VM — so keep it exact.
+dg_say "$(gettext "Done. One thing to know: group changes apply at your NEXT login —
 log out and back in once before creating your first VM.
 
 To install Windows in a VM:
@@ -62,10 +77,9 @@ To install Windows in a VM:
         https://www.microsoft.com/software-download/windows11
      (Windows in a VM runs unactivated with minor cosmetic limits, or use
       your existing license key.)
-  2. Open "Virtual Machine Manager" from the launcher.
+  2. Open \"Virtual Machine Manager\" from the launcher.
   3. New VM > Local install media > pick the ISO > give it 4+ GB RAM,
      2+ CPUs, 64+ GB disk. Windows 11's TPM requirement is covered — Pro
      ships swtpm (a software TPM) and UEFI firmware (OVMF).
 
-Your files stay outside the VM unless you share them on purpose.
-EOF
+Your files stay outside the VM unless you share them on purpose.")"

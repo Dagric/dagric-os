@@ -4,11 +4,20 @@
 # Dagric OS — Security Checkup: run a Lynis audit and show the hardening score
 # in a friendly dialog. Makes the (otherwise invisible) security posture
 # something a non-expert can see and trust.
-kdialog --title "Dagric Security Checkup" \
-    --passivepopup "Running a security audit — about a minute…" 10 2>/dev/null &
+. /usr/bin/dagric-i18n.sh
+
+TITLE=$(gettext "Dagric Security Checkup")
+
+kdialog --title "$TITLE" \
+    --passivepopup "$(gettext "Running a security audit — about a minute…")" 10 2>/dev/null &
 
 # One pkexec runs BOTH the Lynis audit and the SMART disk-health scan, so the
 # owner authenticates once. The ---SMART--- marker splits the two reports.
+#
+# Nothing translated goes inside this single-quoted script: it runs as root,
+# and "not reported" below is a MACHINE marker that the grep on line ~50 tests
+# for. Translating it would break the healthy/failing decision, which is the
+# one thing in this file that must never be wrong.
 REPORT=$(pkexec sh -c '
 lynis audit system --quick --no-colors 2>/dev/null
 echo "---SMART---"
@@ -19,8 +28,8 @@ for d in $(lsblk -dno NAME,TYPE 2>/dev/null | awk "\$2==\"disk\"{print \"/dev/\"
     echo "$d: $H"
 done' 2>/dev/null || true)
 if [ -z "$REPORT" ]; then
-    kdialog --title "Dagric Security Checkup" \
-        --sorry "The audit could not run (it needs administrator access)." 2>/dev/null
+    kdialog --title "$TITLE" \
+        --sorry "$(gettext "The audit could not run (it needs administrator access).")" 2>/dev/null
     exit 1
 fi
 
@@ -29,37 +38,55 @@ REPORT=$(printf '%s\n' "$REPORT" | sed '/^---SMART---$/,$d')
 DISKS_LINE=""
 if [ -n "$SMART" ]; then
     if printf '%s\n' "$SMART" | grep -qivE 'PASSED|OK|not reported'; then
-        DISKS_LINE="Drive health:  ⚠ A DRIVE IS FAILING — back up now!
+        # TRANSLATORS: this is a HARDWARE FAILURE warning. The owner's disk is
+        # dying and their files are at risk. Keep the urgency — "back up now"
+        # is an instruction, not a suggestion.
+        DISKS_LINE="$(gettext "Drive health:  ⚠ A DRIVE IS FAILING — back up now!")
 $SMART
 "
-        kdialog --title "Dagric Security Checkup" \
-            --error "A disk is reporting SMART failure — it may die soon.
+        # TRANSLATORS: "Kup" is the name of the backup app that ships with
+        # Dagric — do not translate it.
+        kdialog --title "$TITLE" \
+            --error "$(gettext "A disk is reporting SMART failure — it may die soon.")
 
 $SMART
 
-Back up your files NOW (Kup is preinstalled), and plan to
-replace the drive." 2>/dev/null
+$(gettext "Back up your files NOW (Kup is preinstalled), and plan to
+replace the drive.")" 2>/dev/null
     else
-        DISKS_LINE="Drive health:  all drives report healthy (SMART)
+        DISKS_LINE="$(gettext "Drive health:  all drives report healthy (SMART)")
 "
     fi
 fi
 
 SCORE=$(printf '%s\n' "$REPORT" | sed -n 's/.*[Hh]ardening index[^0-9]*\([0-9]\{1,3\}\).*/\1/p' | head -1)
-[ -n "$SCORE" ] || SCORE="see report"
+[ -n "$SCORE" ] || SCORE=$(gettext "see report")
 # grep -c already prints 0 (with exit status 1) when there are no matches, so
 # a `|| echo 0` fallback would append a SECOND 0 and render "0\n0". Just take
 # grep's count and default only if the whole pipe produced nothing.
 WARN=$(printf '%s\n' "$REPORT" | grep -ciE 'warning')
 WARN=${WARN:-0}
 
-kdialog --title "Dagric Security Checkup" --msgbox \
-"Hardening index:  ${SCORE} / 100
-${DISKS_LINE}
-Dagric ships hardened by default — AppArmor confinement, a hardened kernel,
+# Assembled in three pieces rather than one, for a quoting reason worth
+# knowing: an eval_gettext msgid must be SINGLE-quoted (double quotes would
+# expand $SCORE before the lookup and silently return English), and a
+# single-quoted shell string cannot contain an apostrophe. The middle
+# paragraph has one — "your drives' SMART health" — so it goes through plain
+# gettext in double quotes, where apostrophes are free. The rendered layout is
+# unchanged.
+HEAD=$(eval_gettext 'Hardening index:  $SCORE / 100')
+BODY=$(gettext "Dagric ships hardened by default — AppArmor confinement, a hardened kernel,
 a firewall, and silent security updates are all on before you change a thing.
-Plasma also watches your drives' SMART health and warns you if one degrades.
-
-Warnings flagged:  ${WARN}
+Plasma also watches your drives' SMART health and warns you if one degrades.")
+# TRANSLATORS: "sudo lynis show details" is a command typed verbatim, and
+# /var/log/lynis.log is a file path. Neither is translated.
+FOOT=$(eval_gettext 'Warnings flagged:  $WARN
 Full report:  /var/log/lynis.log
-For details, run  sudo lynis show details  in a terminal." 2>/dev/null
+For details, run  sudo lynis show details  in a terminal.')
+
+kdialog --title "$TITLE" --msgbox \
+"$HEAD
+${DISKS_LINE}
+$BODY
+
+$FOOT" 2>/dev/null

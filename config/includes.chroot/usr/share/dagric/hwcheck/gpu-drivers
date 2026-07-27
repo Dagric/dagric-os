@@ -1,0 +1,29 @@
+# Dagric OS — graphics drivers in plain words.
+# driver | plain name | note appended to the line (may be empty)
+#
+# KEEP THE NOTE UNDER 62 CHARACTERS. It is printed verbatim at an indent of
+# 14, and the report is written to sit inside a 78-column window. A longer
+# note is not truncated — it just pushes that one line off the right-hand
+# edge, which is exactly the sort of small ugliness that makes a diagnostic
+# look untrustworthy to the person relying on it.
+
+i915        | Intel built-in graphics        | Supported by Intel and Debian. Nothing to install.
+xe          | Intel Arc / newer graphics     | Nothing to install.
+amdgpu      | AMD graphics                   | AMD write this driver themselves. Nothing to install.
+radeon      | AMD graphics (older card)      | Nothing to install.
+nouveau     | NVIDIA card, community driver  | It works, but it is slow for games and 3D. See below.
+nvidia      | NVIDIA card, official driver   | Already installed and in use.
+nvidia_drm  | NVIDIA card, official driver   | Already installed and in use.
+
+# Virtual and server display chips. Named so a report from a VM or a
+# refurbished server does not read as a fault.
+virtio_gpu  | virtual display (VM)           |
+virtio-pci  | virtual display (VM)           |
+vmwgfx      | VMware virtual display         |
+qxl         | virtual display (VM)           |
+bochs       | virtual display (VM)           |
+bochs-drm   | virtual display (VM)           |
+hyperv_drm  | Hyper-V virtual display        |
+ast         | ASPEED server display chip     |
+mgag200     | Matrox server display chip     |
+simpledrm   | basic display, no real driver  | The screen works, but with no acceleration. Usually means the proper driver did not load.

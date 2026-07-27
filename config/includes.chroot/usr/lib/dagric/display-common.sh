@@ -269,14 +269,35 @@ dg_apply_scale() {
 # --- saying which screen is which --------------------------------------------
 # "DP-2" means nothing to somebody who has only ever used Windows. Connector
 # names are only added when two screens would otherwise read the same.
+#
+# These six went out UNTRANSLATED for one release. They are the only user-facing
+# strings in this file, and this file is a LIBRARY under /usr/lib — while
+# tools/i18n-extract.sh only listed the tools in /usr/bin. So a French owner got
+# a screen picker offering "Built-in screen (1920 x 1080)", and worse, the
+# sentence around it is built with eval_gettext: "Taille du texte et des icônes
+# sur Built-in screen (1920 x 1080) :". Half-translated reads as broken, not as
+# untranslated. display-common.sh is in the extract list now; anything else that
+# lands under /usr/lib/dagric and speaks to the owner has to go in too.
+#
+# gettext is safe to call here even though this file does not source
+# dagric-i18n.sh itself: dg_friendly_name has exactly one caller, dagric-display,
+# which sources dagric-i18n.sh on the next line — and a function body is not
+# resolved until it is called. display-autoscale sources this file at login and
+# never calls this function, so nothing there gains a dependency.
 dg_friendly_name() {
+    # TRANSLATORS: how Dagric names a screen for somebody who has only ever
+    # used Windows — the connector name ("eDP-1", "HDMI-A-1") is meaningless to
+    # them. Shown as the rows of a "Which screen?" list and inside the sentence
+    # "Text and icon size on $_fr:", so it has to read naturally mid-sentence.
     case "$1" in
-        eDP-*|eDP|LVDS-*|LVDS|DSI-*|DSI) _k="Built-in screen" ;;
-        HDMI-*|HDMI)                     _k="Screen on HDMI" ;;
-        DP-*|DP|DisplayPort-*)           _k="Screen on DisplayPort" ;;
-        VGA-*|VGA)                       _k="Screen on VGA" ;;
-        DVI*)                            _k="Screen on DVI" ;;
-        *)                               _k="Screen" ;;
+        eDP-*|eDP|LVDS-*|LVDS|DSI-*|DSI) _k=$(gettext "Built-in screen") ;;
+        HDMI-*|HDMI)                     _k=$(gettext "Screen on HDMI") ;;
+        DP-*|DP|DisplayPort-*)           _k=$(gettext "Screen on DisplayPort") ;;
+        VGA-*|VGA)                       _k=$(gettext "Screen on VGA") ;;
+        DVI*)                            _k=$(gettext "Screen on DVI") ;;
+        *)                               _k=$(gettext "Screen") ;;
     esac
+    # The format stays a literal. $_k is an ARGUMENT, so a msgstr with a % in it
+    # can never become a conversion specifier — the rule from dagric-i18n.sh.
     printf '%s (%s x %s)' "$_k" "$2" "$3"
 }

@@ -36,6 +36,13 @@
 # Thumbnails follow the same three-directory order and are optional:
 # <dir>/appearance/thumbs/<id>.png. When one is missing the window draws a
 # tile in that style's own accent colour instead of a broken image.
+#
+# Language: the gallery window's own chrome is QML and still English (that
+# needs a .qm and `qml6 --translation`). But every style and layout NAME and
+# DESCRIPTION reaches the window through catalog.json as data from this
+# script, so translating it here is free and reaches the pictures too.
+. /usr/bin/dagric-i18n.sh
+
 EDITION=$(cat /etc/dagric-edition 2>/dev/null || echo free)
 BRAND='#3fa9f5'
 WALLS=/usr/share/wallpapers
@@ -51,8 +58,10 @@ THUMB_DIRS="/usr/share/dagric/appearance/thumbs /etc/dagric/appearance/thumbs $X
 # the next field as its picture. A control character cannot occur in a name.
 SEP=$(printf '\037')
 
+TITLE=$(gettext "Dagric Appearance")
+
 notify() {
-    kdialog --title "Dagric Appearance" --passivepopup "$1" 5 >/dev/null 2>&1 &
+    kdialog --title "$TITLE" --passivepopup "$1" 5 >/dev/null 2>&1 &
 }
 
 # --- the QML runtime ---------------------------------------------------------
@@ -60,13 +69,20 @@ notify() {
 # qml). Every QML module this gallery imports already ships with Plasma; only
 # the interpreter is a separate package, so check for it by hand and fall back
 # to the classic text menu rather than dying with a stack trace.
+# The renamed symlink first — see the long comment in dagric-firstrun. Without
+# it this gallery and the wizard both report WM_CLASS "qml6", so Plasma groups
+# two unrelated windows into one taskbar button and gives both the Qt Quick
+# runtime's icon instead of the Dagric logo.
 QML=
-for cand in qml6 /usr/lib/qt6/bin/qml /usr/lib/x86_64-linux-gnu/qt6/bin/qml; do
+for cand in /usr/lib/dagric/wm/dagric-appearance qml6 \
+            /usr/lib/qt6/bin/qml /usr/lib/x86_64-linux-gnu/qt6/bin/qml; do
     if command -v "$cand" >/dev/null 2>&1; then QML=$cand; break; fi
 done
 if [ -z "$QML" ] || [ ! -r "$QMLFILE" ]; then
-    kdialog --title "Dagric Appearance" --sorry \
-        "The appearance gallery needs the QML runtime (package qml-qt6), which is not installed. Opening the classic Styles menu instead." 2>/dev/null
+    # TRANSLATORS: "qml-qt6" is a package name and "Dagric Styles" is a tool
+    # name — neither is translated.
+    kdialog --title "$TITLE" --sorry \
+        "$(gettext "The appearance gallery needs the QML runtime (package qml-qt6), which is not installed. Opening the classic Styles menu instead.")" 2>/dev/null
     exec /usr/bin/dagric-style
 fi
 
@@ -127,7 +143,11 @@ collect() {
             if [ "$_need" = "pro" ] && [ "$EDITION" != "pro" ]; then continue; fi
             if [ "$_kind" = "layout" ] && [ -z "$(skey "$_f" SCRIPT)" ]; then continue; fi
             _name=$(flat "$(skey "$_f" NAME)"); [ -n "$_name" ] || _name=$_id
-            _desc=$(flat "$(skey "$_f" DESCRIPTION)")
+            # dg_tr rather than gettext: DESCRIPTION= is optional in the file
+            # format, and gettext("") returns the catalogue header rather than
+            # nothing — the .mo metadata would end up printed under a tile.
+            _name=$(dg_tr "$_name")
+            _desc=$(dg_tr "$(flat "$(skey "$_f" DESCRIPTION)")")
             _sort=$(skey "$_f" SORT)
             case "$_sort" in ''|*[!0-9]*) _sort=50 ;; esac
             _pro=false
@@ -163,8 +183,8 @@ collect style style $STYLE_DIRS
 collect layout look $LOOK_DIRS
 
 if [ ! -s "$WORK/style.tsv" ] && [ ! -s "$WORK/layout.tsv" ]; then
-    kdialog --title "Dagric Appearance" --sorry \
-        "No styles or layouts are installed. Reinstall the dagric-branding package to restore them." 2>/dev/null
+    kdialog --title "$TITLE" --sorry \
+        "$(gettext "No styles or layouts are installed. Reinstall the dagric-branding package to restore them.")" 2>/dev/null
     exit 1
 fi
 
@@ -344,7 +364,7 @@ rebuild_panels() {
 fallback_layout() {
     _f=$(sort -t"$SEP" -k1,1n "$WORK/layout.tsv" 2>/dev/null | head -1 | cut -d"$SEP" -f8)
     [ -n "$_f" ] && apply_layout "$_f"
-    notify "Your previous layout could not be read, so the standard Dagric layout was restored."
+    notify "$(gettext "Your previous layout could not be read, so the standard Dagric layout was restored.")"
     return 0
 }
 
@@ -385,11 +405,21 @@ do_revert() {
 # Qt refuses local-file XMLHttpRequest unless it is set, and without it the
 # gallery comes up completely empty. It applies to this process only, and the
 # only local file the window ever asks for is the catalogue we just wrote.
+#
+# QT_LINUX_ACCESSIBILITY_ALWAYS_ON: Qt publishes an accessible tree only if
+# D-Bus org.a11y.Status.IsEnabled was true when the process started, or if this
+# is set. Orca started AFTER this window opened would otherwise find nothing
+# here to read — and this gallery's whole job is to let somebody change how the
+# screen looks, which is exactly the tool a low-vision owner reaches for first.
+# Process-local; the session-wide equivalent is deliberately conditional, see
+# /usr/lib/systemd/user-environment-generators/60-dagric-accessibility.
 QT_MESSAGE_PATTERN='%{message}'
 QT_LOGGING_RULES='qml.debug=true'
 QT_QUICK_CONTROLS_STYLE=Basic
 QML_XHR_ALLOW_FILE_READ=1
+QT_LINUX_ACCESSIBILITY_ALWAYS_ON=1
 export QT_MESSAGE_PATTERN QT_LOGGING_RULES QT_QUICK_CONTROLS_STYLE QML_XHR_ALLOW_FILE_READ
+export QT_LINUX_ACCESSIBILITY_ALWAYS_ON
 
 pending_kind=
 pending_id=
@@ -450,7 +480,8 @@ pending_id=
             rm -f "$CAPFILE" "$PANFILE"
             pending_kind=
             pending_id=
-            notify "Kept: $name"
+            # $name came out of the catalogue, so it is already translated.
+            notify "$(eval_gettext 'Kept: $name')"
             ;;
         REVERT)
             [ -n "$pending_kind" ] || continue
@@ -471,5 +502,5 @@ if [ -s "$STATE" ]; then
     stale_kind=$(cut -d'|' -f1 "$STATE")
     do_revert "$stale_kind"
     rm -f "$STATE"
-    notify "The gallery closed while a preview was running, so the desktop was put back."
+    notify "$(gettext "The gallery closed while a preview was running, so the desktop was put back.")"
 fi

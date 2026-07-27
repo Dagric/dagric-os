@@ -10,8 +10,14 @@
 # talking to anyone's servers without being asked. Plasma's own built-in
 # Slideshow and Picture of the Day wallpaper plugins already cover the
 # offline case with nothing to install.
-cat << 'EOF'
-Dagric — install Variety (automatic wallpaper changer)
+. /usr/bin/dagric-i18n.sh
+
+# TRANSLATORS: the two bullet points are a PRIVACY disclosure — Variety can
+# fetch wallpapers from third-party websites, and that is why Dagric does not
+# preinstall it. Keep both the fact and the "OFF until you enable it" caveat.
+# "Slideshow" and "Configure Desktop and Wallpaper" are labels the owner has
+# to find in Plasma, so use the wording Plasma itself uses in your language.
+dg_say "$(gettext "Dagric — install Variety (automatic wallpaper changer)
 
 Variety changes your wallpaper on a schedule, from your own folders and,
 if you switch it on, from online collections. It adds a tray icon for
@@ -22,22 +28,24 @@ Two things worth knowing before you install:
     OFF until you enable a source, but it is why Dagric doesn't preinstall it.
   * If you only want a rotating slideshow of your OWN pictures, you don't
     need this at all — right-click the desktop, Configure Desktop and
-    Wallpaper, and choose "Slideshow".
+    Wallpaper, and choose \"Slideshow\".
 
 Installed from Debian's archive (GPL-3, open source), about 25 MB with
-its dependencies.
-EOF
+its dependencies.")"
 
-printf '\nInstall Variety now? [y/N] '
+printf '\n%s ' "$(gettext "Install Variety now? [y/N]")"
 read ans
-case "$ans" in y|Y|yes|YES) ;; *) echo "No changes made."; exit 0 ;; esac
+if ! dg_is_yes "$ans"; then
+    dg_say "$(gettext "No changes made.")"
+    exit 0
+fi
 
 if pkexec sh -c 'apt-get update && apt-get install -y variety'; then
     echo
-    echo "Variety installed — launch it from the application launcher."
-    echo "It starts in the system tray; right-click the icon for options."
+    dg_say "$(gettext "Variety installed — launch it from the application launcher.")"
+    dg_say "$(gettext "It starts in the system tray; right-click the icon for options.")"
 else
     echo
-    echo "Install did not complete (administrator access is required)."
-    echo "You can try again from the Dagric Hub."
+    dg_say "$(gettext "Install did not complete (administrator access is required).")"
+    dg_say "$(gettext "You can try again from the Dagric Hub.")"
 fi

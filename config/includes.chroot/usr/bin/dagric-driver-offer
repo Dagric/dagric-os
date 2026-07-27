@@ -4,6 +4,8 @@
 # Dagric OS — first-login NVIDIA driver offer. Runs once (removes its own
 # autostart), only prompts if an NVIDIA GPU is present and no driver is
 # installed yet. Turns the CLI `dagric-drivers` into a friendly GUI offer.
+. /usr/bin/dagric-i18n.sh
+
 rm -f "$HOME/.config/autostart/dagric-driver-offer.desktop"
 sleep 8   # let the desktop settle before popping a dialog
 
@@ -28,18 +30,26 @@ command -v lspci >/dev/null 2>&1 || exit 0
 lspci 2>/dev/null | grep -qiE 'vga.*nvidia|3d.*nvidia' || exit 0
 dpkg -s nvidia-driver >/dev/null 2>&1 && exit 0
 
-if kdialog --title "NVIDIA graphics detected" --yesno \
-"Dagric found an NVIDIA graphics card.
+# Translated here, in this process, and passed to the konsole helper below as a
+# positional parameter — never pasted into the single-quoted script text, where
+# an apostrophe in a French msgstr would end the quoting.
+CLOSE=$(gettext "Press Enter to close...")
+
+# TRANSLATORS: 'Finish Setup' is the launcher entry the owner searches for —
+# use the same words as the Name= of dagric-setup.desktop in your language.
+# 'sudo dagric-drivers' is a command typed verbatim; do not translate it.
+if kdialog --title "$(gettext "NVIDIA graphics detected")" --yesno \
+"$(gettext "Dagric found an NVIDIA graphics card.
 
 Install the NVIDIA proprietary driver now for the best performance and
 battery life?
 
 You can always do this later — search 'Finish Setup' in the launcher, or
-run 'sudo dagric-drivers' in a terminal." 2>/dev/null; then
+run 'sudo dagric-drivers' in a terminal.")" 2>/dev/null; then
     # Route through dagric-drivers so the Secure Boot / MOK-enrollment handling
     # lives in one place (an unsigned NVIDIA module under Secure Boot = black
     # screen). It re-confirms and installs.
     konsole -e sh -c \
 'pkexec /usr/bin/dagric-drivers; \
-printf "Press Enter to close..."; read x' &
+printf "%s" "$1"; read x' sh "$CLOSE" &
 fi

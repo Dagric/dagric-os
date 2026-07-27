@@ -10,7 +10,19 @@
   --ink:       #e7eef7;
   --ink-soft:  #c3cfdd;
   --muted:     #8496ac;
-  --faint:     #5f7186;
+  /* --faint was #5f7186. Measured against the four surfaces it is actually
+     printed on, that is 3.78:1 on --bg, 3.59:1 on --bg-raise and 3.44:1 on
+     --panel — all below the 4.5:1 that WCAG 1.4.3 (AA) demands, and none of
+     the seven places it is used is large text: the sidebar group headings are
+     10.9px, the page counter 13.6px, the colophon 12.8px. #77899f is the same
+     hue lifted until the worst of those four backdrops reaches 4.57:1. */
+  --faint:     #77899f;
+  /* The search field's own border. --line (alpha .12) renders at 1.24:1
+     against the field, and the field's background is only 1.05:1 away from the
+     page, so at that strength there was nothing on screen to say "this is a
+     box you can type in" — WCAG 1.4.11 (AA) wants 3:1 for the boundary of a
+     control. .55 measures 3.35:1 against both the field and the page. */
+  --line-strong:rgba(148,178,214,.55);
   --accent:    #3fa9f5;
   --accent-bg: rgba(63,169,245,.10);
   --accent-brd:rgba(63,169,245,.28);
@@ -22,6 +34,11 @@
 
 * { box-sizing:border-box; margin:0; padding:0; }
 html { scroll-behavior:smooth; scroll-padding-top:28px; }
+/* Smooth scrolling is a nicety; for somebody with a vestibular disorder it is
+   nausea. The platform already knows — KDE's "Reduce animations" sets this. */
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior:auto; }
+}
 
 body {
   background:var(--bg);
@@ -34,6 +51,30 @@ body {
 a { color:var(--accent); text-decoration:none; }
 a:hover { text-decoration:underline; text-underline-offset:3px; }
 :focus-visible { outline:2px solid var(--accent); outline-offset:2px; border-radius:4px; }
+
+/* ---------- skip link ---------- */
+/* Every page of this manual opens with a sidebar of up to forty links. Without
+   this, somebody on a keyboard or a screen reader walks all forty before
+   reaching a word of the page, on all 95 pages — WCAG 2.4.1 (Level A). Same
+   pattern the marketing site already uses in site/assets/site.css. */
+.skip { position:absolute; left:-9999px; }
+.skip:focus {
+  left:16px; top:10px; z-index:100;
+  background:var(--panel); color:var(--ink);
+  padding:8px 14px; border-radius:8px; border:1px solid var(--accent-brd);
+}
+/* The skip link and the sidebar jumps move focus programmatically. Keep the
+   ring when that focus came from the keyboard — that is the whole point of the
+   jump — and drop it when it did not, so a mouse click never rings the page. */
+main:focus:not(:focus-visible),
+section:focus:not(:focus-visible) { outline:none; }
+
+/* Text for screen readers only — a real <label> for the search box, which
+   otherwise has nothing but a placeholder, and placeholders are not names. */
+.sr-only {
+  position:absolute; width:1px; height:1px; overflow:hidden;
+  clip:rect(0 0 0 0); clip-path:inset(50%); white-space:nowrap;
+}
 
 /* ---------- shell ---------- */
 .shell {
@@ -139,23 +180,28 @@ ul.plain li::before { content:"·"; position:absolute; left:5px; color:var(--fai
 .swap strong { color:var(--ink); font-weight:600; font-size:.98rem; }
 
 /* ---------- callouts ---------- */
+/* The badge is positioned, not a flex item, and these boxes are plain blocks.
+   They were flex containers, which made every <strong> inside them its own
+   column: a sentence like "Type Notepad and you get Kate" came out as four
+   stacked columns of ragged text. Nobody notices in a tip with no bold in it,
+   which is why it survived — but the moment a callout emphasises anything it
+   stops being a sentence, and these callouts carry the warnings. */
 .notice, .tip {
-  border-radius:var(--radius); padding:13px 16px; margin:16px 0;
-  font-size:.9rem; color:var(--ink-soft); display:flex; gap:11px; align-items:baseline;
+  position:relative;
+  border-radius:var(--radius); padding:13px 16px 13px 44px; margin:16px 0;
+  font-size:.9rem; color:var(--ink-soft);
 }
 .tip { background:var(--accent-bg); border:1px solid rgba(63,169,245,.18); }
-.tip::before {
-  content:"i"; flex:none; width:17px; height:17px; border-radius:50%;
+.tip::before, .notice.pro-notice::before {
+  position:absolute; left:16px; top:15px;
+  width:17px; height:17px; border-radius:50%;
   background:var(--accent); color:#06121f;
-  font:700 .68rem/17px ui-monospace, monospace; text-align:center; transform:translateY(2px);
+  font:700 .68rem/17px ui-monospace, monospace; text-align:center;
 }
+.tip::before { content:"i"; }
+.notice.pro-notice::before { content:"P"; }
 .notice.pro-notice { background:var(--accent-bg); border:1px solid var(--accent-brd); display:none; }
-.notice.pro-notice::before {
-  content:"P"; flex:none; width:17px; height:17px; border-radius:50%;
-  background:var(--accent); color:#06121f;
-  font:700 .68rem/17px ui-monospace, monospace; text-align:center; transform:translateY(2px);
-}
-html[data-edition="free"] .notice.pro-notice { display:flex; }
+html[data-edition="free"] .notice.pro-notice { display:block; }
 
 /* There was an .addon-notice rule here, for pages whose app was available on
    free but whose Hub row was not. It is gone because the situation it papered
@@ -215,11 +261,15 @@ footer.colophon a { color:var(--muted); }
 .searchwrap { margin:26px 0 6px; position:relative; }
 #q {
   width:100%; background:var(--bg-raise); color:var(--ink);
-  border:1px solid var(--line); border-radius:var(--radius);
+  border:1px solid var(--line-strong); border-radius:var(--radius);
   padding:14px 16px 14px 44px; font-size:1rem; font-family:inherit;
 }
 #q::placeholder { color:var(--faint); }
-#q:focus { outline:none; border-color:var(--accent-brd); background:var(--panel); }
+/* This rule used to carry `outline:none`, which threw away the 2px accent ring
+   from :focus-visible above and left a border tint measuring 1.67:1 as the
+   only sign of focus — WCAG 1.4.11 asks for 3:1. The accent ring is 6.75:1 on
+   this background. Change the fill, keep the ring. */
+#q:focus { background:var(--panel); }
 .searchwrap::before {
   content:""; position:absolute; left:17px; top:50%; width:13px; height:13px;
   margin-top:-8px; border:2px solid var(--faint); border-radius:50%;
@@ -235,6 +285,25 @@ footer.colophon a { color:var(--muted); }
 }
 .toggle { display:flex; align-items:center; gap:8px; cursor:pointer; color:var(--muted); }
 .toggle input { accent-color:var(--accent); width:15px; height:15px; }
+
+/* ---------- language notice ---------- */
+/* Written by manual.js, in the reader's language, when they arrive here from a
+   translated page. It says the reference manual is English and points back at
+   what is not — see the note at the top of manual.js for why that is the
+   whole translation strategy for these 95 pages. */
+.langnote {
+  background:var(--warm-bg); border:1px solid var(--warm-brd);
+  border-radius:var(--radius); padding:13px 16px; margin:0 0 18px;
+  font-size:.9rem; color:var(--ink-soft);
+}
+.langnote strong { color:var(--ink); font-weight:600; }
+.langnote a { color:var(--warm); text-decoration:underline; text-underline-offset:3px; }
+.langnote .dismiss {
+  background:none; border:1px solid var(--line); color:var(--muted);
+  border-radius:99px; padding:3px 12px; margin-left:6px; cursor:pointer;
+  font:inherit; font-size:.82rem;
+}
+.langnote .dismiss:hover { color:var(--ink); border-color:var(--warm-brd); }
 
 .cards {
   display:grid; grid-template-columns:repeat(auto-fill, minmax(232px, 1fr));
