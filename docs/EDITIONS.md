@@ -25,9 +25,14 @@ any add-on), LibreOffice essentials
 (Writer/Calc/Impress), Elisa music library, Flathub, NTFS/exFAT,
 Dagric Welcome, branded installer, **Dagric Styles** (`dagric-style` —
 one-click desktop moods: color scheme + accent + wallpaper + KWin effects,
-3 styles free / 6 on Pro, sixteen Dagric-made wallpaper packs, all reversible
-via Reset; complements Dagric Looks which handles panel layouts), and
-the **Migration Assistant**
+3 styles free / 6 on Pro, twenty-two Dagric-made wallpaper packs — every
+design in both a branded and a logo-free "Clean" cut — all reversible
+via Reset; complements Dagric Looks which handles panel layouts),
+**Dagric Appearance** (`dagric-appearance` — the same styles and layouts as
+a picture gallery: clicking one applies it on the spot but saves nothing
+until the owner picks Keep, and an unanswered or unreadable change reverts
+itself after twenty seconds, so nothing the owner tries can strand them),
+and the **Migration Assistant**
 (`dagric-migrate` — copies Documents/Pictures/Music/Videos/Desktop and
 Chrome/Edge/Firefox bookmarks over from the Windows partition, read-only,
 never touching Windows). Drive-health watching too: plasma-disks warns
