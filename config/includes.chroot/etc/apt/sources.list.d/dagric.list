@@ -1,0 +1,16 @@
+# Dagric OS update channel.
+#
+# This is how a machine that is ALREADY INSTALLED receives fixes to Dagric
+# itself. Debian's own security updates arrive through unattended-upgrades and
+# never needed this; what needed it is everything in /usr/bin/dagric-*,
+# /usr/share/dagric and the desktop defaults — which, until this file was
+# enabled, could only ever be changed by reinstalling the operating system.
+#
+# The host is the download site rather than a dedicated repo.dagric.com. It is
+# already on HTTPS, already deployed by the same command that publishes the
+# download page, and is a name the project controls — so the channel needs no
+# new infrastructure and cannot be lost with a lapsed domain.
+#
+# Signed by the same key that signs the ISO checksums (6CE37402BA0A0EF8), so an
+# owner who verified their download is already set up to trust their updates.
+deb [signed-by=/usr/share/keyrings/dagric.gpg] https://dagric-os.web.app/repo trixie main

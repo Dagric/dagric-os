@@ -32,3 +32,9 @@ dagric-signing-key-PRIVATE-BACKUP.asc
 # earlier session and nothing in the tree references it — this rule does not
 # untrack it. It should be removed in a deliberate commit.
 /*.deb
+
+# The built APT repository. Regenerated in full by packages/build-repo.sh from
+# config/includes.chroot, which is the single source of truth — committing it
+# would add 5 MB of .deb to history on every release to store something that
+# rebuilds in seconds. Build it before deploying the site.
+site/repo/

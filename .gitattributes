@@ -87,3 +87,7 @@ config/includes.chroot/usr/share/sddm/faces/default.face.icon binary
 site/SHA256SUMS text eol=lf
 site/SHA256SUMS.sig -text
 site/dagric-signing-key.asc -text
+
+# The dearmored repo keyring apt verifies against. Binary; the text filter
+# would rewrite its bytes and apt would reject every signature it makes.
+*.gpg binary
