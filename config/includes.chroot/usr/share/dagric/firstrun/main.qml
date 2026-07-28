@@ -152,15 +152,26 @@ ApplicationWindow {
     // Every page can scroll now, which is the right safety net and the wrong
     // first impression — a scrollbar on the welcome screen says "this did not
     // fit" before the owner has read a word. It showed up on an ordinary
-    // 1024x768 VM, where the window clamps to about 860x595 and the welcome
+    // 1024x768 VM, where the window clamps to about 860x635 and the welcome
     // page's 88px logo and generous gaps are just past what is left after the
     // header and footer take their share.
+    //
+    // 700 AND NOT 660, because 660 missed the commonest machine there is. A
+    // 1024x768 desktop with a Plasma panel on it leaves 724 usable, so this
+    // window opens 984x684 — not "short" by the old number, so every trim below
+    // stayed switched off while the finish page ran 40px past the bottom and
+    // the appearance page ran 8px past it. 700 is the largest useful number
+    // that still leaves the 1060x720 default alone: the design size must not
+    // get the cramped layout, and at 720 nothing needs it.
+    //
+    // Measured under Xvfb at the four sizes this window actually opens at —
+    // 984x720, 984x684, 860x635 and 760x560 — rather than reasoned about.
     //
     // So the big decorative elements stand down when there is no room for them.
     // The heading, the body text and the note are untouched at every size: the
     // logo is there to be handsome and the sentences are there to be read, and
     // when those two compete the sentences win.
-    readonly property bool shortWin: app.height < app.px(660)
+    readonly property bool shortWin: app.height < app.px(700)
 
     // --- brand ---------------------------------------------------------------
     // The window wears the theme being chosen. Clicking "Dark" is supposed to
@@ -695,13 +706,19 @@ ApplicationWindow {
         id: pg
         property string label: ""
         // 24 rather than 34 on a short window, top and bottom, so a page that
-        // overflows by a hair does not earn a scrollbar. The first attempt at
-        // this trimmed only the welcome page's logo and gaps and still left the
-        // thumb filling ~95% of its track — the content was over by about the
-        // height of one line. Padding is the right knob because it costs no
-        // information at all, and it fixes every page rather than the one that
-        // happened to be measured.
-        property real pad: app.px(app.shortWin ? 24 : 34)
+        // overflows by a hair does not earn a scrollbar. Padding is the right
+        // knob because it costs no information at all, and it fixes every page
+        // rather than the one that happened to be measured.
+        //
+        // TWO properties and not one, and this is the whole point: the previous
+        // round wrote the trim as `pad: app.px(shortWin ? 24 : 34)` right here
+        // — and four of the six pages set `pad: app.px(40)` at their use site,
+        // which is a plain override that threw the condition away. The trim
+        // shipped, the welcome page was one of the four, and it never lost a
+        // single pixel. `padWide` is the only knob a page is offered now, so
+        // raising it cannot switch the short-window case off.
+        property real padWide: 34
+        property real pad: app.px(app.shortWin ? 24 : pg.padWide)
         default property alias body: pgCol.data
 
         anchors.fill: parent
@@ -718,8 +735,23 @@ ApplicationWindow {
         Accessible.role: Accessible.Grouping
         Accessible.name: pg.label
 
+        // AlwaysOff, not AsNeeded, and this line is the actual bug everyone
+        // was looking at.
+        //
+        // Replacing `contentItem` throws away the style's own thumb — and the
+        // style's thumb is TRANSPARENT until the view is moving or hovered.
+        // This Rectangle has no such fade, so under AsNeeded it was painted at
+        // full strength on every page from the first frame, whether the page
+        // overflowed or not. The welcome screen wore a grey bar down its right
+        // edge, filling the whole track because the page fitted exactly — the
+        // precise "this did not fit" signal that two rounds of logo-trimming
+        // went looking for in the content height, where it never was.
+        //
+        // So the bar's existence is decided by the only thing that means
+        // anything: whether there is something below the fold.
         ScrollBar.vertical: ScrollBar {
-            policy: pg.contentHeight > pg.height ? ScrollBar.AlwaysOn : ScrollBar.AsNeeded
+            policy: pg.contentHeight > pg.height ? ScrollBar.AlwaysOn
+                                                 : ScrollBar.AlwaysOff
             contentItem: Rectangle {
                 implicitWidth: app.px(6)
                 radius: app.px(3)
@@ -733,7 +765,10 @@ ApplicationWindow {
             y: pg.pad
             width: pg.width - pg.pad * 2
             height: pg.contentHeight - pg.pad * 2
-            spacing: app.px(18)
+            // The gaps between a page's blocks, trimmed with the padding and
+            // for the same reason: five gaps at 18 is 90px of a 487px viewport,
+            // and 13 still reads as separate blocks rather than a wall of text.
+            spacing: app.px(app.shortWin ? 13 : 18)
         }
     }
 
@@ -1165,7 +1200,7 @@ ApplicationWindow {
             // ------------------------------------------------------- welcome
             Page {
                 label: "Welcome"
-                pad: app.px(40)
+                padWide: 40
                 visible: app.step === "welcome" && app.loadError === ""
 
                 Item { Layout.fillHeight: true }
@@ -1263,7 +1298,14 @@ ApplicationWindow {
                         Choice {
                             id: lightChoice
                             width: app.px(178)
-                            height: app.px(108)
+                            // The last 12px of the appearance page's overflow
+                            // at 800x600, taken out of the picture rather than
+                            // out of anything anybody reads. The label under it
+                            // is untouched at every size; only the little
+                            // painted desktop above it loses a few rows of
+                            // pixels, and it is a hint at a theme, not a
+                            // preview anybody inspects.
+                            height: app.px(app.shortWin ? 96 : 108)
                             label: "Light theme"
                             hint: "A bright desktop. Shows a small picture of what it looks like."
                             selected: app.mode === "light"
@@ -1291,7 +1333,7 @@ ApplicationWindow {
                         Choice {
                             id: darkChoice
                             width: app.px(178)
-                            height: app.px(108)
+                            height: app.px(app.shortWin ? 96 : 108)   // matches Light, above
                             label: "Dark theme"
                             hint: "A dark desktop, easier on the eyes at night."
                             selected: app.mode === "dark"
@@ -1419,10 +1461,24 @@ ApplicationWindow {
                     id: wallGrid
                     Layout.fillWidth: true
                     Layout.fillHeight: true
-                    // Counts for something in the page's implicit height, so a
-                    // cramped window scrolls the page rather than crushing the
-                    // grid down to nothing.
-                    Layout.preferredHeight: app.px(210)
+                    // Preferred and minimum are deliberately THE SAME NUMBER,
+                    // and that is most of why this page fits now.
+                    //
+                    // A page scrolls when its column's implicit height passes
+                    // the viewport, and a Layout builds implicit height out of
+                    // PREFERRED heights. Asking for 210 meant the page declared
+                    // a need for 210px of gallery whether the window had it or
+                    // not, and then scrolled the entire page — heading, theme
+                    // cards and all — to satisfy the one element on it that has
+                    // its own scrollbar and exists to be scrolled.
+                    //
+                    // So the gallery asks for the least it can live with, one
+                    // full row of thumbnails, and takes back every spare pixel
+                    // through fillHeight. On a roomy window that puts it back
+                    // at 230-odd and nothing looks different; on a cramped one
+                    // the page holds still and the gallery scrolls, which is
+                    // the scrollbar the owner came expecting.
+                    Layout.preferredHeight: app.px(130)
                     Layout.minimumHeight: app.px(130)
                     clip: true
                     visible: app.wallpapers.length > 0
@@ -1460,7 +1516,14 @@ ApplicationWindow {
                     cellWidth: Math.floor(width / columns)
                     cellHeight: Math.round((cellWidth - app.px(14)) * 0.5625) + app.px(30)
 
+                    // Same rule as the page's own bar: a replaced contentItem
+                    // has lost the style's fade, so it must be switched off
+                    // outright when there is nothing under the fold. Five
+                    // wallpapers on one row and a permanent bar beside them
+                    // reads as "there are more" — and there are not.
                     ScrollBar.vertical: ScrollBar {
+                        policy: wallGrid.contentHeight > wallGrid.height
+                                ? ScrollBar.AlwaysOn : ScrollBar.AlwaysOff
                         contentItem: Rectangle {
                             implicitWidth: app.px(6)
                             radius: app.px(3)
@@ -1603,7 +1666,7 @@ ApplicationWindow {
             // ------------------------------------------------------- display
             Page {
                 label: "Text size"
-                pad: app.px(40)
+                padWide: 40
                 visible: app.step === "display" && app.loadError === ""
 
                 PageHead {
@@ -1716,7 +1779,11 @@ ApplicationWindow {
                     id: layoutGrid
                     Layout.fillWidth: true
                     Layout.fillHeight: true
-                    Layout.preferredHeight: app.px(260)
+                    // Same rule as the wallpaper gallery: ask for one row, take
+                    // the slack through fillHeight. A preferred height larger
+                    // than the minimum is a page-level scrollbar waiting for a
+                    // short enough window.
+                    Layout.preferredHeight: app.px(160)
                     Layout.minimumHeight: app.px(160)
                     clip: true
                     model: app.layouts
@@ -1741,6 +1808,8 @@ ApplicationWindow {
                     cellHeight: Math.round((cellWidth - app.px(24)) * 0.5625) + app.px(78)
 
                     ScrollBar.vertical: ScrollBar {
+                        policy: layoutGrid.contentHeight > layoutGrid.height
+                                ? ScrollBar.AlwaysOn : ScrollBar.AlwaysOff
                         contentItem: Rectangle {
                             implicitWidth: app.px(6)
                             radius: app.px(3)
@@ -1828,7 +1897,7 @@ ApplicationWindow {
             // --------------------------------------------------------- files
             Page {
                 label: "Your files"
-                pad: app.px(40)
+                padWide: 40
                 visible: app.step === "files" && app.loadError === ""
 
                 PageHead {
@@ -1917,7 +1986,12 @@ ApplicationWindow {
             // -------------------------------------------------------- finish
             Page {
                 label: "You're ready"
-                pad: app.px(40)
+                // No padWide bump here, unlike the other prose pages. This one
+                // is four cards rather than three paragraphs, and the 40 it
+                // used to carry was what put it four pixels past the bottom at
+                // 1060x720 — a scrollbar on the last screen of the wizard, at
+                // the window's own default size, to buy six pixels of margin
+                // around a grid that already has margins of its own.
                 visible: app.step === "finish" && app.loadError === ""
 
                 PageHead {
@@ -1926,8 +2000,32 @@ ApplicationWindow {
                 }
 
                 Flow {
+                    id: finishFlow
                     Layout.fillWidth: true
                     spacing: app.px(14)
+
+                    // Four across whenever four across will fit — worked out
+                    // from the width there actually is, not from a guess about
+                    // which windows are small.
+                    //
+                    // A flat 196 wanted 826px for the row. The page has between
+                    // 690 and 780, so the four wrapped two-and-two on EVERY
+                    // window this wizard opens on, and the second row is what
+                    // pushed this page off the bottom. A flat "narrower when
+                    // the window is short" fixed the sizes we had measured and
+                    // broke again the moment the desktop font grew: the cards
+                    // scale with the font, the window does not, and at a 1.09
+                    // text scale 4x172 no longer fit in a page that was still
+                    // 984px wide. Dividing the room by four cannot drift like
+                    // that. The clamps are the two ends of the useful range —
+                    // never wider than the original 196, never so narrow the
+                    // body text turns into a column of two-word lines, and if
+                    // even 146 will not fit four times the Flow wraps, which is
+                    // the correct answer at that size rather than a failure.
+                    readonly property real cardW:
+                        Math.max(app.px(146),
+                                 Math.min(app.px(196),
+                                          Math.floor((finishFlow.width - 3 * finishFlow.spacing) / 4)))
 
                     // "guide" and "manual" are two different documents and the
                     // cards have to say so, because an owner who opens the
@@ -1951,12 +2049,16 @@ ApplicationWindow {
                             id: linkCard
                             required property var modelData
                             required property int index
-                            width: app.px(196)
-                            // 146 was sized for three cards. Four share the
-                            // same row, so each is ~2/3 as wide and every body
-                            // line wraps sooner; the extra 24px is what keeps
-                            // the "Open →" line on screen at the minimum width.
-                            height: app.px(170)
+                            width: finishFlow.cardW
+                            // 162 is measured, not chosen. The tallest of the
+                            // four (Dagric Hub and App Manual tie) asks for
+                            // 136px of content at a 158px card width and about
+                            // 152 at the narrowest width the clamp above will
+                            // hand out — title, the body wrapped as far as it
+                            // wraps, and the "Open →" line, which is the part
+                            // that used to fall off the bottom. 170 was 34px of
+                            // air, and 34px x 2 rows is a scrollbar.
+                            height: app.px(162)
                             // These four open something. They are not a choice
                             // between alternatives, so they are buttons and not
                             // radio buttons — a screen reader that says "radio

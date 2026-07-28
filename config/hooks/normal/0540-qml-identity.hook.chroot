@@ -1,0 +1,160 @@
+#!/bin/sh
+# SPDX-FileCopyrightText: 2026 DGR Operations <repo@dagric.com>
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Dagric OS — make the two QML apps identifiable, so the desktop puts the
+# Dagric logo on them instead of a stranger's badge.
+#
+# THE BUG, seen in a QEMU boot of the shipping ISO: the first-run wizard's
+# TITLE BAR carries a gold "W" on a tan disc. It is the first window a customer
+# ever sees and it is wearing someone else's badge.
+#
+# Both QML apps run by handing a .qml file to the shared Qt interpreter,
+# /usr/bin/qml6 -> /usr/lib/qt6/bin/qml. Nothing about that process says
+# "Dagric", so the desktop has nothing to match against. This hook writes two
+# things, and it is worth being clear about which one does what, because the
+# previous two attempts were not.
+#
+# THE TITLE BAR — one desktop file, and it covers both display servers
+# -------------------------------------------------------------------
+# Qt tells the compositor which desktop entry the window belongs to, and it
+# reports the same name whichever display server it is on. Measured against the
+# image's own binaries:
+#
+#   Wayland, traced with WAYLAND_DEBUG=1 under a nested kwin_wayland:
+#       xdg_toplevel#43.set_app_id("org.qt-project.qml")
+#   X11, read back with xprop under Xvfb:
+#       _KDE_NET_WM_DESKTOP_FILE(UTF8_STRING) = "org.qt-project.qml"
+#
+# That name is not ours and cannot be made ours from outside the process.
+# Qt builds it from QGuiApplication::desktopFileName(), which the qml tool never
+# sets, so it falls back to reverse(organizationDomain) + "." +
+# basename(applicationFilePath). organizationDomain is hardcoded
+# "qt-project.org" by the qml tool, and applicationFilePath() on Linux is
+# /proc/self/exe put through canonicalFilePath() — which resolves the symlinks
+# below straight back to "qml". Hence "org.qt-project.qml", for every QML app,
+# forever, no matter what we call the thing we exec.
+#
+# KWin (6.3.6) then looks up <that name>.desktop in the XDG application dirs and
+# takes its Icon=. With no such file:
+#   * on Wayland it falls back to QIcon::fromTheme("wayland") — the gold "W",
+#     which is /usr/share/icons/breeze/apps/48/wayland.svg, rendered and
+#     compared against the on-screen badge pixel for pixel;
+#   * on X11 it falls back to the window's own _NET_WM_ICON, which is the qml
+#     runtime's compiled-in green "Qr".
+# Two different wrong icons, one missing file. Earlier comments in this tree
+# called the gold W "the Qt Quick runtime's own badge" — it is not, and that
+# misreading sent two rounds of work at the wrong target.
+#
+# So: give KWin the file it is looking for. Before/after screenshots of a real
+# KWin decorating the real qml runtime, in both a nested kwin_wayland and a
+# kwin_x11 under Xvfb, go from the wrong badge to the Dagric D — and on X11 it
+# is the D from the moment the window maps, ahead of the _NET_WM_ICON the
+# runtime set itself.
+#
+# THE TASKBAR — the symlinks, X11 only
+# ------------------------------------
+# Qt takes X11 WM_CLASS from basename(argv[0]). Under Xvfb with xprop:
+#   launched as qml6               -> WM_CLASS = "qml6", "Qml Runtime"
+#   launched via a renamed symlink -> WM_CLASS = "dagric-firstrun", "Qml Runtime"
+# Plasma's task manager matches that class to dagric-firstrun.desktop, which is
+# how each app keeps its own name and its own taskbar button instead of the two
+# being grouped under one — opening one while the other was up used to look like
+# the window had vanished. A symlink costs nothing, needs no compiler, and
+# survives a qml-qt6 upgrade because it points at the packaged path rather than
+# copying anything. It buys nothing on Wayland; see the canonicalFilePath note
+# above.
+#
+# WHAT WAS REJECTED, AND WHY
+# --------------------------
+# * A compiled launcher that calls QGuiApplication::setDesktopFileName() before
+#   the first window. This is the textbook fix and it is per-app exact. It also
+#   means Qt headers, a C++ compiler and an install/purge dance inside the build
+#   chroot — several hundred megabytes of build-dependency and a new class of
+#   build failure — bought for a 16-pixel decoration. Not worth it.
+# * A KWin window rule forcing desktopfile=. KWin can do it, but both apps
+#   report the same app_id, so the rule would have to match on the window
+#   CAPTION to tell them apart. That works today only because the QML titles are
+#   still English; it breaks silently the day they are translated.
+# * An env var. There is none: libQt6Gui.so.6 exports setDesktopFileName and
+#   nothing reads it from the environment.
+# * The previous answer, /usr/lib/dagric/set-window-icon: a python3-xlib helper
+#   that replaced _NET_WM_ICON from outside once the window appeared. It worked
+#   — on X11, which almost nobody gets, and which this file now covers anyway.
+#   Deleted, with python3-xlib.
+#
+# The cost of what is done instead: any bare qml6 window on this system gets the
+# Dagric logo, because they all report one name. On this image that set is
+# exactly our two apps — nothing in Debian's default install launches the QML
+# runtime directly — and a Dagric logo is a better answer than the Wayland logo
+# for an unbranded window anyway.
+set -e
+
+QML=
+for c in /usr/bin/qml6 /usr/lib/qt6/bin/qml /usr/lib/x86_64-linux-gnu/qt6/bin/qml; do
+    [ -x "$c" ] && { QML=$c; break; }
+done
+
+if [ -z "$QML" ]; then
+    # Not fatal: both launchers already fall back to a kdialog version when the
+    # QML runtime is absent, and that path has no window identity to fix.
+    echo "0540-qml-identity: no QML runtime found, skipping" >&2
+    exit 0
+fi
+
+mkdir -p /usr/lib/dagric/wm
+for app in dagric-firstrun dagric-appearance; do
+    ln -sf "$QML" "/usr/lib/dagric/wm/$app"
+done
+
+# Verify, because a silently-missing symlink puts the wrong taskbar icon back.
+for app in dagric-firstrun dagric-appearance; do
+    if [ ! -x "/usr/lib/dagric/wm/$app" ]; then
+        echo "WARNING: /usr/lib/dagric/wm/$app is not executable" >&2
+    fi
+done
+
+# The title-bar half, for both display servers. NoDisplay=true keeps it out of
+# the application menu and out of Plasma's launcher matching — KWin reads the
+# file directly and does not care, so the title bar is fixed without the
+# taskbar's own per-app matching being redirected through this generic entry.
+# Checked on a real boot: title bar shows the Dagric D, taskbar still resolves
+# each app separately.
+#
+# Written from a hook rather than shipped in includes.chroot on purpose: it is
+# only correct while qml6 is installed, and it is part of this fix rather than
+# part of Dagric's own set of launchers.
+APPS=/usr/share/applications
+DESK=$APPS/org.qt-project.qml.desktop
+mkdir -p "$APPS"
+if [ -e "$DESK" ] && dpkg -S "$DESK" >/dev/null 2>&1; then
+    # A package owns this path. Leave it alone: squatting a file dpkg manages
+    # would be undone by the next upgrade anyway, and noisily.
+    echo "0540-qml-identity: $DESK is package-owned, not overwriting" >&2
+else
+    cat > "$DESK" <<'EOF'
+[Desktop Entry]
+# Dagric OS. Not a launcher — you cannot start anything useful from here, and
+# NoDisplay keeps it out of the menu.
+#
+# This file exists so KWin can answer one question. Every app built on the
+# shared Qt QML runtime tells the compositor it belongs to a desktop entry
+# called "org.qt-project.qml" — as the app_id on Wayland, as
+# _KDE_NET_WM_DESKTOP_FILE on X11 — and KWin draws the title-bar icon by looking
+# that name up and reading its Icon=. With no such file it falls back to the
+# Wayland logo, a gold "W" that has nothing to do with this product. Dagric's
+# first-run wizard and appearance gallery are both QML apps, so this is the
+# entry KWin looks for.
+#
+# See config/hooks/normal/0540-qml-identity.hook.chroot in the source tree.
+Type=Application
+Name=Dagric
+Exec=qml6 %f
+Icon=dagric-logo
+Terminal=false
+NoDisplay=true
+EOF
+    chmod 0644 "$DESK"
+    echo "0540-qml-identity: wrote $DESK"
+fi
+
+echo "0540-qml-identity: window classes wired to $QML"

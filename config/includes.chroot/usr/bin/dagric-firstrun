@@ -223,19 +223,27 @@ wait_plasma() {
 #
 # /usr/lib/dagric/wm/dagric-firstrun comes FIRST, and it is not a different
 # program — it is a symlink to the same interpreter, installed by
-# 0540-qml-wmclass.hook.chroot, that exists purely to change argv[0].
+# 0540-qml-identity.hook.chroot, that exists purely to change argv[0].
 #
-# Qt takes a window's WM_CLASS (X11) / app_id (Wayland) from
-# basename(argv[0]). Launched as `qml6`, this wizard came up as WM_CLASS
-# "qml6", which matches no .desktop file — so Plasma could not find
-# dagric-firstrun.desktop, ignored its Icon=dagric-logo, and put the Qt Quick
-# runtime's own gold "W" in the taskbar and title bar of the first window a
-# customer ever sees. It also meant this wizard and the appearance gallery
-# shared one window class and got grouped into a single taskbar button.
+# Qt takes a window's X11 WM_CLASS from basename(argv[0]). Launched as `qml6`,
+# this wizard came up as WM_CLASS "qml6", which matches no .desktop file — so
+# Plasma could not find dagric-firstrun.desktop, ignored its Icon=dagric-logo,
+# and put a stranger's icon on the first window a customer ever sees. It also
+# meant this wizard and the appearance gallery shared one window class and got
+# grouped into a single taskbar button.
 #
 # Measured under Xvfb with xprop, not assumed:
 #   qml6                            -> WM_CLASS = "qml6", "Qml Runtime"
 #   symlink named dagric-firstrun   -> WM_CLASS = "dagric-firstrun", "Qml Runtime"
+#
+# THE SYMLINK DOES NOTHING ON WAYLAND, which is the session that ships, and it
+# never touched the title bar on either. Traced with WAYLAND_DEBUG=1 against a
+# nested kwin_wayland: app_id comes out as "org.qt-project.qml" either way,
+# because Qt builds it from reverse(organizationDomain) +
+# basename(/proc/self/exe canonicalised), and canonicalising resolves this
+# symlink straight back to "qml". The title-bar icon on both display servers is
+# handled by the org.qt-project.qml.desktop file the same hook writes; the
+# symlink is now only about the taskbar on X11.
 QML=
 for cand in /usr/lib/dagric/wm/dagric-firstrun qml6 \
             /usr/lib/qt6/bin/qml /usr/lib/x86_64-linux-gnu/qt6/bin/qml; do
@@ -848,18 +856,11 @@ export QT_LINUX_ACCESSIBILITY_ALWAYS_ON
 
 last_wall=
 
-# Put our logo on the title bar, on X11 only. The symlink above already fixes
-# the TASKBAR icon, because Plasma matches that by WM_CLASS to our .desktop
-# file. The title bar is drawn from the window's own _NET_WM_ICON, which Qt's
-# qml runtime sets from a resource compiled into the binary — verified with
-# xprop — and QML exposes no way to override it. So the window gets its real
-# icon poked in from outside, once, after it appears.
-#
-# Detached and deliberately unguarded by any wait: this is cosmetic, it must
-# never delay or fail the wizard, and it gives up on its own after 20 seconds.
-# On Wayland it exits immediately and costs nothing.
-[ -x /usr/lib/dagric/set-window-icon ] && \
-    /usr/lib/dagric/set-window-icon dagric-firstrun >/dev/null 2>&1 &
+# Nothing is launched here to fix the title-bar icon any more, and that is the
+# point. Two rounds of work went into a python helper that rewrote the window's
+# _NET_WM_ICON from outside after it appeared; it worked, and it was aimed at a
+# session almost nobody gets. Both display servers ask KWin the same question
+# now and 0540-qml-identity.hook.chroot answers it before the window exists.
 
 "$QML" "$QMLFILE" -- "--catalog=$CATALOG" 2>&1 | while IFS= read -r line; do
     case "$line" in

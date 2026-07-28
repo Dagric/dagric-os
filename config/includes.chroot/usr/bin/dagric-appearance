@@ -70,9 +70,10 @@ notify() {
 # the interpreter is a separate package, so check for it by hand and fall back
 # to the classic text menu rather than dying with a stack trace.
 # The renamed symlink first — see the long comment in dagric-firstrun. Without
-# it this gallery and the wizard both report WM_CLASS "qml6", so Plasma groups
-# two unrelated windows into one taskbar button and gives both the Qt Quick
-# runtime's icon instead of the Dagric logo.
+# it this gallery and the wizard both report WM_CLASS "qml6" on X11, so Plasma
+# groups two unrelated windows into one taskbar button and finds no .desktop
+# file for either. It buys nothing on Wayland, where both windows report the
+# app_id "org.qt-project.qml" whatever argv[0] says.
 QML=
 for cand in /usr/lib/dagric/wm/dagric-appearance qml6 \
             /usr/lib/qt6/bin/qml /usr/lib/x86_64-linux-gnu/qt6/bin/qml; do
@@ -424,10 +425,8 @@ export QT_LINUX_ACCESSIBILITY_ALWAYS_ON
 pending_kind=
 pending_id=
 
-# Same title-bar icon fix as dagric-firstrun — see the long comment there.
-# Detached, X11-only, silent, and gives up by itself.
-[ -x /usr/lib/dagric/set-window-icon ] && \
-    /usr/lib/dagric/set-window-icon dagric-appearance >/dev/null 2>&1 &
+# No title-bar icon helper here either — same reason as dagric-firstrun, see
+# the note at the same point in that file.
 
 "$QML" "$QMLFILE" -- "--catalog=$CATALOG" 2>&1 | while IFS= read -r line; do
     case "$line" in

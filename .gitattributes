@@ -52,21 +52,26 @@ po/*.po text eol=lf
 # claim the PNGs sitting inside those trees.
 *.png binary
 *.iso binary
-# GRUB's bitmap fonts, and the raw RGBA icon blob. Both live under
-# config/includes.chroot/usr/share/dagric/, which the directory rule above
-# declares `text eol=lf` — so without these two lines git treats a binary as
-# text and rewrites its bytes on the way in.
+# GRUB's bitmap fonts. They live under config/includes.chroot/usr/share/dagric/,
+# which the directory rule above declares `text eol=lf` — so without this line
+# git treats a binary as text and rewrites its bytes on the way in.
 #
 # This has not corrupted anything yet and that is luck, not design. Git's text
 # filter converts CRLF pairs, and today's three .pf2 files happen to contain
-# bare CR bytes (51, 54 and 66 of them) without a single LF following one;
-# dagric-64.rgba carries 440. The next regeneration by
-# config/bootloaders/make-boot-art.sh or tools/make-icon-blob.sh — a different
-# glyph range, a different size, one changed pixel — puts a 0x0D next to a 0x0A
-# and the committed file is silently wrong from then on. The failure mode for a
-# .pf2 is the worst kind: GRUB does not report a broken font, it quietly falls
-# back to 16px Unifont and the menu just looks like the theme was ignored.
+# bare CR bytes (51, 54 and 66 of them) without a single LF following one. The
+# next regeneration by config/bootloaders/make-boot-art.sh — a different glyph
+# range, a different size — puts a 0x0D next to a 0x0A and the committed file is
+# silently wrong from then on. The failure mode is the worst kind: GRUB does not
+# report a broken font, it quietly falls back to 16px Unifont and the menu just
+# looks like the theme was ignored.
 *.pf2 binary
+# *.rgba was here for usr/share/dagric/icon/dagric-64.rgba, a raw pixel blob fed
+# to a python helper that replaced the wizard's _NET_WM_ICON from outside. Both
+# are gone: the title-bar icon turned out to resolve through the window's
+# app_id and a desktop file, which needs no pixels of our own. The rule is kept
+# because the reasoning still applies to any raw-pixel file added later, and
+# because a binary silently rewritten on checkout is the kind of fault nobody
+# finds by reading a diff.
 *.rgba binary
 # Compiled gettext catalogues. Git's NUL-byte heuristic already detects these
 # as binary, so this is insurance rather than a live bug — but a .mo checked
