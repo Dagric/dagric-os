@@ -121,6 +121,11 @@ ApplicationWindow {
 
     // --- what the owner has chosen -------------------------------------------
     property string mode: "light"
+    // What the machine looked like when setup opened. Filled in once the
+    // catalogue arrives; see undoAll().
+    property string startMode: "light"
+    property string startWallId: ""
+    property int startScale: 100
     property string accentId: ""
     property string wallId: ""
     property int scale: 0
@@ -321,6 +326,12 @@ ApplicationWindow {
                 app.mode = (d.currentMode === "dark") ? "dark" : "light";
                 app.wallId = d.currentWall ? d.currentWall : "";
                 app.scale = app.currentScale;
+                // Remember where we came in, so "Undo my changes" can put the
+                // WINDOW back too and not just the desktop. Captured here
+                // rather than in undoAll(), because by then it is long gone.
+                app.startMode = app.mode;
+                app.startWallId = app.wallId;
+                app.startScale = app.scale;
                 app.loaded = true;
                 app.buildSteps();
             } catch (e) {
@@ -503,6 +514,22 @@ ApplicationWindow {
         app.accentId = "";
         app.layoutId = "";
         app.cAccent = "#3fa9f5";
+        // Put the WINDOW back as well, not only the desktop.
+        //
+        // Found by clicking it in a booted VM: choosing Dark and then "Undo my
+        // changes" restored the desktop and the taskbar to light, said "Your
+        // desktop is back the way it was", and left the wizard itself sitting
+        // there in dark. The window wears whatever mode is being tried on (see
+        // the `dark` property), and undo reset everything about the choice
+        // except the choice itself — so the one screen making the promise was
+        // the one visibly contradicting it.
+        //
+        // The shell has already restored the real settings by this point; these
+        // three lines only bring the window's own appearance and its selected
+        // tiles back into agreement with them.
+        app.mode = app.startMode;
+        app.wallId = app.startWallId;
+        app.scale = app.startScale;
         app.say("Your changes have been undone.");
     }
 
