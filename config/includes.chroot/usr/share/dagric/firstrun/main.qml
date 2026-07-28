@@ -102,7 +102,7 @@ ApplicationWindow {
     // smallest thing that still reads.
     minimumWidth: 560
     minimumHeight: 420
-    title: "Set Up Dagric"
+    title: app.t("Set Up Dagric")
     color: app.cBg
 
     // --- the catalogue -------------------------------------------------------
@@ -148,6 +148,21 @@ ApplicationWindow {
     // today's design is untouched; asking for 150% text makes this 1.5 and the
     // whole window grows with it. Capped, because past a point the answer is
     // to scroll (which every page now does) rather than to keep inflating.
+    // The window's words, looked up by their own English text.
+    //
+    // dagric-firstrun sends a "strings" map in the catalogue, already through
+    // gettext in the owner's language. t() returns the translation when there
+    // is one and the key otherwise — and the key IS the English sentence, so a
+    // language with no catalogue, a string added since the last extraction, or
+    // a catalogue that failed to load all degrade to correct English rather
+    // than to an identifier. There is no state in which this shows a developer
+    // string to a customer.
+    property var strings: ({})
+    function t(s) {
+        var v = app.strings[s];
+        return (v === undefined || v === "") ? s : v;
+    }
+
     FontMetrics { id: sysFont }
     property real ui: Math.max(1.0, Math.min(1.9, sysFont.height / 15.0))
     function px(n) { return Math.round(n * app.ui); }
@@ -317,6 +332,7 @@ ApplicationWindow {
                 app.scaleMode = d.scaleMode ? d.scaleMode : "none";
                 app.currentScale = d.currentScale ? d.currentScale : 0;
                 app.hasDisplayTool = d.hasDisplayTool === true;
+                app.strings = d.strings ? d.strings : ({});
                 app.hasWindows = d.hasWindows === true;
                 app.wallpapers = d.wallpapers ? d.wallpapers : [];
                 app.accents = d.accents ? d.accents : [];
@@ -1008,7 +1024,7 @@ ApplicationWindow {
                 Text {
                     Layout.fillWidth: true
                     Layout.minimumWidth: 0
-                    text: "Set Up Dagric"
+                    text: app.t("Set Up Dagric")
                     color: app.cText
                     font.pixelSize: app.px(17)
                     font.bold: true
@@ -1026,7 +1042,7 @@ ApplicationWindow {
                     // says the same thing in its own words two lines later, so
                     // nobody loses the promise, only the repetition.
                     visible: app.width >= app.px(700)
-                    text: "Every step can be skipped, and you can change all of it later."
+                    text: app.t("Every step can be skipped, and you can change all of it later.")
                     color: app.cDim
                     font.pixelSize: app.px(12)
                     elide: Text.ElideRight
@@ -1087,7 +1103,7 @@ ApplicationWindow {
             }
 
             Quiet {
-                text: "Undo my changes"
+                text: app.t("Undo my changes")
                 visible: app.changed
                 Layout.alignment: Qt.AlignVCenter
                 Accessible.description: "Put the colours, wallpaper, text size and taskbar back the way they were when setup opened"
@@ -1095,7 +1111,7 @@ ApplicationWindow {
             }
 
             Quiet {
-                text: "I'll do this later"
+                text: app.t("I'll do this later")
                 Layout.alignment: Qt.AlignVCenter
                 Accessible.description: "Close setup. Anything already applied stays, and you can run this again from the Dagric Hub"
                 onClicked: app.close()
@@ -1226,7 +1242,7 @@ ApplicationWindow {
 
             // ------------------------------------------------------- welcome
             Page {
-                label: "Welcome"
+                label: app.t("Welcome")
                 padWide: 40
                 visible: app.step === "welcome" && app.loadError === ""
 
@@ -1298,12 +1314,12 @@ ApplicationWindow {
 
             // ---------------------------------------------------- appearance
             Page {
-                label: "How it looks"
+                label: app.t("How it looks")
                 visible: app.step === "appearance" && app.loadError === ""
 
                 PageHead {
-                    heading: "Pick a look."
-                    sub: "Click anything — the desktop behind this window changes as you go."
+                    heading: app.t("Pick a look.")
+                    sub: app.t("Click anything — the desktop behind this window changes as you go.")
                 }
 
                 // Flow, not RowLayout. At 150% text the two theme cards and the
@@ -1348,7 +1364,7 @@ ApplicationWindow {
                                     useDark: false
                                 }
                                 Text {
-                                    text: "Light"
+                                    text: app.t("Light")
                                     color: app.cText
                                     font.pixelSize: app.px(13)
                                     font.bold: true
@@ -1376,7 +1392,7 @@ ApplicationWindow {
                                     useDark: true
                                 }
                                 Text {
-                                    text: "Dark"
+                                    text: app.t("Dark")
                                     color: app.cText
                                     font.pixelSize: app.px(13)
                                     font.bold: true
@@ -1393,7 +1409,7 @@ ApplicationWindow {
                         Accessible.name: "Highlight colour"
 
                         Text {
-                            text: "Highlight colour"
+                            text: app.t("Highlight colour")
                             color: app.cDim
                             font.pixelSize: app.px(13)
                             Accessible.ignored: true      // said by the group
@@ -1477,7 +1493,7 @@ ApplicationWindow {
                 Text {
                     Layout.fillWidth: true
                     Layout.topMargin: app.px(2)
-                    text: "Wallpaper"
+                    text: app.t("Wallpaper")
                     color: app.cDim
                     font.pixelSize: app.px(13)
                     visible: app.wallpapers.length > 0
@@ -1681,7 +1697,7 @@ ApplicationWindow {
 
                 Text {
                     Layout.fillWidth: true
-                    text: "Want your own picture? Right-click the desktop and choose Configure Desktop."
+                    text: app.t("Want your own picture? Right-click the desktop and choose Configure Desktop.")
                     color: app.cDim
                     font.pixelSize: app.px(11)
                     wrapMode: Text.WordWrap
@@ -1692,7 +1708,7 @@ ApplicationWindow {
 
             // ------------------------------------------------------- display
             Page {
-                label: "Text size"
+                label: app.t("Text size")
                 padWide: 40
                 visible: app.step === "display" && app.loadError === ""
 
@@ -1794,11 +1810,11 @@ ApplicationWindow {
 
             // ------------------------------------------------------- taskbar
             Page {
-                label: "The taskbar"
+                label: app.t("The taskbar")
                 visible: app.step === "taskbar" && app.loadError === ""
 
                 PageHead {
-                    heading: "Where should the taskbar go?"
+                    heading: app.t("Where should the taskbar go?")
                     sub: "Click one to try it. Your open windows and apps stay exactly where they are."
                 }
 
@@ -1923,7 +1939,7 @@ ApplicationWindow {
 
             // --------------------------------------------------------- files
             Page {
-                label: "Your files"
+                label: app.t("Your files")
                 padWide: 40
                 visible: app.step === "files" && app.loadError === ""
 
@@ -1982,7 +1998,7 @@ ApplicationWindow {
                     Layout.fillWidth: true
                     spacing: app.px(12)
                     Primary {
-                        text: "Bring my files over"
+                        text: app.t("Bring my files over")
                         Accessible.description: "Opens the migration tool in its own window. Nothing on the Windows drive is changed."
                         onClicked: { app.markTouched("files"); app.run("migrate"); }
                     }
@@ -2012,7 +2028,7 @@ ApplicationWindow {
 
             // -------------------------------------------------------- finish
             Page {
-                label: "You're ready"
+                label: app.t("You're ready")
                 // No padWide bump here, unlike the other prose pages. This one
                 // is four cards rather than three paragraphs, and the 40 it
                 // used to carry was what put it four pixels past the bottom at
@@ -2171,7 +2187,7 @@ ApplicationWindow {
             spacing: app.px(12)
 
             Ghost {
-                text: "Back"
+                text: app.t("Back")
                 visible: app.stepIndex > 0
                 onClicked: app.goBack()
             }
@@ -2182,7 +2198,7 @@ ApplicationWindow {
             // here has been clicked there is nothing left to skip, and two
             // buttons that do the same thing is a puzzle, not a choice.
             Quiet {
-                text: "Skip this step"
+                text: app.t("Skip this step")
                 visible: app.step !== "welcome" && app.step !== "finish"
                          && !app.isTouched(app.step)
                 Accessible.description: "Leave this setting alone and go to the next step"

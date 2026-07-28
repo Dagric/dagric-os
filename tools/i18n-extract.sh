@@ -69,6 +69,31 @@ command -v xgettext >/dev/null 2>&1 || {
     printf '%s\n' '# Regenerate with:  sh tools/i18n-extract.sh'
     printf '%s\n' ''
 
+    # The first-run wizard's own chrome.
+    #
+    # Same reason as the drop-in files below: dagric-firstrun's emit_strings
+    # reads its sentences from a here-doc and passes each through gettext "$_s",
+    # and xgettext cannot follow a variable. Without this block the wizard — the
+    # first screen a customer sees — is the one part of Dagric that stays in
+    # English no matter how many catalogues exist.
+    #
+    # The list is read straight out of the shell script, between its STRINGS
+    # markers, so the two can never drift: adding a sentence there is all that
+    # is needed for it to appear here on the next extraction.
+    FIRSTRUN=$BIN/dagric-firstrun
+    if [ -f "$FIRSTRUN" ]; then
+        printf '# TRANSLATORS: the setup wizard'"'"'s own buttons, headings and step names.\n'
+        printf '# This is the first screen a new owner sees. Keep button labels short;\n'
+        printf '# they sit in fixed-width buttons beside each other.\n'
+        sed -n "/<<'STRINGS'/,/^STRINGS$/p" "$FIRSTRUN" \
+          | sed -e "1d" -e "\$d" \
+          | while IFS= read -r line; do
+                [ -n "$line" ] || continue
+                printf 'gettext "%s"\n' "$(printf '%s' "$line" | sed 's/"/\\"/g')"
+            done
+        printf '\n'
+    fi
+
     for f in "$SHARE"/dagric/looks/*.look; do
         [ -f "$f" ] || continue
         id=${f##*/}; id=${id%.look}

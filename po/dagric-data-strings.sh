@@ -8,6 +8,49 @@
 #
 # Regenerate with:  sh tools/i18n-extract.sh
 
+# TRANSLATORS: the setup wizard's own buttons, headings and step names.
+# This is the first screen a new owner sees. Keep button labels short;
+# they sit in fixed-width buttons beside each other.
+gettext "Set Up Dagric"
+gettext "Every step can be skipped, and you can change all of it later."
+gettext "I'll do this later"
+gettext "Undo my changes"
+gettext "Back"
+gettext "Next"
+gettext "Finish"
+gettext "Skip this step"
+gettext "Let's go"
+gettext "Welcome"
+gettext "How it looks"
+gettext "Text size"
+gettext "The taskbar"
+gettext "Your files"
+gettext "You're ready"
+gettext "Pick a look."
+gettext "Click anything — the desktop behind this window changes as you go."
+gettext "Highlight colour"
+gettext "Wallpaper"
+gettext "Want your own picture? Right-click the desktop and choose Configure Desktop."
+gettext "Light"
+gettext "Dark"
+gettext "Make everything bigger."
+gettext "Text, icons and buttons all grow together. You can change this again later."
+gettext "Standard"
+gettext "Bigger"
+gettext "Biggest"
+gettext "Where should the taskbar go?"
+gettext "Pick the shape that feels familiar. You can switch again from the Dagric Hub."
+gettext "Bring your files from Windows."
+gettext "Your documents, pictures, music and browser bookmarks can come across. Windows"
+gettext "is never modified."
+gettext "Bring my files over"
+gettext "You're ready."
+gettext "Everything here can be changed again whenever you like."
+gettext "Open the Dagric Hub"
+gettext "Read the guide"
+gettext "Open the manual"
+gettext "Your desktop is back the way it was."
+
 # TRANSLATORS: name of the "classic" taskbar layout in Dagric Looks and the
 # setup wizard. One or two words, shown as the title of a picture tile.
 gettext "Classic"

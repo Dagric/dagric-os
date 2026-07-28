@@ -802,6 +802,78 @@ if [ -z "$QML" ] || [ ! -r "$QMLFILE" ]; then
     exit 0
 fi
 
+# ============================================================ the window's words
+#
+# THE WIZARD'S OWN CHROME, TRANSLATED HERE RATHER THAN IN QML.
+#
+# Everything else in Dagric speaks five languages — the Hub, the manual, all 26
+# launcher entries, every style and wallpaper name. The one thing that did not
+# was the first screen a customer ever sees, so a French owner met a French
+# desktop through an English wizard.
+#
+# The Qt-native answer is qsTr() plus lupdate/lrelease and a .qm per language.
+# It was rejected: neither tool is installed on the build host, adding qttools
+# would put a second translation system beside the gettext one that already
+# works, and translators would then have to maintain .po AND .ts. These strings
+# instead travel the road every other Dagric string already travels — declared
+# here as ordinary gettext calls, which xgettext finds with no new machinery,
+# and handed to the window as data in the catalogue it already reads.
+#
+# The KEY is the English text. That is deliberate: a missing translation falls
+# back to a key that is already the correct English sentence, so the worst case
+# is the wizard as it shipped yesterday rather than "welcome_title_2" on screen.
+emit_strings() {
+    _first=1
+    # Written as a here-doc of English sentences so this list stays readable as
+    # prose. Each line is looked up through gettext at runtime.
+    while IFS= read -r _s; do
+        [ -n "$_s" ] || continue
+        [ "$_first" = 1 ] || printf ',\n'
+        _first=0
+        printf '    "%s": "%s"' "$(jesc "$_s")" "$(jesc "$(gettext "$_s")")"
+    done <<'STRINGS'
+Set Up Dagric
+Every step can be skipped, and you can change all of it later.
+I'll do this later
+Undo my changes
+Back
+Next
+Finish
+Skip this step
+Let's go
+Welcome
+How it looks
+Text size
+The taskbar
+Your files
+You're ready
+Pick a look.
+Click anything — the desktop behind this window changes as you go.
+Highlight colour
+Wallpaper
+Want your own picture? Right-click the desktop and choose Configure Desktop.
+Light
+Dark
+Make everything bigger.
+Text, icons and buttons all grow together. You can change this again later.
+Standard
+Bigger
+Biggest
+Where should the taskbar go?
+Pick the shape that feels familiar. You can switch again from the Dagric Hub.
+Bring your files from Windows.
+Your documents, pictures, music and browser bookmarks can come across. Windows
+is never modified.
+Bring my files over
+You're ready.
+Everything here can be changed again whenever you like.
+Open the Dagric Hub
+Read the guide
+Open the manual
+Your desktop is back the way it was.
+STRINGS
+}
+
 # =============================================================== the catalogue
 {
     printf '{\n'
@@ -822,7 +894,10 @@ fi
     printf '\n  ],\n'
     printf '  "layouts": [\n'
     emit_layouts
-    printf '\n  ]\n}\n'
+    printf '\n  ],\n'
+    printf '  "strings": {\n'
+    emit_strings
+    printf '\n  }\n}\n'
 } > "$CATALOG"
 
 # =============================================================== run the window
