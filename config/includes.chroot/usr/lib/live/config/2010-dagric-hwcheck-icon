@@ -20,8 +20,28 @@
 # either fail (read-only medium) or scribble on the system copy.
 Dagric_hwcheck_icon ()
 {
+    # BOTH icons are placed here, and the installer one is not ours.
+    #
+    # Debian ships /etc/xdg/autostart/calamares-desktop-icon.desktop, which runs
+    # add-calamares-desktop-icon at login to drop "Install Dagric OS" on the
+    # desktop. On this image it does not happen. Verified by installing from the
+    # live session in a VM and then opening ~/Desktop in the file manager:
+    # "1 file (2.4 KiB)", and that one file is ours.
+    #
+    # So a live USB — the entire point of which is try-then-install — offered no
+    # way to install. The entry is still in the application menu, but somebody
+    # evaluating an unfamiliar OS for ten minutes clicks what is on the screen,
+    # and what was on the screen was a hardware checker and nothing else.
+    #
+    # Rather than diagnose why a Plasma 6 session is not honouring an
+    # X-KDE-autostart-phase=1 entry, this uses the mechanism that demonstrably
+    # DOES work — the one that put our own icon there — for both. live-config
+    # runs before the session, so neither icon depends on autostart firing.
+    # Debian's autostart is left alone: if it does run, it writes the same file
+    # to the same path and the result is identical.
     SRC=/usr/share/applications/dagric-hardware-check.desktop
-    [ -f "$SRC" ] || return 0
+    INST=/usr/share/applications/calamares-install-debian.desktop
+    [ -f "$SRC" ] || [ -f "$INST" ] || return 0
 
     for H in /home/*; do
         [ -d "$H" ] || continue
@@ -38,11 +58,17 @@ Dagric_hwcheck_icon ()
             esac
         fi
         mkdir -p "$D" || continue
-        cp "$SRC" "$D/dagric-hardware-check.desktop" || continue
-        # 0755: Plasma refuses to run a desktop launcher that is not executable
-        # and shows it as a text file instead, which looks broken.
-        chmod 0755 "$D/dagric-hardware-check.desktop"
-        chown "$U:$U" "$D/dagric-hardware-check.desktop" 2>/dev/null || true
+
+        # 0755 on both: Plasma refuses to run a desktop launcher that is not
+        # executable and shows it as a text file instead, which looks broken.
+        for pair in "$SRC:dagric-hardware-check.desktop" \
+                    "$INST:calamares-install-debian.desktop"; do
+            s=${pair%%:*}; n=${pair#*:}
+            [ -f "$s" ] || continue
+            cp "$s" "$D/$n" || continue
+            chmod 0755 "$D/$n"
+            chown "$U:$U" "$D/$n" 2>/dev/null || true
+        done
         chown "$U:$U" "$D" 2>/dev/null || true
     done
 }
