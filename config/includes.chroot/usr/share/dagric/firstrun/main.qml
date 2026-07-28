@@ -694,7 +694,14 @@ ApplicationWindow {
     component Page: Flickable {
         id: pg
         property string label: ""
-        property real pad: app.px(34)
+        // 24 rather than 34 on a short window, top and bottom, so a page that
+        // overflows by a hair does not earn a scrollbar. The first attempt at
+        // this trimmed only the welcome page's logo and gaps and still left the
+        // thumb filling ~95% of its track — the content was over by about the
+        // height of one line. Padding is the right knob because it costs no
+        // information at all, and it fixes every page rather than the one that
+        // happened to be measured.
+        property real pad: app.px(app.shortWin ? 24 : 34)
         default property alias body: pgCol.data
 
         anchors.fill: parent
@@ -1192,7 +1199,7 @@ ApplicationWindow {
                     Accessible.name: text
                 }
 
-                Item { Layout.preferredHeight: app.px(12) }
+                Item { Layout.preferredHeight: app.px(app.shortWin ? 8 : 12) }
 
                 Text {
                     Layout.fillWidth: true
@@ -1209,7 +1216,7 @@ ApplicationWindow {
                     Accessible.name: text
                 }
 
-                Item { Layout.preferredHeight: app.px(18) }
+                Item { Layout.preferredHeight: app.px(app.shortWin ? 10 : 18) }
 
                 Text {
                     Layout.fillWidth: true

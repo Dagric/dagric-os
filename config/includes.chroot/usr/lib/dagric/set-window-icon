@@ -52,13 +52,35 @@ import struct
 import sys
 import time
 
-DEADLINE = 20.0          # seconds to wait for the window to appear
+# 45s, not 20. The first version gave up after 20 and the icon was still wrong
+# on a real boot even though every piece shipped correctly — helper executable,
+# blob present, python3-xlib installed, the call wired in. The window simply was
+# not there yet: this runs on the same first login where dagric-brand-launcher
+# quits and relaunches plasmashell, so the compositor is restarting underneath
+# the wizard exactly while we are looking for it.
+DEADLINE = 45.0
 POLL = 0.25
 BLOB = "/usr/share/dagric/icon/dagric-64.rgba"
 SIDE = 64
+# Why a log, for something cosmetic: this failed silently once, on a machine
+# nobody can attach a debugger to, and every static check said it should have
+# worked. One line in /tmp turns the next occurrence from a guess into a fact.
+# /tmp because it is per-boot and disposable, and because a helper that cannot
+# write its own log must still not fail.
+LOG = "/tmp/dagric-set-window-icon.log"
 
 
-def _quiet_exit():
+def note(msg):
+    try:
+        with open(LOG, "a") as fh:
+            fh.write(msg + "\n")
+    except Exception:
+        pass
+
+
+def _quiet_exit(why=""):
+    if why:
+        note(why)
     raise SystemExit(0)
 
 
@@ -86,24 +108,33 @@ def main():
         _quiet_exit()
     wanted = sys.argv[1]
 
-    # Wayland needs nothing from us and has no X server to talk to.
-    if os.environ.get("XDG_SESSION_TYPE") == "wayland" or not os.environ.get("DISPLAY"):
-        _quiet_exit()
+    # DISPLAY is the only test that means anything.
+    #
+    # This used to bail when XDG_SESSION_TYPE said "wayland", on the reasoning
+    # that Wayland resolves the icon through app_id and needs no help. True, but
+    # the variable is a poor proxy: a Wayland session still runs XWayland, the
+    # live autologin path does not always set it, and a wrong value here makes
+    # the helper exit without ever looking. If there is no X server to talk to,
+    # display.Display() fails a line later and we leave just as quietly — so the
+    # honest test is "can I reach an X server", not "what does an environment
+    # variable claim I am".
+    if not os.environ.get("DISPLAY"):
+        _quiet_exit("no DISPLAY, nothing to do")
 
     try:
         from Xlib import display, X
         from Xlib.error import XError
-    except Exception:
-        _quiet_exit()
+    except Exception as exc:
+        _quiet_exit("python3-xlib missing: %s" % exc)
 
     icon = load_icon()
     if not icon:
-        _quiet_exit()
+        _quiet_exit("icon blob missing or wrong size: " + BLOB)
 
     try:
         dpy = display.Display()
-    except Exception:
-        _quiet_exit()
+    except Exception as exc:
+        _quiet_exit("cannot open display: %s" % exc)
 
     root = dpy.screen().root
     net_icon = dpy.intern_atom("_NET_WM_ICON")
@@ -129,10 +160,28 @@ def main():
             pass
         return found
 
-    deadline = time.time() + DEADLINE
+    started = time.time()
+    deadline = started + DEADLINE
     while time.time() < deadline:
         targets = walk(root)
         if targets:
+            n = 0
+            for win in targets:
+                try:
+                    win.change_property(net_icon, cardinal, 32, icon)
+                    n += 1
+                except Exception:
+                    pass
+            try:
+                dpy.sync()
+            except Exception:
+                pass
+            # Once more, a beat later. The window manager reads the property on
+            # PropertyNotify, and the wizard's window is created while the
+            # compositor is still settling from plasmashell's restart; a second
+            # write costs nothing and covers the case where the first arrives
+            # while nothing is listening.
+            time.sleep(1.5)
             for win in targets:
                 try:
                     win.change_property(net_icon, cardinal, 32, icon)
@@ -142,9 +191,11 @@ def main():
                 dpy.sync()
             except Exception:
                 pass
-            _quiet_exit()
+            _quiet_exit("set icon on %d window(s) for '%s' after %.1fs"
+                        % (n, wanted, time.time() - started))
         time.sleep(POLL)
-    _quiet_exit()
+    _quiet_exit("gave up after %.0fs: no window with WM_CLASS '%s'"
+                % (DEADLINE, wanted))
 
 
 if __name__ == "__main__":
