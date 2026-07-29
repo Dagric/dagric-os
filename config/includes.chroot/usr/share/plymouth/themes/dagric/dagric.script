@@ -65,6 +65,10 @@ if (bg.image) {
 
     bg.sprite = Sprite(bg.image.Scale(fit.w, fit.h));
     bg.sprite.SetPosition(art.x, art.y, 0);
+    # Start invisible. refresh_callback below eases it up over about a second,
+    # so the name arrives rather than being switched on. See the animation block
+    # at the bottom for why this is not just decoration.
+    bg.sprite.SetOpacity(0);
 }
 
 # ---- Geometry of the rule in the artwork -----------------------------------
@@ -193,6 +197,111 @@ fun message_callback(message) {
         Math.Int(screen.h * 0.92 - msg.image.GetHeight()), 4);
     msg_sprite.SetOpacity(1);
 }
+
+# ---- The name arrives, rather than being switched on -----------------------
+#
+# Until now nothing on this screen moved except the progress hairline. The
+# artwork — mark, wordmark, tagline and rule — appeared fully formed the instant
+# the splash took over, which is what makes a boot splash read as a static image
+# somebody forgot to replace rather than as a product starting up.
+#
+# Two movements, both cheap and both deliberately restrained, because this
+# screen is on a machine the owner is waiting for and a busy splash makes a slow
+# boot feel slower:
+#
+#   1. An eased fade-in of the whole lockup over ~1.1 s. The ease is a
+#      smoothstep, not a straight ramp: linear opacity reads as a dimmer being
+#      turned, an eased one reads as something resolving into focus.
+#
+#   2. One light sweep across the wordmark, once, then never again. A highlight
+#      travels left to right through the band just above the rule and stops. It
+#      is the only "shine" in the product and it is over in under a second — a
+#      looping shimmer on a boot screen looks like a demo kiosk.
+#
+# The wordmark's position is derived from the SAME detected rule geometry the
+# progress bar uses, not from a guess: the band sits directly above the rule and
+# is scaled through the identical cover transform. If the artwork moves, both
+# move together, which is the whole reason the detector exists.
+#
+# ANIMATION IS SKIPPED ENTIRELY OUTSIDE BOOT. On shutdown and reboot the machine
+# is going away and the owner is not waiting for anything; fading a logo in as
+# the system dies is theatre. Those modes get the artwork held still, which is
+# also what the progress bar already does and for the same reason.
+state.tick = 0;
+state.faded = 0;
+state.sweep_done = 0;
+sweep.sprite = Sprite();
+
+if (state.have_art == 1 && Plymouth.GetMode() == "boot") {
+    # A narrow soft-white block, scaled to a sliver the height of the wordmark.
+    # There is no gradient primitive here, so the softness comes from opacity
+    # alone — at 0.10 a hard-edged sliver still reads as a gleam rather than a
+    # bar, and anything higher looks like a scanline fault.
+    sweep.h = Math.Int(56 * fit.h / RULE_ART_H);
+    if (sweep.h < 8)
+        sweep.h = 8;
+    sweep.w = Math.Int(90 * fit.w / RULE_ART_W);
+    if (sweep.w < 12)
+        sweep.w = 12;
+    # The band above the rule: the wordmark and tagline live there.
+    sweep.y = art.y + Math.Int((RULE_Y - 96) * fit.h / RULE_ART_H);
+    # Travel across the rule's own width, centred on it, so the sweep covers the
+    # name and nothing else.
+    sweep.x0 = art.x + Math.Int((RULE_X - 40) * fit.w / RULE_ART_W);
+    sweep.span = Math.Int((RULE_LEN + 80) * fit.w / RULE_ART_W);
+    sweep.image = Image.Text("█", 1.0, 1.0, 1.0);
+    sweep.sprite.SetImage(sweep.image.Scale(sweep.w, sweep.h));
+    sweep.sprite.SetPosition(sweep.x0, sweep.y, 8);
+    sweep.sprite.SetOpacity(0);
+}
+
+fun refresh_callback() {
+    state.tick++;
+
+    if (state.have_art != 1)
+        return;
+
+    if (Plymouth.GetMode() != "boot") {
+        # Nothing to animate; make sure the art is simply visible.
+        bg.sprite.SetOpacity(1);
+        return;
+    }
+
+    # --- 1. eased fade-in, ~1.1 s at Plymouth's ~50 fps ---
+    if (state.faded == 0) {
+        f = state.tick / 55;
+        if (f >= 1) {
+            f = 1;
+            state.faded = 1;
+        }
+        # smoothstep: 3f^2 - 2f^3
+        e = f * f * (3 - 2 * f);
+        bg.sprite.SetOpacity(e);
+        return;
+    }
+
+    # --- 2. one sweep across the name, then done ---
+    if (state.sweep_done == 0) {
+        s = (state.tick - 55) / 40;              # ~0.8 s
+        if (s >= 1) {
+            s = 1;
+            state.sweep_done = 1;
+            sweep.sprite.SetOpacity(0);
+            return;
+        }
+        sweep.sprite.SetPosition(
+            sweep.x0 + Math.Int(s * sweep.span) - Math.Int(sweep.w / 2),
+            sweep.y, 8);
+        # Fade the gleam in and back out across its travel so it has no hard
+        # start or stop: a triangular envelope peaking at the midpoint.
+        if (s < 0.5)
+            a = s * 2;
+        else
+            a = (1 - s) * 2;
+        sweep.sprite.SetOpacity(a * 0.10);
+    }
+}
+Plymouth.SetRefreshFunction(refresh_callback);
 
 Plymouth.SetDisplayPasswordFunction(display_password_callback);
 Plymouth.SetDisplayNormalFunction(display_normal_callback);

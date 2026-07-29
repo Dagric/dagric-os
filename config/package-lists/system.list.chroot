@@ -214,6 +214,22 @@ thermald
 bash-completion
 less
 nano
+# vim as well as nano, on BOTH editions, and it is not a duplicate.
+#
+# nano is the right default for the audience: a switcher who opens a config file
+# needs the keys printed at the bottom of the screen. But `vim` is muscle memory
+# for anyone who has ever administered a Linux box, and it is also what every
+# tutorial, forum answer and README on the internet tells you to type. A
+# terminal that answers `vim: command not found` reads as a broken or crippled
+# system to exactly the confident user most likely to recommend Dagric to
+# somebody else — and Debian's default `vi` (from vim-tiny, pulled in as a
+# dependency) is worse than absent, because it opens and then behaves like
+# neither vim nor anything else the person expects.
+#
+# vim-nox and the full vim-gtk3 are both wrong here: nox drags in a scripting
+# stack for a text editor, gtk3 adds a GUI nobody asked for. Plain `vim` is the
+# terminal build.
+vim
 curl
 plocate
 # lspci — hardware detection (the dagric-drivers helper depends on it;

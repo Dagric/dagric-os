@@ -51,6 +51,8 @@ H_LOOKS=$(gettext "──  Appearance  ─────────────�
 H_SYSTEM=$(gettext "──  System  ───────────────────────")
 # TRANSLATORS: section heading — see the note on "Get started". Decoration only.
 H_APPS=$(gettext "──  Add more apps  ────────────────")
+# TRANSLATORS: section heading — see the note on "Get started". Decoration only.
+H_LEARN=$(gettext "──  Learn and get help  ───────────")
 
 # The hardware check reads differently either side of an install, so it says
 # something different. Before the install it answers the question that decides
@@ -72,9 +74,6 @@ set -- \
     firstrun "      $(gettext "Set up Dagric (welcome wizard)")" \
     setup    "      $(gettext "Finish setup — drivers, printers")" \
     migrate  "      $(gettext "Migrate from Windows")" \
-    guide    "      $(gettext "Welcome page — what Dagric promises")" \
-    userguide "      $(gettext "User guide — your first week")" \
-    manual   "      $(gettext "App manual")" \
     _looks   "$H_LOOKS" \
     gallery  "      $(gettext "Appearance gallery")" \
     display  "      $(gettext "Text size and night light")" \
@@ -85,6 +84,11 @@ set -- \
     drivers  "      $(gettext "NVIDIA driver")" \
     security "      $(gettext "Security Checkup")" \
     access   "      $(gettext "Accessibility — screen reader, magnifier, contrast")" \
+    _learn   "$H_LEARN" \
+    userguide "      $(gettext "User guide — your first week")" \
+    manual   "      $(gettext "App manual — every program explained")" \
+    guide    "      $(gettext "Welcome page — what Dagric promises")" \
+    support  "      $(gettext "Get help — contact a human")" \
     _apps    "$H_APPS" \
     steam       "      Steam" \
     heroic      "      $(gettext "Heroic — Epic, GOG, Amazon")" \
@@ -138,10 +142,10 @@ fi
 
 # A comfortable initial size; taller on Pro, which has one more section.
 # Both numbers are "chrome plus roughly 14px per row" — the ratio these sizes
-# have always encoded. Free draws 31 rows, three more than the 28 that 690
-# encoded: the hardware check, the accessibility row and the user guide.
-# Pro adds 3 more, for 34. Guessing short only adds a scrollbar; guessing tall
-# only adds whitespace. Re-derive it if you add another row.
+# have always encoded. Free draws 33 rows and Pro 36, counting the five section
+# headings, which occupy a line each even though they cannot be chosen.
+# Guessing short only adds a scrollbar; guessing tall only adds whitespace.
+# Re-derive it if you add another row.
 #
 # The width went 440 -> 500 when the labels started being translated. German
 # runs roughly 30% longer than English and "Accessibility — screen reader,
@@ -149,8 +153,12 @@ fi
 # as a hint and honours widget minimums, so 440 would not have truncated
 # anything — it would have quietly grown the window past the number written
 # here and made this comment a lie.
-GEOM=500x732
-[ "$EDITION" = "pro" ] && GEOM=500x777
+# +28 for the "Learn and get help" section: its own heading plus the new
+# "Get help — contact a human" row, at the ~14px per row this has always used.
+# The three documentation rows MOVED there from "Get started" rather than being
+# added, so they are already counted above.
+GEOM=500x760
+[ "$EDITION" = "pro" ] && GEOM=500x805
 
 CHOICE=$(kdialog --title "Dagric Hub" --icon dagric-logo --geometry "$GEOM" \
     --menu "$(gettext "What would you like to do?")" "$@" 2>/dev/null) || exit 0
@@ -207,6 +215,19 @@ case "$CHOICE" in
     guide)     exec /usr/bin/dagric-welcome ;;
     userguide) dagric-guide & ;;
     manual)   dagric-manual & ;;
+    # The one row that leaves the machine.
+    #
+    # The audit found that nothing in the operating system reached a person: the
+    # support page promises "a human reads every message", and the OS answered
+    # with three offline documents and then stopped. An owner whose problem was
+    # not in the manual had to remember the website's name from memory — on a
+    # computer that may be the reason they cannot get online.
+    #
+    # So this opens the support page, and it is deliberately the LAST row of the
+    # help section rather than the first: the guide and the manual answer most
+    # questions offline and instantly, and sending somebody to a web form before
+    # they have looked at either is worse service, not better.
+    support)  xdg-open "https://dagric.com/support" >/dev/null 2>&1 & ;;
     drivers)   run_term 'pkexec /usr/bin/dagric-drivers' ;;
     bottles)     run_term '/usr/bin/dagric-get-bottles' ;;
     localsend)   run_term '/usr/bin/dagric-get-localsend' ;;
