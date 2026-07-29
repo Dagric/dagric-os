@@ -44,6 +44,27 @@ if pkexec sh -c 'apt-get update && apt-get install -y variety'; then
     echo
     dg_say "$(gettext "Variety installed — launch it from the application launcher.")"
     dg_say "$(gettext "It starts in the system tray; right-click the icon for options.")"
+    echo
+    # Point it at the wallpapers this machine already has.
+    #
+    # Variety ships pointed at nothing, so a fresh install rotates an empty set
+    # until the owner adds a source — and the sources it offers first are the
+    # third-party websites the warning above exists to discourage. Dagric has
+    # thirty-four packs sitting on the disk, which is a better answer on both
+    # counts: it works immediately and it never touches the network.
+    #
+    # Deliberately an INSTRUCTION rather than a written config file. Variety's
+    # variety.conf is an undocumented format owned by the application, and a
+    # helper that reaches into another program's private config to save somebody
+    # four clicks is exactly how you break their app on its next update.
+    dg_say "$(gettext "To rotate the wallpapers already on this computer, open
+Variety's preferences, go to Images, choose Add and then Folder, and pick:
+
+    /usr/share/wallpapers
+
+That is the thirty-four Dagric packs, and every KDE wallpaper besides. A
+folder source works entirely offline — nothing is downloaded and no website
+is contacted.")"
 else
     echo
     dg_say "$(gettext "Install did not complete (administrator access is required).")"

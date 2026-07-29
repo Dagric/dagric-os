@@ -65,10 +65,15 @@ if (bg.image) {
 
     bg.sprite = Sprite(bg.image.Scale(fit.w, fit.h));
     bg.sprite.SetPosition(art.x, art.y, 0);
-    # Start invisible. refresh_callback below eases it up over about a second,
-    # so the name arrives rather than being switched on. See the animation block
-    # at the bottom for why this is not just decoration.
-    bg.sprite.SetOpacity(0);
+    # Fully opaque from the first frame, deliberately.
+    #
+    # The first version of the animation below started this at 0 and eased it up
+    # in refresh_callback. That put the entire boot screen behind an untested
+    # assumption: if Plymouth's script dialect had not supported something in
+    # that callback, the artwork would have stayed at zero and the machine would
+    # have booted to black with no clue why. The animation is additive now —
+    # nothing is hidden waiting for it — so the worst case is a splash that
+    # looks exactly as it did before, which is a fine worst case.
 }
 
 # ---- Geometry of the rule in the artwork -----------------------------------
@@ -205,31 +210,41 @@ fun message_callback(message) {
 # the splash took over, which is what makes a boot splash read as a static image
 # somebody forgot to replace rather than as a product starting up.
 #
-# Two movements, both cheap and both deliberately restrained, because this
-# screen is on a machine the owner is waiting for and a busy splash makes a slow
-# boot feel slower:
+# ONE movement: a single light sweep across the wordmark, then nothing. A
+# highlight travels left to right through the band just above the rule and stops.
+# It is the only "shine" anywhere in the product and it is over in under a
+# second — a looping shimmer on a boot screen looks like a demo kiosk, and this
+# screen is shown to somebody who is already waiting.
 #
-#   1. An eased fade-in of the whole lockup over ~1.1 s. The ease is a
-#      smoothstep, not a straight ramp: linear opacity reads as a dimmer being
-#      turned, an eased one reads as something resolving into focus.
+# STRICTLY ADDITIVE, AND THAT IS THE DESIGN CONSTRAINT, not a limitation.
+# The first attempt also eased the whole lockup up from zero opacity, which is
+# prettier and was the wrong trade: it made the entire boot screen depend on
+# this callback working. Plymouth's script dialect is not something that can be
+# tested from a Windows host with no build available, and the failure mode was
+# a machine booting to black with nothing to explain it. Now the artwork is
+# already fully drawn before any of this runs, so if the callback never fires,
+# or fires and does nothing, the splash is exactly what it was yesterday.
 #
-#   2. One light sweep across the wordmark, once, then never again. A highlight
-#      travels left to right through the band just above the rule and stops. It
-#      is the only "shine" in the product and it is over in under a second — a
-#      looping shimmer on a boot screen looks like a demo kiosk.
+# Written without `return` for the same reason. This is the only function in the
+# file that would have used it, so there is no precedent here proving the
+# dialect accepts it, and a parse error in a theme is not a missing animation —
+# it is a theme that does not load.
 #
-# The wordmark's position is derived from the SAME detected rule geometry the
-# progress bar uses, not from a guess: the band sits directly above the rule and
-# is scaled through the identical cover transform. If the artwork moves, both
-# move together, which is the whole reason the detector exists.
+# The wordmark's position comes from the SAME detected rule geometry the progress
+# bar uses, not from a guess: the band sits directly above the rule and is scaled
+# through the identical cover transform. If the artwork moves, both move with it,
+# which is the whole reason that detector exists.
 #
-# ANIMATION IS SKIPPED ENTIRELY OUTSIDE BOOT. On shutdown and reboot the machine
-# is going away and the owner is not waiting for anything; fading a logo in as
-# the system dies is theatre. Those modes get the artwork held still, which is
-# also what the progress bar already does and for the same reason.
+# Boot only. On shutdown and reboot the machine is going away and nobody is
+# waiting for it; a flourish as the system dies is theatre. Those modes get the
+# artwork held still — the same call the progress bar already makes, for the same
+# reason.
 state.tick = 0;
-state.faded = 0;
 state.sweep_done = 0;
+# 0 unless the art loaded AND this is a boot. The callback tests this one flag
+# instead of re-deriving both conditions every frame, which is also what lets it
+# be a single guarded block with no early exits.
+state.sweep_ok = 0;
 sweep.sprite = Sprite();
 
 if (state.have_art == 1 && Plymouth.GetMode() == "boot") {
@@ -253,42 +268,24 @@ if (state.have_art == 1 && Plymouth.GetMode() == "boot") {
     sweep.sprite.SetImage(sweep.image.Scale(sweep.w, sweep.h));
     sweep.sprite.SetPosition(sweep.x0, sweep.y, 8);
     sweep.sprite.SetOpacity(0);
+    state.sweep_ok = 1;
 }
 
 fun refresh_callback() {
     state.tick++;
 
-    if (state.have_art != 1)
-        return;
-
-    if (Plymouth.GetMode() != "boot") {
-        # Nothing to animate; make sure the art is simply visible.
-        bg.sprite.SetOpacity(1);
-        return;
-    }
-
-    # --- 1. eased fade-in, ~1.1 s at Plymouth's ~50 fps ---
-    if (state.faded == 0) {
-        f = state.tick / 55;
-        if (f >= 1) {
-            f = 1;
-            state.faded = 1;
-        }
-        # smoothstep: 3f^2 - 2f^3
-        e = f * f * (3 - 2 * f);
-        bg.sprite.SetOpacity(e);
-        return;
-    }
-
-    # --- 2. one sweep across the name, then done ---
-    if (state.sweep_done == 0) {
-        s = (state.tick - 55) / 40;              # ~0.8 s
+    # One guarded block, no early exits. state.sweep_ok is only 1 when the art
+    # loaded AND this is a boot, so the whole animation is behind a single test
+    # and every other mode falls straight through having touched nothing.
+    if (state.sweep_ok == 1 && state.sweep_done == 0) {
+        # A short hold first, so the sweep reads as a flourish over a screen that
+        # is already there rather than as something racing the splash on.
+        s = (state.tick - 25) / 40;              # ~0.8 s, after ~0.5 s of hold
+        if (s > 0) {
         if (s >= 1) {
-            s = 1;
             state.sweep_done = 1;
             sweep.sprite.SetOpacity(0);
-            return;
-        }
+        } else {
         sweep.sprite.SetPosition(
             sweep.x0 + Math.Int(s * sweep.span) - Math.Int(sweep.w / 2),
             sweep.y, 8);
@@ -299,6 +296,8 @@ fun refresh_callback() {
         else
             a = (1 - s) * 2;
         sweep.sprite.SetOpacity(a * 0.10);
+        }
+        }
     }
 }
 Plymouth.SetRefreshFunction(refresh_callback);
