@@ -170,6 +170,37 @@ if command -v dpkg-deb >/dev/null 2>&1; then
         sh packages/stage-packages.sh "$BUILD" "$BUILD/config/packages.chroot"
     rm -rf "$BUILD/.pkgstage"
     echo "update channel: $(ls -1 config/packages.chroot/*.deb | wc -l) config packages staged for install"
+
+    # Fail NOW if the tree's version is not ahead of what the channel publishes.
+    #
+    # Both sources are visible to apt during the build: the staged .debs at
+    # file:/packages, pinned 1001, and the live channel from dagric.list. When
+    # they offer the SAME version, the bytes still differ — a Pro build stages
+    # packages assembled after edition gating, and the published copies came
+    # from a different tree — so apt is asked to swap one 1.1.1 for a different
+    # 1.1.1 under a pin above 1000, and calls that a downgrade:
+    #
+    #     The following packages will be DOWNGRADED: dagric-branding ...
+    #     E: Packages were downgraded and -y was used without --allow-downgrades.
+    #
+    # That killed two builds twenty minutes in, and bumping the version "fixed"
+    # it only until the same version was published — at which point the next
+    # build failed identically. The order is what matters: BUMP, BUILD, THEN
+    # PUBLISH. This turns forgetting it into a five-second error that says so.
+    LIVEVER=$(curl -fsS --max-time 15 \
+        https://dagric-os.web.app/repo/dists/trixie/main/binary-amd64/Packages 2>/dev/null \
+        | awk '/^Package: dagric-tools$/{f=1} f&&/^Version:/{print $2; exit}')
+    TREEVER=$(sed -n 's/^Version: //p' packages/dagric-tools/DEBIAN/control)
+    if [ -n "$LIVEVER" ] && [ "$LIVEVER" = "$TREEVER" ]; then
+        echo "ERROR: the update channel already publishes dagric-tools $LIVEVER," >&2
+        echo "and this tree builds the same version with different contents." >&2
+        echo "apt will refuse the build as a downgrade about twenty minutes from now." >&2
+        echo >&2
+        echo "Bump Version: in packages/*/DEBIAN/control above $LIVEVER, then build," >&2
+        echo "then publish. Build first, publish second — never the other way round." >&2
+        exit 1
+    fi
+    [ -n "$LIVEVER" ] && echo "update channel: live is $LIVEVER, this tree builds $TREEVER"
 else
     echo "WARNING: dpkg-deb not installed — the ISO will not be subscribed to" >&2
     echo "         the Dagric update channel (apt upgrade will deliver nothing)." >&2
