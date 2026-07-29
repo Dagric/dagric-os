@@ -447,6 +447,42 @@ current_mode() {
     esac
 }
 
+# The accent the machine is ALREADY wearing, so "Undo my changes" can put the
+# window back to it instead of to the brand blue.
+#
+# This was the one piece of state the startMode/startWallId/startScale fix
+# missed. undo_all() below writes the captured AccentColor back to kdeglobals,
+# so the desktop returned to the owner's colour while the wizard's own buttons
+# snapped to #3fa9f5 — the same visible contradiction that fix was written to
+# remove, just in the one property nobody had thought to capture.
+#
+# Plasma stores AccentColor as "r,g,b", which is the third column of the accent
+# table, so an accent the owner picked from our own palette comes back as an id
+# and its tile shows selected on arrival. One picked from System Settings'
+# colour wheel has no id here; the hex is still exact, so the window can wear
+# the right colour even when it cannot tick a tile. Both are empty on a fresh
+# machine — nothing ships an AccentColor — and empty means "brand blue, and
+# delete the key on undo", which is what already happened.
+current_accent_id() {
+    _a=$(kreadconfig6 --file kdeglobals --group General --key AccentColor 2>/dev/null)
+    [ -n "$_a" ] || return 0
+    awk -F"$SEP" -v v="$_a" '$3 == v { print $1; exit }' "$WORK/accent.tsv" 2>/dev/null
+}
+
+current_accent_hex() {
+    _a=$(kreadconfig6 --file kdeglobals --group General --key AccentColor 2>/dev/null)
+    case "$_a" in
+        # Exactly three decimal fields, nothing else: this string becomes a
+        # colour literal inside the window, and a value that is not an r,g,b
+        # triple is not one we are willing to hand over.
+        [0-9]*,[0-9]*,[0-9]*)
+            printf '#%02x%02x%02x' "${_a%%,*}" \
+                "$(_m=${_a#*,}; printf '%s' "${_m%%,*}")" "${_a##*,}"
+            ;;
+        *) return 0 ;;
+    esac
+}
+
 # --- capture: exactly what we found, so Undo is honest ------------------------
 capture_base() {
     [ -f "$CAPFILE" ] && return 0
@@ -822,6 +858,27 @@ fi
 # The KEY is the English text. That is deliberate: a missing translation falls
 # back to a key that is already the correct English sentence, so the worst case
 # is the wizard as it shipped yesterday rather than "welcome_title_2" on screen.
+#
+# THIS LIST IS THE WINDOW'S VOCABULARY, AND IT HAS TO MATCH IT EXACTLY.
+# A line here that main.qml never asks for is a translation nobody will ever
+# read; a string in main.qml that is missing from here shows up in English
+# inside an otherwise translated wizard. Both happened: the first version of
+# this list carried 39 lines of which the window used 21, while roughly fifty
+# other sentences on screen were never extracted at all — including every
+# heading on the display, files and finish pages and every word Orca speaks.
+# The check is mechanical:
+#
+#     grep -o 'app\.\(t\|tf\)("[^"]*"' main.qml
+#
+# must be a subset of the lines below, and every line below should appear
+# there or in one of the three QML models whose entries go through app.t().
+#
+# %1 and %2 are substituted by main.qml's tf(). They exist so a translator can
+# put the number and the name where their own language puts them; a sentence
+# assembled with "+" in QML cannot be reordered at all.
+#
+# Blank lines are skipped by the reader below and by tools/i18n-extract.sh, so
+# they are free to use as screen separators.
 emit_strings() {
     _first=1
     # Written as a here-doc of English sentences so this list stays readable as
@@ -835,41 +892,103 @@ emit_strings() {
 Set Up Dagric
 Every step can be skipped, and you can change all of it later.
 I'll do this later
+Close setup. Anything already applied stays, and you can run this again from the Dagric Hub
 Undo my changes
+Put the colours, wallpaper, text size and taskbar back the way they were when setup opened
+PRO EDITION
+Pro edition
+Live trial — anything you set here lasts until you shut down.
+
 Back
+Go back to the previous step
 Next
+Go to the next step
 Finish
+Close setup and start using Dagric
 Skip this step
+Leave this setting alone and go to the next step
 Let's go
+
 Welcome
 How it looks
 Text size
 The taskbar
 Your files
 You're ready
+Step %1
+Step %1 of %2
+current step
+done
+not done yet
+
+Welcome to %1.
+Let's make it yours. A few minutes now — the colours, the wallpaper, how big the text is, where the taskbar sits, and your files from Windows — and then it's out of your way.
+Let's make it yours. A few minutes now — the colours, the wallpaper, how big the text is, where the taskbar sits — and then it's out of your way.
+
 Pick a look.
 Click anything — the desktop behind this window changes as you go.
-Highlight colour
-Wallpaper
-Want your own picture? Right-click the desktop and choose Configure Desktop.
+Theme
 Light
 Dark
-Make everything bigger.
-Text, icons and buttons all grow together. You can change this again later.
-Standard
+Light theme
+A bright desktop. Shows a small picture of what it looks like.
+Dark theme
+A dark desktop, easier on the eyes at night.
+Light theme applied.
+Dark theme applied.
+Highlight colour
+%1 highlight colour applied.
+Wallpaper
+Wallpaper %1 of %2
+Arrow keys to move between wallpapers, Space to apply one
+%1 wallpaper applied.
+Want your own picture? Right-click the desktop and choose Configure Desktop.
+
+Is the text the right size?
+Dagric guessed from your screen. Open Display Settings if it guessed wrong.
+Dagric guessed from your screen. A change here takes effect the next time you sign in.
+Dagric guessed from your screen. Pick another size and it changes right away.
+Open Display Settings
+Opens the full display and text size settings in a separate window
+Normal
+Standard size
 Bigger
+Easier to read
 Biggest
+Large text
+%1, %2 percent
+Text size set to %1 percent.
+You can change this again in System Settings ▸ Display & Monitor.
+
 Where should the taskbar go?
-Pick the shape that feels familiar. You can switch again from the Dagric Hub.
-Bring your files from Windows.
-Your documents, pictures, music and browser bookmarks can come across. Windows
-is never modified.
+Click one to try it. Your open windows and apps stay exactly where they are.
+Taskbar layout
+Arrow keys to move between layouts, Space to try one
+%1 taskbar applied.
+
+Bring your files across.
+There's a Windows drive in this PC. Dagric can copy your Documents, Pictures, Music, Videos, Downloads and browser bookmarks over.
+Windows is only ever READ.
+Windows is only ever read.
+Nothing on the Windows drive is moved, changed or deleted, and files already here are never overwritten. If you change your mind about Dagric, Windows is exactly as you left it.
 Bring my files over
-You're ready.
-Everything here can be changed again whenever you like.
-Open the Dagric Hub
-Read the guide
-Open the manual
+Opens the migration tool in its own window. Nothing on the Windows drive is changed.
+This opens in its own window — carry on here while it works.
+Not now? It's in the Dagric Hub under "Migrate from Windows", any time.
+
+That's it — %1 is yours.
+Four places worth knowing about. Everything else you can find by pressing the launcher and typing.
+Dagric Hub
+Drivers, setup, security and migration, all in one menu.
+User Guide
+Your first week: updates, printers, Wi-Fi, shortcuts.
+App Manual
+A page on every app, and what it replaced on Windows.
+Welcome page
+What Dagric is, and the promises it makes.
+Open
+Open %1
+
 Your desktop is back the way it was.
 STRINGS
 }
@@ -884,6 +1003,8 @@ STRINGS
     printf '  "currentScale": %s,\n'  "$(current_scale)"
     printf '  "currentMode": "%s",\n' "$(current_mode)"
     printf '  "currentWall": "%s",\n' "$(jesc "$(current_wall_id)")"
+    printf '  "currentAccent": "%s",\n'    "$(jesc "$(current_accent_id)")"
+    printf '  "currentAccentHex": "%s",\n' "$(jesc "$(current_accent_hex)")"
     printf '  "hasDisplayTool": %s,\n' "$HAS_DISPLAY_TOOL"
     printf '  "hasWindows": %s,\n'    "$HAS_WINDOWS"
     printf '  "wallpapers": [\n'

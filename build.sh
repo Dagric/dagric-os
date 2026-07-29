@@ -116,12 +116,53 @@ else
 fi
 if command -v python3 >/dev/null 2>&1; then
     python3 tools/i18n-desktop.py --check
+    # The setup wizard's English sentences live in one file and are asked for by
+    # name in another, and nothing compared the two — so 18 shipped strings were
+    # never displayed while about fifty displayed strings were never shipped, and
+    # the build log reported a fully translated wizard the whole time. See the
+    # header of tools/i18n-wizard.py.
+    python3 tools/i18n-wizard.py --check
 else
     echo "i18n: python3 not installed — skipping the .desktop drift check"
 fi
 
 lb clean
 lb config
+
+# SUBSCRIBE THE IMAGE TO ITS OWN UPDATE CHANNEL.
+#
+# config/includes.chroot/etc/apt/sources.list.d/dagric.list points every
+# installed machine at the signed repository, and the keyring beside it is
+# shipped — but none of that delivers anything, because the four dagric-*
+# packages only ever existed in site/repo. Their CONTENTS reached the ISO
+# through includes.chroot, so dpkg had no record of dagric-tools at all and
+# `apt upgrade` on a sold machine could never offer a fix to the wizard, the
+# manual, the wallpapers or the security baseline. The channel was live, signed,
+# reachable — and nothing was subscribed to a single package in it.
+#
+# Building the .debs here, from the tree that is about to become the image, and
+# handing them to live-build as local packages is what registers them. They are
+# installed before config/includes.chroot is copied in (see the ordering note in
+# stage-packages.sh), so the tree remains the source of truth for what ships and
+# the packages exist to be RECORDED, at a version the channel can supersede.
+#
+# Free and Pro each build their own, after the edition gating above — so the
+# free image never records a package built from the Pro tree.
+#
+# Skipped, loudly, when dpkg-deb is missing: a build host without it can still
+# produce a correct ISO, it just produces one that cannot be updated in place.
+if command -v dpkg-deb >/dev/null 2>&1; then
+    rm -rf config/packages.chroot
+    mkdir -p config/packages.chroot
+    DAGRIC_PKG_STAGE="$BUILD/.pkgstage" \
+        sh packages/stage-packages.sh "$BUILD" "$BUILD/config/packages.chroot"
+    rm -rf "$BUILD/.pkgstage"
+    echo "update channel: $(ls -1 config/packages.chroot/*.deb | wc -l) config packages staged for install"
+else
+    echo "WARNING: dpkg-deb not installed — the ISO will not be subscribed to" >&2
+    echo "         the Dagric update channel (apt upgrade will deliver nothing)." >&2
+fi
+
 lb build
 
 mkdir -p "$SRC/out"

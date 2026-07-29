@@ -44,6 +44,15 @@ chmod 0755 "$GEN"
 #
 # X-Dagric-Edition rather than a bare EDITION= line because unknown bare keys
 # make desktop-file-validate complain; X- prefixed keys are spec-legal.
+#
+# THE SAME DELETE ALSO RUNS AT RUNTIME, in /usr/bin/dagric-app-names. It has to:
+# the update channel ships one dagric-tools file list to both editions, so an
+# `apt upgrade` on a free machine unpacks the Pro launchers straight back into
+# the menu. dagric-app-names is what /etc/apt/apt.conf.d/99dagric-app-names runs
+# after every successful dpkg operation, so that is where the gate has to live
+# for the years after the ISO is burned. This stays because the build should not
+# depend on a later script to produce a correct image, and because the assertion
+# below is worth having at build time.
 EDITION=$(cat /etc/dagric-edition 2>/dev/null || echo free)
 if [ "$EDITION" != "pro" ]; then
     for drop in $(grep -rlx 'X-Dagric-Edition=pro' /usr/share/applications 2>/dev/null); do

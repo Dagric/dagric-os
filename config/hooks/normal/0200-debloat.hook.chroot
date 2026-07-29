@@ -17,8 +17,25 @@ done
 apt-get autoremove --purge -y
 apt-get clean
 
-# Trim apt lists from the image (regenerated on first 'apt update')
+# Trim apt lists from the image (regenerated on first 'apt update').
+#
+# THIS LINE ALONE DOES NOT SHIP. It reclaims the space for the rest of the
+# chroot stage and nothing more, because live-build runs `Apt chroot update`
+# again in its own binary pass — after every hook here has finished — and only
+# deletes what that produced when LB_APT_INDICES is false. It is not, by
+# default. So the debloat happened, the build log said so, and the shipped
+# squashfs still carried 169 MB of uncompressed index (39 files: Sources lists
+# and dep11 icon tarballs a desktop never opens) on a 2.19 GB free ISO.
+#
+# `--apt-indices false` in auto/config is the half that survives; this is the
+# half that keeps the build's own working tree small. Both are needed, and
+# neither is redundant.
+#
+# It reports its size now. A cleanup that prints nothing is a cleanup nobody
+# can tell has stopped working — which is exactly how this went unnoticed.
+_lists=$(du -sh /var/lib/apt/lists 2>/dev/null | cut -f1)
 rm -rf /var/lib/apt/lists/*
+echo "debloat: dropped ${_lists:-0} of apt indices (live-build's --apt-indices false keeps them out of the image)"
 
 # No pre-seeded MOTD ads/news
 rm -f /etc/update-motd.d/* 2>/dev/null || true

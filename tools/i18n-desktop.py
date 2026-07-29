@@ -482,6 +482,23 @@ D['dagric-get-resolve'] = {
         "Installazione guidata di DaVinci Resolve, l'editor video professionale di Blackmagic. Mai incluso — viene scaricato da Blackmagic con il tuo consenso.",
         "video;montaggio;modificare;correzione colore;installare;"),
 }
+D['dagric-gaming'] = {
+ 'de': ("Spiele-Einrichtung", "Proton-GE für Steam",
+        "Fügt Steam den Community-Build Proton-GE hinzu, für bessere Spielekompatibilität",
+        "spiele;proton;kompatibilität;leistung;"),
+ 'fr': ("Configuration des jeux", "Proton-GE pour Steam",
+        "Ajoute à Steam la version communautaire Proton-GE, pour une meilleure compatibilité des jeux",
+        "jeux;proton;compatibilité;performances;"),
+ 'es': ("Configuración de juegos", "Proton-GE para Steam",
+        "Añade a Steam la versión comunitaria Proton-GE, para una mejor compatibilidad de los juegos",
+        "juegos;proton;compatibilidad;rendimiento;"),
+ 'pt_BR': ("Configuração de jogos", "Proton-GE para o Steam",
+        "Adiciona ao Steam a versão comunitária Proton-GE, para melhor compatibilidade dos jogos",
+        "jogos;proton;compatibilidade;desempenho;"),
+ 'it': ("Configurazione giochi", "Proton-GE per Steam",
+        "Aggiunge a Steam la build della community Proton-GE, per una migliore compatibilità dei giochi",
+        "giochi;proton;compatibilità;prestazioni;"),
+}
 D['dagric-get-variety'] = {
  'de': ("Rotierende Hintergrundbilder (Variety)", "Automatischer Hintergrundbildwechsel",
         "Installiert Variety, um Ihr Hintergrundbild nach Zeitplan zu wechseln (optional, nicht vorinstalliert)",

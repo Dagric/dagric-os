@@ -20,11 +20,22 @@
 # is provably correct at the moment we declare it correct. Skipping the run and
 # just stamping would be the version of this that ships a broken image.
 #
-# THIS MUST BE THE LAST CHROOT HOOK. The stamp is a claim about /usr as it
-# stands; hooks 0100..0900 write to /usr (helpers, themes, wallpapers, the
-# vendored Plasma plugin), so stamping from any earlier hook would be claiming
-# something that later stops being true. If you add a hook that writes to /usr,
-# give it a number below this one.
+# THIS MUST BE THE LAST CHROOT HOOK THAT TOUCHES /usr. The stamp is a claim
+# about /usr as it stands; hooks 0100..0900 write to /usr (helpers, themes,
+# wallpapers, the vendored Plasma plugin), so stamping from any earlier hook
+# would be claiming something that later stops being true.
+#
+# This used to say "THIS MUST BE THE LAST CHROOT HOOK", full stop, and then
+# 0995-file-modes.hook.chroot was added and sorted after it. Nothing broke —
+# 0995 only chmods under /etc/systemd, /etc/sysctl.d, /etc/sddm.conf.d,
+# /etc/udev/rules.d and /etc/calamares, so the stamp stayed true — but the
+# instruction had become one that the tree itself disobeyed, which is the kind
+# a future edit designs around rather than follows. Stated as the real rule:
+#
+#     A hook numbered ABOVE 0990 may touch /etc. It must not touch /usr.
+#
+# A hook that writes to /usr from above this number invalidates /etc/.updated
+# and puts the 5 s ldconfig back on every boot, silently.
 #
 # systemd-update-done.service rewrites both stamps at the end of every boot
 # anyway, so all we are doing is giving it a correct starting value instead of

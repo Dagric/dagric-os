@@ -27,7 +27,6 @@
 set -e
 
 REPO=${1:-$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)}
-INC=$REPO/config/includes.chroot
 OUT=$REPO/site/repo
 POOL=$OUT/pool
 STAGE=/srv/pkgstage
@@ -38,75 +37,13 @@ command -v apt-ftparchive >/dev/null 2>&1 || { echo "apt-utils required" >&2; ex
 rm -rf "$STAGE" "$POOL"
 mkdir -p "$POOL"
 
-build_pkg() {
-    name=$1
-    root="$STAGE/$name"
-    version=$(sed -n 's/^Version: //p' "$root/DEBIAN/control")
-    dpkg-deb --build --root-owner-group "$root" "$POOL/${name}_${version}_all.deb" >/dev/null
-    printf '  %-26s %s\n' "$name" "$version"
-}
-
-echo "=== building packages from config/includes.chroot ==="
-
-# ---- dagric-branding: what the machine LOOKS like -------------------------
-P=$STAGE/dagric-branding
-mkdir -p "$P/usr/share/wallpapers" "$P/usr/share/dagric" "$P/usr/share/sddm/themes"
-cp -r "$REPO/packages/dagric-branding/DEBIAN" "$P/"
-cp -r "$INC/usr/share/wallpapers/Dagric"  "$P/usr/share/wallpapers/"
-cp -r "$INC/usr/share/dagric/logo"        "$P/usr/share/dagric/"
-[ -d "$INC/usr/share/dagric/sddm" ]   && cp -r "$INC/usr/share/dagric/sddm"   "$P/usr/share/dagric/"
-[ -d "$INC/usr/share/dagric/splash" ] && cp -r "$INC/usr/share/dagric/splash" "$P/usr/share/dagric/"
-[ -d "$INC/usr/share/sddm/themes" ]   && cp -r "$INC/usr/share/sddm/themes/." "$P/usr/share/sddm/themes/"
-build_pkg dagric-branding
-
-# ---- dagric-desktop-defaults ---------------------------------------------
-P=$STAGE/dagric-desktop-defaults
-mkdir -p "$P/etc/skel/.config" "$P/usr/lib/firefox-esr/distribution" "$P/etc/xdg"
-cp -r "$REPO/packages/dagric-desktop-defaults/DEBIAN" "$P/"
-for f in kdeglobals kwinrc kcminputrc; do
-    [ -f "$INC/etc/skel/.config/$f" ] && cp "$INC/etc/skel/.config/$f" "$P/etc/skel/.config/"
-done
-cp "$INC/usr/lib/firefox-esr/distribution/policies.json" "$P/usr/lib/firefox-esr/distribution/"
-# The default-browser declaration. Pro shipped Chromium as the default for
-# every link because nothing declared one; that fix has to reach sold machines.
-[ -f "$INC/etc/xdg/mimeapps.list" ] && cp "$INC/etc/xdg/mimeapps.list" "$P/etc/xdg/"
-build_pkg dagric-desktop-defaults
-
-# ---- dagric-security-policy ----------------------------------------------
-P=$STAGE/dagric-security-policy
-mkdir -p "$P/etc/apt/apt.conf.d" "$P/etc/sysctl.d"
-cp -r "$REPO/packages/dagric-security-policy/DEBIAN" "$P/"
-cp "$INC/etc/apt/apt.conf.d/01dagric-norecommends" "$P/etc/apt/apt.conf.d/"
-cp "$INC/etc/sysctl.d/99-dagric-hardening.conf"    "$P/etc/sysctl.d/"
-build_pkg dagric-security-policy
-
-# ---- dagric-tools: the product itself -------------------------------------
-# Nothing here overlaps dagric-branding. Two packages shipping the same path is
-# a dpkg unpack error, not a warning, so logo/ sddm/ and splash/ belong to
-# branding and are excluded from this list rather than being copied twice.
-P=$STAGE/dagric-tools
-mkdir -p "$P/usr/bin" "$P/usr/lib/dagric" "$P/usr/share/dagric" \
-         "$P/usr/share/applications" "$P/usr/share/icons/hicolor"
-cp -r "$REPO/packages/dagric-tools/DEBIAN" "$P/"
-for f in "$INC/usr/bin/"dagric-*; do
-    [ -f "$f" ] && cp "$f" "$P/usr/bin/"
-done
-chmod 0755 "$P/usr/bin/"* 2>/dev/null || true
-[ -d "$INC/usr/lib/dagric" ] && cp -r "$INC/usr/lib/dagric/." "$P/usr/lib/dagric/"
-for d in firstrun appearance manual guide welcome styles looks hwcheck boot; do
-    [ -e "$INC/usr/share/dagric/$d" ] && cp -r "$INC/usr/share/dagric/$d" "$P/usr/share/dagric/"
-done
-for f in "$INC/usr/share/dagric/"*.py "$INC/usr/share/dagric/README"; do
-    [ -f "$f" ] && cp "$f" "$P/usr/share/dagric/"
-done
-for f in "$INC/usr/share/applications/"dagric-*.desktop; do
-    [ -f "$f" ] && cp "$f" "$P/usr/share/applications/"
-done
-[ -d "$INC/usr/share/icons/hicolor" ] && cp -r "$INC/usr/share/icons/hicolor/." "$P/usr/share/icons/hicolor/"
-# The translations, so an update can also fix a bad string.
-[ -d "$INC/usr/share/locale" ] && mkdir -p "$P/usr/share/locale" && \
-    cp -r "$INC/usr/share/locale/." "$P/usr/share/locale/"
-build_pkg dagric-tools
+# The packages themselves are built by packages/stage-packages.sh, which is
+# shared with build.sh so that the ISO installs exactly the .debs this repo
+# publishes. Splitting it out is what let the image subscribe to its own update
+# channel: this script holds the release key and cannot run inside an image
+# build, and the half that just assembles the four packages has no business
+# needing a key at all.
+sh "$REPO/packages/stage-packages.sh" "$REPO" "$POOL"
 
 echo
 echo "=== generating the repository index ==="

@@ -56,6 +56,22 @@ esac
 # that reads like a fix) and `nomodeset` (forces the frame-buffer renderer and
 # guarantees the mode change this whole round exists to remove).
 #
+# --apt-indices false: 169 MB of uncompressed APT index, gone.
+#
+# 0200-debloat.hook.chroot has always ended with `rm -rf /var/lib/apt/lists/*`
+# and it never reached the image. live-build's chroot_archives runs a second
+# `Apt chroot update` in its BINARY pass, long after the last chroot hook, and
+# the only thing that removes what that regenerates is this flag — its default
+# is true. So every shipped ISO carried 39 index files, 169 MB uncompressed
+# (223 MB on Pro), including Sources indices and dep11 icon tarballs that a
+# desktop never opens, on a 2.19 GB free image. The build log showed a debloat
+# that happened; the ISO never got it.
+#
+# What an owner loses: nothing they will notice. The indices are rebuilt by the
+# first `apt update`, which apt-daily.timer runs on its own within a day of
+# first boot and which Discover triggers the moment it is opened. What they gain
+# is a smaller download and a faster write to USB.
+#
 # --chroot-squashfs-compression-type: live-build defaults to `-comp xz` when
 # this is unset — the `# Set squashfs compression type or default to xz` branch
 # in /usr/lib/live/build/binary_rootfs — so every file read during session
@@ -77,6 +93,7 @@ lb config noauto \
     --binary-images iso-hybrid \
     --debian-installer none \
     --apt-recommends false \
+    --apt-indices false \
     --chroot-squashfs-compression-type zstd \
     --chroot-squashfs-compression-level 19 \
     --bootappend-live "boot=live components quiet splash hostname=dagric username=live loglevel=3 vt.global_cursor_default=0 plymouth.ignore-serial-consoles" \

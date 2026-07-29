@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Report a bug — Dagric OS</title>
+<meta name="description" content="How to report a bug in Dagric OS, and what to include so it can be fixed.">
+<link rel="icon" type="image/png" href="/assets/dagric-logo.png">
+<link rel="stylesheet" href="/assets/site.css">
+<link rel="canonical" href="https://dagric-os.web.app/bugs">
+<meta name="theme-color" content="#0a111c">
+<link rel="icon" href="/favicon.ico" sizes="32x32">
+<link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
+<link rel="manifest" href="/site.webmanifest">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Dagric OS">
+<meta property="og:title" content="Report a bug — Dagric OS">
+<meta property="og:description" content="How to report a bug in Dagric OS, and what to include so it can be fixed.">
+<meta property="og:url" content="https://dagric-os.web.app/bugs">
+<meta property="og:image" content="https://dagric-os.web.app/assets/hero-desktop.png">
+<meta property="og:image:width" content="1920">
+<meta property="og:image:height" content="1080">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Report a bug — Dagric OS">
+<meta name="twitter:description" content="How to report a bug in Dagric OS, and what to include so it can be fixed.">
+<meta name="twitter:image" content="https://dagric-os.web.app/assets/hero-desktop.png">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<nav><div class="nav-in">
+  <a class="brand" href="/"><img src="/assets/dagric-logo.png" alt="Dagric OS" width="30" height="30">Dagric&nbsp;OS</a>
+  <div class="nav-links">
+    <a href="/features">Features</a><a href="/pro">Pro</a><a href="/about">About</a>
+    <a href="/getting-started">Guide</a><a href="/support">Support</a>
+    <a class="cta" href="/download">Download</a>
+  </div>
+</div></nav>
+
+<main id="main">
+  <h1>Found a bug? <span class="grad">Tell us.</span></h1>
+  <p class="lead">This is the address your computer points at. Every Dagric machine carries it in
+  <code>/etc/os-release</code> as <code>BUG_REPORT_URL</code>, so if you arrived here from a crash
+  dialog or from that file, you are in the right place.</p>
+
+  <h2>Report it</h2>
+  <p>Use the <a href="/contact">contact page</a> and pick <strong>A bug report</strong> from the
+  topic list. There is no bug tracker to sign up for and no account to create — a human reads
+  every message.</p>
+
+  <h2>What to include</h2>
+  <p>The more of this you can paste in, the better the odds of a real fix rather than a guess.</p>
+  <ul>
+    <li><strong>What you did, what you expected, what happened instead.</strong> Three sentences is
+    plenty. "Opened the Hub, clicked NVIDIA driver, the window closed and nothing happened" is a
+    better report than a page of theory.</li>
+    <li><strong>Whether it happens every time</strong>, or only sometimes.</li>
+    <li><strong>Your edition and version.</strong> Open Konsole
+    (<kbd>Meta</kbd> → type <em>Konsole</em>) and paste the output of:
+    <br><code>cat /etc/os-release</code></li>
+    <li><strong>A hardware report</strong>, if it is anything to do with Wi-Fi, graphics, sound,
+    disks or Secure Boot. Open the Hub and run <strong>Check this PC</strong> — it produces exactly
+    the report this needs.</li>
+    <li><strong>A screenshot</strong>, if there is something to see. Press <kbd>Print Screen</kbd>
+    to open Spectacle.</li>
+  </ul>
+
+  <h2>Before you write: two things that fix most of it</h2>
+  <div class="card"><strong>Roll back a bad update</strong><br>
+  <p>If it started after an update, reboot and choose <strong>Dagric snapshots</strong> in the boot
+  menu. Pick the snapshot from before the update — you are back in minutes, files intact. Then tell
+  us, so the update gets fixed for everyone.</p></div>
+  <div class="card"><strong>Check the manual first</strong><br>
+  <p><kbd>Meta</kbd> → <em>Manual</em> opens a page for every application on the machine. Its
+  search understands the Windows names, so <em>Notepad</em> finds the text editor. It works with
+  no internet.</p></div>
+
+  <h2>Not a bug?</h2>
+  <p>If you are stuck rather than sure something is broken, the <a href="/support">support
+  page</a> lists the common fixes, and the <a href="/faq">FAQ</a> covers pricing, privacy,
+  hardware, Windows apps and refunds.</p>
+</main>
+
+<footer><div class="foot">
+  <span>© 2026 DGR Operations · Built on Debian. Not affiliated with the Debian Project.</span>
+  <span class="links"><a href="/features">Features</a><a href="/pro">Pro</a><a href="/download">Download</a><a href="/news">News</a><a href="/getting-started">Guide</a><a href="/support">Support</a><a href="/faq">FAQ</a><a href="/accessibility">Accessibility</a><a href="/contact">Contact</a><a href="/about">About</a><a href="/licenses">Licenses</a><a href="/privacy">Privacy</a><a href="/terms">Terms</a></span>
+</div></footer>
+</body>
+</html>

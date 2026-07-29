@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Accessibility Conformance — Dagric OS</title>
+<meta name="description" content="Dagric OS accessibility conformance statement: what is supported, what is partially supported, and what is not — measured against Section 508 and EN 301 549.">
+<link rel="icon" type="image/png" href="/assets/dagric-logo.png">
+<link rel="stylesheet" href="/assets/site.css">
+<style>
+table.acr{width:100%;border-collapse:collapse;margin:18px 0;font-size:.94rem}
+table.acr th,table.acr td{border:1px solid var(--line);padding:10px 12px;text-align:left;vertical-align:top}
+table.acr th{background:var(--bg2);font-weight:700}
+table.acr td:nth-child(2){white-space:nowrap;font-weight:700}
+.s-yes{color:var(--good)}.s-part{color:#e8b339}.s-no{color:#e8736b}
+.tablewrap{overflow-x:auto}
+dl.meta{display:grid;grid-template-columns:auto 1fr;gap:6px 18px;margin:16px 0}
+dl.meta dt{font-weight:700;color:var(--muted)}
+dl.meta dd{margin:0}
+@media(max-width:640px){dl.meta{grid-template-columns:1fr;gap:2px}dl.meta dd{margin-bottom:10px}}
+</style>
+<link rel="canonical" href="https://dagric-os.web.app/accessibility">
+<meta name="theme-color" content="#0a111c">
+<link rel="icon" href="/favicon.ico" sizes="32x32">
+<link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
+<link rel="manifest" href="/site.webmanifest">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Dagric OS">
+<meta property="og:title" content="Accessibility Conformance — Dagric OS">
+<meta property="og:description" content="What Dagric OS supports, partially supports, and does not support — measured, not promised.">
+<meta property="og:url" content="https://dagric-os.web.app/accessibility">
+<meta property="og:image" content="https://dagric-os.web.app/assets/hero-desktop.png">
+<meta property="og:image:width" content="1920">
+<meta property="og:image:height" content="1080">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Accessibility Conformance — Dagric OS">
+<meta name="twitter:description" content="What Dagric OS supports, partially supports, and does not support — measured, not promised.">
+<meta name="twitter:image" content="https://dagric-os.web.app/assets/hero-desktop.png">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<nav><div class="nav-in">
+  <a class="brand" href="/"><img src="/assets/dagric-logo.png" alt="Dagric OS" width="30" height="30">Dagric&nbsp;OS</a>
+  <div class="nav-links">
+    <a href="/features">Features</a><a href="/pro">Pro</a><a href="/about">About</a>
+    <a href="/getting-started">Guide</a><a href="/support">Support</a>
+    <a class="cta" href="/download">Download</a>
+  </div>
+</div></nav>
+
+<main id="main">
+  <h1>Accessibility <span class="grad">Conformance Report</span></h1>
+  <p class="lead">What Dagric OS actually does for users with disabilities — including the three
+  places where the honest answer is "it does not."</p>
+
+  <dl class="meta">
+    <dt>Product</dt><dd>Dagric OS 1.0 (Free and Pro editions — accessibility is identical on both)</dd>
+    <dt>Platform</dt><dd>Debian 13 "Trixie", KDE Plasma 6.3, Wayland session</dd>
+    <dt>Standards</dt><dd>Section 508 (36 CFR 1194, Revised) · EN 301 549 · WCAG 2.1</dd>
+    <dt>Report date</dt><dd>28 July 2026</dd>
+    <dt>Method</dt><dd>Vendor self-assessment, verified against the shipped disc image</dd>
+    <dt>Contact</dt><dd><a href="/contact">Contact form</a> — select <em>Business / press</em></dd>
+  </dl>
+
+  <div class="note">
+    <p style="margin:0"><strong>This is a self-assessment, not a third-party audit.</strong> Every
+    row below was checked against the built ISO rather than against a design document, and the
+    build refuses to produce an image if the screen-reader speech chain is broken or if the
+    high-contrast colour scheme fails its contrast target. It has not been reviewed by an
+    independent accessibility auditor. If your procurement process requires one, say so through
+    the contact form and we will tell you plainly where we are rather than send you a filled-in
+    form.</p>
+  </div>
+
+  <h2>Summary</h2>
+  <p>A blind user can evaluate Dagric from the live USB and run it on an installed machine.
+  The gaps are the login password prompt, refreshable braille displays, and slow keys — all
+  three are described below with the reason, not glossed.</p>
+
+  <h2>Keyboard access — Section 508 502.4 / ANSI-HFES 9.3</h2>
+  <div class="tablewrap">
+  <table class="acr">
+    <thead><tr><th>Criterion</th><th>Conformance</th><th>Remarks</th></tr></thead>
+    <tbody>
+      <tr>
+        <td>502.4(A) Sticky Keys<br><span style="color:var(--muted)">ANSI-HFES 9.3.3</span></td>
+        <td class="s-yes">Supports</td>
+        <td>Implemented by KWin's StickyKeysPlugin, which ships loaded and enabled by default in
+        its own metadata. Off at install; switched on in System&nbsp;Settings →
+        Accessibility.</td>
+      </tr>
+      <tr>
+        <td>502.4(B) Slow Keys<br><span style="color:var(--muted)">ANSI-HFES 9.3.4</span></td>
+        <td class="s-no">Does Not Support</td>
+        <td><strong>This is a real gap.</strong> KWin 4:6.3.6-1 ships sticky, bounce and mouse
+        keys plugins and no slow-keys plugin. The older path — kaccess applying it through
+        <code>XkbSetControls</code> — reaches only XWayland clients, and the Dagric session is
+        Wayland, so the setting would appear in the interface and do nothing for native
+        applications. We would rather report this than ship a switch that lies.</td>
+      </tr>
+      <tr>
+        <td>502.4(C) Bounce Keys<br><span style="color:var(--muted)">ANSI-HFES 9.3.5</span></td>
+        <td class="s-yes">Supports</td>
+        <td>KWin's BounceKeysPlugin. The repeat-rejection delay defaults to 200&nbsp;ms and is
+        configurable.</td>
+      </tr>
+      <tr>
+        <td>502.4(D) Visual alternative to audio cues</td>
+        <td class="s-yes">Supports</td>
+        <td>Visible bell (screen flash in place of the system beep), implemented by kaccess. Off
+        by default because an unrequested full-screen flash on every terminal bell is startling.</td>
+      </tr>
+      <tr>
+        <td>Mouse Keys (pointer from the number pad)</td>
+        <td class="s-yes">Supports</td>
+        <td>KWin's MouseKeysPlugin. Off by default, since enabling it takes the number pad away
+        from numeric entry.</td>
+      </tr>
+      <tr>
+        <td>Full keyboard operation of the desktop</td>
+        <td class="s-yes">Supports</td>
+        <td>KDE Plasma 6 desktop, launcher, panels and System Settings are keyboard navigable.</td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h2>Screen reader and non-visual access</h2>
+  <div class="tablewrap">
+  <table class="acr">
+    <thead><tr><th>Criterion</th><th>Conformance</th><th>Remarks</th></tr></thead>
+    <tbody>
+      <tr>
+        <td>Screen reader, installed desktop session</td>
+        <td class="s-yes">Supports</td>
+        <td>Orca 48.1 with speech-dispatcher and espeak-ng over the AT-SPI2 bus. The build
+        verifies the whole chain — reader, speech daemon, the <code>sd_espeak-ng</code> output
+        module, its configuration file, and a working audio plugin — and <em>fails</em> rather
+        than shipping an image where Orca would run and stay silent. Toggled with
+        <kbd>Meta</kbd>+<kbd>Alt</kbd>+<kbd>S</kbd>, which is bound before first login.</td>
+      </tr>
+      <tr>
+        <td>Screen reader discoverable in the menu</td>
+        <td class="s-yes">Supports</td>
+        <td>Debian's Orca package ships no menu entry at all, so searching the launcher for
+        "screen reader" or "narrator" on a stock system finds nothing. Dagric adds its own
+        <em>Screen Reader</em> and <em>Accessibility</em> entries, keyworded for the terms people
+        actually type — including <em>narrator</em>, <em>JAWS</em>, <em>NVDA</em> and
+        <em>VoiceOver</em>.</td>
+      </tr>
+      <tr>
+        <td>Screen reader before purchase / during evaluation</td>
+        <td class="s-yes">Supports</td>
+        <td>The live USB boot menu carries a second entry, <em>"… (with screen reader)"</em>, in
+        both the BIOS and UEFI menus. It boots with autologin and starts Orca automatically, and
+        the choice carries into the installed system if the user proceeds to install. Verified
+        present in the shipped ISO.</td>
+      </tr>
+      <tr>
+        <td>Screen reader at the login password prompt</td>
+        <td class="s-no">Does Not Support</td>
+        <td><strong>A real gap, and not one we can close.</strong> SDDM 0.21.0 has no mechanism
+        to run assistive technology in its greeter; the upstream request is open and unassigned.
+        Launching the AT-SPI bus before the greeter does not help either, because Qt reads the bus
+        address only from the environment and never from the X root-window property the launcher
+        publishes — Orca would attach to a bus the greeter never joined and announce an empty
+        screen. Mitigations: on a single-user machine the installer offers autologin, which
+        removes the prompt entirely; and once enabled, Orca returns automatically at every
+        session start, so the gap is the password field alone and never the desktop behind it.
+        Nothing in Section 508 or EN 301 549 requires a pre-login screen reader, and we would
+        rather state this than imply coverage we do not have.</td>
+      </tr>
+      <tr>
+        <td>Refreshable braille display support</td>
+        <td class="s-no">Does Not Support</td>
+        <td>Orca is capable of driving a braille display, but <code>brltty</code> — the driver
+        layer — is not installed, so no braille device will work out of the box. A user can
+        install it themselves from Debian. We do not claim braille support.</td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h2>Low vision — contrast, magnification, text size</h2>
+  <div class="tablewrap">
+  <table class="acr">
+    <thead><tr><th>Criterion</th><th>Conformance</th><th>Remarks</th></tr></thead>
+    <tbody>
+      <tr>
+        <td>WCAG 1.4.6 Contrast (Enhanced), 7:1 — high-contrast theme</td>
+        <td class="s-yes">Supports</td>
+        <td>The bundled <em>High&nbsp;Contrast</em> style is measured, not named on trust: the
+        build computes WCAG relative luminance for its colour pairs and <em>fails</em> if the
+        scheme does not clear 7:1 — the enhanced bar, not the ordinary 4.5:1 one. It is one of the
+        four styles included in the free edition, not a paid upgrade. It also switches to a flat
+        wallpaper, because text over a photograph has no statable contrast ratio.</td>
+      </tr>
+      <tr>
+        <td>Screen magnification</td>
+        <td class="s-yes">Supports</td>
+        <td>KWin's built-in zoom, available from System&nbsp;Settings → Accessibility. There is no
+        separate magnifier application.</td>
+      </tr>
+      <tr>
+        <td>Text and interface scaling</td>
+        <td class="s-yes">Supports</td>
+        <td>A dedicated <em>Text Size</em> tool in the Dagric Hub, plus global scaling in
+        System&nbsp;Settings.</td>
+      </tr>
+      <tr>
+        <td>Pointer visibility at the login screen</td>
+        <td class="s-yes">Supports</td>
+        <td>The login screen pointer is enlarged to 32&nbsp;px to match the desktop; the stock
+        24&nbsp;px pointer is genuinely hard to find on a 4K panel, and the login screen is the
+        first thing a new owner sees.</td>
+      </tr>
+      <tr>
+        <td>Colour is not the sole means of conveying information</td>
+        <td class="s-part">Partially Supports</td>
+        <td>Dagric's own tools, wizard and documentation were checked for this. Bundled
+        third-party applications (LibreOffice, Firefox, GIMP and the rest) carry their own upstream
+        conformance and are not covered by this report.</td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h2>Other</h2>
+  <div class="tablewrap">
+  <table class="acr">
+    <thead><tr><th>Criterion</th><th>Conformance</th><th>Remarks</th></tr></thead>
+    <tbody>
+      <tr>
+        <td>Biometric sign-in not the only method</td>
+        <td class="s-yes">Supports</td>
+        <td>Fingerprint sign-in is available (fprintd) and always optional; a password always
+        works.</td>
+      </tr>
+      <tr>
+        <td>Documentation in an accessible format</td>
+        <td class="s-yes">Supports</td>
+        <td>The user guide and the 95-page application manual ship on the machine as plain,
+        semantic HTML readable by Orca, and work with no network connection. Documentation is
+        currently available in English and German only.</td>
+      </tr>
+      <tr>
+        <td>No automatic restarts or timed interruptions</td>
+        <td class="s-yes">Supports</td>
+        <td>The system never reboots itself. Updates apply in the background and wait for the
+        user.</td>
+      </tr>
+      <tr>
+        <td>Accessibility settings preserved across sessions</td>
+        <td class="s-yes">Supports</td>
+        <td>Settings are stored per user and reapplied at every login.</td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h2>Scope and limits</h2>
+  <p>This report covers the Dagric OS desktop environment, its own tools, its installer, its boot
+  menus and its documentation. It does <strong>not</strong> assert conformance for the
+  independently developed applications bundled with the system — LibreOffice, Firefox, GIMP,
+  Blender and the rest each publish their own accessibility information.</p>
+  <p>Where a row above says <em>Does Not Support</em>, that is a deliberate statement rather than
+  an omission. Slow keys, braille and the login prompt are the three known gaps as of this
+  release; if that changes, this page changes with it.</p>
+
+  <h2>Feedback</h2>
+  <p>If you use assistive technology and something here is wrong, incomplete, or does not match
+  what the machine actually did, we want to know — that is more useful to us than a compliment.
+  Use the <a href="/contact">contact page</a>. If you are evaluating Dagric for an institution and
+  need something in a particular format, ask; we would rather answer a specific question than
+  guess.</p>
+</main>
+
+<footer><div class="foot">
+  <span>© 2026 DGR Operations · Built on Debian. Not affiliated with the Debian Project.</span>
+  <span class="links"><a href="/features">Features</a><a href="/pro">Pro</a><a href="/download">Download</a><a href="/news">News</a><a href="/getting-started">Guide</a><a href="/support">Support</a><a href="/faq">FAQ</a><a href="/accessibility">Accessibility</a><a href="/contact">Contact</a><a href="/about">About</a><a href="/licenses">Licenses</a><a href="/privacy">Privacy</a><a href="/terms">Terms</a></span>
+</div></footer>
+</body>
+</html>

@@ -13,4 +13,23 @@
 #
 # Signed by the same key that signs the ISO checksums (6CE37402BA0A0EF8), so an
 # owner who verified their download is already set up to trust their updates.
+#
+# THIS FILE IS ONLY HALF OF IT, AND THE OTHER HALF USED TO BE MISSING.
+# A source line delivers nothing unless dpkg has a record of the packages it
+# serves, and for one release it had none: the four dagric-* packages were
+# assembled straight into site/repo while their contents reached the ISO through
+# includes.chroot, so `apt upgrade` on a sold machine could never offer a fix to
+# the wizard, the manual, the wallpapers or the security baseline. build.sh now
+# builds the same .debs from the tree it is about to ship and hands them to
+# live-build as local packages, which is what registers them. If you ever remove
+# that step, this file goes back to being decoration.
+#
+# WHAT ARRIVES SILENTLY AND WHAT DOES NOT. Debian's own security updates land on
+# their own through unattended-upgrades. Dagric's do NOT, deliberately: the
+# Origins-Pattern in 0300-hardening.hook.chroot names Debian origins only, and
+# nothing there matches Origin: Dagric. So a new dagric-tools appears in Discover
+# as an update the owner clicks, exactly like any other application. That is the
+# intended split — "security fixes land without you having to think about it" is
+# a promise worth keeping automatic; replacing the owner's own desktop tools
+# behind their back is a different promise, and not one this product makes.
 deb [signed-by=/usr/share/keyrings/dagric.gpg] https://dagric-os.web.app/repo trixie main

@@ -126,6 +126,10 @@ ApplicationWindow {
     property string startMode: "light"
     property string startWallId: ""
     property int startScale: 100
+    // The accent the machine wore when setup opened. "" and the brand blue
+    // are what a fresh install reports, because nothing ships an AccentColor.
+    property string startAccentId: ""
+    property color startAccent: "#3fa9f5"
     property string accentId: ""
     property string wallId: ""
     property int scale: 0
@@ -161,6 +165,18 @@ ApplicationWindow {
     function t(s) {
         var v = app.strings[s];
         return (v === undefined || v === "") ? s : v;
+    }
+
+    // Same lookup, then substitute. %1 and %2 rather than string concatenation,
+    // because a sentence built by "+" fixes English word order into the code:
+    // "Welcome to " + name + "." has nowhere for a language that puts the name
+    // first to go, and "Step 1 of 5" is "Schritt 1 von 5" but "Étape 1 sur 5".
+    // The placeholders are %1/%2 and not %s so that a translator can reorder
+    // them, and so xgettext never mistakes these for C format strings.
+    function tf(s, a, b) {
+        var v = app.t(s);
+        v = v.replace("%1", a === undefined ? "" : a);
+        return b === undefined ? v : v.replace("%2", b);
     }
 
     FontMetrics { id: sysFont }
@@ -342,12 +358,25 @@ ApplicationWindow {
                 app.mode = (d.currentMode === "dark") ? "dark" : "light";
                 app.wallId = d.currentWall ? d.currentWall : "";
                 app.scale = app.currentScale;
+                app.accentId = d.currentAccent ? d.currentAccent : "";
+                if (d.currentAccentHex)
+                    app.cAccent = d.currentAccentHex;
                 // Remember where we came in, so "Undo my changes" can put the
                 // WINDOW back too and not just the desktop. Captured here
                 // rather than in undoAll(), because by then it is long gone.
                 app.startMode = app.mode;
                 app.startWallId = app.wallId;
                 app.startScale = app.scale;
+                app.startAccentId = app.accentId;
+                // From the catalogue, NOT from app.cAccent. cAccent has a
+                // Behavior/ColorAnimation on it, so reading it back on the line
+                // after assigning it returns the value it is animating AWAY
+                // from — capturing it here would have stored the brand blue and
+                // undo would have looked fixed while doing exactly what it did
+                // before. Caught by running the window headless and printing
+                // the accent after Undo.
+                if (d.currentAccentHex)
+                    app.startAccent = d.currentAccentHex;
                 app.loaded = true;
                 app.buildSteps();
             } catch (e) {
@@ -392,6 +421,12 @@ ApplicationWindow {
 
     // Last resort: if the catalogue never arrives and nothing threw, say so
     // rather than leaving an empty window that looks like a broken install.
+    //
+    // The three catalogue-failure messages are the only user-facing strings in
+    // this file that stay English literals, and deliberately: the catalogue is
+    // where the translations live, so a message about the catalogue not loading
+    // is by definition a message no translation is available for. Wrapping them
+    // in app.t() would look correct and return the English key anyway.
     Timer {
         interval: 4000
         running: true
@@ -413,8 +448,8 @@ ApplicationWindow {
     // Say the new step out loud. A sighted user sees the whole page change; a
     // screen-reader user got nothing at all, because pressing Next moved them
     // to a page that never announced itself. Polite, and focus is untouched.
-    onStepChanged: app.say(app.stepTitle(app.step) + ". Step "
-                           + (app.stepIndex + 1) + " of " + app.steps.length + ".")
+    onStepChanged: app.say(app.stepTitle(app.step) + ". "
+                           + app.tf("Step %1 of %2", app.stepIndex + 1, app.steps.length) + ".")
 
     function buildSteps() {
         var s = ["welcome"];
@@ -434,14 +469,19 @@ ApplicationWindow {
         app.stepIndex = 0;
     }
 
+    // Translated, because this one function feeds three places at once: the step
+    // rail down the left, the "Step 2 of 5, How it looks" name the screen reader
+    // reads, and the announcement on every step change. It used to return bare
+    // English literals, so a German owner met a German desktop and an English
+    // sidebar — with the German already sitting unused in the catalogue.
     function stepTitle(id) {
         switch (id) {
-        case "welcome":    return "Welcome";
-        case "appearance": return "How it looks";
-        case "display":    return "Text size";
-        case "taskbar":    return "The taskbar";
-        case "files":      return "Your files";
-        case "finish":     return "You're ready";
+        case "welcome":    return app.t("Welcome");
+        case "appearance": return app.t("How it looks");
+        case "display":    return app.t("Text size");
+        case "taskbar":    return app.t("The taskbar");
+        case "files":      return app.t("Your files");
+        case "finish":     return app.t("You're ready");
         }
         return id;
     }
@@ -487,7 +527,8 @@ ApplicationWindow {
         app.mode = m;
         app.markTouched("appearance");
         app.send("MODE|" + m);
-        app.say(m === "dark" ? "Dark theme applied." : "Light theme applied.");
+        app.say(m === "dark" ? app.t("Dark theme applied.")
+                             : app.t("Light theme applied."));
     }
 
     function pickAccent(a) {
@@ -495,28 +536,28 @@ ApplicationWindow {
         app.cAccent = a.hex;
         app.markTouched("appearance");
         app.send("ACCENT|" + a.id);
-        app.say(a.name + " highlight colour applied.");
+        app.say(app.tf("%1 highlight colour applied.", a.name));
     }
 
     function pickWall(w) {
         app.wallId = w.id;
         app.markTouched("appearance");
         app.send("WALL|" + w.id);
-        app.say(w.name + " wallpaper applied.");
+        app.say(app.tf("%1 wallpaper applied.", w.name));
     }
 
     function pickScale(v) {
         app.scale = v;
         app.markTouched("display");
         app.send("SCALE|" + v);
-        app.say("Text size set to " + v + " percent.");
+        app.say(app.tf("Text size set to %1 percent.", v));
     }
 
     function pickLayout(l) {
         app.layoutId = l.id;
         app.markTouched("taskbar");
         app.send("LAYOUT|" + l.id);
-        app.say(l.name + " taskbar applied.");
+        app.say(app.tf("%1 taskbar applied.", l.name));
     }
 
     function run(what) {
@@ -527,9 +568,7 @@ ApplicationWindow {
         app.send("UNDO");
         app.changed = false;
         app.touched = ({});
-        app.accentId = "";
         app.layoutId = "";
-        app.cAccent = "#3fa9f5";
         // Put the WINDOW back as well, not only the desktop.
         //
         // Found by clicking it in a booted VM: choosing Dark and then "Undo my
@@ -541,12 +580,19 @@ ApplicationWindow {
         // the one visibly contradicting it.
         //
         // The shell has already restored the real settings by this point; these
-        // three lines only bring the window's own appearance and its selected
-        // tiles back into agreement with them.
+        // lines only bring the window's own appearance and its selected tiles
+        // back into agreement with them.
         app.mode = app.startMode;
         app.wallId = app.startWallId;
         app.scale = app.startScale;
-        app.say("Your changes have been undone.");
+        // The accent was the one thing this list missed. undoAll() used to
+        // reset it to the brand blue literal, so an owner who had chosen amber
+        // before running setup got their amber desktop back with a blue wizard
+        // sitting on top of it — the shell restores the REAL AccentColor from
+        // its capture file, and the window was contradicting it.
+        app.accentId = app.startAccentId;
+        app.cAccent = app.startAccent;
+        app.say(app.t("Your desktop is back the way it was."));
     }
 
     onClosing: function(close) {
@@ -623,8 +669,13 @@ ApplicationWindow {
         // is why Back/Skip/Next were the only things Orca could ever see here.
         // The description is the part `text` cannot carry: "Next" alone does
         // not say where next goes.
-        Accessible.description: pb.text === "Next" ? "Go to the next step"
-                              : (pb.text === "Finish" ? "Close setup and start using Dagric" : "")
+        // Compared against the TRANSLATED label, not the English one. The button
+        // now says "Weiter", so a `pb.text === "Next"` test would silently never
+        // match again and the description would vanish in every language but
+        // English — a regression only a screen-reader user would ever find.
+        Accessible.description: pb.text === app.t("Next") ? app.t("Go to the next step")
+                              : (pb.text === app.t("Finish")
+                                 ? app.t("Close setup and start using Dagric") : "")
         background: Rectangle {
             radius: app.px(9)
             color: pb.down ? Qt.darker(app.cAccent, 1.25)
@@ -652,7 +703,8 @@ ApplicationWindow {
         implicitWidth: Math.max(app.px(110), gbText.implicitWidth + app.px(40))
         Keys.onReturnPressed: function(event) { gb.clicked(); event.accepted = true; }
         Keys.onEnterPressed:  function(event) { gb.clicked(); event.accepted = true; }
-        Accessible.description: gb.text === "Back" ? "Go back to the previous step" : ""
+        Accessible.description: gb.text === app.t("Back")
+                                ? app.t("Go back to the previous step") : ""
         background: Rectangle {
             radius: app.px(9)
             color: gb.down ? app.cPanel2 : "transparent"
@@ -1030,7 +1082,7 @@ ApplicationWindow {
                     font.bold: true
                     elide: Text.ElideRight
                     Accessible.role: Accessible.Heading
-                    Accessible.name: "Set Up Dagric"
+                    Accessible.name: app.t("Set Up Dagric")
                 }
                 Text {
                     Layout.fillWidth: true
@@ -1049,7 +1101,7 @@ ApplicationWindow {
                     Accessible.role: Accessible.StaticText
                     // elide chops the VISIBLE text; the spoken text should be
                     // the whole sentence, not "Every step can be skipped, and…"
-                    Accessible.name: "Every step can be skipped, and you can change all of it later."
+                    Accessible.name: app.t("Every step can be skipped, and you can change all of it later.")
                 }
             }
 
@@ -1070,11 +1122,11 @@ ApplicationWindow {
                 visible: app.width < app.px(900) && app.steps.length > 1
                 Layout.alignment: Qt.AlignVCenter
                 Layout.rightMargin: app.px(4)
-                text: "Step " + (app.stepIndex + 1) + " of " + app.steps.length
+                text: app.tf("Step %1 of %2", app.stepIndex + 1, app.steps.length)
                 color: app.cDim
                 font.pixelSize: app.px(12)
                 Accessible.role: Accessible.StaticText
-                Accessible.name: "Step " + (app.stepIndex + 1) + " of " + app.steps.length
+                Accessible.name: app.tf("Step %1 of %2", app.stepIndex + 1, app.steps.length)
                                  + ", " + app.stepTitle(app.steps[app.stepIndex])
             }
 
@@ -1090,7 +1142,7 @@ ApplicationWindow {
                 Text {
                     id: proLabel
                     anchors.centerIn: parent
-                    text: "PRO EDITION"
+                    text: app.t("PRO EDITION")
                     // 2.56:1 as the raw accent on white. It is 10px text, so it
                     // is not "large" by any reading of 1.4.3 and needs the full
                     // 4.5:1. cInkPanel is the same hue, darkened until it does.
@@ -1098,7 +1150,7 @@ ApplicationWindow {
                     font.pixelSize: app.px(10)
                     font.bold: true
                     Accessible.role: Accessible.StaticText
-                    Accessible.name: "Pro edition"
+                    Accessible.name: app.t("Pro edition")
                 }
             }
 
@@ -1106,14 +1158,14 @@ ApplicationWindow {
                 text: app.t("Undo my changes")
                 visible: app.changed
                 Layout.alignment: Qt.AlignVCenter
-                Accessible.description: "Put the colours, wallpaper, text size and taskbar back the way they were when setup opened"
+                Accessible.description: app.t("Put the colours, wallpaper, text size and taskbar back the way they were when setup opened")
                 onClicked: app.undoAll()
             }
 
             Quiet {
                 text: app.t("I'll do this later")
                 Layout.alignment: Qt.AlignVCenter
-                Accessible.description: "Close setup. Anything already applied stays, and you can run this again from the Dagric Hub"
+                Accessible.description: app.t("Close setup. Anything already applied stays, and you can run this again from the Dagric Hub")
                 onClicked: app.close()
             }
         }
@@ -1163,10 +1215,11 @@ ApplicationWindow {
                         // "The taskbar", which is noise. One named item says
                         // the whole thing, and the two children go quiet.
                         Accessible.role: Accessible.StaticText
-                        Accessible.name: "Step " + (railRow.index + 1) + ", "
+                        Accessible.name: app.tf("Step %1", railRow.index + 1) + ", "
                                          + app.stepTitle(railRow.modelData) + ", "
-                                         + (railRow.index === app.stepIndex ? "current step"
-                                            : (railRow.index < app.stepIndex ? "done" : "not done yet"))
+                                         + (railRow.index === app.stepIndex ? app.t("current step")
+                                            : (railRow.index < app.stepIndex ? app.t("done")
+                                               : app.t("not done yet")))
 
                         Rectangle {
                             Layout.preferredWidth: app.px(26)
@@ -1209,7 +1262,7 @@ ApplicationWindow {
                 anchors.bottom: parent.bottom
                 anchors.margins: app.px(18)
                 text: app.live
-                      ? "Live trial — anything you set here lasts until you shut down."
+                      ? app.t("Live trial — anything you set here lasts until you shut down.")
                       : app.editionName
                 color: app.cDim
                 font.pixelSize: app.px(11)
@@ -1268,7 +1321,7 @@ ApplicationWindow {
 
                 Text {
                     Layout.fillWidth: true
-                    text: "Welcome to " + app.editionName + "."
+                    text: app.tf("Welcome to %1.", app.editionName)
                     color: app.cText
                     font.pixelSize: app.px(34)
                     font.bold: true
@@ -1282,10 +1335,12 @@ ApplicationWindow {
                 Text {
                     Layout.fillWidth: true
                     Layout.maximumWidth: app.px(560)
-                    text: "Let's make it yours. A few minutes now — the colours, the "
-                        + "wallpaper, how big the text is, where the taskbar sits"
-                        + (app.hasWindows ? ", and your files from Windows" : "")
-                        + " — and then it's out of your way."
+                    // One whole sentence per language, not four fragments glued
+                    // together: the Windows clause sits in the middle of the list
+                    // in English and cannot be assumed to sit there anywhere else.
+                    text: app.hasWindows
+                          ? app.t("Let's make it yours. A few minutes now — the colours, the wallpaper, how big the text is, where the taskbar sits, and your files from Windows — and then it's out of your way.")
+                          : app.t("Let's make it yours. A few minutes now — the colours, the wallpaper, how big the text is, where the taskbar sits — and then it's out of your way.")
                     color: app.cDim
                     font.pixelSize: app.px(16)
                     lineHeight: 1.35
@@ -1336,7 +1391,7 @@ ApplicationWindow {
                     Row {
                         spacing: app.px(14)
                         Accessible.role: Accessible.Grouping
-                        Accessible.name: "Theme"
+                        Accessible.name: app.t("Theme")
 
                         Choice {
                             id: lightChoice
@@ -1349,8 +1404,8 @@ ApplicationWindow {
                             // pixels, and it is a hint at a theme, not a
                             // preview anybody inspects.
                             height: app.px(app.shortWin ? 96 : 108)
-                            label: "Light theme"
-                            hint: "A bright desktop. Shows a small picture of what it looks like."
+                            label: app.t("Light theme")
+                            hint: app.t("A bright desktop. Shows a small picture of what it looks like.")
                             selected: app.mode === "light"
                             KeyNavigation.right: darkChoice
                             onClicked: app.pickMode("light")
@@ -1377,8 +1432,8 @@ ApplicationWindow {
                             id: darkChoice
                             width: app.px(178)
                             height: app.px(app.shortWin ? 96 : 108)   // matches Light, above
-                            label: "Dark theme"
-                            hint: "A dark desktop, easier on the eyes at night."
+                            label: app.t("Dark theme")
+                            hint: app.t("A dark desktop, easier on the eyes at night.")
                             selected: app.mode === "dark"
                             KeyNavigation.left: lightChoice
                             onClicked: app.pickMode("dark")
@@ -1406,7 +1461,7 @@ ApplicationWindow {
                         spacing: app.px(9)
                         visible: app.accents.length > 0
                         Accessible.role: Accessible.Grouping
-                        Accessible.name: "Highlight colour"
+                        Accessible.name: app.t("Highlight colour")
 
                         Text {
                             text: app.t("Highlight colour")
@@ -1440,7 +1495,7 @@ ApplicationWindow {
                                     activeFocusOnTab: true
                                     Accessible.role: Accessible.RadioButton
                                     Accessible.name: swatch.modelData.name
-                                    Accessible.description: "Highlight colour"
+                                    Accessible.description: app.t("Highlight colour")
                                     Accessible.focusable: true
                                     Accessible.focused: swatch.activeFocus
                                     Accessible.checkable: true
@@ -1540,8 +1595,8 @@ ApplicationWindow {
                     keyNavigationWraps: false
 
                     Accessible.role: Accessible.List
-                    Accessible.name: "Wallpaper"
-                    Accessible.description: "Arrow keys to move between wallpapers, Space to apply one"
+                    Accessible.name: app.t("Wallpaper")
+                    Accessible.description: app.t("Arrow keys to move between wallpapers, Space to apply one")
 
                     // Land on the wallpaper that is already set, so arrowing
                     // starts from where the desktop actually is.
@@ -1591,9 +1646,9 @@ ApplicationWindow {
 
                         Accessible.role: Accessible.RadioButton
                         Accessible.name: wcell.modelData.name
-                        Accessible.description: "Wallpaper "
-                                                + (wcell.index + 1) + " of "
-                                                + app.wallpapers.length
+                        Accessible.description: app.tf("Wallpaper %1 of %2",
+                                                       wcell.index + 1,
+                                                       app.wallpapers.length)
                         Accessible.focusable: true
                         Accessible.focused: wcell.activeFocus
                         Accessible.checkable: true
@@ -1713,12 +1768,12 @@ ApplicationWindow {
                 visible: app.step === "display" && app.loadError === ""
 
                 PageHead {
-                    heading: "Is the text the right size?"
+                    heading: app.t("Is the text the right size?")
                     sub: app.hasDisplayTool
-                         ? "Dagric guessed from your screen. Open Display Settings if it guessed wrong."
+                         ? app.t("Dagric guessed from your screen. Open Display Settings if it guessed wrong.")
                          : (app.scaleMode === "x11"
-                            ? "Dagric guessed from your screen. A change here takes effect the next time you sign in."
-                            : "Dagric guessed from your screen. Pick another size and it changes right away.")
+                            ? app.t("Dagric guessed from your screen. A change here takes effect the next time you sign in.")
+                            : app.t("Dagric guessed from your screen. Pick another size and it changes right away."))
                 }
 
                 // The dedicated tool owns this properly when it is installed —
@@ -1730,8 +1785,8 @@ ApplicationWindow {
                     visible: app.hasDisplayTool
 
                     Primary {
-                        text: "Open Display Settings"
-                        Accessible.description: "Opens the full display and text size settings in a separate window"
+                        text: app.t("Open Display Settings")
+                        Accessible.description: app.t("Opens the full display and text size settings in a separate window")
                         onClicked: { app.markTouched("display"); app.run("display"); }
                     }
                 }
@@ -1742,10 +1797,15 @@ ApplicationWindow {
                     visible: !app.hasDisplayTool
 
                     Accessible.role: Accessible.Grouping
-                    Accessible.name: "Text size"
+                    Accessible.name: app.t("Text size")
 
                     Repeater {
                         id: sizeRepeater
+                        // The model holds the ENGLISH names; every place that
+                        // shows one puts it through app.t() first. Storing the
+                        // translation here instead would make the model depend on
+                        // the catalogue having loaded, and these three cards are
+                        // built before it has.
                         model: [
                             { v: 100, name: "Normal",  note: "Standard size" },
                             { v: 125, name: "Bigger",  note: "Easier to read" },
@@ -1757,8 +1817,9 @@ ApplicationWindow {
                             required property int index
                             width: app.px(176)
                             height: app.px(132)
-                            label: sizeCard.modelData.name + ", " + sizeCard.modelData.v + " percent"
-                            hint: sizeCard.modelData.note
+                            label: app.tf("%1, %2 percent",
+                                          app.t(sizeCard.modelData.name), sizeCard.modelData.v)
+                            hint: app.t(sizeCard.modelData.note)
                             selected: app.scale === sizeCard.modelData.v
                             KeyNavigation.left: sizeRepeater.itemAt(sizeCard.index - 1)
                             KeyNavigation.right: sizeRepeater.itemAt(sizeCard.index + 1)
@@ -1778,14 +1839,14 @@ ApplicationWindow {
                                 }
                                 Item { Layout.fillHeight: true }
                                 Text {
-                                    text: sizeCard.modelData.name + "  " + sizeCard.modelData.v + "%"
+                                    text: app.t(sizeCard.modelData.name) + "  " + sizeCard.modelData.v + "%"
                                     color: app.cText
                                     font.pixelSize: app.px(14)
                                     font.bold: true
                                     Accessible.ignored: true
                                 }
                                 Text {
-                                    text: sizeCard.modelData.note
+                                    text: app.t(sizeCard.modelData.note)
                                     color: app.cDim
                                     font.pixelSize: app.px(12)
                                     Accessible.ignored: true
@@ -1799,7 +1860,7 @@ ApplicationWindow {
 
                 Text {
                     Layout.fillWidth: true
-                    text: "You can change this again in System Settings ▸ Display & Monitor."
+                    text: app.t("You can change this again in System Settings ▸ Display & Monitor.")
                     color: app.cDim
                     font.pixelSize: app.px(12)
                     wrapMode: Text.WordWrap
@@ -1815,7 +1876,7 @@ ApplicationWindow {
 
                 PageHead {
                     heading: app.t("Where should the taskbar go?")
-                    sub: "Click one to try it. Your open windows and apps stay exactly where they are."
+                    sub: app.t("Click one to try it. Your open windows and apps stay exactly where they are.")
                 }
 
                 GridView {
@@ -1837,8 +1898,8 @@ ApplicationWindow {
                     keyNavigationWraps: false
 
                     Accessible.role: Accessible.List
-                    Accessible.name: "Taskbar layout"
-                    Accessible.description: "Arrow keys to move between layouts, Space to try one"
+                    Accessible.name: app.t("Taskbar layout")
+                    Accessible.description: app.t("Arrow keys to move between layouts, Space to try one")
 
                     Component.onCompleted: layoutGrid.currentIndex = 0
 
@@ -1944,8 +2005,8 @@ ApplicationWindow {
                 visible: app.step === "files" && app.loadError === ""
 
                 PageHead {
-                    heading: "Bring your files across."
-                    sub: "There's a Windows drive in this PC. Dagric can copy your Documents, Pictures, Music, Videos, Downloads and browser bookmarks over."
+                    heading: app.t("Bring your files across.")
+                    sub: app.t("There's a Windows drive in this PC. Dagric can copy your Documents, Pictures, Music, Videos, Downloads and browser bookmarks over.")
                 }
 
                 Rectangle {
@@ -1961,7 +2022,7 @@ ApplicationWindow {
                     // sentence in the wizard for somebody who is frightened of
                     // losing their photos. Grouped so it is read as one thing.
                     Accessible.role: Accessible.Grouping
-                    Accessible.name: "Windows is only ever read."
+                    Accessible.name: app.t("Windows is only ever read.")
 
                     ColumnLayout {
                         id: contentCol
@@ -1972,19 +2033,17 @@ ApplicationWindow {
                         spacing: app.px(8)
                         Text {
                             Layout.fillWidth: true
-                            text: "Windows is only ever READ."
+                            text: app.t("Windows is only ever READ.")
                             color: app.cText
                             font.pixelSize: app.px(14)
                             font.bold: true
                             wrapMode: Text.WordWrap
                             Accessible.role: Accessible.StaticText
-                            Accessible.name: "Windows is only ever read."
+                            Accessible.name: app.t("Windows is only ever read.")
                         }
                         Text {
                             Layout.fillWidth: true
-                            text: "Nothing on the Windows drive is moved, changed or deleted, "
-                                + "and files already here are never overwritten. If you change "
-                                + "your mind about Dagric, Windows is exactly as you left it."
+                            text: app.t("Nothing on the Windows drive is moved, changed or deleted, and files already here are never overwritten. If you change your mind about Dagric, Windows is exactly as you left it.")
                             color: app.cDim
                             font.pixelSize: app.px(13)
                             wrapMode: Text.WordWrap
@@ -1999,12 +2058,12 @@ ApplicationWindow {
                     spacing: app.px(12)
                     Primary {
                         text: app.t("Bring my files over")
-                        Accessible.description: "Opens the migration tool in its own window. Nothing on the Windows drive is changed."
+                        Accessible.description: app.t("Opens the migration tool in its own window. Nothing on the Windows drive is changed.")
                         onClicked: { app.markTouched("files"); app.run("migrate"); }
                     }
                     Text {
                         Layout.fillWidth: true
-                        text: "This opens in its own window — carry on here while it works."
+                        text: app.t("This opens in its own window — carry on here while it works.")
                         color: app.cDim
                         font.pixelSize: app.px(12)
                         wrapMode: Text.WordWrap
@@ -2017,7 +2076,7 @@ ApplicationWindow {
 
                 Text {
                     Layout.fillWidth: true
-                    text: "Not now? It's in the Dagric Hub under \"Migrate from Windows\", any time."
+                    text: app.t("Not now? It's in the Dagric Hub under \"Migrate from Windows\", any time.")
                     color: app.cDim
                     font.pixelSize: app.px(12)
                     wrapMode: Text.WordWrap
@@ -2038,8 +2097,8 @@ ApplicationWindow {
                 visible: app.step === "finish" && app.loadError === ""
 
                 PageHead {
-                    heading: "That's it — " + app.editionName + " is yours."
-                    sub: "Four places worth knowing about. Everything else you can find by pressing the launcher and typing."
+                    heading: app.tf("That's it — %1 is yours.", app.editionName)
+                    sub: app.t("Four places worth knowing about. Everything else you can find by pressing the launcher and typing.")
                 }
 
                 Flow {
@@ -2108,8 +2167,8 @@ ApplicationWindow {
                             // button, 1 of 4" here is describing a decision the
                             // owner is not being asked to make.
                             exclusive: false
-                            label: "Open " + linkCard.modelData.title
-                            hint: linkCard.modelData.body
+                            label: app.tf("Open %1", app.t(linkCard.modelData.title))
+                            hint: app.t(linkCard.modelData.body)
                             KeyNavigation.left: finishRepeater.itemAt(linkCard.index - 1)
                             KeyNavigation.right: finishRepeater.itemAt(linkCard.index + 1)
                             onClicked: app.run(linkCard.modelData.act)
@@ -2119,7 +2178,7 @@ ApplicationWindow {
                                 spacing: app.px(8)
                                 Text {
                                     Layout.fillWidth: true
-                                    text: linkCard.modelData.title
+                                    text: app.t(linkCard.modelData.title)
                                     color: app.cText
                                     font.pixelSize: app.px(15)
                                     font.bold: true
@@ -2129,7 +2188,7 @@ ApplicationWindow {
                                 Text {
                                     Layout.fillWidth: true
                                     Layout.fillHeight: true
-                                    text: linkCard.modelData.body
+                                    text: app.t(linkCard.modelData.body)
                                     color: app.cDim
                                     font.pixelSize: app.px(12)
                                     wrapMode: Text.WordWrap
@@ -2137,7 +2196,7 @@ ApplicationWindow {
                                     Accessible.ignored: true
                                 }
                                 Text {
-                                    text: "Open  →"
+                                    text: app.t("Open") + "  →"
                                     // Was the raw accent: 2.56:1 on a white
                                     // card, and this is 12px text.
                                     color: app.cInkPanel
@@ -2201,13 +2260,13 @@ ApplicationWindow {
                 text: app.t("Skip this step")
                 visible: app.step !== "welcome" && app.step !== "finish"
                          && !app.isTouched(app.step)
-                Accessible.description: "Leave this setting alone and go to the next step"
+                Accessible.description: app.t("Leave this setting alone and go to the next step")
                 onClicked: app.goNext()
             }
 
             Primary {
-                text: app.step === "finish" ? "Finish"
-                    : (app.step === "welcome" ? "Let's go" : "Next")
+                text: app.step === "finish" ? app.t("Finish")
+                    : (app.step === "welcome" ? app.t("Let's go") : app.t("Next"))
                 onClicked: app.goNext()
             }
         }

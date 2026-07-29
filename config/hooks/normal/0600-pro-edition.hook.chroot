@@ -98,178 +98,23 @@ if ! grep -q '^\[Icons\]' /etc/skel/.config/kdeglobals 2>/dev/null; then
     printf '\n[Icons]\nTheme=Papirus-Dark\n' >> /etc/skel/.config/kdeglobals
 fi
 
-# Pro creator/gaming/AI helpers: give them launcher entries so they're
-# discoverable and KRunner-searchable (the Dagric Hub lists them too). These
-# ship only on Pro because the tools target the Pro suite.
-mkdir -p /usr/share/applications
-cat > /usr/share/applications/dagric-get-bottles.desktop << 'EOF'
-[Desktop Entry]
-Type=Application
-Name=Run Windows Apps (Bottles)
-GenericName=Windows app support
-Comment=Install Bottles to run Windows software and games in tidy containers
-Exec=konsole -e sh -c '/usr/bin/dagric-get-bottles ; echo ; printf "Press Enter to close..." ; read x'
-Icon=dagric-logo
-Terminal=false
-Categories=System;Utility;
-Keywords=windows;wine;bottles;exe;apps;compatibility;
-EOF
-cat > /usr/share/applications/dagric-get-localsend.desktop << 'EOF'
-[Desktop Entry]
-Type=Application
-Name=Share Files Privately (LocalSend)
-GenericName=Local file sharing
-Comment=Install LocalSend to share files between your devices with no cloud
-Exec=konsole -e sh -c '/usr/bin/dagric-get-localsend ; echo ; printf "Press Enter to close..." ; read x'
-Icon=dagric-logo
-Terminal=false
-Categories=Network;Utility;
-Keywords=localsend;airdrop;share;files;transfer;private;
-EOF
-cat > /usr/share/applications/dagric-get-cryptomator.desktop << 'EOF'
-[Desktop Entry]
-Type=Application
-Name=Encrypt Cloud Files (Cryptomator)
-GenericName=Client-side encryption
-Comment=Install Cryptomator to encrypt files before they reach any cloud
-Exec=konsole -e sh -c '/usr/bin/dagric-get-cryptomator ; echo ; printf "Press Enter to close..." ; read x'
-Icon=dagric-logo
-Terminal=false
-Categories=Security;Utility;
-Keywords=cryptomator;encrypt;vault;cloud;privacy;zero-knowledge;
-EOF
-cat > /usr/share/applications/dagric-get-upscayl.desktop << 'EOF'
-[Desktop Entry]
-Type=Application
-Name=AI Image Upscaler (Upscayl)
-GenericName=Offline AI upscaling
-Comment=Install Upscayl to enlarge and enhance images with local AI
-Exec=konsole -e sh -c '/usr/bin/dagric-get-upscayl ; echo ; printf "Press Enter to close..." ; read x'
-Icon=dagric-logo
-Terminal=false
-Categories=Graphics;Utility;
-Keywords=upscayl;upscale;ai;image;enhance;photo;
-EOF
-cat > /usr/share/applications/dagric-get-steam.desktop << 'EOF'
-[Desktop Entry]
-Type=Application
-Name=Install Steam
-GenericName=Valve game store
-Comment=Install Steam (user-consented; Dagric never bundles it)
-Exec=konsole -e sh -c '/usr/bin/dagric-get-steam ; echo ; printf "Press Enter to close..." ; read x'
-Icon=dagric-logo
-Terminal=false
-Categories=Game;System;
-Keywords=steam;valve;games;store;
-EOF
-cat > /usr/share/applications/dagric-get-heroic.desktop << 'EOF'
-[Desktop Entry]
-Type=Application
-Name=Install Heroic
-GenericName=Epic / GOG / Amazon games
-Comment=Install the Heroic Games Launcher (Epic, GOG, Amazon) from Flathub
-Exec=konsole -e sh -c '/usr/bin/dagric-get-heroic ; echo ; printf "Press Enter to close..." ; read x'
-Icon=dagric-logo
-Terminal=false
-Categories=Game;
-Keywords=heroic;epic;gog;amazon;games;launcher;
-EOF
-cat > /usr/share/applications/dagric-get-protonup.desktop << 'EOF'
-[Desktop Entry]
-Type=Application
-Name=Install ProtonUp-Qt
-GenericName=Manage Proton/Wine versions
-Comment=Install ProtonUp-Qt to manage Proton-GE / Wine-GE for Steam and Lutris
-Exec=konsole -e sh -c '/usr/bin/dagric-get-protonup ; echo ; printf "Press Enter to close..." ; read x'
-Icon=dagric-logo
-Terminal=false
-Categories=Game;
-Keywords=proton;protonup;wine;ge;steam;lutris;
-EOF
-cat > /usr/share/applications/dagric-gaming.desktop << 'EOF'
-[Desktop Entry]
-Type=Application
-Name=Gaming Setup
-GenericName=Proton-GE for Steam
-Comment=Install the community Proton-GE build for better game compatibility
-Exec=konsole -e sh -c '/usr/bin/dagric-gaming ; echo ; printf "Press Enter to close..." ; read x'
-Icon=dagric-logo
-Terminal=false
-Categories=Game;System;
-Keywords=steam;proton;wine;gaming;game;
-EOF
-cat > /usr/share/applications/dagric-ai.desktop << 'EOF'
-[Desktop Entry]
-Type=Application
-Name=Local AI Setup
-GenericName=Install Ollama
-Comment=Run large language models locally — nothing leaves your machine
-Exec=konsole -e sh -c '/usr/bin/dagric-ai ; echo ; printf "Press Enter to close..." ; read x'
-Icon=dagric-logo
-Terminal=false
-Categories=Development;System;
-Keywords=ai;ollama;llm;local;privacy;
-EOF
-cat > /usr/share/applications/dagric-get-resolve.desktop << 'EOF'
-[Desktop Entry]
-Type=Application
-Name=DaVinci Resolve (Install)
-GenericName=Guided Resolve install
-Comment=Walk through Blackmagic's official DaVinci Resolve download
-Exec=konsole -e sh -c '/usr/bin/dagric-get-resolve ; echo ; printf "Press Enter to close..." ; read x'
-Icon=dagric-logo
-Terminal=false
-Categories=AudioVideo;Video;
-Keywords=davinci;resolve;video;editor;blackmagic;
-EOF
-cat > /usr/share/applications/dagric-usb-protect.desktop << 'EOF'
-[Desktop Entry]
-Type=Application
-Name=USB Protection
-GenericName=Block unknown USB devices
-Comment=Allow-list the USB devices you use and block malicious ones (BadUSB)
-Exec=dagric-usb-protect
-Icon=dagric-logo
-Terminal=false
-Categories=System;Security;
-Keywords=usb;usbguard;security;badusb;lockdown;ports;
-EOF
-cat > /usr/share/applications/dagric-vm.desktop << 'EOF'
-[Desktop Entry]
-Type=Application
-Name=Windows in a Window (VMs)
-GenericName=Virtual machine setup
-Comment=Enable KVM virtual machines — run real Windows safely inside a window
-Exec=konsole -e sh -c '/usr/bin/dagric-vm ; echo ; printf "Press Enter to close..." ; read x'
-Icon=dagric-logo
-Terminal=false
-Categories=System;Emulator;
-Keywords=vm;virtual;machine;windows;kvm;qemu;virt-manager;
-EOF
-cat > /usr/share/applications/dagric-get-joplin.desktop << 'EOF'
-[Desktop Entry]
-Type=Application
-Name=Private Notes (Joplin)
-GenericName=Local-first notes
-Comment=Install Joplin — notes and to-dos in open Markdown, no account, offline-first
-Exec=konsole -e sh -c '/usr/bin/dagric-get-joplin ; echo ; printf "Press Enter to close..." ; read x'
-Icon=dagric-logo
-Terminal=false
-Categories=Office;Utility;
-Keywords=joplin;notes;notebook;markdown;onenote;notion;todo;
-EOF
-cat > /usr/share/applications/dagric-get-onlyoffice.desktop << 'EOF'
-[Desktop Entry]
-Type=Application
-Name=Familiar Office Look (ONLYOFFICE)
-GenericName=MS-Office-style suite
-Comment=Install ONLYOFFICE — the ribbon layout Office users know, best .docx fidelity
-Exec=konsole -e sh -c '/usr/bin/dagric-get-onlyoffice ; echo ; printf "Press Enter to close..." ; read x'
-Icon=dagric-logo
-Terminal=false
-Categories=Office;
-Keywords=onlyoffice;office;word;excel;powerpoint;docx;xlsx;pptx;ribbon;
-EOF
+# NOTE — the launcher entries used to be written here, and that was a bug.
+#
+# This hook rewrote fourteen /usr/share/applications/dagric-*.desktop files with
+# plain here-docs. includes.chroot is copied in BEFORE hooks run (0800 documents
+# the same ordering), so on every Pro build those here-docs overwrote the files
+# tools/i18n-desktop.py had already filled with Name[de]/GenericName[xx]/
+# Comment[xx]/Keywords[xx] — and reverted the English copy to older wording at
+# the same time. A Pro owner in German got an English launcher; a free owner did
+# not, because this hook exits at line 9. Nothing caught it: i18n-desktop.py
+# --check grades config/includes.chroot, not the image.
+#
+# Every one of those entries now lives in config/includes.chroot as a reviewable
+# file with its translations attached, dagric-gaming.desktop included. The two
+# that are genuinely Pro-only (dagric-usb-protect, dagric-vm) plus dagric-gaming
+# carry X-Dagric-Edition=pro and are deleted from free by 0510-app-names, which
+# runs before this hook — so the edition split is unchanged and there is nothing
+# left for this hook to write.
 
 # PhotoGIMP (Diolinux): familiar Photoshop-style layout for GIMP.
 # Best-effort download at build time; the build continues without it
