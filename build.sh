@@ -25,7 +25,19 @@ command -v rsync >/dev/null 2>&1 || { echo "rsync is required: apt install rsync
 echo "Building $EDITION edition in: $BUILD"
 rm -rf "$BUILD"
 mkdir -p "$BUILD"
-rsync -a --exclude 'out/' --exclude '.git/' "$SRC/" "$BUILD/"
+# site/repo is excluded for two reasons, and the second one bit.
+#
+# It is 65 MB of .deb that no image build reads — the packages an image needs
+# are assembled fresh into config/packages.chroot by stage-packages.sh, from
+# the tree AFTER edition gating, so the published copies are the wrong bytes
+# anyway.
+#
+# And it is generated, so it changes under this rsync. Running
+# packages/build-repo.sh while a build was copying killed the build outright:
+#   file has vanished: ".../pool/main/dagric-tools_1.1.0_all.deb"
+#   rsync warning: some files vanished before they could be transferred (24)
+# Excluding it means the two can never race again.
+rsync -a --exclude 'out/' --exclude '.git/' --exclude 'site/repo/' "$SRC/" "$BUILD/"
 cd "$BUILD"
 
 # *.hook.* and not *.hook.chroot: the boot-menu branding is a .hook.BINARY and
