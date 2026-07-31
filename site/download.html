@@ -76,16 +76,21 @@
 
   <h2>Verify your download</h2>
   <p>Don't skip this for installs that matter — it proves your ISO is byte-for-byte what we built.</p>
-  <div class="sums">
-4000e9ebb84cd24d67d0dbabc9e9a45212d2c2e9725fec7edbedaedb1b1289d5  dagric-os-1.0-amd64.iso<br>
-c25476d762104c6bbf5f37e2a651f64bd5f26a9c24b1295e84e7590ba2ef272a  dagric-os-pro-1.0-amd64.iso
-  </div>
+  <!-- No checksums are printed inline on this page, deliberately.
+       There used to be a copy here and a second copy in index.html, both transcribed by
+       hand, and both drifted out of step with the signed SHA256SUMS sitting right beside
+       them - three published copies carrying two different values for the same file. A
+       buyer who followed these very instructions got a MISMATCH, which reads as a corrupt
+       or tampered download rather than as a stale web page, on a product they paid for.
+       SHA256SUMS is now the only published source, because one copy of a checksum cannot
+       disagree with itself, and it is the copy the signature actually covers. -->
   <pre><code>gpg --import dagric-signing-key.asc
 gpg --verify SHA256SUMS.sig SHA256SUMS
 sha256sum -c SHA256SUMS</code></pre>
   <p>Files: <a href="SHA256SUMS">SHA256SUMS</a> · <a href="SHA256SUMS.sig">SHA256SUMS.sig</a> ·
   <a href="dagric-signing-key.asc">signing key</a>. On Windows:
-  <code>Get-FileHash .\dagric-os-1.0-amd64.iso</code> in PowerShell, compare to the list.</p>
+  <code>Get-FileHash .\dagric-os-1.0-amd64.iso</code> in PowerShell, then compare it against
+  the matching line in <a href="SHA256SUMS">SHA256SUMS</a>.</p>
 
   <h2>Already bought Pro?</h2>
   <p>Your download link lives on your post-purchase page — open the link from your Stripe receipt

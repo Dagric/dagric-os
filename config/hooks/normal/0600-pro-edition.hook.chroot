@@ -120,14 +120,30 @@ fi
 # Best-effort download at build time; the build continues without it
 # if the network or upstream is unavailable.
 #
-# SUPPLY-CHAIN NOTE: this fetches a moving branch (no pinned tag/checksum is
-# possible in this offline build environment). To bound the blast radius of a
-# compromised/malicious archive we do NOT copy the payload wholesale — we
-# ALLOW-LIST only the GIMP profile directories. This specifically prevents an
-# injected .config/autostart/*.desktop (or any other unexpected file) from
-# landing in every new user's session and auto-executing on first login.
-# TODO(when network is available at build): pin to a release tag + sha256 -c,
-# mirroring the grub-btrfs vendoring in 0800-snapshot-recovery.
+# SUPPLY-CHAIN NOTE, and it is still not good enough. This fetches a MOVING
+# BRANCH — no tag, no checksum, no signature — so whatever is on master at the
+# minute the ISO is built is what ships into every Pro owner's home directory.
+# Two Pro ISOs built a week apart under the same version number can carry
+# different third-party payloads with nothing recording which.
+#
+# This comment used to claim that "no pinned tag/checksum is possible in this
+# offline build environment". That was false, and provably so from this very
+# build: 0800-snapshot-recovery pins grub-btrfs 4.14 and runs sha256sum -c, and
+# 0900-video-wallpaper pins a release tarball and compares its sha256 — both
+# succeeded in the same container in the same run. The build has network. The
+# excuse was wrong and it is deleted.
+#
+# It is still unpinned only because a real pin needs a real upstream release tag
+# and its real sha256, and inventing one here would be worse than the status quo:
+# a wrong checksum makes the feature silently never install, which is a bug that
+# hides instead of failing loudly.
+# TODO: pin PG_VER to a PhotoGIMP release tag with its sha256, the way
+# 0900-video-wallpaper already does, then delete these two paragraphs.
+#
+# Until then the blast radius is bounded twice over: the allow-list copies only
+# the GIMP profile directory — never a blanket `cp -r *`, which stops an injected
+# .config/autostart/*.desktop from auto-executing at first login — AND every
+# executable surface inside that profile is stripped after the copy, below.
 PG_TMP=/tmp/photogimp
 mkdir -p "$PG_TMP"
 if curl -fsSL -o "$PG_TMP/pg.zip" \
@@ -143,7 +159,24 @@ if curl -fsSL -o "$PG_TMP/pg.zip" \
             # present). Never a blanket `cp -r *` — that was the injection path.
             cp -r "$SRC/GIMP" /etc/skel/.config/
             [ -d "$SRC/MyPaint" ] && cp -r "$SRC/MyPaint" /etc/skel/.config/
-            echo "PhotoGIMP layout installed for new users (GIMP profile only)"
+
+            # Now strip everything GIMP would EXECUTE out of that profile.
+            #
+            # Stopping the allow-list at "only the GIMP directory" was not
+            # actually enough: GIMP loads and RUNS scripts/*.scm (Script-Fu),
+            # plug-ins/, modules/ and interpreters/ from the USER profile at
+            # startup. So an unpinned archive still reached code execution on
+            # every new Pro user's first launch of GIMP — a narrower path than
+            # .config/autostart, but the same outcome.
+            #
+            # Nothing of value is lost. PhotoGIMP is a LAYOUT: menurc, sessionrc,
+            # toolrc, themes, icons, brushes, splashes. None of that is
+            # executable, and all of it survives this.
+            for X in scripts plug-ins modules interpreters; do
+                rm -rf "/etc/skel/.config/GIMP"/*/"$X"
+            done
+
+            echo "PhotoGIMP layout installed for new users (profile only, no executables)"
         else
             echo "WARNING: PhotoGIMP archive missing a GIMP profile — skipped"
         fi

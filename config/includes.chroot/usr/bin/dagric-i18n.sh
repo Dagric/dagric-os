@@ -81,14 +81,36 @@ dg_say() { printf '%s\n' "$1"; }
 
 # dg_lang — the owner's language, as "lang_COUNTRY", with no encoding.
 #
-# Same precedence gettext itself uses: LC_ALL beats LC_MESSAGES beats LANG.
-# LANGUAGE is deliberately NOT consulted — it is a colon-separated PREFERENCE
-# LIST ("de:en"), not a locale, and treating it as one would go looking for a
-# directory called "de:en".
+# Same precedence gettext itself uses: LANGUAGE first, then LC_ALL, then
+# LC_MESSAGES, then LANG.
+#
+# LANGUAGE used to be skipped entirely here, on the reasoning that it is a
+# colon-separated PREFERENCE LIST ("de:en") and not a locale, so treating it as
+# one would send dg_localised looking for a directory called "de:en". That
+# reasoning is right and the conclusion drawn from it was wrong: gettext DOES
+# honour LANGUAGE, so on a desktop with LANG=en_US and LANGUAGE=de every
+# gettext string came out German while dg_lang answered "en_US" — and the user
+# guide, the welcome page and the manual all opened in English on a machine
+# that was otherwise speaking German. That reads as a broken translation.
+#
+# The fix is to read LANGUAGE and take its FIRST entry, not to ignore it. The
+# C/POSIX guard is gettext's own rule: LANGUAGE is disregarded when the locale
+# is C, which is why LC_ALL=C turns translation off completely.
 dg_lang() {
     _dg_l=${LC_ALL:-${LC_MESSAGES:-${LANG:-}}}
     _dg_l=${_dg_l%%.*}      # drop .UTF-8
     _dg_l=${_dg_l%%@*}      # drop @modifier
+    case "$_dg_l" in
+        ''|C|POSIX) ;;      # translation is off; LANGUAGE must not resurrect it
+        *)
+            if [ -n "${LANGUAGE:-}" ]; then
+                _dg_x=${LANGUAGE%%:*}   # "de:en" -> "de", never the whole list
+                _dg_x=${_dg_x%%.*}
+                _dg_x=${_dg_x%%@*}
+                [ -n "$_dg_x" ] && _dg_l=$_dg_x
+            fi
+            ;;
+    esac
     printf '%s' "$_dg_l"
 }
 

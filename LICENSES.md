@@ -21,13 +21,37 @@ Everything the Dagric project itself adds (branding assets, the `dagric-*`
 helper scripts, hooks, the welcome page, and configuration packages) is part of
 this repository and is offered under the project's own terms.
 
-## Base system: 100% open source
+## Base system: open source, plus redistributable hardware firmware
 
-Every package Dagric preinstalls in the base system and the Pro suite is
-OSI-approved open source. We deliberately do **not** ship any package whose
-contents are proprietary. Notably, `ttf-mscorefonts-installer` (which downloads
-Microsoft's proprietary fonts) was removed in favor of the open, metric-
-compatible Carlito, Caladea, and Liberation fonts.
+Every **application** Dagric preinstalls, in the base system and in the Pro
+suite, is OSI-approved open source. We deliberately do **not** ship any
+application whose contents are proprietary. Notably,
+`ttf-mscorefonts-installer` (which downloads Microsoft's proprietary fonts) was
+removed in favor of the open, metric-compatible Carlito, Caladea, and Liberation
+fonts.
+
+There is one deliberate exception, and it is **not** open source: hardware
+firmware. These packages come from Debian's `non-free-firmware` component:
+
+```
+firmware-linux-nonfree   firmware-misc-nonfree   firmware-realtek
+firmware-iwlwifi         firmware-atheros        firmware-brcm80211
+firmware-sof-signed      intel-microcode         amd64-microcode
+```
+
+They are redistributable binary blobs that load onto the Wi-Fi chip, the sound
+card and the CPU itself — not code that runs on your operating system. They are
+here for the same reason Debian puts them on its own official installer media as
+of Debian 12: without them Wi-Fi, audio and graphics do not work on most real
+laptops, which is exactly the hardware Dagric exists to rescue. Each carries a
+licence permitting redistribution, which is what makes shipping this ISO lawful.
+None of them is OSI-approved.
+
+This section previously claimed the base system was "100% open source". That was
+inaccurate, and it is corrected here rather than quietly narrowed: if you want a
+machine carrying no non-free firmware at all, remove those packages after
+installation. The system boots and runs without them; some of your hardware will
+stop working.
 
 ## Proprietary software — never bundled, always user-initiated
 

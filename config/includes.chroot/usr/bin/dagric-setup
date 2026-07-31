@@ -16,6 +16,12 @@
 # and $2 it is only ever an argument to printf, and nothing can be read out of it.
 CLOSE=$(gettext "Press Enter to close...")
 HPDONE=$(gettext "HP support installed. Add your printer in System Settings > Printers.")
+# There has to be a failure line, because there was no way to say "it didn't
+# work": the branch below printed HPDONE unconditionally, so an owner whose apt
+# run failed was told HP support was installed and went looking for a printer
+# that was never going to appear. Passed positionally like the other two, for
+# the reason in the paragraph above.
+HPFAIL=$(gettext "HP support could NOT be installed — see the messages above. Check your internet connection and try again from the Hub.")
 
 # The tags ("drivers", "hp", "flathub") are NOT translated — they are the values
 # kdialog hands back and the case below matches on. Only the labels are.
@@ -38,10 +44,15 @@ for c in $CHOICES; do
 'pkexec /usr/bin/dagric-drivers; \
 printf "%s" "$1"; read x' sh "$CLOSE" & ;;
         hp)
+            # The success line used to be sequenced with `;`, so it printed
+            # whether or not apt had worked. Branch on the actual exit status.
             konsole -e pkexec sh -c \
-'apt-get update && apt-get install -y hplip; \
-echo; printf "%s\n" "$1"; \
-printf "%s" "$2"; read x' sh "$HPDONE" "$CLOSE" & ;;
+'if apt-get update && apt-get install -y hplip; then \
+  echo; printf "%s\n" "$1"; \
+else \
+  echo; printf "%s\n" "$3"; \
+fi; \
+printf "%s" "$2"; read x' sh "$HPDONE" "$CLOSE" "$HPFAIL" & ;;
         flathub)
             flatpak remote-add --if-not-exists flathub \
                 https://dl.flathub.org/repo/flathub.flatpakrepo 2>/dev/null || true

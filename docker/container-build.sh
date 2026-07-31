@@ -12,7 +12,12 @@ set -e
 
 EDITION="${EDITION:-free}"
 
-rsync -a --exclude 'out/' --exclude '.git/' /src/ /build/
+# site/repo/ is excluded for the same reason build.sh excludes it: the published
+# APT repository is regenerated in place, so rsync can be reading a file that is
+# being rewritten underneath it and dies with "file has vanished", killing the
+# build before it starts. build.sh gained this exclusion and this script did not,
+# so the Docker path kept the bug after the documented fix.
+rsync -a --exclude 'out/' --exclude '.git/' --exclude 'site/repo/' /src/ /build/
 cd /build
 # *.hook.* and not *.hook.chroot: the boot-menu branding is a .hook.BINARY, so
 # it was outside this line and depended on the executable bit surviving a
@@ -73,15 +78,97 @@ else
 fi
 if command -v python3 >/dev/null 2>&1; then
     python3 tools/i18n-desktop.py --check
+    # build.sh runs this and this script did not, so the Docker path could ship a
+    # wizard whose strings had drifted apart with the build log reporting it fully
+    # translated. The wizard's English sentences live in one file and are asked
+    # for by name in another; nothing else compares the two.
+    python3 tools/i18n-wizard.py --check
 else
     echo "i18n: python3 not installed — skipping the .desktop drift check"
 fi
 
 lb clean
 lb config
+
+# SUBSCRIBE THE IMAGE TO ITS OWN UPDATE CHANNEL — see the long note in build.sh.
+#
+# build.sh got this and container-build.sh did not, so every ISO produced through
+# the Docker path shipped with dagric.list pointing at the signed repository and
+# with the keyring beside it, while dpkg had no record of a single dagric-*
+# package. `apt upgrade` on a machine installed from a CI-built ISO could never
+# deliver a fix to the wizard, the manual, the wallpapers or the security
+# baseline. The channel was live, signed and reachable, and nothing was
+# subscribed to anything in it.
+if command -v dpkg-deb >/dev/null 2>&1; then
+    rm -rf config/packages.chroot
+    mkdir -p config/packages.chroot
+    DAGRIC_PKG_STAGE=/build/.pkgstage \
+        sh packages/stage-packages.sh /build /build/config/packages.chroot
+    rm -rf /build/.pkgstage
+    echo "update channel: $(ls -1 config/packages.chroot/*.deb | wc -l) config packages staged for install"
+
+    # And the collision gate that has to travel with the staging, or this script
+    # inherits the failure the staging causes: the staged .debs are pinned above
+    # the live channel, so when both offer the SAME version with different bytes
+    # apt calls it a downgrade and kills the build twenty minutes in. Checking
+    # every package, not just dagric-tools, because a gate that catches one in
+    # four reads as an all-clear.
+    CHANNEL=$(curl -fsS --max-time 15 \
+        https://dagric-os.web.app/repo/dists/trixie/main/binary-amd64/Packages 2>/dev/null) \
+        || CHANNEL=""
+    if [ -z "$CHANNEL" ]; then
+        echo "WARNING: could not reach the update channel — the version-collision" >&2
+        echo "         check was SKIPPED, not passed." >&2
+    else
+        COLLIDE=""
+        for CTRL in packages/*/DEBIAN/control; do
+            [ -f "$CTRL" ] || continue
+            PKG=$(sed -n 's/^Package: //p' "$CTRL")
+            TREEVER=$(sed -n 's/^Version: //p' "$CTRL")
+            [ -n "$PKG" ] && [ -n "$TREEVER" ] || continue
+            LIVEVER=$(printf '%s\n' "$CHANNEL" \
+                | awk -v p="$PKG" '$0=="Package: "p{f=1} f&&/^Version:/{print $2; exit}')
+            [ -n "$LIVEVER" ] || continue
+            [ "$LIVEVER" = "$TREEVER" ] && COLLIDE="$COLLIDE    $PKG $TREEVER
+"
+        done
+        if [ -n "$COLLIDE" ]; then
+            echo "ERROR: the update channel already publishes these exact versions:" >&2
+            printf '%s' "$COLLIDE" >&2
+            echo "Bump Version: in each colliding packages/*/DEBIAN/control, then" >&2
+            echo "build, then publish. Build first, publish second." >&2
+            exit 1
+        fi
+    fi
+else
+    echo "WARNING: dpkg-deb not installed — the ISO will not be subscribed to" >&2
+    echo "         the Dagric update channel (apt upgrade will deliver nothing)." >&2
+fi
+
 lb build
 
-cp -v ./*.iso /out/ 2>/dev/null || { echo "BUILD FAILED — no ISO produced. See output above."; exit 1; }
+# dd plus a size check, not `cp ... 2>/dev/null`. That line reintroduced exactly
+# the failure build.sh was hardened against: cp dying partway across the bridge to
+# the Windows folder with "Cannot allocate memory", leaving a TRUNCATED ISO in
+# /out with a plausible name and a fresh timestamp. The 2>/dev/null then threw the
+# message away, so the only remaining symptom was an image that would not boot —
+# and the `||` branch blamed "no ISO produced", which was not what happened.
+SRCISO=$(ls -1 ./*.iso 2>/dev/null | head -1)
+if [ -z "$SRCISO" ]; then
+    echo "BUILD FAILED — no ISO produced. See output above." >&2
+    exit 1
+fi
+NAME=$(basename "$SRCISO")
+dd if="$SRCISO" of="/out/$NAME" bs=4M status=none
+WANT=$(stat -c%s "$SRCISO")
+GOT=$(stat -c%s "/out/$NAME" 2>/dev/null || echo 0)
+if [ "$WANT" != "$GOT" ]; then
+    echo "ERROR: copy is short — $GOT of $WANT bytes." >&2
+    echo "The ISO itself is fine at $SRCISO; only the copy to /out failed." >&2
+    rm -f "/out/$NAME"
+    exit 1
+fi
+echo "copied $NAME ($GOT bytes, verified)"
 cp -v build.log /out/ 2>/dev/null || true
 echo ""
 echo "=========================================="

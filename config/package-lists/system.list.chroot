@@ -112,6 +112,21 @@ unzip
 # Resolve guide. With --apt-recommends false these aren't pulled implicitly.
 xdg-utils
 
+# This one is a pin, not a nice-to-have. xdg-user-dirs writes
+# ~/.config/user-dirs.dirs at first login, and that file is the ONLY thing that
+# creates Documents, Downloads, Pictures, Music and Videos — with the owner's own
+# language for the names. It is a Recommends of half the desktop, and
+# --apt-recommends false drops it, so today it lands on Pro (dragged in as some
+# Pro app's hard dependency) and NOT on free. Verified in out/free-rebuild.log,
+# where it sits in the "Recommended packages:" block and is never set up.
+#
+# A Windows switcher whose home folder has no Documents is the worst possible
+# first five minutes, and it breaks "free is leaner, never broken". Two shipped
+# code paths already read this file and quietly degrade without it: the
+# 2010-dagric-hwcheck-icon live hook falls back to an English "Desktop" for a
+# German owner, and dagric-hardware-check saves its report to $HOME instead.
+xdg-user-dirs
+
 # Laptop power profiles (performance / balanced / power-save in the tray)
 power-profiles-daemon
 

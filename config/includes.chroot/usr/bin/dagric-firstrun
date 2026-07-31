@@ -719,7 +719,14 @@ run_helper() {
 '/usr/bin/dagric-migrate ; echo ; printf "Press Enter to close..." ; read x' & ;;
         display)  /usr/bin/dagric-display & ;;
         hub)      /usr/bin/dagric-hub & ;;
-        guide)    firefox file:///usr/share/dagric/guide/index.html & ;;
+        # Also NOT a bare firefox call, for the same family of reason: the guide
+        # ships per language (guide/de/index.html exists) and dagric-guide is the
+        # wrapper that picks the owner's, with the de_AT -> de -> English chain.
+        # This line was `firefox file:///usr/share/dagric/guide/index.html`, which
+        # is the exact command dagric-guide's own header names as the bug it was
+        # written to kill. A German owner finished a German wizard, clicked User
+        # Guide, and got English off a disk that had the German page on it.
+        guide)    /usr/bin/dagric-guide & ;;
         # NOT a bare firefox call at the manual's index.html: dagric-manual
         # passes the edition marker through, and that marker is what makes the
         # Pro pages' "not installed on this edition" notes appear (or stay

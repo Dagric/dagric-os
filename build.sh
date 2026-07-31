@@ -187,20 +187,51 @@ if command -v dpkg-deb >/dev/null 2>&1; then
     # it only until the same version was published — at which point the next
     # build failed identically. The order is what matters: BUMP, BUILD, THEN
     # PUBLISH. This turns forgetting it into a five-second error that says so.
-    LIVEVER=$(curl -fsS --max-time 15 \
-        https://dagric-os.web.app/repo/dists/trixie/main/binary-amd64/Packages 2>/dev/null \
-        | awk '/^Package: dagric-tools$/{f=1} f&&/^Version:/{print $2; exit}')
-    TREEVER=$(sed -n 's/^Version: //p' packages/dagric-tools/DEBIAN/control)
-    if [ -n "$LIVEVER" ] && [ "$LIVEVER" = "$TREEVER" ]; then
-        echo "ERROR: the update channel already publishes dagric-tools $LIVEVER," >&2
-        echo "and this tree builds the same version with different contents." >&2
-        echo "apt will refuse the build as a downgrade about twenty minutes from now." >&2
-        echo >&2
-        echo "Bump Version: in packages/*/DEBIAN/control above $LIVEVER, then build," >&2
-        echo "then publish. Build first, publish second — never the other way round." >&2
-        exit 1
+    # EVERY package, not just dagric-tools. This gate used to read one control
+    # file out of four, so a tree that bumped dagric-tools and forgot the other
+    # three passed the check in five seconds and then died twenty minutes later
+    # on whichever one still collided. A gate that catches a quarter of the cases
+    # is worse than none, because it reads as an all-clear.
+    CHANNEL=$(curl -fsS --max-time 15 \
+        https://dagric-os.web.app/repo/dists/trixie/main/binary-amd64/Packages 2>/dev/null) \
+        || CHANNEL=""
+    if [ -z "$CHANNEL" ]; then
+        # Say so out loud. Silence here is indistinguishable from "checked, all
+        # clear", and a gate that fails open without a word is how the twenty
+        # minute build death gets reintroduced by somebody on a flaky connection.
+        echo "WARNING: could not reach the update channel — the version-collision" >&2
+        echo "         check was SKIPPED, not passed. If this build dies on" >&2
+        echo "         'Packages were DOWNGRADED' in about twenty minutes, that" >&2
+        echo "         is why, and the fix is to bump packages/*/DEBIAN/control." >&2
+    else
+        COLLIDE=""
+        for CTRL in packages/*/DEBIAN/control; do
+            [ -f "$CTRL" ] || continue
+            PKG=$(sed -n 's/^Package: //p' "$CTRL")
+            TREEVER=$(sed -n 's/^Version: //p' "$CTRL")
+            [ -n "$PKG" ] && [ -n "$TREEVER" ] || continue
+            # Exact line match, so dagric-tools cannot be matched by a future
+            # dagric-tools-something.
+            LIVEVER=$(printf '%s\n' "$CHANNEL" \
+                | awk -v p="$PKG" '$0=="Package: "p{f=1} f&&/^Version:/{print $2; exit}')
+            [ -n "$LIVEVER" ] || continue
+            if [ "$LIVEVER" = "$TREEVER" ]; then
+                COLLIDE="$COLLIDE    $PKG $TREEVER
+"
+            fi
+        done
+        if [ -n "$COLLIDE" ]; then
+            echo "ERROR: the update channel already publishes these exact versions," >&2
+            echo "and this tree builds them again with different contents:" >&2
+            printf '%s' "$COLLIDE" >&2
+            echo "apt will refuse the build as a downgrade about twenty minutes from now." >&2
+            echo >&2
+            echo "Bump Version: in each colliding packages/*/DEBIAN/control, then build," >&2
+            echo "then publish. Build first, publish second — never the other way round." >&2
+            exit 1
+        fi
+        echo "update channel: checked all four packages, no version collisions"
     fi
-    [ -n "$LIVEVER" ] && echo "update channel: live is $LIVEVER, this tree builds $TREEVER"
 else
     echo "WARNING: dpkg-deb not installed — the ISO will not be subscribed to" >&2
     echo "         the Dagric update channel (apt upgrade will deliver nothing)." >&2
@@ -241,4 +272,30 @@ if [ "$WANT" != "$GOT" ]; then
     exit 1
 fi
 echo "copied $NAME ($GOT bytes, verified)"
+
+# Record the checksum beside the ISO, on every single build.
+#
+# Nothing did this, and the result was THREE published copies of the checksum
+# carrying TWO different values: site/download.html and site/index.html each held
+# a hand-transcribed pair, site/SHA256SUMS held another, and neither matched the
+# ISO actually sitting in out/. The cause is structural — NAME is a fixed
+# filename, so every rebuild overwrites the same path with different bytes while
+# the recorded sums stay where they were. A buyer who followed the verify steps
+# the download page insists they not skip got a MISMATCH, which reads as a
+# corrupted or tampered download rather than as a stale web page.
+#
+# The two inline copies are gone from the site. This keeps the one that is left
+# honest. Deliberately NOT signed here: signing is a release step that needs the
+# key, and a build must never quietly emit something that looks signed.
+SUMS="$SRC/out/SHA256SUMS"
+[ -f "$SUMS" ] || : > "$SUMS"
+grep -v "  ${NAME}\$" "$SUMS" > "$SUMS.tmp" 2>/dev/null || :
+( cd "$SRC/out" && sha256sum "$NAME" ) >> "$SUMS.tmp"
+LC_ALL=C sort -k2,2 "$SUMS.tmp" -o "$SUMS"
+rm -f "$SUMS.tmp"
+echo "recorded sha256 for $NAME in out/SHA256SUMS"
+echo
+echo "NOTE: out/SHA256SUMS has changed. Before deploying the site, copy it to"
+echo "      site/ and RE-SIGN it — site/SHA256SUMS.sig covers the previous"
+echo "      contents and will fail gpg --verify until it is regenerated."
 echo "Done ($EDITION edition) — ISO is at out/$NAME"

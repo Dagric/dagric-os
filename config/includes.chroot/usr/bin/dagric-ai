@@ -8,23 +8,60 @@
 set -e
 . /usr/bin/dagric-i18n.sh
 
-# TRANSLATORS: the "remove anytime" line is a COMMAND typed verbatim into a
-# terminal — leave `sudo rm -f /usr/local/bin/ollama` exactly as it is.
-# "Ollama" is a product name.
+# TRANSLATORS: every indented line under "To remove it completely" is a COMMAND
+# typed verbatim into a terminal — translate the prose around them, never the
+# commands themselves. "Ollama" is a product name.
+#
+# The old version of this screen said removal was `sudo rm -f
+# /usr/local/bin/ollama` and stopped there. That is wrong: Ollama's installer
+# also creates a systemd service, a system user, and a model directory, so
+# deleting the binary leaves an enabled service behind pointing at nothing. It
+# also never mentioned that a background service gets enabled at all — which on
+# an OS that sells itself on privacy is exactly the kind of thing the owner is
+# entitled to hear BEFORE saying yes, not discover later in systemctl.
 dg_say "$(gettext "Dagric local AI setup
 =======================
 This installs Ollama, a local large-language-model runner:
   * models run entirely on this computer (GPU-accelerated when available)
   * works offline; nothing is sent anywhere
-  * remove anytime:  sudo rm -f /usr/local/bin/ollama
+
+What it changes on this machine:
+  * installs the ollama binary and adds a system user for it
+  * enables a background service that starts at boot and listens only on
+    this computer (127.0.0.1 port 11434) — not reachable from your network
+  * downloaded models land in /usr/share/ollama and can be several GB each
+
+To remove it completely:
+  sudo systemctl disable --now ollama
+  sudo rm -f /usr/local/bin/ollama /etc/systemd/system/ollama.service
+  sudo rm -rf /usr/share/ollama
+  sudo userdel ollama
 ")"
 printf '%s ' "$(gettext "Install Ollama from https://ollama.com? [y/N]")"
 read -r answer
 if dg_is_yes "$answer"; then
-    curl -fsSL https://ollama.com/install.sh | sh
-    echo ""
-    # TRANSLATORS: "ollama run llama3.2" is a command typed verbatim.
-    dg_say "$(gettext "Done. Try:  ollama run llama3.2")"
+    # Download first, THEN run — never `curl ... | sh`. That pipeline reports
+    # sh's exit status, and sh handed an EMPTY script exits 0, so a failed
+    # download looked like a successful install. Combined with an unconditional
+    # "Done." afterwards, somebody on a dropped connection was told to try
+    # `ollama run llama3.2` and got command-not-found.
+    TMP=$(mktemp) || exit 1
+    if ! curl -fsSL https://ollama.com/install.sh -o "$TMP"; then
+        rm -f "$TMP"
+        dg_say "$(gettext "Could not download the installer — nothing was changed. Check your internet connection and try again.")"
+        exit 1
+    fi
+    if sh "$TMP"; then
+        rm -f "$TMP"
+        echo ""
+        # TRANSLATORS: "ollama run llama3.2" is a command typed verbatim.
+        dg_say "$(gettext "Done. Try:  ollama run llama3.2")"
+    else
+        rm -f "$TMP"
+        echo ""
+        dg_say "$(gettext "The Ollama installer did not finish. It may be partly installed — the removal commands shown above will clear whatever landed.")"
+        exit 1
+    fi
 else
     dg_say "$(gettext "Nothing changed.")"
 fi

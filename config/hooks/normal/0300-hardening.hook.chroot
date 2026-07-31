@@ -41,7 +41,24 @@ systemctl enable firewalld.service 2>/dev/null || true
 # which would expose a password-auth sshd on every untrusted network the moment
 # it's switched on. Close it; enabling SSH is then a deliberate two-step:
 #   sudo firewall-cmd --permanent --add-service=ssh && sudo firewall-cmd --reload
-firewall-offline-cmd --zone=public --remove-service=ssh 2>/dev/null || true
+#
+# This was a bare `2>/dev/null || true`. When it failed, nothing said so, and the
+# image shipped with ssh still allowed in the public zone — the precise hole this
+# block exists to close, silently left open. A hardening step that cannot report
+# its own failure is not a hardening step. Run it, then ASK whether it took.
+firewall-offline-cmd --zone=public --remove-service=ssh >/dev/null 2>&1 \
+    || echo "NOTE: firewall-offline-cmd --remove-service=ssh returned an error" >&2
+
+# --query-service exits 0 when the service is STILL allowed, so a zero here is
+# the bad case. Deliberately a loud warning rather than an exit: a broken
+# firewall rule must not silently ship, but it also must not destroy a
+# twenty-minute build at the very end when everything else succeeded.
+if firewall-offline-cmd --zone=public --query-service=ssh >/dev/null 2>&1; then
+    echo "WARNING: firewalld's public zone STILL allows ssh after the removal." >&2
+    echo "         Any sshd the owner later enables would be reachable from" >&2
+    echo "         every untrusted network they join. Check that firewalld is" >&2
+    echo "         actually installed in the chroot by the time this hook runs." >&2
+fi
 
 # Fingerprint login: fprintd + libpam-fprintd are installed, but Debian's PAM
 # profile ships "Default: no", so /etc/pam.d/common-auth never consults the
