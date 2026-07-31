@@ -22,6 +22,7 @@ step. Everything it depends on is already set up on Dagric Pro.
 You'll be asked for your administrator password, then Steam downloads and
 installs. Afterwards, launch \"Steam\" from the application launcher.")"
 
+dg_live_warn
 printf '\n%s ' "$(gettext "Install Steam now? [y/N]")"
 read ans
 if ! dg_is_yes "$ans"; then

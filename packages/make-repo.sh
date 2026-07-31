@@ -1,37 +1,38 @@
 #!/bin/sh
-# Dagric OS — turn /out/repo into a signed APT repository.
-# Expects packages in /out/repo/pool (run build-packages.sh first).
-# The signing key lives in /keys (persisted outside the repo, never committed);
-# it is generated on first run.
-set -e
-
-REPO=/out/repo
-export GNUPGHOME=/keys/gnupg
-mkdir -p "$GNUPGHOME"; chmod 700 "$GNUPGHOME"
-
-# One-time: generate the repository signing key.
-if ! gpg --list-secret-keys "Dagric OS Repository" >/dev/null 2>&1; then
-    echo "Generating repository signing key (one-time)..."
-    gpg --batch --gen-key << 'EOF'
-%no-protection
-Key-Type: RSA
-Key-Length: 4096
-Name-Real: Dagric OS Repository
-Name-Email: repo@dagric.com
-Expire-Date: 0
-%commit
-EOF
-fi
-
-cd "$REPO"
-dpkg-scanpackages --multiversion pool > Packages
-gzip -kf Packages
-apt-ftparchive release . > Release
-gpg --default-key "Dagric OS Repository" -abs -o Release.gpg Release
-gpg --default-key "Dagric OS Repository" --clearsign -o InRelease Release
-gpg --export --armor "Dagric OS Repository" > dagric-repo.gpg.asc
-
-echo ""
-echo "Signed APT repo ready at out/repo. Serve it over HTTPS, then on clients:"
-echo "  curl -fsSL https://YOUR-HOST/dagric-repo.gpg.asc | gpg --dearmor -o /usr/share/keyrings/dagric.gpg"
-echo "  echo 'deb [signed-by=/usr/share/keyrings/dagric.gpg] https://YOUR-HOST/ ./' > /etc/apt/sources.list.d/dagric.list"
+# Dagric OS — SUPERSEDED. This script must not run. Use packages/build-repo.sh.
+#
+# It is kept as a refusal rather than deleted because `repo.ps1` invoked it and
+# somebody may still type that from habit — and a script that quietly does the
+# wrong thing to a signing key is worse than one that is missing.
+#
+# What it used to do, and why both halves are wrong now:
+#
+#   1. IT MINTED A SECOND SIGNING KEY. On any host where /keys/gnupg had no
+#      "Dagric OS Repository" secret key it generated a fresh 4096-bit RSA key
+#      and signed the repository with it. The real channel is signed by
+#      6CE37402BA0A0EF8, and that key is what every shipped machine trusts via
+#      /usr/share/keyrings/dagric.gpg. A repository signed by any other key is
+#      one that no Dagric installation on earth will accept — apt rejects it as
+#      unsigned. Worse, the new key lived in a Docker volume, so the failure was
+#      invisible until an owner's `apt update` started erroring. See the "ONE
+#      KEY, NOT TWO" note at the top of build-repo.sh, which was written about
+#      exactly this script.
+#
+#   2. IT PRODUCED A LAYOUT APT CANNOT READ HERE. It wrote a flat repository
+#      (Packages and Release at the root, consumed as `deb https://HOST/ ./`).
+#      The shipped sources.list.d/dagric.list asks for a SUITE layout:
+#          deb [signed-by=...] https://dagric-os.web.app/repo trixie main
+#      which needs dists/trixie/main/binary-amd64/. The flat layout answers that
+#      request with 404s.
+#
+# The live path is packages/build-repo.sh, which uses the existing key and the
+# suite layout, and which builds its packages through stage-packages.sh so the
+# ISO and the channel are assembled from the same source.
+echo "make-repo.sh is superseded and will not run." >&2
+echo >&2
+echo "It generated a SECOND repository signing key and a flat repo layout that" >&2
+echo "the shipped sources.list cannot read. Every machine already trusts" >&2
+echo "6CE37402BA0A0EF8; a repo signed by anything else is rejected as unsigned." >&2
+echo >&2
+echo "Use instead:  sh packages/build-repo.sh" >&2
+exit 1

@@ -15,6 +15,7 @@ No account required, works fully offline, and if you ever want sync it's
 end-to-end encrypted — to a folder, Syncthing, or your own server.
 The private alternative to OneNote and Notion. From Flathub.")"
 
+dg_live_warn
 printf '\n%s ' "$(gettext "Install Joplin now? [y/N]")"
 read ans
 if ! dg_is_yes "$ans"; then

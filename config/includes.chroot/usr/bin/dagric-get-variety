@@ -33,6 +33,7 @@ Two things worth knowing before you install:
 Installed from Debian's archive (GPL-3, open source), about 25 MB with
 its dependencies.")"
 
+dg_live_warn
 printf '\n%s ' "$(gettext "Install Variety now? [y/N]")"
 read ans
 if ! dg_is_yes "$ans"; then

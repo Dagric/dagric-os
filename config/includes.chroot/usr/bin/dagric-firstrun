@@ -885,7 +885,14 @@ fi
 # assembled with "+" in QML cannot be reordered at all.
 #
 # Blank lines are skipped by the reader below and by tools/i18n-extract.sh, so
-# they are free to use as screen separators.
+# they are free to use as screen separators. NOTHING else is skipped — a comment
+# written inside the here-doc becomes a translatable "string" and ships to
+# translators as work. Explanations go here, above the function, never in it.
+#
+# The last four entries were bare English literals in main.qml until the audit:
+# the reassurance under the welcome heading and the sign-off on the finish page,
+# each with a live and an installed variant. First and last thing the wizard
+# says, which made them the worst four in the file to leave in English.
 emit_strings() {
     _first=1
     # Written as a here-doc of English sentences so this list stays readable as
@@ -997,6 +1004,11 @@ Open
 Open %1
 
 Your desktop is back the way it was.
+
+You're running the live trial from the USB stick, so anything you set here lasts until you shut down. Install Dagric first if you want it to stick.
+Nothing here is permanent. Skip anything you like, and change all of it later from the Dagric Hub.
+This is the live trial. To keep any of it, run Install Dagric OS from the desktop.
+Want to run through this again? It's called "Set Up Dagric" in your apps list.
 STRINGS
 }
 
@@ -1065,9 +1077,31 @@ last_wall=
 # session almost nobody gets. Both display servers ask KWin the same question
 # now and 0540-qml-identity.hook.chroot answers it before the window exists.
 
+# Did the window ever actually open?
+#
+# The check at the top of this file only catches a MISSING qml6. If qml6 exists
+# and then fails at runtime — a Qt module absent from the image, no display to
+# connect to, a QML parse error — this pipeline produces no protocol lines, the
+# loop below never runs a single iteration, and the script exits 0. The owner
+# clicked "Set Up Dagric" and nothing happened at all. Meanwhile fallback_wizard,
+# a complete kdialog version of this wizard, sat a hundred lines up unreachable,
+# written for exactly this case.
+#
+# A marker FILE and not a shell variable: the right-hand side of a pipeline runs
+# in a subshell, so anything the loop assigns is gone by the time it ends.
+#
+# A normal run always speaks — main.qml sends DONE on finish and QUIT on close —
+# so "no protocol line at all" is a clean signal that the window never came up.
+# The one false positive is a wizard force-killed with SIGKILL, which skips the
+# QUIT and would then show the kdialog version. That is the right trade: an
+# annoyance for somebody who deliberately killed it, against nothing whatsoever
+# for somebody whose image cannot run Qt.
+QML_SPOKE="${XDG_RUNTIME_DIR:-/tmp}/.dagric-firstrun-spoke.$$"
+rm -f "$QML_SPOKE"
+
 "$QML" "$QMLFILE" -- "--catalog=$CATALOG" 2>&1 | while IFS= read -r line; do
     case "$line" in
-        *@DAGRIC@*) msg=${line#*@DAGRIC@} ;;
+        *@DAGRIC@*) msg=${line#*@DAGRIC@}; : > "$QML_SPOKE" ;;
         *) continue ;;
     esac
     cmd=${msg%%|*}
@@ -1130,3 +1164,12 @@ last_wall=
             : ;;
     esac
 done
+
+if [ ! -e "$QML_SPOKE" ]; then
+    # The window never said a word, so it never opened. Give the owner the
+    # kdialog wizard rather than the silence they were getting.
+    rm -f "$QML_SPOKE"
+    fallback_wizard
+    exit 0
+fi
+rm -f "$QML_SPOKE"

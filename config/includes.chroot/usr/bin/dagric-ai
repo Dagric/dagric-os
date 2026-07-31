@@ -37,6 +37,7 @@ To remove it completely:
   sudo rm -rf /usr/share/ollama
   sudo userdel ollama
 ")"
+dg_live_warn
 printf '%s ' "$(gettext "Install Ollama from https://ollama.com? [y/N]")"
 read -r answer
 if dg_is_yes "$answer"; then

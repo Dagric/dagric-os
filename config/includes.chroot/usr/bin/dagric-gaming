@@ -22,6 +22,7 @@ with one click from the Dagric Hub, or run:  dagric-get-steam
 
 This helper adds Proton-GE (GloriousEggroll's community Proton with
 extra media codecs and game-specific fixes) for a Steam you've installed.")"
+dg_live_warn
 printf '%s ' "$(gettext "Download the latest Proton-GE from GitHub? [y/N]")"
 read -r answer
 if ! dg_is_yes "$answer"; then
@@ -44,7 +45,39 @@ if [ -z "$URL" ]; then
     exit 1
 fi
 dg_say "$(eval_gettext 'Downloading: $URL')"
-curl -fL "$URL" | tar xz -C "$DEST"
+
+# Download, verify, stage, and only then move it in. This was
+# `curl -fL "$URL" | tar xz -C "$DEST"`, which is wrong three times over:
+#   * tar extracts as the bytes arrive, so a connection that drops at 80% left a
+#     HALF-WRITTEN GE-Proton directory sitting in Steam's compatibilitytools.d.
+#     Steam lists that as an installed Proton version, and it fails the moment a
+#     game selects it — with nothing to suggest the download was the cause.
+#   * the pipeline reports tar's exit status, not curl's, so a failed download
+#     could still look like a success.
+#   * the "Installed to ..." line below printed unconditionally either way.
+TMP=$(mktemp) || exit 1
+if ! curl -fL "$URL" -o "$TMP"; then
+    rm -f "$TMP"
+    dg_say "$(gettext "Download failed — nothing was installed. Check your connection and try again.")"
+    exit 1
+fi
+
+# Unpack into a staging directory first, so a truncated or corrupt archive never
+# reaches the folder Steam reads.
+STAGE=$(mktemp -d) || { rm -f "$TMP"; exit 1; }
+if ! tar xzf "$TMP" -C "$STAGE"; then
+    rm -rf "$TMP" "$STAGE"
+    dg_say "$(gettext "The download was damaged and could not be unpacked — nothing was installed.")"
+    exit 1
+fi
+rm -f "$TMP"
+mv "$STAGE"/* "$DEST"/ || {
+    rm -rf "$STAGE"
+    dg_say "$(gettext "Could not move the unpacked files into Steam's folder — nothing was installed.")"
+    exit 1
+}
+rm -rf "$STAGE"
+
 echo ""
 dg_say "$(eval_gettext 'Installed to $DEST')"
 # TRANSLATORS: "Settings", "Compatibility" and "Properties" are Steam's own

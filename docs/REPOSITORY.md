@@ -145,9 +145,18 @@ packages, because it does not.
 
 ## Release checklist
 
+**BUILD FIRST, PUBLISH SECOND.** This list used to have them the other way round,
+and that order cannot work: the build stages the `dagric-*` packages as local
+files pinned above 1000, so once the channel already publishes the same version,
+apt sees the same version offered with different bytes, calls it a downgrade, and
+kills the build — about twenty minutes in. `build.sh` now refuses to start in that
+state and says so in five seconds instead, but the fix is the ordering below.
+
 1. Edit files in `config/includes.chroot/`
-2. Bump `Version:` in the affected `packages/*/DEBIAN/control`
-3. `sh packages/build-repo.sh` → rebuilds and re-signs `site/repo`
-4. `firebase deploy --only hosting` → the channel is live
-5. `sh build.sh` → new ISO for new machines
-6. Commit, tag, and note the change in the news page
+2. Bump `Version:` in **every** affected `packages/*/DEBIAN/control`
+3. `sh build.sh` → new ISO, and the version gate confirms the channel is behind
+4. `sh packages/build-repo.sh` → rebuilds and re-signs `site/repo`
+5. Copy `out/SHA256SUMS` to `site/` and **re-sign it** — the build regenerates the
+   sums, so `site/SHA256SUMS.sig` covers the previous contents until you do
+6. `firebase deploy --only hosting` → the channel and the new sums are live
+7. Commit, tag, and note the change in the news page

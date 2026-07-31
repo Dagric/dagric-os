@@ -17,6 +17,7 @@ layout Microsoft Office users already know, and excellent compatibility
 with Word/Excel/PowerPoint files. It runs alongside LibreOffice — keep
 whichever feels right (or both). From Flathub.")"
 
+dg_live_warn
 printf '\n%s ' "$(gettext "Install ONLYOFFICE now? [y/N]")"
 read ans
 if ! dg_is_yes "$ans"; then

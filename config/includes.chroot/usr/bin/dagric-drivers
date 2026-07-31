@@ -23,6 +23,7 @@ if lspci | grep -qi 'vga.*nvidia\|3d.*nvidia'; then
     dg_say "$(gettext "NVIDIA GPU detected:")"
     lspci | grep -i nvidia
     echo ""
+    dg_live_warn
     printf '%s ' "$(gettext "Install the NVIDIA proprietary driver from Debian non-free? [y/N]")"
     read -r answer
     if dg_is_yes "$answer"; then

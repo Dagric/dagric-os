@@ -156,6 +156,36 @@ dg_localised() {
 # the same data files; xgettext cannot see through a variable.
 dg_tr() { if [ -n "$1" ]; then gettext "$1"; fi; }
 
+# dg_live_warn — say so when an install is about to land in RAM.
+#
+# In the live session / is a tmpfs overlay, so everything apt or flatpak
+# downloads AND everything it then unpacks is held in this machine's memory. It
+# does not survive a reboot, and on a 4 GB laptop a few hundred megabytes of
+# application is enough to make the trial session unstable. None of the install
+# helpers said so, which put the worst version of that surprise in front of
+# exactly the person who is still deciding whether to buy: they try an app, the
+# live session starts swapping or dies, and the conclusion they draw is that
+# Dagric is unstable.
+#
+# Detection is the same `/run/live/medium` test dagric-hub, dagric-migrate,
+# dagric-firstrun and dagric-hardware-check already use.
+#
+# ALWAYS returns 0. This informs, it never blocks — somebody who wants to try an
+# app on the live stick is entitled to, and being told what it costs is the
+# whole point.
+dg_live_warn() {
+    [ -d /run/live/medium ] || return 0
+    dg_say ""
+    # TRANSLATORS: shown only in the live USB session, before an install.
+    dg_say "$(gettext "NOTE — this is the live trial running from the USB stick.
+Anything installed now is kept in this computer's memory rather than on a disk:
+it disappears when you shut down, and on a machine without much RAM a large
+application can make the trial session unstable. Installing Dagric first avoids
+both, and the app is then permanent.")"
+    dg_say ""
+    return 0
+}
+
 # dg_is_yes — did the owner say yes at a "[y/N]" prompt?
 #
 # Translating the PROMPT without translating the ANSWER is a real bug, not a

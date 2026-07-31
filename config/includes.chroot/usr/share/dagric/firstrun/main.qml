@@ -242,12 +242,24 @@ ApplicationWindow {
         return (Math.max(la, lb) + 0.05) / (Math.min(la, lb) + 0.05);
     }
 
+    // The two inks have to be color OBJECTS, not string literals, and that is
+    // the whole bug this pair of properties exists to fix. lumOf reads c.r, c.g
+    // and c.b — a JavaScript string has none of those, so each one came back
+    // undefined, the arithmetic produced NaN, and the comparison below was
+    // `NaN >= NaN`, which is false. onColor therefore returned the dark ink
+    // every single time, on every accent, forever. It read like a computation
+    // and behaved like a constant, which is why it survived review: the light
+    // accents it was tested against wanted dark ink anyway. Pick a deep accent
+    // and the wizard drew dark text on a dark fill.
+    readonly property color inkLight: "#ffffff"
+    readonly property color inkDark:  "#101a26"
+
     // Ink for text sitting ON a filled patch of `bg` — black or white,
     // whichever wins. Both are checked; no assumption about which way is
     // "lighter", because a pale accent and a deep one need opposite answers.
     function onColor(bg) {
-        return app.ratioOf("#ffffff", bg) >= app.ratioOf("#101a26", bg)
-               ? "#ffffff" : "#101a26";
+        return app.ratioOf(app.inkLight, bg) >= app.ratioOf(app.inkDark, bg)
+               ? app.inkLight : app.inkDark;
     }
 
     // Walk `fg` away from `bg` until it clears `need`, keeping its hue. Used
@@ -1355,8 +1367,8 @@ ApplicationWindow {
                     Layout.fillWidth: true
                     Layout.maximumWidth: app.px(560)
                     text: app.live
-                          ? "You're running the live trial from the USB stick, so anything you set here lasts until you shut down. Install Dagric first if you want it to stick."
-                          : "Nothing here is permanent. Skip anything you like, and change all of it later from the Dagric Hub."
+                          ? app.t("You're running the live trial from the USB stick, so anything you set here lasts until you shut down. Install Dagric first if you want it to stick.")
+                          : app.t("Nothing here is permanent. Skip anything you like, and change all of it later from the Dagric Hub.")
                     color: app.cDim
                     font.pixelSize: app.px(13)
                     wrapMode: Text.WordWrap
@@ -2214,8 +2226,8 @@ ApplicationWindow {
                 Text {
                     Layout.fillWidth: true
                     text: app.live
-                          ? "This is the live trial. To keep any of it, run Install Dagric OS from the desktop."
-                          : "Want to run through this again? It's called \"Set Up Dagric\" in your apps list."
+                          ? app.t("This is the live trial. To keep any of it, run Install Dagric OS from the desktop.")
+                          : app.t("Want to run through this again? It's called \"Set Up Dagric\" in your apps list.")
                     color: app.cDim
                     font.pixelSize: app.px(13)
                     wrapMode: Text.WordWrap

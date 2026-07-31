@@ -40,6 +40,7 @@ fi
 echo
 dg_say "$(gettext "CPU virtualization: available.")"
 
+dg_live_warn
 printf '\n%s ' "$(gettext "Enable VM support now? [y/N]")"
 read ans
 if ! dg_is_yes "$ans"; then

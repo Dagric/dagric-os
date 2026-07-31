@@ -15,6 +15,7 @@ folders. Your files are encrypted on your machine first, so Google, Dropbox,
 or anyone else only ever stores scrambled data. You hold the only key.
 From Flathub.")"
 
+dg_live_warn
 printf '\n%s ' "$(gettext "Install Cryptomator now? [y/N]")"
 read ans
 if ! dg_is_yes "$ans"; then

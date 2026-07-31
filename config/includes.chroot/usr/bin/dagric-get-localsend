@@ -14,6 +14,7 @@ LocalSend sends files and messages straight between your devices on the same
 network — phone, laptop, desktop — with no account, no cloud, and nothing
 leaving your network. It's the private alternative to AirDrop. From Flathub.")"
 
+dg_live_warn
 printf '\n%s ' "$(gettext "Install LocalSend now? [y/N]")"
 read ans
 if ! dg_is_yes "$ans"; then

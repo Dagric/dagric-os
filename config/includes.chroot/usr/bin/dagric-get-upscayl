@@ -14,6 +14,7 @@ Upscayl enlarges and sharpens photos and artwork using AI that runs locally on
 your machine — nothing is uploaded. Great for rescuing small or old images.
 A capable GPU helps but isn't required. From Flathub.")"
 
+dg_live_warn
 printf '\n%s ' "$(gettext "Install Upscayl now? [y/N]")"
 read ans
 if ! dg_is_yes "$ans"; then
