@@ -100,7 +100,7 @@
           <tr><th scope="row">Photos</th>
               <td><strong>Gwenview</strong> — opens pictures on a double-click, same as ever</td></tr>
           <tr><th scope="row">Snipping Tool</th>
-              <td><strong>Spectacle</strong> — press <kbd>Print Screen</kbd></td></tr>
+              <td><strong>Spectacle</strong> — <kbd>Meta</kbd>+<kbd>Shift</kbd>+<kbd>S</kbd> grabs a region, same keys as Windows</td></tr>
           <tr><th scope="row">Windows Update</th>
               <td>the <strong>tray icon</strong> when updates are ready — security fixes install themselves</td></tr>
           <tr><th scope="row">Recycle Bin</th>
@@ -202,8 +202,8 @@
           <div class="what"><strong>Files</strong> — your file manager</div>
         </div>
         <div class="key-card">
-          <div class="combo"><kbd>Print Screen</kbd></div>
-          <div class="what"><strong>Screenshot</strong> — grab the screen or a region</div>
+          <div class="combo"><kbd>Meta</kbd><span class="plus">+</span><kbd>Shift</kbd><span class="plus">+</span><kbd>S</kbd></div>
+          <div class="what"><strong>Grab part of the screen</strong> — same keys as Windows; <kbd>Print Screen</kbd> takes the whole thing</div>
         </div>
         <div class="key-card">
           <div class="combo"><kbd>Meta</kbd><span class="plus">+</span><kbd>L</kbd></div>
@@ -494,11 +494,20 @@
         on it.</p>
       </div>
 
-      <div class="tip"><strong>On Pro,</strong> if an update or experiment ever
-      leaves the system genuinely unwell, restart and choose the
-      <strong>snapshots</strong> entry in the boot menu — it starts the system
-      as it was before the change, and Timeshift can then make the rollback
-      permanent.</div>
+      <!-- NOT Pro-gated, and the first draft of this tip wrongly said it was.
+           snapper + grub-btrfs are in system.list.chroot, which is the FREE
+           list; Pro adds only Timeshift's scheduled GUI on top. Telling a free
+           owner they have no rollback — at the exact moment an update has just
+           broken their machine — is the "free must never read as broken" rule
+           failing in the worst place it could, and it contradicted the manual
+           and the welcome page, which both say it correctly. -->
+      <div class="tip">If an update or experiment ever leaves the system
+      genuinely unwell, restart and choose the <strong>snapshots</strong> entry
+      in the boot menu. On any standard install it starts the system exactly as
+      it was before the change — this is built in, on <em>every</em> edition,
+      and it is automatic. <strong>On Pro</strong> <span class="pro">PRO</span>
+      Timeshift then makes that rollback permanent from a window, and adds
+      restore points on your own schedule.</div>
     </section>
 
     <section id="help" data-syn="support contact human email website questions">

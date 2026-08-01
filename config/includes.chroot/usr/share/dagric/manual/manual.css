@@ -55,7 +55,7 @@ a:hover { text-decoration:underline; text-underline-offset:3px; }
 /* ---------- skip link ---------- */
 /* Every page of this manual opens with a sidebar of up to forty links. Without
    this, somebody on a keyboard or a screen reader walks all forty before
-   reaching a word of the page, on all 95 pages — WCAG 2.4.1 (Level A). Same
+   reaching a word of the page, on all 94 pages — WCAG 2.4.1 (Level A). Same
    pattern the marketing site already uses in site/assets/site.css. */
 .skip { position:absolute; left:-9999px; }
 .skip:focus {
@@ -290,7 +290,7 @@ footer.colophon a { color:var(--muted); }
 /* Written by manual.js, in the reader's language, when they arrive here from a
    translated page. It says the reference manual is English and points back at
    what is not — see the note at the top of manual.js for why that is the
-   whole translation strategy for these 95 pages. */
+   whole translation strategy for these 94 pages. */
 .langnote {
   background:var(--warm-bg); border:1px solid var(--warm-brd);
   border-radius:var(--radius); padding:13px 16px; margin:0 0 18px;
@@ -345,4 +345,56 @@ html[data-hidepro="1"] a.card[data-avail="pro"] { display:none; }
   nav.toc a.active { border-color:var(--accent-brd); border-radius:99px; }
   nav.toc .count { display:none; }
   .content { padding-top:26px; max-width:none; }
+}
+
+/* ---------- light mode ---------- */
+/* The guide gained this and the manual did not, which made the two halves of
+   Dagric's help disagree in the same browser: a light guide beside 94 dark
+   manual pages, when the header of this file claims "same voice as the User
+   Guide so the OS reads as one product". Dark-only also ignores the choice the
+   setup wizard's very first screen asks for.
+   Plasma passes the desktop's colour scheme to Firefox and Firefox passes it
+   here, so following prefers-color-scheme matches the desktop with no toggle
+   to build or maintain. */
+@media (prefers-color-scheme: light) {
+  :root {
+    --bg:        #f3f6fa;
+    --bg-raise:  #ffffff;
+    --panel:     #ffffff;
+    --panel-2:   #e9eef5;
+    --line:      rgba(31,54,84,.16);
+    --line-soft: rgba(31,54,84,.09);
+    --ink:       #101a26;
+    --ink-soft:  #2c3c50;
+    --muted:     #586a80;
+    --faint:     #64758a;
+    /* --line-strong exists to give the search field a boundary that clears the
+       3:1 WCAG 1.4.11 asks of a control (see the note on the dark value). The
+       same alpha over a light field is far too weak, so it is re-derived here
+       against white rather than reused. */
+    --line-strong:rgba(31,54,84,.42);
+    /* The brand blue as TEXT measures ~2.4:1 on white and fails outright.
+       Same hue, deepened until it clears AA; the fills and borders below keep
+       the brand blue, because a 10%-alpha wash is not text. */
+    --accent:    #1c6ea8;
+    --accent-bg: rgba(28,110,168,.08);
+    --accent-brd:rgba(28,110,168,.30);
+    /* Same problem, worse: #f0a658 on white is ~1.9:1. The warm callouts carry
+       the "this needs care" notes, so they cannot be the illegible ones. */
+    --warm:      #8a4b06;
+    --warm-bg:   rgba(240,166,88,.16);
+    --warm-brd:  rgba(160,96,20,.34);
+  }
+  /* The four places a colour was written directly instead of tokenised. Found
+     by grepping for dark hex outside :root — exactly the class of thing a
+     token-only override leaves behind looking broken. */
+  ::selection { background:rgba(28,110,168,.22); }
+  .mark { background:linear-gradient(145deg, #eaf2fb, #d9e6f4); color:#1c6ea8; }
+  .tip::before { background:#1c6ea8; color:#ffffff; }
+  code { color:#155d8e; }
+  kbd { background:linear-gradient(180deg, #ffffff, #eef2f7); }
+}
+@media (prefers-color-scheme: light) and (max-width:900px) {
+  /* The sticky mobile sidebar's own backdrop, which is a literal dark rgba. */
+  .sidebox { background:rgba(243,246,250,.94); }
 }

@@ -16,7 +16,7 @@
  *
  * Dagric's German documentation is the welcome page and the user guide — the
  * two things a new owner reads in their first hour, both single pages, both
- * translated in full. This manual is 95 pages and 46,000 words of reference
+ * translated in full. This manual is 94 pages and 46,000 words of reference
  * material, and translating it has two costs that do not shrink: the words
  * themselves, and the fact that every English edit re-opens every language.
  * More to the point, this manual's whole promise is that its search knows the
@@ -40,7 +40,13 @@
       /* Shown on manual pages to somebody who arrived from the German guide,
          or whose browser is German. Keep it short and keep it true. */
       note:    'Das Handbuch gibt es bisher nur auf Englisch.',
-      body:    'Auf Deutsch sind die Willkommensseite und die Kurzanleitung für die erste Woche verfügbar. Diese 95 Seiten mit ihrer Suche nach Windows-Namen sind noch nicht übersetzt — ehrlich englisch ist uns lieber als halb übersetzt.',
+      /* No page count in this sentence, deliberately. It said "95 Seiten"
+         while the manual has 94 pages and the counter beside it displayed 94
+         — a visible self-contradiction on the one notice whose entire subject
+         is being honest about translation. A hardcoded count next to a
+         directory that grows is a permanent drift source, so the number is
+         gone rather than corrected. */
+      body:    'Auf Deutsch sind die Willkommensseite und die Kurzanleitung für die erste Woche verfügbar. Diese Seiten mit ihrer Suche nach Windows-Namen sind noch nicht übersetzt — ehrlich englisch ist uns lieber als halb übersetzt.',
       guide:   'Zur deutschen Kurzanleitung',
       dismiss: 'Verstanden'
     }
@@ -72,7 +78,16 @@
   function tagLinks(tag) {
     var links = document.querySelectorAll('a[href*=".html"]');
     for (var i = 0; i < links.length; i++) {
-      var href = links[i].getAttribute('href').replace(/#(?:e|l)=[^#]*$/, '');
+      var raw = links[i].getAttribute('href');
+      /* Links that LEAVE the manual are left alone. The guide reads neither
+         marker, so tagging them buys nothing — and it actively breaks them:
+         the strip below only removes a marker at the very END of the href, so
+         "../guide/index.html#trouble" would become
+         "../guide/index.html#trouble#e=pro", a fragment matching no element on
+         earth, and the anchor jump silently dies. Found before the first such
+         link was written, not after. */
+      if (raw.indexOf('../') === 0) { continue; }
+      var href = raw.replace(/#(?:e|l)=[^#]*$/, '');
       links[i].setAttribute('href', href + tag);
     }
   }

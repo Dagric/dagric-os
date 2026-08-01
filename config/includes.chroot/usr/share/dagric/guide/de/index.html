@@ -115,7 +115,7 @@
           <tr><th scope="row">Fotos</th>
               <td><strong>Gwenview</strong> &mdash; &ouml;ffnet Bilder per Doppelklick, wie gewohnt</td></tr>
           <tr><th scope="row">Snipping Tool</th>
-              <td><strong>Spectacle</strong> &mdash; die <kbd>Druck</kbd>-Taste</td></tr>
+              <td><strong>Spectacle</strong> &mdash; <kbd>Meta</kbd>+<kbd>Umschalt</kbd>+<kbd>S</kbd> f&uuml;r einen Ausschnitt, dieselben Tasten wie unter Windows</td></tr>
           <tr><th scope="row">Windows Update</th>
               <td>das <strong>Symbol im Systemabschnitt</strong>, sobald Updates bereitstehen &mdash; Sicherheitsupdates installieren sich selbst</td></tr>
           <tr><th scope="row">Papierkorb</th>
@@ -224,8 +224,8 @@
           <div class="what"><strong>Dateien</strong> &mdash; Ihre Dateiverwaltung, fr&uuml;her der Explorer</div>
         </div>
         <div class="key-card">
-          <div class="combo"><kbd>Druck</kbd></div>
-          <div class="what"><strong>Bildschirmfoto</strong> &mdash; ganzer Bildschirm oder ein Ausschnitt</div>
+          <div class="combo"><kbd>Meta</kbd><span class="plus">+</span><kbd>Umschalt</kbd><span class="plus">+</span><kbd>S</kbd></div>
+          <div class="what"><strong>Ausschnitt aufnehmen</strong> &mdash; dieselben Tasten wie unter Windows; <kbd>Druck</kbd> nimmt den ganzen Bildschirm</div>
         </div>
         <div class="key-card">
           <div class="combo"><kbd>Meta</kbd><span class="plus">+</span><kbd>L</kbd></div>
@@ -554,12 +554,19 @@
         Seite dazu.</p>
       </div>
 
-      <div class="tip"><strong>Auf Pro:</strong> Sollte ein Update oder ein
-      Experiment das System einmal ernsthaft aus dem Tritt bringen, starten Sie
-      neu und w&auml;hlen Sie im Startmen&uuml; den Eintrag mit den
-      <strong>Schnappsch&uuml;ssen</strong> &mdash; das System startet dann so,
-      wie es vor der &Auml;nderung war, und Timeshift kann den R&uuml;ckschritt
-      anschlie&szlig;end dauerhaft machen.</div>
+      <!-- NICHT Pro-exklusiv; die erste Fassung dieses Hinweises behauptete das
+           f&auml;lschlich. snapper + grub-btrfs stehen in system.list.chroot,
+           also der FREE-Liste; Pro legt nur Timeshifts geplante Oberfl&auml;che
+           obendrauf. Siehe den Kommentar in der englischen Fassung. -->
+      <div class="tip">Sollte ein Update oder ein Experiment das System einmal
+      ernsthaft aus dem Tritt bringen, starten Sie neu und w&auml;hlen Sie im
+      Startmen&uuml; den Eintrag mit den <strong>Schnappsch&uuml;ssen</strong>.
+      Bei jeder Standardinstallation startet das System dann genau so, wie es
+      vor der &Auml;nderung war &mdash; das ist eingebaut, in <em>jeder</em>
+      Edition, und es geschieht automatisch. <strong>Auf Pro</strong>
+      <span class="pro">PRO</span> macht Timeshift diesen R&uuml;ckschritt
+      anschlie&szlig;end per Fenster dauerhaft und legt zus&auml;tzlich
+      Sicherungspunkte nach Ihrem eigenen Zeitplan an.</div>
     </section>
 
     <section id="help" data-syn="support kontakt mensch hilfe fragen">
