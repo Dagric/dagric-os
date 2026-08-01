@@ -302,6 +302,168 @@ footer.colophon {
   color:var(--faint);
 }
 
+/* ---------- guide search ---------- */
+/* The manual has search and the guide did not, and the difference showed:
+   the manual gets used and the guide gets read once. An input, not a button —
+   filtering happens as you type, and Escape clears it. */
+.gsearch { position:relative; margin:14px 0 4px; }
+.gsearch input {
+  width:100%;
+  background:var(--bg-raise);
+  border:1px solid var(--line);
+  border-radius:9px;
+  padding:8px 12px 8px 34px;
+  font:inherit; font-size:.86rem;
+  color:var(--ink);
+}
+.gsearch input::placeholder { color:var(--faint); }
+.gsearch input:focus-visible { outline:2px solid var(--accent); outline-offset:1px; }
+.gsearch::before {
+  content:"";
+  position:absolute; left:11px; top:50%;
+  width:13px; height:13px;
+  transform:translateY(-58%);
+  border:2px solid var(--faint);
+  border-radius:50%;
+  box-sizing:border-box;
+}
+.gsearch::after {
+  content:"";
+  position:absolute; left:21px; top:50%;
+  width:6px; height:2px;
+  transform:translateY(3px) rotate(45deg);
+  background:var(--faint);
+  border-radius:2px;
+}
+/* The live result count. aria-live polite, so a screen reader hears "3
+   sections" after the keystrokes rather than during them. */
+.gsearch-status {
+  min-height:1.2em;
+  margin:6px 0 0;
+  font-size:.75rem;
+  color:var(--faint);
+}
+
+/* ---------- the Windows-to-Dagric map ---------- */
+/* A TABLE, semantically and visually. Switchers arrive with ten years of
+   muscle memory and one question — "where did X go?" — and a table answers it
+   in the time a paragraph takes to clear its throat. th scope attributes are
+   in the HTML so a screen reader reads each row as a pair. */
+.winmap { width:100%; border-collapse:collapse; margin:16px 0 8px; font-size:.9rem; }
+.winmap caption {
+  text-align:left;
+  font-size:.78rem; font-weight:600;
+  letter-spacing:.1em; text-transform:uppercase;
+  color:var(--muted);
+  padding-bottom:10px;
+}
+.winmap th, .winmap td {
+  text-align:left;
+  padding:9px 14px 9px 0;
+  border-top:1px solid var(--line-soft);
+  vertical-align:top;
+}
+.winmap thead th {
+  border-top:none;
+  font-size:.72rem; font-weight:600;
+  letter-spacing:.12em; text-transform:uppercase;
+  color:var(--faint);
+  padding-bottom:6px;
+}
+.winmap tbody th { font-weight:500; color:var(--muted); width:44%; }
+.winmap td { color:var(--ink-soft); }
+.winmap td strong { color:var(--ink); font-weight:600; }
+.winmap td kbd { font-size:.72em; }
+
+/* ---------- the first-day checklist ---------- */
+/* Real checkboxes that remember themselves (guide.js, localStorage). The
+   count line doubles as the reward: "6 of 9 done" is a small thing and it is
+   the exact small thing that keeps somebody going through setup. */
+.checklist { list-style:none; margin:16px 0 6px; }
+.checklist li { border-top:1px solid var(--line-soft); }
+.checklist li:first-child { border-top:none; }
+.checklist label {
+  display:flex; align-items:flex-start; gap:12px;
+  padding:11px 2px;
+  cursor:pointer;
+  border-radius:8px;
+}
+.checklist label:hover { background:var(--line-soft); }
+.checklist input {
+  flex:none;
+  width:17px; height:17px;
+  margin-top:3px;
+  accent-color:var(--accent);
+  cursor:pointer;
+}
+.checklist .ck-text { font-size:.92rem; color:var(--ink-soft); line-height:1.55; }
+.checklist .ck-text strong { color:var(--ink); font-weight:600; }
+.checklist .ck-text small { display:block; color:var(--muted); font-size:.84rem; margin-top:1px; }
+.checklist input:checked ~ .ck-text,
+.checklist input:checked ~ .ck-text strong { color:var(--faint); text-decoration:line-through; text-decoration-color:var(--line); }
+.checklist input:checked ~ .ck-text small { text-decoration:none; }
+.ck-count { font-size:.8rem; color:var(--faint); margin-top:8px; min-height:1.2em; }
+
+/* ---------- troubleshooting entries ---------- */
+/* h3 + prose, not an accordion. Collapsed content cannot be found with
+   Ctrl+F, is invisible to the search above, and prints as a page of closed
+   boxes — three failures for one visual nicety. */
+.fix h3 {
+  font-size:1rem; font-weight:600;
+  color:var(--ink);
+  margin:22px 0 8px;
+}
+.fix h3::before {
+  content:"→ ";
+  color:var(--accent);
+}
+.fix p { font-size:.92rem; }
+
+/* ---------- light mode ---------- */
+/* The guide was dark-only, which made it the one part of Dagric that ignored
+   the choice the wizard's very first screen asks for. Plasma passes the
+   desktop's scheme to Firefox, Firefox passes it here, so following
+   prefers-color-scheme means the guide silently matches the desktop with no
+   toggle to maintain. Every token is overridden — plus the few places that
+   hardcoded a colour on the assumption the page was dark. */
+@media (prefers-color-scheme: light) {
+  :root {
+    --bg:        #f3f6fa;
+    --bg-raise:  #ffffff;
+    --panel:     #ffffff;
+    --panel-2:   #e9eef5;
+    --line:      rgba(31,54,84,.16);
+    --line-soft: rgba(31,54,84,.09);
+    --ink:       #101a26;
+    --ink-soft:  #2c3c50;
+    --muted:     #586a80;
+    --faint:     #64758a;
+    /* The accent stays the brand blue for fills and badges, but as TEXT it
+       fails on white (3fa9f5 measures ~2.4:1), so links use the deepened
+       variant — same hue, readable. */
+    --accent:    #1c6ea8;
+    --accent-dim:#2b76ad;
+    --accent-bg: rgba(28,110,168,.08);
+    --accent-brd:rgba(28,110,168,.30);
+  }
+  ::selection { background:rgba(28,110,168,.22); }
+  .mark {
+    background:linear-gradient(145deg, #eaf2fb, #d9e6f4);
+    color:#1c6ea8;
+  }
+  kbd { background:linear-gradient(180deg, #ffffff, #eef2f7); }
+  code {
+    background:var(--accent-bg);
+    border-color:rgba(28,110,168,.18);
+    color:#155d8e;
+  }
+  .tip { border-color:rgba(28,110,168,.20); }
+  .tip::before { background:#1c6ea8; color:#ffffff; }
+}
+@media (prefers-color-scheme: light) and (max-width:900px) {
+  .sidebox { background:rgba(243,246,250,.92); }
+}
+
 /* ---------- narrow screens ---------- */
 @media (max-width:900px) {
   .shell { display:block; padding:0 22px; }
