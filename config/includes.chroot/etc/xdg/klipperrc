@@ -20,4 +20,13 @@ MaxClipItems=25
 # Never let "clear history" leave the CURRENT clipboard empty — paste suddenly
 # doing nothing is the kind of small wrongness that erodes trust in the whole
 # desktop.
+#
+# BOTH spellings, deliberately. This setting has carried two names across
+# Plasma generations (NoEmptyClipboard in the KDE4-era config, later renamed
+# in the kcfg), a wrong key here is ignored WITHOUT ANY ERROR, and no built
+# image is available tonight to check which one this Plasma reads. An unknown
+# key in a KConfig file is inert, so shipping both costs nothing and one of
+# them is right. The boot test can delete the loser:
+#   grep -i empty /usr/share/config.kcfg/klipper.kcfg
 NoEmptyClipboard=true
+PreventEmptyClipboard=true
