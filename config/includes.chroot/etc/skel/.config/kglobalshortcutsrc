@@ -54,3 +54,23 @@ _launch=Ctrl+Shift+Esc\tMeta+Esc,Meta+Esc,Task Manager
 [kaccess]
 _k_friendly_name=Accessibility
 Toggle Screen Reader On and Off=Meta+Alt+S,Meta+Alt+S,Toggle Screen Reader On and Off
+
+# ---------------------------------------------------------------------------
+# Screenshots: the Windows chord, kept.
+#
+# Win+Shift+S is the screenshot reflex Windows has been training into people
+# since 2017 — it is the single most-pressed chord this OS's audience brings
+# with them after Ctrl+C. Spectacle's own rectangular-region default is
+# Meta+Shift+Print; pressing the Windows chord on a fresh Dagric did nothing.
+# ADDED alongside the Plasma default (tab-separated), never replacing it, the
+# same additive rule as the Task Manager binding above — anyone who knows the
+# KDE key keeps it, and "Reset to default" keeps both.
+#
+# Same caveat as the kaccess entry: Spectacle registers its component at
+# runtime, so the section name below is asserted from Spectacle's source
+# rather than confirmed from the shipped image. If a boot test shows the
+# chord dead, the section header is the first suspect — check with
+# `qdbus org.kde.kglobalaccel /component/org_kde_spectacle_desktop`.
+[org.kde.spectacle.desktop]
+_k_friendly_name=Spectacle
+RectangularRegionScreenShot=Meta+Shift+S\tMeta+Shift+Print,Meta+Shift+Print,Capture Rectangular Region

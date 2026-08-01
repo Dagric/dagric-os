@@ -143,6 +143,13 @@ cp -r "$INC/usr/share/dagric/logo"        "$P/usr/share/dagric/"
 [ -d "$INC/usr/share/dagric/sddm" ]   && cp -r "$INC/usr/share/dagric/sddm"   "$P/usr/share/dagric/"
 [ -d "$INC/usr/share/dagric/splash" ] && cp -r "$INC/usr/share/dagric/splash" "$P/usr/share/dagric/"
 [ -d "$INC/usr/share/sddm/themes" ]   && cp -r "$INC/usr/share/sddm/themes/." "$P/usr/share/sddm/themes/"
+# The Plasma startup screen (ksplash look-and-feel package). Branding, so it
+# travels with the wallpapers and the SDDM theme: a splash fix must be able to
+# reach sold machines the same way a wallpaper fix can.
+if [ -d "$INC/usr/share/plasma/look-and-feel" ]; then
+    mkdir -p "$P/usr/share/plasma"
+    cp -r "$INC/usr/share/plasma/look-and-feel" "$P/usr/share/plasma/"
+fi
 normalise_modes "$P"
 build_pkg dagric-branding
 
@@ -150,13 +157,25 @@ build_pkg dagric-branding
 P=$STAGE/dagric-desktop-defaults
 mkdir -p "$P/etc/skel/.config" "$P/usr/lib/firefox-esr/distribution" "$P/etc/xdg"
 cp -r "$REPO/packages/dagric-desktop-defaults/DEBIAN" "$P/"
-for f in kdeglobals kwinrc kcminputrc; do
+# kglobalshortcutsrc and kaccessrc were missing from this list, which meant
+# the Ctrl+Shift+Esc Task Manager key and the Meta+Alt+S screen-reader key
+# could never be fixed on a sold machine — the update channel carried the
+# other skel files around them. (skel only reaches users created after the
+# update; that is a known limit of skel-borne defaults, not a reason to leave
+# the files out.)
+for f in kdeglobals kwinrc kcminputrc kglobalshortcutsrc kaccessrc; do
     [ -f "$INC/etc/skel/.config/$f" ] && cp "$INC/etc/skel/.config/$f" "$P/etc/skel/.config/"
 done
 cp "$INC/usr/lib/firefox-esr/distribution/policies.json" "$P/usr/lib/firefox-esr/distribution/"
 # The default-browser declaration. Pro shipped Chromium as the default for
 # every link because nothing declared one; that fix has to reach sold machines.
-[ -f "$INC/etc/xdg/mimeapps.list" ] && cp "$INC/etc/xdg/mimeapps.list" "$P/etc/xdg/"
+# klipperrc (clipboard-history defaults) and ksplashrc (the Dagric startup
+# screen selection) ride beside it: /etc/xdg is system-level, so unlike skel
+# these reach EXISTING users on upgrade — any owner who has not overridden
+# them in their own ~/.config gets the fix at next login.
+for f in mimeapps.list klipperrc ksplashrc; do
+    [ -f "$INC/etc/xdg/$f" ] && cp "$INC/etc/xdg/$f" "$P/etc/xdg/"
+done
 normalise_modes "$P"
 build_pkg dagric-desktop-defaults
 

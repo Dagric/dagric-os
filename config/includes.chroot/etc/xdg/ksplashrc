@@ -1,0 +1,17 @@
+# Dagric OS — select the Dagric startup screen.
+#
+# Without this, the stretch between signing in and the desktop appearing is
+# KDE's stock Breeze splash — the one unbranded surface left in the boot after
+# the boot menu, Plymouth and the login screen were all done. The theme id
+# resolves to /usr/share/plasma/look-and-feel/org.dagric.splash/.
+#
+# System-level (/etc/xdg), not skel: an owner who picks a different splash in
+# System Settings writes the choice into their own ~/.config/ksplashrc, which
+# outranks this file. This only decides the default.
+#
+# If the theme is ever broken or missing, ksplashqml exits and the session
+# starts with no splash at all — mildly ugly, never blocking. That is the
+# failure mode this default was chosen for.
+[KSplash]
+Engine=KSplashQML
+Theme=org.dagric.splash

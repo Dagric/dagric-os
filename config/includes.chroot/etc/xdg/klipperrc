@@ -1,0 +1,23 @@
+# Dagric OS — clipboard history defaults.
+#
+# Windows has shipped a clipboard history on Win+V since 2018, and Plasma's
+# Klipper answers the same chord (Meta+V) out of the box — but with defaults
+# tuned for people who already know what a clipboard manager is. These three
+# keys retune it for somebody arriving from Win+V, and the guide's shortcut
+# table can then promise "same keys as Windows" and be telling the truth.
+#
+# System-level (/etc/xdg, the bottom of KConfig's cascade), NOT skel: an owner
+# who changes any of this in System Settings writes their choice into their own
+# ~/.config/klipperrc, which permanently outranks every line here. This file
+# only decides what the machine does before anyone has expressed an opinion.
+[General]
+# Windows keeps its clipboard history across sign-outs; losing the history at
+# every login reads as breakage to someone trained on that.
+KeepClipboardContents=true
+# Windows keeps roughly 25 entries. Klipper's stock 20 is close enough that
+# nobody would notice; matched anyway so the comparison is never "worse".
+MaxClipItems=25
+# Never let "clear history" leave the CURRENT clipboard empty — paste suddenly
+# doing nothing is the kind of small wrongness that erodes trust in the whole
+# desktop.
+NoEmptyClipboard=true
