@@ -24,6 +24,31 @@ zstd
 # Networking
 network-manager
 wireless-regdb
+
+# WI-FI DOES NOT WORK WITHOUT THIS, AND EVERY ISO SHIPPED SO FAR WAS MISSING IT.
+#
+# NetworkManager reaches wireless hardware only through a supplicant. It
+# Recommends wpasupplicant rather than depending on it, auto/config passes
+# --apt-recommends false, and nothing pinned it — so it was dropped from every
+# build. Confirmed in four committed build logs: "wpasupplicant" appears exactly
+# once in each, inside apt's "Recommended packages:" block, and the words
+# "Unpacking wpasupplicant" and "Setting up wpasupplicant" appear nowhere. There
+# is no iwd either, so there was no second backend to fall back to.
+#
+# The result is worse than a missing driver, because it looks like nothing at
+# all: firmware-iwlwifi, -brcm80211, -atheros and -realtek are all present, so
+# the adapter is detected, and then the network applet simply lists no networks.
+# Open or WPA, live USB or installed, both editions.
+#
+# Sold to people leaving Windows 10 on a LAPTOP, this is the first thing they
+# test and the fastest possible refund. It survived to 1.0 because the two
+# environments it was tested in — QEMU, which has no wireless to emulate, and a
+# wired desktop — are precisely the two that cannot see it.
+#
+# wireless-regdb one line up is the tell: it is another NetworkManager Recommends
+# from the very same apt block, it WAS pinned, and it is installed in the same
+# logs. The pin is the whole difference.
+wpasupplicant
 # VPN import — a privacy-first OS that can't open a WireGuard/OpenVPN config
 # undercuts its own pitch. WireGuard is kernel-native; these add the applet
 # handlers. (Found by test review: import silently failed.)
