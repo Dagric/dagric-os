@@ -35,6 +35,13 @@ r2.env
 *.key
 id_rsa*
 rclone.conf
+# Cloudflare Wrangler's local secret store and config. .dev.vars holds the
+# Stripe key while developing the gate Worker; wrangler.toml can carry account
+# ids and bindings. Neither is currently in the tree — these are here so that
+# creating one does not get staged by a `git add -A`.
+.dev.vars
+.dev.vars.*
+wrangler.toml
 
 # Local editor/tooling settings. Personal to whoever is working on the tree and
 # of no use to anyone cloning it.

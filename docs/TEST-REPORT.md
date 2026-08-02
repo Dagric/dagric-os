@@ -1,8 +1,8 @@
 # Dagric OS — full test report
 
 Session 2026-07-21. Method: hands-on VM test of the Pro edition (live) in the
-QEMU harness, ISO-filesystem inspection, and two source-review passes
-(bug hunt + commercial-gap analysis).
+QEMU harness, ISO-filesystem inspection, and two source-review passes over the
+tree (bug hunt + commercial-gap analysis).
 
 ## What was verified working
 
