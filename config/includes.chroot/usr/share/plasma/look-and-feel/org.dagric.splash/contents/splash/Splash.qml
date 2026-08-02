@@ -63,9 +63,31 @@ Rectangle {
             anchors.verticalCenter: parent.verticalCenter
             anchors.verticalCenterOffset: -Math.round(parent.height * 0.06)
 
+            // THE SVG, NOT THE PNG, and that is the whole point of this block.
+            //
+            // This pointed at dagric-logo.png with sourceSize 512 — but that
+            // PNG is 256x256 (read from its IHDR), and sourceSize is a DECODE
+            // CEILING, never an upscaler. Qt requests sourceSize * the device
+            // pixel ratio, so at 150% scaling the mark is asked to fill 330
+            // device pixels and at 200% it is 440, from 256 pixels of source.
+            // The sourceSize lines were a no-op and the wordmark rendered soft
+            // on exactly the HiDPI laptops this OS is sold to rescue.
+            //
+            // The vector is already on the image — the hicolor icon theme ships
+            // it — so this costs no new asset and no rasteriser at build time.
+            // With an SVG source, sourceSize stops being a ceiling and becomes
+            // the render size: QtSvg rasterises at whatever is asked for, so
+            // the mark is sharp at any scaling factor.
+            //
+            // libqt6svg6 is confirmed present (it appears as "Setting up
+            // libqt6svg6:amd64" in out/free-rebuild.log), which is what supplies
+            // the qsvg image-format plugin QML's Image needs to load this at
+            // all. If that ever stops being true the Text fallback below takes
+            // over on its own — status simply never reaches Ready — so the
+            // failure mode is the brand set in type, not an empty screen.
             Image {
                 id: mark
-                source: "file:///usr/share/dagric/logo/dagric-logo.png"
+                source: "file:///usr/share/icons/hicolor/scalable/apps/dagric-logo.svg"
                 width: Math.min(220, Math.round(root.width * 0.18))
                 height: width
                 sourceSize.width: 512

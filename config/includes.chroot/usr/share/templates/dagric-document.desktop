@@ -1,0 +1,58 @@
+[Desktop Entry]
+Type=Link
+Name=Document...
+Comment=Enter document name:
+Icon=application-vnd.oasis.opendocument.text
+URL=.source/Document.odt
+
+# Dolphin's "Create New" menu had no office documents. KDE Frameworks compiles
+# its defaults -- Folder, Text File, HTML File, Empty File and three kinds of
+# link -- into the KIO library as a Qt resource (:/kio5/newfile-templates), and
+# no package in trixie ships a /usr/share/templates at all: not kio, not
+# libreoffice-common, not libreoffice-kf6. So an image with Writer, Calc and
+# Impress installed still offered no way to start a document from the file
+# manager, which is the gesture a Windows switcher reaches for first.
+#
+# HOW KIO READS THIS FILE (Entry::parseFile in kio's knewfilemenu.cpp):
+#   Type=Link plus a URL that is neither absolute nor prefixed "__" is resolved
+#   against THIS file's directory, so ".source/Document.odt" means
+#   /usr/share/templates/.source/Document.odt. The KDE3 spelling "URL[$e]="
+#   still parses, but nothing in Frameworks writes it any more and it buys
+#   nothing here.
+#   Comment= is NOT a tooltip. It is set as the label above the filename field
+#   (m_label->setText(entry.comment)), so it has to read as a prompt.
+#   The default filename is Name= with the ellipsis stripped and trimmed, plus
+#   the extension taken from the PAYLOAD. "Document" + ".odt". Which is why
+#   Name= must not itself end in ".odt", and why the payload's own basename is
+#   irrelevant.
+#   A dot-prefixed entry is skipped by the directory scan, so ".source" never
+#   shows up as a menu item -- that is KIO's own layout, not an invention.
+#   An entry whose payload is unreadable is dropped silently, so a failed build
+#   step degrades to a missing menu item rather than a broken one.
+#
+# NO "Text File" ENTRY BELONGS IN THIS DIRECTORY. kio already compiles one in,
+# and the menu is de-duplicated on the raw URL string: a copy using the same
+# ".source/TextFile.txt" is silently swallowed, and a copy using any other path
+# appears TWICE.
+#
+# The icon name is the shared-mime-info one; the Breeze icon theme carries it.
+#
+# The payload is written by 0550-office-templates.hook.chroot rather than
+# committed. An ODF file is a ZIP; the reasoning for keeping binaries out of
+# this tree is in that hook's header.
+
+# Hand-written, not generated: tools/i18n-desktop.py only walks
+# usr/share/applications, so it will neither write nor --check these keys. The
+# German entry keeps the space before the ellipsis that KIO's own German
+# templates use ("Textdatei ..."), so ours does not sit in the same menu looking
+# like a different product wrote it.
+Name[de]=Dokument …
+Name[fr]=Document...
+Name[es]=Documento...
+Name[pt_BR]=Documento...
+Name[it]=Documento...
+Comment[de]=Geben Sie den Namen des Dokuments ein:
+Comment[fr]=Saisissez le nom du document :
+Comment[es]=Introduzca el nombre del documento:
+Comment[pt_BR]=Digite o nome do documento:
+Comment[it]=Inserisci il nome del documento:

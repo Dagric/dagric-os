@@ -199,9 +199,16 @@ cp "$INC/usr/lib/firefox-esr/distribution/policies.json" "$P/usr/lib/firefox-esr
 # screen selection) ride beside it: /etc/xdg is system-level, so unlike skel
 # these reach EXISTING users on upgrade — any owner who has not overridden
 # them in their own ~/.config gets the fix at next login.
-for f in mimeapps.list klipperrc ksplashrc; do
+for f in mimeapps.list klipperrc ksplashrc konsolerc; do
     [ -f "$INC/etc/xdg/$f" ] && cp "$INC/etc/xdg/$f" "$P/etc/xdg/"
 done
+# The Konsole profile and colour scheme travel with the rc that selects them —
+# shipping the pointer without its target would leave every sold machine
+# pointing DefaultProfile at a file that is not there.
+if [ -d "$INC/usr/share/konsole" ]; then
+    mkdir -p "$P/usr/share/konsole"
+    cp "$INC/usr/share/konsole/"* "$P/usr/share/konsole/"
+fi
 normalise_modes "$P"
 build_pkg dagric-desktop-defaults
 

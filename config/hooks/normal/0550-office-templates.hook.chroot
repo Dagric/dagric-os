@@ -1,0 +1,124 @@
+#!/bin/sh
+# SPDX-FileCopyrightText: 2026 DGR Operations <repo@dagric.com>
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+# Dagric OS -- the blank documents behind Dolphin's "Create New" menu.
+#
+# The three menu entries ship as ordinary readable files in
+# config/includes.chroot/usr/share/templates; the format and the reason that
+# directory works at all are documented in dagric-document.desktop. This hook
+# exists for one reason: what those entries POINT AT.
+#
+# WHY THE PAYLOADS ARE NOT COMMITTED
+# ----------------------------------
+# KNewFileMenu does not create a file from scratch, it COPIES the template. So
+# every entry needs a real blank .odt/.ods/.odp on disk -- and an ODF document
+# is a ZIP, which is a binary. Three binaries no reviewer can read in a diff, in
+# a tree developed on Windows where every new binary extension has to be taught
+# to .gitattributes by hand or git rewrites its bytes on checkout. LibreOffice
+# is installed in this chroot and writes its own format perfectly, so it writes
+# them here and no hand-authored ODF XML enters this repository.
+#
+# THE SEED IS A ZERO-BYTE FILE, AND THAT IS NOT A TRICK
+# ----------------------------------------------------
+# Since 7.1 LibreOffice detects an empty file by its extension and opens a new
+# document of the matching type -- sfx2/source/view/frmload.cxx,
+# getEmptyURLFilter(), whose own comment names "0-byte *.ods" specifically.
+# trixie ships 25.2. So an empty Blank.ods through --convert-to yields a
+# canonical, version-matched blank Calc file.
+#
+# WHY NOT JUST SHIP THE ZERO-BYTE FILES AND SKIP ALL THIS
+# ------------------------------------------------------
+# Because that same path calls attachResource() with an EMPTY url. The document
+# opens correctly and is UNTITLED: the owner types a page, presses Ctrl+S and
+# gets a Save As dialog pointing anywhere except the file they just made in
+# Dolphin -- while that file stays 0 bytes, and stays unopenable by everything
+# that is not LibreOffice: OnlyOffice, which this image offers, a webmail
+# preview, whoever they send it to. A real blank document saves in place.
+#
+# IT IS STILL THE FALLBACK, THOUGH
+# --------------------------------
+# If soffice fails or times out the zero-byte seed is left as the payload: the
+# entry still works and still opens the right application, degraded rather than
+# absent, and the build log says which happened. If soffice is missing entirely
+# the entries are DELETED -- a menu item that produces a file nothing on the
+# image can open is worse than no menu item, and is precisely the "free edition
+# feels broken" failure this project refuses to ship.
+set -e
+
+TPL=/usr/share/templates
+SRC="$TPL/.source"
+
+if [ ! -d "$TPL" ]; then
+    echo "WARNING: office-templates: $TPL is missing -- includes.chroot did not land" >&2
+    exit 0
+fi
+
+# The .desktop files arrive 0755 from a Windows checkout: drvfs invents the bit
+# and nothing in git can fix it, the same fault 0995-file-modes.hook.chroot
+# documents for /etc. KIO does not care, but a world-executable data file is
+# noise in every audit that follows.
+chmod 0644 "$TPL"/*.desktop 2>/dev/null || true
+
+if ! command -v soffice >/dev/null 2>&1; then
+    echo "WARNING: office-templates: soffice not found -- removing the Create New office entries" >&2
+    rm -f "$TPL/dagric-document.desktop" \
+          "$TPL/dagric-spreadsheet.desktop" \
+          "$TPL/dagric-presentation.desktop"
+    exit 0
+fi
+
+mkdir -p "$SRC"
+SEED=$(mktemp -d)
+PROF=$(mktemp -d)
+MADE=0
+FELL_BACK=0
+
+for spec in \
+    "Document.odt:application/vnd.oasis.opendocument.text" \
+    "Spreadsheet.ods:application/vnd.oasis.opendocument.spreadsheet" \
+    "Presentation.odp:application/vnd.oasis.opendocument.presentation"
+do
+    name=${spec%%:*}
+    mime=${spec#*:}
+    ext=${name##*.}
+
+    : > "$SEED/$name"
+    rm -f "$SRC/$name"
+
+    # SAL_USE_VCLPLUGIN=svp pins the headless backend. libreoffice-kf6 is
+    # installed, and a soffice that decides to probe the Qt plugin in a chroot
+    # with no display is a soffice that hangs the whole build; the timeout is
+    # the second line of defence, not the first.
+    HOME="$PROF" SAL_USE_VCLPLUGIN=svp timeout 300 soffice \
+        --headless --norestore --nolockcheck --nodefault \
+        -env:UserInstallation="file://$PROF/profile" \
+        --convert-to "$ext" --outdir "$SRC" "$SEED/$name" >/dev/null 2>&1 || true
+
+    # `soffice --convert-to` exits 0 even when it could not load the source, so
+    # its status proves nothing. An ODF package begins with a STORED "mimetype"
+    # member whose contents are the media type, well inside the first 128 bytes:
+    # finding that string there proves the file is a real package AND that it is
+    # the right kind of document.
+    if [ -s "$SRC/$name" ] && head -c 128 "$SRC/$name" | grep -qa "$mime"; then
+        MADE=$((MADE + 1))
+    else
+        echo "WARNING: office-templates: soffice produced no usable $name -- falling back to a zero-byte template" >&2
+        : > "$SRC/$name"
+        FELL_BACK=$((FELL_BACK + 1))
+    fi
+    chmod 0644 "$SRC/$name"
+done
+
+# LibreOffice can leave a lock file next to a document it touched. Nothing scans
+# inside .source, so this is tidiness rather than a bug -- but a stray
+# .~lock.Document.odt# in a shipped image is the kind of thing that makes a
+# reviewer wonder what else was left behind.
+rm -f "$SRC"/.~lock.* 2>/dev/null || true
+rm -rf "$SEED" "$PROF"
+
+if [ "$FELL_BACK" -eq 0 ]; then
+    echo "office-templates: wrote $MADE blank office documents to $SRC"
+else
+    echo "office-templates: wrote $MADE blank office documents, $FELL_BACK zero-byte fallback(s) -- see the warnings above"
+fi

@@ -42,3 +42,43 @@ Dagric OS 1.0 \n \l
 
 EOF
 printf 'Dagric OS 1.0 (Foundation)\n' > /etc/issue.net
+
+# /etc/motd is the third identity file and it was the one nobody wrote, so every
+# image so far greeted its owner with "Debian GNU/Linux comes with ABSOLUTELY NO
+# WARRANTY, to the extent permitted by applicable law" — under our name, on a
+# product somebody paid for.
+#
+# Overwriting it is safe and permanent, because it is not a conffile. base-files
+# does not ship /etc/motd in the .deb at all: its rules install only
+# motd/10-uname into /etc/update-motd.d and the text into
+# /usr/share/base-files/motd, and the postinst then copies it into place via
+# `install_from_default motd /etc/motd` — guarded both by "configure with no
+# previous version" and by the helper's own "if the file does not exist".
+# debootstrap did that at the top of this build and nothing revisits it, so this
+# write is the last word: no dpkg prompt on a base-files point release, no
+# silent restore later.
+#
+# It really is displayed. /etc/pam.d/login and (on Pro) /etc/pam.d/sshd each
+# call pam_motd twice — once for /run/motd.dynamic, once bare — and Debian ADDS
+# the dynamic pass rather than replacing the static one. The bare call falls
+# back to pam_motd's default list, of which /etc/motd is the first entry. Since
+# 0200-debloat empties /etc/update-motd.d, the dynamic half prints nothing and
+# these two lines are the whole login message.
+#
+# WHY IT SURVIVED THIS LONG, so nobody deletes this as cosmetic: /etc/pam.d/sddm
+# has no pam_motd, and Konsole opens no PAM session — so no amount of using the
+# desktop ever reaches this text. It shows up on Ctrl+Alt+F3, the classic "my
+# screen is black" rescue path, and over ssh, which is the first place a
+# technical buyer looks.
+#
+# Written HERE rather than as config/includes.chroot/etc/motd on purpose: this
+# tree is developed on Windows and everything under config/ reads back 0755,
+# while 0995-file-modes.hook.chroot only repairs a fixed list of directories
+# that does not include /etc — so an included motd would have shipped
+# executable with nothing to catch it. ASCII only, no em dash: this is printed
+# before console-setup has loaded a font and the VT has no glyph for one.
+cat > /etc/motd << 'EOF'
+Dagric OS 1.0 (Foundation), built on Debian 13 (trixie).
+Support: https://dagric.com/support
+
+EOF

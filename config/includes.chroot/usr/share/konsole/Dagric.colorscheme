@@ -1,0 +1,134 @@
+# Dagric OS — the terminal's colours.
+#
+# Konsole ships in desktop.list.chroot and it is NOT a power-user corner of
+# this image: sixteen dagric-*.desktop launchers, plus dagric-hub, dagric-setup,
+# dagric-driver-offer and dagric-firstrun, all open their helper by running
+# `konsole -e sh -c ...`. A Windows switcher who clicks "Get Steam" or answers
+# the driver offer is looking at this window within minutes of first boot.
+#
+# It was the last unbranded surface. The boot menu, Plymouth, SDDM, the splash,
+# the wallpaper and the Plasma colour scheme were all done; the terminal still
+# opened stock Breeze grey (35,38,39) because Debian's konsole package ships no
+# /usr/share/konsole at all — upstream compiles its schemes into a Qt resource,
+# and the qrc is only consulted AFTER the on-disk lookup fails. So a file here
+# is additive: it cannot break the packaged schemes, it just gets found first.
+#
+# Identified by FILENAME, not by Description: ColorSchemeManager sets the name
+# from the path basename before it reads the file. Dagric.colorscheme is what
+# Dagric.profile's `ColorScheme=Dagric` resolves to.
+#
+# THE COLOURS WERE MEASURED, because a navy background is exactly where an
+# eyeballed ANSI palette goes wrong — the stock dark blue and red both fail on
+# it. Every ratio below is WCAG 2.x contrast against Background:
+#
+#   foreground 13.1   red 6.6   green 9.3   yellow 9.2   blue 7.0
+#   magenta 7.1       cyan 9.6  white 13.1  bright black (comments) 5.5
+#
+# Everything a program prints as text clears 4.5:1, most clear 7:1, and the
+# faint variants still hold 3.6-6.7:1 so `dim` output stays legible instead of
+# dissolving into the background. Color4 is the brand blue #3fa9f5 unmodified —
+# it lands at 7.0:1 on #0e1826, which is why the background is that navy and
+# not black.
+#
+# Color0 is the one honest exception at 1.35:1. It is the ANSI black slot, dark
+# by definition; it is set slightly ABOVE the background rather than equal to
+# it (Breeze sets Color0 == Background exactly) so black-on-default text is
+# faintly visible instead of invisible.
+#
+# Opacity=1 on purpose. A see-through terminal is a readability regression on
+# a busy wallpaper, and this image ships one.
+
+[Background]
+Color=14,24,38
+
+[BackgroundFaint]
+Color=22,35,54
+
+[BackgroundIntense]
+Color=6,12,20
+
+[Color0]
+Color=34,48,74
+
+[Color0Faint]
+Color=28,40,62
+
+[Color0Intense]
+Color=125,144,168
+
+[Color1]
+Color=239,122,118
+
+[Color1Faint]
+Color=167,91,92
+
+[Color1Intense]
+Color=255,155,150
+
+[Color2]
+Color=94,209,127
+
+[Color2Faint]
+Color=68,150,99
+
+[Color2Intense]
+Color=134,230,160
+
+[Color3]
+Color=223,180,95
+
+[Color3Faint]
+Color=156,130,77
+
+[Color3Intense]
+Color=245,209,138
+
+[Color4]
+Color=63,169,245
+
+[Color4Faint]
+Color=47,123,179
+
+[Color4Intense]
+Color=124,199,251
+
+[Color5]
+Color=197,140,235
+
+[Color5Faint]
+Color=138,103,172
+
+[Color5Intense]
+Color=220,176,255
+
+[Color6]
+Color=79,208,214
+
+[Color6Faint]
+Color=58,149,158
+
+[Color6Intense]
+Color=138,231,234
+
+[Color7]
+Color=214,222,231
+
+[Color7Faint]
+Color=150,162,178
+
+[Color7Intense]
+Color=255,255,255
+
+[Foreground]
+Color=214,222,231
+
+[ForegroundFaint]
+Color=150,162,178
+
+[ForegroundIntense]
+Color=255,255,255
+
+[General]
+Description=Dagric
+Opacity=1
+Wallpaper=

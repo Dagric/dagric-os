@@ -1,0 +1,26 @@
+[Desktop Entry]
+Type=Link
+Name=Spreadsheet...
+Comment=Enter spreadsheet name:
+Icon=application-vnd.oasis.opendocument.spreadsheet
+URL=.source/Spreadsheet.ods
+
+# Companion to dagric-document.desktop. The .desktop format, the relative-URL
+# rule, why Comment= has to read as a prompt, and why no Text File entry belongs
+# in this directory are all explained there, once. The payload is written by
+# 0550-office-templates.hook.chroot.
+
+# Hand-written; tools/i18n-desktop.py only walks usr/share/applications.
+# "Tabellendokument" is LibreOffice's own German word for a Calc file. A bare
+# "Tabelle" is what German Writer calls a table INSIDE a document -- a different
+# thing, and the wrong promise to make in a file manager.
+Name[de]=Tabellendokument …
+Name[fr]=Feuille de calcul...
+Name[es]=Hoja de cálculo...
+Name[pt_BR]=Planilha...
+Name[it]=Foglio di calcolo...
+Comment[de]=Geben Sie den Namen des Tabellendokuments ein:
+Comment[fr]=Saisissez le nom de la feuille de calcul :
+Comment[es]=Introduzca el nombre de la hoja de cálculo:
+Comment[pt_BR]=Digite o nome da planilha:
+Comment[it]=Inserisci il nome del foglio di calcolo:

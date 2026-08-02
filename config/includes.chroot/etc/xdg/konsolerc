@@ -1,0 +1,34 @@
+# Dagric OS — make the Dagric profile the terminal's default.
+#
+# Without this, Dagric.profile is merely one more entry in Settings > Manage
+# Profiles that nobody will ever open, and every terminal still launches the
+# built-in Breeze profile. This is the line that connects them.
+#
+# System-level (/etc/xdg, the bottom of KConfig's cascade), NOT skel: an owner
+# who picks a different profile in Konsole writes the choice into their own
+# ~/.config/konsolerc, which permanently outranks this file. This only decides
+# what the machine does before anyone has expressed an opinion. Same placement,
+# and the same reasoning, as /etc/xdg/klipperrc and /etc/xdg/ksplashrc.
+#
+# THE ".profile" SUFFIX IS LOAD-BEARING. ProfileManager::loadAllProfiles picks
+# the default with
+#   path.endsWith(QLatin1Char('/') + defaultProfileFileName)
+# against the full path of each scanned file — so this must be the FILE NAME,
+# extension and all. `DefaultProfile=Dagric` matches nothing and is ignored
+# without any error.
+#
+# The group really is [Desktop Entry], despite this not being a .desktop file:
+#   KConfigGroup group = m_config->group(QStringLiteral("Desktop Entry"));
+#   QString defaultProfileFileName = group.readEntry("DefaultProfile", "");
+#
+# Safe if it ever goes stale. ProfileManager assigns
+# `_defaultProfile = _builtinProfile;` BEFORE reading this key, so a renamed or
+# missing profile leaves stock Konsole — an unbranded terminal, never a broken
+# one.
+#
+# This also reaches konsolepart embedders that specify no default of their own
+# (Kate's terminal panel), because ProfileManager falls back to reading
+# konsolerc for them. That is wanted: the embedded terminal should not be a
+# different colour from the standalone one.
+[Desktop Entry]
+DefaultProfile=Dagric.profile
