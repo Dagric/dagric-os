@@ -153,3 +153,21 @@ isoimagewriter
 # is the difference between a file manager that previews what you have and one
 # that shrugs at half of it.
 kimageformats
+
+# A 2-in-1 with the keyboard folded back cannot log in without this.
+#
+# qt6-virtualkeyboard-plugin is the on-screen keyboard SDDM and kwin-wayland
+# use. Without it a convertible, detachable or tablet reaches the login screen,
+# has no way to type a password, and stops there — the owner never sees a
+# desktop at all, and no amount of accessibility work later in the session can
+# help because the session never starts.
+#
+# Fourth package tonight found sitting in apt's "Recommended packages:" block
+# and never installed: out/free-rebuild.log:2459, inside the block spanning
+# 2422-2463, with "Setting up qt6-virtualkeyboard-plugin" nowhere in any log.
+# Same cause as wpasupplicant, alsa-ucm-conf and rtkit.
+#
+# This matters beyond the individual buyer. Classroom and library machines are
+# disproportionately touchscreen convertibles, and Pro is aimed at exactly
+# those deployments.
+qt6-virtualkeyboard-plugin

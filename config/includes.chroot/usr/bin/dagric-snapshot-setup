@@ -19,12 +19,46 @@ fi
 
 # Sensible desktop retention: no noisy hourly timeline, keep the last handful
 # of update snapshots.
+#
+# NUMBER_LIMIT takes a RANGE, not a bare number, once space-aware cleanup is on:
+# snapper reads "min-max" and only deletes below the minimum when the space
+# limits below demand it. A bare "10" means exactly ten and no space awareness.
 snapper -c root set-config \
     TIMELINE_CREATE=no \
     NUMBER_CLEANUP=yes \
     NUMBER_MIN_AGE=1800 \
-    NUMBER_LIMIT=10 \
-    NUMBER_LIMIT_IMPORTANT=5 2>/dev/null || true
+    NUMBER_LIMIT=4-10 \
+    NUMBER_LIMIT_IMPORTANT=2-5 \
+    SPACE_LIMIT=0.4 \
+    FREE_LIMIT=0.2 2>/dev/null || true
+
+# SPACE_LIMIT AND FREE_LIMIT ARE INERT WITHOUT A QGROUP, and that is the whole
+# point of this call. snapper(8) is explicit: keeping snapshot usage under a
+# limit requires btrfs quota, and with no qgroup those two settings above are
+# decorative. Nothing then stops snapshots filling the disk.
+#
+# The failure that prevents is not a polite dialog. btrfs ENOSPC turns the root
+# filesystem read-only, on a machine whose owner did nothing wrong except keep
+# installing updates — and on a school or library machine, nobody is watching
+# the free space until the desktop stops working.
+#
+# The rescan has a real cost on a large filesystem, which is why it runs once
+# here at first boot rather than on every update.
+snapper -c root setup-quota 2>/dev/null || \
+    echo "NOTE: snapper setup-quota failed — snapshot space limits are inactive" >&2
+
+# TURN OFF THE BOOT SNAPSHOT, because it spends the rollback budget on nothing.
+#
+# Debian's snapper package enables snapper-boot.timer, which takes a snapshot on
+# EVERY boot using --cleanup-algorithm number — the same budget the pre/post
+# update pairs come out of. A boot snapshot is near-identical to the last
+# post-update one and answers no question anybody asks; what it reliably does is
+# evict the update snapshot somebody actually needs. Ten boots after a bad
+# update, the good state is gone.
+#
+# Timeline is already off above for the same reason. This removes snapshots
+# rather than adding a mechanism, so the risk is the reverse of the usual one.
+systemctl disable --now snapper-boot.timer 2>/dev/null || true
 
 # Snapshot the system before and after every apt/dpkg run, so a bad update is
 # always recoverable.

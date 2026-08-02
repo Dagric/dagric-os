@@ -271,6 +271,28 @@ gawk
 kdialog
 libnotify-bin
 
+# THE RESTORE HALF. snapper takes the snapshots and, until now, nothing on the
+# free edition could put one back without a terminal — the GRUB submenu boots a
+# snapshot read-only, which is a look, not a recovery. btrfs-assistant is the
+# missing GUI: pick a snapshot, press restore, reboot.
+#
+# It is Qt6, so it belongs on a Plasma 6 desktop rather than sitting there as an
+# obvious GTK bolt-on, and it reads snapper's own configs rather than inventing
+# a parallel scheme. Its restore does the subvolume swap that works on the plain
+# @/@home layout Calamares installs.
+#
+# This matters most for the machines that have nobody watching them. A school or
+# library PC that will not boot after an update is a ticket and a visit; a
+# librarian who can pick "yesterday" from a list and press a button is neither.
+btrfs-assistant
+
+# Scheduled scrub, so silent corruption is found while the snapshots still hold
+# a good copy of the extent. Nothing on a stock Debian install ever runs
+# `btrfs scrub`, and the target hardware for this product is a decade-old disk
+# that has been spinning since Windows 7. It also gives btrfs-assistant its
+# Maintenance tab, so the two land together deliberately.
+btrfsmaintenance
+
 # Branded boot splash (theme in /usr/share/plymouth/themes/dagric)
 plymouth
 plymouth-themes
