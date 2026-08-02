@@ -109,3 +109,29 @@ qml-qt6
 # health and notifies the user in plain language when a drive degrades.
 # Pairs with smartmontools (system list) which powers the Security Checkup.
 plasma-disks
+
+# "Run as administrator", which Windows has on every right-click and Dagric
+# had nowhere. kio-admin gives Dolphin a real admin:// protocol behind a polkit
+# prompt, so editing a system file is one context-menu entry.
+#
+# This is a SAFETY feature, not a convenience. Without it the internet teaches
+# the folklore answer — `sudo dolphin` — which runs a whole GUI file manager as
+# root, leaves root-owned files in the user's own config directory, and is the
+# single most common way a new Linux user quietly breaks their desktop. Giving
+# them the correct gesture is how you stop them learning the dangerous one.
+kio-admin
+
+# The two Windows utilities with no equivalent on an installed Dagric.
+#
+# partitionmanager is Disk Management: see the drives, format a USB stick,
+# resize a partition, without a terminal. isoimagewriter is Rufus — the tool
+# somebody needs to make ANOTHER Dagric stick, or a Windows recovery stick, and
+# the one thing a person who has just switched is most likely to want to do for
+# a friend. Both are KDE-native so they match the desktop rather than dragging
+# in GTK.
+#
+# Named in plain English by dagric-app-names, with the Windows vocabulary
+# (disk management, format, diskpart, rufus, balenaetcher) in Keywords so the
+# launcher finds them from what the owner already calls these things.
+partitionmanager
+isoimagewriter

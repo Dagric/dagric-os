@@ -429,6 +429,21 @@ rename org.kde.okular "Document Viewer" "PDF, ebook and document viewer (Okular)
 rename org.kde.ark "Archive Manager" "Open and create zip files (Ark)" \
     "ark;zip;unzip;extract;compress;archive;archives;unpack;7z;7-zip;winzip;winrar;rar;tar;gz;xz;bz2;iso;"
 
+# "Disks", not "KDE Partition Manager". This is the Disk Management console a
+# Windows owner already knows, and they will look for it by that name or by
+# "format" long before they would guess "partition manager". diskpart is in the
+# keywords for the same reason cmd and powershell are in Konsole's.
+rename org.kde.partitionmanager "Disks" "Manage drives and partitions (KDE Partition Manager)" \
+    "partitionmanager;partition;partitions;disk;disks;drive;drives;format;formatting;disk management;diskmgmt;diskpart;volume;volumes;resize;shrink;extend;usb;flash drive;ntfs;fat32;exfat;ext4;mount;filesystem;"
+
+# "USB Writer" over "ISO Image Writer": the task is making a bootable stick, and
+# the words people actually carry are the tools they used to do it on Windows.
+# Rufus and BalenaEtcher are in the keywords deliberately — somebody who made
+# their Dagric stick with Rufus will search for Rufus when they want to make
+# one for a friend.
+rename org.kde.isoimagewriter "USB Writer" "Write an ISO to a USB stick (ISO Image Writer)" \
+    "isoimagewriter;iso;usb;usb stick;flash drive;bootable;boot;burn;write;image;rufus;balenaetcher;etcher;unetbootin;ventoy;startup disk;installer;live usb;"
+
 rename org.kde.kate "Text Editor" "Notes and code (Kate)" \
     "kate;notepad;notepad++;text;txt;editor;notes;write;wordpad;code;source;programming;programmer;development;developer;"
 
