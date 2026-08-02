@@ -62,22 +62,34 @@ systemctl enable firewalld.service 2>/dev/null || true
 # firewall-offline-cmd exits non-zero saying so, and that is the outcome we
 # want, not an error worth printing. --query-service is the authority, and it
 # runs per zone below.
-for _zone in public home internal work external dmz; do
-    firewall-offline-cmd --zone="$_zone" --remove-service=ssh >/dev/null 2>&1 || true
+#
+# The existence check is not ceremony. Without it, a chroot with no
+# firewall-offline-cmd runs the removal into `|| true`, then fails
+# --query-service because the command is missing rather than because ssh is
+# closed, takes the else branch, and prints "ssh closed in the public zone" six
+# times. A hook that reports success it did not achieve is the exact fault this
+# block was rewritten to stop doing — it would have been introduced by the
+# rewrite that fixed it.
+if ! command -v firewall-offline-cmd >/dev/null 2>&1; then
+    echo "WARNING: firewall-offline-cmd not found — ssh was NOT closed in any" >&2
+    echo "         firewalld zone. Any sshd the owner enables will be reachable." >&2
+else
+    for _zone in public home internal work external dmz; do
+        firewall-offline-cmd --zone="$_zone" --remove-service=ssh >/dev/null 2>&1 || true
 
-    # --query-service exits 0 when the service is STILL allowed, so a zero here
-    # is the bad case. Deliberately a loud warning rather than an exit: a broken
-    # firewall rule must not silently ship, but it also must not destroy a
-    # twenty-minute build at the very end when everything else succeeded.
-    if firewall-offline-cmd --zone="$_zone" --query-service=ssh >/dev/null 2>&1; then
-        echo "WARNING: firewalld's $_zone zone STILL allows ssh after removal." >&2
-        echo "         Any sshd the owner later enables would be reachable from" >&2
-        echo "         every network they join on that zone. Check that firewalld" >&2
-        echo "         is actually installed by the time this hook runs." >&2
-    else
-        echo "hardening: ssh closed in the $_zone zone"
-    fi
-done
+        # --query-service exits 0 when the service is STILL allowed, so a zero
+        # here is the bad case. Deliberately a loud warning rather than an exit:
+        # a broken firewall rule must not silently ship, but it also must not
+        # destroy a twenty-minute build at the very end when all else succeeded.
+        if firewall-offline-cmd --zone="$_zone" --query-service=ssh >/dev/null 2>&1; then
+            echo "WARNING: firewalld's $_zone zone STILL allows ssh after removal." >&2
+            echo "         Any sshd the owner later enables would be reachable from" >&2
+            echo "         every network they join on that zone." >&2
+        else
+            echo "hardening: ssh closed in the $_zone zone"
+        fi
+    done
+fi
 unset _zone
 
 # EVERY PRO MACHINE WAS SHIPPING THE SAME SSH HOST KEY.
