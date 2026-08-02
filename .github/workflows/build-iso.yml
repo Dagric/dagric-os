@@ -47,6 +47,29 @@ jobs:
   build:
     runs-on: ubuntu-latest
     timeout-minutes: 120
+    # 4. BUILD THE EDITION PEOPLE PAY FOR.
+    #
+    # This job took EDITION's default and therefore built free, every time,
+    # forever — the word never appeared in this file. So 0600-pro-edition.hook,
+    # every pro-*.list.chroot package, OpenSnitch, USBGuard, the VM stack and the
+    # dev tools were exercised by nothing at all. The half of the product that
+    # costs $39 had less CI than the half given away, and a change that broke
+    # only Pro would have reached a customer before it reached a build log. It
+    # also meant the package-name check reported a clean pass over the free
+    # edition's 164 names while Pro's other 66 went unread.
+    #
+    # A matrix rather than a second step, deliberately: each entry gets its OWN
+    # runner and therefore its own ~14 GB disk. Pro is roughly twice the size of
+    # free and a previous attempt to build both on one machine died on "No space
+    # left on device"; run side by side they never compete for it.
+    #
+    # fail-fast: false because these answer separate questions. Free breaking
+    # tells you nothing about Pro and must not cancel the run that would have
+    # said so.
+    strategy:
+      fail-fast: false
+      matrix:
+        edition: [free, pro]
     steps:
       - uses: actions/checkout@v4
 
@@ -65,10 +88,16 @@ jobs:
           echo "after:"; df -h / | tail -1
 
       - name: Build ISO in Debian container
+        env:
+          EDITION: ${{ matrix.edition }}
         run: |
           docker build -t dagric-builder docker/
           mkdir -p out
+          # -e EDITION is the whole point of the matrix: container-build.sh reads
+          # it as EDITION="${EDITION:-free}", so leaving it out is exactly how
+          # this workflow built free twice and called it coverage.
           docker run --rm --privileged \
+            -e EDITION="$EDITION" \
             -v "$PWD:/src:ro" -v "$PWD/out:/out" \
             dagric-builder sh /src/docker/container-build.sh
 
@@ -92,7 +121,18 @@ jobs:
       # result answers the question it was actually asked: does the tree still
       # build? A genuine build failure still fails, because it happens earlier
       # and this step never runs.
+      #
+      # FREE ONLY, and that is not an oversight either. The Pro ISO is roughly
+      # twice the size of free, and this repository has already had four days of
+      # red X's caused by a full artifact quota. Uploading ~4 GB on every push to
+      # config/ would refill it within days and break the free upload too.
+      #
+      # Nothing is lost by not keeping it. A CI ISO is a smoke test, and the
+      # question asked of the Pro job — does the paid edition still build, do its
+      # hooks run, do its package names resolve — is answered entirely by the job
+      # going green and by the log. Releases are built by release.yml from a tag.
       - name: Upload ISO artifact
+        if: matrix.edition == 'free'
         uses: actions/upload-artifact@v4
         continue-on-error: true
         with:
@@ -110,7 +150,7 @@ jobs:
         if: always()
         run: |
           {
-            echo "### Dagric OS build"
+            echo "### Dagric OS build — ${{ matrix.edition }} edition"
             echo ""
             if [ -f out/SHA256SUMS ]; then
               echo '```'
