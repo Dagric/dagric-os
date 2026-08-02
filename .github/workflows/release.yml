@@ -21,6 +21,33 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # THE PRO BUILD RAN OUT OF DISK, AND ONLY THE PRO BUILD.
+      #
+      # ubuntu-latest gives roughly 14 GB free on /. Free fits and produced a
+      # 2.1 GB ISO; Pro does not — i386 multiarch, wine32, the full LibreOffice,
+      # Blender and OBS make a much larger chroot, and it died compressing the
+      # initramfs:
+      #
+      #     zstd: error 70 : Write error : cannot write block : No space left
+      #     E: mkinitramfs failure zstd -q -9 70
+      #
+      # which surfaced as "0700-plymouth.hook.chroot failed" — a hook that was
+      # working perfectly and simply had nowhere to write.
+      #
+      # The runner ships ~30 GB of toolchains a Debian live-build never touches:
+      # .NET, the Android SDK, GHC, Swift, PowerShell, the hosted tool cache.
+      # Removing them costs seconds and roughly triples the space available.
+      # Printed before and after so a future disk failure is one glance away
+      # rather than four hundred lines into a log.
+      - name: Reclaim runner disk
+        run: |
+          echo "before:"; df -h / | tail -1
+          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc \
+                      /usr/local/share/boost /usr/share/swift \
+                      /usr/local/share/powershell "$AGENT_TOOLSDIRECTORY" || true
+          sudo docker image prune -af >/dev/null 2>&1 || true
+          echo "after:"; df -h / | tail -1
+
       - name: Build ${{ matrix.edition }} ISO
         run: |
           docker build -t dagric-builder docker/

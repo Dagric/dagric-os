@@ -6,6 +6,26 @@
 wine
 winetricks
 
+# THE PIECE THAT MAKES A .exe DOUBLE-CLICKABLE, AND IT WAS NEVER INSTALLED.
+#
+# wine-binfmt registers the PE format with the kernel (/usr/lib/binfmt.d/wine
+# plus /usr/share/binfmts/wine) so a Windows executable can simply be RUN.
+# Without it Wine is present and a .exe is an inert file: Dolphin offers
+# "Open with...", nothing happens on a double-click, and the switcher's entire
+# mental model of installing software — download setup, double-click it —
+# fails at the first step.
+#
+# It is only a SUGGESTS of wine, so --apt-recommends false was never going to
+# bring it in, and nothing pinned it. Confirmed in out/build-pro.log: the name
+# appears exactly once, inside apt's "Suggested packages:" block, and "Setting
+# up wine-binfmt" appears nowhere.
+#
+# This is a promise gap in the PAID tier, which is the worst place to have one.
+# The shipped guide tells Pro owners in as many words that Wine "runs many .exe
+# files on a double-click", and docs/EDITIONS.md sells "run classic .exe
+# software". Neither could be true.
+wine-binfmt
+
 # NOTE: Steam is deliberately NOT preinstalled (Valve's EULA — owner
 # mandate: proprietary stores are never bundled). It installs only via the
 # dagric-get-steam consent helper in the Hub; the 0600 hook pre-enables

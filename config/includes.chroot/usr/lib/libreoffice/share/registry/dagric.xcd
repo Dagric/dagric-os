@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Dagric OS — save in the formats a Windows switcher's colleagues can open.
+
+  The image already pays for Office compatibility: fonts-crosextra-carlito and
+  fonts-crosextra-caladea ship in system.list.chroot precisely so a .docx keeps
+  its line and page breaks, because Calibri and Cambria are what the document
+  was written in and Liberation is not metric-compatible with either.
+
+  And then LibreOffice still defaulted to ODF, so every save produced a .odt the
+  recipient could not open, and every Ctrl+S raised "Use Word 2007-365 format?"
+  — a dialog that teaches an ex-Windows user their new office suite is arguing
+  with them. The metric fonts were being paid for and thrown away.
+
+  This sets the three factory defaults to the OOXML filters and switches off the
+  format warning. Nothing is lost: ODF stays available in Save As, and anyone
+  who prefers it changes one setting in Tools > Options > Load/Save.
+
+  MECHANISM: LibreOffice's configmgr reads every .xcd in
+  /usr/lib/libreoffice/share/registry at startup and merges them over the
+  shipped defaults. A user's own choice lands in their profile
+  (~/.config/libreoffice) and outranks this file, so this only decides what the
+  machine does before anyone has expressed a preference — the same layering as
+  /etc/xdg/klipperrc and the other system defaults in this tree.
+
+  The filter names are LibreOffice's internal filter identifiers, not display
+  names; they have been stable across releases and are what the equivalent
+  configuration in other distributions uses.
+
+  VALIDATED AT BUILD TIME by 0550-office-templates.hook.chroot, which parses
+  this file and deletes it if it is not well-formed. That guard is not
+  decoration: configmgr reads the whole registry directory at startup, and a
+  malformed .xcd here could stop LibreOffice launching at all. Better to ship
+  without the preference than to ship an office suite that will not open.
+-->
+<oor:data xmlns:oor="http://openoffice.org/2001/registry"
+          xmlns:xs="http://www.w3.org/2001/XMLSchema"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <dependency file="main"/>
+
+  <oor:component-data oor:name="Setup" oor:package="org.openoffice">
+    <node oor:name="Office">
+      <node oor:name="Factories">
+        <node oor:name="com.sun.star.text.TextDocument">
+          <prop oor:name="ooSetupFactoryDefaultFilter">
+            <value>MS Word 2007 XML</value>
+          </prop>
+        </node>
+        <node oor:name="com.sun.star.sheet.SpreadsheetDocument">
+          <prop oor:name="ooSetupFactoryDefaultFilter">
+            <value>Calc MS Excel 2007 XML</value>
+          </prop>
+        </node>
+        <node oor:name="com.sun.star.presentation.PresentationDocument">
+          <prop oor:name="ooSetupFactoryDefaultFilter">
+            <value>Impress MS PowerPoint 2007 XML</value>
+          </prop>
+        </node>
+      </node>
+    </node>
+  </oor:component-data>
+
+  <oor:component-data oor:name="Common" oor:package="org.openoffice.Office">
+    <node oor:name="Save">
+      <node oor:name="Document">
+        <prop oor:name="WarnAlienFormat" oor:type="xs:boolean">
+          <value>false</value>
+        </prop>
+      </node>
+    </node>
+  </oor:component-data>
+</oor:data>

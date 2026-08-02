@@ -50,6 +50,20 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # Same reclaim as release.yml — see the long note there. The free ISO
+      # currently fits in the runner's ~14 GB, but only just, and every package
+      # added to the image eats into that margin. Doing it here means the first
+      # sign of trouble is not a build that dies at 90% on "No space left on
+      # device" wearing some innocent hook's name.
+      - name: Reclaim runner disk
+        run: |
+          echo "before:"; df -h / | tail -1
+          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc \
+                      /usr/local/share/boost /usr/share/swift \
+                      /usr/local/share/powershell "$AGENT_TOOLSDIRECTORY" || true
+          sudo docker image prune -af >/dev/null 2>&1 || true
+          echo "after:"; df -h / | tail -1
+
       - name: Build ISO in Debian container
         run: |
           docker build -t dagric-builder docker/

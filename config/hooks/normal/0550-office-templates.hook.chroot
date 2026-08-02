@@ -46,6 +46,39 @@
 # feels broken" failure this project refuses to ship.
 set -e
 
+# --- validate the LibreOffice defaults before trusting them ----------------
+#
+# dagric.xcd sets the three factory save filters to OOXML and silences the
+# format warning. configmgr reads EVERY .xcd in that directory at startup and
+# merges them, so a malformed one is not a preference that fails to apply — it
+# is an office suite that may not launch.
+#
+# So parse it here and delete it if it is broken. Shipping without the default
+# save format is a small annoyance; shipping a LibreOffice that will not open
+# is the product's core application gone on a paid machine.
+XCD=/usr/lib/libreoffice/share/registry/dagric.xcd
+if [ -f "$XCD" ]; then
+    ok=0
+    if command -v python3 >/dev/null 2>&1; then
+        python3 -c "import xml.etree.ElementTree as E,sys; E.parse(sys.argv[1])" "$XCD" 2>/dev/null && ok=1
+    elif command -v xmllint >/dev/null 2>&1; then
+        xmllint --noout "$XCD" 2>/dev/null && ok=1
+    else
+        # No parser on the build host. Do not guess — the failure mode of a bad
+        # file is worse than the benefit of a good one.
+        echo "WARNING: office-defaults: no XML parser to validate $XCD; removing it" >&2
+    fi
+    if [ "$ok" = 1 ]; then
+        chmod 0644 "$XCD"
+        echo "office-defaults: dagric.xcd is well-formed (OOXML save defaults active)"
+    else
+        rm -f "$XCD"
+        echo "WARNING: office-defaults: dagric.xcd was not well-formed and has been" >&2
+        echo "         removed. LibreOffice will save ODF by default and warn on" >&2
+        echo "         alien formats, which is upstream behaviour, not a breakage." >&2
+    fi
+fi
+
 TPL=/usr/share/templates
 SRC="$TPL/.source"
 
