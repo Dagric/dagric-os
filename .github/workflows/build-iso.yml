@@ -79,8 +79,22 @@ jobs:
       #    still builds — not a release artifact. Releases come from
       #    release.yml against a tag. Anything older than a few days has been
       #    superseded by the next commit and is only holding quota.
+      # THE UPLOAD MUST NOT DECIDE WHETHER THE BUILD PASSED.
+      #
+      # Four days of red X's on this repo were successful builds whose artifact
+      # upload hit the storage quota. A red X looks identical either way, so the
+      # one working build environment appeared broken while a laptop with a dead
+      # WSL was being coaxed for hours. The ISO had been built correctly every
+      # single time and thrown away.
+      #
+      # continue-on-error means a storage problem is reported as a storage
+      # problem — the step goes yellow, the job stays green, and the build
+      # result answers the question it was actually asked: does the tree still
+      # build? A genuine build failure still fails, because it happens earlier
+      # and this step never runs.
       - name: Upload ISO artifact
         uses: actions/upload-artifact@v4
+        continue-on-error: true
         with:
           name: dagric-os-iso
           path: |

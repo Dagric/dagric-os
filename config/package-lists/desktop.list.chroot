@@ -135,3 +135,21 @@ kio-admin
 # launcher finds them from what the owner already calls these things.
 partitionmanager
 isoimagewriter
+
+# iPhone photos, and the formats the modern web is made of.
+#
+# libheif1 is already on the image — pulled in as somebody's dependency — so the
+# machine can DECODE a .heic and no application can OPEN one, because the Qt
+# image-format plugins that expose it to Gwenview, Dolphin's thumbnails and the
+# wallpaper picker live here. Confirmed absent: "Setting up kimageformats" does
+# not appear in any committed build log.
+#
+# This audience is exactly the one it hurts. A Windows switcher plugs in an
+# iPhone, copies the camera roll across, and every photo is a grey placeholder
+# with a filename. The library was already paid for; this is the part that makes
+# it visible.
+#
+# Also brings AVIF, JPEG XL, Photoshop PSD, GIMP XCF and a dozen others, which
+# is the difference between a file manager that previews what you have and one
+# that shrugs at half of it.
+kimageformats

@@ -63,6 +63,37 @@ pipewire-pulse
 pipewire-audio
 wireplumber
 
+# THE WI-FI BUG AGAIN, IN AUDIO. Same shape, same cause, same silence.
+#
+# alsa-ucm-conf carries the Use Case Manager profiles that tell ALSA how to
+# route a modern laptop's codec — which outputs exist, which amplifiers to
+# enable, how the speakers and headphone jack are actually wired. On anything
+# using Intel SOF or AMD ACP, which is most laptops built since roughly 2019,
+# missing UCM means no sound at all, or sound from one channel, or headphones
+# that never engage.
+#
+# The tell is that firmware-sof-signed IS already pinned in
+# firmware.list.chroot. So the image ships the FIRMWARE for these codecs and
+# not the configuration that drives them — the machine has everything it needs
+# to make noise and no instructions for doing it.
+#
+# It is a Recommends of the ALSA stack, --apt-recommends false drops it, and
+# nothing pinned it. Confirmed the same way as wpasupplicant: the string occurs
+# exactly once in each committed build log, at out/free-rebuild.log:2430, inside
+# the "Recommended packages:" block that spans 2422-2463, and "Setting up
+# alsa-ucm-conf" appears nowhere in any log.
+alsa-ucm-conf
+
+# And rtkit, dropped from the very same block (out/free-rebuild.log:2448).
+#
+# RealtimeKit is what lets PipeWire ask for realtime scheduling priority.
+# Without it the audio thread competes with everything else, so sound crackles
+# and drops out under load — compiling, a browser with thirty tabs, a game.
+# It is the difference between "the audio works" and "the audio is reliable",
+# and it is the kind of fault an owner blames on the whole operating system
+# rather than on a missing 40 kB package.
+rtkit
+
 # Printing — cups alone doesn't cover most hardware. Gutenprint drives the
 # majority of inkjets/lasers, ipp-usb gives driverless modern printers,
 # cups-filters is the print pipeline. (Found by test review: printing was

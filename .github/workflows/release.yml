@@ -16,6 +16,12 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 180
     strategy:
+      # The two editions are independent, so one failing must not cancel the
+      # other. It already did: a run where free's UPLOAD hit the artifact quota
+      # reported "build (pro): cancelled" — a Pro build twenty-nine minutes in,
+      # killed by an unrelated storage problem in the other job, and no way to
+      # know whether it would have succeeded.
+      fail-fast: false
       matrix:
         edition: [free, pro]
     steps:
@@ -66,7 +72,21 @@ jobs:
             mv out/*.iso "out/dagric-os-${VER}-amd64.iso"
           fi
 
+      # THE UPLOAD MUST NOT DECIDE WHETHER THE BUILD PASSED.
+      #
+      # Four days of red X's on this repo were successful builds whose artifact
+      # upload hit the storage quota. A red X looks identical either way, so the
+      # one working build environment appeared broken while a laptop with a dead
+      # WSL was being coaxed for hours. The ISO had been built correctly every
+      # single time and thrown away.
+      #
+      # continue-on-error means a storage problem is reported as a storage
+      # problem — the step goes yellow, the job stays green, and the build
+      # result answers the question it was actually asked: does the tree still
+      # build? A genuine build failure still fails, because it happens earlier
+      # and this step never runs.
       - uses: actions/upload-artifact@v4
+        continue-on-error: true
         with:
           name: iso-${{ matrix.edition }}
           path: out/dagric-os-*.iso
