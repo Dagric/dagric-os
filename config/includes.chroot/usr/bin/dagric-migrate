@@ -189,6 +189,45 @@ pairs_for() {
     esac
 }
 
+# WHERE THE FILES LAND, IN THE OWNER'S OWN LANGUAGE.
+#
+# The Windows names above are the SOURCE and are always English on the Windows
+# side. The destination used to reuse them verbatim — mkdir -p "$HOME/Documents"
+# — which is right on an English install and wrong on every other one Dagric
+# ships. On a German desktop xdg-user-dirs has already created ~/Dokumente,
+# ~/Bilder, ~/Musik and ~/Schreibtisch, and those are the paths Dolphin's
+# sidebar, the file dialogs, the Pictures folder in the wallpaper picker and
+# every application's "save to" default actually point at. Copying into
+# ~/Documents there builds a SECOND, parallel set of folders that nothing on the
+# system links to, and the owner's migration appears to have half-worked: the
+# files are on the disk, and none of the places they look show them.
+#
+# Dagric ships five languages (de, fr, es, pt_BR, it), so this was wrong for
+# four of them.
+#
+# xdg-user-dir is from xdg-user-dirs, pinned in system.list.chroot for exactly
+# this class of question. It prints $HOME for a key it does not recognise, which
+# would empty a Windows Pictures folder loose into the home directory — worse
+# than the English-name bug — so that answer is rejected and the old behaviour
+# used as the fallback.
+dest_for() {
+    case "$1" in
+        docs)  _k=DOCUMENTS ;;
+        desk)  _k=DESKTOP   ;;
+        pics)  _k=PICTURES  ;;
+        music) _k=MUSIC     ;;
+        vids)  _k=VIDEOS    ;;
+        downl) _k=DOWNLOAD  ;;
+        *)     _k="" ;;
+    esac
+    _p=""
+    [ -n "$_k" ] && _p=$(xdg-user-dir "$_k" 2>/dev/null)
+    if [ -z "$_p" ] || [ "$_p" = "$HOME" ] || [ "$_p" = "$HOME/" ]; then
+        _p="$HOME/$(pairs_for "$1")"
+    fi
+    printf '%s\n' "$_p"
+}
+
 # --- 5. Space check ----------------------------------------------------------
 NEED_KB=0
 for c in $CHOICES; do
@@ -221,16 +260,19 @@ echo
 SKIPPED=$(gettext "    (some files could not be read — skipped)")
 for c in $CHOICES; do
     d=$(pairs_for "$c"); [ -n "$d" ] || continue
+    # The owner's real folder for this category — ~/Dokumente on a German
+    # desktop, not ~/Documents. See dest_for().
+    DEST=$(dest_for "$c")
     for src in "$WINUSER_DIR/$d" "$WINUSER_DIR/OneDrive/$d"; do
         [ -d "$src" ] || continue
         # Left untranslated on purpose: this is "SOURCE -> DESTINATION", two
         # file paths and an arrow. There is no English in it to translate, and
         # a translator cannot improve a path.
-        echo "--- $src  ->  $HOME/$d"
-        mkdir -p "$HOME/$d"
+        echo "--- $src  ->  $DEST"
+        mkdir -p "$DEST"
         rsync -rt --ignore-existing --info=progress2 \
             --exclude 'desktop.ini' --exclude 'Thumbs.db' --exclude '*.lnk' \
-            "$src/" "$HOME/$d/" || dg_say "$SKIPPED"
+            "$src/" "$DEST/" || dg_say "$SKIPPED"
     done
 done
 
