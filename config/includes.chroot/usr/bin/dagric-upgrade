@@ -1,0 +1,273 @@
+#!/bin/sh
+# SPDX-FileCopyrightText: 2026 DGR Operations <repo@dagric.com>
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Dagric OS — move this machine to the next Debian release, carefully.
+#
+# WHY THIS EXISTS. Debian has no `do-release-upgrade`. The supported route is a
+# document: edit sources.list, apt update, apt upgrade, apt full-upgrade, read
+# the release notes, hope. That is a fine instruction for a sysadmin and a
+# terrible one for the person this OS is sold to — someone who left Windows
+# because it kept asking them to make decisions they had no way to evaluate.
+#
+# The site now tells buyers security support runs to 2028 with LTS to 2030. That
+# promise is only honest if there is a way OFF trixie before it ends, and the
+# honest answer today is "reinstall", which for an owner with five years of files
+# is not an answer at all.
+#
+# WHAT THIS IS NOT. It is not magic and it does not pretend a release upgrade is
+# risk-free. It is a wrapper that does the things a careful person would do in
+# the right order, refuses to start when the machine is not in a state to
+# survive it, and leaves a way back.
+#
+# THE SAFETY MODEL, in order:
+#   1. Refuse outright if anything is already broken — half-configured packages,
+#      no disk space, on battery, a foreign release already half-applied.
+#   2. Take a snapshot FIRST, and refuse to continue if one cannot be taken.
+#      snapper + grub-btrfs ship on every edition, so "roll back from the boot
+#      menu" is a real escape hatch rather than advice.
+#   3. Download everything BEFORE changing anything. A release upgrade
+#      interrupted by a dropped connection midway is the classic way to end up
+#      with an unbootable machine.
+#   4. Rebuild DKMS modules and the initramfs, and SAY SO if a module failed —
+#      an NVIDIA module that did not rebuild is a black screen on next boot, and
+#      the owner should hear it now while the old kernel still works.
+#
+# Not run automatically, ever. A release upgrade is a decision.
+set -e
+
+# NOT sourcing dagric-i18n.sh, deliberately. This tool defines its own say() and
+# uses no gettext, so the include bought nothing — and it actively broke the
+# script: `.` is a POSIX SPECIAL BUILTIN, so failing to find the file exits the
+# shell immediately and `|| true` does not catch it. The whole tool died at line
+# three, printing nothing, on any machine where that file was missing. Silent
+# death from a defensive-looking line is the exact shape this codebase keeps
+# finding; the fix is to not have the line.
+#
+# The consequence, stated: this tool is English-only while the rest of Dagric
+# speaks five languages. A release upgrade is a rare, deliberate, root-only act
+# and the strings here are long and technical; translating them is worth doing,
+# but not at the cost of a fragile include.
+
+# The release this image was built against, and the one it moves to. Bump BOTH
+# when rebasing Dagric onto a newer Debian, in the same commit as auto/config.
+FROM_SUITE="trixie"
+TO_SUITE="forky"
+FROM_NAME="Debian 13"
+TO_NAME="Debian 14"
+
+say() { printf '%s\n' "$*"; }
+die() { printf 'STOPPED: %s\n' "$*" >&2; exit 1; }
+
+[ "$(id -u)" -eq 0 ] || die "run this as root:  sudo dagric-upgrade"
+
+DRY=no
+[ "$1" = "--check" ] && DRY=yes
+
+say "Dagric OS — upgrade from $FROM_NAME to $TO_NAME"
+say "==============================================="
+say ""
+
+# ---------------------------------------------------------------- pre-flight
+# Every one of these is a real way a release upgrade goes wrong, and every one
+# is cheaper to catch now than halfway through.
+fail=0
+
+# 1. Are we actually on the release we think we are? A machine already part-way
+#    through an upgrade, or rebased by hand, must not be pushed further.
+if [ -r /etc/debian_version ]; then
+    cur=$(cat /etc/debian_version 2>/dev/null)
+    case "$cur" in
+        13*|"$FROM_SUITE"*) : ;;
+        *) say "  ! this machine reports Debian version '$cur', not $FROM_NAME"
+           say "    an upgrade from an unexpected state is how machines break"
+           fail=1 ;;
+    esac
+fi
+
+# 2. dpkg must be in a clean state. Upgrading on top of a half-configured
+#    package turns one broken package into a broken system.
+if dpkg -C 2>/dev/null | grep -q .; then
+    say "  ! some packages are half-installed or half-configured"
+    say "    fix first:  sudo dpkg --configure -a  &&  sudo apt-get -f install"
+    fail=1
+else
+    say "  ok  package database is consistent"
+fi
+
+# 3. Disk space. A full-upgrade downloads and unpacks the whole userland; the
+#    classic failure is running out during unpack, with dpkg mid-transaction.
+avail_mb=$(df -Pm / | awk 'NR==2{print $4}')
+if [ "${avail_mb:-0}" -lt 8000 ]; then
+    say "  ! only ${avail_mb} MB free on / — a release upgrade needs several GB"
+    say "    free some space first (try:  dagric-security-checkup, or empty Trash)"
+    fail=1
+else
+    say "  ok  ${avail_mb} MB free on /"
+fi
+
+# 4. Mains power. Losing power mid-unpack is the single most destructive thing
+#    that can happen here, and laptops are most of this audience.
+if [ -d /sys/class/power_supply ]; then
+    on_ac=unknown
+    for ps in /sys/class/power_supply/A*/online /sys/class/power_supply/AC*/online; do
+        [ -r "$ps" ] || continue
+        [ "$(cat "$ps")" = "1" ] && on_ac=yes || on_ac=no
+    done
+    if [ "$on_ac" = "no" ]; then
+        say "  ! this machine is on battery — plug it in before upgrading"
+        fail=1
+    elif [ "$on_ac" = "yes" ]; then
+        say "  ok  running on mains power"
+    fi
+fi
+
+# 5. Snapshots. This is the escape hatch; without it there is no way back, and
+#    this tool will not proceed blind.
+CAN_SNAPSHOT=no
+if command -v snapper >/dev/null 2>&1 && \
+   findmnt -no FSTYPE / 2>/dev/null | grep -q btrfs && \
+   snapper -c root list >/dev/null 2>&1; then
+    CAN_SNAPSHOT=yes
+    say "  ok  snapshots available — a rollback point can be taken"
+else
+    say "  ! snapshot rollback is not available on this machine"
+    say "    (not a btrfs install, or snapper is not configured)"
+    say "    back up your files before continuing — there is no automatic way back"
+fi
+
+# 6. Third-party apt sources. These are the most common cause of a broken
+#    release upgrade: a repository built for the old release, still enabled,
+#    offering packages that conflict with the new one.
+say ""
+THIRD=""
+for f in /etc/apt/sources.list /etc/apt/sources.list.d/*.list /etc/apt/sources.list.d/*.sources; do
+    [ -r "$f" ] || continue
+    case "$f" in *dagric*) continue ;; esac
+    if grep -qE '^\s*(deb|URIs:)' "$f" 2>/dev/null && \
+       ! grep -qiE 'deb\.debian\.org|security\.debian\.org|ftp\.[a-z]+\.debian\.org' "$f" 2>/dev/null; then
+        THIRD="$THIRD $f"
+    fi
+done
+if [ -n "$THIRD" ]; then
+    say "  ! third-party package sources are enabled:"
+    for f in $THIRD; do say "      $f"; done
+    say "    These are built for $FROM_NAME and are the most common cause of a"
+    say "    failed upgrade. Disable them, upgrade, then re-enable what still"
+    say "    has a $TO_NAME version."
+    fail=1
+else
+    say "  ok  only Debian and Dagric package sources are enabled"
+fi
+
+say ""
+if [ "$fail" -ne 0 ]; then
+    die "pre-flight checks did not pass. Nothing has been changed."
+fi
+say "Pre-flight checks passed."
+
+if [ "$DRY" = yes ]; then
+    say ""
+    say "--check only; nothing was changed. Run without --check to upgrade."
+    exit 0
+fi
+
+# ---------------------------------------------------------------- consent
+cat <<EOF
+
+This will move the machine from $FROM_NAME to $TO_NAME. It downloads
+everything first, then installs. Expect it to take a while and to need a
+reboot at the end.
+
+A snapshot is taken before anything changes, so a bad outcome is recoverable
+from the boot menu.
+
+EOF
+printf 'Type UPGRADE to continue: '
+read -r ans
+[ "$ans" = "UPGRADE" ] || { say "Nothing changed."; exit 0; }
+
+# ---------------------------------------------------------------- snapshot
+if [ "$CAN_SNAPSHOT" = yes ]; then
+    say ""
+    say "Taking a rollback snapshot..."
+    if snapper -c root create -d "before upgrade to $TO_NAME" \
+                              -t single --cleanup-algorithm number >/dev/null 2>&1; then
+        say "  snapshot taken — it is in the boot menu under Dagric snapshots"
+    else
+        die "could not take a snapshot, and this tool will not upgrade without one.
+    Back up your files and upgrade by hand if you accept the risk."
+    fi
+fi
+
+# ---------------------------------------------------------------- sources
+say ""
+say "Pointing package sources at $TO_NAME..."
+BAK="/var/backups/dagric-upgrade-$(date +%Y%m%d-%H%M%S)"
+mkdir -p "$BAK"
+cp -a /etc/apt/sources.list "$BAK/" 2>/dev/null || true
+cp -a /etc/apt/sources.list.d "$BAK/" 2>/dev/null || true
+say "  previous sources saved in $BAK"
+
+# Only Debian's own suites are rewritten. Dagric's channel is left alone — it is
+# a single suite that tracks whatever Dagric is built on, and rewriting it would
+# point at a suite that may not exist yet.
+for f in /etc/apt/sources.list /etc/apt/sources.list.d/*.list /etc/apt/sources.list.d/*.sources; do
+    [ -w "$f" ] || continue
+    case "$f" in *dagric*) continue ;; esac
+    sed -i "s/\b${FROM_SUITE}\b/${TO_SUITE}/g" "$f" 2>/dev/null || true
+done
+say "  sources now point at $TO_SUITE"
+
+# ---------------------------------------------------------------- download
+say ""
+say "Downloading everything before changing anything..."
+say "(this is the slow part; nothing is installed yet, and it is safe to stop here)"
+apt-get update
+apt-get -y --download-only full-upgrade || die "download failed — nothing was installed.
+    Your sources have been changed; restore them from $BAK if you stop here."
+say "  download complete"
+
+# ---------------------------------------------------------------- install
+say ""
+say "Installing. Do not power off."
+DEBIAN_FRONTEND=noninteractive \
+  apt-get -y -o Dpkg::Options::=--force-confdef \
+              -o Dpkg::Options::=--force-confold full-upgrade \
+  || die "the upgrade did not finish cleanly.
+    Reboot and choose a Dagric snapshot from the boot menu to go back,
+    or run:  sudo dpkg --configure -a  &&  sudo apt-get -f install"
+
+apt-get -y --purge autoremove || true
+
+# ---------------------------------------------------------------- rebuild
+# The two things that decide whether the machine boots and shows a picture.
+say ""
+say "Rebuilding kernel modules and the boot image..."
+DKMS_BAD=""
+if command -v dkms >/dev/null 2>&1; then
+    dkms autoinstall >/dev/null 2>&1 || true
+    DKMS_BAD=$(dkms status 2>/dev/null | grep -vi 'installed' | head -3)
+fi
+update-initramfs -u -k all >/dev/null 2>&1 || say "  ! initramfs rebuild reported a problem"
+if command -v update-grub >/dev/null 2>&1; then
+    update-grub >/dev/null 2>&1 || say "  ! GRUB update reported a problem"
+fi
+say "  done"
+
+# ---------------------------------------------------------------- report
+say ""
+say "==============================================="
+if [ -n "$DKMS_BAD" ]; then
+    say "WARNING — a kernel module did not rebuild:"
+    printf '%s\n' "$DKMS_BAD" | sed 's/^/    /'
+    say ""
+    say "If that is the NVIDIA driver, the screen may come up on the open-source"
+    say "driver after reboot, or not at all. Re-run  sudo dagric-drivers  once"
+    say "you are back on the desktop. If the screen stays black, reboot and pick"
+    say "a Dagric snapshot from the boot menu — the machine as it was is still there."
+else
+    say "Upgrade complete. Reboot when ready:  sudo reboot"
+fi
+say ""
+say "If anything is wrong after the reboot, the snapshot taken before this"
+say "upgrade is in the boot menu under Dagric snapshots."

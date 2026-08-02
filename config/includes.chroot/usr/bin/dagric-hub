@@ -83,6 +83,7 @@ set -- \
     _system  "$H_SYSTEM" \
     drivers  "      $(gettext "NVIDIA driver")" \
     security "      $(gettext "Security Checkup")" \
+    upgrade  "      $(gettext "Check for a new Dagric version")" \
     access   "      $(gettext "Accessibility — screen reader, magnifier, contrast")" \
     _learn   "$H_LEARN" \
     userguide "      $(gettext "User guide — your first week")" \
@@ -192,6 +193,11 @@ case "$CHOICE" in
     looks)    dagric-looks & ;;
     style)    dagric-style & ;;
     security) dagric-security-checkup & ;;
+    # --check only, and in a terminal on purpose. It reports whether this
+    # machine could take the next Debian and what would stop it, without
+    # changing anything — the actual upgrade is typed deliberately with sudo,
+    # because a release upgrade is not a thing to start from a menu click.
+    upgrade)  run_term 'echo "Checking whether this machine can move to the next Dagric release."; echo; sudo /usr/bin/dagric-upgrade --check; echo; echo "To perform the upgrade when you are ready, run:  sudo dagric-upgrade"' ;;
     # kcm_access is the one page that gathers the screen reader, the magnifier,
     # sticky/slow/bounce keys and the visible bell. It is reached this way
     # rather than through dagric-accessibility.desktop because that file is
