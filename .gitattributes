@@ -80,6 +80,15 @@ po/*.po text eol=lf
 # broken python install rather than a checkout artefact. The one python file
 # that SHIPS is already covered by the usr/share/dagric/** rule above.
 tools/*.py text eol=lf
+# The website. Lowest stakes on this list and recorded as such: browsers do not
+# care about CRLF, and these files are served as-is rather than parsed by
+# anything of ours. The rule is here because git announced the conversion on
+# faq.html and features.html while an edit to the AppArmor wording was being
+# committed, and because SHA256SUMS three lines down already has to be byte-exact
+# — a tree where some of site/ is normalised and the rest is not is the state
+# that produces a diff full of files nobody touched. The binary rules at the
+# bottom still claim the artwork and the signatures inside this directory.
+site/** text eol=lf
 
 # Windows scripts keep CRLF
 *.ps1 text eol=crlf
@@ -89,6 +98,16 @@ tools/*.py text eol=lf
 # claim the PNGs sitting inside those trees.
 *.png binary
 *.iso binary
+# The site/** rule above declares the whole website `text eol=lf`, and it would
+# have claimed these — a binary silently rewritten by the text filter, which is
+# the exact trap the .pf2 note below describes. The PNGs in site/assets were
+# already safe because *.png sits right here; the promo video, the WebP images
+# and the favicon had nothing covering them. Caught by listing every non-HTML
+# file under site/ and asking git what attribute it had, rather than by
+# assuming the new rule only touched pages.
+*.ico binary
+*.webp binary
+*.mp4 binary
 # GRUB's bitmap fonts. They live under config/includes.chroot/usr/share/dagric/,
 # which the directory rule above declares `text eol=lf` — so without this line
 # git treats a binary as text and rewrites its bytes on the way in.
