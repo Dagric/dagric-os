@@ -53,8 +53,38 @@ you to enroll it — you'll finish that at the next reboot.")"
                 echo ""
             fi
 
+            # linux-headers-amd64 IS NAMED HERE OR THE DRIVER NEVER BUILDS.
+            #
+            # nvidia-driver pulls nvidia-kernel-dkms, which pulls dkms, and dkms
+            # only RECOMMENDS the kernel headers. Dagric ships
+            # /etc/apt/apt.conf.d/01dagric-norecommends, whose own comment says
+            # it "applies forever on installed systems, not just at ISO build
+            # time" — so on the owner's machine this apt-get would install dkms
+            # with nothing to compile against.
+            #
+            # The failure is silent in the worst way. DKMS reports the missing
+            # headers as a warning inside a postinst, apt still exits 0, this
+            # script prints "Done. Reboot to switch to the NVIDIA driver", and
+            # the module simply is not there after the reboot. On a Secure Boot
+            # machine that is indistinguishable from the signing problem the
+            # block above exists to solve, which is a genuinely miserable thing
+            # to debug.
+            #
+            # The metapackage rather than a version: it tracks whichever kernel
+            # is installed, so this keeps working across kernel upgrades instead
+            # of pinning headers that stop matching after the first one.
             apt-get update
-            apt-get install -y nvidia-driver firmware-misc-nonfree
+            apt-get install -y linux-headers-amd64 nvidia-driver firmware-misc-nonfree
+
+            # Say so if the module did not actually get built, rather than
+            # letting the reboot be the thing that finds out.
+            if command -v dkms >/dev/null 2>&1; then
+                if ! dkms status 2>/dev/null | grep -qi 'nvidia.*installed'; then
+                    dg_say "$(gettext "WARNING: the NVIDIA kernel module did not finish building.
+Reboot anyway and the open-source driver will keep the screen working; re-run
+this helper afterwards and it will report what went wrong.")"
+                fi
+            fi
 
             if [ "$SB" = "enabled" ]; then
                 # Enroll the Machine Owner Key so the DKMS-built module is

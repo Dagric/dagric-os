@@ -11,6 +11,31 @@ libreoffice-calc
 libreoffice-impress
 libreoffice-kf6
 
+# SPELL CHECK IN THE LANGUAGES THIS OS ACTUALLY SPEAKS.
+#
+# hunspell-en-us arrives already, as a dependency of LibreOffice — confirmed by
+# "Setting up hunspell-en-us" in the build logs. Nothing else does, and the
+# dictionaries for other languages are Recommends, which
+# /etc/apt/apt.conf.d/01dagric-norecommends drops on the image and on every
+# installed machine afterwards.
+#
+# Dagric deliberately ships five languages: the wizard, the Hub, the helpers and
+# the manual are translated into de, fr, es, pt_BR and it, and the user guide has
+# a full German edition. So a German owner gets a German desktop, a German guide
+# — and no red underline anywhere in Writer, in the one application people
+# switch to Linux to write letters in. That reads as "the spell check is broken",
+# not as "leaner".
+#
+# Names checked against the trixie archive rather than guessed: German and French
+# both have several variants (hunspell-de-de vs -at/-ch, hunspell-fr-classical vs
+# -revised), and hunspell-fr is the dependency package that pulls a real one.
+# About 1-2 MB each.
+hunspell-de-de
+hunspell-fr
+hunspell-es
+hunspell-it
+hunspell-pt-br
+
 # Media — one player that plays everything
 mpv
 
