@@ -1,0 +1,88 @@
+#!/bin/sh
+# SPDX-FileCopyrightText: 2026 DGR Operations <repo@dagric.com>
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Dagric OS — make "drag a program to the Desktop" work like it does on Windows.
+#
+# THE PROBLEM. KDE refuses to launch a .desktop file from the Desktop unless it
+# has the execute bit (KDesktopFile::isAuthorizedDesktopFile). Dolphin and the
+# application launcher write files 0644. So the most Windows gesture there is —
+# drag a program to the Desktop to make a shortcut — produces an icon that
+# either does nothing or interrogates the owner about whether they trust a
+# launcher THEY just made. Windows never asks; the switcher concludes shortcuts
+# are broken. AnduinOS solves this with a compiled watcher daemon.
+#
+# WHY THIS IS NOT AnduinOS's DAEMON. Marking any .desktop on the Desktop
+# executable defeats the exact protection that prompt exists for: a browser can
+# be pointed at the Desktop, and a downloaded .desktop file is a one-click
+# payload. "It is inside the owner's own Desktop directory" is not a security
+# boundary — the browser writes there too. Shipping the blanket version would
+# have added a vulnerability to this image while fixing an annoyance.
+#
+# THE RULE INSTEAD: trust a file only when it is BYTE-IDENTICAL to a launcher
+# that is already installed system-wide. Dragging Firefox out of the menu
+# produces a copy of Firefox's own launcher, which the system already trusts
+# and already lets the owner run from the menu with one click — making that
+# same bytes executable grants nothing new. A hand-written or downloaded
+# .desktop is never byte-identical to an installed one, so it keeps KDE's
+# prompt, which is correct: that is the case the prompt is for.
+#
+# THE HONEST LIMITATION: this is not boot-tested, and if Plasma writes a fresh
+# file on drag rather than copying the original, no file will ever match and
+# this does nothing at all. That is a deliberate choice of failure mode — the
+# worst case is the behaviour Dagric has today, not a hole. Do not "fix" a
+# no-op here by loosening the comparison; loosening it is the vulnerability.
+#
+# Started from the owner's autostart, so it lives and dies with the session.
+# No polling: inotifywait blocks on a syscall until something actually happens.
+
+# The Desktop directory in the owner's language — xdg-user-dirs is pinned
+# precisely so this resolves to Schreibtisch/Bureau/Escritorio correctly.
+DESK=$(xdg-user-dir DESKTOP 2>/dev/null)
+[ -n "$DESK" ] || DESK="$HOME/Desktop"
+[ -d "$DESK" ] || exit 0
+
+command -v inotifywait >/dev/null 2>&1 || exit 0
+
+# Where installed launchers live. Flatpak and Snap export into their own
+# prefixes; both are listed so an app installed that way behaves like any
+# other, rather than being the one that mysteriously does not work.
+SYSDIRS="/usr/share/applications
+/usr/local/share/applications
+/var/lib/flatpak/exports/share/applications
+$HOME/.local/share/flatpak/exports/share/applications
+/var/lib/snapd/desktop/applications"
+
+trust() {
+    path="$1"
+
+    # Regular file, not a symlink, and a .desktop. A symlink is excluded so
+    # this can never be pointed at a file outside the Desktop.
+    [ -f "$path" ] && [ ! -L "$path" ] || return 0
+    case "$path" in *.desktop) ;; *) return 0 ;; esac
+
+    # Already executable: nothing to do, and no reason to touch the file.
+    [ -x "$path" ] && return 0
+
+    base=${path##*/}
+    echo "$SYSDIRS" | while IFS= read -r dir; do
+        [ -n "$dir" ] && [ -f "$dir/$base" ] || continue
+        # Byte-identical to the installed launcher of the same name.
+        if cmp -s "$path" "$dir/$base"; then
+            chmod u+x "$path" 2>/dev/null || true
+            break
+        fi
+    done
+}
+
+# Catch anything that arrived before this started — first login, or a file
+# copied while logged out.
+for f in "$DESK"/*.desktop; do
+    [ -e "$f" ] && trust "$f"
+done
+
+# Then watch. close_write covers a finished copy or save; moved_to covers a
+# drag from another directory, which is the actual Windows gesture.
+inotifywait -m -q -e close_write -e moved_to --format '%w%f' "$DESK" 2>/dev/null |
+while IFS= read -r path; do
+    trust "$path"
+done

@@ -133,3 +133,21 @@ EOF
         grep -in 'debian' "$d" | sed 's/^/         /' >&2
     fi
 done
+
+# The desktop-shortcut trust watcher needs the execute bit, for the same reason
+# 0520 and 0530 chmod their Exec= targets: this tree is developed on Windows, so
+# git records these files 100644 and a Linux CI checkout hands the build a
+# script the autostart entry cannot run. 0995-file-modes only REMOVES the bit —
+# nothing adds it — so it has to happen here.
+#
+# What it does and, more importantly, the security line it draws, is written out
+# in the script's own header. Read that before changing either file.
+TRUST=/usr/lib/dagric/desktop-shortcut-trust
+if [ -f "$TRUST" ]; then
+    chmod 0755 "$TRUST"
+    echo "desktop-defaults: desktop-shortcut-trust is executable"
+else
+    # Loud, because the autostart entry in /etc/skel would otherwise ship
+    # pointing at a file that is not there, and fail silently at every login.
+    echo "WARNING: $TRUST missing — desktop shortcuts will not self-trust" >&2
+fi

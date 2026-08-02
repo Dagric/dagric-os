@@ -27,6 +27,28 @@ if curl -fsSL -o gb.tar.gz \
         install -Dm744 grub-btrfsd             /usr/bin/grub-btrfsd
         install -Dm644 grub-btrfsd.service     /usr/lib/systemd/system/grub-btrfsd.service
         install -Dm644 LICENSE                 /usr/share/doc/grub-btrfs/LICENSE
+
+        # MAKE THE RECOVERY MENU READABLE BY THE PERSON IT EXISTS FOR.
+        #
+        # Upstream's defaults render every snapshot entry as
+        #     2026-08-02 14:03 | @/.snapshots/7/snapshot | post | apt (post)
+        # The widest column is a btrfs subvolume path — precisely the field an
+        # owner staring at a machine that will not boot cannot use, in a menu
+        # whose only audience is that owner on that day. Description first,
+        # date second, path dropped: "apt (pre) 2026-08-02 14:03" is something
+        # a person can pick "the one before it broke" from.
+        #
+        # GRUB_BTRFS_TITLE_FORMAT takes a subset of the four documented keys
+        # (date, snapshot, type, description) — using fewer than all four is
+        # supported. The submenu title changes from the technical default for
+        # the same reason: "Dagric snapshots — start the system as it was" says
+        # what the menu DOES, which is the one thing its reader needs to know.
+        cat >> /etc/default/grub-btrfs/config << 'GBCFG'
+
+# Dagric: human-readable entries. See 0800-snapshot-recovery.hook.chroot.
+GRUB_BTRFS_TITLE_FORMAT=("description" "date")
+GRUB_BTRFS_SUBMENUNAME="Dagric snapshots — start the system as it was earlier"
+GBCFG
         echo "grub-btrfs ${GB_VER} installed"
     else
         echo "WARNING: grub-btrfs checksum mismatch — snapshot recovery skipped"

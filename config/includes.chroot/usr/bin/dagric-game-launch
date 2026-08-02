@@ -1,0 +1,50 @@
+#!/bin/sh
+# SPDX-FileCopyrightText: 2026 DGR Operations <repo@dagric.com>
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Dagric OS — hold the performance power profile, and keep the screen awake,
+# for exactly as long as a game runs. Then put everything back.
+#
+# Use it in Steam, Lutris or Heroic launch options:
+#
+#     dagric-game-launch %command%
+#
+# WHY A HOLD AND NOT A SETTING. 0250-performance deliberately refuses to force
+# a CPU governor system-wide — a permanent "performance" mode is heat, fan
+# noise and battery drain that nobody remembers turning on. powerprofilesctl's
+# `launch` takes a HOLD instead: the profile applies while the wrapped command
+# runs and is released when it exits, however it exits. A crashed game cannot
+# leave the machine stuck in performance mode, because the hold dies with it.
+#
+# systemd-inhibit does the same for idle: the screen stays awake during a
+# controller-only session — where no key or mouse event ever resets the idle
+# timer — and the inhibit vanishes with the process. CachyOS ships this exact
+# shape as game-performance; this is that idea with Dagric's naming and the
+# fallbacks written out.
+#
+# EVERY BRANCH DEGRADES TO RUNNING THE COMMAND UNCHANGED. A machine without
+# power-profiles-daemon, or whose hardware offers no performance profile, just
+# runs the game — this wrapper must never be the reason a game did not start.
+
+[ $# -gt 0 ] || {
+    echo "usage: dagric-game-launch <command> [args...]" >&2
+    echo "  e.g. in Steam launch options:  dagric-game-launch %command%" >&2
+    exit 2
+}
+
+# No powerprofilesctl (power-profiles-daemon absent or masked): run unchanged.
+command -v powerprofilesctl >/dev/null 2>&1 || exec "$@"
+
+# Hardware with no performance profile (many older machines): run unchanged.
+powerprofilesctl list 2>/dev/null | grep -q '^..performance:' || exec "$@"
+
+if command -v systemd-inhibit >/dev/null 2>&1; then
+    exec systemd-inhibit \
+        --what=idle \
+        --who="Dagric game launch" \
+        --why="A game is running" \
+        powerprofilesctl launch -p performance \
+            -r "Held by dagric-game-launch for a running game" -- "$@"
+else
+    exec powerprofilesctl launch -p performance \
+        -r "Held by dagric-game-launch for a running game" -- "$@"
+fi
