@@ -51,6 +51,12 @@ chmod +x config/includes.chroot/usr/bin/* \
          config/includes.chroot/usr/lib/live/config/* \
          config/includes.chroot/usr/lib/dagric/* 2>/dev/null || true
 
+# Resolve every package name BEFORE the edition pruning below deletes the Pro
+# lists. See the long note at the same point in docker/container-build.sh: put
+# after the pruning, this validates only the free edition's 164 names and
+# reports a clean pass having never looked at Pro's 66.
+sh tools/check-package-names.sh
+
 if [ "$EDITION" != "pro" ]; then
     rm -f config/package-lists/pro-*.list.chroot
     # Pro-only appearance drop-ins are REMOVED from the free image, not just
@@ -137,11 +143,6 @@ if command -v python3 >/dev/null 2>&1; then
 else
     echo "i18n: python3 not installed — skipping the .desktop drift check"
 fi
-
-# Resolve every package name before bootstrapping anything. A single bad name
-# kills the build twenty minutes in, and apt reports only the first one it hits.
-# See tools/check-package-names.sh for the four builds that taught us this.
-sh tools/check-package-names.sh
 
 lb clean
 lb config

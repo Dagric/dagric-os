@@ -28,6 +28,21 @@ chmod +x auto/* config/hooks/normal/*.hook.* 2>/dev/null || true
 chmod +x config/includes.chroot/usr/bin/* config/includes.chroot/usr/lib/live/config/* \
          config/includes.chroot/usr/lib/dagric/* 2>/dev/null || true
 
+# Resolve every package name BEFORE the edition pruning below deletes the Pro
+# lists — deliberately, and this position is the whole point.
+#
+# The first version of this check sat next to `lb config`, which runs after the
+# pruning. On a free build the pro-*.list.chroot files were already gone, so it
+# validated 164 names and reported "all 164 package names resolve" — a clean
+# pass that had never looked at Pro's 66 packages at all. Since CI only builds
+# free, that meant the paid edition's package names were never checked by
+# anything, which is the half of the product where a broken name costs money.
+#
+# Here it sees all 230 on every build, free or Pro. A typo in a Pro list now
+# fails the free build too, which is correct: it means the tree is broken, and
+# the cheapest place to learn that is the build that runs on every push.
+sh tools/check-package-names.sh
+
 if [ "$EDITION" != "pro" ]; then
     rm -f config/package-lists/pro-*.list.chroot
     # Pro-only appearance drop-ins are REMOVED from the free image, not just
@@ -86,15 +101,6 @@ if command -v python3 >/dev/null 2>&1; then
 else
     echo "i18n: python3 not installed — skipping the .desktop drift check"
 fi
-
-# Resolve every package name before bootstrapping anything. A single bad name
-# kills the build twenty minutes in, and apt reports only the first one it hits.
-# See tools/check-package-names.sh for the four builds that taught us this.
-#
-# In build.sh too, and deliberately so — the note further down this file about
-# dagric.list is there because these two scripts drifted apart once already, and
-# a check that guards only one of them guards only half the builds.
-sh tools/check-package-names.sh
 
 lb clean
 lb config

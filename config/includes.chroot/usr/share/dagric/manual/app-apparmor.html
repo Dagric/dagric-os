@@ -55,13 +55,15 @@
       <ul class="plain">
         <li><strong>AppArmor</strong> confines programs to what they legitimately
         need, so a compromised program cannot simply roam the filesystem. Worth knowing
-        exactly how far that goes: profiles run in one of two modes. Debian's mature
-        profiles are <em>enforced</em> &mdash; a violation is blocked. Dagric also ships
-        the much larger <code>apparmor-profiles</code> set, and those are in
-        <em>complain</em> mode, where a violation is written to the log and allowed.
-        That is upstream's own decision, not ours: they are not considered ready to
-        block without getting in the way of real work. <code>sudo aa-status</code> shows
-        which profiles are in which mode, and once you have watched a complain-mode
+        exactly how far that goes, because it is not all-or-nothing: profiles run in one
+        of two modes. Most of what Dagric ships is <em>enforced</em>, where a violation
+        is blocked outright. The rest &mdash; roughly a third, from the
+        <code>apparmor-profiles</code> package &mdash; is in <em>complain</em> mode,
+        where a violation is written to the log and then allowed. That is upstream's
+        decision rather than ours: those profiles are not yet considered ready to block
+        without getting in the way of real work.
+        <code>sudo aa-status</code> gives you the exact counts on your own machine and
+        says which profile is in which mode. Once you have watched a complain-mode
         profile stay quiet through normal use,
         <code>sudo aa-enforce /etc/apparmor.d/&lt;profile&gt;</code> promotes it.</li>
         <li><strong>A hardened kernel configuration</strong>: kernel pointers and

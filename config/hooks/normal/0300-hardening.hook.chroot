@@ -175,6 +175,14 @@ systemctl enable apparmor.service 2>/dev/null || true
 # with the explanation in a log nobody thinks to read.
 #
 # The counts go in the build log so this stays a number rather than a memory.
+#
+# Measured on the free image the first time this ran: 128 profiles installed, 41
+# of them in complain mode. So roughly two thirds ARE enforced — more than I
+# assumed when rewriting the wording, and worth having written down, because the
+# manual originally described the complain set as "much larger" and the actual
+# image says the opposite. That sentence has been corrected against this number.
+# A wording change made from a guess about the image is the same class of error
+# as the claim it was fixing.
 if [ -d /etc/apparmor.d ]; then
     _total=0
     _complain=0
