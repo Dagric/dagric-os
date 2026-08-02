@@ -532,8 +532,8 @@ if [ -s "$NETDEV_LIST" ]; then
                 fi
                 if [ "$_ships" = "no" ] && [ -n "$_fwpkg" ]; then
                     p ""
-                    p "  This particular chip needs a file that Debian is not"
-                    p "  allowed to put on the disc, so it is not there and no"
+                    p "  This particular chip needs a file that cannot legally be"
+                    p "  redistributed on the disc, so it is not there and no"
                     p "  amount of waiting will make it appear. Install Dagric"
                     p "  with a network cable plugged in (or your phone"
                     p "  tethered by USB), then run \"Finish setup\" from the"
@@ -726,7 +726,7 @@ if [ "$NVIDIA_NOUVEAU" = yes ] || [ "$NVIDIA_NODRV" = yes ]; then
     p ""
     p "  After you install Dagric, open the Dagric Hub and choose"
     p "  \"NVIDIA driver\". It installs NVIDIA's official driver from"
-    p "  Debian's own archive and walks you through the Secure Boot step."
+    p "  the system's non-free repository and walks you through Secure Boot."
     p "  Nothing is installed unless you ask for it."
     if [ "$HYBRID_INTEL" = yes ] && [ "$HYBRID_NVIDIA" = yes ]; then
         p ""

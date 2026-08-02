@@ -167,21 +167,26 @@ D['dagric-setup'] = {
         "Installa i driver grafici e della stampante e completa la configurazione di Dagric",
         "configurazione;driver;stampante;completare;"),
 }
+# THIS TABLE IS THE SOURCE OF TRUTH, so the debranding had to happen here.
+# Editing dagric-drivers.desktop directly would have looked correct and been
+# undone by the next run of this script — the file carries a header saying as
+# much, and that is exactly the trap: a rebranding that survives review and
+# dies at the next regeneration.
 D['dagric-drivers'] = {
  'de': ("Grafiktreiber", "Proprietäre GPU-Treiber installieren",
-        "Erkennt eine NVIDIA-Grafikkarte und installiert ihren Treiber aus Debians Paketquellen",
+        "Erkennt eine NVIDIA-Grafikkarte und installiert ihren Treiber aus der Non-free-Paketquelle des Systems",
         "treiber;grafik;grafikkarte;hardware;"),
  'fr': ("Pilotes graphiques", "Installer les pilotes GPU propriétaires",
-        "Détecte une carte NVIDIA et installe son pilote depuis les dépôts de Debian",
+        "Détecte une carte NVIDIA et installe son pilote depuis le dépôt non-free du système",
         "pilote;graphique;carte graphique;matériel;"),
  'es': ("Controladores gráficos", "Instalar controladores propietarios de GPU",
-        "Detecta una tarjeta NVIDIA e instala su controlador desde los repositorios de Debian",
+        "Detecta una tarjeta NVIDIA e instala su controlador desde el repositorio non-free del sistema",
         "controlador;gráficos;tarjeta gráfica;hardware;"),
  'pt_BR': ("Drivers de vídeo", "Instalar drivers proprietários de GPU",
-        "Detecta uma placa NVIDIA e instala o driver dela a partir dos repositórios do Debian",
+        "Detecta uma placa NVIDIA e instala o driver dela a partir do repositório non-free do sistema",
         "driver;vídeo;placa de vídeo;hardware;"),
  'it': ("Driver grafici", "Installa i driver GPU proprietari",
-        "Rileva una scheda NVIDIA e installa il suo driver dai repository di Debian",
+        "Rileva una scheda NVIDIA e installa il suo driver dal repository non-free del sistema",
         "driver;grafica;scheda video;hardware;"),
 }
 D['dagric-display'] = {
