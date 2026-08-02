@@ -52,6 +52,15 @@ config/includes.chroot/usr/share/konsole/** text eol=lf
 # may be Windows; CRLF in a .po is tolerated but produces a pointless diff on
 # every round trip. (The compiled .mo files are binary — see the bottom.)
 po/*.po text eol=lf
+# The build-host python tools. NOT a live bug and it should be recorded as such:
+# build.sh and container-build.sh both invoke these as `python3 tools/foo.py`,
+# so the shebang is never used and CRLF would be harmless — python reads mixed
+# line endings fine. The rule is here for the day somebody runs ./tools/foo.py
+# directly on a Linux box after a Windows clone and gets
+# "/usr/bin/env: 'python3\r': No such file or directory", which reads like a
+# broken python install rather than a checkout artefact. The one python file
+# that SHIPS is already covered by the usr/share/dagric/** rule above.
+tools/*.py text eol=lf
 
 # Windows scripts keep CRLF
 *.ps1 text eol=crlf
