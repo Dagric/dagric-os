@@ -20,17 +20,35 @@ test/launcher-zoom.png
 test/screen.png
 .firebase/
 
-# Local-only R2 upload credentials - never commit
+# Local-only credentials and key material — never commit.
+#
+# Broadened from two exact filenames to the shapes those files take, because
+# naming one file only protects that one name. The repository is public, so a
+# credential committed here is a credential published: rotate it, do not just
+# delete the file, because the object survives in history.
 r2-credentials.txt
-dagric-signing-key-PRIVATE-BACKUP.asc
+r2.env
+.env
+.env.*
+*-PRIVATE-*.asc
+*.pem
+*.key
+id_rsa*
+rclone.conf
+
+# Local editor/tooling settings. Personal to whoever is working on the tree and
+# of no use to anyone cloning it.
+.claude/
+.vscode/
+.idea/
 
 # Debug leftovers. Reading a Debian package's contents (to check what
 # live-build actually does, or what a KDE theme actually ships) means
 # `apt-get download` in whatever directory you happened to be in, and the .deb
 # lands in the repo root. They are 200 KB each and belong to nobody.
-# NOTE: kde-style-breeze-data_4%3a6.3.5-1_all.deb is already TRACKED from an
-# earlier session and nothing in the tree references it — this rule does not
-# untrack it. It should be removed in a deliberate commit.
+# kde-style-breeze-data_4%3a6.3.5-1_all.deb was tracked from an earlier session
+# and nothing referenced it; it has now been untracked, which is what this note
+# used to ask for.
 /*.deb
 
 # The built APT repository. Regenerated in full by packages/build-repo.sh from
