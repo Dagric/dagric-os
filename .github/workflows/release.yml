@@ -63,78 +63,139 @@ jobs:
             -v "$PWD:/src:ro" -v "$PWD/out:/out" \
             dagric-builder sh /src/docker/container-build.sh
 
+      # THE ISO FILENAME IS THE PRODUCT VERSION, NOT THE TAG, and that is not a
+      # detail — it is a live link.
+      #
+      # This used to name the image from the tag (dagric-os-1.4-amd64.iso for
+      # v1.4). site/download.html links to dagric-os-1.0-amd64.iso and the signed
+      # SHA256SUMS covers that same name, so a tag-named upload would have left
+      # the download button pointing at an object that does not exist. The
+      # product version is "1.0 (Foundation)" in os-release and stays there; the
+      # v1.x tags are release milestones, not user-facing version bumps.
+      #
+      # Overwriting the same key on each release is deliberate: the download URL
+      # is stable and printed on the site, and the signature is what tells a
+      # buyer which build they have.
       - name: Name the ISO per edition
         run: |
-          VER="${GITHUB_REF_NAME#v}"
           if [ "${{ matrix.edition }}" = "pro" ]; then
-            mv out/*.iso "out/dagric-os-pro-${VER}-amd64.iso"
+            mv out/*.iso "out/dagric-os-pro-1.0-amd64.iso"
           else
-            mv out/*.iso "out/dagric-os-${VER}-amd64.iso"
+            mv out/*.iso "out/dagric-os-1.0-amd64.iso"
           fi
+          ls -lh out/*.iso
 
-      # THE UPLOAD MUST NOT DECIDE WHETHER THE BUILD PASSED.
+      # UPLOAD STRAIGHT TO R2 INSTEAD OF THROUGH ARTIFACTS.
       #
-      # Four days of red X's on this repo were successful builds whose artifact
-      # upload hit the storage quota. A red X looks identical either way, so the
-      # one working build environment appeared broken while a laptop with a dead
-      # WSL was being coaxed for hours. The ISO had been built correctly every
-      # single time and thrown away.
+      # v1.4 built both editions perfectly and then threw them away:
+      #     Failed to CreateArtifact: Artifact storage quota has been hit.
+      # The build step is continue-on-error (correctly — a storage problem is not
+      # a build failure), so the jobs went green, the publish job found zero
+      # artifacts, and the release produced nothing. A ~2 GB free ISO and a
+      # ~3.9 GB Pro ISO will not fit an artifact quota on any plan this project
+      # is on, so the round trip through artifacts can never work here.
       #
-      # continue-on-error means a storage problem is reported as a storage
-      # problem — the step goes yellow, the job stays green, and the build
-      # result answers the question it was actually asked: does the tree still
-      # build? A genuine build failure still fails, because it happens earlier
-      # and this step never runs.
-      - uses: actions/upload-artifact@v4
-        continue-on-error: true
-        with:
-          name: iso-${{ matrix.edition }}
-          path: out/dagric-os-*.iso
-          retention-days: 7
+      # R2 is where the download page already points, so uploading directly is
+      # both the fix and one fewer copy of a 4 GB file.
+      #
+      # AWS_REQUEST_CHECKSUM_CALCULATION: newer aws-cli v2 adds integrity headers
+      # that R2's S3 layer rejects; "when_required" keeps it to what R2 accepts.
+      - name: Upload ISO to R2
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: auto
+          AWS_REQUEST_CHECKSUM_CALCULATION: when_required
+          R2_ACCOUNT: ${{ secrets.R2_ACCOUNT_ID }}
+        run: |
+          set -e
+          if [ -z "$AWS_ACCESS_KEY_ID" ] || [ -z "$R2_ACCOUNT" ]; then
+            echo "::error::R2 secrets are not configured. Add R2_ACCOUNT_ID,"
+            echo "::error::R2_ACCESS_KEY_ID and R2_SECRET_ACCESS_KEY to the repo secrets."
+            exit 1
+          fi
+          EP="https://${R2_ACCOUNT}.r2.cloudflarestorage.com"
+          if [ "${{ matrix.edition }}" = "pro" ]; then
+            ISO="dagric-os-pro-1.0-amd64.iso"; BUCKET="dagric-pro"
+          else
+            ISO="dagric-os-1.0-amd64.iso";     BUCKET="dagric-downloads"
+          fi
+          echo "Uploading $ISO -> s3://$BUCKET/"
+          aws s3 cp "out/$ISO" "s3://$BUCKET/$ISO" --endpoint-url "$EP" --only-show-errors
+          # A per-edition checksum sidecar, so the publish job can assemble
+          # SHA256SUMS without re-downloading gigabytes it already hashed here.
+          ( cd out && sha256sum "$ISO" > "$ISO.sha256" )
+          aws s3 cp "out/$ISO.sha256" "s3://dagric-downloads/checksums/$ISO.sha256" \
+            --endpoint-url "$EP" --only-show-errors
+          echo "### ${{ matrix.edition }} uploaded" >> "$GITHUB_STEP_SUMMARY"
+          cat "out/$ISO.sha256" >> "$GITHUB_STEP_SUMMARY"
+
+      # NO ARTIFACT UPLOAD. The ISOs are already in R2 by this point, which is
+      # where they are actually served from. Copying 4 GB into a quota that
+      # cannot hold it was what silently emptied the v1.4 release.
 
   publish:
     needs: build
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/download-artifact@v4
-        with:
-          path: dl
-      - name: Collect + checksum
-        run: |
-          mkdir -p out
-          find dl -name '*.iso' -exec mv {} out/ \;
-          cd out && sha256sum *.iso > SHA256SUMS && cat SHA256SUMS
-
-      # GitHub Releases reject any single asset over 2 GB. The free ISO is
-      # ~2.0 GB and sits right on that line; Pro is ~3.9 GB and cannot ever be
-      # attached. This step used to hand `out/*.iso` to the release action and
-      # let it fail on Pro AFTER a successful two-hour build — the worst place
-      # to discover a hard platform limit.
+      # ASSEMBLE SHA256SUMS FROM THE SIDECARS THE BUILD JOBS ALREADY WROTE.
       #
-      # So the ISOs are separated from the things that verify them. SHA256SUMS
-      # is a few hundred bytes and is what a buyer actually needs from the
-      # release page: it is the signed record of what the ISOs should hash to,
-      # and it publishes even when the images themselves cannot.
+      # The ISOs are in R2 and are 2-4 GB; re-downloading them here to run
+      # sha256sum would cost minutes and bandwidth to recompute a number each
+      # build job already had in hand. Each edition wrote its own one-line
+      # .sha256 to R2 instead, and this joins them.
       #
-      # The ISOs stay as workflow artifacts, which have no 2 GB per-file cap,
-      # and get uploaded to R2 for distribution — that is where the download
-      # page already points. Nothing about the release is silently incomplete;
-      # the notes say where the images are.
-      - name: Sort assets by what a Release can actually hold
+      # Free first, Pro second, so the file's line order is stable across
+      # releases and a diff between two SHA256SUMS is readable.
+      - name: Assemble SHA256SUMS from R2
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: auto
+          AWS_REQUEST_CHECKSUM_CALCULATION: when_required
+          R2_ACCOUNT: ${{ secrets.R2_ACCOUNT_ID }}
         run: |
-          mkdir -p rel big
-          cp out/SHA256SUMS rel/
-          for f in out/*.iso; do
-            [ -f "$f" ] || continue
-            sz=$(stat -c%s "$f")
-            if [ "$sz" -lt 2000000000 ]; then
-              cp "$f" rel/
-              echo "release-attachable: $(basename "$f") ($sz bytes)"
-            else
-              mv "$f" big/
-              echo "TOO LARGE for a Release, artifact only: $(basename "$f") ($sz bytes)"
-            fi
+          set -e
+          EP="https://${R2_ACCOUNT}.r2.cloudflarestorage.com"
+          mkdir -p out rel
+          for f in dagric-os-1.0-amd64.iso dagric-os-pro-1.0-amd64.iso; do
+            aws s3 cp "s3://dagric-downloads/checksums/$f.sha256" "out/$f.sha256" \
+              --endpoint-url "$EP" --only-show-errors
           done
+          cat out/dagric-os-1.0-amd64.iso.sha256 \
+              out/dagric-os-pro-1.0-amd64.iso.sha256 > out/SHA256SUMS
+          cat out/SHA256SUMS
+          cp out/SHA256SUMS rel/
+          aws s3 cp out/SHA256SUMS s3://dagric-downloads/SHA256SUMS \
+            --endpoint-url "$EP" --only-show-errors
+          {
+            echo "### Release checksums"
+            echo '```'
+            cat out/SHA256SUMS
+            echo '```'
+            echo ""
+            echo "**SHA256SUMS is now on R2 but is NOT yet signed.**"
+            echo "Buyers verify against the signature, so finish the release locally:"
+            echo '```'
+            echo "curl -O https://pub-23bebbd32e3b44c4af6e53c06194e77f.r2.dev/SHA256SUMS"
+            echo "gpg --detach-sign --armor -o SHA256SUMS.sig SHA256SUMS"
+            echo '```'
+            echo "then upload SHA256SUMS.sig to the dagric-downloads bucket."
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      # THE SIGNATURE IS DELIBERATELY NOT MADE HERE.
+      #
+      # Signing in CI would mean putting the release private key into repository
+      # secrets. That key has no passphrase and it signs the APT update channel
+      # every installed machine already trusts — so a leak does not just forge an
+      # ISO, it lets someone push a package to every customer, and it cannot be
+      # revoked from machines in the field. Any workflow change, any third-party
+      # action, or anyone with admin on the repo could read it out.
+      #
+      # The R2 keys above are a different risk entirely: scoped to two buckets,
+      # rotatable in a minute, and the worst case is a swapped ISO — which is
+      # exactly what the signature exists to catch. That asymmetry is the whole
+      # reason the upload is automated and the signature is not.
 
       - name: Publish GitHub Release
         uses: softprops/action-gh-release@v2
@@ -143,11 +204,15 @@ jobs:
           body: |
             Dagric OS ${{ github.ref_name }}.
 
-            Verify downloads against SHA256SUMS. Write to USB with Rufus or
-            Ventoy, boot (prefer the UEFI entry), try the live desktop, then
-            Install Dagric OS. See GETTING-STARTED.md.
+            Download the free edition from https://dagric.com/download and verify
+            it against SHA256SUMS below. Write to USB with Rufus or Ventoy, boot
+            (prefer the UEFI entry), try the live desktop, then Install Dagric
+            OS. See GETTING-STARTED.md.
 
-            The Pro ISO is not attached here — GitHub caps a release asset at
-            2 GB and Pro is larger. Buyers download it from the link on their
-            post-purchase page; the checksum above covers it either way.
+            Neither ISO is attached to this release: GitHub caps a release asset
+            at 2 GB and both images are at or over it. They are served from the
+            download page instead — free openly, Pro through the link on the
+            post-purchase page. SHA256SUMS here is the record of what each should
+            hash to, and SHA256SUMS.sig alongside it on the download site is what
+            proves the file came from us.
           generate_release_notes: true
