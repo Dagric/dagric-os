@@ -74,6 +74,18 @@
          MangoHud and one for GameMode.</p></li>
         <li><span class="t">Find out whether GameMode is actually active</span><p><code>gamemoded -s</code> in a terminal answers plainly. If it says
          inactive while a game is running, the launch option did not take.</p></li>
+        <li><span class="t">Stop the screen blanking mid-game, and hold full performance</span><p>Add <code>dagric-game-launch %command%</code> to a game's launch
+         options &mdash; it works alongside the others, as
+         <code>dagric-game-launch gamemoderun mangohud %command%</code>. Two things
+         happen while that game runs and stop the moment it exits. The power profile
+         is held at <em>performance</em>, so a laptop that would otherwise throttle
+         back mid-session does not. And idle detection is suspended, which is the fix
+         for the screen dimming during a controller-only game &mdash; a gamepad
+         produces no keyboard or mouse events, so as far as the desktop is concerned
+         you left the room.</p>
+         <p>Both are held rather than set, so a game that crashes cannot leave the
+         machine hot, loud and awake. If your hardware has no performance profile the
+         game simply starts as it always did.</p></li>
       </ol>
     </section>
 
