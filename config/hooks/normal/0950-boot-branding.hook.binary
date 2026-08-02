@@ -92,6 +92,27 @@ done
 # config/bootloaders/isolinux/stdmenu.cfg actually asks for.
 if [ -n "$ART" ] && [ -f "$ART/isolinux/splash.png" ] && [ -d isolinux ]; then
     cp "$ART/isolinux/splash.png" isolinux/splash.png
+elif [ -n "$ART" ] && [ -d isolinux ]; then
+    # SAY SO, because the verification further down cannot.
+    #
+    # That check is `[ -f isolinux/splash.png ]`, and live-build has already put
+    # a splash.png there itself — the 640x480 render described above. So it
+    # passes whether or not this copy happened, which makes it the one entry in
+    # the MISS list that asserts nothing about a change this hook made. Every
+    # other entry tests text that exists only because the hook wrote it.
+    #
+    # The gap is narrow: $ART is chosen by probing for grub-theme/, so a wholly
+    # missing art tree is already caught as boot-art-missing, and both files come
+    # from one run of config/bootloaders/make-boot-art.sh. It takes a hand
+    # deletion of a single tracked binary to land here. But the consequence is
+    # invisible and belongs to the audience this product is for: stdmenu.cfg
+    # sets `menu resolution 1024 768` and computes its rows and offsets for that,
+    # vesamenu scales a background by not one pixel, and legacy BIOS is the old
+    # hardware Dagric exists to rescue. The menu would sit off its own artwork
+    # on exactly those machines, and the build would have reported success.
+    echo "WARNING: $ART/isolinux/splash.png missing — the BIOS menu keeps" >&2
+    echo "         live-build's 640x480 splash while stdmenu.cfg lays out for" >&2
+    echo "         1024x768. Re-run config/bootloaders/make-boot-art.sh." >&2
 fi
 
 # --- UEFI (GRUB) ------------------------------------------------------------
