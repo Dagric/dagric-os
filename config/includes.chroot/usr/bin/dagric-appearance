@@ -428,7 +428,24 @@ pending_id=
 # No title-bar icon helper here either — same reason as dagric-firstrun, see
 # the note at the same point in that file.
 
-"$QML" "$QMLFILE" -- "--catalog=$CATALOG" 2>&1 | while IFS= read -r line; do
+# RECORD WHETHER THE RUNTIME ACTUALLY RAN.
+#
+# The check up at line 82 catches a MISSING qml binary and falls back to the
+# classic Styles menu with an explanation. It cannot catch a qml that exists and
+# then fails — a parse error in the 45 KB main.qml, a Qt module dropped by an
+# upgrade, a display it cannot open. In that case this pipeline produces no
+# @DAGRIC@ lines, the loop below reads nothing, the script ends normally, and
+# "Appearance gallery" in the Hub and its launcher entry do nothing whatsoever:
+# no window, no error, no clue. The owner concludes the feature is broken, which
+# it is, silently.
+#
+# The exit status has to go through a file because the loop runs in a subshell
+# and because a pipeline reports the status of its LAST command, not the first —
+# the same trap already documented in dagric-gaming. $WORK is the mktemp -d with
+# a cleanup trap, so this file needs no disposal of its own.
+QML_RC=$WORK/qml.rc
+{ "$QML" "$QMLFILE" -- "--catalog=$CATALOG" 2>&1; echo $? > "$QML_RC"; } \
+  | while IFS= read -r line; do
     case "$line" in
         *@DAGRIC@*) msg=${line#*@DAGRIC@} ;;
         *) continue ;;
@@ -507,4 +524,28 @@ if [ -s "$STATE" ]; then
     do_revert "$stale_kind"
     rm -f "$STATE"
     notify "$(gettext "The gallery closed while a preview was running, so the desktop was put back.")"
+fi
+
+# THE RUNTIME FAILED, RATHER THAN THE OWNER CLOSING THE WINDOW.
+#
+# Qt exits 0 on a normal quit, so a non-zero status means the gallery never
+# worked. The owner is then owed what the missing-runtime path at the top of
+# this file already gives them: an explanation, and somewhere that does work,
+# instead of a Hub button and a launcher entry that do nothing at all.
+#
+# LAST in the file on purpose. This block was first written directly after the
+# read loop, which would have been a worse bug than the one it fixes: the revert
+# above is what puts the desktop back when the window dies mid-preview, and
+# exec'ing before it would have left the owner permanently in a style they were
+# only trying out — from the very failure path meant to help them. The recovery
+# runs first; the fallback is the last thing that happens.
+#
+# A missing rc file means the runtime was killed outright — OOM, a signal —
+# before it could record anything. That is also a failure, hence defaulting to 1.
+if [ "$(cat "$QML_RC" 2>/dev/null || echo 1)" -ne 0 ]; then
+    # TRANSLATORS: "Dagric Styles" is a tool name — leave it as it is.
+    kdialog --title "$TITLE" --sorry \
+        "$(gettext "The appearance gallery could not start. Opening the classic Styles menu instead.")" 2>/dev/null
+    rm -rf "$WORK"
+    exec /usr/bin/dagric-style
 fi
