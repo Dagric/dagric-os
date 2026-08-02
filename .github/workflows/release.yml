@@ -57,15 +57,50 @@ jobs:
           mkdir -p out
           find dl -name '*.iso' -exec mv {} out/ \;
           cd out && sha256sum *.iso > SHA256SUMS && cat SHA256SUMS
+
+      # GitHub Releases reject any single asset over 2 GB. The free ISO is
+      # ~2.0 GB and sits right on that line; Pro is ~3.9 GB and cannot ever be
+      # attached. This step used to hand `out/*.iso` to the release action and
+      # let it fail on Pro AFTER a successful two-hour build — the worst place
+      # to discover a hard platform limit.
+      #
+      # So the ISOs are separated from the things that verify them. SHA256SUMS
+      # is a few hundred bytes and is what a buyer actually needs from the
+      # release page: it is the signed record of what the ISOs should hash to,
+      # and it publishes even when the images themselves cannot.
+      #
+      # The ISOs stay as workflow artifacts, which have no 2 GB per-file cap,
+      # and get uploaded to R2 for distribution — that is where the download
+      # page already points. Nothing about the release is silently incomplete;
+      # the notes say where the images are.
+      - name: Sort assets by what a Release can actually hold
+        run: |
+          mkdir -p rel big
+          cp out/SHA256SUMS rel/
+          for f in out/*.iso; do
+            [ -f "$f" ] || continue
+            sz=$(stat -c%s "$f")
+            if [ "$sz" -lt 2000000000 ]; then
+              cp "$f" rel/
+              echo "release-attachable: $(basename "$f") ($sz bytes)"
+            else
+              mv "$f" big/
+              echo "TOO LARGE for a Release, artifact only: $(basename "$f") ($sz bytes)"
+            fi
+          done
+
       - name: Publish GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          files: |
-            out/*.iso
-            out/SHA256SUMS
+          files: rel/*
           body: |
             Dagric OS ${{ github.ref_name }}.
+
             Verify downloads against SHA256SUMS. Write to USB with Rufus or
             Ventoy, boot (prefer the UEFI entry), try the live desktop, then
             Install Dagric OS. See GETTING-STARTED.md.
+
+            The Pro ISO is not attached here — GitHub caps a release asset at
+            2 GB and Pro is larger. Buyers download it from the link on their
+            post-purchase page; the checksum above covers it either way.
           generate_release_notes: true

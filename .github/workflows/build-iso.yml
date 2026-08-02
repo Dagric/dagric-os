@@ -1,11 +1,47 @@
-# Dagric OS — CI: build the ISO on every push, keep it as an artifact.
-# Activates automatically once this repo is pushed to GitHub.
+# Dagric OS — CI: build the ISO when something that AFFECTS the ISO changes.
+#
+# This used to run on every push to main, and that is how it broke. A single
+# evening of twenty-four commits — most of them documentation, site copy and
+# translation catalogues — queued twenty-four separate twenty-five-minute
+# builds and left ~37 GB of near-identical ISOs behind. GitHub's artifact
+# storage quota filled, and from then on EVERY run ended in a red X at the
+# upload step while the build itself had succeeded perfectly:
+#
+#     P: Build completed successfully
+#     copied live-image-amd64.hybrid.iso (2122383360 bytes, verified)
+#     ##[error]Failed to CreateArtifact: Artifact storage quota has been hit.
+#
+# Four days of failures that were not build failures. Worse, nobody could tell,
+# because a red X looks the same either way — so the one build environment that
+# still worked looked broken while a laptop with a dead WSL was being coaxed.
+#
+# Three changes stop it happening again.
 name: build-iso
 
 on:
   push:
     branches: [main]
+    # 1. Only build when the IMAGE could actually differ. Editing site/,
+    #    docs/, README or the changelog cannot change a single byte of the ISO,
+    #    and burning half an hour of runner time to prove it is waste that
+    #    eventually costs a working CI.
+    paths:
+      - 'config/**'
+      - 'packages/**'
+      - 'docker/**'
+      - 'auto/**'
+      - 'build.sh'
+      - 'tools/**'
+      - 'po/**'
+      - '.github/workflows/build-iso.yml'
   workflow_dispatch:
+
+# 2. One build at a time, newest wins. Pushing three commits in five minutes
+#    should produce one ISO, not three — and the two older ones were obsolete
+#    before they finished anyway.
+concurrency:
+  group: build-iso-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   build:
@@ -23,8 +59,12 @@ jobs:
             dagric-builder sh /src/docker/container-build.sh
 
       - name: Checksums
-        run: cd out && sha256sum *.iso > SHA256SUMS
+        run: cd out && sha256sum *.iso > SHA256SUMS && cat SHA256SUMS
 
+      # 3. Five days, not fourteen. A CI ISO is a smoke test — proof the tree
+      #    still builds — not a release artifact. Releases come from
+      #    release.yml against a tag. Anything older than a few days has been
+      #    superseded by the next commit and is only holding quota.
       - name: Upload ISO artifact
         uses: actions/upload-artifact@v4
         with:
@@ -32,4 +72,24 @@ jobs:
           path: |
             out/*.iso
             out/SHA256SUMS
-          retention-days: 14
+          retention-days: 5
+
+      # Put the size and checksum on the job summary page. The quota failure
+      # was invisible until somebody read four hundred lines of log; a number
+      # on the summary makes "we are filling up" obvious well before it becomes
+      # "we are full".
+      - name: Report
+        if: always()
+        run: |
+          {
+            echo "### Dagric OS build"
+            echo ""
+            if [ -f out/SHA256SUMS ]; then
+              echo '```'
+              cat out/SHA256SUMS
+              echo '```'
+              du -h out/*.iso 2>/dev/null | sed 's/^/- /'
+            else
+              echo "No ISO produced — see the build log."
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
