@@ -9,7 +9,7 @@ next ISO. That's what makes this a distribution instead of a one-off install.
 Requirements: **Docker Desktop**, running.
 
 ```powershell
-cd C:\Users\1248n\Downloads\OS
+cd path\to\dagric-os
 .\build.ps1
 ```
 

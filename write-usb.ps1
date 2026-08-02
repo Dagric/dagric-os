@@ -1,6 +1,11 @@
 # Dagric OS - write an ISO to a USB stick (raw hybrid-ISO write, bootable).
-# MUST run elevated. Launch it via:
-#   Start-Process powershell -Verb RunAs -ArgumentList '-ExecutionPolicy Bypass -File "C:\Users\1248n\Downloads\OS\write-usb.ps1" -Edition free'
+# MUST run elevated. From the repository root:
+#   Start-Process powershell -Verb RunAs -ArgumentList '-ExecutionPolicy Bypass -File ".\write-usb.ps1" -Edition free'
+#
+# Paths are resolved from $PSScriptRoot (the directory holding this script), so
+# the repository works wherever it is cloned. They were absolute to one machine,
+# which made the script unusable by anyone else and wrote a developer's local
+# account name into a public repository.
 #
 # SAFETY: this script refuses to write to anything that is not a removable
 # USB disk, and never to the system or boot disk. It matches the target by
@@ -11,15 +16,15 @@ param(
     [double]$ExpectedSizeGB = 115.2
 )
 $ErrorActionPreference = "Stop"
-$log = "C:\Users\1248n\Downloads\OS\out\write-usb.log"
+$log = Join-Path $PSScriptRoot "out\write-usb.log"
 function Log($m) { $line = "$(Get-Date -Format HH:mm:ss)  $m"; Write-Host $line; Add-Content $log $line }
 
 if (-not ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) {
     Write-Host "NOT ELEVATED. Re-launch via Start-Process -Verb RunAs." -ForegroundColor Red; Read-Host "Enter to close"; exit 1
 }
 
-$iso = if ($Edition -eq "pro") { "C:\Users\1248n\Downloads\OS\out\dagric-os-pro-1.0-amd64.iso" }
-       else { "C:\Users\1248n\Downloads\OS\out\dagric-os-1.0-amd64.iso" }
+$iso = if ($Edition -eq "pro") { Join-Path $PSScriptRoot "out\dagric-os-pro-1.0-amd64.iso" }
+       else { Join-Path $PSScriptRoot "out\dagric-os-1.0-amd64.iso" }
 if (-not (Test-Path $iso)) { Log "ISO not found: $iso"; Read-Host "Enter to close"; exit 1 }
 Log "Edition=$Edition  ISO=$iso  ($([math]::Round((Get-Item $iso).Length/1GB,2)) GB)"
 
