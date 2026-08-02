@@ -81,6 +81,28 @@
     </section>
 
     <section>
+      <h2>If you installed Pro before August 2026, do this once</h2>
+      <p><strong>Check that this machine has SSH host keys of its own.</strong>
+      Pro images built before 2 August 2026 were assembled with the SSH server's host
+      keys already generated, which meant every machine installed from one of those
+      images carried the <em>same</em> keys. A host key is the only thing that proves
+      to a client that it reached the computer it dialled, so sharing one removes that
+      proof. Images built since then ship no keys at all and each machine generates its
+      own on first boot &mdash; but a machine installed from an older image keeps what
+      it was given.</p>
+      <p>This only ever mattered once you switched the server on, and it ships off. If
+      you have never run <code>systemctl enable --now ssh</code>, nothing was ever
+      exposed. Fix it anyway before you do:</p>
+      <p><code>sudo rm /etc/ssh/ssh_host_*</code> then
+      <code>sudo ssh-keygen -A</code>, and restart the server with
+      <code>sudo systemctl restart ssh</code> if it is running.</p>
+      <p>Anyone who has connected to this machine before will get a warning about the
+      host key having changed the next time they connect. That warning is correct, and
+      this is the one occasion where the right answer is to clear the old entry with
+      <code>ssh-keygen -R &lt;hostname&gt;</code> on their side and accept the new key.</p>
+    </section>
+
+    <section>
       <h2>One thing that will surprise you</h2>
       <p><strong>Nothing is listening on this machine until you say so.</strong>
       Installing an SSH server on most systems means it starts immediately, on every
