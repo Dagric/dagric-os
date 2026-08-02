@@ -5,8 +5,36 @@
 set -e
 
 # Default wallpaper: point the Breeze look-and-feel at the Dagric wallpaper.
-# (This file belongs to plasma-workspace; a package update could revert it,
-# which is fine for the live/installed image built here.)
+#
+# THIS FILE BELONGS TO plasma-workspace, AND THAT IS NO LONGER "FINE".
+#
+# The line here used to end "...which is fine for the live/installed image built
+# here", and it was true when it was written: nothing updated the image after it
+# left. Then Dagric shipped an update channel. This file is an ordinary package
+# file, not a conffile, so the next plasma-workspace upgrade replaces it — no
+# prompt, no .dpkg-old — and every value sed'd in below goes back to stock
+# Breeze on a machine somebody paid for.
+#
+# What that actually costs, stated carefully rather than dramatised, because the
+# difference decides how urgently it needs fixing and I could not test it here:
+# these defaults SEED a user's config at first login. An account that has
+# already logged in has its own ~/.config and is unaffected. So the loss lands
+# on accounts created AFTER the upgrade, and on every "Defaults" button in
+# System Settings, which would restore KDE's look rather than Dagric's.
+#
+# THE REAL FIX is for Dagric's branding not to live inside another package's
+# file at all: ship an org.dagric.desktop look-and-feel package with its own
+# contents/defaults, and set LookAndFeelPackage to it. That is a restructure of
+# the first-login seeding path, it cannot be verified without building and
+# booting, and this is exactly the code path where guessing has hurt this
+# project before — so it is written down here and left for a session that can
+# boot the result, rather than half-done tonight.
+#
+# NOT worth trying: seeding /etc/skel/.config/kdeglobals with just
+# ColorScheme=DagricLight. The name is not the colours — every tool in this tree
+# applies a scheme with plasma-apply-colorscheme, which EXPANDS the .colors file
+# into kdeglobals. Writing the name alone would label the desktop DagricLight
+# while it painted Breeze, which is worse than the bug it was meant to fix.
 LNF=/usr/share/plasma/look-and-feel/org.kde.breeze.desktop/contents/defaults
 if [ -f "$LNF" ]; then
     # Match by KEY, not by the stock value: upstream renames the default
