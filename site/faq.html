@@ -51,6 +51,22 @@ h2{margin-top:44px}
   <a href="/contact">Ask us directly</a>.</p>
 
   <h2>The basics</h2>
+  <!-- The most important question on this page, and it was missing entirely.
+       The homepage headline is "Windows 10 is done" — so the very first thing a
+       reader wants to know is how long THIS one lasts before it does the same
+       thing to them. Dates are Debian's own published LTS schedule for trixie
+       (2028-08-09 to 2030-06-30), not a promise invented here. Stated with the
+       LTS caveat because LTS is a volunteer-and-sponsor effort with narrower
+       package coverage than regular security support, and overstating it would
+       be exactly the kind of thing this page exists to avoid. -->
+  <details><summary>How long will Dagric OS be supported?</summary><p>Security updates through
+  <strong>August 2028</strong> from Debian's security team, and then community long-term support
+  until <strong>June 2030</strong> — Debian publishes that schedule openly, and Dagric inherits it
+  because it <em>is</em> Debian underneath. That is roughly five more years from a machine Windows
+  10 already abandoned. Two honest caveats: the LTS phase is run by a smaller sponsored team and
+  covers most, not every, package; and when the next Debian arrives, moving to it is an upgrade we
+  will document rather than something that happens on its own. You will not wake up unsupported
+  without warning.</p></details>
   <details><summary>Is Dagric OS really free?</summary><p>Yes. The free edition is a complete,
   private, hardened desktop — free forever, no strings, no account. Pro adds the creative, gaming,
   developer, and Windows-app suites for a one-time $39.</p></details>
@@ -146,6 +162,7 @@ h2{margin-top:44px}
 </div></footer>
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"FAQPage","mainEntity":[
+{"@type":"Question","name":"How long will Dagric OS be supported?","acceptedAnswer":{"@type":"Answer","text":"Security updates through August 2028 from Debian's security team, then community long-term support until June 2030 — Dagric inherits Debian's published schedule because it is Debian underneath. That is roughly five more years from a machine Windows 10 already abandoned. The LTS phase is run by a smaller sponsored team and covers most, not every, package."}},
 {"@type":"Question","name":"Is Dagric OS really free?","acceptedAnswer":{"@type":"Answer","text":"Yes. The free edition is a complete, private, hardened desktop — free forever, no account. Pro adds the creative, gaming, developer, and Windows-app suites for a one-time $39."}},
 {"@type":"Question","name":"Why pay $39 when Mint, Ubuntu or Zorin are free?","acceptedAnswer":{"@type":"Answer","text":"You don't have to — the free edition is a real, complete distro. Pro is one curated, tested, supported product (the Hub, Looks, snapshot-rollback, signed releases, Windows-app support, human support) for people who'd rather not assemble and harden a general distro themselves. The tools are open source; the $39 buys the craftsmanship."}},
 {"@type":"Question","name":"Will my Windows files and drives work?","acceptedAnswer":{"@type":"Answer","text":"Yes. NTFS and exFAT drives mount out of the box, your Office documents open with matching fonts, and Pro runs many Windows programs directly via Bottles and Wine."}},
