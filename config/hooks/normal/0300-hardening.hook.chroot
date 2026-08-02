@@ -145,6 +145,40 @@ DEBIAN_FRONTEND=noninteractive pam-auth-update --enable fprintd 2>/dev/null || \
 # AppArmor confinement on by default
 systemctl enable apparmor.service 2>/dev/null || true
 
+# WHAT "APPARMOR" ACTUALLY MEANS ON THIS IMAGE — counted, not believed.
+#
+# Three pages of the website said "AppArmor confinement enforced". Debian's own
+# apparmor-profiles description says the opposite in as many words: "These
+# profiles are not mature enough to be shipped in enforce mode by default on
+# Debian. They are shipped in complain mode so that users can test them."
+# Complain mode writes the violation to the log and then allows it. It is a
+# useful thing to ship — it is how a profile earns enforcement — but it is not
+# confinement, and selling it as "enforced" was a claim the image did not
+# support. The site now says "active" and the manual explains both modes and how
+# to promote a profile with aa-enforce.
+#
+# Nothing was flipped to enforce to make the old wording true. Upstream declined
+# to do that for a reason, and a profile that blocks something a customer needs
+# fails in the least diagnosable way there is: an application that half-works,
+# with the explanation in a log nobody thinks to read.
+#
+# The counts go in the build log so this stays a number rather than a memory.
+if [ -d /etc/apparmor.d ]; then
+    _total=0
+    _complain=0
+    for _p in /etc/apparmor.d/*; do
+        # Top-level files only — abstractions/, tunables/ and local/ are include
+        # fragments, not profiles, and counting them would inflate both numbers.
+        [ -f "$_p" ] || continue
+        _total=$((_total + 1))
+        if grep -qE 'flags=\([^)]*complain' "$_p" 2>/dev/null; then
+            _complain=$((_complain + 1))
+        fi
+    done
+    echo "apparmor: $_total profile(s) installed, $_complain of them in complain mode"
+    unset _total _complain _p
+fi
+
 # zram swap on by default
 systemctl enable zramswap.service 2>/dev/null || true
 

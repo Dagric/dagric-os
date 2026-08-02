@@ -54,8 +54,16 @@
       knowing by name because none of them has an icon.</p>
       <ul class="plain">
         <li><strong>AppArmor</strong> confines programs to what they legitimately
-        need. A compromised PDF reader or browser cannot roam the filesystem, because
-        the kernel refuses.</li>
+        need, so a compromised program cannot simply roam the filesystem. Worth knowing
+        exactly how far that goes: profiles run in one of two modes. Debian's mature
+        profiles are <em>enforced</em> &mdash; a violation is blocked. Dagric also ships
+        the much larger <code>apparmor-profiles</code> set, and those are in
+        <em>complain</em> mode, where a violation is written to the log and allowed.
+        That is upstream's own decision, not ours: they are not considered ready to
+        block without getting in the way of real work. <code>sudo aa-status</code> shows
+        which profiles are in which mode, and once you have watched a complain-mode
+        profile stay quiet through normal use,
+        <code>sudo aa-enforce /etc/apparmor.d/&lt;profile&gt;</code> promotes it.</li>
         <li><strong>A hardened kernel configuration</strong>: kernel pointers and
         the message log hidden from ordinary users, ptrace snooping restricted,
         kexec disabled, the BPF and perf attack surfaces locked down, network spoofing
