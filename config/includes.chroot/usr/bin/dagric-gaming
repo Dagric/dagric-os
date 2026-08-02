@@ -23,20 +23,42 @@ with one click from the Dagric Hub, or run:  dagric-get-steam
 This helper adds Proton-GE (GloriousEggroll's community Proton with
 extra media codecs and game-specific fixes) for a Steam you've installed.")"
 dg_live_warn
+# THESE TWO USED TO BE `exit`, AND THAT PUT THE GAMEMODE OFFER OUT OF REACH.
+#
+# The only place in the entire product that offers to add the owner to the
+# "gamemode" group is at the bottom of this file, and both of these paths left
+# before ever reaching it. So /etc/gamemode.ini's renice=10 — the thing that
+# actually makes GameMode do something — stayed inert for anyone who plays
+# through Lutris, Heroic, Bottles or plain Wine, all of which Pro ships. To be
+# offered the group at all you had to own Steam, have launched it once, AND then
+# say yes to a Proton-GE download you may have had no interest in.
+#
+# A flag rather than moving the block, deliberately. Moving it would mean
+# rewording "One more thing:", which changes the msgid, which silently drops
+# that string back to English in all five shipped languages — a mistake already
+# made twice in this tree. The Proton-GE work is skipped exactly as before and
+# every message is untouched; the run simply continues instead of ending.
+#
+# The failure exits further down (download failed, archive damaged) are left as
+# they are: those are genuine errors, and stopping is the right answer there.
+DO_PROTON=yes
+
 printf '%s ' "$(gettext "Download the latest Proton-GE from GitHub? [y/N]")"
 read -r answer
 if ! dg_is_yes "$answer"; then
     dg_say "$(gettext "Nothing changed.")"
-    exit 0
+    DO_PROTON=no
 fi
 
 # Use the real Steam data dir, not ~/.steam/root (a symlink Steam creates
 # on first launch — mkdir'ing it there can collide with Steam's own setup).
 DEST="$HOME/.local/share/Steam/compatibilitytools.d"
-if [ ! -d "$HOME/.local/share/Steam" ]; then
+if [ "$DO_PROTON" = yes ] && [ ! -d "$HOME/.local/share/Steam" ]; then
     dg_say "$(gettext "Steam data dir not found. Launch Steam once first, then re-run this.")"
-    exit 1
+    DO_PROTON=no
 fi
+
+if [ "$DO_PROTON" = yes ]; then
 mkdir -p "$DEST"
 URL=$(curl -fsSL https://api.github.com/repos/GloriousEggroll/proton-ge-custom/releases/latest \
       | grep browser_download_url | grep '\.tar\.gz"' | head -1 | cut -d '"' -f 4)
@@ -84,6 +106,10 @@ dg_say "$(eval_gettext 'Installed to $DEST')"
 # menu labels — use the words Steam shows in your language, if you know them.
 dg_say "$(gettext "In Steam: Settings > Compatibility > enable, then pick the GE-Proton
 version per game under Properties > Compatibility.")"
+fi
+# ^ closes `if [ "$DO_PROTON" = yes ]`. The block above is deliberately NOT
+# re-indented: it is unchanged, working code, and shifting forty lines sideways
+# would bury a one-line behavioural change in a diff nobody can read.
 
 # GameMode's renice does nothing unless the owner is in the "gamemode" group.
 #
