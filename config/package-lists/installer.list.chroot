@@ -20,6 +20,22 @@ grub-pc-bin
 grub-efi-amd64-bin
 grub-efi-amd64-signed
 shim-signed
+# THE NVIDIA DRIVER HELPER IS DEAD CODE UNDER SECURE BOOT WITHOUT THIS.
+#
+# dagric-drivers detects Secure Boot with `mokutil --sb-state` and, when it is
+# on, enrolls the DKMS module's signing key via `update-secureboot-policy
+# --enroll-key` (which itself calls mokutil to do the import). mokutil is only a
+# RECOMMENDS of shim-signed, and auto/config passes --apt-recommends false, so
+# it was dropped from every image. The whole Secure Boot path was unreachable:
+# `command -v mokutil` failed, SB read "disabled" on a machine where it is
+# enabled, the enrollment walkthrough never fired, and the owner was told "Done,
+# reboot" — after which the unsigned nvidia module refuses to load and the screen
+# is black. That is the DEFAULT state on the retail Windows laptops this distro
+# is sold to migrate. The sibling dagric-hardware-check already reads the
+# SecureBoot efivar directly BECAUSE mokutil was missing and its comment says so;
+# dagric-drivers needs the tool itself for the enrollment step, so the fix is to
+# ship it rather than only work around the detection.
+mokutil
 efibootmgr
 os-prober
 # THE EFI install fix: the EFI System Partition is FAT32, so Calamares

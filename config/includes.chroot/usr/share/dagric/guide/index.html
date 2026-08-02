@@ -110,7 +110,8 @@
           <tr><th scope="row">Word / Excel / PowerPoint</th>
               <td><strong>LibreOffice</strong> Writer / Calc / Impress — opens and saves the same files</td></tr>
           <tr><th scope="row">Outlook</th>
-              <td><strong>Thunderbird</strong></td></tr>
+              <td><strong>Thunderbird</strong> <span class="pro">PRO</span> — on the free
+              edition, open your webmail in Firefox</td></tr>
           <tr><th scope="row">Command Prompt / PowerShell</th>
               <td><strong>Terminal</strong> (Konsole)</td></tr>
         </tbody>
@@ -488,10 +489,15 @@
         if you simply wait.</p>
 
         <h3>The disk is filling up</h3>
-        <p>Open the launcher and type <em>Filelight</em> — it draws your disk
-        as rings, and the big blocks are your answer. Usually it's Downloads or
-        a forgotten video folder. The <a href="#manual">Manual</a> has a page
-        on it.</p>
+        <p>To find what is eating the space, open a terminal (type <em>Konsole</em> in the
+        launcher) and run <code>du -h --max-depth=1 ~ | sort -h</code>. It lists your home
+        folders smallest to largest, so the culprit is the last line — almost always
+        Downloads or a forgotten video folder. No terminal? Right-click a folder you
+        suspect in <strong>Files</strong> and choose <em>Properties</em> to see its size.
+        Both work on every edition.</p>
+        <p><span class="pro">PRO</span> Pro also has <em>Filelight</em> — type it in the
+        launcher — which draws the whole disk as rings so the big blocks jump out at a
+        glance. The <a href="#manual">Manual</a> has a page on it.</p>
       </div>
 
       <!-- NOT Pro-gated, and the first draft of this tip wrongly said it was.
