@@ -166,6 +166,9 @@ rm -f /etc/libvirt/qemu/networks/autostart/default.xml 2>/dev/null || true
 # somebody would look: sudo systemctl enable --now docker
 systemctl disable docker.service docker.socket 2>/dev/null || true
 
+# Whether that actually took is checked at the end of this hook, together with
+# every other unit Pro intends to ship switched off.
+
 # Pro look: Papirus icons by default for new users
 if ! grep -q '^\[Icons\]' /etc/skel/.config/kdeglobals 2>/dev/null; then
     printf '\n[Icons]\nTheme=Papirus-Dark\n' >> /etc/skel/.config/kdeglobals
@@ -258,3 +261,68 @@ else
     echo "WARNING: PhotoGIMP download failed — GIMP ships with stock layout"
 fi
 rm -rf "$PG_TMP"
+
+# --- DID THE OPT-IN POLICY ACTUALLY TAKE? -----------------------------------
+#
+# Everything above that switches something off does it with
+# `systemctl disable ... 2>/dev/null || true`, which is silent in both
+# directions. The postinsts they are undoing are not. The Pro build log reads,
+# in full:
+#
+#     Setting up docker.io (26.1.5+dfsg1-9+b13) ...
+#     Created symlink '/etc/systemd/system/multi-user.target.wants/docker.service'
+#     Created symlink '/etc/systemd/system/sockets.target.wants/docker.socket'
+#
+# ...and then nothing whatsoever about them being removed. So the only evidence
+# in the log points the wrong way, and a disable that quietly failed would look
+# exactly like a disable that worked. This hook already carries three long
+# comments about postinsts enabling things behind our backs; not one line
+# anywhere confirmed we had won any of those arguments.
+#
+# The .wants symlink IS what "enabled" means for these units, so its absence is
+# the answer. Checked rather than assumed, and printed either way — Pro is the
+# paid edition and "nothing is listening until you say so" is a claim the
+# product makes on its own website.
+#
+# A warning, not an exit: a twenty-minute build that has otherwise succeeded
+# must not be destroyed at the very end, and this is visible in CI either way.
+# THE PATHS BELOW ARE COPIED FROM A REAL BUILD LOG, NOT GUESSED, and writing
+# them from memory got two of them wrong. Every "Created symlink" line the
+# postinsts emit was extracted from Pro run 30743351874 and the list matched
+# against it. usbguard.service is wanted by basic.target, NOT multi-user like
+# every other unit here — checking the obvious path would have meant this loop
+# silently never looked at usbguard at all, which is the exact failure it exists
+# to catch. libvirtd-ro, libvirtd-admin and virtlogd.service were simply absent.
+#
+# A check written from an assumption about the system is worth nothing; the
+# postinsts name their own paths and that is the source used.
+#
+# ssh.socket is listed although this Debian does not enable it — the postinst
+# only creates multi-user.target.wants/ssh.service. A path that never exists
+# costs nothing, and socket activation appearing in a later Debian is precisely
+# the change that would otherwise reopen "nothing is listening until you say so"
+# without a word in the log.
+_bad=""
+for _u in multi-user.target.wants/docker.service \
+          sockets.target.wants/docker.socket \
+          multi-user.target.wants/ssh.service \
+          sockets.target.wants/ssh.socket \
+          multi-user.target.wants/libvirtd.service \
+          sockets.target.wants/libvirtd.socket \
+          sockets.target.wants/libvirtd-ro.socket \
+          sockets.target.wants/libvirtd-admin.socket \
+          multi-user.target.wants/virtlogd.service \
+          sockets.target.wants/virtlogd.socket \
+          sockets.target.wants/virtlogd-admin.socket \
+          basic.target.wants/usbguard.service \
+          multi-user.target.wants/usbguard-dbus.service; do
+    [ -e "/etc/systemd/system/$_u" ] && _bad="$_bad ${_u##*/}"
+done
+if [ -n "$_bad" ]; then
+    echo "WARNING: these should ship DISABLED on Pro and are still enabled:" >&2
+    echo "        $_bad" >&2
+    echo "         Each one is something the owner is supposed to opt into." >&2
+else
+    echo "pro: opt-in policy verified — docker, ssh, libvirt, virtlogd and usbguard all disabled"
+fi
+unset _bad _u
