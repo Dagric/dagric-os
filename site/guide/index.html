@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dagric OS — User Guide</title>
+<link rel="stylesheet" href="guide.css">
+<link rel="canonical" href="https://dagric-os.web.app/guide">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Dagric OS User Guide — your first week, answered">
+<meta property="og:description" content="The guide that ships inside Dagric OS: coming from Windows, your first day, printers, Wi-Fi, shortcuts, running Windows programs, and what to do when something goes wrong.">
+<meta property="og:url" content="https://dagric-os.web.app/guide">
+<meta property="og:image" content="https://dagric-os.web.app/assets/dagric-logo.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#0a111c">
+<link rel="icon" href="/favicon.ico" sizes="32x32">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<div class="shell">
+
+  <aside class="side">
+    <div class="sidebox">
+      <div class="brand">
+        <div class="mark">D</div>
+        <div class="brand-name">Dagric OS<small>User Guide</small></div>
+      </div>
+      <a class="back-to-site" href="/" style="display:block;margin-top:.75rem;font-size:.85rem;opacity:.75">&larr; dagric.com</a>
+      <div class="gsearch" role="search">
+        <input id="gsearch" type="search"
+               placeholder="Search this guide…"
+               aria-label="Search this guide"
+               data-count="%1 sections match"
+               data-none="Nothing here — try the Manual, it covers every app.">
+        <p class="gsearch-status" id="gsearch-status" aria-live="polite"></p>
+      </div>
+      <nav class="toc" aria-label="Sections of this guide">
+        <div class="navgroup">Start here</div>
+        <a href="#windowsmap">Coming from Windows</a>
+        <a href="#firstday">Your first day</a>
+        <div class="navgroup">Everyday</div>
+        <a href="#apps">Installing apps</a>
+        <a href="#updates">Updates</a>
+        <a href="#tray">Wi-Fi, sound, displays</a>
+        <a href="#printers">Printers</a>
+        <a href="#shortcuts">Keyboard shortcuts</a>
+        <div class="navgroup">Make it yours</div>
+        <a href="#setup">The setup wizard</a>
+        <a href="#looks">Looks and Styles</a>
+        <a href="#textsize">Text size &amp; night light</a>
+        <a href="#access">Accessibility</a>
+        <a href="#migrate">Files from Windows</a>
+        <a href="#drives">Drives &amp; USB sticks</a>
+        <div class="navgroup">When something goes wrong</div>
+        <a href="#trouble">Troubleshooting</a>
+        <div class="navgroup">Going further</div>
+        <a href="#manual">The full manual</a>
+        <a href="#phone">Pairing your phone</a>
+        <a href="#usbguard">USB Protection</a>
+        <a href="#backups">Backups &amp; drive health</a>
+        <a href="#windows">Windows programs</a>
+        <a href="#helpers">Terminal helpers</a>
+        <a href="#help">Getting help</a>
+      </nav>
+    </div>
+  </aside>
+
+  <main class="content" id="main" tabindex="-1">
+
+    <div class="langbar">
+      <span class="label">Language</span>
+      <strong lang="en">English</strong>
+      <a lang="de" hreflang="de" href="de/index.html">Deutsch</a>
+    </div>
+
+    <header class="hero">
+      <div class="eyebrow">User Guide</div>
+      <h1>Welcome to Dagric&nbsp;OS</h1>
+      <p class="sub">Everything you need for your first week. This page works offline.</p>
+    </header>
+
+    <!-- The two sections a switcher actually arrives with: "where did
+         everything go?" and "what do I do first?". They sit above everything
+         else because they are the questions being asked before any other
+         section makes sense. The table is a real <table> — a screen reader
+         reads each row as a Windows-name/Dagric-name pair, and Ctrl+F and the
+         sidebar search both see every word. -->
+    <section id="windowsmap"
+      data-syn="start menu file explorer control panel settings task manager edge notepad paint photos snipping tool win+v clipboard recycle bin defender antivirus cmd powershell command prompt word excel powerpoint outlook media player this pc onedrive">
+      <h2>Coming from Windows? Everything is still here</h2>
+      <p>Ten years of habits don't need relearning — almost everything has a
+      direct equivalent, usually on the same keys. This table is the whole
+      trick to feeling at home in an afternoon.</p>
+      <table class="winmap">
+        <caption>Where things went</caption>
+        <thead><tr><th scope="col">On Windows</th><th scope="col">On Dagric</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">Start menu</th>
+              <td><strong>Launcher</strong> — press <kbd>Meta</kbd>, the ⊞ key, and type</td></tr>
+          <tr><th scope="row">File Explorer</th>
+              <td><strong>Files</strong> — <kbd>Meta</kbd>+<kbd>E</kbd>, same keys</td></tr>
+          <tr><th scope="row">Control Panel / Settings</th>
+              <td><strong>System Settings</strong> — one place, searchable</td></tr>
+          <tr><th scope="row">Task Manager</th>
+              <td><strong>System Monitor</strong> — <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>Esc</kbd>, same keys</td></tr>
+          <tr><th scope="row">Microsoft Edge</th>
+              <td><strong>Firefox</strong> — import your bookmarks from its menu</td></tr>
+          <tr><th scope="row">Notepad</th>
+              <td><strong>Text Editor</strong></td></tr>
+          <tr><th scope="row">Photos</th>
+              <td><strong>Gwenview</strong> — opens pictures on a double-click, same as ever</td></tr>
+          <tr><th scope="row">Snipping Tool</th>
+              <td><strong>Spectacle</strong> — <kbd>Meta</kbd>+<kbd>Shift</kbd>+<kbd>S</kbd> grabs a region, same keys as Windows</td></tr>
+          <tr><th scope="row">Windows Update</th>
+              <td>the <strong>tray icon</strong> when updates are ready — security fixes install themselves</td></tr>
+          <tr><th scope="row">Recycle Bin</th>
+              <td><strong>Trash</strong> — in the Files sidebar</td></tr>
+          <tr><th scope="row">Defender / antivirus</th>
+              <td>built in: the <strong>firewall is on</strong> from the first boot and apps are confined. Nothing extra to buy, nothing nagging you to renew</td></tr>
+          <tr><th scope="row">Word / Excel / PowerPoint</th>
+              <td><strong>LibreOffice</strong> Writer / Calc / Impress — opens and saves the same files</td></tr>
+          <tr><th scope="row">Outlook</th>
+              <td><strong>Thunderbird</strong> <span class="pro">PRO</span> — on the free
+              edition, open your webmail in Firefox</td></tr>
+          <tr><th scope="row">Command Prompt / PowerShell</th>
+              <td><strong>Terminal</strong> (Konsole)</td></tr>
+        </tbody>
+      </table>
+      <div class="tip">Every app here also answers to its Windows name: search
+      the launcher or the <a href="#manual">Manual</a> for <em>Task Manager</em>
+      or <em>Notepad</em> and the right app appears.</div>
+    </section>
+
+    <section id="firstday"
+      data-syn="checklist first steps getting started todo begin new">
+      <h2>Your first day, as a checklist</h2>
+      <p>Nine small things, in a sensible order. Tick them off — this page
+      remembers where you got to, even after you close it.</p>
+      <ul class="checklist" id="firstday-list" data-done-template="%1 of %2 done — nothing here is urgent.">
+        <li><label><input type="checkbox" data-ck="wifi">
+          <span class="ck-text"><strong>Connect to Wi-Fi</strong>
+          <small>The network icon in the tray, bottom right. <a href="#tray">More</a></small></span></label></li>
+        <li><label><input type="checkbox" data-ck="update">
+          <span class="ck-text"><strong>Run your first update</strong>
+          <small>If the tray shows an update icon, click it. Five minutes, no restart forced on you. <a href="#updates">More</a></small></span></label></li>
+        <li><label><input type="checkbox" data-ck="migrate">
+          <span class="ck-text"><strong>Bring your files over from Windows</strong>
+          <small>Documents, pictures, music, bookmarks — copied, never moved. <a href="#migrate">More</a></small></span></label></li>
+        <li><label><input type="checkbox" data-ck="look">
+          <span class="ck-text"><strong>Pick your look</strong>
+          <small>Light or dark, accent colour, wallpaper — try everything, it all reverses. <a href="#looks">More</a></small></span></label></li>
+        <li><label><input type="checkbox" data-ck="textsize">
+          <span class="ck-text"><strong>Make the text comfortable</strong>
+          <small>If anything looks too small, fix it once and forget it. <a href="#textsize">More</a></small></span></label></li>
+        <li><label><input type="checkbox" data-ck="app">
+          <span class="ck-text"><strong>Install your first app</strong>
+          <small>Open the Software Store and grab something you missed. <a href="#apps">More</a></small></span></label></li>
+        <li><label><input type="checkbox" data-ck="printer">
+          <span class="ck-text"><strong>Set up your printer</strong>
+          <small>Usually automatic. <a href="#printers">More</a></small></span></label></li>
+        <li><label><input type="checkbox" data-ck="shortcuts">
+          <span class="ck-text"><strong>Learn three shortcuts</strong>
+          <small><kbd>Meta</kbd> to launch, <kbd>Meta</kbd>+<kbd>E</kbd> for Files, <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>Esc</kbd> when something misbehaves. <a href="#shortcuts">All of them</a></small></span></label></li>
+        <li><label><input type="checkbox" data-ck="hub">
+          <span class="ck-text"><strong>Open the Dagric Hub once</strong>
+          <small>Press <kbd>Meta</kbd>, type <em>Hub</em>. Drivers, migration, security, help — it is all in that one menu.</small></span></label></li>
+      </ul>
+      <p class="ck-count" id="ck-count" aria-live="polite"></p>
+    </section>
+
+    <section id="apps" data-syn="install software store discover programs download remove uninstall">
+      <h2>Installing apps</h2>
+      <p>Open the <strong>Software Store</strong> (the bag icon in the taskbar —
+      it is called Discover underneath, and that name still finds it). Search,
+      click Install, done. Everything is free, checked, and removable. Removing
+      an app actually removes it — nothing comes back on its own.</p>
+    </section>
+
+    <section id="updates" data-syn="windows update patch upgrade restart security">
+      <h2>Updates</h2>
+      <p>Security updates install silently in the background. When bigger updates
+      are ready, a tray icon appears — apply them whenever you like.
+      <strong>Dagric never restarts your computer for you.</strong></p>
+    </section>
+
+    <section id="tray" data-syn="wifi wireless network volume speaker monitor projector second screen bluetooth">
+      <h2>Wi-Fi, sound, displays</h2>
+      <p>All in the system tray (bottom right). Click the network icon to join
+      Wi-Fi, the speaker for volume and output device, and the display icon when
+      you plug in a monitor or projector.</p>
+    </section>
+
+    <section id="printers" data-syn="print scanner driver">
+      <h2>Printers</h2>
+      <p>Plug the printer in (or have it on the same Wi-Fi), then open
+      <strong>System Settings → Printers → Add Printer</strong>. Most printers are
+      detected automatically.</p>
+    </section>
+
+    <section id="shortcuts" data-syn="hotkeys keyboard keys task manager screenshot lock alt tab clipboard win">
+      <h2>Keyboard shortcuts worth knowing</h2>
+      <div class="keys">
+        <div class="key-card">
+          <div class="combo"><kbd>Meta</kbd></div>
+          <div class="what"><strong>Open the app launcher</strong> — Meta is the ⊞ key</div>
+        </div>
+        <div class="key-card">
+          <div class="combo"><kbd>Ctrl</kbd><span class="plus">+</span><kbd>Shift</kbd><span class="plus">+</span><kbd>Esc</kbd></div>
+          <div class="what"><strong>Task Manager</strong> — the same keys as Windows, when something stops responding</div>
+        </div>
+        <div class="key-card">
+          <div class="combo"><kbd>Meta</kbd><span class="plus">+</span><kbd>E</kbd></div>
+          <div class="what"><strong>Files</strong> — your file manager</div>
+        </div>
+        <div class="key-card">
+          <div class="combo"><kbd>Meta</kbd><span class="plus">+</span><kbd>Shift</kbd><span class="plus">+</span><kbd>S</kbd></div>
+          <div class="what"><strong>Grab part of the screen</strong> — same keys as Windows; <kbd>Print Screen</kbd> takes the whole thing</div>
+        </div>
+        <div class="key-card">
+          <div class="combo"><kbd>Meta</kbd><span class="plus">+</span><kbd>L</kbd></div>
+          <div class="what"><strong>Lock the screen</strong></div>
+        </div>
+        <div class="key-card">
+          <div class="combo"><kbd>Alt</kbd><span class="plus">+</span><kbd>Tab</kbd></div>
+          <div class="what"><strong>Switch between windows</strong> — exactly as on Windows</div>
+        </div>
+        <div class="key-card">
+          <div class="combo"><kbd>Meta</kbd><span class="plus">+</span><kbd>V</kbd></div>
+          <div class="what"><strong>Clipboard history</strong> — the last things you copied, same keys as Windows</div>
+        </div>
+        <div class="key-card">
+          <div class="combo"><kbd>Meta</kbd><span class="plus">+</span><kbd>←</kbd><span class="plus">/</span><kbd>→</kbd></div>
+          <div class="what"><strong>Snap a window</strong> to half the screen — same keys as Windows</div>
+        </div>
+        <div class="key-card">
+          <div class="combo"><kbd>Meta</kbd><span class="plus">+</span><kbd>P</kbd></div>
+          <div class="what"><strong>Switch displays</strong> when a projector or second monitor is plugged in</div>
+        </div>
+      </div>
+    </section>
+
+    <section id="setup" data-syn="wizard first run setup wallpaper accent undo">
+      <h2>The setup wizard is still there</h2>
+      <p>The first time you signed in, Dagric walked you through six short
+      screens — light or dark, an accent color, a wallpaper, how big the text
+      should be, where the taskbar goes, and bringing your files over from
+      Windows. That was <strong>Set Up Dagric</strong>, and it did not vanish
+      after the first run. Press the launcher, type <em>Set Up Dagric</em>, and
+      go through it again whenever you like (it is also in the Hub, under
+      <em>Get started</em>).</p>
+      <p>Everything in it applies as you click, so you see the real desktop
+      change rather than a preview. If you go too far, the <strong>Undo my
+      changes</strong> button at the top of the window puts back the colors,
+      wallpaper, text size and taskbar you started with.</p>
+      <div class="tip">It is also the shortest route to
+      <strong>Migrate from Windows</strong> if you skipped that step the first
+      time.</div>
+    </section>
+
+    <section id="looks" data-syn="theme dark mode light appearance customize taskbar layout style">
+      <h2>Making it yours: Looks and Styles</h2>
+      <p>Two tools shape the desktop, both one click and both reversible.
+      <strong>Dagric Looks</strong> changes the layout — where the taskbar,
+      panels and menus sit. <strong>Dagric Styles</strong> changes the mood —
+      light or dark colors, accent color, wallpaper, and window effects like
+      glassy blur. They combine freely: a centered taskbar in deep Midnight, a
+      classic taskbar in warm Dawn. Pro adds the Command, Duo, Horizon and Unity
+      layouts — side docks and top menu bars. Find both in the launcher or the
+      Hub, and pick <em>Reset</em> in Styles any time to return to standard
+      Dagric.</p>
+
+      <p>If you would rather <em>see</em> a change before you commit to it, open
+      <strong>Dagric Appearance</strong> (launcher, or Hub &rarr; Appearance
+      gallery). It shows every style and layout as a picture. Click one and the
+      desktop changes immediately, but nothing is saved yet: a bar appears
+      offering <strong>Keep</strong> or <strong>Revert</strong>, and if you
+      answer neither &mdash; or the change made the screen unreadable &mdash;
+      the desktop puts itself back on its own after twenty seconds. Trying
+      things costs nothing, so try everything.</p>
+    </section>
+
+    <section id="textsize" data-syn="scaling dpi small tiny huge zoom night light blue filter">
+      <h2>If everything looks too small</h2>
+      <p>On a laptop with a very sharp screen, text can come out tiny. Open
+      <strong>Text Size</strong> from the launcher (or the Hub &rarr;
+      <em>Text size and night light</em>) and pick a size between 100% and 200%.
+      Dagric only offers sizes that still leave room for windows and buttons on
+      your screen, so you cannot pick one that makes the desktop unusable.</p>
+      <p>The change happens straight away and then asks whether to keep it.
+      <strong>If you answer nothing, it puts itself back after twenty
+      seconds</strong> — so if the new size made everything unreadable, or the
+      question ended up off the edge of the screen, just wait and the desktop
+      returns to how it was. Dagric also measures your screen when you first
+      sign in and picks a sensible size on its own, the way Windows does.</p>
+      <p>The same tool has a <strong>night light</strong> — Windows calls it the
+      same thing. It warms the screen's colors so late-evening reading is easier
+      on your eyes. Pick <em>evenings only</em> (on from 8pm to 7am), <em>all the
+      time</em>, or off, and forget about it.</p>
+    </section>
+
+    <!-- This section is not decoration. Documentation that ships with a
+         product is required to say what the product's accessibility features
+         are and how to use them (EN 301 549 clause 12.1, and the same question
+         appears on every institutional procurement form). It only claims what
+         is installed and working today, including the part that is not. -->
+    <section id="access" data-syn="screen reader orca magnifier zoom accessibility blind low vision sticky keys">
+      <h2>Accessibility</h2>
+      <p>All of it is already on this computer &mdash; nothing to download, no
+      account, no extra edition.</p>
+      <p><strong>Reading the screen aloud.</strong> The <strong>Orca</strong>
+      screen reader is installed on every edition, together with its speech
+      engine and voice &mdash; a screen reader with no voice installed is a
+      common and useless outcome, so Dagric pins both deliberately. Turn it on
+      with <kbd>Meta</kbd>+<kbd>Alt</kbd>+<kbd>S</kbd>, or in
+      <strong>System Settings &rarr; Accessibility &rarr; Screen Reader</strong>.
+      The manual has a full page on Orca, including the Braille display
+      support.</p>
+      <p><strong>Making things bigger.</strong> <strong>Text Size</strong>
+      (above) scales the whole desktop between 100% and 200% and puts itself
+      back if you say nothing. For a magnifier that follows the mouse instead,
+      <strong>System Settings &rarr; Accessibility</strong> switches on the
+      screen zoom; the same page lists the keys that drive it.</p>
+      <p><strong>Keyboard and mouse.</strong> Sticky modifier keys (for pressing
+      <kbd>Ctrl</kbd>+<kbd>C</kbd> one key at a time), a visible flash instead of
+      the system beep, and moving the pointer with the number pad are all in
+      <strong>System Settings &rarr; Accessibility</strong>. Colour filters for
+      colour blindness are there too.</p>
+      <p><strong>This guide and the manual</strong> are built to be read with a
+      screen reader and driven from the keyboard: press <kbd>Tab</kbd> on any
+      page and the first stop is <em>Skip to content</em>, which jumps you past
+      the sidebar.</p>
+      <div class="tip"><strong>One thing Dagric cannot do yet, said plainly:
+      the login screen cannot read itself aloud.</strong> The screen reader
+      starts with your session, not before it, and the login screen Dagric uses
+      has no screen-reader support of its own. Two ways round it: the live USB
+      signs itself in automatically, so you can try the whole system with Orca
+      before installing; and on an installed machine you can switch on automatic
+      sign-in (<strong>System Settings &rarr; Startup and Shutdown &rarr; Login
+      Screen</strong>). That is a real security trade-off on a shared computer,
+      and it is yours to make.</div>
+    </section>
+
+    <section id="migrate" data-syn="transfer copy files documents pictures music bookmarks import windows">
+      <h2>Bringing your files from Windows</h2>
+      <p>Open the <strong>Dagric Hub</strong> and pick <strong>Migrate from
+      Windows</strong> (or run <code>dagric-migrate</code>). It finds the Windows
+      still on this PC, shows your Documents, Pictures, Music, Videos, Desktop and
+      browser bookmarks, and copies what you pick into your new home folder.</p>
+      <div class="tip">Windows is only ever <em>read</em> — nothing there is
+      touched, so you can always boot back into it.</div>
+    </section>
+
+    <section id="drives" data-syn="usb stick external drive ntfs explorer dolphin eject">
+      <h2>Your Windows drives and USB sticks</h2>
+      <p>They just work. Plug in a USB stick or external drive (including
+      NTFS-formatted Windows drives) and it appears in <strong>Files</strong> —
+      the folder icon in the taskbar, and what Windows called File Explorer. If
+      you read a forum post that calls it <em>Dolphin</em>, that is the same
+      program: Dagric labels apps by what they do, and the original name still
+      finds them when you search the launcher.</p>
+    </section>
+
+    <section id="manual" data-syn="help documentation reference apps notepad">
+      <h2>The full manual</h2>
+      <p>This page is your first week. For every application on the computer —
+      what it is, what it replaced on Windows, and the five things you will
+      actually do with it — open the <strong>Dagric Manual</strong> from the
+      launcher, or run <code>dagric-manual</code>. It is in the Hub too, under
+      <em>App manual</em>.</p>
+      <p>It works offline exactly like this page, and its search knows the
+      Windows names: type <em>Notepad</em> and you get the Text Editor, type
+      <em>Task Manager</em> and you get the system monitor, type <em>PDF</em> and
+      you get everything that opens one.</p>
+      <div class="tip">Two help entries, on purpose. This <strong>guide</strong>
+      is the short read for your first week. The <strong>manual</strong> is the
+      reference you come back to when you need one specific app.</div>
+    </section>
+
+    <section id="phone" data-syn="android iphone kde connect notifications sms">
+      <h2>Pairing your phone <span class="pro">PRO</span></h2>
+      <p><strong>KDE Connect</strong> links your phone to this PC for notifications,
+      file transfer and clipboard sharing. For your safety its ports are open only
+      on networks you mark as <em>Home</em> — never on café or airport Wi-Fi. If
+      pairing doesn't find your phone, open <strong>System Settings →
+      Firewall</strong> and set the current connection's zone to <em>home</em>.</p>
+    </section>
+
+    <section id="usbguard" data-syn="security usb attack badusb block">
+      <h2>USB Protection <span class="pro">PRO</span></h2>
+      <p>Open the Hub and choose <strong>USB Protection</strong> to block malicious
+      USB devices (the kind that pretend to be a keyboard and type commands). Plug
+      in everything you normally use <em>first</em> — Dagric remembers those and
+      blocks only strangers. Run it again any time to refresh the list or switch
+      protection back off.</p>
+    </section>
+
+    <section id="backups" data-syn="backup restore timeshift vorta rclone onedrive google drive dropbox cloud smart">
+      <h2>Backups &amp; drive health</h2>
+      <p>On Dagric Pro: <strong>Vorta</strong> makes encrypted backups to a drive
+      or server, and <code>rclone</code> connects to Google Drive, Dropbox,
+      OneDrive and 70+ other services. <strong>Timeshift</strong> takes system
+      restore points — if an update ever misbehaves, roll back to yesterday.
+      On every edition, Dagric watches your drives' SMART health and warns you
+      in plain language if one starts failing — and the Security Checkup shows
+      each drive's status any time.</p>
+    </section>
+
+    <section id="windows" data-syn="exe wine games steam proton epic gog bottles virtual machine run windows programs">
+      <h2>Running Windows programs</h2>
+      <p>For games, install <strong>Steam</strong> with one click from the Dagric
+      Hub (it is never bundled), then enable Proton under Settings →
+      Compatibility. <strong>Heroic</strong> covers Epic, GOG and Amazon, and
+      the <code>dagric-gaming</code> command adds the community Proton-GE build.
+      For ordinary Windows software, <strong>Bottles</strong> — also one click
+      from the Hub — keeps each program in its own tidy container. All of that
+      works on either edition.</p>
+      <p><strong>On Pro</strong> <span class="pro">PRO</span> the runtime
+      underneath is already installed and tuned: Wine runs many
+      <code>.exe</code> files on a double-click, and GameMode, MangoHud, Lutris
+      and 32-bit Vulkan are in place for games. And for the rare app that will
+      not run under Wine at all, <strong>Windows in a window</strong>: pick it in
+      the Hub (<code>dagric-vm</code>) to enable virtual machines and run real
+      Windows safely inside Dagric.</p>
+    </section>
+
+    <section id="helpers" data-syn="terminal command line cli nvidia resolve ai ollama">
+      <h2>Terminal helpers</h2>
+      <div class="helpers">
+        <div class="helpers-title">One command each</div>
+        <div class="helpers-sub">Every helper asks before doing anything.</div>
+        <div class="helper-row"><code>sudo dagric-drivers</code><span>NVIDIA</span></div>
+        <div class="helper-row"><code>dagric-migrate</code><span>bring files from Windows</span></div>
+        <div class="helper-row"><code>dagric-get-resolve</code><span>DaVinci Resolve</span></div>
+        <div class="helper-row"><code>dagric-ai</code><span>private local AI</span></div>
+        <div class="helper-row"><code>dagric-gaming</code><span>Proton-GE</span></div>
+        <div class="helper-row"><code>dagric-vm</code><span>virtual machines, Pro</span></div>
+      </div>
+    </section>
+
+    <!-- h3 + prose, not an accordion, and each entry leads with the symptom in
+         the owner's words — nobody searches "audio output device", they search
+         "no sound". The NTFS entry is the single most common switcher trap on
+         the internet and almost no distro documents it in its guide. -->
+    <section id="trouble"
+      data-syn="no sound audio mute speakers hdmi wifi wireless internet not working printer not found frozen stuck crash hang force quit ntfs read only fast startup locked drive won't open small huge tiny screen resolution download missing disk full space slow broken desktop restore rollback snapshot">
+      <h2>When something goes wrong</h2>
+      <p>The eight things that actually come up, each with the fix that
+      actually works. Nothing here needs the terminal.</p>
+
+      <div class="fix">
+        <h3>No sound</h3>
+        <p>Click the speaker icon in the tray and check the <strong>output
+        device</strong> — after plugging in a monitor or TV, sound often moves
+        to it over HDMI while your speakers sit silent. Pick the right device
+        from the list. The same panel has a per-application mixer, so check the
+        app itself isn't muted.</p>
+
+        <h3>My Windows drive won't open, or is read-only</h3>
+        <p>This one isn't Dagric — it's Windows. Its <em>Fast Startup</em>
+        feature doesn't fully shut the computer down; it hibernates, and a
+        hibernated Windows keeps its drives locked. Boot into Windows, and
+        either shut down while holding <kbd>Shift</kbd>, or turn Fast Startup
+        off for good: Control Panel → Power Options → <em>Choose what the power
+        buttons do</em> → untick <em>Turn on fast start-up</em>. After a real
+        shutdown, the drive opens normally here.</p>
+
+        <h3>Wi-Fi won't connect</h3>
+        <p>Click the network icon in the tray and check Wi-Fi isn't switched
+        off or in airplane mode. If your network is listed but won't take the
+        password, click the connection's settings icon and choose
+        <em>Forget</em>, then join it fresh. If nothing is listed at all, run
+        the <strong>Hardware Check</strong> from the Dagric Hub — it reports
+        whether the Wi-Fi chip needs anything and says so in plain language.</p>
+
+        <h3>A program stopped responding</h3>
+        <p>Dagric notices on its own and offers to close it — wait a few
+        seconds for the dialog. To do it yourself:
+        <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>Esc</kbd>, find the program, end
+        it. Your other windows are unaffected.</p>
+
+        <h3>The printer isn't found</h3>
+        <p>Make sure it's on the <em>same Wi-Fi as this computer</em> — the
+        most common cause by far. Then System Settings → Printers → Add
+        Printer. Most modern printers need no driver at all. If yours is an HP,
+        the Hub's <strong>Finish setting up</strong> entry installs HP's full
+        support with one tick.</p>
+
+        <h3>I downloaded a file and can't find it</h3>
+        <p>It's in <strong>Downloads</strong> — open Files
+        (<kbd>Meta</kbd>+<kbd>E</kbd>) and it's in the sidebar. In Firefox,
+        <kbd>Ctrl</kbd>+<kbd>J</kbd> lists recent downloads, and each one has a
+        <em>show in folder</em> button.</p>
+
+        <h3>I experimented with the looks and want out</h3>
+        <p>Open <strong>Dagric Styles</strong> and pick <em>Reset</em> — the
+        standard Dagric look comes back in one click. And remember the
+        Appearance gallery's changes undo <em>themselves</em> after twenty
+        seconds if you don't confirm them, so an unreadable screen fixes itself
+        if you simply wait.</p>
+
+        <h3>The disk is filling up</h3>
+        <p>To find what is eating the space, open a terminal (type <em>Konsole</em> in the
+        launcher) and run <code>du -h --max-depth=1 ~ | sort -h</code>. It lists your home
+        folders smallest to largest, so the culprit is the last line — almost always
+        Downloads or a forgotten video folder. No terminal? Right-click a folder you
+        suspect in <strong>Files</strong> and choose <em>Properties</em> to see its size.
+        Both work on every edition.</p>
+        <p><span class="pro">PRO</span> Pro also has <em>Filelight</em> — type it in the
+        launcher — which draws the whole disk as rings so the big blocks jump out at a
+        glance. The <a href="#manual">Manual</a> has a page on it.</p>
+      </div>
+
+      <!-- NOT Pro-gated, and the first draft of this tip wrongly said it was.
+           snapper + grub-btrfs are in system.list.chroot, which is the FREE
+           list; Pro adds only Timeshift's scheduled GUI on top. Telling a free
+           owner they have no rollback — at the exact moment an update has just
+           broken their machine — is the "free must never read as broken" rule
+           failing in the worst place it could, and it contradicted the manual
+           and the welcome page, which both say it correctly. -->
+      <div class="tip">If an update or experiment ever leaves the system
+      genuinely unwell, restart and choose the <strong>snapshots</strong> entry
+      in the boot menu. On any standard install it starts the system exactly as
+      it was before the change — this is built in, on <em>every</em> edition,
+      and it is automatic. <strong>On Pro</strong> <span class="pro">PRO</span>
+      Timeshift then makes that rollback permanent from a window, and adds
+      restore points on your own schedule.</div>
+    </section>
+
+    <section id="help" data-syn="support contact human email website questions">
+      <h2>Getting help</h2>
+      <p>Try the <a href="#manual">Dagric Manual</a> first — it is on this
+      computer, it needs no internet, and it has a page for every app here.
+      After that, visit <strong>dagric.com/support</strong>. Your system details
+      for any support request: open the <strong>Terminal</strong> (Konsole) and
+      run <code>cat /etc/os-release</code>.</p>
+    </section>
+
+    <footer class="colophon">Dagric OS · This guide is stored on your computer and needs no internet connection.</footer>
+
+  </main>
+</div>
+
+<script src="guide.js"></script>
+</body>
+</html>
