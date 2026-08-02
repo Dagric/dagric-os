@@ -64,12 +64,72 @@ if [ -f /etc/calamares/settings.conf ]; then
 fi
 
 # The desktop/menu entry should say Dagric, not Debian.
+#
+# AND THE LOCALISED KEYS TOO, WHICH IS THE HALF THAT WAS MISSING. A .desktop
+# file carries Name[de], Name[fr], Name[en_GB] and so on, and a localised key
+# BEATS the plain Name= for anybody whose session matches it. `sed 's/^Name=.*/'`
+# does not match `Name[de]=`, so every one of upstream's translations survived:
+# a German owner opened the launcher on the live session and the entry that
+# installs this product still said Debian, on the single most important icon on
+# the desktop.
+#
+# 0510-app-names already knows this trap — it fails the build if an English
+# locale variant survives in [Desktop Entry], with a comment explaining that
+# Name[en_GB] would beat ours for anyone who picked English (UK/AU/CA). The
+# Calamares rename never got the same treatment.
+#
+# So: strip every localised Name/GenericName/Comment, then put back the five
+# languages Dagric actually ships. Anything else falls back to the English
+# above, which is correct branding even when it is not the owner's language.
+#
+# awk rather than sed, and scoped to [Desktop Entry], because Desktop Actions
+# have their own Name= lines — 0510 documents what happens when a rewriter
+# leaks past that boundary: nine identical rows in a right-click menu.
 for d in /usr/share/applications/calamares-install-debian.desktop \
          /etc/xdg/autostart/calamares-desktop-icon.desktop; do
-    if [ -f "$d" ]; then
-        sed -i 's/^Name=.*/Name=Install Dagric OS/;
-                s/^GenericName=.*/GenericName=Dagric OS Installer/;
-                s/^Comment=.*/Comment=Install Dagric OS on this computer/;
-                s|^Icon=.*|Icon=/usr/share/dagric/logo/dagric-logo.png|' "$d"
+    [ -f "$d" ] || continue
+
+    sed -i 's/^Name=.*/Name=Install Dagric OS/;
+            s/^GenericName=.*/GenericName=Dagric OS Installer/;
+            s/^Comment=.*/Comment=Install Dagric OS on this computer/;
+            s|^Icon=.*|Icon=/usr/share/dagric/logo/dagric-logo.png|' "$d"
+
+    awk '
+        /^\[/ { entry = ($0 == "[Desktop Entry]") }
+        entry && /^(Name|GenericName|Comment)\[/ { next }
+        { print }
+    ' "$d" > "$d.dagric" && mv "$d.dagric" "$d"
+
+    # Appended at the end of the file, which is still inside [Desktop Entry]
+    # for both of these files — neither declares a Desktop Action. Verified
+    # below rather than assumed.
+    if grep -q '^\[Desktop Action' "$d"; then
+        echo "WARNING: $d now has Desktop Actions; the translations below" >&2
+        echo "         would land in the wrong section. Skipped." >&2
+    else
+        cat >> "$d" << 'EOF'
+Name[de]=Dagric OS installieren
+Name[fr]=Installer Dagric OS
+Name[es]=Instalar Dagric OS
+Name[pt_BR]=Instalar o Dagric OS
+Name[it]=Installa Dagric OS
+GenericName[de]=Dagric-OS-Installationsprogramm
+GenericName[fr]=Programme d'installation de Dagric OS
+GenericName[es]=Instalador de Dagric OS
+GenericName[pt_BR]=Instalador do Dagric OS
+GenericName[it]=Programma di installazione di Dagric OS
+Comment[de]=Dagric OS auf diesem Computer installieren
+Comment[fr]=Installer Dagric OS sur cet ordinateur
+Comment[es]=Instalar Dagric OS en este equipo
+Comment[pt_BR]=Instalar o Dagric OS neste computador
+Comment[it]=Installa Dagric OS su questo computer
+EOF
+    fi
+
+    # A leftover Debian string here is invisible until somebody boots the live
+    # session in that language, which is exactly why it lasted this long.
+    if grep -qi 'debian' "$d"; then
+        echo "WARNING: $d still mentions Debian after rebranding:" >&2
+        grep -in 'debian' "$d" | sed 's/^/         /' >&2
     fi
 done
