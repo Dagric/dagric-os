@@ -120,12 +120,24 @@ jobs:
           else
             ISO="dagric-os-1.0-amd64.iso";     BUCKET="dagric-downloads"
           fi
-          echo "Uploading $ISO -> s3://$BUCKET/"
-          aws s3 cp "out/$ISO" "s3://$BUCKET/$ISO" --endpoint-url "$EP" --only-show-errors
+          # STAGING, NOT THE LIVE KEY. This is the whole safety of the release.
+          #
+          # The live objects are what dagric.com/download serves right now, and
+          # SHA256SUMS.sig beside them signs THOSE bytes. Overwriting the ISO and
+          # SHA256SUMS here while that old signature is still in place would make
+          # `gpg --verify` fail for every visitor — not "unsigned", but BAD
+          # SIGNATURE, which reads as a tampered download and is worse than
+          # shipping nothing. The signature is produced by hand, off this runner,
+          # so CI cannot close that window itself.
+          #
+          # Publishing is therefore a separate, deliberate copy AFTER the new
+          # SHA256SUMS has been signed. See the job summary for the two commands.
+          echo "Uploading $ISO -> s3://$BUCKET/staging/"
+          aws s3 cp "out/$ISO" "s3://$BUCKET/staging/$ISO" --endpoint-url "$EP" --only-show-errors
           # A per-edition checksum sidecar, so the publish job can assemble
           # SHA256SUMS without re-downloading gigabytes it already hashed here.
           ( cd out && sha256sum "$ISO" > "$ISO.sha256" )
-          aws s3 cp "out/$ISO.sha256" "s3://dagric-downloads/checksums/$ISO.sha256" \
+          aws s3 cp "out/$ISO.sha256" "s3://dagric-downloads/staging/checksums/$ISO.sha256" \
             --endpoint-url "$EP" --only-show-errors
           echo "### ${{ matrix.edition }} uploaded" >> "$GITHUB_STEP_SUMMARY"
           cat "out/$ISO.sha256" >> "$GITHUB_STEP_SUMMARY"
@@ -159,28 +171,45 @@ jobs:
           EP="https://${R2_ACCOUNT}.r2.cloudflarestorage.com"
           mkdir -p out rel
           for f in dagric-os-1.0-amd64.iso dagric-os-pro-1.0-amd64.iso; do
-            aws s3 cp "s3://dagric-downloads/checksums/$f.sha256" "out/$f.sha256" \
+            aws s3 cp "s3://dagric-downloads/staging/checksums/$f.sha256" "out/$f.sha256" \
               --endpoint-url "$EP" --only-show-errors
           done
           cat out/dagric-os-1.0-amd64.iso.sha256 \
               out/dagric-os-pro-1.0-amd64.iso.sha256 > out/SHA256SUMS
           cat out/SHA256SUMS
           cp out/SHA256SUMS rel/
-          aws s3 cp out/SHA256SUMS s3://dagric-downloads/SHA256SUMS \
+          # Staging again — the live SHA256SUMS still matches the live ISOs and
+          # its signature, and those three only ever move together.
+          aws s3 cp out/SHA256SUMS s3://dagric-downloads/staging/SHA256SUMS \
             --endpoint-url "$EP" --only-show-errors
           {
-            echo "### Release checksums"
+            echo "### Built and staged — NOT yet live"
+            echo ""
+            echo "New images are in \`staging/\` on R2. The download page still"
+            echo "serves the previous release, which is correct: its signature"
+            echo "still matches it. Nothing customers see has changed."
+            echo ""
             echo '```'
             cat out/SHA256SUMS
             echo '```'
             echo ""
-            echo "**SHA256SUMS is now on R2 but is NOT yet signed.**"
-            echo "Buyers verify against the signature, so finish the release locally:"
-            echo '```'
-            echo "curl -O https://pub-23bebbd32e3b44c4af6e53c06194e77f.r2.dev/SHA256SUMS"
+            echo "#### To publish, sign first, then promote"
+            echo ""
+            echo "1. Sign the new checksums locally (the private key must never"
+            echo "   be in CI — it signs the APT channel every machine trusts):"
+            echo '```bash'
+            echo "aws s3 cp s3://dagric-downloads/staging/SHA256SUMS . --endpoint-url \$EP"
             echo "gpg --detach-sign --armor -o SHA256SUMS.sig SHA256SUMS"
             echo '```'
-            echo "then upload SHA256SUMS.sig to the dagric-downloads bucket."
+            echo "2. Promote images and checksums together, signature last:"
+            echo '```bash'
+            echo "aws s3 cp s3://dagric-downloads/staging/dagric-os-1.0-amd64.iso s3://dagric-downloads/dagric-os-1.0-amd64.iso --endpoint-url \$EP"
+            echo "aws s3 cp s3://dagric-pro/staging/dagric-os-pro-1.0-amd64.iso s3://dagric-pro/dagric-os-pro-1.0-amd64.iso --endpoint-url \$EP"
+            echo "aws s3 cp SHA256SUMS     s3://dagric-downloads/SHA256SUMS     --endpoint-url \$EP"
+            echo "aws s3 cp SHA256SUMS.sig s3://dagric-downloads/SHA256SUMS.sig --endpoint-url \$EP"
+            echo '```'
+            echo "Order matters: an ISO live against an older signature reads as"
+            echo "a tampered download, which is worse than an older release."
           } >> "$GITHUB_STEP_SUMMARY"
 
       # THE SIGNATURE IS DELIBERATELY NOT MADE HERE.
