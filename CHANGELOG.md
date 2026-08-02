@@ -74,6 +74,59 @@ that hour on its own.
   booted the wrong one. And console and SSH logins greeted you with Debian's
   warranty notice rather than anything of ours.
 
+### Things that were quietly broken
+
+Five audit passes went through the tree feature by feature, checking each
+finding against a real build rather than trusting the source. These are the
+ones that mattered, in the order an owner would care.
+
+- **Pro machines all shared the same SSH host key.** The key pair was generated
+  while the image was being built, so every Pro installation carried an
+  identical one. A host key is the only thing that proves to a client it reached
+  the computer it dialled, so sharing one removes that proof. Each machine now
+  generates its own on first boot. *If you installed Pro before this release and
+  have ever switched the SSH server on, the manual's SSH page has the three
+  commands that replace them — it only ever mattered once you enabled it, and it
+  ships off.*
+- **Bringing your Windows passwords across recovered nothing.** The importer
+  opened the wrong kind of Firefox key store — the format Firefox stopped using
+  in 2018 — so it found no key, decrypted nothing, and reported that there were
+  no saved logins. It reads the right store now.
+- **The installer offered no disk-encryption option.** The guided install path
+  never showed the *Encrypt system* checkbox, although the manual said it would.
+  It is there now.
+- **The NVIDIA driver could leave you at a black screen.** On a machine with
+  Secure Boot on — the factory setting on most Windows laptops — the helper was
+  unable to detect it, skipped the key-enrolment walkthrough, and told you to
+  reboot. The driver then refused to load. The detection works now, and the
+  enrolment steps appear when they are needed.
+- **Snapshots were never cleaned up.** Every update added a pair and nothing
+  removed them, so the disk filled until the system would have turned itself
+  read-only. They are now counted against the limits that were always meant to
+  govern them.
+- **Sharing this computer's connection did nothing** on the free edition — the
+  Wi-Fi hotspot came up but handed out no addresses.
+- **Pro started a container service nobody asked for** at every boot, which also
+  opened a network bridge and added firewall rules of its own. Docker is
+  installed and now waits until you start it; the manual says how.
+- **SSH was closed on one network profile but not the others**, including the
+  *home* profile our own guide tells you to use.
+- **Moving your files in another language** created English-named folders beside
+  your real ones, so the files arrived where nothing on the system looked.
+- Plus: audio no longer pops and clips the start of every sound on older
+  machines; English punctuation stops borrowing shapes from the CJK fallback
+  font; the boot menu's snapshot entries read as dates and descriptions instead
+  of filesystem paths; the appearance gallery says something when it cannot
+  start rather than nothing at all; and a `dagric-game-launch` option holds full
+  performance and stops the screen dimming during controller-only games.
+
+We also corrected two things we had claimed. AppArmor is described as *active*
+rather than *enforced*, because Debian ships a large part of its profile set in
+a mode that logs rather than blocks — most are enforced, roughly a third are
+not, and `aa-status` shows you which. And the task manager shortcut is
+<kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>Esc</kbd>; one page still said
+<kbd>Ctrl</kbd>+<kbd>Esc</kbd>, which was never bound.
+
 ## 1.0 "Foundation" — 2026-07-26
 
 First release, free and Pro editions.
