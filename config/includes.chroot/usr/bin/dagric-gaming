@@ -84,3 +84,37 @@ dg_say "$(eval_gettext 'Installed to $DEST')"
 # menu labels — use the words Steam shows in your language, if you know them.
 dg_say "$(gettext "In Steam: Settings > Compatibility > enable, then pick the GE-Proton
 version per game under Properties > Compatibility.")"
+
+# GameMode's renice does nothing unless the owner is in the "gamemode" group.
+#
+# Debian ships the daemon and creates the group, and adds nobody to it — so
+# /etc/gamemode.ini's renice=10 is inert on a stock Pro image and GameMode
+# quietly achieves little beyond inhibiting the screensaver. That is a feature
+# named on the Pro page that the buyer cannot observe.
+#
+# Offered HERE rather than done at build time on purpose. Adding a user to a
+# group that grants scheduling privileges is a real change to their machine, and
+# this is the moment they have already said yes to gaming — so it is a question
+# with context rather than something that happened to them silently. Declining
+# leaves everything else working; only the priority boost is skipped.
+if command -v gamemoded >/dev/null 2>&1 && getent group gamemode >/dev/null 2>&1; then
+    if id -nG "$(id -un)" 2>/dev/null | tr ' ' '\n' | grep -qx gamemode; then
+        :
+    else
+        echo ""
+        dg_say "$(gettext "One more thing: GameMode can give a running game priority over
+everything else, which smooths out stutter on slower machines. That needs your
+account added to the \"gamemode\" group, and it takes effect at your next login.")"
+        printf '%s ' "$(gettext "Add your account to the gamemode group? [y/N]")"
+        read -r gm_answer
+        if dg_is_yes "$gm_answer"; then
+            if pkexec /usr/sbin/usermod -aG gamemode "$(id -un)"; then
+                dg_say "$(gettext "Done — log out and back in for it to take effect.")"
+            else
+                dg_say "$(gettext "Could not change the group (administrator access is required). Games still run; only the priority boost is skipped.")"
+            fi
+        else
+            dg_say "$(gettext "Left as it is. Games still run normally.")"
+        fi
+    fi
+fi
