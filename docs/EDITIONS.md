@@ -348,10 +348,12 @@ the hook existed to prevent, with all 219 language directories of KDE and
 Debian translation already on the disk ignored.
 
 **Security baseline** (genuinely strong — free is lean, not insecure):
-AppArmor mandatory access control enforced from boot, an expanded hardened
-kernel (kexec disabled, BPF/perf locked down, network-spoof protections,
-non-world-readable homes), firewalld, silent security updates, and Lynis
-on-demand security auditing. Plus day-one functional support most switchers
+AppArmor mandatory access control active from boot — Debian's mature profiles
+enforced, the wider apparmor-profiles set in complain mode per upstream (about a
+third of the total; see the AppArmor manual page and 0300-hardening's counter) —
+an expanded hardened kernel (kexec disabled, BPF/perf locked down, network-spoof
+protections, non-world-readable homes), firewalld, silent security updates, and
+Lynis on-demand security auditing. Plus day-one functional support most switchers
 need: scanners, printer breadth, firmware updates (fwupd), VPN import, media
 codecs + Netflix/Spotify (EME), MS-Office-metric fonts, fingerprint login,
 GPU video decode, `.deb` double-click, and a screen reader.
