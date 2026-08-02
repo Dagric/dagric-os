@@ -92,9 +92,18 @@ h2{margin-top:44px}
   Print-to-PDF. HP all-in-ones get one-click setup in the Hub.</p></details>
 
   <h2>Privacy &amp; security</h2>
+  <!-- "Nothing phones home — there's nothing to turn off" was the overreach. No
+       data collection is true and stays. But the machine does make outbound
+       fetches — Debian, our own update channel, the firmware catalogue — and
+       every one of those CAN be turned off, so claiming there was nothing to
+       turn off was both wrong and unnecessary: asking a server for a package
+       list is not collecting anything, and the accurate version reads better.
+       The privacy page now lists all of them with the off switch for each. -->
   <details><summary>What data does Dagric OS collect?</summary><p>None. There is no telemetry,
-  no analytics, no crash reporting to us, no accounts, and no advertising ID. Nothing phones home —
-  there's nothing to turn off. Details in the <a href="/privacy">privacy policy</a>.</p></details>
+  no analytics, no crash reporting to us, no accounts, and no advertising ID — nothing is ever
+  sent about you or your machine. It does <em>fetch</em>: updates from Debian and from our own
+  channel, and a firmware catalogue. The <a href="/privacy">privacy policy</a> lists every one
+  of those, and how to switch each off.</p></details>
   <details><summary>How is it secure out of the box?</summary><p>AppArmor confinement enforced, a
   hardened kernel configuration, a firewall that's on, silently-installing security updates, and
   GPG-signed releases. Run the built-in <strong>Security Checkup</strong> to see your hardening
@@ -142,7 +151,7 @@ h2{margin-top:44px}
 {"@type":"Question","name":"Will my Windows files and drives work?","acceptedAnswer":{"@type":"Answer","text":"Yes. NTFS and exFAT drives mount out of the box, your Office documents open with matching fonts, and Pro runs many Windows programs directly via Bottles and Wine."}},
 {"@type":"Question","name":"Is Pro a subscription?","acceptedAnswer":{"@type":"Answer","text":"No. Pro is a one-time purchase — no license servers, no activation. You own your copy outright, with free updates."}},
 {"@type":"Question","name":"What if I buy Pro and don't like it?","acceptedAnswer":{"@type":"Answer","text":"Reply to your receipt within 14 days and we refund in full — no quiz, no hoops."}},
-{"@type":"Question","name":"What data does Dagric OS collect?","acceptedAnswer":{"@type":"Answer","text":"None. There is no telemetry, no analytics, no accounts, and no advertising ID. Nothing phones home."}}
+{"@type":"Question","name":"What data does Dagric OS collect?","acceptedAnswer":{"@type":"Answer","text":"None. There is no telemetry, no analytics, no accounts, and no advertising ID — nothing is ever sent about you or your machine. It does fetch updates from Debian and from Dagric's own channel, and a firmware catalogue; the privacy policy lists every one and how to switch each off."}}
 ]}
 </script>
 </body>

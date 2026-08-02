@@ -56,8 +56,14 @@ h2.sec{margin-top:56px}
 
   <h2 class="sec">Privacy that isn't a setting</h2>
   <div class="feat">
-    <div class="card"><h3>Zero telemetry</h3><p>The OS contains no data collection at all. There's no
-    toggle because there's nothing to turn off — verified in what we ship, not promised in a policy.</p></div>
+    <!-- Same correction as the FAQ: "nothing to turn off" was overreach. No data
+         collection is true; outbound fetches (Debian, our own update channel, the
+         firmware catalogue) exist and each has an off switch, all listed on the
+         privacy page. -->
+    <div class="card"><h3>Zero telemetry</h3><p>The OS contains no data collection at all — nothing
+    about you or your machine is ever sent anywhere. What it does fetch, and how to stop each one,
+    is listed in full on the <a href="/privacy">privacy page</a>: verified in what we ship, not
+    promised in a policy.</p></div>
     <div class="card"><h3>No accounts, no ads</h3><p>Your desktop works without signing in to
     anything, and no surface of it is rented to advertisers.</p></div>
     <div class="card"><h3>Private AI, if you want AI</h3><p>One click in the Hub — on either

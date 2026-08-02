@@ -42,10 +42,40 @@
 
   <h2>The operating system</h2>
   <p><strong>Dagric OS collects nothing.</strong> The OS contains no telemetry, no analytics, no
-  crash reporters phoning home, no accounts, and no advertising identifiers. There is no "usage
-  data" setting because no usage data exists. Your files, your habits, and your hardware details
-  stay on your machine. Package updates are fetched from standard Debian and Flathub mirrors —
-  those requests reveal your IP address to those mirrors, the same as any Linux distribution.</p>
+  accounts, and no advertising identifiers. There is no "usage data" setting because no usage
+  data exists. Your files, your habits, and your hardware details stay on your machine.</p>
+
+  <!-- This list replaces one sentence that said updates come from "standard Debian
+       and Flathub mirrors" and stopped there. It read as an exhaustive account of
+       the OS's network behaviour and it was not one: it omitted our own update
+       channel, which every installed machine polls, and the firmware service. On a
+       product sold on privacy, the page describing its network behaviour is the one
+       page that has to be complete, and an omission here is worth more than the
+       feature it was hiding. The previous text also said "no crash reporters phoning
+       home" while KDE's crash handler ships installed — corrected below to say what
+       it actually does rather than to claim it is absent. -->
+  <p><strong>What the machine connects to, in full.</strong> Nothing here is
+  optional-but-on; this is the complete list, and every item is a fetch <em>from</em>
+  a server, never a report <em>to</em> one:</p>
+  <ul>
+    <li><strong>Debian's mirrors</strong>, for system updates and anything you install.</li>
+    <li><strong>Our update channel</strong> (<code>dagric-os.web.app</code>), which carries fixes
+    to Dagric's own tools, wallpapers and settings. It is checked on the same schedule as any
+    other software source, so we see the same thing a Debian mirror sees: an IP address asking
+    for a package list. We do not log it for analytics and there is no identifier in the
+    request. Remove <code>/etc/apt/sources.list.d/dagric.list</code> and it stops for good —
+    the rest of the system keeps updating from Debian.</li>
+    <li><strong>Flathub</strong>, only if you install a Flatpak app.</li>
+    <li><strong>The Linux Vendor Firmware Service</strong>, which is how your laptop learns a
+    firmware update exists. It fetches a catalogue; it does not upload your hardware list.
+    Switch it off with <code>sudo systemctl disable --now fwupd-refresh.timer</code>.</li>
+    <li><strong>KDE's crash handler</strong> is installed, so a crashed application offers you a
+    report. It never sends anything unless you read that dialog and choose to send it, and we
+    receive none of it — it goes to KDE, not to us.</li>
+  </ul>
+  <p>All of these reveal your IP address to the server being asked, the same as any Linux
+  distribution. None of them carries a device ID, an account, or anything about what you do on
+  the machine.</p>
 
   <h2>This website</h2>
   <ul>

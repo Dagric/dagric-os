@@ -206,7 +206,12 @@ main{max-width:none;margin:0;padding:0}
         <ul>
           <li><strong>Everything in Dagric OS</strong>, plus:</li>
           <li>Creative studio: GIMP, Krita, Inkscape, Blender, Kdenlive, OBS, darktable</li>
-          <li>Windows apps: Wine preinstalled, Bottles tuned</li>
+          <!-- Was "Wine preinstalled, Bottles tuned", which reads as Bottles
+               being part of Pro. It is not, on either edition: it is a Flatpak
+               installed from the Hub with one click, exactly as licenses.html
+               says. Wine genuinely is preinstalled and tuned, so the claim is
+               kept for the half that is true. -->
+          <li>Windows apps: Wine + winetricks preinstalled and tuned</li>
           <li>All 7 Dagric Looks layouts · all 7 Styles</li>
           <li>Dev stack: Docker, Podman, Distrobox, Git, SSH</li>
           <li>Gaming runtime: GameMode, MangoHud, Lutris, 32-bit Vulkan</li>
@@ -234,8 +239,13 @@ main{max-width:none;margin:0;padding:0}
       <tr><td>Dagric Looks layouts · Styles</td><td>3 · 4</td><td class="y">7 · 7</td></tr>
       <tr><td>Office suite</td><td>Writer · Calc · Impress · Draw</td><td class="y">Full LibreOffice + CJK</td></tr>
       <tr><td>Creative, video &amp; audio studio</td><td class="n">—</td><td class="y">✓</td></tr>
-      <tr><td>Windows apps (Bottles + Wine)</td><td>Bottles, one-click</td><td class="y">Preinstalled + Wine, tuned</td></tr>
-      <tr><td>Gaming stack (Steam, Proton, Heroic)</td><td>Launchers, one-click</td><td class="y">Preinstalled + GameMode, MangoHud, Lutris</td></tr>
+      <!-- The homepage keeps its own copy of this table, so the same correction
+           applies here as on /pro: Steam, Heroic and Bottles are in no package
+           list and never will be — the licences page says so on this very site.
+           What Pro preinstalls is the runtime underneath. -->
+      <tr><td>Windows apps (Wine runtime)</td><td>Bottles, one-click</td><td class="y">Wine + winetricks, preinstalled and tuned</td></tr>
+      <tr><td>Gaming stack</td><td>Launchers, one-click</td><td class="y">GameMode, MangoHud, Lutris preinstalled</td></tr>
+      <tr><td>Steam, Heroic, Bottles</td><td>One-click</td><td class="y">One-click</td></tr>
       <tr><td>Local AI (Ollama)</td><td>One-click</td><td class="y">One-click</td></tr>
       <tr><td>Developer toolchain (Docker, Podman, Distrobox, Git, SSH)</td><td class="n">—</td><td class="y">✓</td></tr>
       <tr><td>Privacy toolkit (KeePassXC, Syncthing, Flatseal)</td><td class="n">—</td><td class="y">✓</td></tr>

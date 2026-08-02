@@ -127,7 +127,8 @@ table.cmp td:nth-child(2),table.cmp td:nth-child(3),table.cmp th:nth-child(2),ta
     <div class="card"><h3>🎮 Steam + Proton</h3><p>One-click consent install, with 32-bit Vulkan,
     GameMode, and MangoHud already in place.</p></div>
     <div class="card"><h3>🚀 Heroic &amp; ProtonUp-Qt</h3><p>Your Epic, GOG, and Amazon libraries —
-    plus point-and-click Proton-GE management.</p></div>
+    plus point-and-click Proton-GE management. One click from the Hub, like Steam
+    and Bottles beside it.</p></div>
     <div class="card"><h3>🪟 Windows in a window</h3><p>For the rare app Wine can't run: a full
     KVM virtual-machine stack — UEFI and TPM 2.0 included, so even Windows 11 installs. Real
     Windows, safely boxed inside Dagric. You bring the Windows ISO; we never bundle it.</p></div>
@@ -213,8 +214,19 @@ table.cmp td:nth-child(2),table.cmp td:nth-child(3),table.cmp th:nth-child(2),ta
     <tr><td>Creative &amp; video suite</td><td class="n">—</td><td class="y">✓</td></tr>
     <tr><td>Photo/audio/video studio (darktable, Audacity, HandBrake)</td><td class="n">—</td><td class="y">✓</td></tr>
     <tr><td>Privacy toolkit (KeePassXC, Syncthing, Flatseal)</td><td class="n">—</td><td class="y">✓</td></tr>
-    <tr><td>Windows apps (Bottles + Wine)</td><td>Bottles, one-click</td><td class="y">Preinstalled + Wine, tuned</td></tr>
-    <tr><td>Gaming stack (Steam, Proton, Heroic)</td><td>Launchers, one-click</td><td class="y">Preinstalled + GameMode, MangoHud, Lutris, 32-bit Vulkan</td></tr>
+    <!-- Both of these rows said "Preinstalled", and neither could be true.
+         Steam, Heroic and Bottles are in no package list and never will be:
+         Steam and Heroic are proprietary and Bottles is a Flatpak, and this
+         product's whole licensing position is that none of the three is
+         bundled — they are one click from the Hub, on BOTH editions. What Pro
+         really preinstalls is the runtime underneath, which is the part that
+         takes assembling: Wine, winetricks, GameMode, MangoHud, Lutris and
+         32-bit Vulkan. That is a genuine advantage and it is what these rows
+         claim now. Selling "Preinstalled" to somebody who boots Pro and finds
+         no Steam is a refund at best, and it contradicts our own licence page. -->
+    <tr><td>Windows apps (Wine runtime)</td><td>Bottles, one-click</td><td class="y">Wine + winetricks, preinstalled and tuned</td></tr>
+    <tr><td>Gaming stack</td><td>Launchers, one-click</td><td class="y">GameMode, MangoHud, Lutris, 32-bit Vulkan preinstalled</td></tr>
+    <tr><td>Steam, Heroic, Bottles</td><td>One-click</td><td class="y">One-click</td></tr>
     <tr><td>Local AI (Ollama)</td><td>One-click</td><td class="y">One-click</td></tr>
     <tr><td>Developer toolchain (Docker, Podman, Distrobox, Git, SSH)</td><td class="n">—</td><td class="y">✓</td></tr>
     <tr><td>Phone integration, cloud backup, Drive in Dolphin</td><td class="n">—</td><td class="y">✓</td></tr>
