@@ -111,9 +111,28 @@ ApplicationWindow {
         return (Math.max(la, lb) + 0.05) / (Math.min(la, lb) + 0.05);
     }
 
+    // The two inks MUST be color objects, not string literals — the identical
+    // bug firstrun/main.qml documents and fixed, which never reached this file.
+    // lumOf reads c.r/c.g/c.b; a JavaScript string has none, so each came back
+    // undefined, the arithmetic produced NaN, and `NaN >= NaN` below is false —
+    // so onColor returned the dark ink on every accent, forever. It read like a
+    // computation and behaved like a constant, and the shipped styles hid it:
+    // six of seven carry a thumbnail so the fallback tile never draws, and the
+    // seventh (highcontrast) has a light accent that wants dark ink anyway. A
+    // drop-in style with a DARK accent and no thumbnail — a documented,
+    // supported case — would have drawn a near-black initial letter on a
+    // near-black tile.
+    readonly property color inkLight: "#ffffff"
+    readonly property color inkDark:  "#0a111c"
+
     function onColor(bg) {
-        return app.ratioOf("#ffffff", bg) >= app.ratioOf("#0a111c", bg)
-               ? "#ffffff" : "#0a111c";
+        // bg arrives as a color object from cBrand, but as a plain STRING from
+        // the model (entry.accent). lumOf needs .r/.g/.b, which a string does
+        // not have, so coerce it — otherwise the string-accent call site is
+        // NaN for the same reason the literals were.
+        var b = (typeof bg === "string") ? Qt.color(bg) : bg;
+        return app.ratioOf(app.inkLight, b) >= app.ratioOf(app.inkDark, b)
+               ? app.inkLight : app.inkDark;
     }
 
     function readable(fg, bg, need) {

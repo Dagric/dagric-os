@@ -257,7 +257,24 @@ def firefox_passwords(prof_root, primary_pw=""):
                     shutil.copy2(src, work)
                 except OSError:
                     pass
-        if nss.NSS_Init(work.encode()) != 0:
+        # "sql:" is NOT optional, and without it this recovered nothing from any
+        # Firefox made since 2018. NSS picks its database format from the prefix
+        # on the config dir: "sql:" means the cert9.db/key4.db SQLite store,
+        # "dbm:" the legacy Berkeley-DB one. With no prefix it falls back to
+        # NSS_DEFAULT_DB_TYPE, and Debian sets that nowhere, so it defaulted to
+        # the legacy format and went looking for key3.db. Every Firefox profile
+        # since v58 ships only key4.db — the very file copied in above — so NSS
+        # opened an empty legacy store, found no master key, and PK11SDR_Decrypt
+        # failed for every login. The helper then reported PASSWORDS=0 and
+        # dagric-migrate told the owner "No Firefox logins were recovered", with
+        # no hint that the store had simply never been read. The headline
+        # "bring your saved passwords across from Windows" feature returned
+        # nothing, on essentially every real profile, while looking like success.
+        #
+        # The in-process encrypt->decrypt round-trip this file uses as its only
+        # decryption self-test uses an ephemeral key and never touches a profile,
+        # which is why it passed the whole time the real path was dead.
+        if nss.NSS_Init(b"sql:" + work.encode()) != 0:
             note = "could not open the Firefox key store"
             continue
         try:
