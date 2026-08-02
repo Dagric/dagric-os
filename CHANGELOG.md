@@ -43,6 +43,36 @@ that hour on its own.
   systems now get real mount options (`noatime`, and `compress=zstd:1` on
   btrfs) — a Calamares config key that was being silently ignored meant every
   install to date mounted with a bare `defaults`.
+- **The user guide answers questions now instead of being read once.** It opens
+  with a table of **where everything went** — Start menu, File Explorer, Task
+  Manager, Recycle Bin, fourteen rows — because that is the question ten years
+  of habit actually arrives with. Then a **first-day checklist** that remembers
+  which items you ticked, and a **search box that speaks Windows**: type
+  *recycle bin*, *task manager* or *kein Ton* and you land on the right section.
+  New **troubleshooting** section covering the eight things that really happen,
+  symptom first, none of them needing the terminal — including the one almost
+  no distro documents: a hibernating Windows keeps its drives locked, which is
+  why your Windows drive sometimes will not open. All of it in German too.
+- **The desktop is branded end to end now.** A Dagric **startup screen** fills
+  the gap between signing in and the desktop appearing — it was stock Breeze,
+  the last unbranded surface in a boot that is otherwise ours from the menu
+  onward. The **terminal** gained Dagric colours, measured for contrast rather
+  than picked by eye. And the guide, the manual and the welcome page **follow
+  your light or dark choice** instead of being permanently dark, which was the
+  one part of Dagric that ignored the wizard's very first question.
+- **More Windows keys that just work.** <kbd>Win</kbd>+<kbd>Shift</kbd>+<kbd>S</kbd>
+  grabs a screen region, exactly as it does on Windows.
+  <kbd>Win</kbd>+<kbd>V</kbd> opens clipboard history, which now survives a
+  sign-out the way Windows' does. And **right-click → Create New** in Files
+  offers a blank document, spreadsheet and presentation — the Explorer gesture
+  with no equivalent until now.
+- **Fixes worth naming.** The free edition was missing the package that creates
+  your Documents, Downloads and Pictures folders, so a fresh free install had
+  none of them. The guide claimed rolling back a bad update was a Pro feature;
+  it is on every edition and always was. The boot menu's *(with screen reader)*
+  entry shared its shortcut key with the entry above it, so the key always
+  booted the wrong one. And console and SSH logins greeted you with Debian's
+  warranty notice rather than anything of ours.
 
 ## 1.0 "Foundation" — 2026-07-26
 
