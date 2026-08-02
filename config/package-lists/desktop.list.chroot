@@ -141,8 +141,7 @@ isoimagewriter
 # libheif1 is already on the image — pulled in as somebody's dependency — so the
 # machine can DECODE a .heic and no application can OPEN one, because the Qt
 # image-format plugins that expose it to Gwenview, Dolphin's thumbnails and the
-# wallpaper picker live here. Confirmed absent: "Setting up kimageformats" does
-# not appear in any committed build log.
+# wallpaper picker live here.
 #
 # This audience is exactly the one it hurts. A Windows switcher plugs in an
 # iPhone, copies the camera roll across, and every photo is a grey placeholder
@@ -152,7 +151,20 @@ isoimagewriter
 # Also brings AVIF, JPEG XL, Photoshop PSD, GIMP XCF and a dozen others, which
 # is the difference between a file manager that previews what you have and one
 # that shrugs at half of it.
-kimageformats
+#
+# THE NAME IS NOT THE OBVIOUS ONE, AND GETTING IT WRONG COST FOUR BUILDS. This
+# went in as "kimageformats", which is the upstream KDE project name and not a
+# Debian binary package at all, so every build since died on "E: Unable to
+# locate package kimageformats" before it produced an ISO. Debian splits it by
+# toolkit: kimageformat-plugins is the Qt5 build, kimageformat6-plugins is the
+# Qt6 one. Plasma 6 is Qt6, so it is the 6 — the Qt5 package would install
+# cleanly and do absolutely nothing for any application on this image.
+#
+# The evidence originally offered for adding it was circular, which is the part
+# worth remembering: "Setting up kimageformats does not appear in any build log"
+# was read as proof the plugins were missing. It was proof the NAME was wrong. A
+# grep for a string that never existed says nothing about the image.
+kimageformat6-plugins
 
 # A 2-in-1 with the keyboard folded back cannot log in without this.
 #

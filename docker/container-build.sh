@@ -87,6 +87,15 @@ else
     echo "i18n: python3 not installed — skipping the .desktop drift check"
 fi
 
+# Resolve every package name before bootstrapping anything. A single bad name
+# kills the build twenty minutes in, and apt reports only the first one it hits.
+# See tools/check-package-names.sh for the four builds that taught us this.
+#
+# In build.sh too, and deliberately so — the note further down this file about
+# dagric.list is there because these two scripts drifted apart once already, and
+# a check that guards only one of them guards only half the builds.
+sh tools/check-package-names.sh
+
 lb clean
 lb config
 
