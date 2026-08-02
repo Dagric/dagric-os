@@ -39,6 +39,15 @@ config/bootloaders/** text eol=lf
 # This has always applied to DagricLight/DagricDark, not just the newer
 # high-contrast scheme; same class of bug as the usr/lib/dagric line above.
 config/includes.chroot/usr/share/color-schemes/** text eol=lf
+# Konsole's scheme and profile are KConfig INI files too, and they were falling
+# through to `* text=auto` in exactly the same way — git announced it while they
+# were being committed ("LF will be replaced by CRLF the next time Git touches
+# it"). Caught before a Windows clone could write them CRLF rather than after.
+# The failure would have been the quiet kind this file keeps warning about:
+# Konsole does not report a malformed profile, it drops it with a debug-only
+# warning and opens stock Breeze, so the terminal would simply have looked
+# unbranded with nothing anywhere saying why.
+config/includes.chroot/usr/share/konsole/** text eol=lf
 # The gettext SOURCE catalogues. Read by msgmerge/msgfmt on a build host that
 # may be Windows; CRLF in a .po is tolerated but produces a pointless diff on
 # every round trip. (The compiled .mo files are binary — see the bottom.)
