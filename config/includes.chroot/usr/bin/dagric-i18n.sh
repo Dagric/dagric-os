@@ -154,7 +154,26 @@ dg_localised() {
 #
 # The strings themselves reach the .pot via tools/i18n-extract.sh, which reads
 # the same data files; xgettext cannot see through a variable.
-dg_tr() { if [ -n "$1" ]; then gettext "$1"; fi; }
+#
+# AND THE OUTPUT IS STRIPPED OF CONTROL CHARACTERS, which is the half that was
+# missing. Callers sanitise the string going IN — dagric-firstrun:299 wraps the
+# wallpaper name in flat() before handing it here — and then write what comes
+# back out raw, between ASCII unit separators, into the \037-delimited tables
+# the wizard reads. So the cleaning was happening on the wrong side of the
+# translation.
+#
+# A msgstr is the one string in this product that arrives from outside the
+# source tree, and .po supports C escapes that msgfmt compiles into real bytes:
+# a \n or a \037 in a translation is a genuine record or field separator once
+# it lands in walls.tsv, and the wizard's table silently gains a phantom row or
+# loses a column. That needs no hostility to happen — one community translator
+# with a stray escape does it.
+#
+# Every one of the ten dg_tr call sites is a single-line name or description
+# (wallpaper titles, .look/.style NAME and DESCRIPTION), so nothing legitimate
+# loses anything here. The long multi-line strings go through plain gettext,
+# which this does not touch.
+dg_tr() { if [ -n "$1" ]; then gettext "$1" | tr -d '\001-\037\177'; fi; }
 
 # dg_live_warn — say so when an install is about to land in RAM.
 #

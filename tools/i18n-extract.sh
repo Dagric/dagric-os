@@ -153,6 +153,7 @@ xgettext \
     -o po/dagric.pot \
     "$GEN" \
     "$LIB"/display-common.sh \
+    "$LIB"/display-autoscale \
     "$BIN"/dagric-i18n.sh \
     "$BIN"/dagric-ai \
     "$BIN"/dagric-appearance \

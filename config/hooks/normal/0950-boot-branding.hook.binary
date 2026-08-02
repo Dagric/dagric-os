@@ -209,7 +209,25 @@ for f in boot/grub/grub.cfg boot/grub/config.cfg; do
                     rest = substr(s, q1 + 1)
                     q2 = index(rest, "\"")
                     if (q2 == 0) { print s; continue }
-                    print substr(s, 1, q1) lbl substr(rest, q2)
+                    tail = substr(rest, q2)
+                    # AND GIVE IT ITS OWN HOTKEY.
+                    #
+                    # This copy inherited --hotkey=l from the entry it was copied
+                    # from, so the shipped grub.cfg carried the key twice:
+                    #   menuentry "... Free edition" --hotkey=l
+                    #   menuentry "... Free edition  (with screen reader)" --hotkey=l
+                    # (both confirmed in out/dagric-os-1.0-amd64.iso). GRUB fires
+                    # the FIRST entry matching a hotkey, and the copy is inserted
+                    # after the original — so pressing "l" always booted the
+                    # SIGHTED entry. The one menu item that exists solely for a
+                    # blind owner had no keypress that reached it, at the exact
+                    # moment they are deciding whether this OS is usable at all.
+                    #
+                    # "s" for screen reader, and it is free: the generated menu
+                    # uses l (live), f (firmware settings) and v (verify medium).
+                    if (tail ~ /--hotkey=/) { sub(/--hotkey=[^ ]+/, "--hotkey=s", tail) }
+                    else { tail = substr(tail, 1, 1) " --hotkey=s" substr(tail, 2) }
+                    print substr(s, 1, q1) lbl tail
                     continue
                 }
                 if (s ~ /^[[:space:]]*linux/) { print s " dagric.a11y=1"; continue }

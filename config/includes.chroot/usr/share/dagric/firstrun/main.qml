@@ -507,6 +507,29 @@ ApplicationWindow {
         app.changed = true;
     }
 
+    // markVisited — earn the rail's tick WITHOUT arming "Undo my changes".
+    //
+    // For the two steps that hand the work to another program. The Undo button
+    // restores exactly four things, and says so in its own description:
+    // colours, wallpaper, text size, taskbar. It was nonetheless being armed by
+    // two acts that live outside that set:
+    //
+    //   * "Open Display Settings" launches dagric-display, which owns the scale
+    //     and carries its own Keep/Revert with a twenty-second self-restore.
+    //     The wizard deliberately records no scale baseline when that helper is
+    //     driving (see dagric-firstrun), so there was nothing to put back.
+    //   * "Bring files from Windows" launches dagric-migrate, which COPIES
+    //     FILES. A file migration has no undo, and must not appear to.
+    //
+    // Offering Undo after either one is a promise the button cannot keep, and
+    // the worse reading is the one a nervous switcher takes: that pressing it
+    // might delete the documents they just copied across.
+    function markVisited(id) {
+        var t = app.touched;
+        t[id] = true;
+        app.touched = t;      // same reassign idiom; QML misses in-place edits
+    }
+
     function goNext() {
         if (app.stepIndex < app.steps.length - 1)
             app.stepIndex = app.stepIndex + 1;
@@ -1799,7 +1822,7 @@ ApplicationWindow {
                     Primary {
                         text: app.t("Open Display Settings")
                         Accessible.description: app.t("Opens the full display and text size settings in a separate window")
-                        onClicked: { app.markTouched("display"); app.run("display"); }
+                        onClicked: { app.markVisited("display"); app.run("display"); }
                     }
                 }
 
@@ -2071,7 +2094,7 @@ ApplicationWindow {
                     Primary {
                         text: app.t("Bring my files over")
                         Accessible.description: app.t("Opens the migration tool in its own window. Nothing on the Windows drive is changed.")
-                        onClicked: { app.markTouched("files"); app.run("migrate"); }
+                        onClicked: { app.markVisited("files"); app.run("migrate"); }
                     }
                     Text {
                         Layout.fillWidth: true

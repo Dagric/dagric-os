@@ -53,6 +53,14 @@
 
 . /usr/lib/dagric/display-common.sh
 
+# display-common.sh deliberately leaves gettext sourcing to its callers, and
+# this caller needs it: the kdialog popup in part 1 speaks to the owner, and it
+# was the last user-facing string in the tree still hardcoded in English. It
+# fires on a rescue path — the text size was put back after an unconfirmed
+# change — so it reaches somebody who is already confused about what just
+# happened to their screen, in whatever language the rest of their desktop uses.
+. /usr/bin/dagric-i18n.sh
+
 STATE=${XDG_STATE_HOME:-$HOME/.local/state}/dagric
 SEEN=$STATE/display-seen
 PENDING=$STATE/display-pending
@@ -90,8 +98,10 @@ if [ -f "$PENDING" ]; then
         fi
     done < "$PENDING"
     rm -f "$PENDING"
-    kdialog --title "Dagric Display" --passivepopup \
-        "The text size was put back — the last change was never confirmed." 8 \
+    # Plain gettext, not eval_gettext: there is no variable in either string, so
+    # the double quotes are safe and eval_gettext would only add a trap.
+    kdialog --title "$(gettext "Dagric Display")" --passivepopup \
+        "$(gettext "The text size was put back — the last change was never confirmed.")" 8 \
         >/dev/null 2>&1 || true
 fi
 

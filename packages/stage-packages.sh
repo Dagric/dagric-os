@@ -112,6 +112,32 @@ build_pkg() {
         done < "$root/DEBIAN/conffiles"
     fi
 
+    # AND THE OTHER DIRECTION, which is the one that actually bit.
+    #
+    # The check above only proves conffiles doesn't name a file that is missing.
+    # It says nothing about a file under /etc that is packed WITHOUT a conffiles
+    # entry — and dpkg treats such a file as an ordinary package file, replacing
+    # it unconditionally on every upgrade: no prompt, no .dpkg-old, no trace.
+    # An owner who set Engine=none in /etc/xdg/ksplashrc to kill the splash, or
+    # who edited a shortcut, would silently get their change reverted by an
+    # update they did not connect to it.
+    #
+    # It happened because four files (kglobalshortcutsrc, kaccessrc, klipperrc,
+    # ksplashrc) were added to the copy loops without extending conffiles. That
+    # is a mistake a person makes every time; this makes the BUILD refuse it, so
+    # the next file added to /etc cannot repeat it.
+    if [ -d "$root/etc" ]; then
+        find "$root/etc" -type f | while IFS= read -r f; do
+            rel=${f#"$root"}
+            if ! grep -qxF "$rel" "$root/DEBIAN/conffiles" 2>/dev/null; then
+                echo "$name: $rel is packed under /etc but is not in DEBIAN/conffiles." >&2
+                echo "  dpkg would overwrite the owner's edits to it on every upgrade." >&2
+                echo "  Add it to packages/$name/DEBIAN/conffiles." >&2
+                exit 1
+            fi
+        done || exit 1
+    fi
+
     dpkg-deb --build --root-owner-group "$root" "$OUT/${name}_${version}_all.deb" >/dev/null
     printf '  %-26s %s\n' "$name" "$version"
 }

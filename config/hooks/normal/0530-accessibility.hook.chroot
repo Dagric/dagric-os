@@ -265,35 +265,30 @@ fi
 # keys" or "magnifier". The Keywords lines below are the whole value of these
 # files: they are what someone types when they do not know what the feature is
 # called on Linux. "Narrator" is the Windows name and belongs there.
-mkdir -p /usr/share/applications
-cat > /usr/share/applications/dagric-screen-reader.desktop << 'EOF'
-[Desktop Entry]
-Type=Application
-Name=Screen Reader
-GenericName=Reads the screen aloud (Orca)
-Comment=Read the screen aloud. Press Meta+Alt+S to turn it on or off at any time.
-Exec=orca
-Icon=preferences-desktop-accessibility
-Terminal=false
-Categories=Utility;Accessibility;
-Keywords=orca;screen reader;screenreader;narrator;voiceover;jaws;nvda;blind;blindness;low vision;speech;speak;talk;talking;voice;tts;text to speech;braille;accessibility;a11y;
-StartupNotify=false
-EOF
-cat > /usr/share/applications/dagric-accessibility.desktop << 'EOF'
-[Desktop Entry]
-Type=Application
-Name=Accessibility
-GenericName=Make the computer easier to use
-Comment=Screen reader, magnifier, high contrast, sticky keys, slow keys, bounce keys
-Exec=systemsettings kcm_access
-Icon=preferences-desktop-accessibility
-Terminal=false
-Categories=Settings;DesktopSettings;Accessibility;
-Keywords=accessibility;a11y;ease of access;accessible;disability;disabled;impaired;screen reader;narrator;magnifier;magnify;zoom;enlarge;high contrast;contrast;colour blind;color blind;colorblind;sticky keys;slow keys;bounce keys;filter keys;mouse keys;visible bell;flash screen;deaf;hard of hearing;blind;low vision;large cursor;big pointer;
-StartupNotify=true
-EOF
-chmod 0644 /usr/share/applications/dagric-screen-reader.desktop \
-           /usr/share/applications/dagric-accessibility.desktop
+# BOTH FILES NOW SHIP FROM includes.chroot, NOT FROM HERE.
+#
+# They were heredocs in this hook, which put them outside every piece of i18n
+# tooling the project has: tools/i18n-desktop.py walks
+# config/includes.chroot/usr/share/applications and cannot see a string that
+# only exists inside a build script. So the two entries shipped English-only in
+# all five translated languages — and the Keywords lines, which the paragraph
+# above calls "the whole value of these files", were the exact thing lost. A
+# German low-vision owner typing "Bildschirmleser", "Lupe" or "Bedienungshilfen"
+# into the launcher found nothing at all.
+#
+# Same fix pattern as section 8 below: assert the files arrived rather than
+# writing them, so a rename or a missed copy fails the build loudly instead of
+# silently shipping a menu with no accessibility entries.
+for f in dagric-screen-reader dagric-accessibility; do
+    if [ -f "/usr/share/applications/$f.desktop" ]; then
+        chmod 0644 "/usr/share/applications/$f.desktop"
+    else
+        echo "ERROR: /usr/share/applications/$f.desktop is missing." >&2
+        echo "       It ships from config/includes.chroot; without it the menu" >&2
+        echo "       has no screen-reader or accessibility entry at all." >&2
+        exit 1
+    fi
+done
 
 # systemsettings is what the second entry runs; it is an explicit line in
 # desktop.list.chroot, but an entry that opens nothing is worse than no entry.
