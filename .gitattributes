@@ -48,6 +48,12 @@ config/includes.chroot/usr/share/color-schemes/** text eol=lf
 # warning and opens stock Breeze, so the terminal would simply have looked
 # unbranded with nothing anywhere saying why.
 config/includes.chroot/usr/share/konsole/** text eol=lf
+# LibreOffice's registry .xcd. Lower stakes than the KConfig files above — XML
+# normalises line endings, so CRLF here would very likely parse — but "very
+# likely" is not a standard worth applying to the file that decides whether the
+# office suite starts, and git announced the conversion while it was being
+# committed. Same one-line fix as the three rules above it.
+config/includes.chroot/usr/lib/libreoffice/** text eol=lf
 # The gettext SOURCE catalogues. Read by msgmerge/msgfmt on a build host that
 # may be Windows; CRLF in a .po is tolerated but produces a pointless diff on
 # every round trip. (The compiled .mo files are binary — see the bottom.)
