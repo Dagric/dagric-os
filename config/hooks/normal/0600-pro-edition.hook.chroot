@@ -121,12 +121,50 @@ systemctl enable opensnitch.service 2>/dev/null || true
 # turning the VM service on. Same lesson as USBGuard: a package's own postinst
 # will happily enable things we intend to be opt-in.
 # dagric-vm re-enables these (with the group setup) after the owner consents.
+#
+# virtlogd-admin.socket is in this list because it was missing from it. The
+# libvirtd side names all three sockets (plain, -ro, -admin) and the virtlogd
+# side named only two — and a still-enabled .socket starts its service on first
+# connect, which is the precise mechanism spelled out for usbguard-dbus twenty
+# lines above. Disabling virtlogd.service while leaving one of its sockets
+# enabled is the same half-measure in a different package.
 systemctl disable libvirtd.service libvirtd.socket libvirtd-ro.socket \
     libvirtd-admin.socket virtlogd.service virtlogd.socket \
-    libvirt-guests.service 2>/dev/null || true
+    virtlogd-admin.socket libvirt-guests.service 2>/dev/null || true
 # The default NAT network autostarts when libvirtd first runs; drop the
 # autostart link so even enabling the daemon doesn't silently add a bridge.
 rm -f /etc/libvirt/qemu/networks/autostart/default.xml 2>/dev/null || true
+
+# Docker: installed, but OFF until the owner asks for it. THIRD INSTANCE of the
+# pattern this hook already documents twice, and the one that was left running.
+#
+# docker.io is in pro-dev.list.chroot and its postinst enables docker.service
+# and docker.socket, exactly as usbguard-dbus and libvirtd did. So every Pro
+# machine — including the school and library machines this tier is now sold into
+# — booted a root container daemon nobody had asked for. That is not free: it
+# creates the docker0 bridge, sets net.ipv4.ip_forward=1 for the whole system,
+# and inserts Docker's own DOCKER and DOCKER-USER chains, which are famous for
+# taking published container ports straight past firewalld's zones. This image
+# spends a lot of effort closing ssh in six zones; leaving a daemon running that
+# can route around those zones on request is not consistent with that.
+#
+# Nothing is exposed on a machine with no containers, so this is surface rather
+# than a hole — which is why it is a plain disable and not an alarm.
+#
+# The socket must go too, or this achieves nothing: socket activation starts the
+# daemon on the first connection to /var/run/docker.sock regardless of whether
+# the service is enabled. Same lesson as usbguard-dbus.
+#
+# containerd.service is deliberately LEFT ALONE. It is a root daemon, but it
+# opens no bridge, sets no sysctl and touches no firewall rule, and Debian's
+# docker.service declares a dependency on it — disabling it here risks docker
+# refusing to start for the owner who turns it on, to remove surface that is not
+# actually the problem. The problem is the networking, and that comes with
+# dockerd.
+#
+# Turning it on is one command, and app-docker.html says so on the page where
+# somebody would look: sudo systemctl enable --now docker
+systemctl disable docker.service docker.socket 2>/dev/null || true
 
 # Pro look: Papirus icons by default for new users
 if ! grep -q '^\[Icons\]' /etc/skel/.config/kdeglobals 2>/dev/null; then

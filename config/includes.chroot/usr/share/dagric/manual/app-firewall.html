@@ -71,16 +71,21 @@
         <li><span class="t">Open a port for something you are running</span><p>In the Firewall settings, add the service or port to the relevant zone.
          Only do this for the zone that needs it &mdash; adding a rule to public opens
          it on every untrusted network you ever join.</p></li>
-        <li><span class="t">Turn SSH on properly</span><p>Dagric ships with SSH removed from <em>every</em> zone's allowed
-         services &mdash; not just public, because the bullet above sends you to
-         <em>home</em>, and closing only the zone you left would be theatre. Enabling
-         the server is a deliberate two-step:
+        <li><span class="t">Turn SSH on properly <span class="pill pro">PRO</span></span><p>The SSH server ships on Dagric&nbsp;OS Pro only, so on the free
+         edition there is nothing to switch on and <code>systemctl enable ssh</code>
+         will simply report that it does not exist &mdash; that is the package being
+         absent, not the firewall refusing.</p>
+         <p>The firewall side applies to both editions: Dagric removes SSH from
+         <em>every</em> zone's allowed services, not just public, because the bullet
+         above sends you to <em>home</em> and closing only the zone you left would be
+         theatre. On Pro, enabling the server is then a deliberate two-step:
          <code>sudo systemctl enable --now ssh</code> and then
          <code>sudo firewall-cmd --permanent --zone=home --add-service=ssh</code>
          followed by <code>sudo firewall-cmd --reload</code>. Use the zone you are
          actually on; <code>firewall-cmd --get-active-zones</code> names it. Omit
          <code>--zone</code> and the rule goes to public, which is the usual reason SSH
-         still will not connect.</p></li>
+         still will not connect. Full detail on the <a href="app-ssh.html">SSH</a>
+         page.</p></li>
         <li><span class="t">See what is actually listening</span><p><code>ss -tulpn</code> in a terminal lists every port something is
          waiting on. On a fresh Dagric desktop this list is very short, which is the
          point.</p></li>

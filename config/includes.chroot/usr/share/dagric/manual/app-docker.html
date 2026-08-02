@@ -51,8 +51,19 @@
     </section>
 
     <section>
-      <h2>Five things you will actually do</h2>
+      <h2>Six things you will actually do</h2>
       <ol class="tasks">
+        <li><span class="t">Start the Docker service &mdash; it does not run until you say so</span><p><code>sudo systemctl enable --now docker</code>. Docker is installed
+         on Pro but the daemon ships switched off, the same way the SSH server and the
+         virtual-machine service do. If <code>docker ps</code> answers
+         <em>Cannot connect to the Docker daemon</em>, this is why, and this is the
+         fix.</p>
+         <p>It is off because starting it is not a neutral act: the daemon runs as
+         root, creates the <code>docker0</code> bridge, turns on IP forwarding for the
+         whole machine, and adds firewall rules of its own that can carry a published
+         container port past the zones you set on <a href="app-firewall.html">the
+         firewall</a>. All reasonable once you actually want containers, and none of
+         it worth having on a machine that never runs one.</p></li>
         <li><span class="t">Use Docker without typing sudo every time</span><p><code>sudo usermod -aG docker $USER</code>, then log out and back in.
          Read the surprise below before you do &mdash; this is a real security
          decision, not a convenience setting.</p></li>

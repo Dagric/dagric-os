@@ -48,6 +48,22 @@ config/includes.chroot/usr/share/color-schemes/** text eol=lf
 # warning and opens stock Breeze, so the terminal would simply have looked
 # unbranded with nothing anywhere saying why.
 config/includes.chroot/usr/share/konsole/** text eol=lf
+# The boot splash and the login theme, which were falling through to
+# `* text=auto` in exactly the same way as the four rules around this one.
+#
+# dagric.plymouth is the file that names the module and points at the script. A
+# CRLF checkout makes every value carry a trailing CR, so ModuleName becomes
+# "script\r" — no plugin of that name exists — and ScriptFile points at a path
+# that does not. plymouthd does not report a broken theme; it falls back, and on
+# a machine where the fallback is not present the boot screen is simply black.
+# That is the worst failure this repository keeps finding: silent, at boot,
+# on the first thing a new owner sees.
+#
+# sddm/themes/**/theme.conf and breeze/theme.conf.user are KConfig-style INI and
+# behave like the Konsole files above. The PNG and default.face.icon rules in the
+# binary block below still claim the artwork inside these directories.
+config/includes.chroot/usr/share/plymouth/** text eol=lf
+config/includes.chroot/usr/share/sddm/** text eol=lf
 # LibreOffice's registry .xcd. Lower stakes than the KConfig files above — XML
 # normalises line endings, so CRLF here would very likely parse — but "very
 # likely" is not a standard worth applying to the file that decides whether the

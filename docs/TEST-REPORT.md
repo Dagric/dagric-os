@@ -9,7 +9,8 @@ QEMU harness, ISO-filesystem inspection, and two source-review passes
 - Boots to live desktop (BIOS + UEFI, both editions) with Dagric wallpaper
 - Branded "Install Dagric OS" desktop icon + Calamares (D logo, verified on screen)
 - Welcome page auto-opens on first login; offline user guide linked
-- Ctrl+Esc system monitor (confirmed by user on real hardware)
+- Ctrl+Shift+Esc system monitor (confirmed by user on real hardware; this line
+  said Ctrl+Esc, which was never bound in Plasma 6 — see docs/EDITIONS.md)
 - Full UEFI install + EFI boot + Plymouth splash (earlier session)
 - Pro suite binaries present in image (re-verified against the shipped Pro ISO
   2026-07-26): chromium, thunderbird, libreoffice, gimp (PhotoGIMP skel lands in

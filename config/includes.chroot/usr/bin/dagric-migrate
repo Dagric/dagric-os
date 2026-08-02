@@ -346,7 +346,24 @@ Leave it blank if they never set one (most people haven't).")" 2>/dev/null) || P
     # Keep stderr: a failure here must never be reported as "found nothing".
     BROWSER_LOG=$(mktemp -t dagric-migrate-browser.XXXXXX) \
         || BROWSER_LOG="${TMPDIR:-/tmp}/dagric-migrate-browser.$$"
-    RES=$(python3 /usr/share/dagric/migrate-browser.py "$WINUSER_DIR" "$HOME" "$PRIMARY" \
+
+    # THE PASSWORD GOES DOWN A PIPE, NOT INTO argv.
+    #
+    # This was `... "$HOME" "$PRIMARY"`, which put the owner's Firefox Primary
+    # Password into the helper's command line — and /proc/<pid>/cmdline is
+    # world-readable on this system (nothing here sets hidepid). Any other user
+    # logged into the same machine, and any unprivileged process, could read it
+    # out of `ps aux` for as long as the migration ran. That is the worst
+    # possible moment for it: the owner is moving their entire saved-password
+    # store across, and Pro is sold to schools and libraries where a second user
+    # on the machine is the normal case rather than an edge case.
+    #
+    # printf rather than echo: the password is arbitrary text and echo would
+    # interpret backslashes in it. The trailing newline is what the helper's
+    # readline() consumes; a blank line means "no primary password", which is
+    # the common case and is handled.
+    RES=$(printf '%s\n' "$PRIMARY" \
+            | python3 /usr/share/dagric/migrate-browser.py "$WINUSER_DIR" "$HOME" \
             2>"$BROWSER_LOG")
     N_TABS=$(printf '%s\n' "$RES" | sed -n 's/^TABS=//p')
     N_PWDS=$(printf '%s\n' "$RES" | sed -n 's/^PASSWORDS=//p')

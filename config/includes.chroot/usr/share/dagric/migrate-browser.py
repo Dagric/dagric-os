@@ -372,10 +372,34 @@ def _step(what, fn, fallback, failures):
 
 def main():
     if len(sys.argv) < 3:
-        print("usage: migrate-browser.py <windows-profile> <output-dir> [primary-password]")
+        print("usage: migrate-browser.py <windows-profile> <output-dir>")
+        print("       the Firefox Primary Password is read from stdin, not argv")
         return 2
     prof, outdir = sys.argv[1], sys.argv[2]
-    primary = sys.argv[3] if len(sys.argv) > 3 else ""
+
+    # THE PRIMARY PASSWORD ARRIVES ON STDIN AND MUST NEVER BE AN ARGUMENT.
+    #
+    # It used to be sys.argv[3]. On Linux /proc/<pid>/cmdline is world-readable
+    # — Dagric sets no hidepid — so for as long as this process ran, the owner's
+    # Firefox Primary Password was legible to every other user on the machine
+    # through a plain `ps aux`, and to any unprivileged process that cared to
+    # look. Migration is exactly when someone is carrying their whole password
+    # store across, and Pro is sold into schools and libraries where "every
+    # other user on the machine" is not a hypothetical.
+    #
+    # stdin has no such window: the bytes go down a pipe that only this process
+    # can read, and nothing in the process table records them. dagric-migrate
+    # feeds it with `printf '%s\n' "$PRIMARY" | ...`.
+    #
+    # isatty guards the case of someone running this helper by hand to debug:
+    # without it, the read would block forever on a terminal and look like a
+    # hang. A blank password is normal — most people never set one.
+    primary = ""
+    if not sys.stdin.isatty():
+        try:
+            primary = sys.stdin.readline().rstrip("\n")
+        except (OSError, UnicodeDecodeError):
+            primary = ""
     ff_root = os.path.join(prof, "AppData/Roaming/Mozilla/Firefox/Profiles")
     chrome_dir = os.path.join(prof, "AppData/Local/Google/Chrome/User Data")
     edge_dir = os.path.join(prof, "AppData/Local/Microsoft/Edge/User Data")

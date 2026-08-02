@@ -256,5 +256,38 @@ done
 normalise_modes "$P"
 # The tools are the one thing in these four packages that has to be runnable.
 chmod 0755 "$P/usr/bin/"* 2>/dev/null || true
-find "$P/usr/lib/dagric" -name '*.sh' -exec chmod 0755 {} + 2>/dev/null || true
+
+# EXECUTABLE BY SHEBANG, NOT BY FILE EXTENSION — and the old rule was exactly
+# inverted, which is why this is worth the paragraph.
+#
+# It was `find "$P/usr/lib/dagric" -name '*.sh' -exec chmod 0755`. There is
+# precisely one *.sh file in that directory, display-common.sh, and it is a
+# SOURCED library — the single file there that must NOT be executable. The three
+# that are actually run — display-autoscale, desktop-shortcut-trust,
+# boot-find-splash-rule — carry no extension, so the glob never matched any of
+# them. normalise_modes has just set every file 0644, so they stayed 0644.
+#
+# The ISO never showed it. build.sh chmods includes.chroot/usr/lib/dagric/*, and
+# hooks 0500 and 0520 chmod their targets inside the chroot, so a freshly
+# installed machine is correct. It breaks on the first UPDATE: dpkg applies the
+# archive's recorded modes, so the moment a sold machine takes a dagric-tools
+# update through the paid channel, display-autoscale and desktop-shortcut-trust
+# arrive 0644 and stop running. Silently — a .desktop whose Exec is not
+# executable produces no error anywhere, the features just quietly cease. An
+# update channel that disables features is worse than no update channel.
+#
+# Keyed on the shebang because that is the property that actually decides it,
+# and because it stays right on its own: any new program dropped in here is
+# covered the day it is added, and a new sourced library is correctly left
+# alone. Today it gives 0755 to the three with #! and leaves display-common.sh
+# at 0644, which is exactly the inverse of what shipped.
+for _f in "$P/usr/lib/dagric/"*; do
+    [ -f "$_f" ] || continue
+    _first=""
+    read -r _first < "$_f" 2>/dev/null || _first=""
+    case "$_first" in
+        '#!'*) chmod 0755 "$_f" ;;
+    esac
+done
+unset _f _first
 build_pkg dagric-tools
