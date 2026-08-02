@@ -54,6 +54,19 @@ config/includes.chroot/usr/share/konsole/** text eol=lf
 # office suite starts, and git announced the conversion while it was being
 # committed. Same one-line fix as the three rules above it.
 config/includes.chroot/usr/lib/libreoffice/** text eol=lf
+# systemd units shipped outside /etc. The etc/** rule above already covers the
+# drop-ins; dagric-ssh-hostkeys.service was the first unit to live under
+# /usr/lib/systemd, and git announced the conversion while it was being
+# committed — the same tell as the Konsole and LibreOffice rules above.
+#
+# Same "very likely fine" as the .xcd, and the same answer. systemd counts \r as
+# whitespace and strips it off the end of a value, so a CRLF unit would almost
+# certainly parse. But this particular unit is the one that gives each machine
+# its own SSH host keys, and if a stray \r ever did land inside a
+# ConditionPathExists the condition would simply never match: no keys, sshd
+# refusing to start, and not one line anywhere saying why. One rule is cheaper
+# than depending on a whitespace-stripping detail staying true.
+config/includes.chroot/usr/lib/systemd/** text eol=lf
 # The gettext SOURCE catalogues. Read by msgmerge/msgfmt on a build host that
 # may be Windows; CRLF in a .po is tolerated but produces a pointless diff on
 # every round trip. (The compiled .mo files are binary — see the bottom.)

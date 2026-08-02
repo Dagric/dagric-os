@@ -1,0 +1,36 @@
+# Dagric OS — give this machine SSH host keys of its very own.
+#
+# The build deletes the keys openssh-server's postinst generated in the chroot,
+# because otherwise every Pro machine ships the same private host key and SSH's
+# only defence against impersonation is gone. See 0300-hardening.hook.chroot.
+# This is the other half: without it, an image with no keys has no way to get
+# any, and sshd refuses to start for the first owner who enables it.
+#
+# Runs on every boot and does nothing on almost all of them — the conditions
+# below make it a no-op the moment real keys exist. Cost on a normal boot is one
+# skipped unit.
+[Unit]
+Description=Generate this machine's own SSH host keys
+Documentation=man:ssh-keygen(1)
+
+# Plain conditions are AND-ed; the "|" ones are OR-ed among themselves. So this
+# reads: sshd is installed, AND at least one expected host key is missing.
+# On the free edition there is no sshd and the unit never runs at all.
+ConditionPathExists=/usr/sbin/sshd
+ConditionPathExists=|!/etc/ssh/ssh_host_ed25519_key
+ConditionPathExists=|!/etc/ssh/ssh_host_rsa_key
+
+# Before both, because Debian ships socket activation as well as the service,
+# and whichever one starts first must find the keys already there.
+Before=ssh.service ssh.socket
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+# -A generates one key of each type the installed sshd supports, and skips any
+# that already exist — so a machine that has ed25519 but somehow lost rsa gets
+# just the missing one, and nothing already trusted is ever replaced.
+ExecStart=/usr/bin/ssh-keygen -A
+
+[Install]
+WantedBy=multi-user.target

@@ -80,6 +80,59 @@ for _zone in public home internal work external dmz; do
 done
 unset _zone
 
+# EVERY PRO MACHINE WAS SHIPPING THE SAME SSH HOST KEY.
+#
+# openssh-server is in pro-dev.list.chroot. Its postinst runs `ssh-keygen -A`,
+# and a postinst runs during the BUILD, inside this chroot — so the host keys
+# were generated once, here, and then copied into the ISO. Every Pro customer
+# got the same /etc/ssh/ssh_host_*_key, and the private halves are inside a
+# product anyone can buy for $39.
+#
+# That is not a hardening nicety. A host key is the only thing that tells an SSH
+# client it is talking to the machine it dialled. With the private key in
+# everyone's hands, anyone on the path can impersonate any Dagric Pro box and
+# the client shows no warning at all, because the key it is offered is the key
+# it trusted the first time. The one protection SSH gives over a hostile
+# network is exactly the one that stops working.
+#
+# So: delete them at the end of the build, and let each machine make its own on
+# first boot (dagric-ssh-hostkeys.service, enabled below).
+#
+# The count is printed rather than assumed. This hook cannot boot the image, so
+# the deletion IS the verification: a build log saying it removed 5 files proves
+# the keys were being baked in, and a log saying it removed 0 proves they were
+# not and this block can go. Either way the answer is in CI output instead of in
+# somebody's head.
+_removed=0
+for _k in /etc/ssh/ssh_host_*_key /etc/ssh/ssh_host_*_key.pub \
+         /etc/ssh/ssh_host_*_key-cert.pub; do
+    [ -e "$_k" ] || continue
+    rm -f "$_k" && _removed=$((_removed + 1))
+done
+if [ "$_removed" -gt 0 ]; then
+    echo "hardening: removed $_removed baked-in SSH host key file(s) — each machine now generates its own"
+else
+    echo "hardening: no SSH host keys were baked into the image"
+fi
+unset _removed _k
+
+# Enable the first-boot regenerator. Hand-made wants-symlink for the reason
+# 0800-snapshot-recovery documents: it is exactly what `systemctl enable` writes
+# for a WantedBy=multi-user.target unit, and it does not depend on systemctl
+# being willing to run inside the chroot.
+if [ -f /usr/lib/systemd/system/dagric-ssh-hostkeys.service ]; then
+    mkdir -p /etc/systemd/system/multi-user.target.wants
+    ln -sf /usr/lib/systemd/system/dagric-ssh-hostkeys.service \
+        /etc/systemd/system/multi-user.target.wants/dagric-ssh-hostkeys.service
+    echo "hardening: dagric-ssh-hostkeys.service enabled"
+else
+    # Loud: without this unit, an image whose keys were just deleted has no way
+    # to make new ones, and sshd would refuse to start for the owner who enables
+    # it. The two halves of this fix must never ship apart.
+    echo "WARNING: dagric-ssh-hostkeys.service missing — host keys were deleted" >&2
+    echo "         with nothing to regenerate them. sshd will not start." >&2
+fi
+
 # Fingerprint login: fprintd + libpam-fprintd are installed, but Debian's PAM
 # profile ships "Default: no", so /etc/pam.d/common-auth never consults the
 # reader — a user could enroll a finger and have it silently ignored at the
