@@ -320,6 +320,23 @@ fprintd
 libpam-fprintd
 thermald
 
+# HYBRID GRAPHICS — the standard build of every 2013-2018 gaming and creator
+# laptop, which is a large share of the machines this OS is sold to rescue.
+#
+# Those laptops have an Intel iGPU wired to the screen and an NVIDIA or AMD dGPU
+# for work that needs it. Without a D-Bus service to arbitrate, everything runs
+# on the integrated chip and the discrete card sits idle and unreachable: no
+# right-click "run this on the dedicated card", no way to send Blender or a game
+# to the hardware bought for it. dagric-hardware-check already DETECTS this
+# configuration and reports it, which made the absence of any way to act on it
+# the more annoying half of the problem.
+#
+# switcheroo-control is 16 kB in main and is a plain systemd D-Bus service; the
+# desktop hooks it automatically, so this needs no configuration. It defaults to
+# the integrated GPU to save battery — the right default for a laptop — and the
+# discrete card is then one menu item away.
+switcheroo-control
+
 # Quality of life
 bash-completion
 less

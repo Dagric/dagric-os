@@ -74,7 +74,52 @@ you to enroll it — you'll finish that at the next reboot.")"
             # is installed, so this keeps working across kernel upgrades instead
             # of pinning headers that stop matching after the first one.
             apt-get update
-            apt-get install -y linux-headers-amd64 nvidia-driver firmware-misc-nonfree
+
+            # WHICH nvidia-driver? THE CARD DECIDES, NOT THIS SCRIPT.
+            #
+            # This installed the plain `nvidia-driver` metapackage on every
+            # machine. That is the CURRENT branch, and it dropped support for
+            # Kepler (GeForce 600/700, 2012-2014) and everything older. Those are
+            # squarely inside the 2012-2018 hardware window this OS is sold to
+            # rescue, so the owners most likely to need a driver helper were the
+            # ones it could not help: apt installs a driver that refuses to bind
+            # the card, X falls back, and nothing says why.
+            #
+            # nvidia-detect reads the PCI ID and names the right metapackage —
+            # nvidia-driver, nvidia-tesla-470-driver, nvidia-legacy-390xx-driver
+            # and so on.
+            #
+            # Parsed by matching the PACKAGE NAME PATTERN rather than the
+            # sentence around it. The obvious approach — awk -F': ' on "It is
+            # recommended to install the" — assumes a colon and a single line,
+            # and nvidia-detect prints the package on its own following line with
+            # no colon at all, so that returns empty and silently falls back.
+            # Matching ^nvidia-.*driver$ across the whole output cannot be broken
+            # by upstream rewording.
+            # nvidia-detect is fetched HERE rather than shipped in the ISO. It
+            # lives in non-free and exists only to answer this one question, and
+            # by this line the owner has already said yes to proprietary NVIDIA
+            # drivers — so it costs the image nothing and arrives exactly when
+            # consent has been given. Failure is not fatal; the fallback below
+            # handles it.
+            apt-get install -y nvidia-detect >/dev/null 2>&1 || true
+
+            NVPKG=""
+            if command -v nvidia-detect >/dev/null 2>&1; then
+                NVPKG=$(nvidia-detect 2>/dev/null \
+                        | grep -oE '\bnvidia-([a-z]+-)?[0-9]*x*x*-?driver\b|\bnvidia-driver\b' \
+                        | head -1)
+            fi
+            # Fall back to the current branch only when detection is unavailable
+            # or says nothing — never silently, the log line is the record.
+            if [ -z "$NVPKG" ]; then
+                NVPKG="nvidia-driver"
+                echo "nvidia-detect unavailable or inconclusive; using $NVPKG" >&2
+            else
+                echo "nvidia-detect recommends: $NVPKG" >&2
+            fi
+
+            apt-get install -y linux-headers-amd64 "$NVPKG" firmware-misc-nonfree
 
             # Say so if the module did not actually get built, rather than
             # letting the reboot be the thing that finds out.

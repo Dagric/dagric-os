@@ -1,0 +1,119 @@
+#!/bin/sh
+# SPDX-FileCopyrightText: 2026 DGR Operations <repo@dagric.com>
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Dagric OS — strip this machine's identity so it can be cloned to others.
+#
+# WHY THIS EXISTS. A school or library sets one machine up the way they want and
+# images it onto thirty. Every one of those thirty then has the SAME machine
+# identity, and two of those are actively harmful:
+#
+#   * THE SSH HOST KEYS. 0300-hardening deletes the keys the build generated, and
+#     dagric-ssh-hostkeys.service makes fresh ones on first boot — but that unit
+#     fires on the keys being ABSENT, and a cloned disk has keys, so it correctly
+#     does nothing. The fleet ends up sharing one private host key, which is the
+#     exact hole the build-time deletion exists to close, reopened by the copy.
+#     Anyone on the network can then impersonate any machine in the room.
+#
+#   * THE MACHINE ID. /etc/machine-id seeds systemd's identity, journald, and —
+#     the one that bites first — NetworkManager's DHCP client identifier and
+#     IPv6 addressing. Thirty machines with one machine-id on one LAN fight over
+#     leases and produce duplicate-address errors that look like a broken switch.
+#
+# WHAT IT DELIBERATELY DOES NOT DO. It does not touch user data, installed
+# packages, or configuration. It is not a factory reset — it removes IDENTITY,
+# so the clone is the same system with its own name.
+#
+# WHY IT IS A COMMAND AND NOT AUTOMATIC. Running this on a machine somebody is
+# using breaks that machine's SSH identity for anyone who has connected to it
+# before. It is safe, but it is not something to do behind an owner's back, so
+# it is typed on purpose and asks first.
+set -e
+
+if [ "$(id -u)" -ne 0 ]; then
+    echo "dagric-image-prep must run as root:  sudo dagric-image-prep" >&2
+    exit 1
+fi
+
+FORCE=no
+[ "$1" = "--yes" ] && FORCE=yes
+
+cat <<'EOF'
+Dagric image preparation
+========================
+This strips the identity that must be unique per machine, so this disk can be
+cloned onto other computers:
+
+  * SSH host keys        each clone will generate its own on first boot
+  * /etc/machine-id      each clone will generate its own on first boot
+
+Your files, accounts, settings and installed software are NOT touched.
+
+Do this on the REFERENCE machine, immediately before imaging it, and shut down
+rather than rebooting — the identity is rebuilt the next time it boots, so a
+reboot here undoes the preparation you just did.
+EOF
+
+if [ "$FORCE" != yes ]; then
+    printf '\nType PREPARE to continue: '
+    read -r ans
+    [ "$ans" = "PREPARE" ] || { echo "Nothing changed."; exit 0; }
+fi
+
+echo ""
+
+# --- SSH host keys --------------------------------------------------------
+removed=0
+for k in /etc/ssh/ssh_host_*_key /etc/ssh/ssh_host_*_key.pub \
+         /etc/ssh/ssh_host_*_key-cert.pub; do
+    [ -e "$k" ] || continue
+    rm -f "$k" && removed=$((removed + 1))
+done
+if [ "$removed" -gt 0 ]; then
+    echo "  removed $removed SSH host key file(s) — regenerated per machine on first boot"
+else
+    echo "  no SSH host keys present (openssh-server not installed, or already prepared)"
+fi
+
+# --- machine-id -----------------------------------------------------------
+#
+# TRUNCATED, NOT DELETED, and the difference matters. systemd treats an EMPTY
+# /etc/machine-id as "first boot, generate one" and populates it. A MISSING file
+# on a read-only or early-mounted /etc cannot always be created, and systemd
+# then falls back to a transient id that changes every boot — which breaks
+# journald's persistent log directory and any per-machine state. `truncate` is
+# the documented way to stage an image; `rm` is not.
+: > /etc/machine-id
+echo "  cleared /etc/machine-id — regenerated per machine on first boot"
+
+# /var/lib/dbus/machine-id is usually a symlink to the above on modern Debian,
+# but is a real file on some upgrade paths. If it is real, clear it too, or dbus
+# keeps handing out the reference machine's id after the clone.
+if [ -f /var/lib/dbus/machine-id ] && [ ! -L /var/lib/dbus/machine-id ]; then
+    : > /var/lib/dbus/machine-id
+    echo "  cleared /var/lib/dbus/machine-id (was a real file, not a symlink)"
+fi
+
+# --- things that identify the machine but are not identity ----------------
+# Cleared because a clone inherits them as noise, not because they are unsafe.
+rm -f /var/lib/systemd/random-seed 2>/dev/null || true
+rm -f /etc/NetworkManager/system-connections/*.nmconnection.dagric-bak 2>/dev/null || true
+
+# Logs from the reference machine are confusing on thirty clones.
+if command -v journalctl >/dev/null 2>&1; then
+    journalctl --rotate >/dev/null 2>&1 || true
+    journalctl --vacuum-time=1s >/dev/null 2>&1 || true
+    echo "  vacuumed the journal (reference-machine logs are noise on a clone)"
+fi
+
+cat <<'EOF'
+
+Done. SHUT DOWN now — do not reboot — and image the disk.
+
+  sudo poweroff
+
+Each clone generates its own SSH host keys and machine-id the first time it
+boots. Verify on a clone with:
+
+  ssh-keygen -lf /etc/ssh/ssh_host_ed25519_key.pub    (should differ per machine)
+  cat /etc/machine-id                                  (should differ per machine)
+EOF
