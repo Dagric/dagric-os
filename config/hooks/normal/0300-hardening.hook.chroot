@@ -37,28 +37,48 @@ EOF
 systemctl enable firewalld.service 2>/dev/null || true
 
 # SSH is NOT reachable by default. openssh-server ships on Pro (off until the
-# owner enables it), but firewalld's stock public zone allows the ssh service,
-# which would expose a password-auth sshd on every untrusted network the moment
-# it's switched on. Close it; enabling SSH is then a deliberate two-step:
-#   sudo firewall-cmd --permanent --add-service=ssh && sudo firewall-cmd --reload
+# owner enables it), but firewalld's stock zones allow the ssh service, which
+# would expose a password-auth sshd the moment it's switched on. Close it;
+# enabling SSH is then a deliberate two-step, on the zone actually in use:
+#   sudo firewall-cmd --permanent --zone=home --add-service=ssh
+#   sudo firewall-cmd --reload
 #
-# This was a bare `2>/dev/null || true`. When it failed, nothing said so, and the
-# image shipped with ssh still allowed in the public zone — the precise hole this
-# block exists to close, silently left open. A hardening step that cannot report
-# its own failure is not a hardening step. Run it, then ASK whether it took.
-firewall-offline-cmd --zone=public --remove-service=ssh >/dev/null 2>&1 \
-    || echo "NOTE: firewall-offline-cmd --remove-service=ssh returned an error" >&2
+# THIS USED TO CLOSE public AND NOTHING ELSE, which closed the front door and
+# left the side door open — because Dagric itself steers owners out of public.
+# 0600-pro-edition runs `--zone=home --add-service=kdeconnect`, and the setup
+# wizard and guide both tell owners to mark their home network trusted so KDE
+# Connect works. Follow Dagric's own instructions and you land in `home`, where
+# firewalld's stock ruleset allows ssh. The hardening was one documented click
+# away from being undone, and the warning below would have said nothing.
+#
+# So: every stock zone that ships ssh enabled. public, home, internal and work
+# are the ones an owner reaches through the KDE applet; external and dmz ship it
+# too and cost nothing to close. `trusted` is deliberately absent — it accepts
+# everything by design and has no service list to remove from, so a machine put
+# there is exposed no matter what this hook does. That is a property of choosing
+# "trusted", not a gap here.
+#
+# The removal itself is quiet: on a zone where ssh is already absent,
+# firewall-offline-cmd exits non-zero saying so, and that is the outcome we
+# want, not an error worth printing. --query-service is the authority, and it
+# runs per zone below.
+for _zone in public home internal work external dmz; do
+    firewall-offline-cmd --zone="$_zone" --remove-service=ssh >/dev/null 2>&1 || true
 
-# --query-service exits 0 when the service is STILL allowed, so a zero here is
-# the bad case. Deliberately a loud warning rather than an exit: a broken
-# firewall rule must not silently ship, but it also must not destroy a
-# twenty-minute build at the very end when everything else succeeded.
-if firewall-offline-cmd --zone=public --query-service=ssh >/dev/null 2>&1; then
-    echo "WARNING: firewalld's public zone STILL allows ssh after the removal." >&2
-    echo "         Any sshd the owner later enables would be reachable from" >&2
-    echo "         every untrusted network they join. Check that firewalld is" >&2
-    echo "         actually installed in the chroot by the time this hook runs." >&2
-fi
+    # --query-service exits 0 when the service is STILL allowed, so a zero here
+    # is the bad case. Deliberately a loud warning rather than an exit: a broken
+    # firewall rule must not silently ship, but it also must not destroy a
+    # twenty-minute build at the very end when everything else succeeded.
+    if firewall-offline-cmd --zone="$_zone" --query-service=ssh >/dev/null 2>&1; then
+        echo "WARNING: firewalld's $_zone zone STILL allows ssh after removal." >&2
+        echo "         Any sshd the owner later enables would be reachable from" >&2
+        echo "         every network they join on that zone. Check that firewalld" >&2
+        echo "         is actually installed by the time this hook runs." >&2
+    else
+        echo "hardening: ssh closed in the $_zone zone"
+    fi
+done
+unset _zone
 
 # Fingerprint login: fprintd + libpam-fprintd are installed, but Debian's PAM
 # profile ships "Default: no", so /etc/pam.d/common-auth never consults the

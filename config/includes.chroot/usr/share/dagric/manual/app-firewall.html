@@ -71,11 +71,16 @@
         <li><span class="t">Open a port for something you are running</span><p>In the Firewall settings, add the service or port to the relevant zone.
          Only do this for the zone that needs it &mdash; adding a rule to public opens
          it on every untrusted network you ever join.</p></li>
-        <li><span class="t">Turn SSH on properly</span><p>Dagric ships with SSH removed even from the public zone's allowed
-         services, so enabling the server is a deliberate two-step:
+        <li><span class="t">Turn SSH on properly</span><p>Dagric ships with SSH removed from <em>every</em> zone's allowed
+         services &mdash; not just public, because the bullet above sends you to
+         <em>home</em>, and closing only the zone you left would be theatre. Enabling
+         the server is a deliberate two-step:
          <code>sudo systemctl enable --now ssh</code> and then
-         <code>sudo firewall-cmd --permanent --add-service=ssh</code> followed by
-         <code>sudo firewall-cmd --reload</code>. Both, or it is not reachable.</p></li>
+         <code>sudo firewall-cmd --permanent --zone=home --add-service=ssh</code>
+         followed by <code>sudo firewall-cmd --reload</code>. Use the zone you are
+         actually on; <code>firewall-cmd --get-active-zones</code> names it. Omit
+         <code>--zone</code> and the rule goes to public, which is the usual reason SSH
+         still will not connect.</p></li>
         <li><span class="t">See what is actually listening</span><p><code>ss -tulpn</code> in a terminal lists every port something is
          waiting on. On a fresh Dagric desktop this list is very short, which is the
          point.</p></li>

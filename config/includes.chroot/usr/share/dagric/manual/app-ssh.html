@@ -68,10 +68,15 @@
         <li><span class="t">Save yourself typing</span><p>Put hosts in <code>~/.ssh/config</code> with a short alias, a user name
          and a key file, and then <code>ssh myserver</code> is enough.</p></li>
         <li><span class="t">Enable the server on this machine</span><p>Both halves are required:
-         <code>sudo systemctl enable --now ssh</code> and then
-         <code>sudo firewall-cmd --permanent --add-service=ssh</code> followed by
-         <code>sudo firewall-cmd --reload</code>. If you skip the second, nothing can
-         reach it &mdash; which is exactly how it ships.</p></li>
+         <code>sudo systemctl enable --now ssh</code>, and then open it on the zone your
+         network is actually on &mdash; <code>firewall-cmd --get-active-zones</code> names
+         it, and it is <em>home</em> if you followed the
+         <a href="app-firewall.html">firewall</a> page:
+         <code>sudo firewall-cmd --permanent --zone=home --add-service=ssh</code> followed
+         by <code>sudo firewall-cmd --reload</code>. Name the zone. Left out,
+         <code>--zone</code> defaults to <em>public</em>, the rule lands somewhere you are
+         not, and SSH goes on refusing connections with everything looking correct &mdash;
+         which is exactly how it ships.</p></li>
       </ol>
     </section>
 
