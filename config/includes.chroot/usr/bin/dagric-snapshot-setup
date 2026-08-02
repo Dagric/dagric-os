@@ -62,9 +62,26 @@ systemctl disable --now snapper-boot.timer 2>/dev/null || true
 
 # Snapshot the system before and after every apt/dpkg run, so a bad update is
 # always recoverable.
+#
+# --cleanup-algorithm number ON BOTH CREATES IS LOAD-BEARING, and leaving it off
+# was a slow way to brick the machine. snapper only ever prunes snapshots tagged
+# cleanup=number — that is the ONLY thing NUMBER_LIMIT=4-10, SPACE_LIMIT and
+# FREE_LIMIT above act on. A `create` with no --cleanup-algorithm writes an
+# untagged snapshot that snapper will keep forever. These pairs are made on
+# EVERY apt run and every unattended-upgrade, so untagged they accumulate without
+# bound until btrfs hits ENOSPC and turns the root read-only — the exact failure
+# the retention block at the top of this file exists to prevent, re-armed. And
+# empty-pre-post cleanup does not save it: apt changes files, so the diffs are
+# non-empty and those pairs are never "empty".
+#
+# -c root is the GLOBAL --config (which snapper config to use); the create's own
+# --cleanup-algorithm is a separate option, which is why both appear. Written
+# long here so the next reader does not mistake it for a duplicate of -c root.
+# The baseline at the bottom is deliberately left untagged — it is the permanent
+# floor to roll back to.
 cat > /etc/apt/apt.conf.d/80dagric-snapshot << 'EOF'
-DPkg::Pre-Invoke  { "if command -v snapper >/dev/null 2>&1 && findmnt -no FSTYPE / | grep -q btrfs; then snapper -c root create -d 'apt (pre)' -t pre -p > /run/dagric-snap-pre 2>/dev/null || true; fi"; };
-DPkg::Post-Invoke { "if command -v snapper >/dev/null 2>&1 && [ -s /run/dagric-snap-pre ]; then snapper -c root create -d 'apt (post)' -t post --pre-number \"$(cat /run/dagric-snap-pre)\" >/dev/null 2>&1 || true; rm -f /run/dagric-snap-pre; fi"; };
+DPkg::Pre-Invoke  { "if command -v snapper >/dev/null 2>&1 && findmnt -no FSTYPE / | grep -q btrfs; then snapper -c root create -d 'apt (pre)' -t pre --cleanup-algorithm number -p > /run/dagric-snap-pre 2>/dev/null || true; fi"; };
+DPkg::Post-Invoke { "if command -v snapper >/dev/null 2>&1 && [ -s /run/dagric-snap-pre ]; then snapper -c root create -d 'apt (post)' -t post --cleanup-algorithm number --pre-number \"$(cat /run/dagric-snap-pre)\" >/dev/null 2>&1 || true; rm -f /run/dagric-snap-pre; fi"; };
 EOF
 
 # grub-btrfs daemon: auto-refresh the GRUB snapshot submenu when snapshots

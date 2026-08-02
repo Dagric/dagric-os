@@ -49,6 +49,23 @@ wireless-regdb
 # from the very same apt block, it WAS pinned, and it is installed in the same
 # logs. The pin is the whole difference.
 wpasupplicant
+# "SHARE THIS MACHINE'S CONNECTION" NEEDS THIS, AND IT WAS ON THE SAME DROPPED
+# LINE AS wpasupplicant ABOVE.
+#
+# app-network.html lists "Share this machine's connection" among the five things
+# an owner will do — set the Wi-Fi mode to Access Point to tether a tablet.
+# NetworkManager serves DHCP and DNS to the clients of a shared/AP connection
+# only by spawning the dnsmasq binary from dnsmasq-base; NM has no built-in DHCP
+# server for that mode. Without the binary the radio comes up in AP mode and no
+# client ever gets an address — a documented feature that silently does nothing.
+#
+# It is a NetworkManager Recommends, so --apt-recommends false drops it, and it
+# sat literally next to wpasupplicant in apt's "Recommended packages:" block —
+# missed in the same sweep that pinned wpasupplicant. It was present on Pro only
+# by accident, pulled in by libvirt (pro-vm.list.chroot). dnsmasq-base is the
+# on-demand BINARY, not the system dnsmasq DAEMON, so pinning it adds no
+# listening service at boot — NM invokes it only when a share is started.
+dnsmasq-base
 # VPN import — a privacy-first OS that can't open a WireGuard/OpenVPN config
 # undercuts its own pitch. WireGuard is kernel-native; these add the applet
 # handlers. (Found by test review: import silently failed.)
