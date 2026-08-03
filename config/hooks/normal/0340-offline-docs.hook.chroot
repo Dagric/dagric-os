@@ -1,0 +1,107 @@
+#!/bin/sh
+# SPDX-FileCopyrightText: 2026 DGR Operations <repo@dagric.com>
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Dagric OS — prove the offline documentation actually works offline.
+#
+# WHY THIS HOOK EXISTS. The guide, the manual and the welcome page are opened as
+# files: dagric-guide, dagric-manual and dagric-welcome all end in
+#
+#     exec "$b" "file://$PAGE"
+#
+# so every path inside them resolves against the FILESYSTEM ROOT, not against a
+# web server. A leading slash is therefore not "site-absolute" here — it is
+# /guide/guide.css, a path that exists on dagric.com and nowhere on this image.
+#
+# That is not hypothetical. Both shipped guides — the English one and the German
+# one — carried href="/guide/guide.css" and src="/guide/guide.js" in the image,
+# so the in-OS guide loaded no stylesheet and no JavaScript at all: no sidebar
+# search, no checklist that remembers what you ticked, 21 sections of unstyled
+# black-on-white. tools/publish-guide.py rewrites the relative paths to absolute
+# ones ON THE WAY OUT to the website, and the absolute forms had been written
+# back into the source, which is exactly backwards — the web copy is the derived
+# one. It shipped that way because nothing checked, and the one reader who hits
+# it is the reader with no internet, looking up how to fix the Wi-Fi.
+#
+# The checks are fatal. An offline guide that does not render offline is not a
+# guide, and a language switcher pointing at a directory we did not ship is
+# worse than no switcher.
+set -e
+
+DOCS=/usr/share/dagric
+GUIDE="$DOCS/guide"
+fail=0
+
+# --- 1. no path may assume a web server -------------------------------------
+#
+# href="//host" is protocol-relative and equally wrong offline, but nothing here
+# writes one; the grep excludes it so that a future absolute EXTERNAL link is
+# reported by its own rule rather than confusing this one.
+_abs=$(grep -rn 'href="/\|src="/' "$DOCS" 2>/dev/null | grep -v 'href="//' || true)
+if [ -n "$_abs" ]; then
+    echo "ERROR: offline documentation contains root-absolute paths. Opened as" >&2
+    echo "       file://, these resolve to the filesystem root and load nothing:" >&2
+    echo "$_abs" | sed 's|^/usr/share/dagric/|       |' >&2
+    echo "       Use relative paths here. tools/publish-guide.py makes them" >&2
+    echo "       absolute for the website; the image keeps the relative ones." >&2
+    fail=1
+fi
+
+# --- 2. every language the switcher offers must exist ------------------------
+#
+# The bar is written by hand in six files. A typo, or a language added to the
+# bar before its directory lands, gives a dead link on the one control whose
+# entire job is getting a reader to a language they can read.
+for _page in "$GUIDE/index.html" "$GUIDE"/*/index.html; do
+    [ -f "$_page" ] || continue
+    _dir=$(dirname "$_page")
+    # One href per line, langbar links only, then resolve each against the page.
+    sed -n '/<div class="langbar">/,/<\/div>/p' "$_page" \
+        | grep -o 'href="[^"]*"' | sed 's/href="//; s/"$//' \
+    | while IFS= read -r _href; do
+        [ -n "$_href" ] || continue
+        case "$_href" in
+            http*|"#"*) continue ;;
+        esac
+        if [ ! -f "$_dir/$_href" ]; then
+            echo "ERROR: $_page language switcher points at" >&2
+            echo "       $_href, which does not resolve to a file." >&2
+            exit 1
+        fi
+    done || fail=1
+done
+
+# --- 3. the manual's language notice must match the guides we ship -----------
+#
+# manual.js offers "this manual is English, here is your language's guide" and
+# builds that link from its own LANGS table. A guide shipped without a LANGS
+# entry gets no notice and no route back; a LANGS entry without a guide gets a
+# link to nothing. Both are silent, so the build says it instead.
+MJS="$DOCS/manual/manual.js"
+if [ -f "$MJS" ]; then
+    # `dir: 'xx',` — the directory each entry actually points at, which is not
+    # always its key (pt lives in guide/pt_BR/).
+    for _d in $(grep -o "dir: '[^']*'" "$MJS" | sed "s/dir: '//; s/'//"); do
+        if [ ! -f "$GUIDE/$_d/index.html" ]; then
+            echo "ERROR: manual.js offers the guide in '$_d' but" >&2
+            echo "       $GUIDE/$_d/index.html is not on the image." >&2
+            fail=1
+        fi
+    done
+    for _p in "$GUIDE"/*/index.html; do
+        [ -f "$_p" ] || continue
+        _d=$(basename "$(dirname "$_p")")
+        if ! grep -q "dir: '$_d'" "$MJS"; then
+            echo "ERROR: the guide ships in '$_d' but manual.js has no LANGS" >&2
+            echo "       entry for it, so a reader in that language opening the" >&2
+            echo "       manual is told nothing and offered no way back." >&2
+            fail=1
+        fi
+    done
+fi
+
+[ "$fail" -eq 0 ] || exit 1
+
+_n=$(find "$GUIDE" -mindepth 2 -name index.html | wc -l)
+echo "offline-docs: guide in $((_n + 1)) languages, every switcher target present,"
+echo "              manual.js language table matches, no root-absolute paths"
+unset _abs _page _dir _href _d _p _n MJS

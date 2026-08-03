@@ -33,10 +33,28 @@
  */
 (function () {
   /* Languages with real, complete Dagric documentation. A language belongs
-     here only when its guide and welcome page are actually translated —
-     never offer a language you have not shipped. */
+     here only when its GUIDE is actually translated and present in the image —
+     never offer a language you have not shipped, and never name something in
+     the body that is not there.
+
+     The rule used to say "guide and welcome page", and that was too strict the
+     moment the guide shipped in five languages while welcome/ still had only
+     de: a Spanish owner opening the manual got no notice at all and no route to
+     the Spanish guide sitting one directory away, because the entry that would
+     have pointed at it was withheld over a welcome page. So the gate is the
+     guide, and each body names only what that language actually has — the four
+     new entries below say "the first-week guide", the German one still says
+     "the welcome page and the guide", because for German both are true.
+
+     `dir` is the directory under /usr/share/dagric/guide/ and `tag` is the
+     hreflang. Neither is derivable from the key: Brazilian Portuguese lives in
+     guide/pt_BR/ (the POSIX locale name, which is what dg_localised probes) and
+     tags as pt-BR, while the key is the two letters readMarkers() slices out of
+     the fragment. Building the href as 'guide/' + key would have looked right
+     and pointed at guide/pt/index.html, which does not exist. */
   var LANGS = {
     de: {
+      dir: 'de', tag: 'de',
       /* Shown on manual pages to somebody who arrived from the German guide,
          or whose browser is German. Keep it short and keep it true. */
       note:    'Das Handbuch gibt es bisher nur auf Englisch.',
@@ -49,6 +67,34 @@
       body:    'Auf Deutsch sind die Willkommensseite und die Kurzanleitung für die erste Woche verfügbar. Diese Seiten mit ihrer Suche nach Windows-Namen sind noch nicht übersetzt — ehrlich englisch ist uns lieber als halb übersetzt.',
       guide:   'Zur deutschen Kurzanleitung',
       dismiss: 'Verstanden'
+    },
+    es: {
+      dir: 'es', tag: 'es',
+      note:    'Por ahora el manual solo está disponible en inglés.',
+      body:    'En español está la guía de la primera semana. Estas páginas, con su búsqueda por nombres de Windows, todavía no están traducidas — preferimos un inglés honesto a una traducción a medias.',
+      guide:   'Ir a la guía en español',
+      dismiss: 'Entendido'
+    },
+    fr: {
+      dir: 'fr', tag: 'fr',
+      note:    'Le manuel n\'existe pour l\'instant qu\'en anglais.',
+      body:    'En français, le guide de la première semaine est disponible. Ces pages, avec leur recherche par noms Windows, ne sont pas encore traduites — nous préférons un anglais honnête à une traduction à moitié faite.',
+      guide:   'Aller au guide en français',
+      dismiss: 'Compris'
+    },
+    it: {
+      dir: 'it', tag: 'it',
+      note:    'Per ora il manuale è disponibile solo in inglese.',
+      body:    'In italiano c\'è la guida della prima settimana. Queste pagine, con la ricerca per nomi di Windows, non sono ancora tradotte — preferiamo un inglese onesto a una traduzione a metà.',
+      guide:   'Vai alla guida in italiano',
+      dismiss: 'Ho capito'
+    },
+    pt: {
+      dir: 'pt_BR', tag: 'pt-BR',
+      note:    'Por enquanto o manual está disponível somente em inglês.',
+      body:    'Em português está o guia da primeira semana. Estas páginas, com a busca por nomes do Windows, ainda não foram traduzidas — preferimos um inglês honesto a uma tradução pela metade.',
+      guide:   'Ir para o guia em português',
+      dismiss: 'Entendi'
     }
   };
 
@@ -134,11 +180,12 @@
     var link = document.createElement('a');
     /* The guide sits beside the manual in /usr/share/dagric, and its
        translations sit one directory deeper: guide/de/index.html. The extra
-       ../ covers a future manual/<lang>/ without needing a second edit. */
+       ../ covers a future manual/<lang>/ without needing a second edit.
+       t.dir, not `lang` — see the note on LANGS: pt lives in guide/pt_BR/. */
     var rest = location.pathname.split('/manual/')[1] || '';
     var up = rest.indexOf('/') === -1 ? '../' : '../../';
-    link.href = up + 'guide/' + lang + '/index.html';
-    link.setAttribute('hreflang', lang);
+    link.href = up + 'guide/' + t.dir + '/index.html';
+    link.setAttribute('hreflang', t.tag);
     link.textContent = t.guide;
     box.appendChild(link);
 

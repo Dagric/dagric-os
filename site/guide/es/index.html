@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dagric OS — Guía del usuario</title>
+<link rel="stylesheet" href="/guide/guide.css">
+<link rel="canonical" href="https://dagric.com/guide/es">
+<link rel="alternate" hreflang="en" href="https://dagric.com/guide">
+<link rel="alternate" hreflang="de" href="https://dagric.com/guide/de">
+<link rel="alternate" hreflang="es" href="https://dagric.com/guide/es">
+<link rel="alternate" hreflang="fr" href="https://dagric.com/guide/fr">
+<link rel="alternate" hreflang="it" href="https://dagric.com/guide/it">
+<link rel="alternate" hreflang="pt-br" href="https://dagric.com/guide/pt-br">
+<link rel="alternate" hreflang="x-default" href="https://dagric.com/guide">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Guía de Dagric OS — su primera semana, resuelta">
+<meta property="og:description" content="La guía que viene dentro de Dagric OS: llegar desde Windows, el primer día, impresoras, Wi-Fi, atajos de teclado, programas de Windows y qué hacer cuando algo va mal.">
+<meta property="og:url" content="https://dagric.com/guide/es">
+<meta property="og:image" content="https://dagric.com/assets/dagric-logo.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#0a111c">
+<link rel="icon" href="/favicon.ico" sizes="32x32">
+</head>
+<body>
+<a class="skip" href="#main">Saltar al contenido</a>
+<div class="shell">
+
+  <aside class="side">
+    <div class="sidebox">
+      <div class="brand">
+        <div class="mark">D</div>
+        <div class="brand-name">Dagric OS<small>Guía del usuario</small></div>
+      </div>
+      <a class="back-to-site" href="/" style="display:block;margin-top:.75rem;font-size:.85rem;opacity:.75">&larr; dagric.com</a>
+      <div class="gsearch" role="search">
+        <input id="gsearch" type="search"
+               placeholder="Buscar en esta guía…"
+               aria-label="Buscar en esta guía"
+               data-count="Secciones que coinciden: %1"
+               data-none="Aquí no hay nada — prueba con el manual, que explica todos los programas.">
+        <p class="gsearch-status" id="gsearch-status" aria-live="polite"></p>
+      </div>
+      <nav class="toc" aria-label="Secciones de esta guía">
+        <div class="navgroup">Empieza aquí</div>
+        <a href="#windowsmap">Llegar desde Windows</a>
+        <a href="#firstday">Tu primer día</a>
+        <div class="navgroup">El día a día</div>
+        <a href="#apps">Instalar aplicaciones</a>
+        <a href="#updates">Actualizaciones</a>
+        <a href="#tray">Wi-Fi, sonido y pantallas</a>
+        <a href="#printers">Impresoras</a>
+        <a href="#shortcuts">Atajos de teclado</a>
+        <div class="navgroup">Hazlo tuyo</div>
+        <a href="#setup">El asistente de configuración</a>
+        <a href="#looks">Looks y Styles</a>
+        <a href="#textsize">Tamaño del texto y luz nocturna</a>
+        <a href="#access">Accesibilidad</a>
+        <a href="#migrate">Archivos desde Windows</a>
+        <a href="#drives">Discos y memorias USB</a>
+        <div class="navgroup">Cuando algo va mal</div>
+        <a href="#trouble">Solución de problemas</a>
+        <div class="navgroup">Ir más allá</div>
+        <a href="#manual">El manual completo</a>
+        <a href="#phone">Conectar el teléfono</a>
+        <a href="#usbguard">Protección USB</a>
+        <a href="#backups">Copias de seguridad y estado de los discos</a>
+        <a href="#windows">Programas de Windows</a>
+        <a href="#helpers">Ayudantes del terminal</a>
+        <a href="#help">Pedir ayuda</a>
+      </nav>
+    </div>
+  </aside>
+
+  <main class="content" id="main" tabindex="-1">
+
+    <div class="langbar">
+      <span class="label">Idioma</span>
+      <a lang="en" hreflang="en" href="/guide">English</a>
+      <a lang="de" hreflang="de" href="/guide/de">Deutsch</a>
+      <strong lang="es">Español</strong>
+      <a lang="fr" hreflang="fr" href="/guide/fr">Français</a>
+      <a lang="it" hreflang="it" href="/guide/it">Italiano</a>
+      <a lang="pt-BR" hreflang="pt-BR" href="/guide/pt-br">Português (Brasil)</a>
+    </div>
+
+    <!-- Dos cosas que conviene saber antes de seguir leyendo. Están aquí arriba
+         y no en la letra pequeña, porque si no nadie las encuentra. La segunda
+         NO dice lo que dice la versión alemana: en español las herramientas de
+         Dagric, las entradas del lanzador y KDE sí están traducidas (po/es.po,
+         Name[es] en cada .desktop y la tabla de dagric-app-names), así que los
+         nombres en negrita de esta página son los españoles. Lo poco que sigue
+         en inglés se nombra una por una. -->
+    <div class="langnote">
+      <p><strong>Sobre la versión en español.</strong> Esta guía está completa en
+      español, pero todavía no la ha leído una persona de habla hispana nativa
+      — si algo no cuadra, manda la
+      <a href="/guide" hreflang="en">versión en inglés</a>. Las mejoras son
+      bienvenidas: dagric.com/support</p>
+      <p><strong>El escritorio también habla español.</strong> Las herramientas de
+      Dagric, las entradas del lanzador y KDE están traducidas, así que los
+      nombres en <strong>negrita</strong> de este texto son exactamente los que
+      verás en la pantalla. Solo dos cosas siguen en inglés, y se avisa cada vez:
+      el manual de 95 páginas y los botones Keep y Revert de la galería de
+      apariencia.</p>
+    </div>
+
+    <header class="hero">
+      <div class="eyebrow">Guía del usuario</div>
+      <h1>Te damos la bienvenida a Dagric&nbsp;OS</h1>
+      <p class="sub">Todo lo que necesitas para tu primera semana. Esta página funciona sin conexión.</p>
+    </header>
+
+    <!-- Reflejo de la versión inglesa, mismo orden y mismas anclas. La columna
+         izquierda usa los TÉRMINOS DEL WINDOWS EN ESPAÑOL (Panel de control,
+         Papelera de reciclaje, Explorador de archivos), porque son las palabras
+         con las que se busca aquí. -->
+    <section id="windowsmap"
+      data-syn="menú inicio menu inicio explorador de archivos panel de control configuración ajustes administrador de tareas edge bloc de notas notepad paint fotos recortes herramienta recortes portapapeles papelera de reciclaje defender antivirus cmd powershell símbolo del sistema simbolo del sistema word excel powerpoint outlook este equipo onedrive">
+      <h2>¿Vienes de Windows? Todo sigue aquí</h2>
+      <p>Diez años de costumbres no hay que aprenderlos otra vez: casi todo tiene
+      un equivalente directo, y casi siempre en las mismas teclas. Esta tabla es
+      todo el truco para sentirte en casa en una tarde.</p>
+      <table class="winmap">
+        <caption>Dónde ha ido cada cosa</caption>
+        <thead><tr><th scope="col">En Windows</th><th scope="col">En Dagric</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">Menú Inicio</th>
+              <td><strong>Lanzador de aplicaciones</strong> — pulsa <kbd>Meta</kbd> (la tecla ⊞) y escribe</td></tr>
+          <tr><th scope="row">Explorador de archivos</th>
+              <td><strong>Archivos</strong> — <kbd>Meta</kbd>+<kbd>E</kbd>, las mismas teclas</td></tr>
+          <tr><th scope="row">Panel de control / Configuración</th>
+              <td><strong>Preferencias del sistema</strong> — un solo sitio, con buscador</td></tr>
+          <tr><th scope="row">Administrador de tareas</th>
+              <td><strong>Administrador de tareas</strong> — <kbd>Ctrl</kbd>+<kbd>Mayús</kbd>+<kbd>Esc</kbd>, las mismas teclas y el mismo nombre</td></tr>
+          <tr><th scope="row">Microsoft Edge</th>
+              <td><strong>Firefox</strong> — importa tus marcadores desde su propio menú</td></tr>
+          <tr><th scope="row">Bloc de notas</th>
+              <td><strong>Editor de texto</strong></td></tr>
+          <tr><th scope="row">Fotos</th>
+              <td><strong>Fotos</strong> (Gwenview) — abre las imágenes con doble clic, como siempre</td></tr>
+          <tr><th scope="row">Recortes</th>
+              <td><strong>Captura de pantalla</strong> (Spectacle) — <kbd>Meta</kbd>+<kbd>Mayús</kbd>+<kbd>S</kbd> recorta una zona, las mismas teclas que en Windows</td></tr>
+          <tr><th scope="row">Windows Update</th>
+              <td>el <strong>icono de la bandeja del sistema</strong> cuando hay actualizaciones listas — las de seguridad se instalan solas</td></tr>
+          <tr><th scope="row">Papelera de reciclaje</th>
+              <td><strong>Papelera</strong> — en la barra lateral de Archivos</td></tr>
+          <tr><th scope="row">Defender / antivirus</th>
+              <td>viene de serie: el <strong>cortafuegos está activo</strong> desde el primer arranque y las aplicaciones están confinadas. Nada que comprar aparte, nada que te dé la lata para renovar</td></tr>
+          <tr><th scope="row">Word / Excel / PowerPoint</th>
+              <td><strong>LibreOffice</strong> Writer / Calc / Impress — abre y guarda los mismos archivos</td></tr>
+          <tr><th scope="row">Outlook</th>
+              <td><strong>Thunderbird</strong> <span class="pro">PRO</span> — en la
+              edición gratuita, abre tu correo web en Firefox</td></tr>
+          <tr><th scope="row">Símbolo del sistema / PowerShell</th>
+              <td><strong>Terminal</strong> (Konsole)</td></tr>
+        </tbody>
+      </table>
+      <div class="tip">Cada programa de aquí responde también a su nombre de
+      siempre: busca Dolphin, Konsole o Kate en el lanzador y aparecerá el
+      programa correcto. En el <a href="#manual">manual</a>, que está en inglés,
+      funcionan además los nombres de Windows: <em>Task Manager</em> o
+      <em>Notepad</em>.</div>
+    </section>
+
+    <section id="firstday"
+      data-syn="lista de tareas primeros pasos empezar comenzar de nuevo recién llegado">
+      <h2>Tu primer día, en forma de lista</h2>
+      <p>Nueve cosas pequeñas, en un orden razonable. Ve marcándolas: esta
+      página recuerda por dónde ibas, incluso después de cerrarla.</p>
+      <ul class="checklist" id="firstday-list" data-done-template="%1 de %2 completados — nada de esto es urgente.">
+        <li><label><input type="checkbox" data-ck="wifi">
+          <span class="ck-text"><strong>Conectarte al Wi-Fi</strong>
+          <small>El icono de red en la bandeja del sistema, abajo a la derecha. <a href="#tray">Más</a></small></span></label></li>
+        <li><label><input type="checkbox" data-ck="update">
+          <span class="ck-text"><strong>Instalar la primera actualización</strong>
+          <small>Si la bandeja del sistema muestra un icono de actualización, haz clic en él. Cinco minutos, sin reinicios impuestos. <a href="#updates">Más</a></small></span></label></li>
+        <li><label><input type="checkbox" data-ck="migrate">
+          <span class="ck-text"><strong>Traer tus archivos desde Windows</strong>
+          <small>Documentos, imágenes, música, marcadores: se copian, nunca se mueven. <a href="#migrate">Más</a></small></span></label></li>
+        <li><label><input type="checkbox" data-ck="look">
+          <span class="ck-text"><strong>Elegir el aspecto</strong>
+          <small>Claro u oscuro, color de acento, fondo de pantalla: prueba lo que quieras, todo se puede deshacer. <a href="#looks">Más</a></small></span></label></li>
+        <li><label><input type="checkbox" data-ck="textsize">
+          <span class="ck-text"><strong>Dejar el texto cómodo</strong>
+          <small>Si algo se ve demasiado pequeño, ajústalo una vez y olvídate. <a href="#textsize">Más</a></small></span></label></li>
+        <li><label><input type="checkbox" data-ck="app">
+          <span class="ck-text"><strong>Instalar tu primera aplicación</strong>
+          <small>Abre la <strong>Tienda de software</strong> y coge lo que te falte. <a href="#apps">Más</a></small></span></label></li>
+        <li><label><input type="checkbox" data-ck="printer">
+          <span class="ck-text"><strong>Configurar la impresora</strong>
+          <small>Casi siempre es automático. <a href="#printers">Más</a></small></span></label></li>
+        <li><label><input type="checkbox" data-ck="shortcuts">
+          <span class="ck-text"><strong>Aprender tres atajos</strong>
+          <small><kbd>Meta</kbd> para abrir el lanzador, <kbd>Meta</kbd>+<kbd>E</kbd> para Archivos y <kbd>Ctrl</kbd>+<kbd>Mayús</kbd>+<kbd>Esc</kbd> cuando algo se atasque. <a href="#shortcuts">Todos</a></small></span></label></li>
+        <li><label><input type="checkbox" data-ck="hub">
+          <span class="ck-text"><strong>Abrir el Dagric Hub una vez</strong>
+          <small>Pulsa <kbd>Meta</kbd> y escribe <em>Hub</em>. Controladores, migración, seguridad y ayuda: todo está en ese único menú.</small></span></label></li>
+      </ul>
+      <p class="ck-count" id="ck-count" aria-live="polite"></p>
+    </section>
+
+    <section id="apps" data-syn="instalar tienda de software discover programas aplicaciones descargar quitar desinstalar">
+      <h2>Instalar aplicaciones</h2>
+      <p>Abre la <strong>Tienda de software</strong> (el icono de la bolsa en la
+      barra de tareas; por debajo se llama Discover, y ese nombre también la
+      encuentra). Busca, pulsa Instalar y listo. Todo es gratuito, está
+      revisado y se puede quitar. Quitar una aplicación la quita de verdad: nada
+      vuelve por su cuenta.</p>
+    </section>
+
+    <section id="updates" data-syn="windows update actualización actualizar parche reinicio seguridad">
+      <h2>Actualizaciones</h2>
+      <p>Las actualizaciones de seguridad se instalan solas y en silencio.
+      Cuando hay actualizaciones más grandes, aparece un icono en la bandeja del
+      sistema y las aplicas cuando te venga bien. <strong>Dagric nunca reinicia
+      tu ordenador por su cuenta.</strong></p>
+    </section>
+
+    <section id="tray" data-syn="wifi wi-fi red inalámbrica volumen altavoz sonido monitor proyector segunda pantalla bluetooth">
+      <h2>Wi-Fi, sonido y pantallas</h2>
+      <p>Todo está en la bandeja del sistema, abajo a la derecha. El icono de
+      red te conecta al Wi-Fi, el del altavoz controla el volumen y el
+      dispositivo de salida, y el de pantalla aparece en cuanto conectas un
+      monitor o un proyector.</p>
+    </section>
+
+    <section id="printers" data-syn="imprimir impresora escáner controlador driver">
+      <h2>Impresoras</h2>
+      <p>Conecta la impresora (o ponla en la misma red Wi-Fi) y abre
+      <strong>Preferencias del sistema → Impresoras → Añadir impresora</strong>.
+      Casi todas se detectan solas.</p>
+    </section>
+
+    <section id="shortcuts" data-syn="atajos teclado teclas administrador de tareas captura de pantalla bloquear alt tab portapapeles">
+      <h2>Atajos de teclado que merece la pena saber</h2>
+      <div class="keys">
+        <div class="key-card">
+          <div class="combo"><kbd>Meta</kbd></div>
+          <div class="what"><strong>Abrir el lanzador de aplicaciones</strong> — Meta es la tecla ⊞</div>
+        </div>
+        <div class="key-card">
+          <div class="combo"><kbd>Ctrl</kbd><span class="plus">+</span><kbd>Mayús</kbd><span class="plus">+</span><kbd>Esc</kbd></div>
+          <div class="what"><strong>Administrador de tareas</strong> — las mismas teclas que en Windows, cuando algo deja de responder</div>
+        </div>
+        <div class="key-card">
+          <div class="combo"><kbd>Meta</kbd><span class="plus">+</span><kbd>E</kbd></div>
+          <div class="what"><strong>Archivos</strong> — tu gestor de archivos, el antiguo Explorador</div>
+        </div>
+        <div class="key-card">
+          <div class="combo"><kbd>Meta</kbd><span class="plus">+</span><kbd>Mayús</kbd><span class="plus">+</span><kbd>S</kbd></div>
+          <div class="what"><strong>Capturar parte de la pantalla</strong> — las mismas teclas que en Windows; <kbd>Impr Pant</kbd> captura la pantalla entera</div>
+        </div>
+        <div class="key-card">
+          <div class="combo"><kbd>Meta</kbd><span class="plus">+</span><kbd>L</kbd></div>
+          <div class="what"><strong>Bloquear la pantalla</strong></div>
+        </div>
+        <div class="key-card">
+          <div class="combo"><kbd>Alt</kbd><span class="plus">+</span><kbd>Tab</kbd></div>
+          <div class="what"><strong>Cambiar de ventana</strong> — exactamente igual que en Windows</div>
+        </div>
+        <div class="key-card">
+          <div class="combo"><kbd>Meta</kbd><span class="plus">+</span><kbd>V</kbd></div>
+          <div class="what"><strong>Historial del portapapeles</strong> — lo último que has copiado, las mismas teclas que en Windows</div>
+        </div>
+        <div class="key-card">
+          <div class="combo"><kbd>Meta</kbd><span class="plus">+</span><kbd>←</kbd><span class="plus">/</span><kbd>→</kbd></div>
+          <div class="what"><strong>Acoplar una ventana</strong> a media pantalla — las mismas teclas que en Windows</div>
+        </div>
+        <div class="key-card">
+          <div class="combo"><kbd>Meta</kbd><span class="plus">+</span><kbd>P</kbd></div>
+          <div class="what"><strong>Cambiar de pantalla</strong> cuando hay un proyector o un segundo monitor conectado</div>
+        </div>
+      </div>
+    </section>
+
+    <section id="setup" data-syn="asistente configuración primer inicio fondo de pantalla acento deshacer">
+      <h2>El asistente de configuración sigue ahí</h2>
+      <p>La primera vez que iniciaste sesión, Dagric te llevó por seis pantallas
+      cortas: claro u oscuro, un color de acento, un fondo de pantalla, el
+      tamaño del texto, dónde va la barra de tareas y cómo traer tus archivos
+      desde Windows. Eso era <strong>Configurar Dagric</strong>, y no
+      desapareció después del primer arranque. Abre el lanzador, escribe
+      <em>Configurar Dagric</em> y vuelve a recorrerlo tantas veces como
+      quieras (también está en el Hub, en <em>Primeros pasos</em>).</p>
+      <p>Todo se aplica según vas haciendo clic, así que ves el escritorio de
+      verdad y no una vista previa. Si te has pasado, el botón
+      <strong>Deshacer mis cambios</strong>, arriba en la ventana, devuelve los
+      colores, el fondo de pantalla, el tamaño del texto y la barra de tareas a
+      como estaban.</p>
+      <div class="tip">También es el camino más corto hasta
+      <strong>Migrar desde Windows</strong> si te saltaste ese paso la primera
+      vez.</div>
+    </section>
+
+    <section id="looks" data-syn="tema modo oscuro claro apariencia personalizar barra de tareas disposición estilo">
+      <h2>Hazlo tuyo: Looks y Styles</h2>
+      <p>Dos herramientas dan forma al escritorio, las dos de un clic y las dos
+      reversibles. <strong>Dagric Looks</strong> cambia la disposición: dónde se
+      colocan la barra de tareas, los paneles y los menús.
+      <strong>Dagric Styles</strong> cambia el ambiente: colores claros u
+      oscuros, color de acento, fondo de pantalla y efectos de ventana como el
+      cristal difuminado. Se combinan libremente: una barra centrada en un
+      Medianoche profundo, o una barra clásica en un Alba cálido. Pro añade las
+      disposiciones Command, Duo, Horizonte y Unity: paneles laterales y barras
+      de menú en la parte de arriba. Las dos están en el lanzador o en el Hub, y
+      <em>Restablecer</em> en Styles devuelve el Dagric estándar cuando
+      quieras.</p>
+
+      <p>Si prefieres <em>ver</em> un cambio antes de decidirte, abre
+      <strong>Apariencia de Dagric</strong> (el lanzador, o el Hub → Galería de
+      apariencia). Muestra cada estilo y cada disposición
+      como una imagen. Al pulsar uno, el escritorio cambia al instante, pero
+      todavía no se ha guardado nada: aparece una barra que ofrece
+      <strong>Keep</strong> o <strong>Revert</strong> — esos dos botones siguen
+      en inglés, y significan conservar y deshacer — y si no eliges ninguno, o
+      el cambio ha dejado la pantalla ilegible, el escritorio se restaura solo a
+      los veinte segundos. Probar no cuesta nada, así que pruébalo todo.</p>
+    </section>
+
+    <section id="textsize" data-syn="escala escalado dpi pequeño diminuto enorme zoom luz nocturna color nocturno filtro azul">
+      <h2>Si todo se ve demasiado pequeño</h2>
+      <p>En un portátil con una pantalla muy fina, el texto puede quedar
+      diminuto. Abre <strong>Tamaño del texto</strong> desde el lanzador (o el
+      Hub → <em>Tamaño del texto y luz nocturna</em>) y elige un tamaño entre el
+      100 % y el 200 %. Dagric solo ofrece tamaños con los que en tu pantalla
+      siguen cabiendo las ventanas y los botones, así que no puedes dejarte
+      fuera de tu propio escritorio.</p>
+      <p>El cambio se aplica de inmediato y luego pregunta si quieres
+      conservarlo. <strong>Si no respondes, el tamaño anterior vuelve solo a los
+      veinte segundos</strong>: si el tamaño nuevo lo ha dejado todo ilegible, o
+      la pregunta se ha ido fuera de la pantalla, basta con esperar. Dagric
+      además mide tu pantalla la primera vez que inicias sesión y elige por su
+      cuenta un tamaño razonable, igual que hace Windows.</p>
+      <p>La misma herramienta tiene una <strong>luz nocturna</strong> — en
+      Windows se llama igual —, que dentro del programa aparece como Color
+      nocturno. Templa los colores de la pantalla para que leer a última hora
+      del día canse menos. Elige <em>Activado por la tarde</em> (de 20:00 a
+      7:00), <em>Activado siempre</em> o desactivado, y olvídate.</p>
+    </section>
+
+    <!-- Texto obligatorio, no adorno: la documentación que se entrega con un
+         producto tiene que decir cuáles son sus funciones de accesibilidad y
+         cómo se usan (EN 301 549, apartado 12.1). Aquí solo se afirma lo que
+         está instalado y funciona hoy, incluido lo que no funciona. -->
+    <section id="access" data-syn="lector de pantalla orca lupa ampliación accesibilidad ceguera baja visión teclas persistentes">
+      <h2>Accesibilidad</h2>
+      <p>Todo esto ya está en este ordenador: nada que descargar, ninguna
+      cuenta, ninguna edición aparte.</p>
+      <p><strong>Que la pantalla se lea en voz alta.</strong> El lector de
+      pantalla <strong>Orca</strong> viene instalado en todas las ediciones,
+      junto con su motor de voz y una voz — un lector de pantalla sin voz
+      instalada es un resultado frecuente e inútil, así que Dagric fija los dos
+      a propósito. Actívalo con <kbd>Meta</kbd>+<kbd>Alt</kbd>+<kbd>S</kbd>, o
+      en <strong>Preferencias del sistema → Accesibilidad → Lector de
+      pantalla</strong>. El manual tiene una página entera sobre Orca, incluido
+      lo que hay que instalar primero si usas una línea braille: su controlador,
+      <code>brltty</code>, no forma parte de Dagric.</p>
+      <p><strong>Hacerlo todo más grande.</strong> <strong>Tamaño del
+      texto</strong> (más arriba) escala el escritorio entero entre el 100 % y
+      el 200 % y se restaura solo si no dices nada. Si lo que quieres es una
+      lupa que siga al ratón, <strong>Preferencias del sistema →
+      Accesibilidad</strong> activa la ampliación de pantalla; esa misma página
+      indica las teclas que la manejan.</p>
+      <p><strong>Teclado y ratón.</strong> Las teclas modificadoras persistentes
+      (para pulsar <kbd>Ctrl</kbd>+<kbd>C</kbd> una tecla cada vez), un destello
+      visible en lugar del pitido del sistema y mover el puntero con el teclado
+      numérico están todos en <strong>Preferencias del sistema →
+      Accesibilidad</strong>. Los filtros de color para el daltonismo,
+      también.</p>
+      <p><strong>Esta guía y el manual</strong> están hechos para leerse con un
+      lector de pantalla y manejarse con el teclado: pulsa <kbd>Tab</kbd> en
+      cualquier página y la primera parada es <em>Saltar al contenido</em>, que
+      se salta la barra lateral.</p>
+      <div class="tip"><strong>Una cosa que Dagric todavía no puede hacer, dicha
+      claramente: la pantalla de inicio de sesión no se lee en voz alta.</strong>
+      El lector de pantalla arranca con tu sesión, no antes, y la pantalla de
+      inicio de sesión que usa Dagric no trae compatibilidad propia con lectores
+      de pantalla. Hay dos maneras de rodearlo: la memoria USB en vivo inicia
+      sesión sola, así que puedes probar el sistema entero con Orca antes de
+      instalar; y en un equipo ya instalado puedes activar el inicio de sesión
+      automático (<strong>Preferencias del sistema → Inicio y apagado → Pantalla
+      de inicio de sesión</strong>). En un ordenador compartido eso es un
+      sacrificio real de seguridad, y la decisión es tuya.</div>
+    </section>
+
+    <section id="migrate" data-syn="mudanza transferir copiar archivos documentos imágenes música marcadores importar windows">
+      <h2>Traer tus archivos desde Windows</h2>
+      <p>Abre el <strong>Dagric Hub</strong> y elige <strong>Migrar desde
+      Windows</strong> (o ejecuta <code>dagric-migrate</code>). Encuentra el
+      Windows que sigue en este PC, te enseña tus Documentos, Imágenes, Música,
+      Vídeos, el Escritorio y los marcadores del navegador, y copia lo que
+      elijas a tu nueva carpeta personal.</p>
+      <div class="tip">Windows solo se <em>lee</em>. Allí no se mueve, no se
+      cambia ni se borra nada, así que siempre puedes volver a arrancarlo.</div>
+    </section>
+
+    <section id="drives" data-syn="usb memoria disco duro externo ntfs explorador dolphin expulsar">
+      <h2>Tus discos de Windows y las memorias USB</h2>
+      <p>Funcionan sin más. Conecta una memoria USB o un disco externo
+      (incluidos los discos de Windows con formato NTFS) y aparecerá en
+      <strong>Archivos</strong> — el icono de carpeta de la barra de tareas, lo
+      que en Windows era el Explorador de archivos. Si lees en un foro que se
+      llama <em>Dolphin</em>, es el mismo programa: Dagric nombra las
+      aplicaciones por lo que hacen, y el nombre original las sigue encontrando
+      cuando buscas en el lanzador.</p>
+    </section>
+
+    <section id="manual" data-syn="ayuda documentación referencia aplicaciones notepad manual">
+      <h2>El manual completo</h2>
+      <p>Esta página es tu primera semana. Para cada una de las aplicaciones del
+      ordenador — qué es, a qué sustituye de Windows y las cinco cosas que de
+      verdad harás con ella — abre el <strong>Manual de Dagric</strong> desde el
+      lanzador, o ejecuta <code>dagric-manual</code>. En el Hub está como
+      <em>Manual de aplicaciones</em>.</p>
+      <p><strong>El manual, por ahora, solo está en inglés.</strong> Son 95
+      páginas, y su buscador vive de conocer los nombres <em>ingleses</em> de
+      Windows: quien escribe <em>Notepad</em> obtiene el editor de texto, y
+      quien escribe <em>Task Manager</em> obtiene el administrador de tareas.
+      Una búsqueda a medio traducir rompería justo eso, así que el manual se ha
+      quedado honestamente en inglés en lugar de aparentar otra cosa.
+      <em>Abrir el manual (en
+      inglés)</em></p>
+      <div class="tip">Dos entradas de ayuda, y a propósito: esta
+      <strong>guía</strong> es la lectura corta de tu primera semana. El
+      <strong>manual</strong> es la referencia a la que vuelves cuando necesitas
+      una aplicación concreta.</div>
+    </section>
+
+    <section id="phone" data-syn="android iphone móvil teléfono kde connect notificaciones sms">
+      <h2>Conectar tu teléfono <span class="pro">PRO</span></h2>
+      <p><strong>KDE Connect</strong> enlaza tu teléfono con este PC para las
+      notificaciones, el envío de archivos y un portapapeles compartido. Por tu
+      seguridad, sus puertos solo están abiertos en las redes que hayas marcado
+      como <em>Home</em>, nunca en el Wi-Fi de una cafetería o un aeropuerto. Si
+      el emparejamiento no encuentra tu teléfono, abre <strong>Preferencias del
+      sistema → Cortafuegos</strong> y pon la zona de la conexión actual en
+      <em>home</em>.</p>
+    </section>
+
+    <section id="usbguard" data-syn="seguridad usb ataque badusb bloquear">
+      <h2>Protección USB <span class="pro">PRO</span></h2>
+      <p>Abre el Hub y elige <strong>Protección USB</strong> para bloquear los
+      dispositivos USB maliciosos: esos que se hacen pasar por un teclado y
+      escriben órdenes por su cuenta. Conecta <em>primero</em> todo lo que usas
+      normalmente — Dagric recuerda esos dispositivos y solo bloquea a los
+      desconocidos. Puedes volver a ejecutarlo cuando quieras para actualizar la
+      lista o desactivar la protección otra vez.</p>
+    </section>
+
+    <section id="backups" data-syn="copia de seguridad backup restaurar timeshift vorta rclone onedrive google drive dropbox nube smart">
+      <h2>Copias de seguridad y estado de los discos</h2>
+      <p>En Dagric&nbsp;OS Pro: <strong>Vorta</strong> hace copias de seguridad
+      cifradas en un disco o en un servidor, y <code>rclone</code> conecta con
+      Google Drive, Dropbox, OneDrive y más de 70 servicios más.
+      <strong>Timeshift</strong> crea puntos de restauración del sistema: si
+      alguna vez una actualización se porta mal, vuelves a ayer. En todas las
+      ediciones, Dagric vigila el estado SMART de tus discos y te avisa en
+      palabras claras si uno empieza a fallar — y la Revisión de seguridad
+      muestra el estado de cada disco cuando quieras.</p>
+    </section>
+
+    <section id="windows" data-syn="exe wine juegos steam proton epic gog bottles máquina virtual ejecutar programas de windows">
+      <h2>Ejecutar programas de Windows</h2>
+      <p>Para los juegos, instala <strong>Steam</strong> con un clic desde el
+      Dagric Hub (nunca viene incluido) y luego activa Proton en Configuración →
+      Compatibilidad. <strong>Heroic</strong> cubre Epic, GOG y Amazon, y la
+      orden <code>dagric-gaming</code> añade la versión Proton-GE de la
+      comunidad. Para el software de Windows corriente,
+      <strong>Bottles</strong> — también un clic en el Hub — mantiene cada
+      programa en su propio contenedor ordenado. Todo eso funciona en
+      cualquiera de las dos ediciones.</p>
+      <p><strong>En Pro</strong> <span class="pro">PRO</span> la base ya está
+      instalada y ajustada: Wine ejecuta muchos archivos <code>.exe</code> con
+      doble clic, y GameMode, MangoHud, Lutris y Vulkan de 32 bits están listos
+      para los juegos. Y para esa aplicación rara que no funciona en Wine de
+      ninguna manera, está <strong>Windows en una ventana</strong>: en el Hub
+      aparece como Windows en una máquina virtual (<code>dagric-vm</code>), y
+      activa las máquinas virtuales para ejecutar un Windows de verdad, con
+      seguridad, dentro de Dagric.</p>
+    </section>
+
+    <section id="helpers" data-syn="terminal línea de órdenes consola orden comando nvidia resolve ia ollama">
+      <h2>Ayudantes del terminal</h2>
+      <div class="helpers">
+        <div class="helpers-title">Una orden cada uno</div>
+        <div class="helpers-sub">Cada ayudante pregunta antes de hacer nada.</div>
+        <div class="helper-row"><code>sudo dagric-drivers</code><span>NVIDIA</span></div>
+        <div class="helper-row"><code>dagric-migrate</code><span>traer archivos desde Windows</span></div>
+        <div class="helper-row"><code>dagric-get-resolve</code><span>DaVinci Resolve</span></div>
+        <div class="helper-row"><code>dagric-ai</code><span>IA privada en este equipo</span></div>
+        <div class="helper-row"><code>dagric-gaming</code><span>Proton-GE</span></div>
+        <div class="helper-row"><code>dagric-vm</code><span>máquinas virtuales, Pro</span></div>
+      </div>
+    </section>
+
+    <!-- Como en la versión inglesa: h3 más texto corrido, no un desplegable —
+         una respuesta plegada no la encuentran ni Ctrl+F ni el buscador de
+         arriba. La entrada de NTFS es la trampa más común de todo el que llega
+         desde Windows. -->
+    <section id="trouble"
+      data-syn="no hay sonido audio silenciado altavoces hdmi wifi wi-fi internet no conecta impresora no aparece congelado bloqueado colgado forzar cierre ntfs solo lectura inicio rápido el disco no se abre pequeño enorme diminuto resolución descarga perdida disco lleno lento roto restaurar volver atrás snapshot instantánea">
+      <h2>Cuando algo va mal</h2>
+      <p>Las ocho cosas que de verdad pasan, cada una con el arreglo que de
+      verdad funciona. Nada de esto necesita el terminal.</p>
+
+      <div class="fix">
+        <h3>No hay sonido</h3>
+        <p>Haz clic en el icono del altavoz de la bandeja del sistema y
+        comprueba el <strong>dispositivo de salida</strong>: después de conectar
+        un monitor o un televisor, el sonido se va muchas veces por HDMI
+        mientras tus altavoces se quedan mudos. Elige el dispositivo correcto de
+        la lista. Ese mismo panel tiene un mezclador por aplicación, así que
+        comprueba también que no esté silenciada la aplicación en sí.</p>
+
+        <h3>El disco de Windows no se abre, o está en solo lectura</h3>
+        <p>Esto no es cosa de Dagric, es de Windows. Su <em>Inicio rápido</em>
+        no apaga el ordenador del todo: lo hiberna, y un Windows hibernado
+        mantiene sus discos bloqueados. Arranca Windows y apágalo manteniendo
+        pulsada la tecla <kbd>Mayús</kbd>, o desactiva el Inicio rápido para
+        siempre: Panel de control → Opciones de energía → <em>Elegir el
+        comportamiento de los botones de inicio/apagado</em> → quita la marca de
+        <em>Activar inicio rápido</em>. Después de un apagado de verdad, el
+        disco se abre aquí con toda normalidad.</p>
+
+        <h3>El Wi-Fi no conecta</h3>
+        <p>Haz clic en el icono de red de la bandeja del sistema y comprueba que
+        el Wi-Fi no esté apagado ni activado el modo avión. Si tu red aparece en
+        la lista pero no acepta la contraseña, abre los ajustes de esa conexión,
+        elige <em>Olvidar</em> y vuelve a conectarte desde cero. Si no aparece
+        nada en absoluto, ejecuta <strong>Comprobar este PC</strong> desde el
+        Dagric Hub: dice en palabras claras si al chip de Wi-Fi le falta
+        algo.</p>
+
+        <h3>Un programa ha dejado de responder</h3>
+        <p>Dagric se da cuenta por su cuenta y ofrece cerrarlo — espera unos
+        segundos a que salga el aviso. Para hacerlo tú:
+        <kbd>Ctrl</kbd>+<kbd>Mayús</kbd>+<kbd>Esc</kbd>, busca el programa y
+        ciérralo. Tus otras ventanas no se ven afectadas.</p>
+
+        <h3>No aparece la impresora</h3>
+        <p>Asegúrate primero de que está en la <em>misma red Wi-Fi que este
+        ordenador</em>: es, con diferencia, la causa más común. Después,
+        Preferencias del sistema → Impresoras → Añadir impresora. Casi ninguna
+        impresora moderna necesita controlador. Si la tuya es HP, la entrada
+        <strong>Terminar la configuración</strong> del Hub instala la
+        compatibilidad completa de HP con una sola casilla.</p>
+
+        <h3>He descargado un archivo y no lo encuentro</h3>
+        <p>Está en <strong>Descargas</strong>: abre Archivos
+        (<kbd>Meta</kbd>+<kbd>E</kbd>) y lo tienes en la barra lateral. En
+        Firefox, <kbd>Ctrl</kbd>+<kbd>J</kbd> muestra las descargas recientes, y
+        cada una tiene un botón para <em>abrir la carpeta contenedora</em>.</p>
+
+        <h3>He experimentado con el aspecto y quiero salir de ahí</h3>
+        <p>Abre <strong>Dagric Styles</strong> y elige <em>Restablecer</em>: el
+        aspecto estándar de Dagric vuelve con un clic. Y recuerda que los
+        cambios de la Galería de apariencia se deshacen <em>solos</em> a los
+        veinte segundos si no los confirmas, así que una pantalla ilegible se
+        arregla sola con solo esperar.</p>
+
+        <h3>El disco se está llenando</h3>
+        <p>Para averiguar qué se está comiendo el espacio, abre un terminal
+        (escribe <em>Konsole</em> en el lanzador) y ejecuta
+        <code>du -h --max-depth=1 ~ | sort -h</code>. Lista tus carpetas
+        personales de la más pequeña a la más grande, así que el culpable es la
+        última línea: casi siempre Descargas o una carpeta de vídeos olvidada.
+        ¿Sin terminal? Haz clic derecho en la carpeta que sospeches dentro de
+        <strong>Archivos</strong> y elige <em>Propiedades</em> para ver su
+        tamaño. Las dos cosas funcionan en todas las ediciones.</p>
+        <p><span class="pro">PRO</span> Pro tiene además <em>Espacio en
+        disco</em> (Filelight) — escríbelo en el lanzador —, que dibuja el disco
+        entero como anillos, de modo que los bloques grandes saltan a la vista.
+        El <a href="#manual">manual</a> tiene una página sobre él.</p>
+      </div>
+
+      <!-- NO es exclusivo de Pro; la primera versión de este aviso lo afirmaba
+           por error. snapper y grub-btrfs están en system.list.chroot, que es la
+           lista LIBRE; Pro solo añade encima la interfaz programada de
+           Timeshift. Véase el comentario de la versión inglesa. -->
+      <div class="tip">Si alguna vez una actualización o un experimento deja el
+      sistema realmente mal, reinicia y elige en el menú de arranque la entrada
+      de los <strong>snapshots</strong>. En la instalación btrfs predeterminada,
+      el sistema arranca exactamente como estaba antes del cambio — viene de
+      serie, en <em>todas</em> las ediciones, y es automático.
+      <strong>En Pro</strong> <span class="pro">PRO</span>, Timeshift hace
+      después que esa vuelta atrás sea permanente desde una ventana, y añade
+      puntos de restauración según tu propio calendario.</div>
+    </section>
+
+    <section id="help" data-syn="soporte contacto persona ayuda correo web preguntas">
+      <h2>Pedir ayuda</h2>
+      <p>Prueba primero con el <a href="#manual">Manual de Dagric</a>: está en
+      este ordenador, no necesita internet y tiene una página para cada
+      aplicación (en inglés). Después, visita
+      <strong>dagric.com/support</strong>. Los datos de tu sistema para
+      cualquier petición de soporte: abre el <strong>Terminal</strong> (Konsole)
+      y ejecuta <code>cat /etc/os-release</code>.</p>
+    </section>
+
+    <footer class="colophon">Dagric OS · Esta guía está guardada en tu ordenador y no necesita conexión a internet.</footer>
+
+  </main>
+</div>
+
+<script src="/guide/guide.js"></script>
+</body>
+</html>
