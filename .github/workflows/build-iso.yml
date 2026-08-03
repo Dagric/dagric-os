@@ -83,8 +83,35 @@ jobs:
         run: sudo apt-get update -qq && sudo apt-get install -y -qq gettext
       - name: Check po/ against the source
         run: sh tools/i18n-ci-check.sh
+      # THE DELIVERY MUST NOT DEPEND ON ARTIFACT STORAGE, which on this repo is
+      # a wall rather than a limit. It is private, so artifacts bill against the
+      # account's shared quota, and that quota is full: the API reports ZERO
+      # artifacts on this repository and the upload still returns "Artifact
+      # storage quota has been hit ... recalculated every 6-12 hours". So the
+      # step that exists to hand back the fix failed, and added a second red X
+      # on top of the real one — the exact confusion the header of this file
+      # spent four days learning.
+      #
+      # Hence both, in this order. The log always works and needs no quota; the
+      # artifact is nicer to consume when there is room for it, and is now
+      # continue-on-error so a storage problem is reported as a storage problem
+      # and never masks the i18n result.
+      - name: Print the regenerated catalogues (works with no artifact quota)
+        if: failure()
+        run: |
+          echo "Recover the regenerated files without the artifact:"
+          echo "  1. copy the base64 block below"
+          echo "  2. base64 -d > i18n.tar.gz   (PowerShell:"
+          echo "     [IO.File]::WriteAllBytes('i18n.tar.gz',[Convert]::FromBase64String(\$b)))"
+          echo "  3. tar xzf i18n.tar.gz  over the repo root, then commit"
+          echo ""
+          echo "----- BEGIN i18n.tar.gz -----"
+          tar czf - po config/includes.chroot/usr/share/locale | base64 -w 100
+          echo "----- END i18n.tar.gz -----"
+
       - name: Upload the regenerated catalogues
         if: failure()
+        continue-on-error: true
         uses: actions/upload-artifact@v4
         with:
           name: i18n-regenerated
