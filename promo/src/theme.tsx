@@ -22,6 +22,45 @@ export const GOOD = "#4ade80";
 export const WARN = "#f0a04b";
 export const SANS = "system-ui, 'Segoe UI', Roboto, sans-serif";
 
+/**
+ * The DIAGRAM palette: the colours a drawn Dagric desktop is made of, as
+ * opposed to the colours the video's own chrome is made of.
+ *
+ * These live here for the same reason the brand colours do. They were already
+ * hardcoded in three places before this file existed — site/assets/look-*.svg,
+ * tools/make-appearance-thumbs.sh, and again inline in DagricPromo.tsx's Looks
+ * component — and the three sets have already drifted apart. Every value below
+ * names the shipped file it was read out of, so the next person can check it
+ * instead of copying the nearest neighbour.
+ */
+export const DIAGRAM = {
+  // config/includes.chroot/usr/share/color-schemes/DagricLight.colors,
+  // [Colors:Window] BackgroundNormal=239,240,241. Daybreak is the default
+  // style (SORT=10, SCHEME=DagricLight), so this is the panel colour a new
+  // owner actually gets. The site SVGs all paint panels #eef1f4, which is a
+  // near-miss nobody chose — copied once, then copied six more times.
+  panel: "#eff0f1",
+  panelInk: "#31363b", // the clock face, as every look-*.svg sets it
+  tile: "#c9d3dc", // application icons
+  tile2: "#dde3e9", // task buttons and secondary menu entries
+  tray: "#8794a1", // system-tray dots
+  pager: "#94a3b1", // pager cells: dimmer than an app icon, which is the point
+  // The kickoff button, re-branded by every one of the seven .look scripts
+  // with writeConfig("icon","dagric-logo"). Gradient sampled from the shipped
+  // usr/share/dagric/logo/dagric-logo.png.
+  dFrom: "#59c2e8",
+  dTo: "#2f7fd1",
+  // branding/wallpaper/make-wallpapers.sh line 241:
+  //   Dagric)  classic 0d1728 060b14 40b0ff 0.962
+  // i.e. a vertical gradient 0d1728 -> 060b14, with the bloom AND the three
+  // sweeps both drawn in 40b0ff (classic() passes $3 to sweeps()). The site
+  // SVGs stroke their waves #3fa9f5 instead, which is the site's accent, not
+  // the wallpaper's.
+  wallTop: "#0d1728",
+  wallBottom: "#060b14",
+  wallBloom: "#40b0ff",
+} as const;
+
 // NO WEBFONT, deliberately. Remotion would need the font loaded before the
 // first frame renders or the whole video ships in a fallback face, and a
 // missing @remotion/google-fonts call fails silently — it looks like a design

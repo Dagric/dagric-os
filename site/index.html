@@ -194,6 +194,42 @@ main{max-width:none;margin:0;padding:0}
       Dagric wallpapers, even glassy blur — four styles free, all seven on Pro.
       Mix any Look with any Style.</p>
     </div>
+
+    <!-- The seven diagrams below are stills of seven different desktops, and a
+         reader has to do the work of imagining the change between them. This
+         section is selling a VERB — "reshape your desktop in one click" — and a
+         grid of nouns cannot show it. So the video goes first: the grid builds,
+         the camera visits each layout in turn, and it closes on the free three
+         bracketed against the Pro four so the split is a picture rather than a
+         count of badges.
+
+         Every panel in it is drawn from the shipped .look files rather than
+         traced off these SVGs — edge, thickness in grid units, and widget order
+         all come out of the SCRIPT= line. That is not pedantry: building it
+         that way is what surfaced that look-horizon.svg had been drawing
+         Horizon's dock as a floating centred pill with a launcher on it for as
+         long as this page has existed, when horizon.look builds a full-width
+         square bar with icontasks and nothing else. The SVG is corrected in the
+         same commit. A Pro layout was being advertised as something the product
+         does not do.
+
+         Markup matches the tour on /features and the walkthrough on /download:
+         controls, preload="none" so a 2 MB file is never fetched by somebody
+         who scrolled past, playsinline so iOS does not take over the screen,
+         and no autoplay of any kind. width/height are the real 1920x1080 to
+         reserve the box before the poster arrives; site.css's img,video rule
+         supplies the height:auto that stops those attributes rendering it
+         1080px tall on a phone. -->
+    <div class="shot" style="margin:34px auto 30px">
+      <video controls preload="none" playsinline width="1920" height="1080"
+             poster="/assets/looks-poster.jpg" style="width:100%;display:block"
+             aria-label="A 34-second tour of all seven Dagric OS desktop layouts, drawn from the layout files that ship inside the system">
+        <source src="/assets/dagric-looks.mp4" type="video/mp4">
+        Your browser can't play this video. It is a 34-second tour of all seven
+        layouts — each one is pictured and described below.
+      </video>
+    </div>
+
     <div class="looks-grid">
       <div class="look"><img src="/assets/look-classic.svg" alt="Classic layout" width="640" height="400" loading="lazy"><div class="pad"><h3>Classic</h3><p>A taskbar at the bottom — familiar from day one.</p></div></div>
       <div class="look"><img src="/assets/look-focus.svg" alt="Focus layout" width="640" height="400" loading="lazy"><div class="pad"><h3>Focus</h3><p>One tidy bar, nothing in your way.</p></div></div>

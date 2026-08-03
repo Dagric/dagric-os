@@ -7,9 +7,11 @@
     "render": "remotion render DagricPromo out/dagric-promo.mp4",
     "render:walkthrough": "remotion render InstallWalkthrough out/dagric-install-walkthrough.mp4",
     "render:short": "remotion render DagricShort out/dagric-short.mp4",
-    "render:all": "npm run render && npm run render:walkthrough && npm run render:short",
+    "render:looks": "remotion render DagricLooks out/dagric-looks.mp4",
+    "render:all": "npm run render && npm run render:walkthrough && npm run render:short && npm run render:looks",
     "still": "remotion still DagricPromo out/poster.png --frame=90",
-    "still:walkthrough": "remotion still InstallWalkthrough out/walkthrough-poster.png --frame=620"
+    "still:walkthrough": "remotion still InstallWalkthrough out/walkthrough-poster.png --frame=620",
+    "still:looks": "remotion still DagricLooks out/looks-poster.png --frame=840"
   },
   "dependencies": {
     "@remotion/cli": "4.0.286",

@@ -280,14 +280,51 @@ const Looks: React.FC = () => {
     interpolate(frame, K, [v[0], v[0], v[1], v[1], v[2], v[2], v[3]], {
       extrapolateLeft: "clamp", extrapolateRight: "clamp",
     });
-  // Panel A (the main bar): bottom full -> bottom slim -> top bar -> left dock
+  // GEOMETRY IS NOW DERIVED, NOT DRAWN BY EYE. Every thickness below is the
+  // .look file's own grid-unit multiplier times one scale: classic.look's
+  // bottom panel is 2.2gu and is drawn 64px here, so PGU = 64/2.2 = 29.09px
+  // per grid unit, and every other panel follows from its own multiplier.
+  // Previously these were four hand-picked numbers and two of them contradicted
+  // the product.
+  const PGU = 64 / 2.2;
+  // Panel A (the main bar): bottom 2.2 -> bottom 2.0 -> top 1.6 -> left 3.2
   const aX = lerp([0, 0, 0, 0]);
-  const aY = lerp([SH - 64, SH - 48, 0, 0]);
-  const aW = lerp([SW, SW, SW, 84]);
-  const aH = lerp([64, 48, 44, SH]);
-  // Panel B (the dock): hidden -> hidden -> floating bottom dock -> hidden
-  const bO = lerp([0, 0, 1, 0]);
-  const bW = 520;
+  const aY = lerp([SH - PGU * 2.2, SH - PGU * 2.0, 0, 0]);
+  const aW = lerp([SW, SW, SW, PGU * 3.2]);
+  const aH = lerp([PGU * 2.2, PGU * 2.0, PGU * 1.6, SH]);
+
+  // Panel B: the SECOND panel, for the two layouts that have one.
+  //
+  // THIS USED TO BE A LIE, TWICE OVER. It was drawn as a floating, centred,
+  // rounded 520px dock with a launcher as its first icon, shown only for
+  // Horizon and hidden for Command. Neither matched the shipped scripts:
+  //
+  //   horizon.look  d.location="bottom"; d.height=round(gridUnit*3);
+  //                 d.addWidget("org.kde.plasma.icontasks");
+  //   command.look  t.location="top";    t.height=round(gridUnit*1.5);
+  //                 t.addWidget(panelspacer); (systemtray); (digitalclock);
+  //
+  // A Plasma panel spans its whole edge unless something sets alignment,
+  // lengthMode or floating, and a grep across all seven .look files finds none
+  // of those properties anywhere. So Horizon's lower panel is a full-width
+  // square bar — and at 3.0gu it is the THICKEST panel in the whole set, which
+  // the old 58px floating pill inverted into the thinnest. The launcher was
+  // not there to draw either: horizon.look puts kickoff on the TOP panel and
+  // gives the bottom one icontasks and nothing else.
+  //
+  // Command was worse: it has a top panel and this scene simply omitted it,
+  // so a Pro layout was advertised as less than it is.
+  //
+  // The repo's own thumbnail generator had both right —
+  // tools/make-appearance-thumbs.sh:290 draws horizon's dock as
+  // `rectangle 0,236 480,270`, full width and square with no accent icon.
+  // site/assets/look-horizon.svg had the same floating-dock error and is
+  // corrected in the same commit as this.
+  const bO = lerp([0, 0, 1, 1]);
+  const bX = lerp([0, 0, 0, PGU * 3.2]);
+  const bY = lerp([SH - PGU * 3, SH - PGU * 3, SH - PGU * 3, 0]);
+  const bW = lerp([SW, SW, SW, SW - PGU * 3.2]);
+  const bH = lerp([PGU * 3, PGU * 3, PGU * 3, PGU * 1.5]);
   // One label per layout, visible through its whole hold window.
   const labels: Array<{ t: string; d: string; w: [number, number] }> = [
     { t: "Classic",       d: "A taskbar at the bottom — familiar from day one", w: [0, 105] },
@@ -314,10 +351,14 @@ const Looks: React.FC = () => {
             <div key={i} style={{ width: 34, height: 34, borderRadius: 9, background: "#c9d3dc", flex: "0 0 auto" }} />
           ))}
         </div>
-        {/* Panel B (floating dock for Horizon) */}
-        <div style={{ position: "absolute", left: (SW - bW) / 2, top: SH - 76, width: bW, height: 58, borderRadius: 18, background: "#eef1f4", opacity: bO, display: "flex", alignItems: "center", justifyContent: "center", gap: 12 }}>
+        {/* Panel B — Horizon's full-width bottom dock, Command's top strip.
+            Square corners and flush to its edge, because that is what the
+            scripts build. justifyContent is flex-start: task buttons pack from
+            the left of a Plasma panel, they do not centre. No launcher on
+            either — neither script puts kickoff on its second panel. */}
+        <div style={{ position: "absolute", left: bX, top: bY, width: bW, height: bH, background: "#eef1f4", opacity: bO, display: "flex", alignItems: "center", justifyContent: "flex-start", gap: 12, paddingLeft: 12, overflow: "hidden" }}>
           {[0, 1, 2, 3, 4, 5, 6].map((i) => (
-            <div key={i} style={{ width: 36, height: 36, borderRadius: 10, background: i === 0 ? "linear-gradient(135deg,#59c2e8,#2f7fd1)" : "#c9d3dc" }} />
+            <div key={i} style={{ width: 36, height: 36, borderRadius: 10, background: "#c9d3dc", flex: "0 0 auto" }} />
           ))}
         </div>
       </div>
