@@ -44,6 +44,42 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  # THE ONLY LINUX HOST IN THE LOOP, SO THE TRANSLATION CHECK LIVES HERE.
+  #
+  # tools/i18n-build.sh --check proves each .mo matches its .po. Nothing proved
+  # the .po files match the SOURCE — so a new user-facing string could be added
+  # to a shipped tool, never extracted, and every check in the project would
+  # pass while that sentence stayed English in all five languages. 29 strings
+  # were in exactly that state when this job was added, concentrated in the
+  # error paths of dagric-ai, dagric-drivers and dagric-gaming.
+  #
+  # It survived because the extraction cannot be run on the machine this is
+  # developed on: no gettext, no working WSL, no Docker daemon. A check nobody
+  # can run is not a check.
+  #
+  # Two minutes, its own runner, and it does not gate the ISO builds below —
+  # they answer a different question and an English error message must not stop
+  # a release. On failure it uploads the regenerated po/ and catalogues, because
+  # telling someone to run a tool they have nowhere to run is not a fix.
+  i18n:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install gettext
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq gettext
+      - name: Check po/ against the source
+        run: sh tools/i18n-ci-check.sh
+      - name: Upload the regenerated catalogues
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: i18n-regenerated
+          path: |
+            po/
+            config/includes.chroot/usr/share/locale/
+          retention-days: 14
+
   build:
     runs-on: ubuntu-latest
     timeout-minutes: 120
