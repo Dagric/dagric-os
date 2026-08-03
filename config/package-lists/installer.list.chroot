@@ -15,6 +15,43 @@ squashfs-tools
 # conflict, so we use the underlying pieces): grub2-common provides
 # grub-install, the -bin packages provide the i386-pc and x86_64-efi
 # targets, and shim-signed + grub-efi-amd64-signed give Secure Boot.
+#
+# ============================================================================
+# OPEN, RELEASE-BLOCKING: A UEFI INSTALL FAILED HERE. NOT YET ROOT-CAUSED.
+# ============================================================================
+# Observed 2026-08-03 on a KVM-accelerated UEFI run of dagric-os-1.0-amd64.iso
+# in the test/ harness, erase-disk onto a blank 20 GiB /dev/vda. Everything up
+# to and including partitioning succeeded — GPT written, 300 MiB FAT32 ESP,
+# 19.71 GiB btrfs root labelled "Dagric" — and then:
+#
+#   Installation Failed
+#   Command /usr/share/calamares/helpers/calamares-bootloader-config
+#   finished with exit code 2.
+#   Output: Running bootloader-config...  * Installing grub-efi (uefi)...
+#           Reading package lists...  Building dependency tree...
+#
+# THE LEAD, and it is specific: that helper installs the METAPACKAGE `grub-efi`.
+# This list deliberately does NOT install it — the four lines above exist
+# precisely because grub-pc and grub-efi-amd64 conflict, so the pieces are
+# installed instead. So the helper is asking apt for a package that (a) is not
+# on the image, and (b) may be unsatisfiable in the target anyway because
+# grub-pc-bin is already there.
+#
+# WHAT IS NOT YET PROVEN, and must be before anything is changed:
+#   * whether the guest had outbound network at all. If it did not, apt failing
+#     is a harness artifact and the only real conclusion is "a UEFI install
+#     needs internet", which is still worth knowing but is a different bug.
+#   * whether `grub-efi` actually conflicts with the installed grub-pc-bin, or
+#     would have resolved cleanly given a working mirror.
+# Reading /root/.cache/calamares/session.log on the failed run answers both, and
+# is how the earlier dosfstools/EFI bug was root-caused. That read was attempted
+# and did not complete — VNC input to KRunner stopped responding after the
+# installer closed — so this is recorded rather than guessed at.
+#
+# DO NOT "fix" this by adding grub-efi to this list. That is the one change the
+# comment above says breaks it, because the metapackage conflicts with
+# grub-pc-bin and would cost the BIOS install path to buy the UEFI one.
+# ============================================================================
 grub2-common
 grub-pc-bin
 grub-efi-amd64-bin
