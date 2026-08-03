@@ -34,17 +34,21 @@
 # ----------------------------------------------------------
 # This script needs msgfmt and exits below if it is absent — which means on the
 # Windows development machine, with no gettext, no working WSL and no Docker
-# daemon, the --check gate could not be run AT ALL. A .mo was once hand-written
-# there, committed and pushed, and it was wrong in a way no content-level check
-# could see: every message decoded correctly, but the writer had dropped the
-# 41-byte "POT-Creation-Date:" line from the header, and msgfmt copies the
-# header msgstr verbatim. cmp compared 66042 bytes against 66083 and the image
-# build would have failed at 0150-locales.hook.chroot.
+# daemon, the --check gate could not be run AT ALL.
 #
-# tools/i18n-mo.py reimplements msgfmt's write-mo.c byte for byte, in pure
-# Python with no dependencies, and has the same two modes. It does NOT replace
-# this script: it cannot do msgfmt's `-c` validation of format specifiers and
-# plural rules. Prefer this one wherever gettext exists.
+# tools/i18n-mo.py reimplements msgfmt's write-mo.c in pure Python with no
+# dependencies and has the same two modes, so the gate can be run there too. It
+# does NOT replace this script: it cannot do msgfmt's `-c` validation of format
+# specifiers and plural rules. Prefer this one wherever gettext exists.
+#
+# READ THE HEADER OF THAT FILE BEFORE CHANGING EITHER. Three separate attempts
+# were needed to make it byte-exact, each one wrong in a way that looked
+# obviously right: msgfmt STRIPS POT-Creation-Date rather than copying the
+# header verbatim, the strip has to happen after unescaping because the .po
+# stores newlines as backslash-n, and the hash is computed over the key only up
+# to the first NUL so plural entries land in different slots. Verify against
+# catalogues msgfmt actually produced — there are msgfmt-built ones in git at
+# 6702a50, 3b60c35 and 1bb914a — rather than against what it ought to do.
 set -e
 cd "$(dirname "$0")/.."
 
