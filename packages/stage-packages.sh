@@ -138,6 +138,59 @@ build_pkg() {
         done || exit 1
     fi
 
+    # Debian Policy 12.5: "Every package must be accompanied by a verbatim copy
+    # of its copyright information and distribution license in the file
+    # /usr/share/doc/<package>/copyright." None of these four had one, and they
+    # are not incidental packages — they are installed on the ISO and pushed to
+    # sold machines through the paid update channel, so site/licenses.html's
+    # promise that every licence text is on disk under /usr/share/doc held for
+    # every package on the machine EXCEPT the Dagric layer itself.
+    #
+    # Written here rather than as four checked-in files so it cannot drift out
+    # of sync between the packages. normalise_modes has already run, so every
+    # directory this creates is chmodded by hand afterwards rather than being
+    # left on the build container's umask.
+    mkdir -p "$root/usr/share/doc/$name"
+    cat > "$root/usr/share/doc/$name/copyright" << 'COPYRIGHT'
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: Dagric OS
+Source: https://dagric.com/licenses
+
+Files: *
+Copyright: 2026 DGR Operations <repo@dagric.com>
+License: GPL-3.0-or-later
+
+Files: usr/share/wallpapers/*
+       usr/share/dagric/logo/*
+       usr/share/dagric/sddm/*
+       usr/share/dagric/splash/*
+Copyright: 2026 DGR Operations <repo@dagric.com>
+License: CC-BY-SA-4.0
+
+License: GPL-3.0-or-later
+ This program is free software: you can redistribute it and/or modify it under
+ the terms of the GNU General Public License as published by the Free Software
+ Foundation, either version 3 of the License, or (at your option) any later
+ version.
+ .
+ This program is distributed in the hope that it will be useful, but WITHOUT ANY
+ WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+ PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+ .
+ On Debian systems the complete text of the GNU General Public License version 3
+ is in /usr/share/common-licenses/GPL-3.
+
+License: CC-BY-SA-4.0
+ Creative Commons Attribution-ShareAlike 4.0 International. The complete text is
+ at https://creativecommons.org/licenses/by-sa/4.0/legalcode
+ .
+ Trade marks are not licensed by the above: the Dagric name, the D monogram and
+ the Dagric logo are marks of DGR Operations. See https://dagric.com/licenses.
+COPYRIGHT
+    chmod 0755 "$root/usr" "$root/usr/share" "$root/usr/share/doc" \
+               "$root/usr/share/doc/$name"
+    chmod 0644 "$root/usr/share/doc/$name/copyright"
+
     dpkg-deb --build --root-owner-group "$root" "$OUT/${name}_${version}_all.deb" >/dev/null
     printf '  %-26s %s\n' "$name" "$version"
 }

@@ -235,8 +235,20 @@ kwin_reload() {
     return 0
 }
 
+# --print-reply is not decoration, and dagric-looks already spells out why:
+# without it dbus-send hands the message to the bus and exits 0 without ever
+# looking at the answer. So this returned success when plasmashell was not on
+# the session bus at all, and when the layout SCRIPT threw — which plasmashell
+# answers with a D-Bus error reply. Both callers treat that status as evidence
+# that panels were built. $CLEAR removes every panel before the layout script
+# runs, so a throw left the owner with an empty desktop while KEEP said
+# "Kept: <name>" and the mid-preview rescue said the desktop was put back.
+#
+# No --reply-timeout: the D-Bus default is generous, and a shorter one would
+# report failure on the slow 2012-2018 machines this product targets while the
+# panels were still being built. Same call, same reasoning, as dagric-looks.
 plasma_script() {
-    dbus-send --session --type=method_call --dest=org.kde.plasmashell \
+    dbus-send --session --print-reply --type=method_call --dest=org.kde.plasmashell \
         /PlasmaShell org.kde.PlasmaShell.evaluateScript "string:$1" >/dev/null 2>&1
 }
 
@@ -358,8 +370,12 @@ rebuild_panels() {
         done
     done < "$PANFILE"
     [ "$_n" -gt 0 ] || return 1
+    # Propagate, do not swallow. `rebuild_panels || fallback_layout` in
+    # do_revert is the whole recovery path, and a hardcoded `return 0` meant it
+    # could never fire — the fallback exists precisely for a rebuild Plasma
+    # refused. plasma_script's status is the last command's, so it is the
+    # function's return value.
     plasma_script "$_js"
-    return 0
 }
 
 fallback_layout() {
@@ -384,8 +400,10 @@ apply_style() {
 apply_layout() {
     _sc=$(skey "$1" SCRIPT)
     [ -n "$_sc" ] || return 1
+    # No `return 0` here either, for the same reason as rebuild_panels: the
+    # status of the apply is the only thing that distinguishes a layout Plasma
+    # built from one it threw on after $CLEAR had already emptied the desktop.
     plasma_script "$CLEAR $_sc"
-    return 0
 }
 
 do_revert() {

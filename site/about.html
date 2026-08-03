@@ -71,10 +71,20 @@
   <p>Dagric OS is made by <strong>DGR Operations</strong>, an independent company in the United
   States. Small on purpose: one product, done right.</p>
 
+  <!-- The secondary CTA was a bare class="btn" — site.css gives that only a border and
+       no panel background, so it was a #22344f hairline on a #0a111c page (1.5:1, under
+       the 3:1 WCAG 1.4.11 wants of a control boundary) and the only button on the site
+       whose hover did nothing, because .btn.ghost:hover cannot match. Exactly the defect
+       already fixed one page over on features.html; this page was missed. And like that
+       page, this was a CTA pair asking for the $39 decision with no price and no refund
+       beside it, while index, pro, download and features all pair the two. .refund
+       already renders the green check and muted type; nothing new is needed. -->
   <p style="margin-top:32px">
     <a class="btn primary" href="/download">Try Dagric OS</a>
-    <a class="btn" href="/pro" style="margin-left:10px">See Pro</a>
+    <a class="btn ghost" href="/pro" style="margin-left:10px">See Pro · $39</a>
   </p>
+  <p class="refund">Free forever, no account. Pro is a one-time $39 with a 14-day,
+  no-questions refund.</p>
 </main>
 
 <footer><div class="foot">

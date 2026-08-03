@@ -47,16 +47,26 @@
     <header class="hero">
       <div class="eyebrow">Dagric&#x27;s own tools</div>
       <h1>Helpers that run by themselves</h1>
-      <p class="sub">The four small things Dagric does without asking, what each one is, and how to stop it.</p>
+      <p class="sub">The nine small things Dagric does without asking, what each one is, and how to stop it.</p>
     </header>
 
     <div class="swap"><span>On Windows this was</span><strong>the Windows first-run experience and OEM startup apps</strong></div>
 
     <section>
       <h2>What it is</h2>
-      <p>Almost everything on this machine waits to be asked. Four helpers do not,
-      and it is only fair to name them. All four are one-shot: each retires itself once
-      it has done its job.</p>
+      <!-- KEEP THIS LIST COMPLETE, and keep the count right in the three places
+           that state it: the subtitle above, this paragraph, and "That is the
+           complete list" further down. This page used to name four helpers and
+           then tell the owner that anything else in Autostart was not Dagric's.
+           Six Autostart entries ship, not four. Two of them are written at build
+           time rather than living in config/includes.chroot/etc/skel/.config/
+           autostart, which is why they were missed: Dagric display defaults by
+           config/hooks/normal/0520-display-defaults.hook.chroot and Dagric
+           accessible boot by 0530-accessibility.hook.chroot. Adding an autostart
+           entry, or a dagric-*.service, means adding it here as well. -->
+      <p>Almost everything on this machine waits to be asked. Nine helpers do not,
+      and it is only fair to name all nine. Five are one-shot: each retires itself
+      once it has done its job. Four stay, and each of those says below why.</p>
       <ul class="plain">
         <li><strong>dagric-firstrun</strong> &mdash; the
         <a href="tool-dagric-firstrun.html">setup wizard</a> at your first login. It
@@ -74,9 +84,41 @@
         of an installed system to configure
         <a href="app-snapshots.html">snapshot recovery</a>. On a non-btrfs install it
         does nothing and stands down.</li>
+        <li><strong>dagric-pdf-queue</strong> &mdash; a one-time service that creates
+        the printer called <em>PDF</em> on the first boot, so that
+        <a href="app-printing.html">Print to PDF</a> is there the first time you look
+        for it. It stamps itself done only if it succeeded, so on an installed machine
+        it runs exactly once.</li>
+        <li><strong>Dagric display defaults</strong>
+        (<code>/usr/lib/dagric/display-autoscale</code>) &mdash; <em>stays.</em> It runs
+        at <em>every</em> login, not only the first. It measures your screen and picks a
+        sensible text size, and it puts back a size that
+        <a href="tool-dagric-display.html">Dagric Display</a> was interrupted in the
+        middle of changing. It stays because a monitor plugged in later needs measuring
+        too, and because a bad size survives a reboot unless something undoes it.</li>
+        <li><strong>Dagric accessible boot</strong>
+        (<code>/usr/lib/dagric/a11y-live</code>) &mdash; <em>stays.</em> At every login
+        it reads one line of <code>/proc/cmdline</code> and exits immediately unless
+        this machine was started from the accessible boot entry, in which case it turns
+        on <a href="app-orca.html">Orca</a>. An installed system never carries that
+        flag, so there it does nothing at all.</li>
+        <li><strong>Dagric desktop shortcuts</strong>
+        (<code>/usr/lib/dagric/desktop-shortcut-trust</code>) &mdash; <em>stays,</em>
+        and it is the one helper that keeps running for the whole session. It watches
+        your Desktop folder so that dragging a program out of the launcher makes a
+        shortcut that works, the way it did on Windows. It marks a file runnable
+        <em>only</em> when that file is byte-for-byte identical to a launcher already
+        installed on this machine, so a <code>.desktop</code> file you downloaded still
+        gets KDE&#x27;s warning.</li>
+        <li><strong>dagric-ssh-hostkeys</strong> <span class="pill pro">PRO</span>
+        &mdash; <em>stays.</em> It runs at every boot and does nothing on almost all of
+        them: it generates this machine&#x27;s own <a href="app-ssh.html">SSH</a> host
+        keys if they are missing, so that no two Dagric machines share one identity.
+        The free edition has no SSH server, so there it never runs.</li>
       </ul>
-      <p>A fifth, <strong>dagric-app-names</strong>, runs at build time and again
-      after package operations. It never asks anything and never touches your files;
+      <p>One more, <strong>dagric-app-names</strong>, is neither an Autostart entry
+      nor a service: it runs at build time and again after package operations. It
+      never asks anything and never touches your files;
       it is what makes the launcher say <em>Files</em> instead of <em>Dolphin</em>
       &mdash; see <a href="tool-dagric-app-names.html">why the apps have plain
       names</a>.</p>
@@ -85,8 +127,11 @@
     <section>
       <h2>Five things you will actually do</h2>
       <ol class="tasks">
-        <li><span class="t">See what starts with your session</span><p>System Settings &rarr; <em>Autostart</em>. Everything Dagric adds is
-         listed there by name, and you may remove any of it.</p></li>
+        <li><span class="t">See what starts with your session</span><p>System Settings &rarr; <em>Autostart</em>, or look straight in
+         <code>~/.config/autostart/</code> &mdash; the six Autostart entries above are
+         the files in there, and you may delete any of them. The other three are
+         system services rather than session items;
+         <code>systemctl list-unit-files &#x27;dagric-*&#x27;</code> lists those.</p></li>
         <li><span class="t">Open the welcome page again</span><p>The short written account of what Dagric is lives at
          <code>/usr/share/dagric/welcome/index.html</code>. Reach it with
          <code>dagric-welcome</code>, or from the Dagric Hub's <em>Welcome guide</em>
@@ -106,11 +151,14 @@
 
     <section>
       <h2>One thing that will surprise you</h2>
-      <p><strong>That is the complete list.</strong> Four small helpers, each of
-      which retires itself, and none of which sends anything anywhere. There is no
-      updater service, no telemetry agent, no vendor assistant, no registration
-      reminder and no trial countdown. If you find something in Autostart that is not
-      one of the four above, you or an application you installed put it there.</p>
+      <p><strong>That is the complete list.</strong> Nine small helpers, five that
+      retire themselves and four that stay for the reason each gives above, and none
+      of which sends anything anywhere. There is no updater service, no telemetry
+      agent, no vendor assistant, no registration reminder and no trial countdown. Six
+      of the nine are Autostart entries &mdash; all of the above except the snapshot,
+      Print-to-PDF and SSH host-key services, which are one-time system jobs. If you
+      find anything else in Autostart, you or an application you installed put it
+      there.</p>
     </section>
 
     <section>

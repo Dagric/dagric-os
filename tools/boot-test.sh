@@ -188,13 +188,45 @@ wait $QPID 2>/dev/null || true
 rm -f "$MON"
 
 # PPM is what the monitor emits; convert so the images can actually be looked at.
+#
+# DELETE ONLY WHAT WAS CONVERTED. This was `magick ... || true` followed by an
+# unconditional `rm -f "$OUT"/*.ppm`, so a conversion that failed — a magick
+# that is broken, or one killed by the OOM killer on a low-memory host — took
+# the only evidence the run produced with it. The resize is the one step here
+# with nothing riding on it; the frames ARE the product of this script, so a
+# failed resize must cost the resize, not the screenshot.
 if command -v magick >/dev/null 2>&1; then
     for f in "$OUT"/*.ppm; do
         [ -f "$f" ] || continue
-        magick "$f" -resize 1024x "${f%.ppm}.png" 2>/dev/null || true
+        if magick "$f" -resize 1024x "${f%.ppm}.png" 2>/dev/null; then
+            rm -f "$f"
+        else
+            echo "  WARNING: could not convert ${f##*/} — keeping the .ppm" >&2
+        fi
     done
-    rm -f "$OUT"/*.ppm
 fi
 
 echo "--- $MODE result ---"
-ls -la "$OUT" | grep -E '\.png|\.log' || echo "  NOTHING CAPTURED"
+ls -la "$OUT"
+
+# COUNT THE FRAMES. `ls -la "$OUT" | grep -E '\.png|\.log'` could never report
+# failure: qemu.log is written by every single run and matches '\.log', so grep
+# always succeeded, the `|| echo "  NOTHING CAPTURED"` branch was unreachable
+# dead code, and a run that photographed nothing still ended with a result
+# banner and a tidy listing under it — indistinguishable from a clean run.
+# Whether any frame exists is the only thing that says this test answered its
+# question.
+#
+# Counted with a glob rather than by parsing ls: the glob IS the question, and
+# an unmatched one expands to the literal pattern, which `[ -f ]` discards.
+# .ppm counts too — magick may be absent, or a convert may have been kept above.
+_frames=0
+for f in "$OUT"/*.png "$OUT"/*.ppm; do
+    if [ -f "$f" ]; then _frames=$((_frames + 1)); fi
+done
+if [ "$_frames" -eq 0 ]; then
+    echo "  NOTHING CAPTURED — this run proves nothing about whether the ISO" >&2
+    echo "  boots in $MODE mode. See $OUT/qemu.log." >&2
+    exit 1
+fi
+echo "  $_frames frame(s) captured"

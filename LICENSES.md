@@ -11,15 +11,30 @@ majority of the system — the Linux kernel, KDE Plasma, and the thousands of
 packages it draws in — is free/open-source software under licenses such as
 **GPL-2.0/3.0, LGPL, MIT, Apache-2.0, BSD, ISC, and MPL**.
 
-**GPL source availability:** for the copyleft components, the corresponding
-source is available from Debian's archives (https://sources.debian.org) and the
-Dagric build configuration is published in full at the project's public
-repository. Distributing Dagric therefore satisfies the GPL's source-offer
-obligation by pointing recipients to those sources.
+**GPL source availability:** for the unmodified Debian packages — which is the
+vast majority of the system — the corresponding source is at Debian's archives
+(https://sources.debian.org), and https://dagric.com/licenses carries the
+directions to it that GPL-3.0 section 6(d) requires beside the download.
 
-Everything the Dagric project itself adds (branding assets, the `dagric-*`
-helper scripts, hooks, the welcome page, and configuration packages) is part of
-this repository and is offered under the project's own terms.
+For everything the Dagric project itself adds, the shipped file *is* the source:
+the `dagric-*` helpers, hooks and wizard are shell, Python and QML installed in
+clear text on every machine, each carrying its SPDX header. The one exception is
+the compiled message catalogues under `/usr/share/locale/*/LC_MESSAGES/`, whose
+corresponding source is the `.po` files in `po/`.
+
+This repository is PRIVATE and therefore cannot be the compliance mechanism.
+What backs the copyleft components is the written offer published at
+https://dagric.com/licenses and honoured through the contact page; it must be
+honoured for at least three years after the last unit of a release is conveyed,
+at no more than the cost of the conveyance. If the repository is ever opened,
+say so here and link it — do not claim it before it is true.
+
+The terms on that Dagric layer are stated where every Debian tool looks for
+them: `/usr/share/doc/<package>/copyright` in each of the four `dagric-*`
+packages. The helper scripts, hooks and wizard are **GPL-3.0-or-later**; the
+branding assets (wallpapers, logo, SDDM and splash artwork) are
+**CC-BY-SA-4.0**. The Dagric name, the D monogram and the logo are trade marks
+and are not licensed by either — see Trademarks below.
 
 ## Base system: open source, plus redistributable hardware firmware
 

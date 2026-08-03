@@ -1,0 +1,29 @@
+# Dagric OS — file search indexes NAMES, not the contents of every file.
+#
+# baloo6 ships enabled ("Setting up baloo6 (6.13.0-1)" in every build log) and
+# its upstream default is to index file CONTENT: baloo_file_extractor opens
+# every document, spreadsheet, PDF, ebook, archive and image in the home
+# directory and pulls text out of it. Nothing in this tree configured it, so
+# every Dagric machine has been doing that.
+#
+# On the hardware this OS is sold for, that lands at the worst possible moment.
+# dagric-migrate rsyncs a Windows user's Documents, Desktop, Pictures, Music and
+# Videos into $HOME — tens or hundreds of gigabytes — and the extractor then
+# reads all of it back off a 5400 rpm platter, on two cores, while the owner is
+# deciding what they think of the operating system.
+#
+# WHAT IS KEPT: "only basic indexing" still records every file's name, path,
+# type and mtime, so the launcher and Dolphin still find files BY NAME — which
+# is the only thing Dagric promises. manual/app-launcher.html says exactly that:
+# "Find a document by name ... start typing the file name."
+#
+# WHAT IS GIVEN UP: searching INSIDE files. Nothing in the manual, the guide or
+# the website offers it, and an owner who wants it ticks "Also index file
+# content" in System Settings -> Search -> File Search, which rewrites this file.
+#
+# Indexing-Enabled is deliberately NOT set to false. Turning Baloo off outright
+# would take filename search out of the launcher, and that IS a documented
+# feature.
+
+[General]
+only basic indexing=true

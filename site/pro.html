@@ -64,7 +64,17 @@ table.cmp td:nth-child(2),table.cmp td:nth-child(3),table.cmp th:nth-child(2),ta
   </div>
 </div></nav>
 
-<header class="hero-pro">
+<!-- id="main" deliberately lives on the hero, NOT on <main> below. This was the only
+     page on the site whose <h1> sat outside the skip target: <main> opened after the
+     whole hero, so "Skip to content" dropped a keyboard or screen-reader user roughly
+     1290px past the headline, past the "$1,000 a year … $39, once" price framing, past
+     the Buy button and past the refund line — on the one page that takes the money.
+     The id was moved rather than the <main> tag so that href="#main" stays byte-
+     identical across all 15 pages (the skip/nav/footer blocks are uniform) and so the
+     hero's full-bleed radial gradient stays outside main.wide's 1120px max-width and
+     60px top padding. index.html can nest its hero inside <main> only because it also
+     resets main{max-width:none;margin:0;padding:0}; this page does not. -->
+<header class="hero-pro" id="main">
   <h1>Your computer. <span class="grad">Everything, unlocked.</span></h1>
   <!-- Above the fold this page named a price with nothing to weigh it against. Both
        lines that do the anchoring — "for the price of one month of Photoshop" and the
@@ -99,7 +109,7 @@ table.cmp td:nth-child(2),table.cmp td:nth-child(3),table.cmp th:nth-child(2),ta
   <div class="shot"><picture><source type="image/webp" srcset="/assets/hero-shot.webp"><img src="/assets/hero-shot.png" alt="The Dagric OS Pro desktop" width="1920" height="820"></picture></div>
 </header>
 
-<main id="main" class="wide">
+<main class="wide">
   <p style="text-align:center;max-width:660px;margin:0 auto;font-size:1.15rem;color:var(--muted)">
   Everything a creator, gamer, developer, or switching household needs — set up the way a careful
   friend would set it up, for the price of one month of Photoshop.</p>
@@ -305,8 +315,16 @@ table.cmp td:nth-child(2),table.cmp td:nth-child(3),table.cmp th:nth-child(2),ta
   <span>© 2026 DGR Operations · Built on Debian. Not affiliated with the Debian Project or the trademark owners named above.</span>
   <span class="links"><a href="/features">Features</a><a href="/pro">Pro</a><a href="/download">Download</a><a href="/news">News</a><a href="/guide">Guide</a><a href="/support">Support</a><a href="/faq">FAQ</a><a href="/accessibility">Accessibility</a><a href="/bugs">Report a bug</a><a href="/contact">Contact</a><a href="/about">About</a><a href="/licenses">Licenses</a><a href="/privacy">Privacy</a><a href="/terms">Terms</a></span>
 </div></footer>
+<!-- The product schema is the machine-readable definition of the $39 product: it is
+     what Google rich results, social cards and AI assistants quote back. "local AI"
+     was in this description after the hero lead had been scrubbed of it, so the page
+     was selling as Pro-only a capability that is byte-identical on the free edition —
+     the comparison table twenty-two lines above prints One-click / One-click for it,
+     and dagric-hub emits the row in its unconditional block. Keep this string in sync
+     with the hero lead; see the note at the top of the hero for why it must not come
+     back. -->
 <script type="application/ld+json">
-{"@context":"https://schema.org","@type":"Product","name":"Dagric OS Pro","description":"The complete Dagric OS: creative studio, Windows apps and gaming, developer stack, local AI, privacy toolkit, and all seven desktop layouts. One purchase, own it outright.","brand":{"@type":"Brand","name":"Dagric OS"},"operatingSystem":"Linux (Debian 13, KDE Plasma)","applicationCategory":"OperatingSystem","image":"https://dagric.com/assets/hero-desktop.png","url":"https://dagric.com/pro","offers":{"@type":"Offer","price":"39.00","priceCurrency":"USD","availability":"https://schema.org/InStock","url":"https://dagric.com/pro"}}
+{"@context":"https://schema.org","@type":"Product","name":"Dagric OS Pro","description":"The complete Dagric OS: creative studio, Windows apps and gaming, developer stack, privacy toolkit, and all seven desktop layouts. One purchase, own it outright.","brand":{"@type":"Brand","name":"Dagric OS"},"operatingSystem":"Linux (Debian 13, KDE Plasma)","applicationCategory":"OperatingSystem","image":"https://dagric.com/assets/hero-desktop.png","url":"https://dagric.com/pro","offers":{"@type":"Offer","price":"39.00","priceCurrency":"USD","availability":"https://schema.org/InStock","url":"https://dagric.com/pro"}}
 </script>
 </body>
 </html>

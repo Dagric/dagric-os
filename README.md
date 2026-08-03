@@ -46,7 +46,7 @@ Full details, testing checklist, and troubleshooting: [docs/BUILDING.md](docs/BU
 | Account required | Yes | **No** |
 | Preinstalled junk | OEM + Microsoft bloat | **Every package hand-picked** |
 | Updates | Forced reboots | **Silent, background, reboot when *you* choose** |
-| Source code | Closed | **This repo + Debian, fully open** |
+| Source code | Closed | **Debian's archives, plus every Dagric script shipped in source form on the machine** |
 
 The full reasoning: [docs/PHILOSOPHY.md](docs/PHILOSOPHY.md) ·
 What's next: [docs/ROADMAP.md](docs/ROADMAP.md)
@@ -90,5 +90,7 @@ Debian's software is free to modify and redistribute; this project follows
 [Debian's derivative guidelines](https://wiki.debian.org/Derivatives/Guidelines):
 its own name and branding, `ID_LIKE=debian` honesty in `os-release`, and no use
 of Debian's restricted marks. If the ISO is ever distributed outside your own
-machines, GPL source-availability obligations apply — easiest satisfied by
-keeping this repo public and pointing recipients at Debian's source archives.
+machines, GPL source-availability obligations apply. This repository is private,
+so it is not the mechanism: recipients are pointed at Debian's source archives
+for the unmodified packages, and at the written offer on
+https://dagric.com/licenses for anything Dagric modifies.

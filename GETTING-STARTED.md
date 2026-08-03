@@ -57,9 +57,14 @@ settings.
 
 ## 6. First boot
 
-- You'll see a branded login, then the desktop, and the **Welcome** page opens
-  once with quick-start tips. It links a full offline **User Guide** (printers,
-  Wi-Fi, apps, backups, shortcuts).
+- You'll see a branded login, then **Set Up Dagric** — a short wizard that runs
+  once: light or dark, an accent colour, a wallpaper, how big the text should be,
+  where the taskbar goes, and, if it finds Windows on this PC, bringing your files
+  over. Every step is skippable, every choice applies as you click it, and **Undo
+  my changes** in the header puts it all back. You can re-run it any time from the
+  launcher or the **Dagric Hub**.
+- The **Welcome** page and the full offline **User Guide** (printers, Wi-Fi, apps,
+  backups, shortcuts) are both in the **Dagric Hub**, under *Learn and get help*.
 - Install more apps anytime from **Discover** (the bag icon).
 
 ## Common questions

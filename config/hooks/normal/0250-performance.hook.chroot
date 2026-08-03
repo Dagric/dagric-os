@@ -68,8 +68,10 @@ fi
 # ---------------------------------------------------------------------------
 # Boot: stop waiting for things nothing is waiting for
 # ---------------------------------------------------------------------------
-# Both units below are enabled in the built image (verified in
-# /etc/systemd/system/multi-user.target.wants and network-online.target.wants).
+# Every unit below is enabled in the built image by its own package's postinst,
+# which is the recurring mistake this section exists to undo (verified in
+# /etc/systemd/system/multi-user.target.wants, network-online.target.wants and
+# timers.target.wants).
 disable_unit() {
     if [ -f "/usr/lib/systemd/system/$1" ] || [ -f "/etc/systemd/system/$1" ]; then
         systemctl disable "$1" >/dev/null 2>&1 || true
@@ -111,6 +113,30 @@ disable_unit NetworkManager-wait-online.service
 # Risk: a hand-written /etc/ipsec.conf setup would stop starting at boot. That
 # is not this audience, and the Hub's VPN import path is unaffected.
 disable_unit strongswan-starter.service
+
+# lynis.timer runs a full unattended audit that nothing here asked for.
+#
+# system.list.chroot calls Lynis an "on-demand security audit ... a Security
+# Checkup a non-expert can run", and that is what /usr/bin/dagric-security-checkup
+# does: one deliberate `lynis audit system --quick` when the owner opens it. But
+# lynis 3.1.4-1's postinst enables its own timer as well —
+#   out/free-rebuild.log:8812
+#   Created symlink '/etc/systemd/system/timers.target.wants/lynis.timer'
+#       -> '/usr/lib/systemd/system/lynis.timer'.
+# so every machine ALSO runs the packaged audit in the background, without
+# --quick, into /var/log/lynis.log, which nothing on this image ever shows
+# anybody.
+#
+# That audit forks hundreds of helpers and sweeps the filesystem — the setuid
+# scan, permission checks across /etc and /usr, every package's status — on two
+# cores and a 5400 rpm platter with a cold cache. The timer is Persistent=, so a
+# desktop that is off overnight pays it at BOOT, next to apt-daily, man-db and
+# plocate.
+#
+# Same lesson as libvirtd and usbguard-dbus in 0600-pro-edition: a package's own
+# postinst will happily enable what we intend to be opt-in. This removes the
+# schedule only — the Security Checkup calls lynis directly and is untouched.
+disable_unit lynis.timer
 
 
 # ---------------------------------------------------------------------------
@@ -313,8 +339,30 @@ if [ -x /usr/bin/earlyoom ]; then
 # out-of-memory event looks like an app closing, not a crash.
 EARLYOOM_ARGS="-r 3600 --avoid ^(systemd|sddm|sddm-greeter|sddm-greeter-qt|kwin_wayland|kwin_x11|plasmashell|Xwayland|kded6|ksmserver)$"
 EOF
-    systemctl enable earlyoom.service 2>/dev/null || true
-    echo "earlyoom: configured and enabled"
+    # `systemctl enable ... 2>/dev/null || true` discards the status AND the
+    # reason, and the line under it announced "enabled" regardless — the same
+    # gap 0600-pro-edition closes for every unit Pro ships switched OFF. Ask
+    # systemd what the unit's state actually is instead of asserting it.
+    #
+    # `is-enabled` rather than a hand-built .wants path on purpose: 0600
+    # documents getting exactly that wrong (usbguard.service is wanted by
+    # basic.target, not multi-user), and is-enabled reads the real unit state
+    # offline — no bus, no booted system — so it cannot be defeated by a
+    # WantedBy= that moves in a later Debian.
+    #
+    # A warning, not an exit, for 0600's reason: a long build that has
+    # otherwise succeeded must not be destroyed at the end, and this is visible
+    # in the log either way. earlyoom's own postinst normally enables the unit,
+    # so in practice this line is redundant and the message true — which is the
+    # point. An enable that stopped working here would never have been visible.
+    systemctl enable earlyoom.service >/dev/null 2>&1 || true
+    if systemctl is-enabled earlyoom.service >/dev/null 2>&1; then
+        echo "earlyoom: configured and enabled"
+    else
+        echo "WARNING: earlyoom is configured but NOT enabled." >&2
+        echo "         The image would ship with no out-of-memory protection on" >&2
+        echo "         the 4 GB machines this product exists to rescue." >&2
+    fi
 else
     echo "NOTE: earlyoom not installed — add it to config/package-lists/system.list.chroot" \
          "to get out-of-memory protection; this hook will configure it automatically."

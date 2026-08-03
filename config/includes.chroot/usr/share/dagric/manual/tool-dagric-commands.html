@@ -64,6 +64,14 @@
         <li><code>dagric-hub</code> &mdash;
         <a href="tool-dagric-hub.html">the Hub</a>, the menu that gathers everything
         else.</li>
+        <li><code>dagric-hardware-check</code> &mdash; <em>Check This PC</em>: a
+        read-only, offline report on whether this computer will run Dagric properly
+        &mdash; the Wi-Fi chip and whether its firmware is on the disc, graphics, disk
+        space, BitLocker, Secure Boot. It never asks for a password, mounts nothing,
+        and writes exactly one file: the report, to a place you picked. On the live USB
+        it is an icon on the desktop beside <em>Install Dagric OS</em>; on an installed
+        system it stays in the launcher and the Hub, and its report is what to send
+        when you ask for help.</li>
         <li><code>dagric-firstrun</code> &mdash;
         <a href="tool-dagric-firstrun.html">Set Up Dagric</a>, the wizard at your
         first login: colours, wallpaper, text size, taskbar, and your files.</li>
@@ -75,6 +83,10 @@
         bookmarks, tabs and Firefox logins from Windows.</li>
         <li><code>dagric-manual</code> &mdash;
         <a href="tool-dagric-manual.html">this manual</a>.</li>
+        <li><code>dagric-guide</code> &mdash; opens the user guide: the short read
+        about your first week (updates, printers, Wi-Fi, shortcuts). It picks the copy
+        that matches your language, which is the one thing a launcher entry could not
+        do on its own.</li>
         <li><code>dagric-welcome</code> &mdash; opens the written welcome page. See
         <a href="tool-dagric-background.html">helpers that run by themselves</a>.</li>
       </ul>
@@ -153,6 +165,11 @@
         <a href="app-protonup.html">ProtonUp-Qt</a>.</li>
         <li><code>dagric-gaming</code> &mdash;
         <a href="tool-dagric-gaming.html">Proton-GE</a> for an installed Steam.</li>
+        <li><code>dagric-game-launch</code> &mdash; the one entry here that installs
+        nothing: a wrapper you paste into a game&#x27;s launch options
+        (<code>dagric-game-launch %command%</code>) to hold full performance and keep
+        the screen from blanking for exactly as long as the game runs, and no longer.
+        See <a href="app-gameperf.html">GameMode, MangoHud and GOverlay</a>.</li>
         <li><code>dagric-get-bottles</code> &mdash;
         <a href="app-bottles.html">Bottles</a>: Windows programs in tidy
         containers.</li>
@@ -193,9 +210,12 @@
          <a href="tool-dagric-hub.html">Dagric Hub</a>, which lists them all.</p></li>
         <li><span class="t">Terminal helpers hold their window open</span><p>When one finishes it waits for you to press Enter before closing, so you
          can read what happened. That is on purpose.</p></li>
-        <li><span class="t">Nothing runs on a schedule</span><p>None of these is a service, none has a timer, and none checks in with
-         anything. The only Dagric code that runs without you starting it is the four
-         one-shot helpers described in
+        <li><span class="t">Nothing runs on a schedule</span><p>None of these has a timer and none checks in with anything. One of them,
+         <code>dagric-snapshot-setup</code>, is also run by a one-time service on the
+         first boot; two more one-time services that are not commands at all create the
+         Print-to-PDF queue and this machine&#x27;s own SSH host keys. Each does its
+         work once and stands down. The only other Dagric code that runs without you
+         starting it is the helpers described in
          <a href="tool-dagric-background.html">helpers that run by themselves</a>.</p></li>
       </ol>
     </section>

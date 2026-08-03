@@ -287,6 +287,27 @@ if curl -fsSL -o "$PG_TMP/pg.zip" \
                 rm -rf "/etc/skel/.config/GIMP"/*/"$X"
             done
 
+            # SHIP THE LICENCE, as 0800 and 0900 already do for the other two
+            # vendored components. PhotoGIMP is GPL-3.0 — its repository root
+            # carries the full GPLv3 text in LICENSE — and section 4 requires
+            # every copy conveyed to "keep intact all notices stating that this
+            # License ... applies to the code". Pro was putting PhotoGIMP's
+            # files into every new user's home with no notice anywhere on the
+            # machine, while site/licenses.html names PhotoGIMP by name as an
+            # extra that keeps its upstream licence. $SRC is the .config
+            # directory, so the archive root — where LICENSE lives — is its
+            # parent.
+            mkdir -p /usr/share/doc/dagric-photogimp
+            PG_ROOT=$(dirname "$SRC")
+            if [ -f "$PG_ROOT/LICENSE" ]; then
+                cp "$PG_ROOT/LICENSE" /usr/share/doc/dagric-photogimp/LICENSE
+            else
+                printf 'PhotoGIMP (Diolinux) — GNU General Public License v3.0.\nThe verbatim licence text is on this machine at /usr/share/common-licenses/GPL-3.\nCorresponding source: %s\n' \
+                    "https://github.com/Diolinux/PhotoGIMP" \
+                    > /usr/share/doc/dagric-photogimp/LICENSE
+            fi
+            chmod 0644 /usr/share/doc/dagric-photogimp/LICENSE
+
             echo "PhotoGIMP layout installed for new users (profile only, no executables)"
         else
             echo "WARNING: PhotoGIMP archive missing a GIMP profile — skipped"

@@ -154,11 +154,19 @@ article img{border-radius:var(--r-md);border:1px solid var(--line);margin:16px 0
     <h2>Introducing Dagric OS: own it outright</h2>
     <p><em>Dagr</em> — Old Norse for day. <em>Ric</em> — ruler. <strong>Dagric</strong>: your
     computer, your day, your rule.</p>
+    <!-- "local AI" was listed here as something Pro adds. It is not: nothing installs
+         Ollama in either edition. dagric-hub prints the "Local AI — Ollama" row in its
+         unconditional block, sixteen lines above its `if [ "$EDITION" = "pro" ]` test,
+         and /usr/bin/dagric-ai only fetches it at runtime when the user says yes — so
+         it is byte-identical on free. pro.html's comparison table already prints
+         One-click / One-click for it, and that page's hero lead and product schema
+         were corrected the same way. Selling a one-click downloader as a $39 feature
+         is a refund conversation. -->
     <p>Dagric OS is a fast, private desktop operating system built on Debian 13 and KDE Plasma —
     debloated, hardened, and finished. No telemetry exists in it. No ads, no accounts, no forced
     restarts, no subscriptions. The free edition is a complete daily driver, forever; Pro adds the
-    creative studio, gaming and Windows apps, the developer stack, and local AI for a one-time
-    $39.</p>
+    creative studio, gaming and Windows apps, and the developer stack for a one-time
+    $39. Local, private AI runs on either edition — one click from the Hub.</p>
     <p>Version 1.0 "Foundation" ships with UEFI + Secure Boot support, btrfs snapshots with
     boot-menu rollback, a first-run welcome, and an offline guide. It was built and tested in the
     open: every release publishes signed checksums, and everything we add is open source.</p>

@@ -82,14 +82,26 @@ fi
     chmod 755 "$DEST/contents/ui/tools/gdbus_get_signal.sh"
 
 # Ship the licence alongside, as with every other vendored component.
+#
+# GPL-2.0 section 1 requires us to "give any other recipients of the Program a
+# copy of this License along with the Program". A line naming the licence is not
+# a copy of it, and that line was the branch that actually ran: $SRC is the
+# directory holding metadata.json, and the upstream RELEASE asset is a packaged
+# Plasma addon (metadata.json + contents/) rather than the git tree, so
+# $SRC/LICENSE usually does not exist. Look for it anywhere in the unpacked
+# archive, and when there genuinely is none, point at the verbatim GPL-2 that
+# base-files already puts on every Debian machine.
 mkdir -p /usr/share/doc/dagric-video-wallpaper
-if [ -f "$SRC/LICENSE" ]; then
-    cp "$SRC/LICENSE" /usr/share/doc/dagric-video-wallpaper/
+VWLIC=$(find "$TMP/x" -maxdepth 3 \( -iname 'LICENSE*' -o -iname 'COPYING*' \) -type f 2>/dev/null | head -1)
+if [ -n "$VWLIC" ]; then
+    cp "$VWLIC" /usr/share/doc/dagric-video-wallpaper/LICENSE
 else
-    printf 'Smart Video Wallpaper Reborn — GPL-2.0-or-later\nUpstream: %s\n' \
+    printf 'Smart Video Wallpaper Reborn v%s\nCopyright (C) Luis Bocanegra and contributors\nGNU General Public License, version 2 or (at your option) any later version.\nThe verbatim licence text is on this machine at /usr/share/common-licenses/GPL-2.\nCorresponding source: %s\n' \
+        "$VER" \
         "https://github.com/luisbocanegra/plasma-smart-video-wallpaper-reborn" \
         > /usr/share/doc/dagric-video-wallpaper/LICENSE
 fi
+chmod 0644 /usr/share/doc/dagric-video-wallpaper/LICENSE
 
 rm -rf "$TMP"
 echo "Video wallpaper plugin installed ($ID v$VER)"

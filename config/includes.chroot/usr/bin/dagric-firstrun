@@ -529,8 +529,17 @@ capture_scale() {
 SERIALIZE='try{var ps=panels(); var o=""; for(var i=0;i<ps.length;i++){var p=ps[i]; var ids=p.widgetIds; var n=[]; for(var j=0;j<ids.length;j++){var d=p.widgetById(ids[j]); if(d){n.push(d.type);}} o+="P|"+p.location+"|"+p.height+"|"+n.join(" ")+"\n";} print(o);}catch(e){}'
 CLEAR='var ps=panels(); for(var i=0;i<ps.length;i++){ps[i].remove();}'
 
+# --print-reply, for the reason dagric-looks writes out in full: without it
+# dbus-send exits 0 without ever reading the answer. wait_plasma above already
+# covers "plasmashell is not there"; this covers the other half — a layout
+# SCRIPT that throws, which plasmashell reports as a D-Bus error reply and
+# which happens AFTER $CLEAR has removed every panel.
+#
+# No --reply-timeout: the D-Bus default is generous and a shorter one would
+# report failure on the slow machines this product targets while the panels
+# were still being built.
 plasma_script() {
-    dbus-send --session --type=method_call --dest=org.kde.plasmashell \
+    dbus-send --session --print-reply --type=method_call --dest=org.kde.plasmashell \
         /PlasmaShell org.kde.PlasmaShell.evaluateScript "string:$1" >/dev/null 2>&1
 }
 
@@ -589,8 +598,9 @@ set_layout() {   # <path to .look>
     _sc=$(skey "$1" SCRIPT)
     [ -n "$_sc" ] || return 1
     wait_plasma || return 1
+    # No `return 0`: plasma_script's status is the only thing that separates a
+    # layout Plasma built from one it threw on after $CLEAR emptied the desktop.
     plasma_script "$CLEAR $_sc"
-    return 0
 }
 
 scale_factor() {
@@ -666,8 +676,11 @@ rebuild_panels() {
         done
     done < "$PANFILE"
     [ "$_n" -gt 0 ] || return 1
+    # Propagate. undo_all does `rebuild_panels || fallback_layout`, and a
+    # hardcoded `return 0` meant the fallback could never run — so a rebuild
+    # Plasma refused ended with "Your desktop is back the way it was." over a
+    # desktop with no taskbar.
     plasma_script "$_js"
-    return 0
 }
 
 fallback_layout() {

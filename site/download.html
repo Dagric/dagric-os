@@ -11,7 +11,16 @@
 .dl{display:grid;gap:22px;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));margin:34px 0}
 .dl .card{margin:0;text-align:center;padding:34px}
 .dl .card.pro{border:1px solid rgba(63,169,245,.5);background:linear-gradient(180deg,rgba(63,169,245,.09),var(--panel) 45%)}
-.dl h3{font-size:1.35rem}
+/* The two download cards are h2, not h3. This page was the site's only heading-level
+   skip — its outline ran h1, h3, h3, h2, h2, h2, h2 — so a screen-reader user browsing
+   by heading dropped two levels into the two most important elements on the page and
+   heard the free/Pro choice announced as subsections of a heading that does not exist,
+   then climbed back up to "System requirements". The four extra declarations below are
+   not new styling: they hold what h3 rendered, because the shared h2 rule brings a 1.16
+   line-height, 800 weight and negative tracking that tighten each card by ~10px. Keep
+   them if you touch this. .dl h2 (0,1,1) outranks main h2 (0,0,2), so it wins on desktop
+   and at the 640px breakpoint alike. */
+.dl h2{font-size:1.35rem;font-weight:700;line-height:1.65;letter-spacing:normal;margin:26px 0 6px}
 .dl .meta{color:var(--muted);font-size:.9rem;margin:8px 0 20px}
 .sums{background:#0a1420;border:1px solid var(--line);border-radius:12px;padding:16px 18px;font:12.5px/1.8 ui-monospace,Consolas,monospace;color:#7fd1a8;overflow-x:auto;white-space:nowrap;margin:14px 0}
 </style>
@@ -52,12 +61,12 @@
 
   <div class="dl">
     <div class="card">
-      <h3>Dagric OS</h3>
+      <h2>Dagric OS</h2>
       <div class="meta">Free forever · 1.9 GB ISO · the lean, private daily driver</div>
       <a class="btn primary" href="https://pub-23bebbd32e3b44c4af6e53c06194e77f.r2.dev/dagric-os-1.0-amd64.iso">Download free</a>
     </div>
     <div class="card pro">
-      <h3>Dagric OS <span class="grad">Pro</span></h3>
+      <h2>Dagric OS <span class="grad">Pro</span></h2>
       <div class="meta">$39 one-time · 3.5 GB ISO · creative + gaming + dev + Windows apps</div>
       <a class="btn primary" href="https://buy.stripe.com/6oU5kwbye2Jogri31D8k809">Buy &amp; download — $39</a>
       <p class="refund">14-day, no-questions refund</p>

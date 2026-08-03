@@ -157,9 +157,13 @@ own.
   translations are overridden — a German install keeps its German names, which
   is a market decision, not a technical limit.
 - **Dagric Manual** (`dagric-manual`) — an offline, searchable handbook with a
-  page for every application and every `dagric-*` tool: what it is, what it
-  replaces on Windows, five common tasks, and the one thing that will surprise
-  a switcher. 94 pages, 892 KB, zero network calls. Search indexes the Windows
+  page for every application and for all but three of the `dagric-*` tools: what
+  it is, what it replaces on Windows, five common tasks, and the one thing that
+  will surprise a switcher. (`dagric-hardware-check`, `dagric-guide` and
+  `dagric-game-launch` are listed on the manual's "Every dagric command" page but
+  have no page of their own. hardware-check is the one worth writing: it is the
+  tool the live desktop puts an icon next to the installer.) 94 pages, 892 KB,
+  zero network calls. Search indexes the Windows
   name, so *notepad* finds the Text Editor and *task manager* finds System
   Monitor. Pro-only applications are documented on the free edition too, badged
   PRO and carrying a plain note that they are not installed here — a free owner
@@ -415,11 +419,14 @@ crippled, Pro is a clear step up.
 - `dagric-get-onlyoffice` — MS-Office-style ribbon suite with the best
   open-source .docx/.xlsx/.pptx fidelity, alongside LibreOffice
 
-**Launcher entries for the helpers.** `config/includes.chroot/usr/bin` holds 33
+**Launcher entries for the helpers.** `config/includes.chroot/usr/bin` holds 36
 `dagric-*` tools plus one sourced library (`dagric-i18n.sh`, which every tool
-reads its language from and which is not a command). 27 of them ship a launcher
-entry; `0530-accessibility.hook.chroot` writes two more at build time (**Screen
-Reader**, **Accessibility**), so the menu carries 29. Where the edition line
+reads its language from and which is not a command). 28 of them ship a launcher
+entry, and two further entries are not `/usr/bin` tools at all (**Screen
+Reader**, **Accessibility**), so the menu carries 30. Those two used to be
+heredocs in `0530-accessibility.hook.chroot`, which put their Keywords outside
+`tools/i18n-desktop.py` and shipped them English-only; they now ship from
+`includes.chroot` and the hook only asserts they arrived. Where the edition line
 falls is mechanical, not a marketing judgement:
 
 > A helper that only **fetches a free app** — from Flathub, from Debian, or

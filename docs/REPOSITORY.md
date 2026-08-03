@@ -23,7 +23,12 @@ machines two ways:
 The channel is live. `https://dagric-os.web.app/repo/dists/trixie/Release`
 returns `Origin: Dagric`, `Label: Dagric OS`, `Suite`/`Codename: trixie`.
 
-The packages, all currently at **1.1.0**:
+The packages — do not trust a version number written into this document, read the
+current one from `packages/*/DEBIAN/control` and what the channel already serves
+from `site/repo/dists/trixie/main/binary-amd64/Packages`, because step 2 of the
+checklist below has to raise the first above the second or `build.sh` refuses to
+start. This line said a flat **1.1.0** long enough to be wrong about both: the
+tree is at 1.1.3 and the channel publishes 1.1.1.
 
 | Package | Contains | Bump it when... |
 |---|---|---|
