@@ -74,6 +74,93 @@ network-manager-openconnect
 # L2TP/IPsec covers the corporate VPN stack many institutions still run.
 network-manager-l2tp
 
+# NOTHING ON THIS IMAGE COULD SET THE CLOCK, AND A WRONG CLOCK STOPS DEBIAN'S
+# SECURITY UPDATES COMPLETELY.
+#
+# There was no time daemon of any kind on either edition and there never had
+# been. chrony, timesyncd, time-daemon, ntpsec and openntpd returned ZERO hits
+# across all nine build logs in out/ and across a fresh CI build of both
+# editions. Not "installed and disabled" — absent.
+#
+# WHY THE OBVIOUS GREP MISSES IT, because the next person will make the same
+# pass. systemd carries "Recommends: systemd-timesyncd | time-daemon", so on a
+# normal Debian install a time daemon arrives with the init system. Here systemd
+# is never installed by apt at all: it comes in during DEBOOTSTRAP, before the
+# first apt run, so apt never evaluated that Recommends and it appears in no
+# "Recommended packages:" block. That makes this a DIFFERENT shape from
+# wpasupplicant and libnss-mdns, which apt does print and --apt-recommends false
+# then drops. It is also why grepping a build log for "Setting up" cannot find
+# the gap — debootstrap prints "I: Configuring <pkg>..." instead, and 139
+# packages reach the image by that path. Grep for the package NAME, never for
+# apt's verb. A first pass at this used "Setting up" and produced a confident,
+# wrong report that linux-sysctl-defaults was missing too.
+#
+# WHAT A WRONG CLOCK ACTUALLY COSTS, in the right order:
+#   - Clock BEHIND (the common case here): apt's own Date check rejects every
+#     repository whose Release is dated in the future — "Release file is not
+#     valid yet". Nothing updates at all.
+#   - Clock more than a week AHEAD: security.debian.org signs its Release with a
+#     seven-day Valid-Until (confirmed live 2 Aug 2026: Valid-Until Sun 09 Aug
+#     2026), so apt reports "Release file has expired" and drops the security
+#     suite specifically.
+# Either way unattended-upgrades finds nothing to install and exits successfully.
+# The only trace is in /var/log/unattended-upgrades/, which no owner reads. THAT
+# is the harm: Debian's security updates, on free and Pro alike.
+#
+# It is NOT the Dagric channel. Our own repository is deliberately excluded from
+# unattended-upgrades — the Origins-Pattern in 0300-hardening.hook.chroot names
+# Debian origins only, and dagric.list says so in as many words — so a Dagric
+# update was never silent to begin with; it appears in Discover for the owner to
+# click. Our Release also carries no Valid-Until, on purpose and for reasons
+# written out at length in packages/build-repo.sh. Do not reason about this
+# channel from Debian's expiry behaviour; they are not the same.
+#
+# AND ON THIS HARDWARE THE CLOCK IS WRONG BY DEFAULT, two different ways:
+#   - A dying CMOS battery is ordinary on a 2012-2018 machine. The clock resets
+#     at every power-off and, with no NTP client, never comes back.
+#   - Windows keeps the RTC in LOCAL time and Debian reads it as UTC, so a
+#     dual-boot machine is out by the timezone offset with no dead battery
+#     needed. Dual-boot is offered on the homepage and in the FAQ.
+# KDE's escape hatch was inert too: System Settings' "Set date and time
+# automatically" calls SetNTP() on systemd-timedated, which acts only on units
+# listed under /usr/lib/systemd/ntp-units.d/ — an empty set with no time daemon
+# installed. The switch flipped and nothing happened. chrony ships
+# 50-chrony.list there, so the toggle starts working the day this lands.
+#
+# WHY chrony RATHER THAN systemd-timesyncd. It Provides: time-daemon, so it
+# satisfies the dependency systemd meant to have. It is also the one built for
+# these machines: it corrects a clock that is hours out rather than
+# milliseconds, copes with a laptop that is off or offline most of the day, and
+# answers `chronyc tracking` when support needs to know what happened. It is
+# also the only one of the two that speaks NTS, which Pro builds on.
+#
+# ONE HONEST CAVEAT, and it must not be smoothed over. Debian's stock
+# chrony.conf ships `rtcsync`, which asks the kernel to write system time back
+# to the RTC every 11 minutes — as UTC, because /etc/adjtime says UTC. On a
+# dual-boot machine that means Dagric's clock becomes right and WINDOWS' clock
+# becomes wrong by the offset until Windows next syncs, which is weekly by
+# default and often does not happen. Today nothing on the image writes the RTC
+# at all, so this change CREATES that symptom on a configuration we advertise.
+# `rtcsync` is not negatable from conf.d. The owner-facing sentence is therefore
+# "Dagric keeps its own clock right" and must never become "Dagric fixes the
+# dual-boot clock". If tickets appear, the answer is to tell Windows to keep the
+# RTC in UTC, not to remove this package.
+#
+# THIS IS RELIABILITY, NOT SECURITY, and must not be sold as security: stock
+# chrony.conf is plain unauthenticated NTP over whatever network the machine is
+# already on. Pro layers NTS on top; that is where the security claim lives.
+#
+# BOTH EDITIONS, deliberately. Free without this has no working security updates
+# at all, and "leaner" never means "unpatched".
+#
+# 0320-time-sync.hook.chroot asserts at build time that the two files chrony
+# needs but does not carry in its .deb — a config written by ucf and an
+# enablement symlink written by deb-systemd-helper — actually exist on the
+# image. The QEMU harness CANNOT reproduce the original bug, because its guests
+# get kvm-clock, so the proof is one boot on real hardware showing timedatectl
+# "NTP service: active".
+chrony
+
 # Audio — PipeWire only, no PulseAudio daemon
 pipewire
 pipewire-pulse

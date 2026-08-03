@@ -1,0 +1,111 @@
+#!/bin/sh
+# SPDX-FileCopyrightText: 2026 DGR Operations <repo@dagric.com>
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Dagric OS — prove the machine can actually set its own clock.
+#
+# chrony is pinned in config/package-lists/system.list.chroot and the reasoning
+# lives in the comment above it: no time daemon shipped on either edition, apt
+# rejecting every repository when the clock is behind, a decade-old CMOS battery
+# that no longer holds, and Windows keeping the RTC in local time.
+#
+# This hook exists because THE PACKAGE ARRIVING IS NOT THE SAME THING AS THE
+# FEATURE WORKING, and this tree has been bitten from both sides of that gap:
+#
+#   - printer-driver-cups-pdf creates its print queue from a postinst that
+#     cannot run in a build chroot. Four ISOs shipped the driver and no PDF
+#     printer, and the log said "Skipped automated creation of the PDF queue"
+#     every time (0810-print-to-pdf.hook.chroot).
+#   - openssh-server's postinst DID run here, which is how every Pro ISO came to
+#     carry the same SSH host key (0300-hardening.hook.chroot).
+#
+# chrony depends on its postinst for both of the files that make it work, and
+# neither is inside the .deb:
+#
+#   /etc/chrony/chrony.conf                       written by ucf
+#   .../multi-user.target.wants/chrony.service    written by deb-systemd-helper
+#
+# Without the first, chronyd exits with "Could not open configuration file" and
+# the unit fails. Without the second, chronyd is installed, entirely correct,
+# and never started. Both failures look identical from outside — the clock is
+# wrong and apt quietly stops applying security updates — and identical to the
+# bug this package was added to fix. Nothing about the machine would look
+# different, which is exactly why it is asserted here rather than assumed.
+set -e
+
+_fail=0
+
+# --- 1. the binary --------------------------------------------------------
+if [ ! -x /usr/sbin/chronyd ]; then
+    echo "ERROR: /usr/sbin/chronyd missing — chrony is in system.list.chroot" >&2
+    echo "       but did not reach the image. Without it nothing sets the" >&2
+    echo "       clock and apt stops applying Debian security updates." >&2
+    _fail=1
+fi
+
+# --- 2. the ucf-generated config -----------------------------------------
+if [ ! -f /etc/chrony/chrony.conf ]; then
+    echo "ERROR: /etc/chrony/chrony.conf missing — it is written by ucf from" >&2
+    echo "       the postinst, not shipped in the .deb, so this is the" >&2
+    echo "       postinst-did-not-run case. chronyd would exit at startup" >&2
+    echo "       with 'Could not open configuration file'." >&2
+    _fail=1
+fi
+
+# --- 3. the enablement symlink -------------------------------------------
+#
+# REPAIRED AGAINST /usr/lib, NOT /etc. The obvious move is to copy the repair in
+# 0810-print-to-pdf.hook.chroot, which links /etc/systemd/system/... — correct
+# THERE because that unit ships from includes.chroot. chrony's unit belongs to
+# the package and lives at /usr/lib/systemd/system/chrony.service. Pointing a
+# wants symlink at /etc would produce a dangling link: systemd logs "Unit
+# chrony.service not found", the clock is never set, and this hook prints
+# success. That is the silent-pass class this file exists to close, so it would
+# have been introduced by the very hook meant to prevent it.
+_wants=/etc/systemd/system/multi-user.target.wants/chrony.service
+if [ ! -L "$_wants" ]; then
+    if [ -f /usr/lib/systemd/system/chrony.service ]; then
+        mkdir -p /etc/systemd/system/multi-user.target.wants
+        ln -sf /usr/lib/systemd/system/chrony.service "$_wants"
+        echo "time-sync: chrony.service was not enabled — wants symlink written"
+    else
+        echo "ERROR: /usr/lib/systemd/system/chrony.service missing, so chrony" >&2
+        echo "       cannot be enabled and the clock will never be set." >&2
+        _fail=1
+    fi
+fi
+
+# --- 4. the file that makes KDE's own switch work -------------------------
+#
+# COUNTED, NOT GLOBBED. systemd-timedated's SetNTP() — which is what System
+# Settings' "Set date and time automatically" calls — acts only on units listed
+# in /usr/lib/systemd/ntp-units.d/*.list. With no time daemon the directory is
+# empty and the toggle silently does nothing.
+#
+# Checked by counting because in dash an unmatched glob expands to the LITERAL
+# pattern, so `for f in .../*.list` iterates exactly once over a path that does
+# not exist. A loop that does not re-test existence reports success on precisely
+# the condition it was written to detect. Counts, not adjectives.
+_units=0
+for _f in /usr/lib/systemd/ntp-units.d/*.list; do
+    [ -f "$_f" ] || continue
+    _units=$((_units + 1))
+done
+if [ "$_units" -eq 0 ]; then
+    echo "ERROR: /usr/lib/systemd/ntp-units.d/ registers no time daemon, so" >&2
+    echo "       KDE's 'Set date and time automatically' switch is inert." >&2
+    _fail=1
+else
+    echo "time-sync: $_units ntp-unit registration(s) present"
+fi
+
+[ "$_fail" = 0 ] || exit 1
+
+# Deliberately NOT asserted: that chronyd is running, or that the clock is
+# correct. This is a chroot with no network and no CAP_SYS_TIME — chrony's own
+# unit carries ConditionCapability=CAP_SYS_TIME and is legitimately skipped in a
+# container. A build hook that claimed runtime state would be inventing it.
+# The runtime proof is one boot on real hardware: timedatectl showing
+# "NTP service: active". The QEMU harness cannot stand in for it, because its
+# guests take the time from kvm-clock and would pass either way.
+echo "time-sync: chrony present, configured and enabled — the clock can be set"
+unset _fail _wants _units _f
