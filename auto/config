@@ -96,7 +96,7 @@ lb config noauto \
     --apt-indices false \
     --chroot-squashfs-compression-type zstd \
     --chroot-squashfs-compression-level 19 \
-    --bootappend-live "boot=live components quiet splash hostname=dagric username=live loglevel=3 vt.global_cursor_default=0 plymouth.ignore-serial-consoles" \
+    --bootappend-live "boot=live components quiet splash hostname=dagric username=live loglevel=3 vt.global_cursor_default=0 plymouth.ignore-serial-consoles vsyscall=none" \
     --iso-application "$FH_APP" \
     --iso-publisher "Dagric OS Project" \
     --iso-volume "$FH_VOLUME" \
