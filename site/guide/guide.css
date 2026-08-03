@@ -141,6 +141,18 @@ nav.toc a {
   line-height:1.45;
 }
 nav.toc a:hover { color:var(--ink); background:var(--line-soft); text-decoration:none; }
+/* The display:block above is an AUTHOR rule and so beats the user agent's
+   [hidden]{display:none}: guide.js's `a.hidden = !hit` set the attribute and
+   nothing moved. A search filtered the sections but left all 22 sidebar links
+   standing, several now pointing at a section no longer on the page — clicking
+   one calls focus() on a display:none element and the page looks frozen. */
+nav.toc a[hidden] { display:none; }
+/* The display:block above is an AUTHOR rule and so beats the user agent's
+   [hidden]{display:none}: guide.js's `a.hidden = !hit` set the attribute and
+   nothing moved. A search filtered the sections but left all 22 sidebar links
+   standing, several now pointing at a section no longer on the page — clicking
+   one calls focus() on a display:none element and the page looks frozen. */
+nav.toc a[hidden] { display:none; }
 nav.toc a.active {
   color:var(--accent);
   background:var(--accent-bg);

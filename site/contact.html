@@ -12,10 +12,15 @@ form{background:var(--panel);border:1px solid var(--line);border-radius:16px;pad
 label{display:block;font-weight:700;margin:18px 0 6px;color:var(--text)}
 input,select,textarea{width:100%;background:#0a1420;border:1px solid var(--line);border-radius:10px;
   padding:12px 14px;color:var(--text);font:inherit}
-input:focus,select:focus,textarea:focus{outline:none;border-color:var(--accent)}
+/* :focus-visible, and no outline:none — site.css owns the "one visible focus
+   ring everywhere" invariant and this rule cancelled it: same 0-1-1
+   specificity, later sheet, so outline:none won on every keyboard focus, on
+   the only form on the site. The border tint stays as an extra cue on top of
+   the ring, which is all it was ever worth on its own. */
+input:focus-visible,select:focus-visible,textarea:focus-visible{border-color:var(--accent)}
 textarea{min-height:160px;resize:vertical}
 button{margin-top:22px;padding:14px 34px;border-radius:999px;font-weight:700;font-size:1rem;
-  border:none;color:#fff;background:var(--grad);cursor:pointer;box-shadow:0 8px 30px rgba(63,169,245,.35)}
+  border:none;color:#fff;background:var(--grad-fill);cursor:pointer;box-shadow:0 8px 30px rgba(63,169,245,.35)}
 button:disabled{opacity:.6;cursor:wait}
 .hp{position:absolute;left:-9999px;opacity:0;height:0;overflow:hidden}
 #status{margin-top:16px;font-weight:600}

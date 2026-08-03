@@ -5,6 +5,14 @@
   --text:#e8eef6; --muted:#a6bad0; --faint:#7d8da0;
   --accent:#3fa9f5; --accent2:#59c2e8; --good:#4ade80;
   --grad:linear-gradient(135deg,#59c2e8,#3fa9f5 55%,#2f7fd1);
+  /* ── the same blue, deepened, for anything with white text ON it ──
+     --grad under white 16px/700 measures 2.17:1 at the light end of a button
+     and 3.5:1 at the dark end, against the 4.5:1 WCAG 1.4.3 (AA) asks of text
+     that size — the Download and Buy buttons were the least readable elements
+     on the site. --grad-fill measures 5.3 / 6.2 / 8.3:1. --grad keeps its
+     brightness for .grad clipped TEXT, which sits on the dark page and
+     measures 9.3:1 there, so only filled controls move. */
+  --grad-fill:linear-gradient(135deg,#2170ae,#1a63a8 55%,#134f8c);
   --r-sm:10px; --r-md:14px; --r-lg:20px; --r-pill:999px;
   --maxw:1120px; --shadow:0 24px 70px rgba(0,0,0,.5);
 }
@@ -38,7 +46,7 @@ nav{position:sticky;top:0;z-index:50;background:rgba(10,17,28,.85);
 .nav-links{display:flex;gap:8px 22px;margin-left:auto;align-items:center;flex-wrap:wrap}
 .nav-links a{color:var(--muted);font-weight:600;font-size:.94rem}
 .nav-links a:hover{color:var(--text);text-decoration:none}
-.nav-links a.cta{color:#fff;background:var(--grad);padding:8px 18px;border-radius:var(--r-pill)}
+.nav-links a.cta{color:#fff;background:var(--grad-fill);padding:8px 18px;border-radius:var(--r-pill)}
 .nav-links a.cta:hover{color:#fff}
 @media(max-width:640px){
   .nav-in{justify-content:center}
@@ -50,7 +58,7 @@ nav{position:sticky;top:0;z-index:50;background:rgba(10,17,28,.85);
   font-size:1.02rem;border:1px solid var(--line);color:var(--text);text-decoration:none;
   transition:transform .15s ease,box-shadow .15s ease,background .15s ease}
 .btn:hover{text-decoration:none;transform:translateY(-2px)}
-.btn.primary{background:var(--grad);border:none;color:#fff;box-shadow:0 8px 30px rgba(63,169,245,.35)}
+.btn.primary{background:var(--grad-fill);border:none;color:#fff;box-shadow:0 8px 30px rgba(63,169,245,.35)}
 .btn.primary:hover{box-shadow:0 12px 38px rgba(63,169,245,.45);color:#fff}
 .btn.ghost{background:var(--panel)}
 .btn.ghost:hover{background:var(--panel-hi)}
@@ -78,7 +86,7 @@ li strong,p strong{color:var(--text)}
 .steps{counter-reset:s;list-style:none;margin-left:0}
 .steps li{counter-increment:s;position:relative;padding-left:52px;padding-bottom:10px}
 .steps li::before{content:counter(s);position:absolute;left:0;top:0;width:34px;height:34px;
-  border-radius:var(--r-sm);background:var(--grad);color:#fff;font-weight:800;
+  border-radius:var(--r-sm);background:var(--grad-fill);color:#fff;font-weight:800;
   display:flex;align-items:center;justify-content:center}
 code,kbd{background:#0a1420;border:1px solid var(--line);border-radius:6px;padding:2px 8px;
   font:13px ui-monospace,Consolas,monospace;color:#9fd9ff}

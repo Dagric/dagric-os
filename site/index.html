@@ -75,14 +75,23 @@ main{max-width:none;margin:0;padding:0}
 <header class="phero hero">
   <img class="logo" src="/assets/dagric-logo.png" alt="Dagric OS logo" width="92" height="92">
   <h1>Your computer.<br><span class="grad">Yours again.</span></h1>
-  <p class="lead">A fast, private desktop operating system. No telemetry, no ads, no accounts,
-  no bloat — from <em>dagr</em> (day) and <em>ric</em> (ruler): your computer, your day, your rule.</p>
+  <!-- The one paragraph every visitor reads spent half its words on the word
+       origin, which /about already opens with and which answers no question the
+       reader arrived with — and opened on a category label every distro claims.
+       Every promise below is checkable in this tree: Automatic-Reboot "false" in
+       0300-hardening.hook.chroot, the Office-metric fonts (carlito, caladea) in
+       system.list.chroot, and the Migration Assistant in dagric-hub's
+       unconditional block. The etymology survives one line down, where it costs
+       nothing. -->
+  <p class="lead">The PC Windows 10 left behind, fast again — and quiet. No telemetry, no ads,
+  no accounts, no nagging, and it never restarts itself. Your files come with you, your Word and
+  Excel documents still open, and you own it outright.</p>
   <div class="btns">
     <a class="btn primary lg" href="/download">Download Dagric OS — free</a>
     <a class="btn ghost lg" href="/pro">Get Dagric Pro · $39</a>
   </div>
   <p class="refund">Pro is a one-time $39 · 14-day, no-questions refund</p>
-  <p class="tiny">Built on Debian 13 · KDE Plasma · GPG-signed releases · free updates</p>
+  <p class="tiny">Built on Debian 13 · KDE Plasma · GPG-signed releases · free updates · <em>dagr</em> (day) + <em>ric</em> (ruler)</p>
   <div class="shot"><picture><source type="image/webp" srcset="/assets/hero-shot.webp"><img src="/assets/hero-shot.png" alt="The Dagric OS desktop" width="1920" height="820"></picture></div>
 </header>
 
@@ -100,8 +109,9 @@ main{max-width:none;margin:0;padding:0}
     <h2>Windows 10 is done. <span class="grad">Your PC isn't.</span></h2>
     <p class="lead" style="margin:14px auto 22px">Microsoft ended Windows 10 support and left a
     perfectly good computer behind. Dagric OS brings it back — fast, private, secure, and yours.
-    No new hardware, no subscription, no account — and the Migration Assistant brings your files
-    and bookmarks over in one click.</p>
+    No new hardware, no subscription, no account — and the Migration Assistant copies your
+    documents, pictures, music and videos across in one click, then gathers your old bookmarks
+    into one file Firefox imports from its own menu.</p>
       <!-- The obvious next thought after "Windows 10 is done" is "so how long
            until you do the same to me?" It had no answer anywhere on the site.
            Dates are Debian's published LTS schedule for trixie, inherited
@@ -339,7 +349,11 @@ main{max-width:none;margin:0;padding:0}
     <div class="sec-head"><h2 class="center">Questions, <span class="grad">answered</span></h2></div>
     <details><summary>Is Dagric OS really free?</summary><p>Yes. The free edition is a complete, private, hardened desktop — free forever, no account. Pro adds the creative, gaming, developer, and Windows-app suites for a one-time $39.</p></details>
     <details><summary>Why pay $39 when other Linux is free?</summary><p>You don't have to — the free edition is a real, complete distro. Pro is one curated, tested, supported product (the Hub, Looks, snapshot-rollback, signed releases, Windows-app support, human support) for people who'd rather not assemble and harden a general distro themselves. The tools are open source; the $39 buys the craftsmanship.</p></details>
-    <details><summary>Will my Windows files and drives work?</summary><p>Yes. NTFS and exFAT drives mount out of the box, your Office documents open with matching fonts, and Pro runs many Windows programs directly via Bottles and Wine.</p></details>
+    <!-- Was "Pro runs many Windows programs": Bottles is one click on BOTH
+         editions — dagric-hub lists it above the Pro gate — and the compare
+         table four sections up says exactly that. Pro's half is the Wine
+         runtime underneath. -->
+    <details><summary>Will my Windows files and drives work?</summary><p>Yes. NTFS and exFAT drives mount out of the box, your Office documents open with matching fonts, and both editions run many Windows programs through Bottles — one click from the Hub — with Pro adding the tuned Wine runtime underneath.</p></details>
     <details><summary>Can I keep Windows and dual-boot?</summary><p>Yes — choose <em>Install alongside</em> in the installer and pick how much space each system gets. You choose which to boot at startup.</p></details>
     <details><summary>Is it a subscription?</summary><p>No. Pro is a one-time purchase — no license servers, no activation. You own your copy outright, with free updates.</p></details>
     <details><summary>What if I buy Pro and don't like it?</summary><p>Reply to your receipt within 14 days and we refund in full — no quiz, no hoops. Details in the <a href="/terms">terms &amp; refunds</a>.</p></details>

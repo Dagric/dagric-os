@@ -407,12 +407,18 @@ done
 
 # Verify what was actually CHANGED, not merely something nearby. The old check
 # passed on the menu entries alone and so never noticed the title miss.
-HIT=0; MISS=""
+MISS=""
+# Per FILE, not one-of-two. A count with `-ge 1` passes when the BIOS rewrite
+# worked and the UEFI one silently did not — and UEFI is the path most machines
+# take, so the two ISOs would be indistinguishable at boot exactly where it
+# matters most. This is the same defect the isolinux-splash note at the top of
+# the file describes: a MISS entry that asserts nothing about the change this
+# hook made. The accessible-entry check further down already tests each file on
+# its own; this is that rule applied to the label the editions are told apart by.
 for f in isolinux/live.cfg boot/grub/grub.cfg; do
     [ -f "$f" ] || continue
-    grep -q "$LIVE" "$f" && HIT=$((HIT+1))
+    grep -q "$LIVE" "$f" || MISS="$MISS edition-label:$f"
 done
-[ "$HIT" -ge 1 ] || MISS="$MISS edition-label"
 if [ -f boot/grub/grub.cfg ]; then
     grep -q "^set timeout=$WAIT" boot/grub/grub.cfg || MISS="$MISS grub-timeout"
 fi

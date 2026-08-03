@@ -89,14 +89,33 @@ h2{margin-top:44px}
   which to boot.</p></details>
 
   <h2>Coming from Windows</h2>
-  <details><summary>Will my files and bookmarks come with me?</summary><p>Yes — automatically.
-  The <strong>Migration Assistant</strong> (in the Hub, on every edition) finds the Windows still
-  on your PC and copies your Documents, Pictures, Music, Videos, Desktop and Chrome/Edge/Firefox
-  bookmarks into your new home. Windows is only ever read, never modified — you can boot back into
+  <!-- "Yes — automatically" was true of the files and false of the bookmarks.
+       dagric-migrate rsyncs the folders across on its own, but its bookmark step
+       writes ~/Windows-bookmarks.html and then prints Firefox's own import path
+       — nothing on this side ever writes places.sqlite. The homepage's "coming
+       from Windows" table already says "import your bookmarks from its menu", so
+       the accurate answer is also the one that stops the site arguing with
+       itself. This is the question that decides the install; it does not get to
+       be the one that disappoints ten minutes after first boot. -->
+  <details><summary>Will my files and bookmarks come with me?</summary><p>Yes. The
+  <strong>Migration Assistant</strong> (in the Hub, on every edition) finds the Windows still
+  on your PC and copies your Documents, Desktop, Pictures, Music and Videos straight into your new
+  home folder. Your Chrome, Edge and Firefox bookmarks are gathered into a single file, and the
+  Assistant shows you the exact Firefox menu that loads it. Windows is only ever read, never
+  modified — you can boot back into
   it any time. NTFS and exFAT drives also mount out of the box, and documents open with matching
   Office-metric fonts so the layout holds.</p></details>
-  <details><summary>Can I run Windows programs?</summary><p>Many, yes — on Pro, via
-  <strong>Bottles</strong> and Wine (one click from the Dagric Hub). Compatibility varies by app;
+  <!-- "on Pro" was both wrong and a weaker pitch than the truth. dagric-hub
+       lists Bottles in the unconditional block; the EDITION = pro gate below it
+       holds only the VM and USB protection, and dagric-get-bottles has no
+       edition check at all. Selling a gate that does not exist loses the free
+       user who believes it and refunds the Pro buyer who finds out. Pro's real
+       advantage is the Wine runtime preinstalled underneath — which is what the
+       comparison tables on /pro and the homepage already say. -->
+  <details><summary>Can I run Windows programs?</summary><p>Many, yes — on <em>both</em> editions.
+  <strong>Bottles</strong> installs in one click from the Dagric Hub and runs Windows software in
+  tidy per-app containers. Pro adds the runtime underneath — Wine and winetricks, preinstalled and
+  tuned. Compatibility varies by app;
   for the rest, the web version in Firefox usually covers it. Steam games run through Proton with
   excellent results. And for the stubborn holdout, Pro ships <strong>Windows in a window</strong> —
   a full virtual-machine stack (UEFI + TPM 2.0, Windows 11-capable) so real Windows runs safely
@@ -165,7 +184,7 @@ h2{margin-top:44px}
 {"@type":"Question","name":"How long will Dagric OS be supported?","acceptedAnswer":{"@type":"Answer","text":"Security updates through August 2028 from Debian's security team, then community long-term support until June 2030 — Dagric inherits Debian's published schedule because it is Debian underneath. That is roughly five more years from a machine Windows 10 already abandoned. The LTS phase is run by a smaller sponsored team and covers most, not every, package."}},
 {"@type":"Question","name":"Is Dagric OS really free?","acceptedAnswer":{"@type":"Answer","text":"Yes. The free edition is a complete, private, hardened desktop — free forever, no account. Pro adds the creative, gaming, developer, and Windows-app suites for a one-time $39."}},
 {"@type":"Question","name":"Why pay $39 when Mint, Ubuntu or Zorin are free?","acceptedAnswer":{"@type":"Answer","text":"You don't have to — the free edition is a real, complete distro. Pro is one curated, tested, supported product (the Hub, Looks, snapshot-rollback, signed releases, Windows-app support, human support) for people who'd rather not assemble and harden a general distro themselves. The tools are open source; the $39 buys the craftsmanship."}},
-{"@type":"Question","name":"Will my Windows files and drives work?","acceptedAnswer":{"@type":"Answer","text":"Yes. NTFS and exFAT drives mount out of the box, your Office documents open with matching fonts, and Pro runs many Windows programs directly via Bottles and Wine."}},
+{"@type":"Question","name":"Will my Windows files and drives work?","acceptedAnswer":{"@type":"Answer","text":"Yes. NTFS and exFAT drives mount out of the box, your Office documents open with matching fonts, and both editions run many Windows programs through Bottles, one click from the Hub, with Pro adding the tuned Wine runtime underneath."}},
 {"@type":"Question","name":"Is Pro a subscription?","acceptedAnswer":{"@type":"Answer","text":"No. Pro is a one-time purchase — no license servers, no activation. You own your copy outright, with free updates."}},
 {"@type":"Question","name":"What if I buy Pro and don't like it?","acceptedAnswer":{"@type":"Answer","text":"Reply to your receipt within 14 days and we refund in full — no quiz, no hoops."}},
 {"@type":"Question","name":"What data does Dagric OS collect?","acceptedAnswer":{"@type":"Answer","text":"None. There is no telemetry, no analytics, no accounts, and no advertising ID — nothing is ever sent about you or your machine. It does fetch updates from Debian and from Dagric's own channel, and a firmware catalogue; the privacy policy lists every one and how to switch each off."}}

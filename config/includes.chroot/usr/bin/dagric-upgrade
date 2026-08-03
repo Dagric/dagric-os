@@ -410,13 +410,55 @@ ln -sf ../usr/lib/os-release /etc/os-release
 printf 'Dagric OS 1.0 \\n \\l\n\n' > /etc/issue 2>/dev/null || true
 say "  done"
 
+# AND REPOINT AUTOMATIC SECURITY UPDATES, or the block above silently ends them.
+#
+# 0300-hardening.hook.chroot writes /etc/apt/apt.conf.d/52dagric-unattended with
+# the Debian codename hardcoded into all four Origins-Pattern lines, precisely
+# because the rebrand above makes ${distro_codename} resolve to "foundation" so
+# every stock pattern misses. That file is created by a build hook and owned by
+# no package, so dpkg leaves it untouched through the whole full-upgrade — still
+# naming $FROM_SUITE, a suite this machine is no longer on. Coverage then drops
+# to zero: unattended-upgrade keeps running on its timer, matches nothing, exits
+# 0, and never applies another security update, on a product whose central
+# promise is silent security updates. The hook's own comment says to bump those
+# codenames when rebasing onto a newer Debian; a release upgrade IS that rebase,
+# performed here on the owner's machine, and the bump was missing.
+#
+# Matching "codename=$FROM_SUITE" rather than the bare word is deliberate: it
+# rewrites trixie-security and trixie-updates correctly as a side effect, and
+# cannot touch anything else in the file.
+UU=/etc/apt/apt.conf.d/52dagric-unattended
+if [ -w "$UU" ]; then
+    sed -i "s/codename=${FROM_SUITE}/codename=${TO_SUITE}/g" "$UU" 2>/dev/null || true
+    if grep -q "codename=${TO_SUITE}" "$UU" 2>/dev/null; then
+        say "  automatic security updates now follow $TO_SUITE"
+    else
+        say "  ! could not repoint automatic security updates at $TO_SUITE"
+        say "    edit $UU by hand: replace $FROM_SUITE with $TO_SUITE"
+    fi
+fi
+
 # The two things that decide whether the machine boots and shows a picture.
 say ""
 say "Rebuilding kernel modules and the boot image..."
 DKMS_BAD=""
 if command -v dkms >/dev/null 2>&1; then
     dkms autoinstall >/dev/null 2>&1 || true
-    DKMS_BAD=$(dkms status 2>/dev/null | grep -vi 'installed' | head -3)
+    # ASK ABOUT THE KERNEL WE ARE ABOUT TO BOOT, not about everything dkms has
+    # ever built. `dkms status` prints one line per (module, kernel) pair that
+    # has a build state — so when autoinstall fails to build against the NEW
+    # kernel, dkms emits NO line for it at all and the old kernel's "installed"
+    # line is all that remains. `grep -vi installed` over the whole list then
+    # matched nothing, DKMS_BAD stayed empty, and this printed "Upgrade
+    # complete" on exactly the case safety-model item 4 above promises to warn
+    # about: reboot into the new kernel with no NVIDIA module and a black
+    # screen, with the snapshot and old-kernel advice below left unreachable.
+    NEWK=$(ls -1 /lib/modules 2>/dev/null | sort -V | tail -1)
+    DKMS_BAD=$(dkms status -k "$NEWK" 2>/dev/null | grep -vi 'installed' | head -3)
+    if [ -z "$DKMS_BAD" ] && dkms status 2>/dev/null | grep -q . \
+       && ! dkms status -k "$NEWK" 2>/dev/null | grep -qi 'installed'; then
+        DKMS_BAD="a kernel module is registered but was not built for kernel $NEWK"
+    fi
 fi
 update-initramfs -u -k all >/dev/null 2>&1 || say "  ! initramfs rebuild reported a problem"
 if command -v update-grub >/dev/null 2>&1; then

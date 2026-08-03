@@ -36,7 +36,16 @@ fi
 kdialog --title "$TITLE" --passivepopup \
     "$(gettext "Looking for a Windows installation…")" 6 2>/dev/null &
 
-CAND=/tmp/dagric-migrate-candidates.$$
+# mktemp, not a name another user can guess. This was
+# /tmp/dagric-migrate-candidates.$$ — a path any other logged-in user can
+# predict and pre-create, and $CAND is where $WINMNT and $WINUSER_DIR are read
+# back out of, so it decides the rsync SOURCE and the argument handed to
+# migrate-browser.py. Pro is sold to schools and libraries where a second user
+# on the machine is the normal case rather than an edge case (the same reason
+# written out at the browser helper further down), and this is the one tool that
+# touches the owner's Windows partition. The .bitlocker and .mounted siblings
+# are derived from this name and become unguessable along with it.
+CAND=$(mktemp -t dagric-migrate-candidates.XXXXXX) || exit 1
 : > "$CAND"
 BITLOCKER=""
 MOUNTED_BY_US=""
@@ -129,7 +138,12 @@ WINDEV=$(sed -n "${PICK}p" "$CAND" | cut -f1)
 WINMNT=$(sed -n "${PICK}p" "$CAND" | cut -f2)
 
 # --- 3. Pick the Windows user profile --------------------------------------
-PROFILES=/tmp/dagric-migrate-profiles.$$
+# mktemp for the same reason as $CAND above: this was
+# /tmp/dagric-migrate-profiles.$$, and the redirection on the next line would
+# truncate whatever another user had already put at that path. Exiting here is
+# safe — the cleanup EXIT trap is already installed, so any drive this run
+# mounted is still unmounted.
+PROFILES=$(mktemp -t dagric-migrate-profiles.XXXXXX) || exit 1
 find "$WINMNT/Users" -mindepth 1 -maxdepth 1 -type d 2>/dev/null \
     | grep -viE '/(Public|Default|Default User|All Users)$' > "$PROFILES"
 PN=$(wc -l < "$PROFILES")
@@ -258,6 +272,12 @@ dg_say "$(eval_gettext '=== Dagric Migration: copying from Windows user "$WINUSE
 dg_say "$(eval_gettext '    reading $WINDEV mounted at $WINMNT (read-only; Windows is not modified)')"
 echo
 SKIPPED=$(gettext "    (some files could not be read — skipped)")
+# Did ANY copy fail? The closing summary used to be built unconditionally from
+# "Done! Your Windows files are now in your Dagric home folder.", so a full home
+# partition or a read-only destination produced one scrolled-past line here and
+# then a modal dialog telling the owner their files had arrived. This flag is
+# what lets the last thing they read tell the truth.
+COPY_FAILED=
 for c in $CHOICES; do
     d=$(pairs_for "$c"); [ -n "$d" ] || continue
     # The owner's real folder for this category — ~/Dokumente on a German
@@ -270,9 +290,16 @@ for c in $CHOICES; do
         # a translator cannot improve a path.
         echo "--- $src  ->  $DEST"
         mkdir -p "$DEST"
-        rsync -rt --ignore-existing --info=progress2 \
+        if ! rsync -rt --ignore-existing --info=progress2 \
             --exclude 'desktop.ini' --exclude 'Thumbs.db' --exclude '*.lnk' \
-            "$src/" "$DEST/" || dg_say "$SKIPPED"
+            "$src/" "$DEST/"; then
+            # $SKIPPED is also the wrong description for a full disk, a
+            # read-only home or a mkdir that did not take, which is why the
+            # failure is now RECORDED as well as printed — see the summary at
+            # the end of this script.
+            COPY_FAILED=yes
+            dg_say "$SKIPPED"
+        fi
     done
 done
 
@@ -507,6 +534,29 @@ To finish up, in Firefox:
 • Open tabs — import Windows-open-tabs.html the same way; they arrive as a
   bookmark folder you can 'Open All in Tabs'")
 
+SUMMARY_DLG=--msgbox
+if [ -n "$COPY_FAILED" ]; then
+    # TRANSLATORS: shown only when at least one folder did not copy completely.
+    # It sits ABOVE the "Done!" paragraph and has to contradict it, so lead with
+    # the negation and keep it first. "Do NOT delete anything from Windows" is
+    # the whole point of this block: an owner who believes the copy worked may
+    # reclaim the Windows partition next. "Windows itself was still only ever
+    # read" keeps the product's central promise intact on the failure path — the
+    # copy went wrong, the Windows installation did not.
+    SUMMARY="$(gettext "⚠ NOT everything was copied.
+
+Some folders did not copy completely — read the messages above, free up disk
+space or check the drive, then run Migration again. Do NOT delete anything
+from Windows until it has finished cleanly.
+
+Windows itself was still only ever read; nothing there was changed.")
+
+$SUMMARY"
+    # And not a plain msgbox either: an owner who is one click away from wiping
+    # their Windows partition must not get the icon a clean run would have given.
+    SUMMARY_DLG=--error
+fi
+
 if [ "${N_PWDS:-0}" -gt 0 ] 2>/dev/null; then
     # TRANSLATORS: a warning that a plain-text password file is sitting in the
     # owner's home folder. "Delete it once imported" must survive translation.
@@ -517,4 +567,4 @@ $(gettext "• Passwords — Firefox ▸ Passwords ▸ ⋯ ▸ Import from a Fil
 ⚠ Windows-passwords.csv is PLAIN TEXT. Delete it once imported.")"
 fi
 
-kdialog --title "$TITLE" --msgbox "$SUMMARY" 2>/dev/null
+kdialog --title "$TITLE" "$SUMMARY_DLG" "$SUMMARY" 2>/dev/null

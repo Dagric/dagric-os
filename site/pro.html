@@ -95,8 +95,20 @@ table.cmp td:nth-child(2),table.cmp td:nth-child(3),table.cmp th:nth-child(2),ta
     <div class="card"><h3>📹 OBS Studio</h3><p>Record and stream with the same tool the pros
     use.</p></div>
   </div>
-  <p style="color:var(--muted)">Want DaVinci Resolve? Pro includes a guided installer for
-  Blackmagic's official download — two minutes, fully legal.</p>
+  <!-- "Pro includes a guided installer" made two claims and neither held.
+       dagric-get-resolve has no edition guard and dagric-hub lists it seventeen
+       lines above the EDITION = pro gate, so the free edition has it too; and
+       the script installs nothing — it opens Blackmagic's page and prints the
+       steps, three of which are typed into a terminal. Promising an installer to
+       a Windows switcher and handing them sudo is the exact experience this
+       product exists to spare them. The licence reason is the true version and
+       the better one — it is what /licenses and the script's own header have
+       said all along. -->
+  <p style="color:var(--muted)">Want DaVinci Resolve? The Hub walks you through Blackmagic's own
+  download: it opens the download page, then shows you each step to follow, including the few
+  lines to type. Blackmagic's licence forbids anyone from redistributing Resolve, so no operating
+  system can legally preinstall it — this is as close to one click as the licence allows. Kdenlive
+  is already installed if you would rather start cutting right now.</p>
 
   <div class="cta-band">
     <div class="big">Replaces <span class="grad">$1,000+/year</span> of subscriptions.</div>

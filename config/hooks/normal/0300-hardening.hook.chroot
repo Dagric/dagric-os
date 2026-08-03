@@ -110,11 +110,18 @@ unset _zone
 # So: delete them at the end of the build, and let each machine make its own on
 # first boot (dagric-ssh-hostkeys.service, enabled below).
 #
-# The count is printed rather than assumed. This hook cannot boot the image, so
-# the deletion IS the verification: a build log saying it removed 5 files proves
-# the keys were being baked in, and a log saying it removed 0 proves they were
-# not and this block can go. Either way the answer is in CI output instead of in
-# somebody's head.
+# The count is printed rather than assumed, but read it for what it is. It says
+# openssh-server's postinst generated keys in THIS chroot — not that they would
+# have shipped. live-build runs its own 8050-remove-openssh-server-host-keys
+# hook after every hook in this directory (out/pro-release-build.log: 0300 at
+# line 14881, the last Dagric chroot hook at 16009, 8050 at 16037), and that
+# removes the same files. So this deletion is belt and braces, and a build that
+# removes 0 files proves nothing at all.
+#
+# THE LOAD-BEARING HALF IS THE UNIT BELOW, and it must never be deleted on the
+# strength of a zero here: with live-build stripping the keys either way, an
+# image with no dagric-ssh-hostkeys.service has no host keys and no way to make
+# any, and sshd refuses to start for the first Pro owner who enables it.
 _removed=0
 for _k in /etc/ssh/ssh_host_*_key /etc/ssh/ssh_host_*_key.pub \
          /etc/ssh/ssh_host_*_key-cert.pub; do

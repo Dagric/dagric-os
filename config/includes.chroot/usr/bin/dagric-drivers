@@ -73,7 +73,17 @@ you to enroll it — you'll finish that at the next reboot.")"
             # The metapackage rather than a version: it tracks whichever kernel
             # is installed, so this keeps working across kernel upgrades instead
             # of pinning headers that stop matching after the first one.
-            apt-get update
+            # GUARDED. This was bare, and under `set -e` a failed update — no
+            # connection, an expired Release, one 404 index — killed the script
+            # on this line with raw apt output as the only explanation, which is
+            # the failure mode every other message in this file is written to
+            # avoid.
+            apt-get update || {
+                dg_say "$(gettext "Could not reach the package servers.
+
+Nothing was changed — try again when you are back online.")"
+                exit 1
+            }
 
             # WHICH nvidia-driver? THE CARD DECIDES, NOT THIS SCRIPT.
             #
@@ -140,10 +150,30 @@ https://dagric.com/support and we will tell you which driver it takes.")"
             # A wrong or unavailable package name must not abort the script
             # under set -e with raw apt output as the only explanation.
             if ! apt-get install -y linux-headers-amd64 "$NVPKG" firmware-misc-nonfree; then
+                # PUT THE MACHINE BACK BEFORE SPEAKING, AND DO NOT CLAIM
+                # "Nothing was changed" — it was not true.
+                #
+                # apt-get returns non-zero for a whole family of mid-transaction
+                # failures: a postinst that fails after unpack, a DKMS build
+                # error, the disk filling during unpack. In every one of those
+                # the nvidia-*-kernel-common package is already unpacked and
+                # configured, so its nouveau blacklist under /etc/modprobe.d is
+                # live and the initramfs trigger has run. The old text promised
+                # the open-source driver still worked at the exact moment it had
+                # just been switched off, and exited without cleaning up, so
+                # nothing later undid it either. It also diagnosed a connection
+                # problem for failures that have nothing to do with the network.
+                for _b in /etc/modprobe.d/nvidia-blacklists-nouveau.conf \
+                          /etc/modprobe.d/nvidia-*-blacklists-nouveau.conf; do
+                    [ -e "$_b" ] || continue
+                    mv "$_b" "$_b.dagric-disabled" 2>/dev/null || true
+                done
+                update-initramfs -u >/dev/null 2>&1 || true
                 dg_say "$(gettext "The driver did not install.
 
-Nothing was changed, and your screen keeps working on the open-source driver.
-This is usually a connection problem — try again when you are back online.")"
+The open-source driver has been left switched on, so your screen keeps working.
+If you were offline, try again when you are back online; otherwise report the
+card at https://dagric.com/support and we will tell you which driver it takes.")"
                 exit 1
             fi
 
@@ -151,9 +181,30 @@ This is usually a connection problem — try again when you are back online.")"
             # letting the reboot be the thing that finds out.
             if command -v dkms >/dev/null 2>&1; then
                 if ! dkms status 2>/dev/null | grep -qi 'nvidia.*installed'; then
+                    # MAKE THE PROMISE TRUE BEFORE MAKING IT.
+                    #
+                    # This branch is reached only when the install SUCCEEDED, so
+                    # nvidia-*-kernel-common is configured, its nouveau
+                    # blacklist under /etc/modprobe.d is live and the initramfs
+                    # trigger has baked it in — and the branch's own module did
+                    # not build. The old text told the owner to reboot into a
+                    # machine with no KMS driver at all, said the open-source
+                    # driver would keep the screen working at the moment the
+                    # packages had switched it off, and then told them to re-run
+                    # this helper from a desktop that was not coming back. That
+                    # is the black screen the no-silent-fallback comment above
+                    # exists to prevent, on the one path where the failure is
+                    # already known. Undo the blacklist instead.
+                    for _b in /etc/modprobe.d/nvidia-blacklists-nouveau.conf \
+                              /etc/modprobe.d/nvidia-*-blacklists-nouveau.conf; do
+                        [ -e "$_b" ] || continue
+                        mv "$_b" "$_b.dagric-disabled" 2>/dev/null || true
+                    done
+                    update-initramfs -u >/dev/null 2>&1 || true
                     dg_say "$(gettext "WARNING: the NVIDIA kernel module did not finish building.
-Reboot anyway and the open-source driver will keep the screen working; re-run
-this helper afterwards and it will report what went wrong.")"
+The open-source driver has been switched back on, so the screen still works
+after a reboot. Re-run this helper afterwards and it will report what went
+wrong.")"
                 fi
             fi
 

@@ -66,14 +66,35 @@ Protects against malicious USB devices that pretend to be keyboards.")" 2>/dev/n
 if pkexec sh -c '
 set -e
 umask 077
-usbguard generate-policy > /etc/usbguard/rules.conf
+# Generate into a staging file on the SAME filesystem, then move it into place.
+# Redirecting straight at rules.conf TRUNCATES it before usbguard has produced a
+# single byte, so a generate-policy that fails destroys the allow-list that was
+# already there — while the failure dialog below promises nothing was changed.
+_pol=$(mktemp /etc/usbguard/rules.conf.XXXXXX) || exit 3
+if ! usbguard generate-policy > "$_pol"; then
+    rm -f "$_pol"
+    echo "generate-policy failed — refusing to enable" >&2
+    exit 2
+fi
 # Refuse to arm a daemon with an empty policy — that is the lockout case.
-if [ ! -s /etc/usbguard/rules.conf ]; then
+if [ ! -s "$_pol" ]; then
+    rm -f "$_pol"
     echo "empty policy — refusing to enable" >&2
     exit 2
 fi
+mv -f "$_pol" /etc/usbguard/rules.conf
 systemctl unmask usbguard.service usbguard-dbus.service
-systemctl enable --now usbguard.service usbguard-dbus.service
+# enable --now writes the enable symlinks BEFORE it starts anything, so a start
+# that fails (usbguard-dbus is the likely one) leaves both units UNMASKED and
+# ENABLED. pkexec then returns non-zero and the owner is shown the reassuring
+# dialog below — but at the NEXT BOOT usbguard starts and enforces the policy,
+# which is the keyboard lockout this whole file exists to prevent. Put the units
+# back the way 0600-pro-edition.hook.chroot ships them: disabled and masked.
+if ! systemctl enable --now usbguard.service usbguard-dbus.service; then
+    systemctl disable --now usbguard.service usbguard-dbus.service || true
+    systemctl mask usbguard.service usbguard-dbus.service || true
+    exit 4
+fi
 '; then
     kdialog --title "$TITLE" --msgbox \
 "$(gettext "USB protection is ON.

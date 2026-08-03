@@ -90,6 +90,26 @@ def publish():
         html = re.sub(r'<link rel="icon" href="/favicon\.ico"[^>]*>\n?', "", html)
         html = re.sub(r'<a class="back-to-site".*?</a>\n?', "", html, flags=re.S)
 
+        # WHY REWRITE PATHS. The offline copy is a directory of relative links,
+        # which is right for file:// and wrong for the web. firebase.json sets
+        # trailingSlash:false, so this page is served at /guide with NO trailing
+        # slash and "guide.css" resolves to /guide.css — a 404. The published
+        # guide rendered with no stylesheet and no JavaScript at all, and the
+        # German page's "../index.html" language switch landed on the marketing
+        # homepage instead of the English guide. Site-absolute paths are right at
+        # every URL shape, and only the web copy gets them — the offline copy is
+        # still opened as a file and must keep its relative links.
+        #
+        # Not <base href>: that would also rebase the guide's 22 fragment-only
+        # TOC links and break in-page navigation.
+        for was, now in (('href="guide.css"',     'href="/guide/guide.css"'),
+                         ('src="guide.js"',       'src="/guide/guide.js"'),
+                         ('href="de/index.html"', 'href="/guide/de"'),
+                         ('href="../guide.css"',  'href="/guide/guide.css"'),
+                         ('src="../guide.js"',    'src="/guide/guide.js"'),
+                         ('href="../index.html"', 'href="/guide"')):
+            html = html.replace(was, now)
+
         extra = HEAD_EXTRA.format(site=SITE, **meta)
         if "</head>" not in html:
             sys.exit("no </head> in " + rel)

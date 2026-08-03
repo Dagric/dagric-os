@@ -53,6 +53,19 @@ $SMART
 
 $(gettext "Back up your files NOW (Kup is preinstalled), and plan to
 replace the drive.")" 2>/dev/null
+    elif printf '%s\n' "$SMART" | grep -qi 'not reported'; then
+        # A drive that said NOTHING is not a drive that said it is healthy.
+        # "not reported" is excluded from the failure test above on purpose — a
+        # USB-bridged drive, or one with SMART switched off in firmware, must
+        # not raise a false alarm — but it must not be laundered into an
+        # all-clear either, which is what the else branch below was doing for
+        # it. The per-drive lines come with it so the owner can see WHICH drive
+        # did not answer.
+        # TRANSLATORS: this is a "we could not tell" result — neither a pass nor
+        # a failure. Keep both halves of the sentence.
+        DISKS_LINE="$(gettext "Drive health:  no failures reported, but some drives could not be read")
+$SMART
+"
     else
         DISKS_LINE="$(gettext "Drive health:  all drives report healthy (SMART)")
 "

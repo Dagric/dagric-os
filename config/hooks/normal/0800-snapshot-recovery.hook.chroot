@@ -72,6 +72,20 @@ fi
 # `systemctl enable` writes for a WantedBy=multi-user.target unit, it has
 # shipped and been verified on an installed system, and swapping proven code
 # for equivalent code buys nothing. What was wrong was the reason, not the line.
-mkdir -p /etc/systemd/system/multi-user.target.wants
-ln -sf /etc/systemd/system/dagric-snapshot-setup.service \
-    /etc/systemd/system/multi-user.target.wants/dagric-snapshot-setup.service
+# ...but ONLY if grub-btrfs actually installed. Both failure branches above are
+# warnings that fall straight through, so without this gate a build whose
+# download or checksum failed still ships a machine that takes a pre AND a post
+# btrfs snapshot on every apt run and every unattended-upgrade forever —
+# dagric-snapshot-setup writes /etc/apt/apt.conf.d/80dagric-snapshot on first
+# boot — with no GRUB submenu to boot a single one of them from. That is the
+# whole disk cost of the advertised recovery feature and none of the recovery,
+# and nothing at runtime says so.
+if [ -x /etc/grub.d/41_snapshots-btrfs ]; then
+    mkdir -p /etc/systemd/system/multi-user.target.wants
+    ln -sf /etc/systemd/system/dagric-snapshot-setup.service \
+        /etc/systemd/system/multi-user.target.wants/dagric-snapshot-setup.service
+else
+    echo "WARNING: grub-btrfs is not installed, so dagric-snapshot-setup.service" >&2
+    echo "         was NOT enabled. Enabling it would install the apt pre/post" >&2
+    echo "         snapper hooks on a machine with no GRUB snapshot menu." >&2
+fi

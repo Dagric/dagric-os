@@ -47,7 +47,16 @@ if [ "$GOT" != "$SHA" ]; then
 fi
 
 mkdir -p "$TMP/x"
-tar xzf "$TMP/p.tar.gz" -C "$TMP/x"
+# Checked by hand rather than with `set -e`. This is the only hook in
+# config/hooks/normal without it, and deliberately so: the policy at the top of
+# this file is that failure is never fatal, and `set -e` would abort the whole
+# build instead of skipping one Pro extra. What was wrong was leaving tar and cp
+# unchecked at all — a truncated archive fell straight through to the copy below
+# and the hook still printed "installed".
+if ! tar xzf "$TMP/p.tar.gz" -C "$TMP/x"; then
+    echo "WARNING: video wallpaper archive did not unpack — feature skipped"
+    rm -rf "$TMP"; exit 0
+fi
 
 # The archive unpacks with metadata.json + contents/ at its root.
 SRC=$(dirname "$(find "$TMP/x" -name metadata.json | head -1)")
@@ -57,7 +66,15 @@ if [ -z "$SRC" ] || [ ! -d "$SRC/contents" ]; then
 fi
 
 mkdir -p "$DEST"
-cp -r "$SRC/metadata.json" "$SRC/contents" "$DEST/"
+# A half-copied plugin is worse than no plugin. Plasma discovers ANY directory
+# under wallpapers/ that holds a metadata.json, so a $DEST left with the
+# metadata and an incomplete contents/ shows up in Configure Desktop and
+# Wallpaper on a Pro machine and fails the moment the owner picks it. Take the
+# partial install back out rather than ship it.
+if ! cp -r "$SRC/metadata.json" "$SRC/contents" "$DEST/"; then
+    echo "WARNING: video wallpaper files did not copy — removing the partial plugin"
+    rm -rf "$DEST" "$TMP"; exit 0
+fi
 
 # Upstream's installer marks this helper executable; git/tar preserve it, but
 # be explicit so the pause-on-fullscreen detection works either way.
