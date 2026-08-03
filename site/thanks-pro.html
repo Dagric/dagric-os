@@ -34,20 +34,7 @@ a{color:var(--accent);text-decoration:none}
   address (bookmark it!) — the same link re-downloads anytime, and resuming an interrupted download works.</p>
   <p class="small">Write it to a USB stick with <a href="https://rufus.ie">Rufus</a> or <a href="https://www.ventoy.net">Ventoy</a>, boot, try the live desktop, then click <em>Install Dagric OS</em>.<br>
   Free updates are announced on the <a href="https://dagric.com">homepage</a>.</p>
-  <script>
-  (function(){
-    var sid = new URLSearchParams(location.search).get("session_id");
-    var a = document.getElementById("dl");
-    if (sid && /^cs_[A-Za-z0-9_]+$/.test(sid)) {
-      a.href = "https://dagric-gate.dagric.workers.dev/?session_id=" + encodeURIComponent(sid);
-    } else {
-      a.textContent = "Purchase Dagric OS Pro — $39";
-      a.href = "https://buy.stripe.com/6oU5kwbye2Jogri31D8k809";
-      document.getElementById("dlnote").textContent =
-        "This page had no purchase session attached. If you already bought Pro, open the link from your receipt/checkout page; otherwise grab it below.";
-    }
-  })();
-  </script>
+<script src="/assets/thanks-pro.js" defer></script>
   <!-- The Pro checksum was printed here inline, and it did not match the
        SHA256SUMS linked on the very next line. This is the page somebody reaches
        by PAYING, so it is the page whose mismatch costs the most: the buyer most
