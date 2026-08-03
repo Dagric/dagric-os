@@ -165,6 +165,20 @@ site/** text eol=lf
 *.ico binary
 *.webp binary
 *.mp4 binary
+# .jpg was the gap this list left, and it bit exactly as the note above
+# predicts. site/assets/walkthrough-poster.jpg — the poster frame for the
+# install walkthrough — committed one byte SHORT of the file on disk, because
+# `site/** text eol=lf` claimed it and the filter stripped the CR out of the
+# single CRLF pair that happened to occur in the JPEG's entropy-coded data.
+# Caught by `git add` printing "CRLF will be replaced by LF" on a photograph,
+# then confirming with `git cat-file -p` against the working file: 84401 bytes
+# committed, 84402 on disk. Nothing warns you twice — a corrupted poster looks
+# fine to whoever committed it, because their working copy is untouched, and
+# breaks only for the next person to clone.
+# .jpeg is here for the same reason .jpg is: the extension a file happens to
+# be given must not decide whether git rewrites its bytes.
+*.jpg binary
+*.jpeg binary
 # GRUB's bitmap fonts. They live under config/includes.chroot/usr/share/dagric/,
 # which the directory rule above declares `text eol=lf` — so without this line
 # git treats a binary as text and rewrites its bytes on the way in.
