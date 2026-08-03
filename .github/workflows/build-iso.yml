@@ -61,11 +61,24 @@ jobs:
   # they answer a different question and an English error message must not stop
   # a release. On failure it uploads the regenerated po/ and catalogues, because
   # telling someone to run a tool they have nowhere to run is not a fix.
-  i18n:
+  checks:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
+
+      # Seconds, and it runs FIRST because the failure it catches costs the
+      # most to diagnose. Docker strips comments inside a line continuation and
+      # joins what is left, so a stray instruction becomes an argument and the
+      # build dies with "E: Unable to locate package RUN" — an error naming no
+      # file and no cause. That happened here: two individually correct fixes
+      # to docker/Dockerfile each added a comment block above the RUN they were
+      # changing, and together they buried a second RUN inside the first one's
+      # continuation. Both editions failed. Twenty-five minutes of runner time
+      # each, to learn something this step reports before the image is pulled.
+      - name: Dockerfile sanity
+        run: sh tools/check-dockerfile.sh
+
       - name: Install gettext
         run: sudo apt-get update -qq && sudo apt-get install -y -qq gettext
       - name: Check po/ against the source

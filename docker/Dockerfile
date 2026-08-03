@@ -14,7 +14,7 @@ FROM debian:trixie
 # privacy screen, English in all five languages — and CI would have shipped
 # them in a release ISO without a word. "A skipped check costs nothing" was
 # only ever true while the check had never been needed.
-RUN apt-get update && apt-get install -y --no-install-recommends \
+#
 # curl is here for container-build.sh's update-channel collision gate, which
 # fetches the published Packages index over HTTPS before starting a build. The
 # image never had an HTTP client - debian:trixie ships none, and none of the
