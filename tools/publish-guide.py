@@ -25,7 +25,15 @@ import os, re, shutil, sys
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SRC  = os.path.join(ROOT, "config/includes.chroot/usr/share/dagric/guide")
 DST  = os.path.join(ROOT, "site/guide")
-SITE = "https://dagric-os.web.app"
+# The brand domain, not the Firebase name. Both hosts serve this same site, but
+# dagric.com is the one the product itself hands out — HOME_URL, SUPPORT_URL and
+# BUG_REPORT_URL in /etc/os-release, /etc/motd, the Calamares branding and the
+# back-link two lines below all say dagric.com. Canonicals pointing anywhere else
+# tell Google to index the preview hostname and drop the one every owner is sent
+# to. The APT update channel is a separate matter and still lives on
+# dagric-os.web.app (config/includes.chroot/etc/apt/sources.list.d/dagric.list);
+# do not "fix" that one to match this.
+SITE = "https://dagric.com"
 
 # Web-only additions. The offline copy must not carry these: a canonical URL and
 # an og:image are meaningless to a reader with no internet, and a link back to
@@ -109,6 +117,26 @@ def publish():
                          ('src="../guide.js"',    'src="/guide/guide.js"'),
                          ('href="../index.html"', 'href="/guide"')):
             html = html.replace(was, now)
+
+        # THE ONE LINK THAT CANNOT BE REWRITTEN, ONLY REMOVED. The German guide
+        # offers the 95-page manual as ../../manual/index.html, which is correct
+        # offline — it resolves to /usr/share/dagric/manual/, which is in the
+        # image — and a hard 404 on the web, where the manual is not published at
+        # all. The table above rewrote every other relative path and left this one
+        # alone, so it survived into site/guide/de/index.html and was the only
+        # broken internal link on the site.
+        #
+        # There is nothing to point it at, so unwrap the anchor and keep every
+        # word: the sentence immediately before it already says to open the
+        # manual from the start menu or with `dagric-manual`, which is exactly
+        # what the English guide's #manual section does without linking anywhere.
+        # Line-break tolerant (the anchor spans two source lines) and it will
+        # catch the same link if another translation grows one.
+        html, n_manual = re.subn(r'<a href="\.\./\.\./manual/[^"]*"[^>]*>(.*?)</a>',
+                                 r'<em>\1</em>', html, flags=re.S)
+        if n_manual:
+            print("  unlink  %s  (%d offline-only manual link%s)"
+                  % (rel, n_manual, "" if n_manual == 1 else "s"))
 
         extra = HEAD_EXTRA.format(site=SITE, **meta)
         if "</head>" not in html:

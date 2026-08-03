@@ -103,6 +103,10 @@ gettext "What Dagric is, and the promises it makes."
 gettext "Open"
 gettext "Open %1"
 gettext "Your desktop is back the way it was."
+gettext "You're running the live trial from the USB stick, so anything you set here lasts until you shut down. Install Dagric first if you want it to stick."
+gettext "Nothing here is permanent. Skip anything you like, and change all of it later from the Dagric Hub."
+gettext "This is the live trial. To keep any of it, run Install Dagric OS from the desktop."
+gettext "Want to run through this again? It's called \"Set Up Dagric\" in your apps list."
 
 # TRANSLATORS: name of the "classic" taskbar layout in Dagric Looks and the
 # setup wizard. One or two words, shown as the title of a picture tile.

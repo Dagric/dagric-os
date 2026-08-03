@@ -104,6 +104,13 @@ config/includes.chroot/usr/lib/systemd/** text eol=lf
 # may be Windows; CRLF in a .po is tolerated but produces a pointless diff on
 # every round trip. (The compiled .mo files are binary — see the bottom.)
 po/*.po text eol=lf
+# The template was left on text=auto by the rule above, which only matches
+# *.po — `git check-attr` reported po/dagric.pot as eol:unspecified, so a fresh
+# clone with autocrlf=true writes it CRLF. Same omission as the *.hook.binary
+# one further up, and the same fix. It does not reach the image (the .pot is
+# never compiled or shipped), but tools/i18n-ci-check.sh compares a regenerated
+# .pot against this one, and on a Windows checkout every line would differ.
+po/*.pot text eol=lf
 # The build-host python tools. NOT a live bug and it should be recorded as such:
 # build.sh and container-build.sh both invoke these as `python3 tools/foo.py`,
 # so the shebang is never used and CRLF would be harmless — python reads mixed
