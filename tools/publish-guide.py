@@ -67,13 +67,59 @@ PAGES = {
         desc=("Das Handbuch aus Dagric OS: Umstieg von Windows, der erste Tag, Drucker, "
               "WLAN, Tastenkürzel, Windows-Programme und was zu tun ist, wenn etwas "
               "nicht funktioniert.")),
+    # The OS ships five locales — de, es, fr, it, pt_BR — and the guide had two
+    # of them. A Spanish or French owner got the whole desktop in their language
+    # and then the single most useful document in English, which is the point
+    # where "it speaks my language" stops being true.
+    #
+    # pt_BR maps to the URL /guide/pt-br: the directory keeps the POSIX locale
+    # name because that is what /usr/share/locale uses and what the offline copy
+    # is found under, but a URL with an underscore and a capital is neither
+    # idiomatic nor reliably handled. The suffix and the directory are allowed
+    # to differ precisely because publish() takes them from here rather than
+    # deriving one from the other.
+    #
+    # Each description is written in its own language rather than translated
+    # mechanically from the English one: it is the snippet a search engine shows
+    # to a speaker of that language, and it is the only line of this file a
+    # visitor sees before deciding whether to click.
+    os.path.join("es", "index.html"): dict(
+        suffix="/es", label="dagric.com",
+        title="Guía de Dagric OS — su primera semana, resuelta",
+        desc=("La guía que viene dentro de Dagric OS: llegar desde Windows, el primer "
+              "día, impresoras, Wi-Fi, atajos de teclado, programas de Windows y qué "
+              "hacer cuando algo va mal.")),
+    os.path.join("fr", "index.html"): dict(
+        suffix="/fr", label="dagric.com",
+        title="Guide de Dagric OS — votre première semaine",
+        desc=("Le guide fourni dans Dagric OS : venir de Windows, le premier jour, "
+              "imprimantes, Wi-Fi, raccourcis clavier, programmes Windows et que faire "
+              "quand quelque chose ne va pas.")),
+    os.path.join("it", "index.html"): dict(
+        suffix="/it", label="dagric.com",
+        title="Guida di Dagric OS — la tua prima settimana",
+        desc=("La guida inclusa in Dagric OS: arrivare da Windows, il primo giorno, "
+              "stampanti, Wi-Fi, scorciatoie da tastiera, programmi Windows e cosa fare "
+              "quando qualcosa non funziona.")),
+    os.path.join("pt_BR", "index.html"): dict(
+        suffix="/pt-br", label="dagric.com",
+        title="Guia do Dagric OS — sua primeira semana",
+        desc=("O guia que vem dentro do Dagric OS: vindo do Windows, o primeiro dia, "
+              "impressoras, Wi-Fi, atalhos de teclado, programas do Windows e o que "
+              "fazer quando algo dá errado.")),
 }
 
 
 def publish():
     if not os.path.isdir(SRC):
         sys.exit("guide source not found: " + SRC)
-    os.makedirs(os.path.join(DST, "de"), exist_ok=True)
+    # One directory per translation. Derived from each entry's `suffix` rather
+    # than from its source directory, because the two are deliberately allowed
+    # to differ: the source is pt_BR/ (the POSIX locale name, matching
+    # /usr/share/locale and the offline copy) while the URL is /guide/pt-br.
+    for _m in PAGES.values():
+        if _m["suffix"]:
+            os.makedirs(os.path.join(DST, _m["suffix"].lstrip("/")), exist_ok=True)
 
     # Assets copy verbatim — the styling is the thing being published.
     for asset in ("guide.css", "guide.js"):
@@ -159,10 +205,16 @@ def publish():
         if n != 1:
             sys.exit("could not place the back-link in %s — sidebar markup changed" % rel)
 
-        out = os.path.join(DST, rel)
+        # Published under the URL directory, not the source directory. For four
+        # of the five these are the same string; for pt_BR they are not, and
+        # writing to the source name would publish /guide/pt_BR — an underscore
+        # and a capital in a URL, which is neither idiomatic nor reliably
+        # handled once a CDN or a mail client gets hold of it.
+        out = os.path.join(DST, meta["suffix"].lstrip("/"), "index.html")
         os.makedirs(os.path.dirname(out), exist_ok=True)
         open(out, "w", encoding="utf-8", newline="\n").write(html)
-        print("  page    %s  (%d KB)" % (rel, len(html) // 1024))
+        print("  page    %-22s -> /guide%-8s (%d KB)"
+              % (rel.replace(os.sep, "/"), meta["suffix"] or "", len(html) // 1024))
 
     print("\n  published to site/guide/ — deploy the site to make it live")
 
