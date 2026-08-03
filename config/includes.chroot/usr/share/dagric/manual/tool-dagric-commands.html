@@ -84,6 +84,22 @@
         <li><code>dagric-appearance</code> &mdash;
         <a href="tool-dagric-appearance.html">the gallery</a>: styles and layouts as
         pictures, with Keep and Revert.</li>
+        <li><code>dagric-upgrade</code> &mdash; moves this machine to the next Debian
+        release, when there is one. Run it with <code>sudo</code>. It refuses unless the
+        next release has actually shipped, the package system is healthy, there is room,
+        the machine is on mains power and no third-party repositories are enabled; then it
+        snapshots first, downloads everything before installing anything, and rebuilds the
+        graphics modules afterwards. On a machine with no snapshots it says so plainly and
+        makes you type a different word to continue. Until the next Debian is released it
+        simply tells you that you are on the newest version, which is not an error.</li>
+        <li><code>dagric-image-prep</code> &mdash; strips this machine&#x27;s identity so the
+        disk can be cloned onto other computers. Run it with <code>sudo</code> on the
+        reference machine, immediately before imaging, then power off rather than reboot.
+        It removes the SSH host keys and the machine ID &mdash; the two things that must be
+        unique per computer &mdash; so every clone generates its own on first boot. Without
+        it, thirty cloned machines share one SSH identity and fight over addresses on the
+        same network. Your files, accounts and software are not touched. Only useful if you
+        are imaging several machines; ordinary owners never need it.</li>
         <li><code>dagric-looks</code> &mdash;
         <a href="tool-dagric-looks.html">Dagric Looks</a>: the panel layout.</li>
         <li><code>dagric-style</code> &mdash;
