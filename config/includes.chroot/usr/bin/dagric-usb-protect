@@ -29,7 +29,16 @@ if systemctl is-active --quiet usbguard.service 2>/dev/null; then
 "$(gettext "USB protection is currently ON — unknown USB devices are blocked.
 
 Turn it OFF and allow all USB devices again?")" 2>/dev/null || exit 0
-    if pkexec sh -c 'systemctl disable --now usbguard.service usbguard-dbus.service; systemctl mask usbguard.service usbguard-dbus.service'; then
+    # The exit status of a `;` chain is the LAST command's, and `mask` succeeds
+    # on a unit that is still RUNNING — it only rewrites the unit link and warns.
+    # So a `disable --now` whose stop timed out, or that left the unit failed or
+    # deactivating, still returned 0 and the owner was shown "USB protection is
+    # off. All USB devices work normally." while the daemon went on enforcing the
+    # allow-list — and the tool, seeing the feature as already off, would then
+    # offer to turn it ON rather than retry the stop. The enable path sixty lines
+    # below documents and guards this same trap; this is its disable half. Test
+    # the one thing the dialog claims: that usbguard is no longer enforcing.
+    if pkexec sh -c 'systemctl disable --now usbguard.service usbguard-dbus.service; systemctl mask usbguard.service usbguard-dbus.service; ! systemctl is-active --quiet usbguard.service'; then
         kdialog --title "$TITLE" --msgbox \
             "$(gettext "USB protection is off. All USB devices work normally.")" 2>/dev/null
     else

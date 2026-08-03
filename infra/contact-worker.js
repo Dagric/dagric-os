@@ -3,13 +3,31 @@
 // it, and stores the message as a private object in the R2 bucket
 // `dagric-contact`. Messages are read in the Cloudflare dashboard
 // (R2 -> dagric-contact) — no email address is exposed anywhere.
-const ORIGIN = "https://dagric-os.web.app";
+// THE FORM WAS DEAD ON THE PRODUCTION DOMAIN. A single allowed origin naming
+// only dagric-os.web.app meant the CORS preflight failed for everyone who
+// arrived the way the operating system tells them to: dagric.com is what
+// /etc/os-release (HOME_URL, SUPPORT_URL, BUG_REPORT_URL), /etc/motd, the
+// Calamares branding and the guide all point at, and firebase.json declares no
+// redirect off it. The browser blocked the POST, the page's catch block blamed
+// the visitor's connection, and the support or refund message was never sent at
+// all. Both names serve the same site, so both are allowed; any new domain must
+// be added here the same day it starts serving /contact.
+const ORIGINS = [
+  "https://dagric.com",
+  "https://www.dagric.com",
+  "https://dagric-os.web.app",
+];
 const MAX = { name: 120, email: 200, topic: 40, message: 5000 };
 
 export default {
   async fetch(req, env) {
+    // Echo the caller's origin when it is on the list (Vary: Origin so no cache
+    // hands one site's header to another). Anything else gets the canonical
+    // domain, which is not a match for that caller and so is still refused.
+    const origin = req.headers.get("Origin") || "";
     const cors = {
-      "Access-Control-Allow-Origin": ORIGIN,
+      "Access-Control-Allow-Origin": ORIGINS.includes(origin) ? origin : ORIGINS[0],
+      "Vary": "Origin",
       "Access-Control-Allow-Methods": "POST, OPTIONS",
       "Access-Control-Allow-Headers": "Content-Type",
     };

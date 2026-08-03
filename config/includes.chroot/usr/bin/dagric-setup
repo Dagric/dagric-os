@@ -46,17 +46,60 @@ printf "%s" "$1"; read x' sh "$CLOSE" & ;;
         hp)
             # The success line used to be sequenced with `;`, so it printed
             # whether or not apt had worked. Branch on the actual exit status.
+            #
+            # DPkg::Lock::Timeout IS NOT TUNING, IT IS THE RACE FIX. Every
+            # ticked task in this loop is launched in the background, so an
+            # owner who ticks "NVIDIA graphics driver" as well — an NVIDIA
+            # machine with an HP all-in-one is an ordinary configuration, and
+            # the two boxes sit next to each other — gets two apt transactions
+            # at once, because dagric-drivers runs its own apt-get update and
+            # install. apt is single-instance, so the loser died immediately on
+            # "Could not get lock /var/lib/apt/lists/lock" and printed HPFAIL,
+            # which blames an internet connection that was working fine and
+            # tells the owner to retry from the Hub — the one thing that cannot
+            # help until the other install has finished. The option makes apt
+            # WAIT for the lock instead of failing, and it is honoured by apt's
+            # generic GetLock(), so it covers the lists lock here and not just
+            # the dpkg/frontend one.
             konsole -e pkexec sh -c \
-'if apt-get update && apt-get install -y hplip; then \
+'if apt-get -o DPkg::Lock::Timeout=600 update && apt-get -o DPkg::Lock::Timeout=600 install -y hplip; then \
   echo; printf "%s\n" "$1"; \
 else \
   echo; printf "%s\n" "$3"; \
 fi; \
 printf "%s" "$2"; read x' sh "$HPDONE" "$CLOSE" "$HPFAIL" & ;;
         flathub)
-            flatpak remote-add --if-not-exists flathub \
-                https://dl.flathub.org/repo/flathub.flatpakrepo 2>/dev/null || true
-            kdialog --passivepopup \
-                "$(gettext "Flathub enabled — browse apps in Discover.")" 5 2>/dev/null & ;;
+            # BRANCH ON THE ACTUAL EXIT STATUS, for the same reason the HP
+            # branch above documents — this was the last of the three that
+            # still sequenced its success message unconditionally.
+            #
+            # remote-add is not a local config edit: it DOWNLOADS the
+            # .flatpakrepo file over the network, and run unprivileged it needs
+            # a polkit authorisation to touch the system-wide installation. So
+            # it fails on no network and on a cancelled password prompt, and
+            # `|| true` plus an unconditional popup told the owner the app
+            # store was open before sending them to a Discover with nothing new
+            # in it — from which the only reasonable conclusion is that the
+            # software centre is broken.
+            #
+            # Not a theoretical path: 0400-flathub.hook.chroot adds the remote
+            # at build time but warns "could not add Flathub remote (no network
+            # in chroot?) — continuing", so an ISO can genuinely ship without
+            # it. That is exactly the machine where this branch does the real
+            # work, and exactly the machine where the old line lied. The box is
+            # ticked on by default, so every owner runs it.
+            if flatpak remote-add --if-not-exists flathub \
+                https://dl.flathub.org/repo/flathub.flatpakrepo 2>/dev/null; then
+                kdialog --passivepopup \
+                    "$(gettext "Flathub enabled — browse apps in Discover.")" 5 2>/dev/null &
+            else
+                # TRANSLATORS: shown when enabling Flathub did not work. It
+                # names BOTH causes on purpose — this cannot tell a network
+                # failure from a cancelled password prompt, so it must not
+                # diagnose one of them and send the owner off to fix the wrong
+                # thing.
+                kdialog --passivepopup \
+                    "$(gettext "Flathub could NOT be enabled — you may be offline, or the password prompt was cancelled. Try again anytime from the Hub.")" 8 2>/dev/null &
+            fi ;;
     esac
 done

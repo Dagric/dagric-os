@@ -53,7 +53,17 @@
        page that has to be complete, and an omission here is worth more than the
        feature it was hiding. The previous text also said "no crash reporters phoning
        home" while KDE's crash handler ships installed — corrected below to say what
-       it actually does rather than to claim it is absent. -->
+       it actually does rather than to claim it is absent.
+
+       Second round of the same mistake, same cause: the list still called itself
+       complete while omitting Mozilla's add-on site, which Firefox contacts
+       unprompted on first run because our own policies.json installs uBlock Origin
+       with installation_mode "normal_installed". The shipped manual
+       (manual/app-firefox.html) and the first-run welcome page both disclose it;
+       this page, the one a school or procurement officer actually reads, was the
+       only place that did not. If a policy or a package ever adds another outbound
+       host, name it here in the same commit — otherwise the sentence above becomes
+       a false claim again. -->
   <p><strong>What the machine connects to, in full.</strong> Nothing here is
   optional-but-on; this is the complete list, and every item is a fetch <em>from</em>
   a server, never a report <em>to</em> one:</p>
@@ -66,6 +76,16 @@
     request. Remove <code>/etc/apt/sources.list.d/dagric.list</code> and it stops for good —
     the rest of the system keeps updating from Debian.</li>
     <li><strong>Flathub</strong>, only if you install a Flatpak app.</li>
+    <li><strong>Mozilla's add-on site</strong>, the first time you open Firefox. We set Firefox up
+    with the <strong>uBlock Origin</strong> ad blocker, but the blocker is not in the disc image —
+    Firefox fetches it, then checks it for updates exactly as it would an add-on you chose
+    yourself. There is no account and no identifier for you in those requests. Remove it from
+    <em>☰ → Add-ons and themes</em> and the checks stop.</li>
+    <li><strong>Mozilla's add-on site</strong>, the first time you open Firefox. We set Firefox up
+    with the <strong>uBlock Origin</strong> ad blocker, but the blocker is not in the disc image —
+    Firefox fetches it, then checks it for updates exactly as it would an add-on you chose
+    yourself. There is no account and no identifier for you in those requests. Remove it from
+    <em>☰ → Add-ons and themes</em> and the checks stop.</li>
     <li><strong>The Linux Vendor Firmware Service</strong>, which is how your laptop learns a
     firmware update exists. It fetches a catalogue; it does not upload your hardware list.
     Switch it off with <code>sudo systemctl disable --now fwupd-refresh.timer</code>.</li>
@@ -87,8 +107,21 @@
     <a href="https://stripe.com/privacy">Stripe</a>. Your card number goes to Stripe, never to us.
     We receive what a receipt shows: your name, email, and the purchase, which we keep for order
     support, refunds, and tax law.</li>
-    <li><strong>Support email.</strong> If you email us, we have your email. We use it to reply.
-    We don't add you to lists or share it.</li>
+    <!-- The contact form is the site's only published support route (there is no
+         email address anywhere on it), and infra/contact-worker.js writes every
+         submission — message, name, email, and the CF-IPCountry code the sender
+         never typed — to the private Cloudflare R2 bucket dagric-contact. This
+         section listed only hosting, Stripe and "support email", so the one thing
+         we actually collect from most visitors was the one thing undisclosed, and
+         a processor was missing from our own data inventory. Keep this bullet in
+         step with the worker: if it ever stores another field, it is named here. -->
+    <li><strong>The contact form.</strong> Sending it saves what you typed — your message, plus the
+    name and email you chose to give — as a private file in Cloudflare storage that only we can
+    read. Cloudflare also tells us the two-letter country the request came from; we keep that and
+    nothing else about your connection, and there is no cookie or identifier involved. We use it to
+    reply, we don't add you to lists, we don't share it, and you can ask us to delete it.</li>
+    <li><strong>Support email.</strong> If you write to us instead, we have your email, under the
+    same rule: we use it to reply, and nothing more.</li>
   </ul>
 
   <h2>What we never do</h2>
@@ -99,8 +132,13 @@
   </ul>
 
   <h2>Your rights</h2>
-  <p>Use the <a href="/contact">contact page</a> to ask what we hold about you (typically: a
-  Stripe receipt) or to have it deleted, subject to legal record-keeping requirements.</p>
+  <!-- "typically: a Stripe receipt" was wrong for most people who read this page:
+       someone who has never bought Pro but has used the contact form is held as a
+       stored message, not a receipt. A subject-access answer that understates the
+       inventory is worse than no answer. -->
+  <p>Use the <a href="/contact">contact page</a> to ask what we hold about you — in practice a
+  Stripe receipt if you bought Pro, and any message you have already sent us — or to have it
+  deleted, subject to legal record-keeping requirements.</p>
 </main>
 
 <footer><div class="foot">

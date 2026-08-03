@@ -23,4 +23,22 @@ PAGE=$(dg_localised /usr/share/dagric/guide index.html) || {
     dg_say "$(gettext "The Dagric user guide is not installed.")" >&2
     exit 1
 }
-exec firefox "file://$PAGE"
+# NOT a bare `firefox`. Debian ships firefox-esr, whose binary is
+# /usr/bin/firefox-esr; there is no /usr/bin/firefox anywhere on this image and
+# nothing in config/, tools/ or build.sh creates one. So this line died as
+# "firefox: not found" — invisibly, because every caller backgrounds it:
+# dagric-hub `userguide) dagric-guide &`, dagric-firstrun `guide) /usr/bin/dagric-guide &`
+# on the wizard's last screen, and dagric-guide.desktop in the launcher. The row
+# simply did nothing and the error went nowhere.
+#
+# Same chain and same order as dagric-manual, which alone already had it:
+# x-www-browser first, because it is Debian's alternatives link and an owner who
+# switched browsers should be obeyed; then Firefox under either name; xdg-open
+# last, as a resort rather than a first choice.
+for b in x-www-browser firefox firefox-esr xdg-open; do
+    if command -v "$b" >/dev/null 2>&1; then
+        exec "$b" "file://$PAGE"
+    fi
+done
+dg_say "$(eval_gettext 'No browser found. The page is at $PAGE')" >&2
+exit 1

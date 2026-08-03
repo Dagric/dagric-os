@@ -75,9 +75,21 @@ table.cmp td:nth-child(2),table.cmp td:nth-child(3),table.cmp th:nth-child(2),ta
        The figure is this page's own existing claim in the CTA band below, linked by
        repetition rather than restated with a second set of numbers, so the "Honest
        math" caveat still governs it; the Photoshop line further down is untouched, so
-       the two comparisons do not say the same thing twice. -->
+       the two comparisons do not say the same thing twice.
+
+       "local AI" is OUT of this list and must not come back. Nothing installs Ollama:
+       no pro-*.list.chroot names it, and 0600-pro-edition.hook.chroot never touches it.
+       The only delivery is /usr/bin/dagric-ai, which at RUNTIME asks "Install Ollama
+       from https://ollama.com?" and curls their install script — and dagric-hub lists
+       that row in the UNCONDITIONAL block, sixteen lines above `if [ "$EDITION" = "pro"
+       ]`, so it is byte-identical on the free edition. This paragraph is what a visitor
+       reads next to the price, and calling a one-click downloader "installed, tuned and
+       working the first time you switch the computer on" is a refund conversation — the
+       comparison table below already prints One-click / One-click for the same feature
+       and would have contradicted it on the same page. The "Local, private AI" card
+       further down says "Ollama one-click", which is true, and stays. -->
   <p class="lead">The complete edition — creative studio, Windows apps and gaming, the developer
-  stack, local AI and all seven desktop layouts — installed, tuned and working the first time you
+  stack and all seven desktop layouts — installed, tuned and working the first time you
   switch the computer on. Nothing to assemble. One purchase. Yours forever.</p>
   <p class="lead" style="margin:-8px auto 26px;font-size:1.02rem;color:var(--muted)">The
   subscriptions it replaces run past <strong>$1,000 a year</strong> — again next year, and the year
@@ -132,7 +144,13 @@ table.cmp td:nth-child(2),table.cmp td:nth-child(3),table.cmp th:nth-child(2),ta
       <div class="row"><b>Adobe Premiere Pro</b><span>→ Kdenlive</span><span class="price">$263/yr → $0</span></div>
       <div class="row"><b>Adobe Lightroom</b><span>→ darktable</span><span class="price">$120/yr → $0</span></div>
       <div class="row"><b>Microsoft 365</b><span>→ LibreOffice (full suite)</span><span class="price">$100/yr → $0</span></div>
-      <div class="row"><b>ChatGPT Plus</b><span>→ Ollama, local &amp; private</span><span class="price">$240/yr → $0</span></div>
+      <!-- This row is $240 of the "$1,000+/year" headline, and it is the ONE row whose
+           replacement Pro does not preinstall — Ollama is fetched at runtime by
+           dagric-ai, on both editions. The "Honest math" note below says the $39 buys
+           things "preinstalled", so without this parenthesis the caveat that governs
+           every other row is false for this one. The remaining rows still total $1,045,
+           so "past $1,000 a year" survives the disclosure untouched. -->
+      <div class="row"><b>ChatGPT Plus</b><span>→ Ollama, local &amp; private (one-click install, both editions)</span><span class="price">$240/yr → $0</span></div>
       <div class="row"><b>1Password</b><span>→ KeePassXC</span><span class="price">$36/yr → $0</span></div>
       <div class="row total"><b>Dagric OS Pro</b><span>everything above, integrated &amp; tested</span><span class="price">$39, once</span></div>
     </div>
@@ -173,8 +191,21 @@ table.cmp td:nth-child(2),table.cmp td:nth-child(3),table.cmp th:nth-child(2),ta
 
   <h2 style="text-align:center">And the <span class="grad">working stack</span></h2>
   <div class="grid">
+    <!-- "working out of the box" was false for the two items in the list that are
+         daemons. 0600-pro-edition.hook.chroot:171 runs `systemctl disable docker.service
+         docker.socket` and :22 runs `systemctl disable ssh.service`, and the hook's
+         verifier at :316 exists specifically to PROVE they shipped that way ("pro: opt-in
+         policy verified"). The shipped manual agrees with the hook, not with this card —
+         app-docker.html: "Docker is installed on Pro but the daemon ships switched off".
+         So a buyer's first `docker run` answered "Cannot connect to the Docker daemon"
+         while the page had told them otherwise. Do not restore the short line: the
+         correction is the stronger pitch, because "nothing listens uninvited" is a promise
+         this product actually keeps. -->
     <div class="card"><h3>🧰 Developer-ready</h3><p>Docker + Compose, Podman, Distrobox,
-    build-essential, Git, Python, SSH — working out of the box.</p></div>
+    build-essential, Git, Python and SSH, all preinstalled. Podman runs rootless the moment
+    you open a terminal; the Docker daemon and the SSH server ship switched off until you
+    turn them on — one command each, spelled out in the built-in manual — so nothing listens
+    on your machine uninvited.</p></div>
     <div class="card"><h3>🤖 Local, private AI</h3><p>Ollama one-click: run capable language models
     on your hardware. Nothing leaves the machine.</p></div>
     <div class="card"><h3>📱 Phone + cloud</h3><p>KDE Connect pairing, Google Drive in Dolphin,

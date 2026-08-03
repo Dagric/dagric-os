@@ -55,6 +55,23 @@ lsblk -rpno NAME,FSTYPE,MOUNTPOINT 2>/dev/null | while IFS=' ' read -r dev fstyp
     case "$fstype" in
         BitLocker) echo "$dev" >> "${CAND}.bitlocker" ;;
         ntfs|ntfs3)
+            # A VOLUME SOMETHING ELSE ALREADY MOUNTED IS MOUNTED READ-WRITE.
+            # Clicking the Windows drive in Dolphin's Places is the normal thing
+            # a switcher does before running this, and udisks mounts it rw. The
+            # `-o ro` mount below only ever covered the UNmounted case, so this
+            # tool adopted that rw mount and still told the owner — on the
+            # "read-only; Windows is not modified" line in section 6, and again
+            # in the closing "it was only ever read" dialog — that Windows was
+            # never written to. Take it back to read-only before a byte is read.
+            # findmnt is queried by DEVICE, not by $mnt: lsblk -rp reports
+            # mountpoints with \xNN escapes, so an NTFS label with a space in it
+            # would not resolve as a path. If the volume is busy the unmount
+            # fails, $mnt stays set and the previous behaviour is kept — no
+            # regression there, just no improvement.
+            if [ -n "$mnt" ] && \
+               ! findmnt -no OPTIONS -S "$dev" 2>/dev/null | grep -q '\(^\|,\)ro\(,\|$\)'; then
+                udisksctl unmount -b "$dev" >/dev/null 2>&1 && mnt=""
+            fi
             if [ -z "$mnt" ]; then
                 # Mount read-only via udisks (polkit handles authorization).
                 if udisksctl mount -b "$dev" -o ro >/dev/null 2>&1; then
@@ -312,7 +329,19 @@ WANT_MARKS=no
 for c in $CHOICES; do [ "$c" = marks ] && WANT_MARKS=yes; done
 case "$WANT_MARKS" in yes)
     OUT="$HOME/Windows-bookmarks.html"
-    python3 - "$WINUSER_DIR" "$OUT" << 'PYEOF'
+    # STAGED, then moved into place — because the Python below opens its output
+    # with mode "w" and writes the NETSCAPE-Bookmark wrapper whether or not it
+    # found a single bookmark. Writing straight at $OUT meant a run that read
+    # nothing (the wrong Windows user picked from the menu above, a browser
+    # folder that could not be read, python3 dying part-way) TRUNCATED the good
+    # export an earlier run had made — and the [ -s "$OUT" ] test then saw the
+    # empty file's own 200-byte header and printed "Bookmarks saved to:" plus
+    # the Firefox import instructions over it. Three of this tool's own dialogs
+    # invite the owner to "run Migration again", so a second run is the normal
+    # path, not an edge case.
+    OUTNEW="$OUT.part"
+    rm -f "$OUTNEW"
+    BM=$(python3 - "$WINUSER_DIR" "$OUTNEW" << 'PYEOF'
 import json, sqlite3, sys, glob, html, os, shutil, tempfile
 prof, out = sys.argv[1], sys.argv[2]
 items = []   # (folder, title, url)
@@ -375,7 +404,22 @@ with open(out, "w", encoding="utf-8") as f:
     f.write("</DL><p>\n")
 print("BOOKMARKS=%d" % len(rows))
 PYEOF
-    if [ -s "$OUT" ]; then
+)
+    # The BOOKMARKS= line is printed only after the file is completely written,
+    # so its presence and its count are the one honest signal that the export
+    # finished with something in it. `[ -s "$OUT" ]` was not: the wrapper HTML
+    # above is written before the Python knows whether it found anything, so an
+    # empty export passed that test. A zero count, a missing line (python3 absent
+    # or dead part-way) or a move that fails all leave the previous export
+    # untouched and say nothing, rather than handing the owner import
+    # instructions for a file with no bookmarks in it.
+    BM=$(printf '%s\n' "$BM" | sed -n 's/^BOOKMARKS=//p')
+    SAVED=no
+    if [ "${BM:-0}" -gt 0 ] 2>/dev/null && [ -s "$OUTNEW" ] && mv -f "$OUTNEW" "$OUT"; then
+        SAVED=yes
+    fi
+    rm -f "$OUTNEW"
+    if [ "$SAVED" = yes ]; then
         echo
         # TRANSLATORS: "Bookmarks > Manage Bookmarks > Import and Backup >
         # Import Bookmarks from HTML" is a path through FIREFOX's own menus.

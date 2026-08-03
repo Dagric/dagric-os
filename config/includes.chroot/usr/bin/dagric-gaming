@@ -77,7 +77,22 @@ dg_say "$(eval_gettext 'Downloading: $URL')"
 #   * the pipeline reports tar's exit status, not curl's, so a failed download
 #     could still look like a success.
 #   * the "Installed to ..." line below printed unconditionally either way.
-TMP=$(mktemp) || exit 1
+# Staged on $DEST's OWN filesystem, not in /tmp. Two reasons, and both bite
+# exactly the hardware this product is sold for:
+#   * /tmp is a tmpfs on Debian 13, so the archive (~0.45 GB) and the tree it
+#     unpacks to (~1.4 GB) were held in RAM at the same time — the archive is not
+#     removed until after tar returns — about 1.9 GB against a cap of half the
+#     machine's memory. On a 4 GB 2012-2018 machine tar fails ENOSPC, and the
+#     rest of the session then runs with /tmp full.
+#   * a /tmp on a different filesystem makes the mv below a COPY, not a rename.
+#     A copy that dies half-way leaves a PARTIAL GE-Proton sitting in the folder
+#     Steam reads while the message says nothing was installed — precisely the
+#     failure the staging above exists to prevent, closed for tar and left open
+#     for the move.
+# Same filesystem makes it a rename: it either happens or it does not. The dot
+# prefix keeps a staging directory out of Steam's own compatibility-tool list in
+# the meantime.
+TMP=$(mktemp "$DEST/.dagric-dl.XXXXXX") || exit 1
 if ! curl -fL "$URL" -o "$TMP"; then
     rm -f "$TMP"
     dg_say "$(gettext "Download failed — nothing was installed. Check your connection and try again.")"
@@ -86,7 +101,7 @@ fi
 
 # Unpack into a staging directory first, so a truncated or corrupt archive never
 # reaches the folder Steam reads.
-STAGE=$(mktemp -d) || { rm -f "$TMP"; exit 1; }
+STAGE=$(mktemp -d "$DEST/.dagric-stage.XXXXXX") || { rm -f "$TMP"; exit 1; }
 if ! tar xzf "$TMP" -C "$STAGE"; then
     rm -rf "$TMP" "$STAGE"
     dg_say "$(gettext "The download was damaged and could not be unpacked — nothing was installed.")"

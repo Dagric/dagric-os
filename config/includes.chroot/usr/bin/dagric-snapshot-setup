@@ -14,7 +14,22 @@ fi
 
 # Snapper config for the root subvolume (idempotent).
 if ! snapper -c root list >/dev/null 2>&1; then
-    snapper -c root create-config / || { echo "snapper create-config failed"; exit 0; }
+    # EXIT 1, NOT EXIT 0. This script is ExecStart of
+    # dagric-snapshot-setup.service, whose ExecStartPost writes
+    # /var/lib/dagric/snapshot-setup-done — and ExecStartPost only runs when
+    # ExecStart SUCCEEDED. Exiting 0 here therefore latched the done-marker on
+    # a boot where no snapper config was ever created, and the unit's
+    # ConditionPathExists=!/var/lib/dagric/snapshot-setup-done then kept it
+    # from ever running again. One transient first-boot failure — a still
+    # settling btrfs root, a pre-existing /.snapshots, snapper's D-Bus service
+    # not up yet — permanently disabled the whole advertised recovery feature:
+    # no 80dagric-snapshot apt hook, no baseline snapshot, no GRUB submenu, and
+    # no way to self-heal. Failing lets the next boot try again, and leaves the
+    # unit visibly red instead of green.
+    #
+    # The ext4 branch above is the one case where exit 0 is correct: there is
+    # nothing to retry there, and the marker should be latched.
+    snapper -c root create-config / || { echo "snapper create-config failed" >&2; exit 1; }
 fi
 
 # Sensible desktop retention: no noisy hourly timeline, keep the last handful

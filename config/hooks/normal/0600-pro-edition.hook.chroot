@@ -173,9 +173,32 @@ systemctl disable docker.service docker.socket 2>/dev/null || true
 # Whether that actually took is checked at the end of this hook, together with
 # every other unit Pro intends to ship switched off.
 
-# Pro look: Papirus icons by default for new users
+# Pro look: Papirus icons by default for new users.
+#
+# Papirus-LIGHT, and the variant is the entire point of these lines. Upstream
+# ships three and they differ only in the colour of the panel/status icons:
+#   Papirus-Dark   for a dark panel and dark scheme  — all icons LIGHT
+#   Papirus        for a dark panel, light scheme    — panel icons LIGHT
+#   Papirus-Light  for a light panel and light scheme — all icons DARK
+#
+# This wrote Papirus-Dark. Nothing on either edition selects a dark scheme:
+# 0500-desktop-defaults keys the Breeze look-and-feel defaults to DagricLight,
+# a LIGHT scheme, so Plasma paints a light panel — and the first icons a Windows
+# switcher looks for, the tray's volume, network, battery, Bluetooth and
+# clipboard, were the pale-grey set drawn on top of it. Low contrast on the
+# edition somebody paid for, and the opposite of the 7:1 floor
+# 0530-accessibility.hook.chroot fails the build over.
+#
+# Plain "Papirus" is NOT the neutral choice it looks like — its panel icons are
+# the light ones too. If the shipped default scheme ever becomes dark, this line
+# has to move to Papirus-Dark with it.
+if [ ! -d /usr/share/icons/Papirus-Light ]; then
+    # Loud rather than silent: an icon theme that is not there does not fail,
+    # it falls back to hicolor and the Pro desktop quietly looks unbranded.
+    echo "WARNING: /usr/share/icons/Papirus-Light missing — Pro icon default will not apply." >&2
+fi
 if ! grep -q '^\[Icons\]' /etc/skel/.config/kdeglobals 2>/dev/null; then
-    printf '\n[Icons]\nTheme=Papirus-Dark\n' >> /etc/skel/.config/kdeglobals
+    printf '\n[Icons]\nTheme=Papirus-Light\n' >> /etc/skel/.config/kdeglobals
 fi
 
 # NOTE — the launcher entries used to be written here, and that was a bug.
@@ -191,10 +214,18 @@ fi
 #
 # Every one of those entries now lives in config/includes.chroot as a reviewable
 # file with its translations attached, dagric-gaming.desktop included. The two
-# that are genuinely Pro-only (dagric-usb-protect, dagric-vm) plus dagric-gaming
-# carry X-Dagric-Edition=pro and are deleted from free by 0510-app-names, which
-# runs before this hook — so the edition split is unchanged and there is nothing
-# left for this hook to write.
+# that are genuinely Pro-only (dagric-usb-protect, dagric-vm) carry
+# X-Dagric-Edition=pro and are deleted from free by 0510-app-names, which runs
+# before this hook — so there is nothing left for this hook to write.
+#
+# dagric-gaming.desktop carried that flag too, and that was a transcription of
+# an accident rather than a decision: this hook exits on free (line 9), so an
+# entry written HERE had always been Pro-only, and flagging the moved file kept
+# that side effect alive. Free's own manual page for the helper is marked
+# data-avail="free" and tells the owner to open launcher -> Gaming Setup, and
+# the Hub offers the row on both editions. The flag is gone and the entry now
+# ships on both; the reasoning is repeated in the .desktop file itself so it is
+# not "restored" by the next reader.
 
 # PhotoGIMP (Diolinux): familiar Photoshop-style layout for GIMP.
 # Best-effort download at build time; the build continues without it

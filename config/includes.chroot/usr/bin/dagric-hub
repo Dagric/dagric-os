@@ -24,6 +24,17 @@ LIVE=no
 # script early. As an argument to printf it can only ever be printed.
 CLOSE=$(gettext "Press Enter to close...")
 
+# The two lines the upgrade row prints around `dagric-upgrade --check`. They
+# were hardcoded English inside that row's quoted script text — the only
+# user-visible string in this file that did not go through gettext, so a German
+# owner picked a fully translated row and got an English-only terminal. They are
+# looked up HERE and handed to the sub-shell positionally for exactly the reason
+# given above: a translation must never be pasted into quoted script text.
+U_CHECK=$(gettext "Checking whether this machine can move to the next Dagric release.")
+# TRANSLATORS: "sudo dagric-upgrade" is a command typed verbatim — do not
+# translate it, and keep the two spaces before it.
+U_HOWTO=$(gettext "To perform the upgrade when you are ready, run:  sudo dagric-upgrade")
+
 # Build the menu: pairs of "tag" "label", grouped into sections. Rows whose
 # tag starts with "_" are section headers — picking one just reopens the Hub.
 # Pro appends its own sections below the free ones.
@@ -212,7 +223,7 @@ case "$CHOICE" in
     # machine could take the next Debian and what would stop it, without
     # changing anything — the actual upgrade is typed deliberately with sudo,
     # because a release upgrade is not a thing to start from a menu click.
-    upgrade)  run_term 'echo "Checking whether this machine can move to the next Dagric release."; echo; sudo /usr/bin/dagric-upgrade --check; echo; echo "To perform the upgrade when you are ready, run:  sudo dagric-upgrade"' ;;
+    upgrade)  konsole -e sh -c 'printf "%s\n\n" "$1"; sudo /usr/bin/dagric-upgrade --check; printf "\n%s\n" "$2"; echo; printf "%s" "$3"; read x' sh "$U_CHECK" "$U_HOWTO" "$CLOSE" & ;;
     # kcm_access is the one page that gathers the screen reader, the magnifier,
     # sticky/slow/bounce keys and the visible bell. It is reached this way
     # rather than through dagric-accessibility.desktop because that file is

@@ -447,16 +447,23 @@ The two genuinely Pro entries carry `X-Dagric-Edition=pro` and are **deleted** �
 not hidden — from free images by `0510-app-names.hook.chroot`, for the same
 reason the Pro looks and styles are: a flag the owner can edit out is not a gate.
 Deliberately given no *launcher* entry: `dagric-brand-launcher` and
-`dagric-driver-offer` (hidden helpers), `dagric-snapshot-setup` (a one-shot root
-task with nothing to open), and `dagric-gaming` (Proton-GE is an operation on an
-existing Steam install, and ProtonUp-Qt is the GUI for the same job and *is*
-surfaced). `dagric-gaming` does get a Hub row on both editions, since it only
-downloads a free Proton build. `dagric-hub` itself and `dagric-app-names` are
-the other two without one — the Hub has an entry, the regenerator is an apt
-hook. `dagric-guide` is a *wrapper*, not a new tool: `dagric-guide.desktop`'s
-`Exec=` used to hardcode the English `guide/index.html`, and a `.desktop` Exec
-is a fixed string, so once `guide/de/index.html` existed a German entry could
-only ever open English text.
+`dagric-driver-offer` (hidden helpers) and `dagric-snapshot-setup` (a one-shot
+root task with nothing to open). `dagric-gaming` is **not** one of them, though
+this paragraph used to say it was: `dagric-gaming.desktop` shipped all along and
+carried `X-Dagric-Edition=pro`, so Pro got a *Gaming Setup* entry this document
+said did not exist, and free — whose manual page for the helper is marked
+available and tells the owner to open *launcher → Gaming Setup* — got none. The
+flag is removed. The launcher entry and the Hub row now both ship on **both**
+editions, since it only downloads a free Proton build. `dagric-hub` itself and
+`dagric-app-names` are the other two without one — the Hub has an entry, the
+regenerator is an apt hook. `dagric-guide` is a *wrapper*, not a new tool:
+`dagric-guide.desktop`'s `Exec=` used to hardcode the English
+`guide/index.html`, and a `.desktop` Exec is a fixed string, so once
+`guide/de/index.html` existed a German entry could only ever open English text.
+Its `Name=` was a second half of the same bug and is fixed with it: it read
+*Welcome Guide*, the Hub's name for the welcome page, and now reads *User
+Guide*, matching the Hub row, the setup wizard's card and the document's own
+title in all six languages.
 
 **The Hub** (`dagric-hub`) now draws **31 rows on free, 34 on Pro**, in four
 sections plus Pro's fifth. Three of them are new: **Check this PC**,

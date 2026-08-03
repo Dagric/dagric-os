@@ -8,6 +8,35 @@
 # and points to Microsoft's own ISO download — Dagric never bundles Windows.
 . /usr/bin/dagric-i18n.sh
 
+# THE PRO GATE, which this file did not have.
+#
+# dagric-vm ships in dagric-tools to BOTH editions (stage-packages.sh copies
+# every usr/bin/dagric-*), and only its Hub row and its launcher entry are
+# gated. The manual and the guide print the command name on the page, so a free
+# owner can and does reach the script itself — and without this check it read
+# them the full Pro pitch, asked for their administrator password, and then ran
+# `usermod -aG libvirt,kvm`, which cannot succeed because neither group exists
+# without libvirt-daemon-system (pro-vm.list.chroot only). pkexec returned
+# non-zero and the owner was told "administrator access is required" — blaming
+# their password for a package that is not installed. That is the "free edition
+# reads as broken" failure with an auth prompt attached.
+#
+# dagric-usb-protect, the other Pro-only helper in the same package, has opened
+# with exactly this check all along; this is the same guard in the same place.
+#
+# Tested on the STACK, not on /etc/dagric-edition, for the same reason
+# dagric-usb-protect tests for the usbguard binary: the missing packages are
+# what actually stops this, and an edition marker would still say "buy Pro" on a
+# Pro machine whose VM packages were removed. virt-manager is the sentinel
+# because it lives in /usr/bin (always on PATH, unlike libvirtd in /usr/sbin)
+# and it is the app every instruction below tells the owner to open.
+if ! command -v virt-manager >/dev/null 2>&1; then
+    dg_say "$(gettext "Windows in a virtual machine is a Dagric Pro feature — the KVM/QEMU
+stack and Virtual Machine Manager are not installed on this edition.
+Nothing was changed.")"
+    exit 1
+fi
+
 # TRANSLATORS: 'libvirt' and 'kvm' are Linux group names typed verbatim —
 # never translate them. KVM, QEMU and "Virtual Machine Manager" are product
 # names; use the name the app shows in your language for the last one only if

@@ -274,20 +274,28 @@ D['dagric-manual'] = {
         "Ogni applicazione di questo computer spiegata — che cosa sostituisce su Windows e come si usa",
         "manuale;aiuto;guida;documentazione;applicazioni;assistenza;"),
 }
+# The user guide. THE NAMES BELOW ARE NOT FREE WORDING: they are the existing
+# msgid "User Guide" translations from po/*.po, the ones the setup wizard's last
+# screen already shows on its card. The entry used to be called "Welcome Guide"
+# (Willkommensanleitung / Guide de bienvenue / ...), which is the Hub's name for
+# a DIFFERENT document — the welcome page, run by dagric-welcome — so the two
+# collided in the launcher. Keep these in step with po/*.po, not with the
+# Keywords list below, which stays additive and keeps "welcome/willkommen/
+# bienvenue" searchable for anyone who learned the old name.
 D['dagric-guide'] = {
- 'de': ("Willkommensanleitung", "Ihre erste Woche mit Dagric",
+ 'de': ("Benutzeranleitung", "Ihre erste Woche mit Dagric",
         "Die kurze Lektüre: Aktualisierungen, Drucker, WLAN, Tastenkürzel und wie die Arbeitsfläche Ihre wird",
         "willkommen;anleitung;hilfe;erste schritte;erste woche;einführung;"),
- 'fr': ("Guide de bienvenue", "Votre première semaine avec Dagric",
+ 'fr': ("Guide de l'utilisateur", "Votre première semaine avec Dagric",
         "La lecture courte : mises à jour, imprimantes, Wi-Fi, raccourcis, et comment faire du bureau le vôtre",
         "bienvenue;guide;aide;premiers pas;première semaine;introduction;"),
- 'es': ("Guía de bienvenida", "Tu primera semana con Dagric",
+ 'es': ("Guía del usuario", "Tu primera semana con Dagric",
         "La lectura breve: actualizaciones, impresoras, wifi, atajos y cómo hacer tuyo el escritorio",
         "bienvenida;guía;ayuda;primeros pasos;primera semana;introducción;"),
- 'pt_BR': ("Guia de boas-vindas", "Sua primeira semana com o Dagric",
+ 'pt_BR': ("Guia do usuário", "Sua primeira semana com o Dagric",
         "A leitura curta: atualizações, impressoras, Wi-Fi, atalhos e como deixar a área de trabalho com a sua cara",
         "boas-vindas;guia;ajuda;primeiros passos;primeira semana;introdução;"),
- 'it': ("Guida di benvenuto", "La tua prima settimana con Dagric",
+ 'it': ("Guida utente", "La tua prima settimana con Dagric",
         "La lettura breve: aggiornamenti, stampanti, Wi-Fi, scorciatoie e come rendere tuo il desktop",
         "benvenuto;guida;aiuto;primi passi;prima settimana;introduzione;"),
 }

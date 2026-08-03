@@ -123,11 +123,17 @@ mkdir -p "$DST_DIR"
 # from a free image while it is being built, and that was enough for as long as
 # nothing could ever put them back. The update channel changes that: the four
 # dagric-* packages carry one file list for both editions, so an `apt upgrade`
-# of dagric-tools on a FREE machine unpacks dagric-usb-protect.desktop,
-# dagric-vm.desktop and dagric-gaming.desktop straight back into the menu — and
-# a free owner would then find three entries for tools their edition does not
-# have. That is the "free edition reads as BROKEN" failure, arriving through the
-# one channel designed to fix things.
+# of dagric-tools on a FREE machine unpacks dagric-usb-protect.desktop and
+# dagric-vm.desktop straight back into the menu — and a free owner would then
+# find two entries for tools their edition does not have. That is the "free
+# edition reads as BROKEN" failure, arriving through the one channel designed to
+# fix things.
+#
+# It is two, not three. dagric-gaming.desktop used to carry the flag as well and
+# no longer does: the helper runs on both editions, its Hub row is offered on
+# both, and the free manual page tells its owner to open it from the launcher —
+# so deleting that entry from free was itself the failure this gate exists to
+# prevent. Do not add it back; see the comment in the .desktop file.
 #
 # This script is already what /etc/apt/apt.conf.d/99dagric-app-names runs after
 # every successful dpkg operation, which makes it the one place the gate can be
@@ -141,6 +147,34 @@ if [ "$EDITION" != "pro" ]; then
     for _pro in $(grep -rlx 'X-Dagric-Edition=pro' "$SRC_DIR" 2>/dev/null); do
         rm -f "$_pro" "$DST_DIR/${_pro##*/}"
     done
+
+    # The Pro LAYOUTS and STYLES arrive by the same route and were not covered.
+    # build.sh (and docker/container-build.sh) delete every EDITION=pro drop-in
+    # under share/dagric/looks and share/dagric/styles from a free image, and
+    # state exactly why: "otherwise a free user could unlock the Pro layouts and
+    # styles by deleting one line of text". dagric-appearance's own gate is that
+    # one line — it reads the EDITION key and skips the entry — so the files
+    # must not be present at all.
+    #
+    # But dagric-tools carries ONE file list for both editions and packs the
+    # whole looks/ and styles/ trees (packages/stage-packages.sh, the
+    # "firstrun appearance manual guide welcome styles looks hwcheck boot"
+    # loop), so the first `apt upgrade` on a free machine unpacks all four Pro
+    # layouts, all three Pro styles and their gallery thumbs straight back —
+    # leaving nothing between a free owner and the Pro appearance set except the
+    # single flag the build scripts refused to rely on. Same failure as the
+    # launcher entries above, same channel, so: same delete, same moment.
+    #
+    # The thumbnail goes with the drop-in for the reason build.sh gives — an
+    # orphan thumb is dead weight, and a gallery listing it would advertise a
+    # style this edition can no longer apply. Only /usr/share is touched;
+    # /etc/dagric and the owner's ~/.local/share drop-ins are theirs.
+    for _pro in $(grep -rlx 'EDITION=pro' /usr/share/dagric/looks \
+        /usr/share/dagric/styles 2>/dev/null); do
+        _base=${_pro##*/}
+        rm -f "$_pro" "/usr/share/dagric/appearance/thumbs/${_base%.*}.png"
+    done
+    unset _base
 fi
 
 # ---------------------------------------------------------------------------

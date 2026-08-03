@@ -31,4 +31,21 @@ PAGE=$(dg_localised /usr/share/dagric/welcome index.html) || {
     dg_say "$(gettext "The Dagric welcome page is not installed.")" >&2
     exit 1
 }
-exec firefox "file://$PAGE"
+# NOT a bare `firefox`. Debian ships firefox-esr, whose binary is
+# /usr/bin/firefox-esr; there is no /usr/bin/firefox on this image. This line
+# therefore died as "firefox: not found", and on the Hub's `guide)` row it does
+# so after an `exec` — the Hub window disappears and nothing opens, which reads
+# as a crash. dagric-firstrun's last screen (`welcome) /usr/bin/dagric-welcome &`)
+# backgrounds it instead, so there the error went nowhere at all.
+#
+# Same chain and same order as dagric-manual and dagric-guide: x-www-browser
+# first, because it is Debian's alternatives link and an owner who switched
+# browsers should be obeyed; then Firefox under either name; xdg-open last, as a
+# resort rather than a first choice.
+for b in x-www-browser firefox firefox-esr xdg-open; do
+    if command -v "$b" >/dev/null 2>&1; then
+        exec "$b" "file://$PAGE"
+    fi
+done
+dg_say "$(eval_gettext 'No browser found. The page is at $PAGE')" >&2
+exit 1
