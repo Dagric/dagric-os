@@ -128,9 +128,29 @@ EOF
 
     # A leftover Debian string here is invisible until somebody boots the live
     # session in that language, which is exactly why it lasted this long.
-    if grep -qi 'debian' "$d"; then
-        echo "WARNING: $d still mentions Debian after rebranding:" >&2
-        grep -in 'debian' "$d" | sed 's/^/         /' >&2
+    #
+    # SCOPED TO THE KEYS AN OWNER READS, because unscoped it cried wolf on every
+    # single build. It matched two lines that must not change:
+    #
+    #     Exec=calamares-install-debian
+    #     Keywords=calamares;system;install;debian;installer
+    #
+    # Exec is the BINARY NAME — renaming it breaks the installer outright — and
+    # Keywords are search terms, where "debian" genuinely helps somebody who
+    # types what they think they installed. Neither is displayed as a label.
+    #
+    # So the warning fired on a correct file, forever, on a build that passed.
+    # That is not a cosmetic problem: a permanent warning is how a reader learns
+    # to skim the log, and the SAME green build carried a real one seven lines
+    # away — firewalld reporting that ssh was still allowed in every zone. The
+    # noise is what let it sit there. Narrow checks or no checks.
+    #
+    # Name/GenericName/Comment, with or without a [locale] suffix, are exactly
+    # the keys a person sees, which is what "rebranding" means here.
+    if grep -qiE '^(Name|GenericName|Comment)(\[[^]]*\])?=.*debian' "$d"; then
+        echo "WARNING: $d still shows Debian in a user-visible label:" >&2
+        grep -inE '^(Name|GenericName|Comment)(\[[^]]*\])?=.*debian' "$d" \
+            | sed 's/^/         /' >&2
     fi
 done
 

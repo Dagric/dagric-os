@@ -92,23 +92,51 @@ if ! command -v firewall-offline-cmd >/dev/null 2>&1; then
     echo "WARNING: firewall-offline-cmd not found — ssh was NOT closed in any" >&2
     echo "         firewalld zone. Any sshd the owner enables will be reachable." >&2
 else
+    # THIS IS NOT WORKING, AND THE FIRST GREEN BUILD AFTER THE CHECK WAS ADDED
+    # IS WHAT SAID SO. Every one of the seven zones below reported "STILL allows
+    # ssh after removal" in CI run 30780843410 — a build that SUCCEEDED. The
+    # check was added earlier this session; before that the removal ran with its
+    # output discarded and nothing ever confirmed it, so how long this has been
+    # inert is unknown.
+    #
+    # The removal's stderr was thrown away too, which is why the reason is not
+    # known yet. `2>&1 || true` on a command whose failure is the thing you are
+    # investigating destroys the only evidence. It is captured now and printed
+    # on the failing path, so the next build names the cause instead of leaving
+    # the next reader to guess at firewalld semantics.
+    #
+    # Deliberately still a warning rather than an exit. firewalld itself IS
+    # enabled and the default zone still drops unsolicited inbound traffic, so
+    # the image is not open — what is missing is the belt-and-braces step that
+    # keeps a Pro owner's later `systemctl enable ssh` from being reachable on a
+    # network they marked "home". Failing the build would block every unrelated
+    # fix behind a defect that cannot be diagnosed without a build.
+    #
+    # DO NOT delete the warning to quieten the log. The whole reason this was
+    # found is that a green build was read line by line; a warning removed
+    # instead of fixed is how it stays broken for another five rounds.
     for _zone in public home internal work external dmz nm-shared; do
-        firewall-offline-cmd --zone="$_zone" --remove-service=ssh >/dev/null 2>&1 || true
+        _err=$(firewall-offline-cmd --zone="$_zone" --remove-service=ssh 2>&1) || true
 
         # --query-service exits 0 when the service is STILL allowed, so a zero
-        # here is the bad case. Deliberately a loud warning rather than an exit:
-        # a broken firewall rule must not silently ship, but it also must not
-        # destroy a twenty-minute build at the very end when all else succeeded.
+        # here is the bad case.
         if firewall-offline-cmd --zone="$_zone" --query-service=ssh >/dev/null 2>&1; then
             echo "WARNING: firewalld's $_zone zone STILL allows ssh after removal." >&2
             echo "         Any sshd the owner later enables would be reachable from" >&2
             echo "         every network they join on that zone." >&2
+            if [ -n "$_err" ]; then
+                echo "         firewall-offline-cmd said: $_err" >&2
+            else
+                echo "         firewall-offline-cmd printed nothing and still did not" >&2
+                echo "         take effect — the write is landing somewhere --query-service" >&2
+                echo "         does not read." >&2
+            fi
         else
             echo "hardening: ssh closed in the $_zone zone"
         fi
     done
 fi
-unset _zone
+unset _zone _err
 
 # EVERY PRO MACHINE WAS SHIPPING THE SAME SSH HOST KEY.
 #
