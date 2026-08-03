@@ -25,8 +25,27 @@ FROM debian:trixie
 # error had never once run there, and it printed a WARNING every time, which is
 # how a reader learns to ignore warnings. (ca-certificates was already present
 # for it, with nothing to use it.)
+#
+# python3-minimal is the third of exactly the same fault, found by reading a
+# GREEN build log rather than a failing one. container-build.sh runs
+# `python3 tools/i18n-wizard.py --check`, which compares the setup wizard's
+# English sentences against the names another file asks for them by — the two
+# live apart and nothing else compares them. debian:trixie ships no python3, so
+# every CI and release build printed
+#
+#     i18n: python3 not installed — skipping the .desktop drift check
+#
+# and moved on. A wizard whose strings had drifted would have shipped with the
+# log reporting it fully translated, which is the same false-success class this
+# whole tree keeps being audited for — the check existed, was correct, and had
+# never once run here.
+#
+# -minimal rather than the python3 metapackage: i18n-wizard.py and
+# publish-guide.py use only the standard library, and the full package drags in
+# ~40 MB of build-host dependencies for nothing.
 RUN apt-get update && apt-get install -y --no-install-recommends \
         live-build \
+        python3-minimal \
         ca-certificates \
         curl \
         rsync \
