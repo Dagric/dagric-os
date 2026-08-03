@@ -52,7 +52,20 @@ h2.sec{margin-top:56px}
     tested, and quiet — no setup scavenger hunt, no settings to un-break.</p>
   </div>
 
-  <div class="strip"><picture><source type="image/webp" srcset="/assets/shot-welcome.webp"><img src="/assets/shot-welcome.png" alt="The Dagric OS welcome screen and Hub" width="1280" height="800" loading="lazy"></picture></div>
+  <!-- Was shot-welcome.png with alt "The Dagric OS welcome screen and Hub". The
+       alt was half wrong: that file is a FIREFOX WINDOW showing the welcome
+       HTML page — browser chrome, a file:// URL in the address bar — and the
+       Hub was not in it at all. On a features page, the strongest single frame
+       is the Hub itself, because the claim this page keeps making is "every
+       owner tool gathered in one window" and this is that window.
+
+       Real capture from the free ISO booted in the QEMU harness, not a mockup.
+       Worth knowing it also proves two things the site says: Steam and
+       "Windows apps — Bottles" appear on the FREE edition, which is what the
+       Pro page was corrected to stop claiming as exclusive; and there is no
+       release-upgrade row, because the Hub correctly hides it in a live
+       session. -->
+  <div class="strip"><picture><source type="image/webp" srcset="/assets/shot-hub.webp"><img src="/assets/shot-hub.png" alt="The Dagric Hub window, listing owner tools grouped as Get started, Appearance, System, and Add more apps" width="1280" height="800" loading="lazy" decoding="async"></picture></div>
 
   <h2 class="sec">Privacy that isn't a setting</h2>
   <div class="feat">
