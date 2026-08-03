@@ -83,8 +83,23 @@ set -- \
     _system  "$H_SYSTEM" \
     drivers  "      $(gettext "NVIDIA driver")" \
     security "      $(gettext "Security Checkup")" \
-    upgrade  "      $(gettext "Check for a new Dagric version")" \
-    access   "      $(gettext "Accessibility — screen reader, magnifier, contrast")" \
+    access   "      $(gettext "Accessibility — screen reader, magnifier, contrast")"
+
+# THE UPGRADE ROW IS FOR INSTALLED MACHINES ONLY.
+#
+# On the live USB there is nothing to upgrade: the session runs from the stick
+# and is gone at power-off. Offering it there is a button that can only
+# disappoint, and its pre-flight would fail for reasons that read as breakage on
+# a system that is working perfectly. Same /run/live/medium test the Hub already
+# uses to decide the hardware-check wording above.
+#
+# Inserted before the Learn section rather than appended, so it stays inside the
+# System group where an owner would look for it.
+if [ "$LIVE" != yes ]; then
+    set -- "$@" upgrade "      $(gettext "Check for a new Dagric version")"
+fi
+
+set -- "$@" \
     _learn   "$H_LEARN" \
     userguide "      $(gettext "User guide — your first week")" \
     manual   "      $(gettext "App manual — every program explained")" \

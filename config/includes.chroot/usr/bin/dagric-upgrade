@@ -121,15 +121,26 @@ elif printf '%s\n' "$REL" | grep -qE '^Suite:[[:space:]]*stable[[:space:]]*$'; t
     RELVER=$(printf '%s\n' "$REL" | sed -n 's/^Version:[[:space:]]*//p' | head -1)
     say "  ok  $TO_NAME is released${RELVER:+ (Debian $RELVER)}"
 else
+    # NOT A FAILURE, AND IT MUST NOT LOOK LIKE ONE.
+    #
+    # For most of this release's life the honest answer to "is there a new
+    # version?" is simply "not yet". Routing that through the pre-flight failure
+    # path ended the run with "STOPPED: pre-flight checks did not pass", which
+    # is the sentence an owner reads as "something on my computer is broken" —
+    # and it would have been the ONLY thing the Hub row ever said for the two
+    # years before Debian 14 ships. Nothing is wrong, so nothing should sound
+    # wrong. Exit clean and say what is actually true.
     ACTUAL=$(printf '%s\n' "$REL" | sed -n 's/^Suite:[[:space:]]*//p' | head -1)
-    say "  ! $TO_NAME is not released yet — the '$TO_SUITE' suite is currently"
-    say "    '${ACTUAL:-unknown}', not 'stable'."
     say ""
-    say "    Nothing is wrong with your machine. $FROM_NAME is still supported,"
-    say "    and this tool will start working by itself once $TO_NAME ships."
-    say "    Upgrading to a testing suite would put you on software that breaks"
-    say "    on purpose and has no security team behind it."
-    fail=1
+    say "You are on the newest version of Dagric OS."
+    say ""
+    say "  $FROM_NAME is current and fully supported. $TO_NAME has not been"
+    say "  released yet${ACTUAL:+ (Debian is still building it as '$ACTUAL')}."
+    say ""
+    say "  There is nothing to do and nothing is wrong. Check back after"
+    say "  $TO_NAME is released — this tool will offer the upgrade by itself"
+    say "  once it is safe to take."
+    exit 0
 fi
 
 # 2. dpkg must be in a clean state. Upgrading on top of a half-configured

@@ -281,7 +281,11 @@ main{max-width:none;margin:0;padding:0}
       <tbody>
       <tr><td>Debloated Debian 13 + KDE Plasma, zero telemetry</td><td class="y">✓</td><td class="y">✓</td></tr>
       <tr><td>Hardened security, firewall, silent updates, no forced reboots</td><td class="y">✓</td><td class="y">✓</td></tr>
-      <tr><td>Snapshot recovery (roll back from the boot menu)</td><td class="y">✓</td><td class="y">✓</td></tr>
+      <!-- Both editions genuinely have this, so the ticks are right for an
+           EDITION comparison. What they hid is that it is btrfs-only: it is the
+           installer's default, but someone who picks ext4 gets no rollback, and
+           finding that out at the moment you need it is the worst time. -->
+      <tr><td>Snapshot recovery (roll back from the boot menu)<br><small style="color:var(--muted)">on the default btrfs install</small></td><td class="y">✓</td><td class="y">✓</td></tr>
       <tr><td>Dagric Looks layouts · Styles</td><td>3 · 4</td><td class="y">7 · 7</td></tr>
       <tr><td>Office suite</td><td>Writer · Calc · Impress · Draw</td><td class="y">Full LibreOffice + CJK</td></tr>
       <tr><td>Creative, video &amp; audio studio</td><td class="n">—</td><td class="y">✓</td></tr>
