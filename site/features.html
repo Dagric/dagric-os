@@ -67,6 +67,31 @@ h2.sec{margin-top:56px}
        session. -->
   <div class="strip"><picture><source type="image/webp" srcset="/assets/shot-hub.webp"><img src="/assets/shot-hub.png" alt="The Dagric Hub window, listing owner tools grouped as Get started, Appearance, System, and Add more apps" width="1280" height="800" loading="lazy" decoding="async"></picture></div>
 
+  <!-- The promo video was already in site/assets and DEPLOYED, at 9 MB, linked
+       from nowhere. Every visitor's bandwidth paid to host it and no visitor
+       could ever see it. Now it is on the page it belongs on.
+
+       preload="none" is the load-bearing attribute: without it a 9 MB file
+       starts fetching on page load for everyone, which on the connections this
+       audience has would make the features page the slowest thing on the site.
+       With it, nothing downloads until somebody presses play, and the poster —
+       a real frame from the video, not a separate render — carries the visual
+       weight for free.
+
+       Re-rendered from the actual VM captures with Remotion, so the launcher
+       and Hub in it are the same real frames as the stills above and below.
+       No autoplay, no loop, no muted-autoplay pattern: this is a 53-second
+       trailer someone chooses to watch, not decoration that starts talking. -->
+  <div class="strip" style="max-width:900px;margin-left:auto;margin-right:auto">
+    <video controls preload="none" playsinline width="1280" height="720"
+           poster="/assets/promo-poster.png" style="width:100%;display:block"
+           aria-label="A 53-second tour of Dagric OS, recorded from a running system">
+      <source src="/assets/dagric-promo.mp4" type="video/mp4">
+      Your browser can't play this video. It is a 53-second tour of the desktop —
+      everything in it is also described in the text on this page.
+    </video>
+  </div>
+
   <h2 class="sec">Privacy that isn't a setting</h2>
   <div class="feat">
     <!-- Same correction as the FAQ: "nothing to turn off" was overreach. No data

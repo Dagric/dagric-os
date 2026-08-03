@@ -401,8 +401,15 @@ export const DagricPromo: React.FC = () => {
       <Sequence from={250} durationInFrames={150}>
         <Shot src="dagric-hero-desktop.png" title="Your desktop, calm and yours" sub="The Dagric look — no ads, no noise, no telemetry" />
       </Sequence>
+      {/* The launcher, not the welcome page. "Feels like home" is a claim about
+          the START MENU, and dagric-welcome-live2.png is a Firefox window
+          showing an HTML page — it illustrated the words with the one thing
+          that is not what the words mean. This capture is the launcher open:
+          categories down the left, favourites, a search box, and Sleep /
+          Restart / Shut Down along the bottom. A Windows switcher recognises
+          that frame instantly, which is the entire point of the line. */}
       <Sequence from={400} durationInFrames={150}>
-        <Shot src="dagric-welcome-live2.png" title="Feels like home" sub="A warm welcome, an offline guide, familiar layout" />
+        <Shot src="dagric-launcher.png" title="Feels like home" sub="Start menu, search, shut down — where you expect them" />
       </Sequence>
       <Sequence from={550} durationInFrames={460}>
         <Looks />
@@ -410,8 +417,16 @@ export const DagricPromo: React.FC = () => {
       <Sequence from={1010} durationInFrames={150}>
         <Shot src="dagric-uefi-installed-desktop.png" title="Installed and yours" sub="KDE Plasma desktop — clean, fast, private" />
       </Sequence>
+      {/* The Hub replaces the installer-finished dialog here. "Modern-PC ready"
+          was a true claim illustrated by a completion dialog, which is the
+          least interesting frame in the whole capture set — nobody chooses an
+          OS because its installer finished. The Hub is the thing no other
+          desktop Linux ships: every owner tool in one window, grouped Get
+          started / Appearance / System / Add more apps. It is also the single
+          best answer to "what do I do now?", which is the question this part of
+          the video is at. */}
       <Sequence from={1160} durationInFrames={150}>
-        <Shot src="dagric-uefi-install-done.png" title="Modern-PC ready" sub="UEFI + Secure Boot install, verified end to end" />
+        <Shot src="dagric-hub.png" title="Everything in one window" sub="Drivers, printers, security, layouts, guides — one place" />
       </Sequence>
       <Sequence from={1310} durationInFrames={160}>
         <Editions />
