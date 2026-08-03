@@ -1,0 +1,145 @@
+#!/bin/bash
+# SPDX-FileCopyrightText: 2026 DGR Operations <repo@dagric.com>
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+# Dagric OS — bootloader configuration during a Calamares install.
+#
+# THIS REPLACES calamares-settings-debian's OWN COPY OF THIS FILE, AND IT IS
+# REPLACED BECAUSE THE ORIGINAL MAKES EVERY OFFLINE INSTALL FAIL.
+#
+# ---------------------------------------------------------------------------
+# WHAT WENT WRONG
+# ---------------------------------------------------------------------------
+# Observed on a UEFI erase-disk install of dagric-os-1.0-amd64.iso in the test/
+# harness. Partitioning succeeded completely — GPT written, 300 MiB FAT32 ESP,
+# 19.71 GiB btrfs root labelled "Dagric" — and then the install died with:
+#
+#     Installation Failed
+#     Command /usr/share/calamares/helpers/calamares-bootloader-config
+#     finished with exit code 2.
+#     Output: Running bootloader-config...
+#             * Installing grub-efi (uefi)...
+#             Reading package lists...  Building dependency tree...
+#
+# Debian's version of this script runs, inside the target:
+#
+#     apt-get -y install grub-efi        (UEFI)
+#     apt-get -y install grub-pc         (BIOS)
+#     apt-get -y install cryptsetup-initramfs cryptsetup keyutils   (encrypted)
+#
+# and this ISO has NO PACKAGE ARCHIVE ON IT. Verified by mounting the shipped
+# image: there is no pool/ and no dists/ — only EFI, boot, efi.img, isolinux and
+# live. calamares-sources-media adds /run/live/medium as an apt source, and that
+# source is therefore EMPTY. So those apt calls can only ever succeed over the
+# INTERNET, and a machine installing without a working network — which is the
+# normal case for someone who has just wiped Windows and has no Wi-Fi driver
+# configured yet — fails at the last step, after the disk has already been
+# repartitioned. That is the worst possible place to fail.
+#
+# ---------------------------------------------------------------------------
+# WHY SKIPPING THE apt CALLS IS CORRECT, NOT A WORKAROUND
+# ---------------------------------------------------------------------------
+# Every package those three commands ask for is ALREADY on the image, and the
+# target filesystem is a copy of the image. Read out of the shipped
+# live/filesystem.packages (1619 packages):
+#
+#     grub-common, grub2-common          grub-install and update-grub
+#     grub-efi-amd64-bin / -signed        the x86_64-efi target
+#     grub-pc-bin                         the i386-pc target
+#     shim-signed, shim-helpers-amd64-signed, efibootmgr   Secure Boot
+#     cryptsetup, cryptsetup-bin, cryptsetup-initramfs, keyutils   LUKS
+#
+# config/package-lists/installer.list.chroot puts them there deliberately, and
+# its comment explains why the metapackages are NOT used: grub-pc and
+# grub-efi-amd64 conflict with each other, so the underlying pieces are
+# installed instead and both firmware paths stay available on one image. Asking
+# apt for the `grub-efi` metapackage therefore requests the one thing the tree
+# deliberately does not have, to obtain capabilities it already has.
+#
+# So: check for what is actually needed, and only reach for the network if
+# something is genuinely absent. On a normal Dagric install nothing is, and the
+# install completes with no network at all.
+#
+# DO NOT "fix" this instead by adding grub-efi to installer.list.chroot. That
+# is the change installer.list.chroot warns against — the metapackage conflicts
+# with grub-pc-bin and would cost the BIOS install path to buy the UEFI one.
+# ---------------------------------------------------------------------------
+
+CHROOT=$(mount | grep proc | grep calamares | awk '{print $3}' | sed -e "s#/proc##g")
+
+if [ -z "$CHROOT" ] || [ ! -d "$CHROOT" ]; then
+    echo "ERROR: could not locate the Calamares target root." >&2
+    exit 1
+fi
+
+# have <package> — is it already installed in the TARGET?
+# dpkg-query exits non-zero for unknown packages, and prints the status for
+# known ones; "install ok installed" is the only state that counts.
+have() {
+    chroot "$CHROOT" dpkg-query -W -f='${Status}' "$1" 2>/dev/null \
+        | grep -q "install ok installed"
+}
+
+# ensure <package>... — install only what is missing, and say what happened.
+# A failure here is only fatal if the package really was absent, because that
+# is the only case where the install cannot proceed.
+ensure() {
+    _missing=""
+    for _p in "$@"; do
+        have "$_p" || _missing="$_missing $_p"
+    done
+    if [ -z "$_missing" ]; then
+        echo "   already present:$(printf ' %s' "$@")"
+        return 0
+    fi
+    echo "   missing:$_missing — trying apt (this needs a network connection)"
+    if DEBIAN_FRONTEND=noninteractive chroot "$CHROOT" apt-get -y install $_missing; then
+        return 0
+    fi
+    echo "ERROR: could not install:$_missing" >&2
+    echo "       The install medium carries no package archive, so this step" >&2
+    echo "       needs the internet. Connect this machine to a network and run" >&2
+    echo "       the installer again." >&2
+    return 1
+}
+
+# Full-disk encryption: set the initramfs permissions snippet, then make sure
+# the LUKS tooling is there. The initramfs is regenerated later in the install,
+# so only the snippet is written here.
+if [ "$(mount | grep "$CHROOT" " " | cut -c -16)" = "/dev/mapper/luks" ]; then
+    echo "Configuring full-disk encryption..."
+    echo "UMASK=0077" > "$CHROOT"/etc/initramfs-tools/conf.d/initramfs-permissions
+    ensure cryptsetup cryptsetup-initramfs keyutils || exit 1
+fi
+
+echo "Running bootloader-config..."
+
+if [ -d /sys/firmware/efi/efivars ]; then
+    echo " * UEFI firmware detected — checking the EFI bootloader..."
+    # grub2-common carries grub-install and update-grub; the -bin package
+    # carries the x86_64-efi target modules; efibootmgr writes the NVRAM entry.
+    # shim-signed and grub-efi-amd64-signed are what make Secure Boot work and
+    # are checked separately so a missing one is named rather than guessed at.
+    ensure grub2-common grub-efi-amd64-bin efibootmgr || exit 1
+    if have shim-signed && have grub-efi-amd64-signed; then
+        echo "   Secure Boot: signed shim and GRUB present"
+    else
+        echo "   NOTE: shim-signed or grub-efi-amd64-signed is absent — this" \
+             "install will not boot with Secure Boot enabled."
+    fi
+else
+    echo " * BIOS firmware detected — checking the legacy bootloader..."
+    ensure grub2-common grub-pc-bin || exit 1
+fi
+
+# Re-enable os-prober so an existing Windows install is offered at boot. This is
+# the dual-boot promise the homepage and the FAQ both make.
+sed -i "s/#GRUB_DISABLE_OS_PROBER=false/# OS_PROBER re-enabled by Dagric Calamares installation:\nGRUB_DISABLE_OS_PROBER=false/g" \
+    "$CHROOT"/etc/default/grub
+
+if ! chroot "$CHROOT" /usr/sbin/update-grub; then
+    echo "ERROR: update-grub failed in the target system." >&2
+    exit 1
+fi
+
+echo "bootloader-config: done"

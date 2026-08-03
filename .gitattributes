@@ -100,6 +100,23 @@ config/includes.chroot/usr/lib/libreoffice/** text eol=lf
 # refusing to start, and not one line anywhere saying why. One rule is cheaper
 # than depending on a whitespace-stripping detail staying true.
 config/includes.chroot/usr/lib/systemd/** text eol=lf
+# The Calamares helper scripts, and this one is not hypothetical either — it was
+# caught by running `git check-attr` on a file the moment it was written, which
+# reported text:auto and eol:unspecified. None of the rules above reach
+# usr/share/calamares.
+#
+# The file is Dagric's replacement for calamares-bootloader-config, a
+# #!/bin/bash script Calamares executes DURING AN INSTALL. A fresh clone with
+# core.autocrlf=true — which is what this machine is set to — would write it
+# CRLF, the shebang would become "/bin/bash^M", and the install would die with
+# "External command finished with errors" at the bootloader step. That is
+# character-for-character the same dialog as the bug the replacement exists to
+# fix, so it would have been diagnosed twice and blamed on the wrong thing,
+# after the disk had already been repartitioned.
+#
+# Same class as the *.hook.binary rule further up. Matching the DIRECTORY so any
+# future helper is covered without anyone having to remember this.
+config/includes.chroot/usr/share/calamares/** text eol=lf
 # The gettext SOURCE catalogues. Read by msgmerge/msgfmt on a build host that
 # may be Windows; CRLF in a .po is tolerated but produces a pointless diff on
 # every round trip. (The compiled .mo files are binary — see the bottom.)

@@ -1,0 +1,78 @@
+#!/bin/sh
+# SPDX-FileCopyrightText: 2026 DGR Operations <repo@dagric.com>
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Dagric OS — make the replacement Calamares bootloader helper runnable, and
+# prove it is the one that will actually run.
+#
+# WHY THIS HOOK EXISTS AT ALL. config/includes.chroot ships a replacement for
+# /usr/share/calamares/helpers/calamares-bootloader-config, because Debian's
+# version apt-installs grub-efi into the target and this ISO carries no package
+# archive — so every offline UEFI install died after the disk had already been
+# repartitioned. The long note in the replacement has the full story.
+#
+# But the replacement is worth nothing if it cannot be executed. This tree is
+# developed on Windows, so git records includes.chroot files as 100644 and a
+# Linux CI checkout hands live-build a script with no executable bit.
+# 0995-file-modes only ever REMOVES the bit — nothing adds it — which is exactly
+# why 0500, 0520 and 0530 each chmod their own Exec= targets. Calamares runs
+# this helper through a shell process; a non-executable file fails with
+# "Permission denied" and surfaces as the SAME "External command finished with
+# errors" dialog as the bug it was written to fix. That failure would look
+# identical to the original and would be diagnosed twice.
+#
+# The assertions below are deliberately fatal. An ISO whose installer cannot
+# install a bootloader is not a releasable ISO, and this is the last moment a
+# build can say so.
+set -e
+
+HELPER=/usr/share/calamares/helpers/calamares-bootloader-config
+
+if [ ! -f "$HELPER" ]; then
+    echo "ERROR: $HELPER is missing. It ships from config/includes.chroot," >&2
+    echo "       which live-build copies in before hooks run, so this means" >&2
+    echo "       the file was lost or the path changed." >&2
+    exit 1
+fi
+
+chmod 0755 "$HELPER"
+
+# Prove it is OURS and not the packaged one. calamares-settings-debian may be
+# upgraded, and dpkg would put its own copy back over the top — silently
+# restoring the offline-install failure. A build must not ship that quietly.
+if ! grep -q 'Dagric OS — bootloader configuration' "$HELPER"; then
+    echo "ERROR: $HELPER is not the Dagric replacement — the packaged version" >&2
+    echo "       has been restored over it. That version apt-installs grub-efi" >&2
+    echo "       into the target, and this ISO has no package archive, so every" >&2
+    echo "       offline install would fail after repartitioning the disk." >&2
+    exit 1
+fi
+
+# Syntax-check it. It is bash (the original is too, and the [ ] tests below use
+# bash string slicing), so check with bash rather than sh.
+if ! bash -n "$HELPER"; then
+    echo "ERROR: $HELPER has a syntax error and would fail at install time." >&2
+    exit 1
+fi
+
+# The packages the helper expects to find already installed. If any of these
+# ever stops shipping, the helper falls back to apt and the offline install
+# breaks again — so the build should say so now rather than a customer finding
+# out with a repartitioned disk.
+_missing=""
+for _p in grub2-common grub-efi-amd64-bin grub-pc-bin efibootmgr \
+          shim-signed grub-efi-amd64-signed cryptsetup cryptsetup-initramfs; do
+    dpkg-query -W -f='${Status}' "$_p" 2>/dev/null \
+        | grep -q "install ok installed" || _missing="$_missing $_p"
+done
+if [ -n "$_missing" ]; then
+    echo "ERROR: the installer needs these on the image and they are absent:" >&2
+    echo "      $_missing" >&2
+    echo "       Without them calamares-bootloader-config falls back to apt," >&2
+    echo "       and the ISO carries no package archive, so an offline install" >&2
+    echo "       fails after the disk is already repartitioned." >&2
+    exit 1
+fi
+
+echo "calamares-helper: Dagric bootloader helper installed, executable, and all"
+echo "                  8 bootloader packages present — offline install is possible"
+unset _missing _p
