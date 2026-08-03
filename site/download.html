@@ -143,6 +143,42 @@
     </picture>
   </div>
 
+  <!-- The still above answers "what does it look like"; this answers the
+       question that actually stops the download, which is "what happens to my
+       computer, and at which point can I no longer undo it". Every frame is a
+       real capture from a real install in the QEMU harness — the hardware
+       check, the live desktop, all seven installer screens, the first-run
+       wizard and the finished desktop, in order. Nothing is a mockup, which is
+       the only reason it is worth watching.
+
+       Same markup as the tour on /features and for the same reasons: controls,
+       preload="none" so a 5.8 MB file is never fetched by somebody who came
+       here to click Download, playsinline so iOS does not take over the
+       screen, and no autoplay of any kind. width/height are the real 1920x1080
+       so the box is reserved before the poster loads and the page does not
+       jump — site.css's img,video rule supplies height:auto, which is what
+       stops those attributes rendering it 720px tall on a phone.
+
+       The poster is a JPEG, not the PNG the still renderer produced. A poster
+       IS fetched even under preload="none" — it is the only part of the video
+       everyone downloads, including everyone who never presses play — and the
+       PNG was 322 KB against 82 KB here for a photographic frame nobody can
+       tell apart at 770px. <video poster> takes no <source> fallback, so this
+       has to be one universally decodable file rather than a WebP with an
+       alternative. -->
+  <div class="strip" style="max-width:880px;margin:26px auto 0">
+    <video controls preload="none" playsinline width="1920" height="1080"
+           poster="/assets/walkthrough-poster.jpg" style="width:100%;display:block"
+           aria-label="A 47-second walkthrough of installing Dagric OS, recorded from a real install">
+      <source src="/assets/dagric-install-walkthrough.mp4" type="video/mp4">
+      Your browser can't play this video. It is a 47-second walkthrough of the
+      install — every step in it is described in the text on this page and in
+      the <a href="/getting-started">step-by-step guide</a>.
+    </video>
+  </div>
+  <p class="refund" style="text-align:center">47 seconds, no narration &mdash; every screen is a real
+  capture, not a mockup.</p>
+
   <h2>System requirements</h2>
   <ul>
     <li><strong>Processor:</strong> any 64-bit Intel or AMD CPU (roughly 2012 or newer)</li>

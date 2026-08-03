@@ -10,37 +10,22 @@ import {
   useVideoConfig,
 } from "remotion";
 
-const BG = "#0b1118";
-const INK = "#e6edf3";
-const MUTED = "#8595a6";
-const ACCENT = "#4fb3e8";
-const ACCENT2 = "#7be0c8";
-const SANS = "system-ui, 'Segoe UI', sans-serif";
-
-// The D monogram, drawn inline so the video needs no external logo asset.
-const Logo: React.FC<{ size: number }> = ({ size }) => (
-  <svg width={size} height={size} viewBox="0 0 256 256">
-    <defs>
-      <radialGradient id="lbg" cx="30%" cy="20%" r="120%">
-        <stop offset="0%" stopColor="#16212e" />
-        <stop offset="100%" stopColor="#080d13" />
-      </radialGradient>
-      <linearGradient id="lac" x1="0" y1="0" x2="1" y2="1">
-        <stop offset="0%" stopColor={ACCENT} />
-        <stop offset="100%" stopColor={ACCENT2} />
-      </linearGradient>
-    </defs>
-    <rect width="256" height="256" rx="52" fill="url(#lbg)" />
-    <path
-      fill="url(#lac)"
-      fillRule="evenodd"
-      d="M 84 64 h 44 a 64 64 0 0 1 0 128 h -44 z M 108 88 v 80 h 18 a 40 40 0 0 0 0 -80 z"
-    />
-    <rect x="70" y="204" width="116" height="8" rx="4" fill={ACCENT} opacity="0.55" />
-  </svg>
-);
+// Colours, type, the monogram and the wordmark now live in theme.tsx, shared
+// with the other two compositions. They used to be three private copies with
+// three slightly different palettes — #0b1118 here against the website's
+// #0a111c, MUTED two shades darker than --muted — which is how a brand drifts:
+// nobody decides to change it, the second file just never gets updated.
+import { BG, INK, MUTED, ACCENT, ACCENT2, SANS, Logo } from "./theme";
 
 // A screenshot shot with a slow Ken Burns push and a caption card.
+//
+// NOT theme.tsx's Shot, deliberately. This one pushes 1.08 -> 1.16 and that
+// scale is load-bearing here: the captures in this video are 1280x800 inside a
+// 16:9 frame, and the wider push is what stops the pillarboxing reading as a
+// mistake. theme.tsx's version pushes 1.04 -> 1.12 because the walkthrough
+// frames its captures in a bordered card where a big push would clip. Same
+// idea, two tunings; merging them would need a prop that only ever takes two
+// values, one per caller.
 const Shot: React.FC<{ src: string; title: string; sub: string }> = ({
   src,
   title,

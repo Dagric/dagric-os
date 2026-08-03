@@ -3,9 +3,13 @@
   "version": "1.0.0",
   "description": "Dagric OS promo video (Remotion)",
   "scripts": {
+    "studio": "remotion studio",
     "render": "remotion render DagricPromo out/dagric-promo.mp4",
+    "render:walkthrough": "remotion render InstallWalkthrough out/dagric-install-walkthrough.mp4",
+    "render:short": "remotion render DagricShort out/dagric-short.mp4",
+    "render:all": "npm run render && npm run render:walkthrough && npm run render:short",
     "still": "remotion still DagricPromo out/poster.png --frame=90",
-    "studio": "remotion studio"
+    "still:walkthrough": "remotion still InstallWalkthrough out/walkthrough-poster.png --frame=620"
   },
   "dependencies": {
     "@remotion/cli": "4.0.286",
