@@ -97,6 +97,31 @@
     twice. And Pro refunds in full for 14 days, no questions — so finding out costs nothing.</p>
   </div>
 
+  <!-- A real capture of the installer, taken from this ISO booted in UEFI mode
+       in the QEMU harness. It belongs on THIS page because the unspoken worry
+       between "download" and "install" is "how hard is this going to be, and
+       will I break my computer" — and the honest answer is a seven-step wizard
+       that names every step up front.
+
+       It also happens to be proof the rebranding actually works on the shipped
+       image rather than only in config/: the window is "Dagric OS Installer",
+       the heading is "Welcome to the Dagric OS 1.0 (Foundation) installer", the
+       links are Dagric Support and Release notes, and the word Debian does not
+       appear anywhere in the frame. That was previously only verifiable by
+       reading 0500-desktop-defaults.hook.chroot and believing it. -->
+  <h2>What installing looks like</h2>
+  <p>Seven steps, and it tells you all of them before it starts. Nothing is written to your
+  disk until the <strong>Summary</strong> step, where you confirm — you can back out of every
+  screen before it.</p>
+  <div class="strip" style="max-width:880px;margin-left:auto;margin-right:auto">
+    <picture>
+      <source type="image/webp" srcset="/assets/shot-installer.webp">
+      <img src="/assets/shot-installer.png"
+           alt="The Dagric OS installer, showing its seven steps: Welcome, Location, Keyboard, Partitions, Users, Summary, Install and Finish"
+           width="1280" height="800" loading="lazy" decoding="async">
+    </picture>
+  </div>
+
   <h2>System requirements</h2>
   <ul>
     <li><strong>Processor:</strong> any 64-bit Intel or AMD CPU (roughly 2012 or newer)</li>
