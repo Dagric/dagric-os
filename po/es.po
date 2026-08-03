@@ -2266,6 +2266,7 @@ msgid ""
 "The layout could not be applied — the desktop did not answer. If the panels "
 "are missing now, log out and back in, then try again."
 msgstr ""
+"No se pudo aplicar la disposición — el escritorio no respondió. Si ahora faltan los paneles, cierra la sesión y vuelve a entrar, y luego inténtalo de nuevo."
 
 #: config/includes.chroot/usr/bin/dagric-looks:139
 #, sh-format
@@ -2838,6 +2839,13 @@ msgid ""
 "\n"
 "Continue anyway?"
 msgstr ""
+"Estás ejecutando la prueba en vivo desde la memoria USB.\n"
+"\n"
+"Todo lo que instales ahora queda en la memoria de este ordenador y no en un disco:\n"
+"desaparece al apagar y, en un equipo con poca RAM, puede volver inestable la\n"
+"sesión de prueba. Instalar Dagric primero evita ambas cosas.\n"
+"\n"
+"¿Continuar de todos modos?"
 
 #: config/includes.chroot/usr/bin/dagric-setup:115
 msgid "Flathub enabled — browse apps in Discover."
@@ -2887,13 +2895,11 @@ msgid "Accent color set to $HEX"
 msgstr "Color de acento establecido en $HEX"
 
 #: config/includes.chroot/usr/bin/dagric-style:174
-#, fuzzy
 msgid ""
 "The standard Dagric style is missing, so nothing was changed. Reinstall the "
 "dagric-branding package to restore it."
 msgstr ""
-"No hay ningún estilo instalado. Reinstala el paquete dagric-branding para "
-"recuperarlos."
+"Falta el estilo estándar de Dagric, así que no se cambió nada. Reinstala el paquete dagric-branding para recuperarlo."
 
 #: config/includes.chroot/usr/bin/dagric-style:178
 msgid "Reset to the standard Dagric look"
@@ -2922,6 +2928,11 @@ msgid ""
 "would\n"
 "be blocked. Install Dagric first, then turn this on from the Dagric Hub."
 msgstr ""
+"La protección USB solo se puede configurar en un sistema Dagric instalado.\n"
+"\n"
+"Esta es la prueba en vivo desde la memoria USB: la lista de dispositivos permitidos\n"
+"quedaría en memoria y se perdería al apagar, y cualquier unidad USB que conectes antes\n"
+"de eso quedaría bloqueada. Instala Dagric primero y luego actívala desde el Dagric Hub."
 
 #: config/includes.chroot/usr/bin/dagric-usb-protect:50
 msgid ""

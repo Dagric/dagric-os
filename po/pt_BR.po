@@ -2264,6 +2264,7 @@ msgid ""
 "The layout could not be applied — the desktop did not answer. If the panels "
 "are missing now, log out and back in, then try again."
 msgstr ""
+"Não foi possível aplicar o layout — a área de trabalho não respondeu. Se os painéis estiverem faltando agora, saia e entre novamente e depois tente de novo."
 
 #: config/includes.chroot/usr/bin/dagric-looks:139
 #, sh-format
@@ -2828,6 +2829,13 @@ msgid ""
 "\n"
 "Continue anyway?"
 msgstr ""
+"Você está no teste ao vivo, rodando a partir do pendrive.\n"
+"\n"
+"Tudo o que for instalado agora fica na memória deste computador, não em disco:\n"
+"some ao desligar, e num computador com pouca RAM isso pode deixar a sessão\n"
+"de teste instável. Instalar o Dagric primeiro evita as duas coisas.\n"
+"\n"
+"Continuar mesmo assim?"
 
 #: config/includes.chroot/usr/bin/dagric-setup:115
 msgid "Flathub enabled — browse apps in Discover."
@@ -2877,13 +2885,11 @@ msgid "Accent color set to $HEX"
 msgstr "Cor de destaque definida como $HEX"
 
 #: config/includes.chroot/usr/bin/dagric-style:174
-#, fuzzy
 msgid ""
 "The standard Dagric style is missing, so nothing was changed. Reinstall the "
 "dagric-branding package to restore it."
 msgstr ""
-"Nenhum estilo está instalado. Reinstale o pacote dagric-branding para "
-"recuperá-los."
+"O estilo padrão do Dagric está faltando, então nada foi alterado. Reinstale o pacote dagric-branding para recuperá-lo."
 
 #: config/includes.chroot/usr/bin/dagric-style:178
 msgid "Reset to the standard Dagric look"
@@ -2912,6 +2918,11 @@ msgid ""
 "would\n"
 "be blocked. Install Dagric first, then turn this on from the Dagric Hub."
 msgstr ""
+"A proteção USB só pode ser configurada num sistema Dagric instalado.\n"
+"\n"
+"Este é o teste ao vivo rodando no pendrive: a lista de dispositivos permitidos\n"
+"ficaria na memória e sumiria ao desligar, e qualquer pendrive conectado até lá\n"
+"seria bloqueado. Instale o Dagric primeiro e ligue isto pelo Dagric Hub."
 
 #: config/includes.chroot/usr/bin/dagric-usb-protect:50
 msgid ""

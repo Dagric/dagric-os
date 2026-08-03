@@ -2279,6 +2279,7 @@ msgid ""
 "The layout could not be applied — the desktop did not answer. If the panels "
 "are missing now, log out and back in, then try again."
 msgstr ""
+"La disposition n'a pas pu être appliquée — le bureau n'a pas répondu. Si les panneaux ont disparu, déconnectez-vous et reconnectez-vous, puis réessayez."
 
 #: config/includes.chroot/usr/bin/dagric-looks:139
 #, sh-format
@@ -2856,6 +2857,13 @@ msgid ""
 "\n"
 "Continue anyway?"
 msgstr ""
+"Vous utilisez l'essai live depuis la clé USB.\n"
+"\n"
+"Tout ce qui est installé maintenant reste en mémoire, pas sur un disque :\n"
+"cela disparaît à l'extinction et, sur une machine qui a peu de RAM, cela peut\n"
+"rendre la session d'essai instable. Installer d'abord Dagric évite les deux.\n"
+"\n"
+"Continuer quand même ?"
 
 #: config/includes.chroot/usr/bin/dagric-setup:115
 msgid "Flathub enabled — browse apps in Discover."
@@ -2905,13 +2913,11 @@ msgid "Accent color set to $HEX"
 msgstr "Couleur d'accentuation réglée sur $HEX"
 
 #: config/includes.chroot/usr/bin/dagric-style:174
-#, fuzzy
 msgid ""
 "The standard Dagric style is missing, so nothing was changed. Reinstall the "
 "dagric-branding package to restore it."
 msgstr ""
-"Aucun style n'est installé. Réinstallez le paquet dagric-branding pour les "
-"restaurer."
+"Le style Dagric standard est absent, rien n'a donc été modifié. Réinstallez le paquet dagric-branding pour le restaurer."
 
 #: config/includes.chroot/usr/bin/dagric-style:178
 msgid "Reset to the standard Dagric look"
@@ -2940,6 +2946,11 @@ msgid ""
 "would\n"
 "be blocked. Install Dagric first, then turn this on from the Dagric Hub."
 msgstr ""
+"La protection USB ne peut être configurée que sur un système Dagric installé.\n"
+"\n"
+"Ceci est l'essai live lancé depuis la clé USB : la liste d'autorisation serait\n"
+"gardée en mémoire et perdue à l'extinction, et toute clé USB branchée d'ici là\n"
+"serait bloquée. Installez d'abord Dagric, puis activez-la depuis le Dagric Hub."
 
 #: config/includes.chroot/usr/bin/dagric-usb-protect:50
 msgid ""

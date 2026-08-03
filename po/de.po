@@ -2291,6 +2291,7 @@ msgid ""
 "The layout could not be applied — the desktop did not answer. If the panels "
 "are missing now, log out and back in, then try again."
 msgstr ""
+"Das Layout konnte nicht angewendet werden — die Arbeitsfläche hat nicht geantwortet. Wenn jetzt die Leisten fehlen, melden Sie sich ab und wieder an, dann versuchen Sie es erneut."
 
 #: config/includes.chroot/usr/bin/dagric-looks:139
 #, sh-format
@@ -2880,6 +2881,13 @@ msgid ""
 "\n"
 "Continue anyway?"
 msgstr ""
+"Sie nutzen den Live-Test vom USB-Stick.\n"
+"\n"
+"Alles, was Sie jetzt installieren, liegt im Arbeitsspeicher dieses Rechners statt\n"
+"auf einer Festplatte: Es verschwindet beim Herunterfahren und kann bei wenig RAM den\n"
+"Live-Test instabil machen. Installieren Sie Dagric zuerst, dann entfällt beides.\n"
+"\n"
+"Trotzdem fortfahren?"
 
 #: config/includes.chroot/usr/bin/dagric-setup:115
 msgid "Flathub enabled — browse apps in Discover."
@@ -2929,13 +2937,11 @@ msgid "Accent color set to $HEX"
 msgstr "Akzentfarbe auf $HEX gesetzt"
 
 #: config/includes.chroot/usr/bin/dagric-style:174
-#, fuzzy
 msgid ""
 "The standard Dagric style is missing, so nothing was changed. Reinstall the "
 "dagric-branding package to restore it."
 msgstr ""
-"Es sind keine Stile installiert. Installieren Sie das Paket dagric-branding "
-"erneut, um sie wiederherzustellen."
+"Der Standardstil von Dagric fehlt, daher wurde nichts geändert. Installieren Sie das Paket dagric-branding erneut, um ihn wiederherzustellen."
 
 #: config/includes.chroot/usr/bin/dagric-style:178
 msgid "Reset to the standard Dagric look"
@@ -2964,6 +2970,11 @@ msgid ""
 "would\n"
 "be blocked. Install Dagric first, then turn this on from the Dagric Hub."
 msgstr ""
+"Der USB-Schutz lässt sich nur auf einem installierten Dagric-System einrichten.\n"
+"\n"
+"Das ist der Live-Test vom USB-Stick: Die Freigabeliste läge im Arbeitsspeicher und wäre\n"
+"beim Herunterfahren verloren, und jedes USB-Laufwerk, das Sie bis dahin anstecken, wäre\n"
+"blockiert. Installieren Sie Dagric zuerst, dann schalten Sie ihn im Dagric Hub ein."
 
 #: config/includes.chroot/usr/bin/dagric-usb-protect:50
 msgid ""
