@@ -48,9 +48,43 @@ nav{position:sticky;top:0;z-index:50;background:rgba(10,17,28,.85);
 .nav-links a:hover{color:var(--text);text-decoration:none}
 .nav-links a.cta{color:#fff;background:var(--grad-fill);padding:8px 18px;border-radius:var(--r-pill)}
 .nav-links a.cta:hover{color:#fff}
+/* Measured on a 375x812 phone against the live site: the sticky bar was 143px,
+   18% of the viewport, gone permanently on every scroll — brand on row one,
+   five links on row two, the Download pill alone on row three. And the links
+   were 25px tall, with "Pro" only 23px wide, well under the 44-48px both Apple
+   and Google ask for. Small targets in a bar that is already eating a fifth of
+   the screen is the worst combination.
+
+   NOT replaced with a hamburger, deliberately, because the comment at the top
+   of this block is right: links that wrap are always reachable, and a menu
+   hidden behind a control is worse for the audience this site is written for.
+   Kept visible, made smaller in the places that cost nothing and BIGGER in the
+   place that matters.
+
+   The trick is that padding grows the tap target without growing the row: the
+   negative vertical margin pulls the visual position back, so the hit area
+   becomes 44px while the bar itself gets SHORTER, not taller. The height comes
+   off the container's own padding instead.
+
+   The Download pill stays inside .nav-links and stays on the link row. An
+   earlier version of this block claimed it moved up beside the brand — it
+   cannot, because .cta is a CHILD of .nav-links, so `order` only reorders it
+   within that row. Moving it would take an HTML change across sixteen pages.
+   Recorded because a comment describing behaviour the code does not have is
+   exactly the defect this project keeps finding.
+
+   This is NOT a conformance fix. site/accessibility.html states WCAG 2.1, and
+   Target Size (Minimum) is a 2.2 criterion, so nothing here was failing the
+   published claim. It is a usability fix worth doing on its own terms — but if
+   that page is ever moved to WCAG 2.2 or EN 301 549 v4, this block is what
+   keeps 2.5.8 satisfied, so do not shrink it back. */
 @media(max-width:640px){
-  .nav-in{justify-content:center}
-  .nav-links{margin:0 auto;justify-content:center;gap:6px 16px;font-size:.9rem}
+  .nav-in{justify-content:center;padding:7px 16px;gap:2px 12px}
+  .nav-links{margin:0 auto;justify-content:center;gap:0 6px;font-size:.9rem}
+  .nav-links a{padding:11px 9px;margin:-11px 0;display:inline-block}
+  /* The pill already has a 41px target; it only needs the row-gap back so it
+     does not collide with the links above it once they carry padding. */
+  .nav-links a.cta{padding:10px 16px;margin:4px 0 0}
 }
 
 /* ── buttons ── */
