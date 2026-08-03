@@ -110,16 +110,42 @@ you to enroll it — you'll finish that at the next reboot.")"
                         | grep -oE '\bnvidia-([a-z]+-)?[0-9]*x*x*-?driver\b|\bnvidia-driver\b' \
                         | head -1)
             fi
-            # Fall back to the current branch only when detection is unavailable
-            # or says nothing — never silently, the log line is the record.
+            # NO SILENT FALLBACK TO THE CURRENT BRANCH. This used to default to
+            # plain `nvidia-driver` whenever detection was unavailable or
+            # inconclusive, and that is the most damaging thing it could do.
+            #
+            # Installing nvidia-driver BLACKLISTS nouveau. On a card the current
+            # branch dropped — Kepler and older, which is precisely the
+            # 2012-2014 hardware this OS exists to rescue — the proprietary
+            # module then refuses to bind and the open-source driver that was
+            # working has been disabled underneath it. The result is a black
+            # screen on a machine that displayed a desktop five minutes ago,
+            # reached by a helper the owner ran to IMPROVE their graphics.
+            #
+            # Not installing anything leaves nouveau working. A machine that
+            # still boots is always the better failure.
             if [ -z "$NVPKG" ]; then
-                NVPKG="nvidia-driver"
-                echo "nvidia-detect unavailable or inconclusive; using $NVPKG" >&2
-            else
-                echo "nvidia-detect recommends: $NVPKG" >&2
-            fi
+                dg_say "$(gettext "Could not work out which NVIDIA driver this card needs.
 
-            apt-get install -y linux-headers-amd64 "$NVPKG" firmware-misc-nonfree
+Nothing has been installed, and your screen keeps working on the open-source
+driver it is using now. Installing the wrong branch would disable that driver
+and could leave you with a black screen, so this stops instead of guessing.
+
+Check your connection and try again — or report the card at
+https://dagric.com/support and we will tell you which driver it takes.")"
+                exit 1
+            fi
+            echo "nvidia-detect recommends: $NVPKG" >&2
+
+            # A wrong or unavailable package name must not abort the script
+            # under set -e with raw apt output as the only explanation.
+            if ! apt-get install -y linux-headers-amd64 "$NVPKG" firmware-misc-nonfree; then
+                dg_say "$(gettext "The driver did not install.
+
+Nothing was changed, and your screen keeps working on the open-source driver.
+This is usually a connection problem — try again when you are back online.")"
+                exit 1
+            fi
 
             # Say so if the module did not actually get built, rather than
             # letting the reboot be the thing that finds out.

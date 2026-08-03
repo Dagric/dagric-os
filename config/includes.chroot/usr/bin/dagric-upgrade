@@ -220,31 +220,84 @@ if [ "$DRY" = yes ]; then
 fi
 
 # ---------------------------------------------------------------- consent
+#
+# THE CONSENT SCREEN MUST DESCRIBE THIS MACHINE, NOT THE HAPPY PATH.
+#
+# It used to promise "A snapshot is taken before anything changes" to everyone,
+# unconditionally — including ext4 installs, where check 5 has already found
+# that no snapshot is possible. The owner then typed UPGRADE on the strength of
+# a guarantee of reversibility that did not apply to them, the snapshot block
+# below was skipped in silence, and every failure path afterwards told them to
+# pick a boot-menu snapshot that had never been taken. A false assurance of
+# reversibility attached to an irreversible whole-userland replacement is the
+# worst thing this file could have done, and the header at the top of it
+# describes the behaviour that was intended: refuse rather than proceed blind.
 cat <<EOF
 
 This will move the machine from $FROM_NAME to $TO_NAME. It downloads
 everything first, then installs. Expect it to take a while and to need a
 reboot at the end.
 
+EOF
+
+if [ "$CAN_SNAPSHOT" = yes ]; then
+    cat <<'EOF'
 A snapshot is taken before anything changes, so a bad outcome is recoverable
 from the boot menu.
 
 EOF
-printf 'Type UPGRADE to continue: '
-read -r ans
-[ "$ans" = "UPGRADE" ] || { say "Nothing changed."; exit 0; }
+    printf 'Type UPGRADE to continue: '
+    read -r ans
+    [ "$ans" = "UPGRADE" ] || { say "Nothing changed."; exit 0; }
+else
+    # A different word on purpose. Typing UPGRADE here would be the same gesture
+    # as the safe path, and this is not the same decision.
+    cat <<'EOF'
+THIS MACHINE HAS NO ROLLBACK.
+
+Snapshots need a btrfs root, and this install does not have one. If the upgrade
+goes wrong there is no way to put the machine back the way it is now — not from
+the boot menu, not with this tool. Recovering would mean reinstalling and
+restoring your files from a backup you made yourself.
+
+Back up anything you cannot lose BEFORE continuing.
+
+EOF
+    printf 'Type NO-ROLLBACK to continue anyway, or press Enter to stop: '
+    read -r ans
+    [ "$ans" = "NO-ROLLBACK" ] || { say "Nothing changed. That was the safe answer."; exit 0; }
+fi
 
 # ---------------------------------------------------------------- snapshot
 if [ "$CAN_SNAPSHOT" = yes ]; then
     say ""
     say "Taking a rollback snapshot..."
+    # NO --cleanup-algorithm, deliberately. Tagging this "number" enters it into
+    # the NUMBER_LIMIT budget that dagric-snapshot-setup sets (4-10), so the one
+    # snapshot an owner might need weeks later — after a release upgrade quietly
+    # broke something — is eligible for automatic deletion by the next few apt
+    # runs. The first-boot baseline is left untagged for exactly this reason and
+    # says so; a pre-upgrade rollback point deserves the same treatment.
     if snapper -c root create -d "before upgrade to $TO_NAME" \
-                              -t single --cleanup-algorithm number >/dev/null 2>&1; then
+                              -t single >/dev/null 2>&1; then
         say "  snapshot taken — it is in the boot menu under Dagric snapshots"
+        say "  (kept permanently; delete it yourself once you are happy)"
     else
         die "could not take a snapshot, and this tool will not upgrade without one.
     Back up your files and upgrade by hand if you accept the risk."
     fi
+fi
+
+# Every recovery message below is built from this, so none of them can offer a
+# snapshot to a machine that never took one. The old text said "choose a Dagric
+# snapshot from the boot menu" unconditionally — advice that is actively harmful
+# on ext4, because it sends a frightened owner hunting for a menu entry that does
+# not exist instead of telling them what will actually help.
+if [ "$CAN_SNAPSHOT" = yes ]; then
+    RECOVER="    Reboot and choose a Dagric snapshot from the boot menu to go back."
+else
+    RECOVER="    This machine has no snapshots, so there is no automatic way back.
+    Your files are untouched by the upgrade itself."
 fi
 
 # ---------------------------------------------------------------- sources
@@ -270,9 +323,33 @@ say "  sources now point at $TO_SUITE"
 say ""
 say "Downloading everything before changing anything..."
 say "(this is the slow part; nothing is installed yet, and it is safe to stop here)"
-apt-get update
+# BOTH of these are guarded, and the restore is a command rather than a hint.
+#
+# `apt-get update` was bare. Under `set -e` a failed update — a dropped
+# connection, an unsigned or expired Release, one 404 index — killed the script
+# on that line, so the `|| die` on the NEXT line never ran and the owner saw raw
+# apt errors and nothing else. Sources had already been rewritten by then, so
+# the machine sat with /etc/apt pointing at the new suite while still running
+# the old one. Discover and apt then offer the entire next-release package set
+# as ordinary "updates", and the owner's next routine click performs a partial
+# release upgrade with none of the staging, snapshotting or DKMS rebuilding
+# this tool exists to provide. That is a worse state than never having started.
+#
+# "restore them from $BAK" was also not an instruction a non-technical owner can
+# act on — it names a directory and leaves them to work out that BOTH
+# sources.list and the whole sources.list.d directory have to go back.
+RESTORE_HINT="Put your old package sources back with this one command:
+
+    sudo cp -a $BAK/sources.list /etc/apt/ && sudo rm -rf /etc/apt/sources.list.d && sudo cp -a $BAK/sources.list.d /etc/apt/ && sudo apt-get update
+
+Your machine is still $FROM_NAME and still works."
+
+apt-get update || die "could not read the new package lists — nothing was installed.
+
+$RESTORE_HINT"
 apt-get -y --download-only full-upgrade || die "download failed — nothing was installed.
-    Your sources have been changed; restore them from $BAK if you stop here."
+
+$RESTORE_HINT"
 say "  download complete"
 
 # ---------------------------------------------------------------- install
@@ -282,12 +359,46 @@ DEBIAN_FRONTEND=noninteractive \
   apt-get -y -o Dpkg::Options::=--force-confdef \
               -o Dpkg::Options::=--force-confold full-upgrade \
   || die "the upgrade did not finish cleanly.
-    Reboot and choose a Dagric snapshot from the boot menu to go back,
-    or run:  sudo dpkg --configure -a  &&  sudo apt-get -f install"
+$RECOVER
+    Or try:  sudo dpkg --configure -a  &&  sudo apt-get -f install"
 
 apt-get -y --purge autoremove || true
 
 # ---------------------------------------------------------------- rebuild
+# PUT THE PRODUCT'S IDENTITY BACK. base-files OWNS /usr/lib/os-release.
+#
+# 0100-identity.hook.chroot writes Dagric's branding into that file at build
+# time, but it is a plain packaged file rather than a conffile — so dpkg
+# replaces it during the release upgrade WITHOUT prompting, and says nothing.
+# The machine comes back up calling itself "Debian GNU/Linux", with the KDE
+# crash handler, About This System, and every "report a bug" link pointing at
+# Debian instead of dagric.com, and the logo gone. The owner paid for Dagric and
+# an upgrade would quietly hand them stock Debian.
+#
+# Rewritten here from the same fields the build hook uses, with DEBIAN_VERSION
+# following the release we just moved to. Keep this block and
+# 0100-identity.hook.chroot in step: if one gains a field, so does the other.
+say ""
+say "Restoring Dagric branding (the upgrade replaces it with Debian's)..."
+NEWDEB=$(sed -n 's/^VERSION_ID="\([0-9]*\)".*/\1/p' /usr/lib/os-release 2>/dev/null | head -1)
+cat > /usr/lib/os-release <<EOF
+NAME="Dagric OS"
+PRETTY_NAME="Dagric OS 1.0 (Foundation)"
+ID=dagric
+ID_LIKE=debian
+VERSION="1.0 (Foundation)"
+VERSION_ID="1.0"
+VERSION_CODENAME=foundation
+DEBIAN_VERSION="${NEWDEB:-14} (${TO_SUITE})"
+HOME_URL="https://dagric.com"
+SUPPORT_URL="https://dagric.com/support"
+BUG_REPORT_URL="https://dagric.com/bugs"
+LOGO=dagric-logo
+EOF
+ln -sf ../usr/lib/os-release /etc/os-release
+printf 'Dagric OS 1.0 \\n \\l\n\n' > /etc/issue 2>/dev/null || true
+say "  done"
+
 # The two things that decide whether the machine boots and shows a picture.
 say ""
 say "Rebuilding kernel modules and the boot image..."
@@ -311,11 +422,23 @@ if [ -n "$DKMS_BAD" ]; then
     say ""
     say "If that is the NVIDIA driver, the screen may come up on the open-source"
     say "driver after reboot, or not at all. Re-run  sudo dagric-drivers  once"
-    say "you are back on the desktop. If the screen stays black, reboot and pick"
-    say "a Dagric snapshot from the boot menu — the machine as it was is still there."
+    say "you are back on the desktop."
+    if [ "$CAN_SNAPSHOT" = yes ]; then
+        say "If the screen stays black, reboot and pick a Dagric snapshot from the"
+        say "boot menu — the machine as it was is still there."
+    else
+        say "If the screen stays black, boot the previous kernel from the GRUB"
+        say "Advanced options menu, which still has the old modules."
+    fi
 else
     say "Upgrade complete. Reboot when ready:  sudo reboot"
 fi
 say ""
-say "If anything is wrong after the reboot, the snapshot taken before this"
-say "upgrade is in the boot menu under Dagric snapshots."
+if [ "$CAN_SNAPSHOT" = yes ]; then
+    say "If anything is wrong after the reboot, the snapshot taken before this"
+    say "upgrade is in the boot menu under Dagric snapshots."
+else
+    say "This machine had no snapshots, so there is no automatic way back. If"
+    say "something is wrong, the previous kernel is still in the GRUB Advanced"
+    say "options menu, and support is at https://dagric.com/support."
+fi
