@@ -51,7 +51,11 @@ fi
 # KDE Connect needs its ports open (firewalld ships a service preset). Bind it
 # to the HOME zone, not public: 1714-1764 is a phone-pairing surface that has no
 # business being reachable on café/airport Wi-Fi. Pairing works once the owner
-# marks the network as trusted (dagric-setup offers this; the guide explains it).
+# sets the connection's zone to home. dagric-setup does NOT offer this — its
+# checklist is the NVIDIA driver, HP printers and Flathub and nothing else (see
+# /usr/bin/dagric-setup) — so guide/index.html and manual/app-kdeconnect.html
+# are the only places that tell an owner to do it. This line used to credit the
+# wizard with a step it never had.
 firewall-offline-cmd --zone=home --add-service=kdeconnect 2>/dev/null || \
     echo "WARNING: could not preopen KDE Connect ports"
 
@@ -293,6 +297,12 @@ rm -rf "$PG_TMP"
 # every other unit here — checking the obvious path would have meant this loop
 # silently never looked at usbguard at all, which is the exact failure it exists
 # to catch. libvirtd-ro, libvirtd-admin and virtlogd.service were simply absent.
+# libvirt-guests.service was NOT absent: the disable above names it and
+# out/pro-release-build.log:14088 shows the postinst creating its
+# multi-user.target.wants symlink, yet it was missing from this loop. The list
+# was matched against the log, but not against all of it — so the line that
+# certifies "nothing is listening until you say so" was printing success for
+# libvirt after checking three of the four libvirt units this hook turns off.
 #
 # A check written from an assumption about the system is worth nothing; the
 # postinsts name their own paths and that is the source used.
@@ -308,6 +318,7 @@ for _u in multi-user.target.wants/docker.service \
           multi-user.target.wants/ssh.service \
           sockets.target.wants/ssh.socket \
           multi-user.target.wants/libvirtd.service \
+          multi-user.target.wants/libvirt-guests.service \
           sockets.target.wants/libvirtd.socket \
           sockets.target.wants/libvirtd-ro.socket \
           sockets.target.wants/libvirtd-admin.socket \

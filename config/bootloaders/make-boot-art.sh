@@ -26,7 +26,18 @@ for t in rsvg-convert magick grub-mkfont; do
     command -v "$t" >/dev/null 2>&1 || { echo "missing: $t" >&2; exit 1; }
 done
 
-mkdir -p "$THEME/fonts" "$OUT/isolinux"
+# "f", not "fonts", and the one-letter name is load-bearing rather than terse.
+# On an installed machine nothing writes explicit loadfont lines the way
+# 0950-boot-branding does for the ISO: grub-mkconfig's 00_header auto-loads a
+# theme's fonts with exactly two non-recursive globs and no others,
+# "$themedir"/*.pf2 and "$themedir"/f/*.pf2 — the theme root, and a directory
+# literally named f, which is the name upstream's starfield theme established.
+# A fonts/ subdirectory matched neither, so every face built below was shipped
+# and never loaded, theme.txt's names matched nothing, and the installed menu
+# fell back to gfxterm's 16px unicode.pf2 while the USB it was installed from
+# rendered correctly. Renaming this directory is what fixes that; if it ever
+# moves back, move the loadfont lines in 0950-boot-branding.hook.binary with it.
+mkdir -p "$THEME/f" "$OUT/isolinux"
 
 # GRUB's PNG decoder is narrower than ImageMagick's writer and it fails SILENTLY
 # — a 16-bit or sub-byte-palette PNG draws as rainbow moire or as nothing at
@@ -126,7 +137,7 @@ mk9 "$T/pbfg.png" pbfg 10 60
 # whichever face loaded last, which is why nothing looked obviously broken.)
 # Verify the strings after any change to this line:
 #   for f in body sel small; do
-#     dd if=$THEME/fonts/$f.pf2 bs=1 skip=16 count=48 2>/dev/null | tr -d '\0'; echo
+#     dd if=$THEME/f/$f.pf2 bs=1 skip=16 count=48 2>/dev/null | tr -d '\0'; echo
 #   done
 #
 # Ranged to Latin-1 plus the punctuation a menu actually uses. The full DejaVu
@@ -135,9 +146,9 @@ mk9 "$T/pbfg.png" pbfg 10 60
 # unicode.pf2 is already loaded by config.cfg and covers anything that misses.
 # Every entry has to be a FROM-TO pair; a bare codepoint is "invalid font range".
 R='0x20-0x7e,0xa0-0xff,0x2010-0x2015,0x2018-0x201d,0x2022-0x2026,0x2039-0x203a,0x20ac-0x20ac,0x2190-0x2193'
-grub-mkfont -r "$R" -s 24 -o "$THEME/fonts/body.pf2"  -n "Dagric Body 24"  "$DJ/DejaVuSans.ttf"
-grub-mkfont -r "$R" -s 24 -o "$THEME/fonts/sel.pf2"   -n "Dagric Sel 24"   "$DJ/DejaVuSans-Bold.ttf"
-grub-mkfont -r "$R" -s 17 -o "$THEME/fonts/small.pf2" -n "Dagric Small 17" "$DJ/DejaVuSans.ttf"
+grub-mkfont -r "$R" -s 24 -o "$THEME/f/body.pf2"  -n "Dagric Body 24"  "$DJ/DejaVuSans.ttf"
+grub-mkfont -r "$R" -s 24 -o "$THEME/f/sel.pf2"   -n "Dagric Sel 24"   "$DJ/DejaVuSans-Bold.ttf"
+grub-mkfont -r "$R" -s 17 -o "$THEME/f/small.pf2" -n "Dagric Small 17" "$DJ/DejaVuSans.ttf"
 
 # --- verify the encoding, because GRUB will not tell you -------------------
 # identify(1) reports the decoded image, not what is on disk, so read the IHDR.

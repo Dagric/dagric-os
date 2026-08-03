@@ -76,12 +76,25 @@ jobs:
       # Overwriting the same key on each release is deliberate: the download URL
       # is stable and printed on the site, and the signature is what tells a
       # buyer which build they have.
-      - name: Name the ISO per edition
+      # The naming moved INTO container-build.sh, which now derives the ISO
+      # name from $EDITION instead of handing back live-build's own
+      # live-image-amd64.hybrid.iso for both editions. Left as `mv out/*.iso
+      # "out/dagric-os-...iso"` this became a same-file mv the moment that
+      # landed — GNU mv reports "are the same file" and exits 1, which would
+      # fail the release job on a build that had just succeeded. So this step
+      # checks the name instead of setting it, and still stops the release if
+      # the ISO is not the one the R2 upload below is about to ask for.
+      - name: Check the ISO name per edition
         run: |
           if [ "${{ matrix.edition }}" = "pro" ]; then
-            mv out/*.iso "out/dagric-os-pro-1.0-amd64.iso"
+            WANT="out/dagric-os-pro-1.0-amd64.iso"
           else
-            mv out/*.iso "out/dagric-os-1.0-amd64.iso"
+            WANT="out/dagric-os-1.0-amd64.iso"
+          fi
+          if [ ! -f "$WANT" ]; then
+            echo "::error::expected $WANT — container-build.sh produced:"
+            ls -l out/
+            exit 1
           fi
           ls -lh out/*.iso
 

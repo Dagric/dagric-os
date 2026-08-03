@@ -8,13 +8,22 @@ param(
 )
 $ErrorActionPreference = "Stop"
 $repo = $PSScriptRoot
-$iso = "$repo\out\live-image-amd64.hybrid.iso"
-if (-not (Test-Path $iso)) { Write-Host "No ISO - run .\build.ps1 first" -ForegroundColor Red; exit 1 }
-
 if ($Edition -eq "pro") { $name = "dagric-os-pro-$Version-amd64.iso" }
 else { $name = "dagric-os-$Version-amd64.iso" }
 
-Copy-Item $iso "$repo\out\$name" -Force
+# The ISO already carries its edition's name, so there is normally nothing to
+# copy. container-build.sh used to hand back live-build's own
+# live-image-amd64.hybrid.iso for BOTH editions - which is why this script had
+# to rename it, and why building free and then Pro overwrote the free image
+# before anyone got the chance. Both build paths name their own output now.
+# The legacy name is still accepted so an ISO left behind by an older container
+# can be released without a 25-minute rebuild.
+$iso = "$repo\out\$name"
+$legacy = "$repo\out\live-image-amd64.hybrid.iso"
+if (-not (Test-Path $iso)) {
+    if (Test-Path $legacy) { Copy-Item $legacy $iso -Force }
+    else { Write-Host "No ISO - run .\build.ps1 -Edition $Edition first" -ForegroundColor Red; exit 1 }
+}
 $sums = @()
 Get-ChildItem "$repo\out\dagric-os-*-amd64.iso" | ForEach-Object {
     $h = (Get-FileHash $_.FullName -Algorithm SHA256).Hash.ToLower()

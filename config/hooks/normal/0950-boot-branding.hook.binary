@@ -38,9 +38,19 @@ else
     LIVE="Dagric OS 1.0  -  Free edition"
 fi
 SAFE="$LIVE  (safe graphics mode)"
+# The BIOS menu needs its own copy of that string for the same reason the
+# accessible entry does further down: syslinux marks a hotkey with a caret
+# inside the label, and the sed below replaces the whole label — carrying away
+# the "^" that live-build's own "^Live system (amd64 fail-safe mode)" had. The
+# branded fail-safe entry therefore shipped with no hotkey, confirmed in
+# out/dagric-os-1.0-amd64.iso: "menu label Dagric OS 1.0  -  Free edition
+# (safe graphics mode)", no caret. $SAFE stays as it is for the GRUB rewrite
+# below, where a caret would print as a literal character. "g" is free: this
+# menu uses ^D and ^U at the top level and ^B and ^H inside Utilities.
+SAFE_BIOS="$LIVE  (safe ^graphics mode)"
 
 esc() { printf '%s' "$1" | sed -e 's/[\/&]/\\&/g'; }
-L=$(esc "$LIVE"); S=$(esc "$SAFE")
+L=$(esc "$LIVE"); S=$(esc "$SAFE"); SB=$(esc "$SAFE_BIOS")
 
 # Where the pre-rendered menu art, fonts and theme live inside the chroot.
 # Binary hooks run with the cwd set to binary/, so the chroot is one level up;
@@ -69,7 +79,7 @@ for f in isolinux/live.cfg isolinux/menu.cfg isolinux/stdmenu.cfg isolinux/isoli
     [ -f "$f" ] || continue
     # Order matters: rewrite the fail-safe entry first, otherwise the plain
     # "Live system (amd64)" pattern would match and mangle it too.
-    sed -i "s/menu label .*Live system (amd64 fail-safe mode).*/menu label $S/" "$f"
+    sed -i "s/menu label .*Live system (amd64 fail-safe mode).*/menu label $SB/" "$f"
     sed -i "s/menu label \^Live system (amd64)/menu label ^$L/" "$f"
     # The top-level title is REMOVED, not branded, for the same reason the GRUB
     # theme's title is blanked further down: splash.png already carries the
@@ -152,11 +162,31 @@ done
 # found the file is left exactly as it was and the check at the bottom warns.
 A11Y="$LIVE  (with screen reader)"
 
+# AND THE SAME KEY ON THE OTHER FIRMWARE PATH, which is where it matters most.
+# The GRUB copy below gets --hotkey=s for the reason argued there; syslinux has
+# no --hotkey option at all — it marks the key with a caret inside the label —
+# and the awk below substitutes this string for the WHOLE `menu label`, carrying
+# away the "^" the source line had. So the BIOS copy shipped with no hotkey
+# whatsoever. Confirmed in out/dagric-os-1.0-amd64.iso: the sighted entry keeps
+# "menu label ^Dagric OS 1.0  -  Free edition" and the copy reads "menu label
+# Dagric OS 1.0  -  Free edition  (with screen reader)", no caret anywhere.
+#
+# Legacy BIOS is the decade-old hardware this product exists to rescue, and the
+# firmware most likely to be in front of somebody trying to use a machine
+# unaided. The argument fifteen lines below — that the boot menu is the ONE
+# place a blind person can get into this OS without help — was implemented on
+# exactly one of the two menus; on the other they were left counting arrow
+# presses in silence and hoping the highlight started where they thought.
+#
+# "s" matches the GRUB copy's --hotkey=s so the two menus agree, and it is free:
+# this menu uses ^D and ^U at the top level and ^B and ^H inside Utilities.
+A11Y_BIOS="$LIVE  (with ^screen reader)"
+
 for f in isolinux/live.cfg; do
     [ -f "$f" ] || continue
     grep -q 'dagric\.a11y' "$f" && continue
     rc=0
-    awk -v lbl="$A11Y" '
+    awk -v lbl="$A11Y_BIOS" '
     { L[NR] = $0 }
     END {
         n = NR; start = 0
@@ -290,14 +320,25 @@ if [ -n "$ART" ] && [ -d boot/grub ]; then
     # The loadfont lines are not optional. theme.txt matches fonts by NAME among
     # fonts that are ALREADY LOADED; a name that matches nothing silently falls
     # back to the built-in 16px Unifont and the theme looks like it was ignored.
+    #
+    # The directory is `f`, not `fonts`, and that is not cosmetic either. These
+    # lines only exist on the ISO; an installed machine has no hook to write
+    # them, and grub-mkconfig's 00_header auto-loads a theme's fonts with
+    # exactly two non-recursive globs — "$themedir"/*.pf2 and "$themedir"/f/*.pf2,
+    # the theme root and a directory literally named f, the name upstream's
+    # starfield theme established. The faces sat under fonts/, matched neither,
+    # and the installed menu drew in gfxterm's 16px unicode.pf2 while the USB it
+    # was installed from drew the designed 24px faces — the exact regression
+    # GRUB_THEME in 50-dagric.cfg was added to end, still live one layer down.
+    # The directory was renamed; these paths follow it and must keep following.
     cat > boot/grub/theme.cfg <<'THEMECFG'
 set color_normal=light-gray/black
 set color_highlight=white/dark-gray
 
 if [ -e $prefix/themes/dagric/theme.txt ]; then
-    loadfont $prefix/themes/dagric/fonts/body.pf2
-    loadfont $prefix/themes/dagric/fonts/sel.pf2
-    loadfont $prefix/themes/dagric/fonts/small.pf2
+    loadfont $prefix/themes/dagric/f/body.pf2
+    loadfont $prefix/themes/dagric/f/sel.pf2
+    loadfont $prefix/themes/dagric/f/small.pf2
     set theme=$prefix/themes/dagric/theme.txt
 elif [ -e $prefix/splash.png ]; then
     set theme=$prefix/live-theme/theme.txt
@@ -325,7 +366,7 @@ THEMECFG
         #
         # It is one black frame, and the alternative is worse. Everything in
         # this theme is a fixed pixel size, because GRUB cannot scale a font: it
-        # renders pre-generated .pf2 bitmaps, so the panel is 288 px and the
+        # renders pre-generated .pf2 bitmaps, so the panel is 340 px and the
         # type is 24 px whatever the screen is. On a 4K laptop — whose firmware
         # does run its GOP at native — `auto` produces a menu occupying a
         # quarter of the screen's width in unreadable type. Capping the
@@ -457,12 +498,24 @@ for f in isolinux/live.cfg boot/grub/grub.cfg boot/grub/config.cfg; do
     grep -q 'dagric\.a11y=1' "$f" || MISS="$MISS a11y-entry:$f"
 done
 # The GRUB theme's panel is a fixed pixel height, so it holds a fixed number of
-# rows — four, at the item metrics in theme.txt. A fifth top-level entry is not
+# rows — five, at the item metrics in theme.txt. A sixth top-level entry is not
 # an error and is still reachable with the arrow keys, because GRUB scrolls the
 # list to keep the selection visible, but it will not be ON SCREEN when the menu
 # first draws, and there is no scrollbar to say so. Whoever adds one should
-# raise `height` by 52 to match. Entries inside `if false; then ... fi` are the
-# installer block live-build always emits and never renders; they do not count.
+# raise `height` by 52 AND the progress_bar's `top` by the same 52.
+#
+# AND THIS GUARD NEVER SAW THE MENU THAT NEEDED IT. It counts entries in the
+# ISO's grub.cfg, which has four and always did, so it sat silent and correct
+# while the panel was 52px too short somewhere it does not look. The theme is no
+# longer only the ISO's: 50-dagric.cfg sets GRUB_THEME, so it draws the
+# INSTALLED machine's menu too, and that list is generated by /etc/grub.d and
+# never passes through this hook — two entries from 10_linux, Windows from
+# 30_os-prober, UEFI Firmware Settings, and the grub-btrfs snapshot submenu
+# fifth. That is what raised `height` to 340. Keeping this check is still worth
+# it, because it is the only thing watching the ISO side; just do not read a
+# quiet build as proof the installed menu fits. Entries inside `if false; then
+# ... fi` are the installer block live-build always emits and never renders;
+# they do not count.
 if [ -f boot/grub/grub.cfg ]; then
     ENTRIES=$(awk '
         /^if false; then/ { skip = 1 }
@@ -471,8 +524,8 @@ if [ -f boot/grub/grub.cfg ]; then
         /^(menuentry|submenu)[[:space:]]/ { n++ }
         END { print n + 0 }
     ' boot/grub/grub.cfg)
-    if [ "$ENTRIES" -gt 4 ]; then
-        echo "WARNING: $ENTRIES top-level GRUB entries but the theme panel fits 4 —"
+    if [ "$ENTRIES" -gt 5 ]; then
+        echo "WARNING: $ENTRIES top-level GRUB entries but the theme panel fits 5 —"
         echo "         raise boot_menu height in usr/share/dagric/boot/grub-theme/theme.txt"
     fi
 fi

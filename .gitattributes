@@ -3,6 +3,23 @@
 * text=auto
 *.sh text eol=lf
 *.chroot text eol=lf
+# *.chroot above catches *.hook.chroot and *.list.chroot but NOT *.hook.binary,
+# and nothing else in this file caught it either — `git check-attr text eol`
+# reported 0950-boot-branding.hook.binary as text:auto, eol:unspecified. A FRESH
+# clone with core.autocrlf=true (which is what this machine is set to) therefore
+# writes it CRLF, and build.ps1 mounts the working tree straight into the build
+# container. Caught before a clone did it rather than after, like the Konsole
+# rule below.
+#
+# The hook is a #!/bin/sh script live-build execs on the assembled ISO tree, so
+# a CR on the shebang makes it "/bin/sh^M" — and a binary hook live-build
+# declines to run fails in SILENCE, the failure build.sh's chmod comment already
+# names: the ISO simply comes out with Debian's generic boot menu, no
+# free-vs-Pro title and no "with screen reader" entry, and nothing in the log
+# says so. Matching the DIRECTORY rather than the extension so the next hook of
+# any kind is covered too; the *.png rule at the bottom still wins for any
+# artwork that lands in here.
+config/hooks/** text eol=lf
 auto/* text eol=lf
 *.desc text eol=lf
 *.qml text eol=lf

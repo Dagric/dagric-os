@@ -73,6 +73,26 @@ cd "$OUT"
 # Run from the repo root so the Filename: fields come out relative to it.
 dpkg-scanpackages --multiversion "pool/$COMP" /dev/null \
     > "$DIST/$COMP/binary-amd64/Packages" 2>/dev/null
+# COUNT THE ENTRIES, because this step cannot fail loudly on its own.
+#
+# dpkg-scanpackages exits 0 over an EMPTY pool. If the `mv` above moved nothing
+# — a glob matching no .deb, a half-finished stage — this wrote a Packages file
+# with zero stanzas, and everything below carried on and SIGNED it. That is the
+# worst shape this repository can take: a correctly signed index that offers
+# nothing. Every owner's `apt update` succeeds, Discover shows no updates, and
+# no error appears anywhere on either side.
+#
+# The 2>/dev/null above is kept and is not the problem: a hard dpkg-scanpackages
+# failure is a non-zero exit that `set -e` already catches. Silent success is
+# the case only a count can catch, and the count also catches a partial mv.
+ENTRIES=$(grep -c '^Package: ' "$DIST/$COMP/binary-amd64/Packages" || true)
+DEBS=$(find "$POOL/$COMP" -maxdepth 1 -name '*.deb' | wc -l)
+if [ "$ENTRIES" -eq 0 ] || [ "$ENTRIES" -ne "$DEBS" ]; then
+    echo "ERROR: the index lists $ENTRIES package(s) but pool/$COMP holds $DEBS .deb(s)." >&2
+    echo "Refusing to sign an index that does not match the pool." >&2
+    exit 1
+fi
+echo "index: $ENTRIES package(s) from $DEBS .deb(s)"
 gzip -kf "$DIST/$COMP/binary-amd64/Packages"
 
 # The packages are Architecture: all, but apt only looks in binary-<arch> for
@@ -130,8 +150,18 @@ gpg --batch --yes --default-key "$KEY" -abs -o Release.gpg Release
 gpg --batch --yes --default-key "$KEY" --clearsign -o InRelease Release
 gpg --armor --export "$KEY" > "$OUT/dagric-repo.gpg.asc"
 
-# Verify our own signature before it is served to anybody.
-gpg --verify Release.gpg Release 2>&1 | grep -E 'Good signature|BAD' | head -1
+# Verify our own signature before it is served to anybody — as a PLAIN command
+# whose exit status is checked, not as
+#     gpg --verify Release.gpg Release 2>&1 | grep -E 'Good signature|BAD' | head -1
+# A pipeline's status is the LAST command's, and `head -1` succeeds whatever it
+# reads. So gpg failing outright and grep matching the word "BAD" both left $?
+# at 0 under `set -e`: the one check standing between a broken signature and
+# every installed machine's apt could print "BAD signature" and still let the
+# script exit successfully two lines later. It reported success by construction.
+gpg --verify Release.gpg Release || {
+    echo "ERROR: the Release signature does not verify. NOT publishing." >&2
+    exit 1
+}
 
 echo
 echo "=== repository layout ==="

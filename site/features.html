@@ -140,10 +140,20 @@ h2.sec{margin-top:56px}
     it does not do.</p></div>
   </div>
 
+  <!-- Two faults at the highest-intent scroll position on the site. The second button
+       was a bare class="btn" — site.css gives that only a border, no panel background,
+       so the site's last secondary CTA rendered unlike every other one (the pair mid-
+       page above uses .ghost, the homepage hero uses .primary.lg + .ghost.lg, which is
+       the pattern restored here). And this page named $39 twice without once saying it
+       is refundable, while index, pro and download all pair the two — asking for the
+       decision after the longest evidence page on the site with no safety net under
+       it. .refund already renders the green check and muted type; nothing new needed. -->
   <p style="margin:48px 0 0;text-align:center">
-    <a class="btn primary" href="/download">Download Dagric OS</a>
-    <a class="btn" href="/pro" style="margin-left:10px">See what Pro adds</a>
+    <a class="btn primary lg" href="/download">Download Dagric OS — free</a>
+    <a class="btn ghost lg" href="/pro" style="margin-left:10px">See Pro · $39</a>
   </p>
+  <p class="refund" style="text-align:center">Free forever, no account. Pro is a one-time $39 with a
+  14-day, no-questions refund.</p>
 </main>
 
 <footer><div class="foot">

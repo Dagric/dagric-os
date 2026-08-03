@@ -15,7 +15,11 @@ cd path\to\dagric-os
 
 - First build: 30–60 minutes, downloads ~1.5 GB of Debian packages
   (cached in a Docker volume, so rebuilds are much faster).
-- Output: `out\live-image-amd64.hybrid.iso` (~2–3 GB).
+- Output: `out\dagric-os-1.0-amd64.iso` (~2 GB), or
+  `out\dagric-os-pro-1.0-amd64.iso` (~3.9 GB) with `-Edition pro`. The name
+  carries the edition on purpose: both editions used to land on live-build's
+  own `live-image-amd64.hybrid.iso`, so building free and then Pro replaced one
+  ISO with the other and nothing in `out\` said which one survived.
 
 Why Docker? `live-build` must run on a Debian system as root, and it creates
 device nodes and hardlinks that the Windows filesystem can't represent. The

@@ -83,9 +83,22 @@ if [ -n "$deep" ]; then
 fi
 
 # Same translation-drift gates as build.sh, and skipped the same way when the
-# tooling is absent — see the comment there. This container is a live-build
-# toolchain, not a translator's workstation, so the skip is the expected path
-# here; the catalogues are committed, so a skipped check costs nothing.
+# tooling is absent — see the comment there.
+#
+# This used to say the skip was "the expected path here" because the container
+# is a live-build toolchain rather than a translator's workstation, and that a
+# skipped check therefore "costs nothing". Both halves were wrong, and together
+# they are how a stale catalogue reached main and stayed there: the builder
+# image installed no gettext, so this branch was skipped on EVERY CI build of
+# both editions, and the .mo files really had drifted two consent strings
+# behind po/*.po. The skip cost five languages an English NVIDIA driver prompt
+# and an English Variety privacy screen — both of them screens where the owner
+# is being asked to agree to something.
+#
+# docker/Dockerfile now installs gettext, so msgfmt is present and the check is
+# the path actually taken. The else branch stays for anyone running this script
+# outside the image, but it is no longer the normal case and must not be
+# treated as harmless.
 if command -v msgfmt >/dev/null 2>&1; then
     sh tools/i18n-build.sh --check
 else
@@ -173,7 +186,22 @@ if [ -z "$SRCISO" ]; then
     echo "BUILD FAILED — no ISO produced. See output above." >&2
     exit 1
 fi
-NAME=$(basename "$SRCISO")
+# THE NAME CARRIES THE EDITION, exactly as build.sh's does. live-build always
+# calls its output live-image-amd64.hybrid.iso, so taking the basename handed
+# BOTH editions that one name: `.\build.ps1` followed by `.\build.ps1 -Edition
+# pro` wrote the same file twice, the free ISO was silently replaced by the Pro
+# one, and nothing left in out/ said which edition survived. That is the same
+# "plausible name, fresh timestamp, wrong bytes" failure the dd-and-verify block
+# above was written to prevent, arriving by a different route.
+#
+# These exact names are what everything downstream speaks: write-usb.ps1 picks
+# the ISO by them, release.yml checks for them, and site/download.html links to
+# them. 1.0 is hard-coded on purpose — the product version is "1.0 (Foundation)"
+# in os-release and the v1.x tags are release milestones, not version bumps.
+case "$EDITION" in
+    pro) NAME=dagric-os-pro-1.0-amd64.iso ;;
+    *)   NAME=dagric-os-1.0-amd64.iso ;;
+esac
 dd if="$SRCISO" of="/out/$NAME" bs=4M status=none
 WANT=$(stat -c%s "$SRCISO")
 GOT=$(stat -c%s "/out/$NAME" 2>/dev/null || echo 0)

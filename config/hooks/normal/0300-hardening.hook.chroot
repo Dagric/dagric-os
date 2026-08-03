@@ -45,15 +45,33 @@ systemctl enable firewalld.service 2>/dev/null || true
 #
 # THIS USED TO CLOSE public AND NOTHING ELSE, which closed the front door and
 # left the side door open — because Dagric itself steers owners out of public.
-# 0600-pro-edition runs `--zone=home --add-service=kdeconnect`, and the setup
-# wizard and guide both tell owners to mark their home network trusted so KDE
-# Connect works. Follow Dagric's own instructions and you land in `home`, where
+# 0600-pro-edition runs `--zone=home --add-service=kdeconnect`, and the guide and
+# manual both tell owners to set their home network's zone to `home` so KDE
+# Connect works. The setup wizard does NOT — dagric-setup's whole checklist is
+# the NVIDIA driver, HP printers and Flathub — and this comment used to say it
+# did. Follow Dagric's own written instructions and you land in `home`, where
 # firewalld's stock ruleset allows ssh. The hardening was one documented click
 # away from being undone, and the warning below would have said nothing.
 #
 # So: every stock zone that ships ssh enabled. public, home, internal and work
 # are the ones an owner reaches through the KDE applet; external and dmz ship it
-# too and cost nothing to close. `trusted` is deliberately absent — it accepts
+# too and cost nothing to close. nm-shared is in the list but is NOT one of
+# firewalld's own zones — network-manager (trixie 1.52.1-1) ships
+# /usr/lib/firewalld/zones/nm-shared.xml and that file carries
+# <service name="ssh"/>. NetworkManager drops every connection-sharing profile
+# that has no explicit zone into it, which is exactly what plasma-nm's one-click
+# "Shared to other computers" hotspot creates — so an owner who enabled sshd and
+# then shared their connection was serving password-auth sshd to every client of
+# that hotspot, on the café network the KDE Connect note calls out by name. Same
+# side door as `home`, one package further away, which is why this list must not
+# be read off firewalld's own config/zones/ directory alone.
+#
+# If a future network-manager stops shipping that file the zone is simply
+# unknown, --query-service fails, and the loop prints "closed" for it. Harmless
+# — nothing then allows ssh there — but do not read that line as proof the zone
+# existed.
+#
+# `trusted` is deliberately absent — it accepts
 # everything by design and has no service list to remove from, so a machine put
 # there is exposed no matter what this hook does. That is a property of choosing
 # "trusted", not a gap here.
@@ -74,7 +92,7 @@ if ! command -v firewall-offline-cmd >/dev/null 2>&1; then
     echo "WARNING: firewall-offline-cmd not found — ssh was NOT closed in any" >&2
     echo "         firewalld zone. Any sshd the owner enables will be reachable." >&2
 else
-    for _zone in public home internal work external dmz; do
+    for _zone in public home internal work external dmz nm-shared; do
         firewall-offline-cmd --zone="$_zone" --remove-service=ssh >/dev/null 2>&1 || true
 
         # --query-service exits 0 when the service is STILL allowed, so a zero

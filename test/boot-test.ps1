@@ -4,9 +4,14 @@
 #   docker rm -f dagric-boottest  # to stop it
 $ErrorActionPreference = "Stop"
 $repo = Split-Path $PSScriptRoot -Parent
-$iso = "$repo\out\live-image-amd64.hybrid.iso"
-
-if (-not (Test-Path $iso)) { Write-Host "No ISO at $iso - run .\build.ps1 first" -ForegroundColor Red; exit 1 }
+# Take the most recently built edition-named ISO instead of hard-coding
+# live-build's own live-image-amd64.hybrid.iso. build.sh has always named its
+# output per edition and container-build.sh does now, so that literal matches
+# nothing and this aborted with "No ISO" on a tree holding two of them.
+$iso = (Get-ChildItem "$repo\out\dagric-os-*-amd64.iso" -ErrorAction SilentlyContinue |
+        Sort-Object LastWriteTime -Descending | Select-Object -First 1).FullName
+if (-not $iso) { Write-Host "No ISO in $repo\out - run .\build.ps1 first" -ForegroundColor Red; exit 1 }
+Write-Host "Testing $(Split-Path $iso -Leaf)" -ForegroundColor Cyan
 
 # Test against a COPY so a later build.ps1 can't corrupt the running VM's
 # mounted CD-ROM (same protection as install-test.ps1).
