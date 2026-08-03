@@ -1,0 +1,74 @@
+#!/bin/sh
+# SPDX-FileCopyrightText: 2026 DGR Operations <repo@dagric.com>
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Dagric OS — Print to PDF: make the queue we promise actually exist.
+#
+# printer-driver-cups-pdf is pinned in system.list.chroot for exactly one
+# feature: a virtual printer called PDF in every application's print dialogue.
+# The package creates that queue from its own postinst, and inside a live-build
+# chroot it cannot. Every committed build log ends the package like this:
+#
+#   Setting up printer-driver-cups-pdf (3.0.2-3) ...
+#   Running in chroot, ignoring request.
+#   All runlevel operations denied by policy
+#   invoke-rc.d: policy-rc.d denied execution of force-reload.
+#   CUPS failed to reload its configuration!
+#   Skipped automated creation of the PDF queue.
+#
+# (out/free-rebuild.log:10659, out/build-free.log:5190, out/build-pro.log:6987,
+# out/pro-release-build.log:13695 — free and Pro, every build ever made.)
+#
+# dpkg records the package as configured anyway, so the postinst never runs
+# again: not in the live session, and not on the installed machine, because
+# Calamares copies that same filesystem. So the driver shipped and the queue
+# never did, while site/index.html and site/features.html sell "Print-to-PDF"
+# and usr/share/dagric/manual/app-printing.html tells the owner in step 2 to
+# "choose the printer called PDF". Six words inside a fifteen-minute build log
+# were the only place that was ever contradicted.
+#
+# The queue cannot be created here either — cupsd is not running in the chroot,
+# which is the whole reason the postinst gave up. So this hook enables a
+# first-boot oneshot instead. That also fixes the LIVE session, where the
+# manual's instructions are read first.
+set -e
+
+# Assert, on the real image, the two paths dagric-pdf-queue.service hard-codes.
+# The unit carries ConditionPathExists on the backend, so if either path ever
+# moves the unit is skipped at boot IN SILENCE and this hook would have
+# reintroduced the exact defect it exists to fix. Fail the build instead — the
+# same call 0530-accessibility makes about Orca's voice module.
+PDF_BACKEND=/usr/lib/cups/backend/cups-pdf
+PDF_PPD=/usr/share/ppd/cups-pdf/CUPS-PDF_opt.ppd
+
+if [ ! -x "$PDF_BACKEND" ]; then
+    echo "ERROR: $PDF_BACKEND missing — nothing can create the PDF queue that" >&2
+    echo "       the site and the manual both promise by name." >&2
+    echo "       Is printer-driver-cups-pdf still in system.list.chroot?" >&2
+    exit 1
+fi
+if [ ! -f "$PDF_PPD" ]; then
+    echo "ERROR: $PDF_PPD missing — the PDF queue would have no driver to be" >&2
+    echo "       created with. printer-driver-cups-pdf moved its PPD: update" >&2
+    echo "       this hook and ExecStart= in dagric-pdf-queue.service together." >&2
+    exit 1
+fi
+if [ ! -x /usr/sbin/lpadmin ]; then
+    echo "ERROR: /usr/sbin/lpadmin missing — cups-client (a dependency of cups)" >&2
+    echo "       is not on the image, so the first-boot unit could not run." >&2
+    exit 1
+fi
+if [ ! -f /etc/systemd/system/dagric-pdf-queue.service ]; then
+    echo "ERROR: dagric-pdf-queue.service is not on the image. It ships from" >&2
+    echo "       config/includes.chroot/etc/systemd/system/, which live-build" >&2
+    echo "       copies in before hooks run — so this means it was lost." >&2
+    exit 1
+fi
+
+# Enable it the way 0800-snapshot-recovery and 0300-hardening do. The hand-made
+# wants-symlink is exactly what `systemctl enable` writes for a
+# WantedBy=multi-user.target unit, and it does not depend on systemctl being
+# willing to touch enablement symlinks inside a build chroot.
+mkdir -p /etc/systemd/system/multi-user.target.wants
+ln -sf /etc/systemd/system/dagric-pdf-queue.service \
+    /etc/systemd/system/multi-user.target.wants/dagric-pdf-queue.service
+echo "print-to-pdf: dagric-pdf-queue.service enabled — the PDF queue is created on first boot"

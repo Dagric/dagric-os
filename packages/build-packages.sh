@@ -1,49 +1,44 @@
 #!/bin/sh
-# Dagric OS — build the dagric-* config packages from the SAME files the
-# ISO ships (config/includes.chroot is the single source of truth).
-# Runs inside the dagric-builder container with the repo at /src (ro)
-# and an output dir at /out.
-set -e
-
-SRC=/src
-INC=$SRC/config/includes.chroot
-OUT=/out/repo/pool
-STAGE=/tmp/pkgstage
-rm -rf "$STAGE"
-mkdir -p "$OUT"
-
-build_pkg() {
-    name=$1
-    root="$STAGE/$name"
-    version=$(sed -n 's/^Version: //p' "$root/DEBIAN/control")
-    dpkg-deb --build --root-owner-group "$root" "$OUT/${name}_${version}_all.deb"
-}
-
-# ---- dagric-branding -----------------------------------------------------
-P=$STAGE/dagric-branding
-mkdir -p "$P/usr/share/wallpapers" "$P/usr/share/dagric" "$P/usr/share/sddm/themes/breeze"
-cp -r "$SRC/packages/dagric-branding/DEBIAN" "$P/"
-cp -r "$INC/usr/share/wallpapers/Dagric"     "$P/usr/share/wallpapers/"
-cp -r "$INC/usr/share/dagric/logo"           "$P/usr/share/dagric/"
-cp    "$INC/usr/share/sddm/themes/breeze/theme.conf.user" "$P/usr/share/sddm/themes/breeze/"
-build_pkg dagric-branding
-
-# ---- dagric-desktop-defaults --------------------------------------------
-P=$STAGE/dagric-desktop-defaults
-mkdir -p "$P/etc/skel/.config" "$P/usr/lib/firefox-esr/distribution"
-cp -r "$SRC/packages/dagric-desktop-defaults/DEBIAN" "$P/"
-cp    "$INC/etc/skel/.config/kdeglobals" "$P/etc/skel/.config/"
-cp    "$INC/etc/skel/.config/kwinrc"     "$P/etc/skel/.config/"
-cp    "$INC/usr/lib/firefox-esr/distribution/policies.json" "$P/usr/lib/firefox-esr/distribution/"
-build_pkg dagric-desktop-defaults
-
-# ---- dagric-security-policy ---------------------------------------------
-P=$STAGE/dagric-security-policy
-mkdir -p "$P/etc/apt/apt.conf.d" "$P/etc/sysctl.d"
-cp -r "$SRC/packages/dagric-security-policy/DEBIAN" "$P/"
-cp    "$INC/etc/apt/apt.conf.d/01dagric-norecommends" "$P/etc/apt/apt.conf.d/"
-cp    "$INC/etc/sysctl.d/99-dagric-hardening.conf"    "$P/etc/sysctl.d/"
-build_pkg dagric-security-policy
-
-echo "Built packages:"
-ls -la "$OUT"
+# Dagric OS — SUPERSEDED. This script must not run. Use packages/stage-packages.sh.
+#
+# repo.ps1 called this alongside make-repo.sh. Both of those were replaced with
+# refusals; this one was missed, and it is the more dangerous of the three
+# because it still runs to completion and its output looks correct.
+#
+# It read Version: from the same packages/*/DEBIAN/control files the real
+# builder reads, so its .debs carried the CURRENT version string and nothing
+# downstream could tell them apart. What they actually contained:
+#
+#   * NO dagric-tools AT ALL — three build_pkg calls where stage-packages.sh has
+#     four. The wizard, the manual, the guide, the helpers and every
+#     /usr/bin/dagric-* simply do not exist in its output.
+#   * dagric-branding with ONE wallpaper pack (`cp -r .../wallpapers/Dagric`, an
+#     exact directory name) against the 34 the tree ships, no
+#     usr/share/sddm/themes/dagric, no usr/share/dagric/sddm or splash, and no
+#     plasma/look-and-feel/org.dagric.splash.
+#   * dagric-desktop-defaults with 3 of the 9 files the package declares as
+#     conffiles, and nothing under /etc/xdg at all.
+#
+# dpkg removes what a new version no longer owns, so an owner who took that
+# "upgrade" would lose 33 wallpaper packs, the SDDM theme, the Plasma splash,
+# the default-browser declaration and the Konsole profile — silently, from a
+# correctly signed update, and build-repo.sh could not catch it because its
+# index/pool count check only compares the index to whatever was staged.
+#
+# It also skips every guard stage-packages.sh grew: the conffiles cross-check in
+# both directions, normalise_modes (this is the build that shipped 0755
+# kdeglobals), and the shebang-keyed chmod that keeps the /usr/lib/dagric
+# programs executable across an upgrade.
+#
+# The live path is packages/stage-packages.sh, called by build.sh for the ISO
+# and by packages/build-repo.sh for the channel, so the two are assembled from
+# one source.
+echo "build-packages.sh is superseded and will not run." >&2
+echo >&2
+echo "It builds only 3 of the 4 packages — dagric-tools is missing entirely —" >&2
+echo "at the current version number, from an outdated file list. Publishing its" >&2
+echo "output would strip files from every installed machine." >&2
+echo >&2
+echo "Use instead:  sh packages/stage-packages.sh REPO_ROOT OUTPUT_DIR" >&2
+echo "         or:  sh packages/build-repo.sh" >&2
+exit 1

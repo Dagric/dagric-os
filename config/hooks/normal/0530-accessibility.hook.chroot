@@ -411,8 +411,24 @@ command -v orca >/dev/null 2>&1 || exit 0
 
 # Record it as a setting, not just a running process: kaccess owns the screen
 # reader, and if the owner later presses Meta+Alt+S to stop and start it again
-# kaccess needs to already agree that it is on. This also carries the choice
-# into a Calamares install that copies the live user's config.
+# kaccess needs to already agree that it is on.
+#
+# THIS IS THE LIVE SESSION ONLY, and the comment here used to claim otherwise
+# ("carries the choice into a Calamares install that copies the live user's
+# config"). It does not. calamares-settings-debian's unpackfs module writes the
+# target from /run/live/medium/live/filesystem.squashfs — the pristine image,
+# not the running overlay — then the users module runs useradd inside that
+# target, so the new account is seeded from the TARGET's /etc/skel, where
+# kaccessrc still says Enabled=false; removeuser then deletes the live user
+# outright. Nothing written in the live session, here or in the live /etc/skel,
+# reaches the installed disk. The installed machine also gets no dagric.a11y on
+# its kernel command line (see etc/default/grub.d/50-dagric.cfg, which explains
+# why that is deliberate), so this script is inert there too.
+#
+# The installed-system path is Meta+Alt+S, bound in skel before first login, and
+# site/accessibility.html says exactly that under "Screen reader before purchase
+# / during evaluation". Do not restore the claim without a module in the
+# Calamares exec sequence to back it up.
 if command -v kwriteconfig6 >/dev/null 2>&1; then
     kwriteconfig6 --file kaccessrc --group ScreenReader --key Enabled true 2>/dev/null || true
 fi

@@ -35,6 +35,27 @@ CHOICES=$(kdialog --title "$(gettext "Finish setting up Dagric")" --geometry 480
 
 [ -n "$CHOICES" ] || exit 0
 
+# THE LIVE NOTICE THIS ONE HELPER NEVER GOT. Every other consent-install path
+# calls dg_live_warn before spending the owner's RAM; this one could not,
+# because dg_live_warn prints to stdout and nothing here has a terminal — the
+# warning would have gone to the journal. So it is said the way this tool says
+# everything else, in a dialog. hplip and its dependencies are a couple of
+# hundred megabytes unpacked into the tmpfs overlay, on a machine already
+# running the whole desktop out of memory off a USB stick.
+# It INFORMS, it does not block: trying a printer before buying is one of the
+# best reasons to run the live session at all. Cancel is offered because the
+# checklist has already been answered by the time this appears.
+if [ -d /run/live/medium ]; then
+    kdialog --title "$(gettext "Finish setting up Dagric")" --warningcontinuecancel \
+"$(gettext "You are running the live trial from the USB stick.
+
+Anything installed now is kept in this computer's memory rather than on a disk:
+it disappears at shutdown, and on a machine without much RAM it can make the
+trial session unstable. Installing Dagric first avoids both.
+
+Continue anyway?")" 2>/dev/null || exit 0
+fi
+
 for c in $CHOICES; do
     case "$c" in
         drivers)

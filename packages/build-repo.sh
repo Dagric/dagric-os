@@ -34,7 +34,20 @@ STAGE=/srv/pkgstage
 command -v dpkg-deb >/dev/null 2>&1 || { echo "dpkg-deb required" >&2; exit 1; }
 command -v apt-ftparchive >/dev/null 2>&1 || { echo "apt-utils required" >&2; exit 1; }
 
-rm -rf "$STAGE" "$POOL"
+# dists IS CLEARED TOO, not just the pool.
+#
+# This line used to remove only $POOL, so dists/<suite>/ was overwritten in
+# place and any suite that ever existed here stayed on disk — and stayed
+# PUBLISHED, because `firebase deploy` serves whatever is under site/. Rename
+# SUITE below and the old suite's index keeps a perfectly valid signature over
+# Filename: fields pointing into pool/main, which this same line has just wiped
+# and repopulated with different bytes under the same names. Every machine in
+# the field still asking for the old suite then fails `apt update` on a hash-sum
+# mismatch, permanently, with nothing looking wrong on the publishing side.
+# Removing it makes that a plain 404, which is noticed immediately instead.
+# Everything under dists is regenerated below; dagric-repo.gpg.asc sits beside
+# dists rather than under it and is re-exported after signing.
+rm -rf "$STAGE" "$POOL" "$OUT/dists"
 mkdir -p "$POOL"
 
 # The packages themselves are built by packages/stage-packages.sh, which is
@@ -63,6 +76,15 @@ echo "=== generating the repository index ==="
 #
 # The dists/SUITE/COMPONENT layout never emits a dot segment, so it is immune,
 # and it is what every real Debian mirror uses anyway.
+#
+# DO NOT BUMP THIS AT THE NEXT DEBIAN REBASE. It reads like a mirror of the base
+# distribution and it is not: it is the suite name burned into
+# /etc/apt/sources.list.d/dagric.list on every machine ever sold, and
+# dagric-upgrade deliberately refuses to rewrite that file
+# (`case "$f" in *dagric*) continue ;;`) precisely so the channel keeps working
+# across a release upgrade. Rename this and the whole installed base asks for a
+# suite that no longer exists — on the one channel that could have fixed it.
+# The Dagric channel tracks Dagric, not Debian; "trixie" is now just its name.
 SUITE=trixie
 COMP=main
 DIST=$OUT/dists/$SUITE
@@ -158,8 +180,44 @@ gpg --armor --export "$KEY" > "$OUT/dagric-repo.gpg.asc"
 # at 0 under `set -e`: the one check standing between a broken signature and
 # every installed machine's apt could print "BAD signature" and still let the
 # script exit successfully two lines later. It reported success by construction.
-gpg --verify Release.gpg Release || {
-    echo "ERROR: the Release signature does not verify. NOT publishing." >&2
+#
+# AND IT MUST BE THE FLEET'S KEYRING, NOT THIS HOST'S. `gpg --verify` reads
+# ~/.gnupg — which, a few lines above, was proved to hold the SECRET key. So it
+# can only ever answer "did the signer sign this", never "will a sold machine
+# accept it". The file every machine checks against is
+# config/includes.chroot/usr/share/keyrings/dagric.gpg, a binary keyring
+# committed to the tree that nothing here regenerates: the export above
+# refreshes the PUBLISHED .asc and leaves that one alone. Add a signing subkey,
+# renew, or replace the key and `gpg --verify` still says "Good signature" while
+# every installed machine starts failing `apt update` with NO_PUBKEY.
+#
+# BOTH ARTEFACTS, because apt only fetches one of them and it was not the one
+# being checked. apt asks for InRelease and uses it when it is there
+# (out/pro-release-build.log: "Get:5 https://dagric-os.web.app/repo trixie
+# InRelease"; Release.gpg is never requested), and Release + Release.gpg is only
+# the fallback for repositories that have no InRelease. A malformed InRelease is
+# a hard apt error with no fallback, and it is written by a second, unchecked
+# gpg run.
+command -v gpgv >/dev/null 2>&1 || {
+    echo "ERROR: gpgv is not installed, so the signature cannot be checked" >&2
+    echo "against the keyring installed machines trust. NOT publishing." >&2
+    exit 1
+}
+KEYRING=$REPO/config/includes.chroot/usr/share/keyrings/dagric.gpg
+[ -f "$KEYRING" ] || {
+    echo "ERROR: $KEYRING is missing — cannot check the signature against the" >&2
+    echo "keyring installed machines actually trust. NOT publishing." >&2
+    exit 1
+}
+gpgv --keyring "$KEYRING" Release.gpg Release || {
+    echo "ERROR: Release.gpg does not verify against the keyring shipped to" >&2
+    echo "installed machines. NOT publishing." >&2
+    exit 1
+}
+gpgv --keyring "$KEYRING" InRelease || {
+    echo "ERROR: InRelease does not verify against the keyring shipped to" >&2
+    echo "installed machines — and InRelease is the file apt actually fetches." >&2
+    echo "NOT publishing." >&2
     exit 1
 }
 

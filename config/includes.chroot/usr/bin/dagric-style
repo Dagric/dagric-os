@@ -152,8 +152,29 @@ case "$CHOICE" in
             *) exit 0 ;;
         esac ;;
     reset)
-        RESET=$(grep -F "	daybreak	" "$TMPLIST" | head -1 | cut -f4)
-        [ -n "$RESET" ] && apply_file "$RESET"
+        # THE SHIPPED daybreak, not whichever daybreak won the precedence race
+        # at the top of this script. tool-dagric-style.html tells the owner to
+        # copy /usr/share/dagric/styles/daybreak.style into their own styles
+        # directory and edit it — without renaming it — and that copy REPLACES
+        # the shipped row in $TMPLIST, because later directories win there by
+        # design. So an owner who followed our own instructions got a Reset that
+        # re-applied their half-finished experiment while the popup, and the
+        # manual, promised "the exact look the machine shipped with".
+        #
+        # And if it is not there at all, say so instead of claiming a reset that
+        # never ran: POPUP used to be set outside the [ -n "$RESET" ] guard, so a
+        # missing daybreak.style produced a cheerful success message over a
+        # desktop nothing had touched.
+        RESET=/usr/share/dagric/styles/daybreak.style
+        if [ ! -f "$RESET" ]; then
+            RESET=$(grep -F "	daybreak	" "$TMPLIST" | head -1 | cut -f4)
+        fi
+        if [ -z "$RESET" ] || [ ! -f "$RESET" ]; then
+            kdialog --title "$TITLE" --sorry \
+                "$(gettext "The standard Dagric style is missing, so nothing was changed. Reinstall the dagric-branding package to restore it.")" 2>/dev/null
+            exit 1
+        fi
+        apply_file "$RESET"
         POPUP=$(gettext "Reset to the standard Dagric look") ;;
     *)
         ROW=$(grep -F "	$CHOICE	" "$TMPLIST" | head -1)

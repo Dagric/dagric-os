@@ -2,7 +2,16 @@
 Type=Application
 Name=Accessibility
 GenericName=Make the computer easier to use
-Comment=Screen reader, magnifier, high contrast, sticky keys, slow keys, bounce keys
+# SLOW KEYS IS DELIBERATELY NOT LISTED HERE, and putting it back is a defect.
+# kaccess still draws the switch, but kwin 4:6.3.6-1 ships no SlowKeysPlugin and
+# the older path (kaccess -> XkbSetControls) reaches XWayland clients only, while
+# Dagric's session is Wayland: the box ticks and nothing changes. The reasoning
+# is in /etc/skel/.config/kaccessrc, and site/accessibility.html publishes the
+# same feature as "Does Not Support" for 508 502.4(B). It stays in Keywords=,
+# which is a search index — somebody looking for it should still land on this
+# panel — and out of Comment=, which is a promise. Mouse keys replaces it: that
+# one has a KWin plugin and actually works.
+Comment=Screen reader, magnifier, high contrast, sticky keys, bounce keys, mouse keys
 Exec=systemsettings kcm_access
 Icon=preferences-desktop-accessibility
 Terminal=false
@@ -23,11 +32,11 @@ GenericName[fr]=Rendre l'ordinateur plus facile à utiliser
 GenericName[es]=Hacer que el ordenador sea más fácil de usar
 GenericName[pt_BR]=Deixar o computador mais fácil de usar
 GenericName[it]=Rendere il computer più facile da usare
-Comment[de]=Bildschirmleser, Lupe, hoher Kontrast, Einrastfunktion, Anschlagverzögerung
-Comment[fr]=Lecteur d'écran, loupe, contraste élevé, touches rémanentes, touches lentes
-Comment[es]=Lector de pantalla, lupa, alto contraste, teclas persistentes, teclas lentas
-Comment[pt_BR]=Leitor de tela, lupa, alto contraste, teclas de aderência, teclas lentas
-Comment[it]=Lettore dello schermo, lente, contrasto elevato, permanenza dei tasti, tasti lenti
+Comment[de]=Bildschirmleser, Lupe, hoher Kontrast, Einrastfunktion, Tastenanschlagsperre, Tastaturmaus
+Comment[fr]=Lecteur d'écran, loupe, contraste élevé, touches rémanentes, rebonds de touches, touches souris
+Comment[es]=Lector de pantalla, lupa, alto contraste, teclas persistentes, teclas de rebote, teclas del ratón
+Comment[pt_BR]=Leitor de tela, lupa, alto contraste, teclas de aderência, teclas de repercussão, teclas do mouse
+Comment[it]=Lettore dello schermo, lente, contrasto elevato, permanenza dei tasti, tasti ravvicinati, mouse da tastiera
 Keywords[de]=accessibility;a11y;ease of access;accessible;disability;disabled;impaired;screen reader;narrator;magnifier;magnify;zoom;enlarge;high contrast;contrast;colour blind;color blind;colorblind;sticky keys;slow keys;bounce keys;filter keys;mouse keys;visible bell;flash screen;deaf;hard of hearing;blind;low vision;large cursor;big pointer;bedienungshilfen;erleichterte bedienung;barrierefreiheit;behinderung;lupe;vergrößerung;vergrössern;zoom;hoher kontrast;kontrast;farbenblind;farbfehlsichtig;einrastfunktion;anschlagverzögerung;tastaturmaus;schwerhörig;gehörlos;sehbehindert;großer mauszeiger;
 Keywords[fr]=accessibility;a11y;ease of access;accessible;disability;disabled;impaired;screen reader;narrator;magnifier;magnify;zoom;enlarge;high contrast;contrast;colour blind;color blind;colorblind;sticky keys;slow keys;bounce keys;filter keys;mouse keys;visible bell;flash screen;deaf;hard of hearing;blind;low vision;large cursor;big pointer;accessibilité;facilité d'accès;handicap;loupe;agrandissement;zoom;contraste élevé;contraste;daltonien;daltonisme;touches rémanentes;touches lentes;touches filtres;touches souris;malentendant;sourd;malvoyant;grand curseur;
 Keywords[es]=accessibility;a11y;ease of access;accessible;disability;disabled;impaired;screen reader;narrator;magnifier;magnify;zoom;enlarge;high contrast;contrast;colour blind;color blind;colorblind;sticky keys;slow keys;bounce keys;filter keys;mouse keys;visible bell;flash screen;deaf;hard of hearing;blind;low vision;large cursor;big pointer;accesibilidad;facilidad de acceso;discapacidad;lupa;ampliación;zoom;alto contraste;contraste;daltónico;daltonismo;teclas persistentes;teclas lentas;teclas de filtro;teclas del ratón;sordo;con problemas de audición;baja visión;cursor grande;

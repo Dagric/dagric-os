@@ -69,6 +69,19 @@ desktop_base() {  # <wallpaper-dir-or-path> <dest>
         [ -f "$WALLS/$1/contents/images/$res.png" ] && { src="$WALLS/$1/contents/images/$res.png"; break; }
     done
     [ -n "$src" ] || { [ -f "$1" ] && src="$1"; }
+    # highcontrast.style points at a flat black PNG that is not in this tree:
+    # config/hooks/normal/0530-accessibility.hook.chroot base64-decodes it into
+    # the chroot at build time. So this function failed on that one style on
+    # every run, the style loop's "|| continue" swallowed it as a single "!"
+    # line among thirteen successes, and the one style a low-vision owner needs
+    # was the only tile in the gallery drawn as a blue letter instead of a
+    # picture. Synthesising the flat colour here is exact rather than an
+    # approximation: the shipped file is 256x256 solid black and Plasma scales
+    # it, and scaling one colour gives back the same colour.
+    if [ -z "$src" ] && [ "$1" = "/usr/share/dagric/accessibility/highcontrast-wallpaper.png" ]; then
+        magick -size "${W}x${H}" xc:black "$2"
+        return 0
+    fi
     [ -n "$src" ] || { echo "  ! no wallpaper for '$1'"; return 1; }
     magick "$src" -resize "${W}x${H}^" -gravity center -extent "${W}x${H}" "$2"
 }

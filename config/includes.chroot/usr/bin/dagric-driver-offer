@@ -6,6 +6,21 @@
 # installed yet. Turns the CLI `dagric-drivers` into a friendly GUI offer.
 . /usr/bin/dagric-i18n.sh
 
+# NOT IN THE LIVE TRIAL. The driver this offers cannot take effect without a
+# reboot, and a reboot ends the live session and discards everything it
+# installed — so on the USB stick this is a dialog that can only cost and never
+# deliver. What it costs is the trial: nvidia-driver plus linux-headers-amd64
+# and the DKMS build land in the tmpfs overlay, i.e. in this machine's RAM, on
+# the 4 GB hardware Dagric exists to rescue. dg_live_warn's comment names that
+# exact failure, and this is the only path that reaches it UNASKED — eight
+# seconds into a stranger's first login. Under Secure Boot it is worse still:
+# the MOK enrollment would leave the firmware holding a key for a driver that
+# stops existing at the next power-off. Same /run/live/medium test dagric-hub
+# uses to hide the upgrade row, and the same reasoning: a button that can only
+# disappoint. Checked BEFORE the autostart entry is removed, so an installed
+# machine still gets the offer at its own first login.
+[ -d /run/live/medium ] && exit 0
+
 rm -f "$HOME/.config/autostart/dagric-driver-offer.desktop"
 sleep 8   # let the desktop settle before popping a dialog
 

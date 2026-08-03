@@ -23,6 +23,27 @@ if [ ! -x /usr/sbin/usbguard ] && ! command -v usbguard >/dev/null 2>&1; then
     exit 1
 fi
 
+# NOT ON THE LIVE USB. Everything the enable path writes — /etc/usbguard/
+# rules.conf, the unmask, the enable symlinks — lands in the tmpfs overlay and
+# is gone at power-off, so the success dialog's promise that new USB devices
+# stay blocked is one this session cannot keep, and nothing survives onto the
+# installed machine afterwards. While it lasts it blocks the next drive the
+# trialist plugs in, which is exactly what dagric-hardware-check tells them to
+# do on this same boot ("Copy it to a USB stick"), with no dialog and no
+# visible reason. 0600-pro-edition.hook.chroot already records that a USBGuard
+# start on a live boot can cut off the stick backing the session; this keeps
+# the opt-in helper away from that boot. usbguard ships on the Pro ISO, so the
+# feature gate above passes here — this is the only thing that stops it.
+if [ -d /run/live/medium ]; then
+    kdialog --title "$TITLE" --sorry \
+"$(gettext "USB protection can only be set up on an installed Dagric system.
+
+This is the live trial running from the USB stick: the allow-list would be kept
+in memory and lost at shutdown, and any USB drive you plug in before then would
+be blocked. Install Dagric first, then turn this on from the Dagric Hub.")" 2>/dev/null
+    exit 0
+fi
+
 # Already on? Offer to turn it off.
 if systemctl is-active --quiet usbguard.service 2>/dev/null; then
     kdialog --title "$TITLE" --warningyesno \

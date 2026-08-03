@@ -152,9 +152,13 @@ dl.meta dd{margin:0}
         <td>Screen reader before purchase / during evaluation</td>
         <td class="s-yes">Supports</td>
         <td>The live USB boot menu carries a second entry, <em>"… (with screen reader)"</em>, in
-        both the BIOS and UEFI menus. It boots with autologin and starts Orca automatically, and
-        the choice carries into the installed system if the user proceeds to install. Verified
-        present in the shipped ISO.</td>
+        both the BIOS and UEFI menus. It boots with autologin and starts Orca automatically.
+        Verified present in the shipped ISO. <strong>The choice is live-session only.</strong> It
+        does not carry into an install: Calamares unpacks the pristine disc image and creates the
+        new account from that image's <code>/etc/skel</code>, where the reader is off, and the
+        installed boot menu carries no <code>dagric.a11y</code> entry. On the installed machine
+        the reader is switched back on with <kbd>Meta</kbd>+<kbd>Alt</kbd>+<kbd>S</kbd> — the
+        same key as in the live session, bound before first login.</td>
       </tr>
       <tr>
         <td>Screen reader at the login password prompt</td>
@@ -240,8 +244,9 @@ dl.meta dd{margin:0}
         <td>Documentation in an accessible format</td>
         <td class="s-yes">Supports</td>
         <td>The user guide and the 95-page application manual ship on the machine as plain,
-        semantic HTML readable by Orca, and work with no network connection. Documentation is
-        currently available in English and German only.</td>
+        semantic HTML readable by Orca, and work with no network connection. The user guide and
+        the welcome page are available in English and German; the application manual is currently
+        English only.</td>
       </tr>
       <tr>
         <td>No automatic restarts or timed interruptions</td>

@@ -38,7 +38,9 @@ left alone.
 - Two extra menu rows: **Accent color** (a `kdialog --getcolor` picker,
   converted from `#RRGGBB` to the `r,g,b` that `kdeglobals` wants) and
   **Reset**.
-- Six styles ship. Free: Daybreak, Midnight, Dawn. Pro: Classy, Neon, Forest.
+- Seven styles ship. Free: Daybreak, High Contrast, Midnight, Dawn. Pro:
+  Classy, Neon, Forest. High Contrast is deliberately free and carries no
+  `EDITION` line — see `docs/EDITIONS.md`.
   Pro files carry `EDITION=pro` and are deleted from free images by
   `build.sh` (`grep -rlx 'EDITION=pro' … | xargs -r rm -f`), with a runtime
   check in the script as belt and braces.

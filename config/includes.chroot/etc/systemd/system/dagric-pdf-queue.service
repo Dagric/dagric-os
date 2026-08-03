@@ -1,0 +1,37 @@
+# Dagric OS — create the promised "Print to PDF" queue on first boot.
+#
+# printer-driver-cups-pdf creates the PDF queue from its own postinst, and in a
+# live-build chroot it cannot: policy-rc.d denies the cups reload, so the
+# postinst gives up with "Skipped automated creation of the PDF queue." in every
+# committed build log, free and Pro. dpkg still records the package as
+# configured, so it never runs again — not in the live session, and not on the
+# machine Calamares installs from that same filesystem. The driver shipped and
+# the queue never did. See config/hooks/normal/0810-print-to-pdf.hook.chroot,
+# which enables this unit and asserts the two paths below on the real image.
+#
+# It runs at boot rather than at build time because cupsd is not running in the
+# chroot — which is the whole reason the postinst gave up — and because running
+# at boot also fixes the LIVE session, where the manual's "choose the printer
+# called PDF" is read first.
+[Unit]
+Description=Dagric one-time Print-to-PDF queue creation (first boot)
+Wants=cups.service
+After=cups.service
+ConditionPathExists=!/var/lib/dagric/pdf-queue-done
+ConditionPathExists=/usr/lib/cups/backend/cups-pdf
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+# -E after -p enables the queue and makes it accept jobs (before -p it would
+# mean "encrypt the connection" instead). printer-is-shared=false keeps a
+# virtual printer that only makes local files off the LAN.
+ExecStart=/usr/sbin/lpadmin -p PDF -v cups-pdf:/ -E -P /usr/share/ppd/cups-pdf/CUPS-PDF_opt.ppd -D "Print to PDF" -o printer-is-shared=false
+# ExecStartPost only runs when ExecStart succeeded, so a failed attempt leaves
+# no stamp and is retried on the next boot instead of being recorded as done.
+# Marking work complete that did not happen is the defect this unit exists to
+# undo; do not move the stamp into ExecStart.
+ExecStartPost=/bin/sh -c 'mkdir -p /var/lib/dagric && touch /var/lib/dagric/pdf-queue-done'
+
+[Install]
+WantedBy=multi-user.target

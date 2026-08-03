@@ -38,8 +38,19 @@ LOOK_DIRS="/usr/share/dagric/looks /etc/dagric/looks ${XDG_DATA_HOME:-$HOME/.loc
 # each layout's own script so the D logo survives the rebuild.
 CLEAR='var ps=panels(); for(var i=0;i<ps.length;i++){ps[i].remove();}'
 
+# --print-reply is not decoration. Without it dbus-send hands the message to the
+# bus and exits 0 without ever looking at the answer, so this function reported
+# success even when plasmashell was not on the session bus at all. With it,
+# dbus-send waits for the reply and exits non-zero on a D-Bus error — which is
+# exactly what plasmashell sends back when a layout SCRIPT throws. That exit
+# status is the only evidence the caller has that anything happened, so it has
+# to be real before the caller below can test it.
+#
+# No --reply-timeout: the D-Bus default is already generous, and a shorter one
+# would report failure on the slow 2012-2018 machines this product targets while
+# the panels were still being built.
 apply() {
-    dbus-send --session --type=method_call --dest=org.kde.plasmashell \
+    dbus-send --session --print-reply --type=method_call --dest=org.kde.plasmashell \
         /PlasmaShell org.kde.PlasmaShell.evaluateScript "string:$1" >/dev/null 2>&1
 }
 
@@ -98,7 +109,23 @@ FILE=$(printf '%s\n' "$ROW" | cut -f4)
 SCRIPT=$(lkey "$FILE" SCRIPT)
 [ -n "$SCRIPT" ] || exit 0
 
-apply "$CLEAR $SCRIPT"
+# The status of that call is the only evidence anything happened, and it used to
+# be thrown away — the popup below fired unconditionally. plasmashell not
+# running, a crash of exactly the kind the 2012-2018 hardware this product
+# targets produces, made every row in this menu a no-op that announced success.
+# That is the worst possible moment for it: the manual sends people here to
+# REPAIR a panel they broke, so the owner is already looking at a damaged
+# desktop when it tells them a new one was built.
+#
+# plasmashell answers a script error with a D-Bus error reply, so a SCRIPT that
+# throws is caught here too — and that case is worse, because $CLEAR has already
+# removed every panel by the time the throw happens. Hence the second sentence,
+# which tells the owner what to do about the empty desktop in front of them.
+if ! apply "$CLEAR $SCRIPT"; then
+    kdialog --title "$TITLE" --sorry \
+        "$(gettext "The layout could not be applied — the desktop did not answer. If the panels are missing now, log out and back in, then try again.")" 2>/dev/null
+    exit 1
+fi
 
 # Report the layout's display NAME, not its internal tag: the popup used to
 # say "Layout applied: focus" when the menu row the owner clicked read

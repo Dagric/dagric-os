@@ -50,8 +50,16 @@
 
     <section>
       <h2>What it is</h2>
-      <p><strong>Orca</strong> reads the screen aloud and drives a Braille display.
-      It ships on every edition of Dagric, with the speech engine and voice installed
+      <!-- DO NOT restore "and drives a Braille display" to this sentence. Orca
+           is capable of it, but the driver layer brltty is in none of
+           config/package-lists/*.list.chroot, so on a stock Dagric a display
+           plugged in stays blank. site/accessibility.html already reports
+           "Refreshable braille display support — Does Not Support"; this page
+           used to promise the opposite to the one reader who cannot check. -->
+      <p><strong>Orca</strong> reads the screen aloud. It can also drive a Braille
+      display, but only once <code>brltty</code> is installed, and it is not installed
+      here &mdash; see the last of the five tasks below.
+      Orca ships on every edition of Dagric, with the speech engine and voice installed
       &mdash; which sounds obvious and is not: Orca's speech backend is only a
       recommended dependency in Debian, so a lean image can easily end up shipping a
       silent screen reader. Dagric pins it explicitly.</p>
@@ -78,8 +86,11 @@
          and icons bigger and offers to put the change back if it goes too far.
          System Settings &rarr; <em>Accessibility</em> adds a screen magnifier and
          colour filters.</p></li>
-        <li><span class="t">Use a Braille display</span><p>Plug it in; Orca supports Braille output through BrlTTY. Its settings
-         are in Orca's preferences under <em>Braille</em>.</p></li>
+        <li><span class="t">Use a Braille display</span><p>Not out of the box. Orca speaks to a Braille display through
+         <strong>BrlTTY</strong>, and BrlTTY is not installed on Dagric &mdash; plug a
+         display in today and it stays blank. Install it yourself with
+         <code>sudo apt install brltty</code>, then log out and back in; Orca's settings
+         for it are under <em>Braille</em> in its preferences.</p></li>
       </ol>
     </section>
 

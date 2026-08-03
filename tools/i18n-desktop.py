@@ -81,21 +81,31 @@ D['dagric-screen-reader'] = {
         "Far leggere lo schermo ad alta voce. Premi Meta+Alt+S per attivarlo o disattivarlo.",
         "lettore dello schermo;lettura schermo;sintesi vocale;voce;cieco;cecità;ipovedente;braille;accessibilità;"),
 }
+# NOTE ON THE Comment ROWS BELOW: none of them names slow keys, and none of
+# them should. kaccess still offers the switch, but kwin 4:6.3.6-1 ships no
+# SlowKeysPlugin and the fallback (XkbSetControls) reaches XWayland clients
+# only, while Dagric's session is Wayland — so the feature ticks on and does
+# nothing. /etc/skel/.config/kaccessrc argues it in full and
+# site/accessibility.html reports 508 502.4(B) as "Does Not Support"; a launcher
+# entry that advertises it anyway is the same defect as a script printing a
+# success it did not achieve, in five languages at once. The slow-keys terms
+# stay in the Keywords rows, because those are a search index and somebody
+# hunting for the feature should still find this panel. Comment is a promise.
 D['dagric-accessibility'] = {
  'de': ("Bedienungshilfen", "Den Computer leichter bedienbar machen",
-        "Bildschirmleser, Lupe, hoher Kontrast, Einrastfunktion, Anschlagverzögerung",
+        "Bildschirmleser, Lupe, hoher Kontrast, Einrastfunktion, Tastenanschlagsperre, Tastaturmaus",
         "bedienungshilfen;erleichterte bedienung;barrierefreiheit;behinderung;lupe;vergrößerung;vergrössern;zoom;hoher kontrast;kontrast;farbenblind;farbfehlsichtig;einrastfunktion;anschlagverzögerung;tastaturmaus;schwerhörig;gehörlos;sehbehindert;großer mauszeiger;"),
  'fr': ("Accessibilité", "Rendre l'ordinateur plus facile à utiliser",
-        "Lecteur d'écran, loupe, contraste élevé, touches rémanentes, touches lentes",
+        "Lecteur d'écran, loupe, contraste élevé, touches rémanentes, rebonds de touches, touches souris",
         "accessibilité;facilité d'accès;handicap;loupe;agrandissement;zoom;contraste élevé;contraste;daltonien;daltonisme;touches rémanentes;touches lentes;touches filtres;touches souris;malentendant;sourd;malvoyant;grand curseur;"),
  'es': ("Accesibilidad", "Hacer que el ordenador sea más fácil de usar",
-        "Lector de pantalla, lupa, alto contraste, teclas persistentes, teclas lentas",
+        "Lector de pantalla, lupa, alto contraste, teclas persistentes, teclas de rebote, teclas del ratón",
         "accesibilidad;facilidad de acceso;discapacidad;lupa;ampliación;zoom;alto contraste;contraste;daltónico;daltonismo;teclas persistentes;teclas lentas;teclas de filtro;teclas del ratón;sordo;con problemas de audición;baja visión;cursor grande;"),
  'pt_BR': ("Acessibilidade", "Deixar o computador mais fácil de usar",
-        "Leitor de tela, lupa, alto contraste, teclas de aderência, teclas lentas",
+        "Leitor de tela, lupa, alto contraste, teclas de aderência, teclas de repercussão, teclas do mouse",
         "acessibilidade;facilidade de acesso;deficiência;lupa;ampliação;zoom;alto contraste;contraste;daltônico;daltonismo;teclas de aderência;teclas lentas;teclas de filtro;teclas do mouse;surdo;deficiência auditiva;baixa visão;cursor grande;"),
  'it': ("Accessibilità", "Rendere il computer più facile da usare",
-        "Lettore dello schermo, lente, contrasto elevato, permanenza dei tasti, tasti lenti",
+        "Lettore dello schermo, lente, contrasto elevato, permanenza dei tasti, tasti ravvicinati, mouse da tastiera",
         "accessibilità;facilità di accesso;disabilità;lente;ingrandimento;zoom;contrasto elevato;contrasto;daltonico;daltonismo;permanenza dei tasti;tasti lenti;tasti filtro;mouse da tastiera;sordo;problemi di udito;ipovedente;cursore grande;"),
 }
 

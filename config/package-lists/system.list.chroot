@@ -119,8 +119,41 @@ cups
 cups-filters
 printer-driver-gutenprint
 ipp-usb
+# ipp-usb one line up only covers printers that speak IPP-over-USB, which in
+# practice means printers made from roughly 2017 onwards — not the hardware
+# generation this OS is sold to rescue. THIS is the piece that makes an ORDINARY
+# USB printer appear when it is plugged in: it ships the udev rule and
+# udev-configure-printer, which creates the CUPS queue on hotplug.
+#
+# Without it, dagric-hardware-check tells the owner in plain English "Dagric will
+# set it up for you after installing", app-printing.html says the drivers were
+# "already installed before you plugged anything in", and then nothing happens at
+# all — no queue, no notification, no printer in any print dialogue. The DRIVER
+# was on the image (printer-driver-gutenprint above); the thing that turns a
+# plugged-in printer into a queue was not.
+#
+# Another Recommends dropped by --apt-recommends false, same shape as
+# wpasupplicant and alsa-ucm-conf further up: it sits in apt's own "Recommended
+# packages:" block at out/free-rebuild.log:2456, and "Setting up
+# system-config-printer-udev" appears in no build log. python3-cups and
+# python3-cupshelpers are hard Depends, so they arrive with it regardless of the
+# recommends setting; python3 is already pinned above.
+system-config-printer-udev
 # "Print to PDF" as a virtual printer in every app's print dialog — a
 # baseline Windows-switcher expectation (audit gap: was absent).
+#
+# THE PACKAGE ALONE DOES NOT GIVE YOU THE QUEUE, and for four builds it did not.
+# Its postinst creates the "PDF" printer itself and cannot do that in a build
+# chroot — policy-rc.d denies the cups reload, so it prints "Skipped automated
+# creation of the PDF queue." and exits 0 — and dpkg then records the package
+# configured forever, so it never retries on the installed machine either. The
+# queue is created on first boot instead, by
+# config/includes.chroot/etc/systemd/system/dagric-pdf-queue.service, enabled
+# and path-checked by config/hooks/normal/0810-print-to-pdf.hook.chroot. Remove
+# either of those and this line puts the driver back on the image with no
+# printer called PDF in any print dialogue — which is what shipped until now,
+# against three written promises (site/index.html, site/features.html and the
+# manual's app-printing.html).
 printer-driver-cups-pdf
 
 # Scanners — a print-only distro that can't scan reads as broken to anyone
@@ -131,6 +164,25 @@ skanlite
 # devices, sane-airscan talks to network scanners without vendor drivers.
 avahi-daemon
 sane-airscan
+# avahi DISCOVERS the printer; this is what RESOLVES it. libnss-mdns is the NSS
+# module that teaches getaddrinfo() about .local names, and it is an avahi-daemon
+# Recommends dropped by --apt-recommends false — it sits in apt's "Recommended
+# packages:" block at out/free-rebuild.log:2423 and "Setting up libnss-mdns"
+# appears in no build log. Same omission as wpasupplicant and alsa-ucm-conf above.
+#
+# Leaving it out gives this failure its most misleading possible shape, because
+# avahi still browses: the printer IS discovered, DOES appear in Add Printer and
+# in the print dialogue by name, and then cannot be reached. CUPS' temporary
+# queue for a DNS-SD printer — the "usually appears without you doing anything"
+# path app-printing.html advertises — carries an ipp://NAME.local URI, and the
+# ipp backend resolves that through getaddrinfo(), not through Avahi. So the job
+# fails on a printer the owner just watched appear. Same for typing
+# http://printer.local to reach its web page, and for reaching any other machine
+# on the LAN by name.
+#
+# The package's own postinst is what adds the mdns entry to /etc/nsswitch.conf;
+# nothing in this tree ships or rewrites that file, so the edit stands.
+libnss-mdns
 
 # Firmware updates (LVFS) — Discover already surfaces these; the backend
 # was missing. Matters for a distro sold to run on real hardware.
