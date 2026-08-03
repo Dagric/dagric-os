@@ -63,3 +63,7 @@ wrangler.toml
 # would add 5 MB of .deb to history on every release to store something that
 # rebuilds in seconds. Build it before deploying the site.
 site/repo/
+
+# Python bytecode from tools/ — never belongs in the tree.
+__pycache__/
+*.pyc
