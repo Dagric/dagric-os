@@ -39,7 +39,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: dagric 1.0\n"
 "Report-Msgid-Bugs-To: repo@dagric.com\n"
-"POT-Creation-Date: 2026-08-03 02:46+0000\n"
+"POT-Creation-Date: 2026-08-03 03:05+0000\n"
 "PO-Revision-Date: 2026-07-27 09:00+0000\n"
 "Last-Translator: Machine translation, unreviewed <repo@dagric.com>\n"
 "Language-Team: none\n"
@@ -1193,7 +1193,7 @@ msgstr "Cor noturna — uma tela mais quente à noite"
 msgid "More screens, resolution and refresh rate"
 msgstr "Mais telas, resolução e taxa de atualização"
 
-#: config/includes.chroot/usr/bin/dagric-driver-offer:36
+#: config/includes.chroot/usr/bin/dagric-driver-offer:51
 #: config/includes.chroot/usr/bin/dagric-hub:25
 #: config/includes.chroot/usr/bin/dagric-setup:17
 msgid "Press Enter to close..."
@@ -1202,11 +1202,11 @@ msgstr "Pressione Enter para fechar..."
 #. TRANSLATORS: 'Finish Setup' is the launcher entry the owner searches for —
 #. use the same words as the Name= of dagric-setup.desktop in your language.
 #. 'sudo dagric-drivers' is a command typed verbatim; do not translate it.
-#: config/includes.chroot/usr/bin/dagric-driver-offer:41
+#: config/includes.chroot/usr/bin/dagric-driver-offer:56
 msgid "NVIDIA graphics detected"
 msgstr "Placa de vídeo NVIDIA detectada"
 
-#: config/includes.chroot/usr/bin/dagric-driver-offer:42
+#: config/includes.chroot/usr/bin/dagric-driver-offer:57
 msgid ""
 "Dagric found an NVIDIA graphics card.\n"
 "\n"
@@ -2187,7 +2187,7 @@ msgstr "Proteção USB"
 msgid "What would you like to do?"
 msgstr "O que você quer fazer?"
 
-#: config/includes.chroot/usr/bin/dagric-looks:76
+#: config/includes.chroot/usr/bin/dagric-looks:87
 msgid ""
 "No layouts are installed. Reinstall the dagric-branding package to restore "
 "them."
@@ -2195,11 +2195,17 @@ msgstr ""
 "Nenhum layout está instalado. Reinstale o pacote dagric-branding para "
 "recuperá-los."
 
-#: config/includes.chroot/usr/bin/dagric-looks:92
+#: config/includes.chroot/usr/bin/dagric-looks:103
 msgid "Pick a layout — switch back anytime:"
 msgstr "Escolha um layout — você pode voltar atrás quando quiser:"
 
-#: config/includes.chroot/usr/bin/dagric-looks:112
+#: config/includes.chroot/usr/bin/dagric-looks:126
+msgid ""
+"The layout could not be applied — the desktop did not answer. If the panels "
+"are missing now, log out and back in, then try again."
+msgstr ""
+
+#: config/includes.chroot/usr/bin/dagric-looks:139
 #, sh-format
 msgid "Layout applied: $NAME"
 msgstr "Layout aplicado: $NAME"
@@ -2719,6 +2725,7 @@ msgid ""
 msgstr ""
 
 #: config/includes.chroot/usr/bin/dagric-setup:28
+#: config/includes.chroot/usr/bin/dagric-setup:49
 msgid "Finish setting up Dagric"
 msgstr "Concluir a configuração do Dagric"
 
@@ -2740,7 +2747,20 @@ msgstr "Suporte a impressoras e scanners HP"
 msgid "Enable Flathub in Discover"
 msgstr "Ativar o Flathub no Discover"
 
-#: config/includes.chroot/usr/bin/dagric-setup:94
+#: config/includes.chroot/usr/bin/dagric-setup:50
+msgid ""
+"You are running the live trial from the USB stick.\n"
+"\n"
+"Anything installed now is kept in this computer's memory rather than on a "
+"disk:\n"
+"it disappears at shutdown, and on a machine without much RAM it can make "
+"the\n"
+"trial session unstable. Installing Dagric first avoids both.\n"
+"\n"
+"Continue anyway?"
+msgstr ""
+
+#: config/includes.chroot/usr/bin/dagric-setup:115
 msgid "Flathub enabled — browse apps in Discover."
 msgstr "Flathub ativado — explore aplicativos no Discover."
 
@@ -2749,7 +2769,7 @@ msgstr "Flathub ativado — explore aplicativos no Discover."
 #. failure from a cancelled password prompt, so it must not
 #. diagnose one of them and send the owner off to fix the wrong
 #. thing.
-#: config/includes.chroot/usr/bin/dagric-setup:102
+#: config/includes.chroot/usr/bin/dagric-setup:123
 msgid ""
 "Flathub could NOT be enabled — you may be offline, or the password prompt "
 "was cancelled. Try again anytime from the Hub."
@@ -2786,11 +2806,20 @@ msgstr "cor de destaque"
 msgid "Accent color set to $HEX"
 msgstr "Cor de destaque definida como $HEX"
 
-#: config/includes.chroot/usr/bin/dagric-style:157
+#: config/includes.chroot/usr/bin/dagric-style:174
+#, fuzzy
+msgid ""
+"The standard Dagric style is missing, so nothing was changed. Reinstall the "
+"dagric-branding package to restore it."
+msgstr ""
+"Nenhum estilo está instalado. Reinstale o pacote dagric-branding para "
+"recuperá-los."
+
+#: config/includes.chroot/usr/bin/dagric-style:178
 msgid "Reset to the standard Dagric look"
 msgstr "Redefinido para a aparência padrão do Dagric"
 
-#: config/includes.chroot/usr/bin/dagric-style:169
+#: config/includes.chroot/usr/bin/dagric-style:190
 #, sh-format
 msgid "Style applied: $NAME"
 msgstr "Estilo aplicado: $NAME"
@@ -2803,7 +2832,18 @@ msgstr "Proteção USB do Dagric"
 msgid "USB protection is a Dagric Pro feature."
 msgstr "A proteção USB é um recurso do Dagric Pro."
 
-#: config/includes.chroot/usr/bin/dagric-usb-protect:29
+#: config/includes.chroot/usr/bin/dagric-usb-protect:39
+msgid ""
+"USB protection can only be set up on an installed Dagric system.\n"
+"\n"
+"This is the live trial running from the USB stick: the allow-list would be "
+"kept\n"
+"in memory and lost at shutdown, and any USB drive you plug in before then "
+"would\n"
+"be blocked. Install Dagric first, then turn this on from the Dagric Hub."
+msgstr ""
+
+#: config/includes.chroot/usr/bin/dagric-usb-protect:50
 msgid ""
 "USB protection is currently ON — unknown USB devices are blocked.\n"
 "\n"
@@ -2814,13 +2854,13 @@ msgstr ""
 "\n"
 "Desligar e permitir todos os dispositivos USB de novo?"
 
-#: config/includes.chroot/usr/bin/dagric-usb-protect:43
+#: config/includes.chroot/usr/bin/dagric-usb-protect:64
 msgid "USB protection is off. All USB devices work normally."
 msgstr ""
 "A proteção USB está desligada. Todos os dispositivos USB funcionam "
 "normalmente."
 
-#: config/includes.chroot/usr/bin/dagric-usb-protect:46
+#: config/includes.chroot/usr/bin/dagric-usb-protect:67
 msgid "Could not turn it off (administrator access is required)."
 msgstr "Não foi possível desligar (é necessário acesso de administrador)."
 
@@ -2829,7 +2869,7 @@ msgstr "Não foi possível desligar (é necessário acesso de administrador)."
 #. a device that is unplugged now really is blocked when it comes back, and
 #. that can include the owner's keyboard. Do not soften it, and do not drop
 #. the reassurance that this can be re-run or turned off.
-#: config/includes.chroot/usr/bin/dagric-usb-protect:57
+#: config/includes.chroot/usr/bin/dagric-usb-protect:78
 msgid ""
 "Turn ON USB protection?\n"
 "\n"
@@ -2859,7 +2899,7 @@ msgstr ""
 "\n"
 "Protege contra dispositivos USB maliciosos que se passam por teclados."
 
-#: config/includes.chroot/usr/bin/dagric-usb-protect:109
+#: config/includes.chroot/usr/bin/dagric-usb-protect:130
 msgid ""
 "USB protection is ON.\n"
 "\n"
@@ -2877,7 +2917,7 @@ msgstr ""
 
 #. TRANSLATORS: this is the reassuring failure case — nothing was changed
 #. and every USB device still works. Keep "nothing was changed" explicit.
-#: config/includes.chroot/usr/bin/dagric-usb-protect:118
+#: config/includes.chroot/usr/bin/dagric-usb-protect:139
 msgid ""
 "USB protection was NOT enabled — nothing was changed, and all your\n"
 "USB devices keep working.\n"

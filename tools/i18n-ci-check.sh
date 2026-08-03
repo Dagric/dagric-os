@@ -92,17 +92,45 @@ if [ -z "$(git status --porcelain -- po config/includes.chroot/usr/share/locale)
     exit 0
 fi
 
+# SAY WHICH KIND OF DRIFT THIS IS. Two very different things fail this check
+# and they deserve different amounts of the reader's attention:
+#
+#   * a NEW msgid — a user-facing string that currently ships as English in
+#     every language, because there is nothing to translate it to. This is the
+#     defect the job exists for.
+#   * only the "#:" source references moved, because someone added a comment
+#     above a gettext call and every line number after it shifted. Regenerating
+#     is still the right response, but nothing is broken for any owner.
+#
+# Reporting both as the same wall of red is how a gate gets ignored, which is
+# the failure mode this project keeps writing comments about.
+NEW=$(git diff -U0 -- "$POT" | grep '^+msgid "' | grep -v '^+msgid ""$' || true)
+GONE=$(git diff -U0 -- "$POT" | grep '^-msgid "' | grep -v '^-msgid ""$' || true)
+
 echo "" >&2
-echo "ERROR: po/ is out of date with respect to the source." >&2
+if [ -n "$NEW" ]; then
+    echo "ERROR: po/ is out of date — there are NEW UNTRANSLATED STRINGS." >&2
+    echo "" >&2
+    echo "Each msgid below ships as ENGLISH in all five languages today," >&2
+    echo "because a string with no msgid has nothing to translate to:" >&2
+    echo "" >&2
+    printf '%s\n' "$NEW" | sed 's/^+/    /' >&2
+else
+    echo "ERROR: po/ is out of date, but no msgid was added or removed —" >&2
+    echo "       only the '#:' source references moved, which happens when a" >&2
+    echo "       line is added above a gettext call. Nothing is broken for an" >&2
+    echo "       owner; the template just needs regenerating." >&2
+fi
+if [ -n "$GONE" ]; then
+    echo "" >&2
+    echo "These msgids are GONE from the source. If that was not intended, a" >&2
+    echo "string was deleted or edited and its translations are being retired:" >&2
+    echo "" >&2
+    printf '%s\n' "$GONE" | sed 's/^-/    /' >&2
+fi
 echo "" >&2
 echo "Files that changed when the extraction was re-run:" >&2
 git diff --stat -- po config/includes.chroot/usr/share/locale >&2
-echo "" >&2
-echo "Any msgid listed below currently ships as ENGLISH in all five" >&2
-echo "languages, because a string with no msgid has nothing to translate to:" >&2
-echo "" >&2
-git diff -U0 -- "$POT" | grep '^+msgid "' | grep -v '^+msgid ""$' \
-    | sed 's/^+/    /' >&2 || true
 echo "" >&2
 echo "The regenerated po/ and catalogues are attached to this run as the" >&2
 echo "'i18n-regenerated' artifact. Download, unpack over the repo, commit." >&2
