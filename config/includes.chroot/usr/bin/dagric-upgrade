@@ -84,6 +84,54 @@ if [ -r /etc/debian_version ]; then
     esac
 fi
 
+# 1b. IS THE TARGET RELEASE ACTUALLY RELEASED? This is the check that matters
+#     most, and the first version of this tool did not have it.
+#
+#     TO_SUITE is a codename, and a codename exists on the mirror long before it
+#     is a stable release — forky has been sitting there as `testing` for the
+#     whole of trixie's life. Without this gate, running this tool on the day it
+#     shipped would have passed every other check, taken a snapshot, rewritten
+#     sources, and moved a non-technical owner's only computer onto Debian
+#     TESTING: a rolling suite with no security team behind it, which breaks
+#     regularly and by design. That is the worst outcome this tool could produce
+#     and it would have looked like a success the whole way.
+#
+#     The Release file settles it. Debian publishes Suite: stable only once a
+#     codename is the released stable. Verified against the live mirror while
+#     writing this: trixie is "Suite: stable, Version: 13.6"; forky is
+#     "Suite: testing".
+#
+#     FAILS CLOSED. No network, no fetch tool, or an unreadable Release file all
+#     stop the upgrade. Being unable to prove the target is stable is not the
+#     same as it being stable, and the cost of guessing wrong here is somebody's
+#     computer.
+say "  .. checking whether $TO_NAME has been released"
+REL_URL="https://deb.debian.org/debian/dists/${TO_SUITE}/Release"
+REL=""
+if command -v curl >/dev/null 2>&1; then
+    REL=$(curl -fsSL --max-time 30 "$REL_URL" 2>/dev/null || true)
+elif command -v wget >/dev/null 2>&1; then
+    REL=$(wget -qO- --timeout=30 "$REL_URL" 2>/dev/null || true)
+fi
+if [ -z "$REL" ]; then
+    say "  ! could not reach the Debian mirror to check whether $TO_NAME is out"
+    say "    (no internet, or no curl/wget). Not upgrading on an assumption."
+    fail=1
+elif printf '%s\n' "$REL" | grep -qE '^Suite:[[:space:]]*stable[[:space:]]*$'; then
+    RELVER=$(printf '%s\n' "$REL" | sed -n 's/^Version:[[:space:]]*//p' | head -1)
+    say "  ok  $TO_NAME is released${RELVER:+ (Debian $RELVER)}"
+else
+    ACTUAL=$(printf '%s\n' "$REL" | sed -n 's/^Suite:[[:space:]]*//p' | head -1)
+    say "  ! $TO_NAME is not released yet — the '$TO_SUITE' suite is currently"
+    say "    '${ACTUAL:-unknown}', not 'stable'."
+    say ""
+    say "    Nothing is wrong with your machine. $FROM_NAME is still supported,"
+    say "    and this tool will start working by itself once $TO_NAME ships."
+    say "    Upgrading to a testing suite would put you on software that breaks"
+    say "    on purpose and has no security team behind it."
+    fail=1
+fi
+
 # 2. dpkg must be in a clean state. Upgrading on top of a half-configured
 #    package turns one broken package into a broken system.
 if dpkg -C 2>/dev/null | grep -q .; then
