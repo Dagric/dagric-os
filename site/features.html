@@ -10,8 +10,12 @@
 <style>
 .feat{display:grid;gap:18px;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));margin:26px 0 8px}
 .feat .card{margin:0}
-.strip{margin:14px 0 34px;border-radius:var(--r-lg);overflow:hidden;border:1px solid var(--line);box-shadow:0 24px 70px rgba(0,0,0,.5)}
-.strip img{width:100%;display:block}
+/* Frame, radius, shadow and the shared 900px cap come from `.shot,.strip`
+   in site.css now, so this page's two screenshots match the homepage and the
+   download page. Only the tighter vertical rhythm stays local; `auto` sides
+   centre it inside main.wide's 1120px, where shot-hub used to run the full
+   width while the launcher shot on the homepage sat at 900px. */
+.strip{margin:14px auto 34px}
 h2.sec{margin-top:56px}
 @media(max-width:640px){h2.sec{margin-top:38px}.strip{border-radius:var(--r-md);margin-bottom:24px}}
 </style>
@@ -186,9 +190,9 @@ h2.sec{margin-top:56px}
        is refundable, while index, pro and download all pair the two — asking for the
        decision after the longest evidence page on the site with no safety net under
        it. .refund already renders the green check and muted type; nothing new needed. -->
-  <p style="margin:48px 0 0;text-align:center">
+  <p style="margin:48px 0 0;text-align:center;justify-content:center">
     <a class="btn primary lg" href="/download">Download Dagric OS — free</a>
-    <a class="btn ghost lg" href="/pro" style="margin-left:10px">See Pro · $39</a>
+    <a class="btn ghost lg" href="/pro">See Pro · $39</a>
   </p>
   <p class="refund" style="text-align:center">Free forever, no account. Pro is a one-time $39 with a
   14-day, no-questions refund.</p>

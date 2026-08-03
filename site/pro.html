@@ -11,7 +11,15 @@
 .hero-pro{text-align:center;padding:80px 24px 40px;background:radial-gradient(900px 480px at 50% -10%, rgba(63,169,245,.18), transparent 60%)}
 .hero-pro h1{font-size:clamp(2.4rem,6vw,3.6rem)}
 .hero-pro .lead{max-width:620px;margin:16px auto 28px}
-.shot{max-width:880px;margin:40px auto 0;border-radius:var(--r-lg);overflow:hidden;border:1px solid var(--line);box-shadow:0 30px 90px rgba(0,0,0,.55)}
+/* The fourth screenshot frame used to live here — a private .shot with an
+   880px cap and its own shadow, against the shared rule's 900px and
+   var(--shadow). It matched nothing (this page has no class="shot" today),
+   which is exactly why it was dangerous: it is (0,1,0) in a stylesheet that
+   loads after site.css, and it sat in the slot this page's own comment
+   reserves for the Pro capture. The day that screenshot lands, the frame
+   would have silently re-forked on the one page selling the $39 product,
+   after the commit that consolidated the other three. Deleted rather than
+   corrected: the shared .shot,.strip rule in site.css is the frame now. */
 .grid{display:grid;gap:18px;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));margin:34px 0}
 .grid .card{margin:0}
 .value{max-width:700px;margin:28px auto 0}
@@ -29,6 +37,15 @@
 table.cmp td:nth-child(2),table.cmp td:nth-child(3),table.cmp th:nth-child(2),table.cmp th:nth-child(3){text-align:center}
 .y{color:var(--good);font-weight:700}.n{color:var(--faint)}
 @media(max-width:640px){
+  /* .hero-pro h1 (0,2,0) outranks the phone h1 rule in site.css (0,0,1), so this
+     page quietly opted out of the shared phone type cap: 38.4px here against
+     31.2px on every other page, because clamp()'s MINIMUM is 2.4rem and a phone
+     never gets past it. The one page selling a $39 product had the largest
+     heading on the narrowest screen — 3 lines, 124px, 15.5% of a 360x800 phone —
+     and the only Buy button on the page started at 630px, at or under the fold on
+     an Android viewport. Re-stating the shared clamp puts this h1 back on the site
+     scale and lifts the button to 607px. The desktop clamp is unchanged. */
+  .hero-pro h1{font-size:clamp(1.95rem,8.5vw,2.5rem)}
   .hero-pro{padding:52px 20px 30px}
   .grid{margin:24px 0}
   .cta-band{padding:40px 18px;margin:40px 0}
@@ -106,6 +123,19 @@ table.cmp td:nth-child(2),table.cmp td:nth-child(3),table.cmp th:nth-child(2),ta
   after. Dagric Pro is <strong>$39, once</strong>, and then it's yours.</p>
   <a class="btn primary lg" href="https://buy.stripe.com/6oU5kwbye2Jogri31D8k809">Get Dagric Pro — $39</a>
   <p class="refund">14-day, no-questions refund · free updates · no license servers</p>
+  <!-- The two objections that stop a $39 click are "will it even work on my machine" and "what if I
+       hate it". Only the second had an answer up here. The first one's answer was 1,175 words down,
+       in the last line of the page: "Or start with the free edition". Nothing below is new — the
+       live-USB behaviour is faq.html's "every ISO is also a live system", Check This PC is
+       download.html's own section, "same system underneath" is download.html's "Pro is that same
+       system with...", and the no-in-place-upgrade sentence is faq.html verbatim in substance. It
+       ends pointing at Pro on purpose: removing the risk should not cost the sale. -->
+  <p class="lead" style="max-width:640px;margin:18px auto 0;font-size:.96rem">Not sure it will even
+  work on your machine? Find out before you spend anything: <a href="/download">the free edition</a>
+  is the same system underneath, it runs live from a USB stick without touching your disk, and every
+  stick carries <strong>Check This PC</strong> — a plain-language report on your Wi-Fi, graphics,
+  sound, Secure Boot and drives. If it comes back clear, this is the version to install: there is no
+  in-place upgrade yet, so free-then-Pro means installing twice.</p>
   <!-- Same 820px wallpaper removed here as on index.html — see the long note
        there for the measurement. Worse on this page, though: it was the SAME
        FILE, hero-shot.png, carrying alt="The Dagric OS Pro desktop". One image

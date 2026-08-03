@@ -23,6 +23,20 @@
 .dl h2{font-size:1.35rem;font-weight:700;line-height:1.65;letter-spacing:normal;margin:26px 0 6px}
 .dl .meta{color:var(--muted);font-size:.9rem;margin:8px 0 20px}
 .sums{background:#0a1420;border:1px solid var(--line);border-radius:12px;padding:16px 18px;font:12.5px/1.8 ui-monospace,Consolas,monospace;color:#7fd1a8;overflow-x:auto;white-space:nowrap;margin:14px 0}
+/* site.css drops .card to 20px 22px on phones, but `.dl .card` is (0,2,0) and beats
+   it from here, so the two cards that ARE this page kept desktop's 34px on a 360px
+   screen: 320px of card holding 250px of content, 70px of it padding. These are the
+   most important elements on the download page and they were the most cramped.
+   Measured at 360px: card content 250 -> 278px (+11%), the pair 619 -> 571px tall.
+   The .strip frame that used to sit at the bottom of this block has moved into
+   site.css, where `.shot,.strip` is now one rule for all four real screenshots.
+   Redeclaring it here fixed this page but left three copies with three different
+   shadows across three files, and only the homepage kept the 1px accent ring. */
+@media(max-width:640px){
+  .dl{gap:14px;margin:26px 0}
+  .dl .card{padding:24px 20px}
+  .dl h2{margin:18px 0 6px}
+}
 </style>
 <link rel="canonical" href="https://dagric.com/download">
 <meta name="theme-color" content="#0a111c">
@@ -64,6 +78,13 @@
       <h2>Dagric OS</h2>
       <div class="meta">Free forever · 2.0 GB ISO · the lean, private daily driver</div>
       <a class="btn primary" href="https://pub-23bebbd32e3b44c4af6e53c06194e77f.r2.dev/dagric-os-1.0-amd64.iso">Download free</a>
+      <!-- The Pro card had a refund line and a delivery line under its button; this one had nothing,
+           so the ungated download — the thing this product is proudest of — was the one promise not
+           made at the moment it matters. People arrive expecting an email wall in front of a 2 GB
+           file. It is true and checkable one line above: the href is a direct R2 object, no form, no
+           sign-up, no address. Same .refund class as the Pro card so both buttons read as equally
+           supported. -->
+      <p class="refund">No account, no email address — the button is the download</p>
     </div>
     <div class="card pro">
       <h2>Dagric OS <span class="grad">Pro</span></h2>

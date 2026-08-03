@@ -14,15 +14,61 @@
      measures 9.3:1 there, so only filled controls move. */
   --grad-fill:linear-gradient(135deg,#2170ae,#1a63a8 55%,#134f8c);
   --r-sm:10px; --r-md:14px; --r-lg:20px; --r-pill:999px;
-  --maxw:1120px; --shadow:0 24px 70px rgba(0,0,0,.5);
+  --maxw:1120px; --measure:34rem; --shadow:0 24px 70px rgba(0,0,0,.5);
 }
 *{margin:0;padding:0;box-sizing:border-box}
-html{scroll-behavior:smooth}
+/* The nav is sticky and 68px tall at desktop, and nothing reserved room for
+   it: every in-page jump landed its target underneath the bar. That includes
+   "Skip to content", which is on all 15 pages and drops you at #main whose
+   own 60px top padding is 8px short of clearing the nav, and the four
+   article anchors on /news. 84px = the 68px bar plus a 16px breath.
+
+   84px IS A DESKTOP NUMBER AND ONLY WORKS THERE. This bar wraps its links on
+   a phone — deliberately, see the block below — so it is not 68px tall down
+   there, it is nearly twice that. Measured in Chrome against the live CSS,
+   sweeping the viewport in 10px steps and identical on every page sampled:
+
+       300-450px   120.7px      (brand row, link row, Download pill row)
+       460-590px    95.9px      (brand row, then links + pill on one row)
+       600-640px    63.8px
+       above 640    67.8px
+
+   So a single 84px landed every phone anchor 37px UNDER the bar — including
+   "Skip to content", the one control a keyboard or screen-reader user has to
+   trust, on the narrow screens where the bar costs the most. The two phone
+   values below each clear their own plateau plus the same 16px breath; the
+   455px split is where the pill stops sharing a row with the links. Verified
+   after the change at 390px and 560px: the target lands clear of the bar in
+   both states. Do not collapse these into one number — the tall plateau's
+   137px would leave 41px of dead space across the whole 460-640 band. */
+html{scroll-behavior:smooth;scroll-padding-top:84px}
+@media(max-width:640px){html{scroll-padding-top:112px}}
+@media(max-width:455px){html{scroll-padding-top:137px}}
 body{background:var(--bg);color:var(--text);
   font:16px/1.65 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;-webkit-font-smoothing:antialiased}
 a{color:var(--accent);text-decoration:none}
 a:hover{text-decoration:underline}
-img{max-width:100%;display:block}
+/* height:auto is load-bearing, not boilerplate. Every content image and the promo
+   video carry width/height ATTRIBUTES (correctly — they reserve layout space and
+   stop the page jumping). Those attributes also map to a presentational `height`,
+   and a presentational hint is only beaten by an author rule. max-width capped the
+   WIDTH; nothing touched the height, and aspect-ratio is ignored while both axes
+   are definite. So on a phone every one of them rendered at its full intrinsic
+   pixel height inside a ~320px-wide box. Measured at 360px:
+     shot-launcher.png   322x800  should be 322x201   (index)
+     shot-hub.png        318x800  should be 318x199   (features)
+     shot-installer.png  320x800  should be 320x200   (download)
+     dagric-promo.mp4    318x720  should be 318x179   (features)
+     7 x look-*.svg      322x400  should be 322x201   (index)
+   index.html was 18675px tall and is 16760px; features.html 7990 -> 6848.
+   The Look diagrams were the worst of it: .look img asks for aspect-ratio 16/10
+   and object-fit:cover, and with a definite 400px height cover cropped 47% of
+   each diagram's WIDTH, centred — so "Command" (a side dock) and "Unity" (a side
+   dock plus top bar) had the dock cropped off the frame. Seven pictures whose only
+   job is showing where the taskbar sits, with the taskbar cut out of them.
+   Logos are unaffected: .brand img and .hero .logo set both axes themselves and
+   outrank this rule. */
+img,video{max-width:100%;height:auto;display:block}
 .grad{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
 .center{text-align:center}
 .wrap{max-width:var(--maxw);margin:0 auto}
@@ -32,7 +78,16 @@ img{max-width:100%;display:block}
 a:focus-visible,.btn:focus-visible,button:focus-visible,summary:focus-visible,
 input:focus-visible,select:focus-visible,textarea:focus-visible{
   outline:2px solid var(--accent2);outline-offset:2px}
-.skip{position:absolute;left:-9999px}
+/* position:FIXED, not absolute. Absolute resolves against the initial
+   containing block, so the `top:10px` below meant 10px from the top of the
+   DOCUMENT, not the viewport: measured on index.html at scrollY 14363 the
+   focused link laid out at viewport y -14353px, and the only way a browser
+   can reveal it is to scroll the whole page back to the top - so the first
+   Tab press from anywhere mid-page threw the reader back to the start.
+   Fixed pins it 10px below the top of the VIEWPORT at any scroll position,
+   and fixed elements never add to scrollable overflow. z-index 100 still
+   clears the sticky nav's 50. */
+.skip{position:fixed;left:-9999px}
 .skip:focus{left:16px;top:10px;z-index:100;background:var(--panel);padding:8px 14px;border-radius:8px;border:1px solid var(--line)}
 
 /* ── nav (reachable on mobile — links wrap, never hidden) ── */
@@ -92,7 +147,13 @@ nav{position:sticky;top:0;z-index:50;background:rgba(10,17,28,.85);
   font-size:1.02rem;border:1px solid var(--line);color:var(--text);text-decoration:none;
   transition:transform .15s ease,box-shadow .15s ease,background .15s ease}
 .btn:hover{text-decoration:none;transform:translateY(-2px)}
-.btn.primary{background:var(--grad-fill);border:none;color:#fff;box-shadow:0 8px 30px rgba(63,169,245,.35)}
+/* transparent, NOT none: .btn carries a 1px border and dropping it made the
+   primary button 52.9px tall beside a 54.9px ghost, so every side-by-side CTA
+   pair sat 1px out of true at the top and 1px at the bottom — /about, both
+   pairs on /features, and the pair on /terms. The homepage hides it only
+   because .phero .btns is flex and stretch equalises the two. The gradient
+   still paints under a transparent border, so the button looks identical. */
+.btn.primary{background:var(--grad-fill);border:1px solid transparent;color:#fff;box-shadow:0 8px 30px rgba(63,169,245,.35)}
 .btn.primary:hover{box-shadow:0 12px 38px rgba(63,169,245,.45);color:#fff}
 .btn.ghost{background:var(--panel)}
 .btn.ghost:hover{background:var(--panel-hi)}
@@ -129,6 +190,67 @@ pre code{background:none;border:none;padding:0;color:#7fd1a8}
 .note{border-left:3px solid var(--accent);background:var(--panel);border-radius:0 var(--r-md) var(--r-md) 0;
   padding:14px 18px;margin:16px 0;color:var(--muted)}
 
+/* ── reading measure on document pages ──────────────────────────────
+   main is 820px, so a line of 16px text held 106 characters — measured
+   on /privacy at 1280px: 772px of text divided by a 6.96px average
+   character, taken over the 5,340 characters of the page's real copy,
+   not a lorem sample. Comfortable is 60-75; 90 is the outer edge. At
+   34rem the same paragraphs measure 78 characters, and list text 75.
+   These are the pages a school procurement officer has to read end to
+   end, so this is the one place the measure actually decides whether
+   the page gets read.
+
+   main itself STAYS 820px, because the conformance tables on
+   /accessibility need the width: narrowing main to 620px grew the
+   tallest ACR row from 170px to 269px and the page from 5,075px to
+   6,485px. Constraining the text instead leaves .tablewrap on the full
+   container, so the three-column tables now sit wider than the prose —
+   which is what a table of criteria/conformance/remarks wants anyway.
+
+   :has() does the page-scoping with no HTML edits: any main holding
+   cards, a grid, a form or sections is a marketing or conversion page
+   and is left byte-identical (index, features, pro, download, support,
+   bugs, contact). It applies to the eight true document pages: about,
+   accessibility, faq, getting-started, licenses, news, privacy, terms.
+   A browser without :has() drops the whole rule and renders exactly
+   what ships today, so the failure mode is "no change", not "broken".
+
+   Do not merge these two selectors. The auto margins that centre the
+   column overwrite the 24px margin-left that ul/ol carry their bullets
+   on, so the indent has to move to padding — and that swap must stay
+   scoped, because download, support and bugs each have a top-level ul
+   that keeps its margin and would otherwise indent twice, to 48px.
+   .steps is excluded inside the selector rather than reset by a rule
+   after it: a separate `main > .steps{padding-left:0}` is (0,1,1) and
+   loses to this selector's (0,3,2), which is exactly how the numbered
+   steps on /getting-started picked up a 24px indent the first time.
+   Three classes, not two: Selectors L4 gives :not() and :has() the weight
+   of their most specific argument, so :not(.wide), :not(:has(> .grid, …))
+   and :not(.steps) each contribute one — and two types, main plus the
+   :is(ul,ol). Verified empirically as well as counted: ol.steps on
+   /getting-started computes padding-left:0 and aligns with its own h2s. */
+main:not(.wide):not(:has(> .grid, > .dl, > .strip, > .card, > form, > section))
+  > :is(h1,h2,h3,p,ul,ol,dl,pre,article,blockquote,details,.lead,.sub,.note,.sums){
+  max-width:var(--measure);margin-left:auto;margin-right:auto}
+main:not(.wide):not(:has(> .grid, > .dl, > .strip, > .card, > form, > section))
+  > :is(ul,ol):not(.steps){padding-left:24px}
+
+/* A document h1 rendered at the same clamp as the homepage hero — 57.6px
+   at 1280 — so /privacy and /terms shouted exactly as loudly as the front
+   page, over a 16px legal paragraph. 2.6rem keeps the h1 dominant (41.6px
+   against a 30.4px h2 and 16px body) without borrowing the hero's voice.
+   Same page scope as the measure above, so no marketing h1 moves.
+
+   Held above 640px on purpose. The phone rule at the bottom of this file
+   already sizes h1 (40px at 640 falling to 31.2px at 360), and this
+   selector's (0,2,2) would outrank it and undo that work. 2.6rem picks up
+   at 41.6px where that rule leaves off at 40px, so the size only ever
+   grows with the viewport. */
+@media(min-width:641px){
+  main:not(.wide):not(:has(> .grid, > .dl, > .strip, > .card, > form, > section))
+    > h1{font-size:2.6rem}
+}
+
 /* ── sections (marketing pages) ── */
 section{padding:80px 24px}
 section.alt{background:var(--bg2)}
@@ -163,8 +285,34 @@ td.n{color:var(--faint)}
 .phero .lead{margin:0 auto 26px}
 .phero .btns{display:flex;gap:14px;justify-content:center;flex-wrap:wrap}
 .phero .tiny{color:var(--muted);font-size:.85rem;margin-top:12px}
-.shot{max-width:880px;margin:40px auto 0;border-radius:var(--r-lg);overflow:hidden;
+/* ONE frame for all four real screenshots. This had drifted into four
+   declarations in three files: .shot here (var(--shadow) + a 1px accent
+   ring), .strip in features.html (0 24px 70px rgba(0,0,0,.5) hardcoded, no
+   ring), .strip in download.html (var(--shadow), no ring) and a dead .shot
+   in pro.html (0 30px 90px rgba(0,0,0,.55)) waiting for the Pro capture its
+   comment promises. Three different shadows for the same object, and only
+   the homepage got the ring. Same frame, same 900px cap, one place. */
+.shot,.strip{max-width:900px;margin:40px auto 0;border-radius:var(--r-lg);overflow:hidden;
   border:1px solid var(--line);box-shadow:var(--shadow),0 0 0 1px rgba(63,169,245,.08)}
+.shot img,.strip img{width:100%;display:block}
+
+/* A <p> holding TWO buttons is a button row, and the site had been building
+   those out of inline-block pills plus style="margin-left:10px" on the second
+   one. That works until the row wraps, which it does on every mainstream phone
+   — and then it fails twice: consecutive line boxes touch, so the stacked
+   pills get a 0.0px vertical gap (measured at 390px on /terms: button one's
+   bottom and button two's top are the same y), and the margin-left meant as a
+   horizontal gap becomes a stray 10px indent, so the second button sits at
+   left=30 under a first button at left=20 while every heading and paragraph on
+   the page sits at 20. /about and /features carry the identical markup and got
+   away with it only because their rows are centred.
+   flex + gap is correct in both states. Scoped to `.btn + .btn` so it matches
+   only the three real two-button rows and leaves the five single-button
+   paragraphs — two of which centre themselves with text-align, which flex
+   would ignore — exactly as they were. The element stays a <p>: the reading-
+   measure rule matches on element name, not on display. */
+p:has(> .btn + .btn){display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+@media(max-width:640px){.shot,.strip{margin-top:28px;border-radius:var(--r-md)}}
 
 /* ── Dagric Looks card (one component, used on / and /pro) ── */
 .looks-grid{display:grid;gap:18px;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));margin-top:38px}
@@ -223,7 +371,10 @@ footer{border-top:1px solid var(--line);padding:38px 24px;color:var(--muted);fon
   .lead,.sub{font-size:1.03rem}
   main{max-width:100%;padding:38px 20px 60px}
   main h2{margin:38px 0 12px;font-size:1.4rem}
-  .shot{margin-top:28px;border-radius:var(--r-md)}
+  /* .shot's phone margin and radius used to be repeated here. They now live
+     with the shared .shot,.strip frame further up, which covers both classes;
+     keeping a second copy that named only .shot is how the two drifted apart
+     the first time. */
   .btn{padding:12px 22px;font-size:.97rem}
   .btn.lg{padding:14px 24px;font-size:1rem}
   .phero .btns{gap:10px;width:100%}
@@ -232,11 +383,95 @@ footer{border-top:1px solid var(--line);padding:38px 24px;color:var(--muted);fon
   .grid{gap:14px}
   .card{padding:20px 22px}
   pre,.sums{font-size:11.5px}
+
+  /* Cell padding is 30px per cell, which is desktop money spent on a 320px
+     screen. On /pro the three-column .cmp measured 374px inside a 320px
+     wrapper — the "Pro" column, the one thing that page is selling, sat 34px
+     off the right edge on a 360px phone and only appeared if you thought to
+     swipe a table sideways inside a page that scrolls vertically. Trimming the
+     padding is enough on its own: the table's min-content is the sum of its
+     columns', so 9px (and 6px for the three-column .cmp, whose widest
+     unbreakable word is "Photo/audio/video") brings /pro to exactly 320px and
+     removes the horizontal scroll entirely. Font size is deliberately NOT
+     reduced — .95rem is already 15.2px and shrinking table text on a phone is
+     the wrong half of the trade.
+     Measured at 360px: /pro .cmp 374 -> 320px, its wrapper no longer
+     scrolls horizontally, and the page went from 33 elements past the right
+     edge to 0. index.html's two tables are NOT part of that result and an
+     earlier version of this comment claimed they were, with four-digit
+     figures that reproduce in no dimension: both render at 324px inside a
+     324px wrapper and neither overflowed before the change either. What
+     moved there is only their max-content width (966 -> 942 and 995 -> 941),
+     which is slack, not layout. Recorded because a comment stating a
+     measurement that cannot be reproduced is worse than no comment. */
+  th,td{padding:11px 9px}
+  .cmp th,.cmp td{padding:11px 6px}
+
   .foot{justify-content:center;text-align:center;gap:12px}
-  .foot .links{justify-content:center}
-  .foot .links a:not(:last-child)::after{margin:0 9px}
+  .foot .links{justify-content:center;gap:2px 0}
+  /* The nav block above took its links from 23px to 44px targets and explains
+     at length why that matters. The footer kept the identical defect: 14 links
+     on every page, each one 23px tall, the smallest ("Terms") a 36x23px target.
+     Same standard, same fix — padding makes the hit area, and dropping the "·"
+     on phone pays for it. Each separator cost 22px of a 320px row, so removing
+     13 of them frees 286px and the block drops from four rows to three; the
+     links then read as a spaced set, which is what the nav does one screen up.
+     Measured at 360px: smallest target 36x23 -> 39x43, rows 4 -> 3, footer
+     228 -> 269px. No negative margins here on purpose — the row pitch is 45px
+     against a 43px box, so adjacent rows do not overlap. Overlapping hit areas
+     would just move the defect rather than fix it. */
+  .foot .links a{padding:10px 9px;display:inline-block}
+  .foot .links a:not(:last-child)::after{display:none}
 }
 
 @media (prefers-reduced-motion:reduce){
   *{scroll-behavior:auto!important;transition:none!important;animation:none!important}
+}
+
+/* -- print ---------------------------------------------------------------
+   NOT a light theme and NOT a retreat from dark-only: paper has no
+   background. Browsers drop background-color when printing but keep color:,
+   so every page on this site printed as --text #e8eef6 on white - measured
+   1.17:1. Body copy (--muted) printed at 1.99:1, code/kbd at 1.52:1, and
+   .steps li::before is #fff on a gradient that is also dropped: 1.00:1, so
+   steps 1-5 of the install instructions came out as five empty circles.
+   .grad is worse than any of them - background-clip:text with
+   color:transparent is invisible ink once the background goes, and "Dagric
+   OS" sits inside a .grad span in almost every h1 here, so the product name
+   disappeared from the top of every printed page.
+   getting-started, licenses, privacy and terms are pages a school or library
+   actually puts on paper for somebody. Ink, not brand. -- */
+@media print{
+  :root{--bg:#fff;--bg2:#fff;--panel:#fff;--panel-hi:#fff;
+    --line:#bbb;--line2:#999;--text:#000;--muted:#1c1c1c;--faint:#444;
+    --accent:#0b4f8a;--accent2:#0b4f8a;--good:#000}
+  @page{margin:16mm}
+  html,body{background:#fff!important;color:#000!important}
+  body{font-size:11pt;line-height:1.5}
+  nav,.skip,video,.foot .links{display:none!important}
+  main{max-width:100%!important;margin:0!important;padding:0!important}
+  section{padding:0 0 14px!important}
+  .wrap,.sec-head{max-width:100%!important}
+  .phero{padding:0 0 14px!important;background:none!important}
+  h1,h2,h3{color:#000;break-after:avoid;page-break-after:avoid}
+  h1{font-size:20pt}
+  h2{font-size:14pt;margin:22px 0 8px!important}
+  h3{font-size:12pt}
+  p,li,pre,tr,.note,.card,.price{break-inside:avoid;page-break-inside:avoid}
+  main p,.lead,.sub,ul,ol,li{color:#1c1c1c}
+  .grad{background:none!important;-webkit-background-clip:border-box!important;
+    background-clip:border-box!important;color:#000!important;-webkit-text-fill-color:#000!important}
+  a{color:#0b4f8a;text-decoration:underline}
+  main a[href^="http"]::after{content:" <" attr(href) ">";font-size:8.5pt;color:#444;word-break:break-all}
+  .btn{display:inline;padding:0!important;border:none!important;background:none!important;
+    box-shadow:none!important;color:#0b4f8a!important;font-size:inherit;text-decoration:underline}
+  code,kbd,pre,pre code,.sums{background:#fff!important;color:#000!important;border-color:#999!important}
+  .note{background:#fff;border:1px solid #999;border-left:3px solid #000;border-radius:0}
+  .card,.price,details,.shot,.strip{background:#fff;box-shadow:none!important}
+  /* a white number on a gradient that print drops = a blank circle */
+  .steps li::before{background:#fff!important;color:#000!important;border:1.5px solid #000}
+  .tablewrap,pre,.sums,table{overflow:visible!important}
+  th,td{border-bottom:1px solid #bbb}
+  thead th,td.y,td.n,.refund::before{color:#000}
+  footer{border-top:1px solid #bbb;padding:10px 0 0;font-size:9pt;color:#444}
 }

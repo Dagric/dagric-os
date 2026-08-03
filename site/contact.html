@@ -26,6 +26,19 @@ button:disabled{opacity:.6;cursor:wait}
 #status{margin-top:16px;font-weight:600}
 #status.ok{color:var(--good)}
 #status.err{color:#f87171}
+/* The only form on the site, and the route people take for refunds and support,
+   had no phone rule at all: 34px of form padding inside main's 20px left 250px of
+   a 360px screen for the fields — 110px per side, 31% of the viewport, spent on
+   nothing. The textarea people type a bug report into was 250px wide. Trimming to
+   18px gives 282px of field, +13%, and the form still reads as a panel.
+   (The 16px font on the inputs is already correct and must stay: iOS zooms the
+   whole page on focus for anything under 16px, and `font:inherit` is what keeps
+   them at the body's 16px. Do not switch these to a rem-based smaller size.) */
+@media(max-width:640px){
+  form{padding:22px 18px;margin-top:20px}
+  label{margin:16px 0 6px}
+  button{width:100%;padding:15px 24px}
+}
 </style>
 <link rel="canonical" href="https://dagric.com/contact">
 <meta name="theme-color" content="#0a111c">

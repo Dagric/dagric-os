@@ -69,16 +69,27 @@ main:focus:not(:focus-visible), section:focus:not(:focus-visible) { outline:none
    deliberate: a language you cannot stand behind should not be offered, and
    one you offer with a caveat is an invitation to come and fix it. */
 .langbar {
-  display:flex; align-items:center; gap:10px; flex-wrap:wrap;
+  display:flex; align-items:center; gap:8px 10px; flex-wrap:wrap;
   margin:0 0 18px; font-size:.85rem; color:var(--muted);
 }
 .langbar .label {
   font-size:.68rem; font-weight:600; letter-spacing:.14em;
   text-transform:uppercase; color:var(--faint);
 }
+/* 3px of vertical padding gave a 31.1px pill (13.6px x 1.7 line-height + 6 + 2),
+   which was defensible when this bar held one alternative and was decoration.
+   It now holds five, and on the German, Spanish, French, Italian and Portuguese
+   pages the English link is the ONLY route out of a translation that is
+   machine-assisted and unreviewed — the single control a reader reaches for at
+   the exact moment the page has stopped making sense to them. 9px puts it at
+   43.1px, which is the standard the sidebar links in this same file were
+   rebuilt to meet; leaving one 31px target two elements from a 44px one is
+   just an inconsistency with extra steps.
+   Row gap goes to 8px so that a bar which now wraps to two rows on a phone
+   does not stack the pills edge to edge. */
 .langbar a, .langbar strong {
   border:1px solid var(--line-soft); border-radius:99px;
-  padding:3px 12px; background:var(--bg-raise); font-weight:500;
+  padding:9px 14px; background:var(--bg-raise); font-weight:500;
 }
 .langbar strong { color:var(--ink); border-color:var(--accent-brd); }
 .langbar a:hover { color:var(--ink); border-color:var(--accent-brd); text-decoration:none; }
@@ -141,12 +152,6 @@ nav.toc a {
   line-height:1.45;
 }
 nav.toc a:hover { color:var(--ink); background:var(--line-soft); text-decoration:none; }
-/* The display:block above is an AUTHOR rule and so beats the user agent's
-   [hidden]{display:none}: guide.js's `a.hidden = !hit` set the attribute and
-   nothing moved. A search filtered the sections but left all 22 sidebar links
-   standing, several now pointing at a section no longer on the page — clicking
-   one calls focus() on a display:none element and the page looks frozen. */
-nav.toc a[hidden] { display:none; }
 /* The display:block above is an AUTHOR rule and so beats the user agent's
    [hidden]{display:none}: guide.js's `a.hidden = !hit` set the attribute and
    nothing moved. A search filtered the sections but left all 22 sidebar links
@@ -472,11 +477,20 @@ footer.colophon {
   .tip { border-color:rgba(28,110,168,.20); }
   .tip::before { background:#1c6ea8; color:#ffffff; }
 }
-@media (prefers-color-scheme: light) and (max-width:900px) {
-  .sidebox { background:rgba(243,246,250,.92); }
-}
-
 /* ---------- narrow screens ---------- */
+/* Measured at 375x812: this sticky header stood 189.8px tall — 23% of the
+   screen, permanently, above every word of the guide. It broke down as 12px of
+   padding, a 54.4px brand row (a 34px mark beside a two-line wordmark), a 14px
+   collapsed margin, 61.8px of search box of which 20.4px is a status line that
+   is empty until you type, 4px, a 32.6px pill strip, 10px and a border. That is
+   taller than the 143px site header this project already condemned and rebuilt
+   at 121px.
+
+   Three changes, all the same idea — stop stacking things that fit side by
+   side. The brand and the search box share row one, the empty status line stops
+   reserving height, and the 75px that comes back pays for tap targets.
+   189.8px -> 114.4px (14% of the screen), and the section pills go from 28.6px
+   tall to 44px. */
 @media (max-width:900px) {
   .shell { display:block; padding:0 22px; }
   .side { padding:20px 0 0; }
@@ -485,20 +499,115 @@ footer.colophon {
     max-height:none; overflow:visible;
     background:rgba(10,17,28,.92);
     backdrop-filter:blur(10px);
-    margin:0 -22px; padding:12px 22px 10px;
+    margin:0 -22px; padding:8px 22px;
     border-bottom:1px solid var(--line-soft);
+    display:grid;
+    grid-template-columns:auto minmax(0,1fr);
+    align-items:center;
+    column-gap:12px; row-gap:8px;
   }
-  .brand { border-bottom:none; padding-bottom:8px; margin-bottom:2px; }
+  /* Row one: mark and wordmark on the left, search on the right. */
+  .brand { border-bottom:none; padding-bottom:0; margin-bottom:0; }
+  .brand-name { white-space:nowrap; }
+  /* 20.6px spent repeating what the eyebrow and the h1 both say just below. */
+  .brand-name small { display:none; }
+  .gsearch { margin:0; }
+  /* Empty, this reserved 20.4px at the top of every phone screen. It keeps its
+     box rather than becoming display:none — removing an aria-live region from
+     the accessibility tree and then restoring it together with its text in the
+     same frame is the case screen readers miss — it simply stops reserving the
+     height until there is a count to announce. */
+  .gsearch-status:empty { min-height:0; margin-top:0; }
+
+  /* Row two: the section strip, full width. */
   .navgroup { display:none; }
-  nav.toc { display:flex; gap:6px; overflow-x:auto; padding-bottom:4px; scrollbar-width:none; }
+  nav.toc {
+    grid-column:1 / -1;
+    display:flex; gap:6px; overflow-x:auto;
+    padding-bottom:4px; scrollbar-width:none;
+  }
   nav.toc::-webkit-scrollbar { display:none; }
+  /* 44px. These were .8rem over line-height 1.45 with 4px of padding and a
+     border: 28.6px, on the one surface of this project that is read on a phone
+     with a thumb, and under the 44px minimum the site's own nav was rebuilt to
+     meet. display:flex here is specificity 0-1-2 and still loses to
+     nav.toc a[hidden] at 0-2-2, so search filtering still hides them. */
   nav.toc a {
     flex:none; margin:0;
+    display:flex; align-items:center;
+    min-height:44px;
     border:1px solid var(--line-soft);
     border-radius:99px;
-    padding:4px 12px;
-    font-size:.8rem;
+    padding:0 14px;
+    font-size:.85rem;
   }
   nav.toc a.active { border-color:var(--accent-brd); border-radius:99px; }
+
+  /* The bug that made the strip above nearly pointless. Tapping a section
+     scrolled it to 52px from the top of the viewport — html's 28px
+     scroll-padding plus the section's own 24px scroll-margin — which is 138px
+     underneath a 190px header that is 92% opaque. You tapped "Printers" and
+     arrived mid-paragraph with the heading you had asked for hidden behind the
+     bar. 116px clears the header in its tallest state (134.8px, which is while
+     a search count is showing) once the 24px scroll-margin is added on top. */
+  html { scroll-padding-top:116px; }
+
   .content { padding-top:30px; max-width:none; }
+}
+
+/* AFTER the block above, not before it. Both rules are `.sidebox` at
+   specificity 0-1-0, so the later one wins — and this one used to be the
+   earlier one, which meant it never applied at all. Light mode on a phone got
+   a dark navy bar pinned to the top of a light page: exactly the half-dark
+   help this file's light-mode section was written to end. */
+@media (prefers-color-scheme: light) and (max-width:900px) {
+  .sidebox { background:rgba(243,246,250,.92); }
+}
+
+
+/* ---------- print ---------- */
+/* The troubleshooting comment above already notes that collapsed content
+   "prints as a page of closed boxes", so somebody here was thinking about
+   paper. Nothing else was. Browsers drop background-color when printing and
+   keep color:, so this guide printed as --ink #e7eef7 on white: measured
+   1.17:1. Prose (--ink-soft) came out at 1.87:1 and code at 1.52:1, which on
+   a troubleshooting manual means the commands are the first thing to go.
+   This is the page most likely to be printed - it is what people reach for
+   when the thing they are fixing is the Wi-Fi, and the offline copy under
+   /usr/share/dagric/guide is this same file.
+   prefers-color-scheme does NOT cover this: a reader whose desktop is dark
+   gets the dark tokens on paper. The values below are the light block's,
+   deepened for ink rather than invented as a third palette; the layout
+   collapses to one column because a sticky 224px sidebar and a search box
+   are furniture, not content. */
+@media print {
+  :root {
+    --bg:#ffffff; --bg-raise:#ffffff; --panel:#ffffff; --panel-2:#f2f5f9;
+    --line:rgba(31,54,84,.38); --line-soft:rgba(31,54,84,.22);
+    --ink:#000000; --ink-soft:#1a1a1a; --muted:#333333; --faint:#4a4a4a;
+    --accent:#12507e; --accent-dim:#12507e;
+    --accent-bg:#ffffff; --accent-brd:rgba(31,54,84,.38);
+  }
+  @page { margin:16mm; }
+  html, body { background:#fff !important; color:#000 !important; }
+  body { font-size:10.5pt; line-height:1.5; }
+  .skip, .side, .langbar, .langnote, .gsearch, .gsearch-status, .back-to-site { display:none !important; }
+  .shell { display:block; max-width:none; padding:0; }
+  .content { padding:0; max-width:none; }
+  section { padding:14px 0 0; margin-top:10px; }
+  h1, h2, .fix h3 { color:#000; break-after:avoid; page-break-after:avoid; }
+  h1 { font-size:19pt; }
+  h2 { font-size:13pt; }
+  p, li, .key-card, .helper-row, .tip, .winmap tr, .checklist li { break-inside:avoid; page-break-inside:avoid; }
+  a { color:#12507e; text-decoration:underline; }
+  /* each of these hardcoded a colour on the assumption the page was dark */
+  kbd { background:#fff !important; border:1px solid #555; color:#000; }
+  code { background:#fff !important; border:1px solid #777; color:#000 !important; }
+  .tip { background:#fff; border:1px solid #777; }
+  .tip::before { background:#fff; color:#000; border:1px solid #000; box-sizing:border-box; }
+  .key-card, .helpers { background:#fff; border:1px solid #bbb; }
+  .pro { background:#fff; border:1px solid #555; color:#000; }
+  .eyebrow, .fix h3::before { color:#000; }
+  .mark { background:#fff; border:1px solid #555; color:#000; }
+  footer.colophon { color:#333; }
 }

@@ -50,6 +50,7 @@ ram_min_mb=3500
 ram_ok_mb=7000
 disk_min_gb=25
 disk_ok_gb=60
+disk_min_pro_gb=40
 [ -r "$DATA/minimums" ] && . "$DATA/minimums"
 
 TEXTMODE=no
@@ -1123,6 +1124,12 @@ if [ "$DISKS_SEEN" -gt 0 ]; then
     p "  ---------------"
     _need=$((disk_min_gb * 1073741824))
     _comfy=$((disk_ok_gb * 1073741824))
+    # Pro's floor, so that a machine which clears the free one but not this
+    # one is told so BEFORE the $39 rather than after. This tool runs from
+    # the free ISO — which is exactly the ISO somebody boots to decide
+    # whether to buy Pro — so it cannot know which edition is intended and
+    # must not pretend to. It states both numbers and lets the reader pick.
+    _needpro=$((disk_min_pro_gb * 1073741824))
     if [ "$BEST_FREE" -ge "$_comfy" ]; then
         p "  There is $(hbytes "$BEST_FREE") of unused space on $BEST_DISK."
         p "  That is comfortably more than the ${disk_min_gb} GB Dagric needs,"
@@ -1132,6 +1139,13 @@ if [ "$DISKS_SEEN" -gt 0 ]; then
         p "  There is $(hbytes "$BEST_FREE") of unused space on $BEST_DISK."
         p "  Dagric needs ${disk_min_gb} GB, so it will fit — though ${disk_ok_gb} GB"
         p "  would leave more room for updates and apps later."
+        if [ "$BEST_FREE" -lt "$_needpro" ]; then
+            p ""
+            p "  That is the free edition. Dagric OS Pro needs ${disk_min_pro_gb} GB,"
+            p "  and this drive is under that — so free will fit here and Pro"
+            p "  will not, unless you free up more room first."
+            flag W "There is room for the free edition but not for Pro, which needs ${disk_min_pro_gb} GB."
+        fi
     elif [ "$WINDOWS_SEEN" = yes ] || [ -n "$BITLOCKER_LIST" ]; then
         # Do not say "there is no unused space" when the drive report two
         # paragraphs up has just printed a number. Either say the number or
@@ -1151,6 +1165,7 @@ if [ "$DISKS_SEEN" -gt 0 ]; then
         fi
         p ""
         p "  Dagric needs ${disk_min_gb} GB, and ${disk_ok_gb} GB is comfortable."
+        p "  Dagric OS Pro needs ${disk_min_pro_gb} GB."
         p ""
         p "  This check does not open your Windows drive — nothing here reads"
         p "  or changes a single file on it — so it cannot see how full"
@@ -1446,7 +1461,7 @@ cat "$BODY" >> "$REPORT"
     echo ""
     echo "MINIMUMS THIS CHECK COMPARED AGAINST"
     echo "  memory: ${ram_min_mb} MB minimum, ${ram_ok_mb} MB comfortable"
-    echo "  disk:   ${disk_min_gb} GB minimum, ${disk_ok_gb} GB comfortable"
+    echo "  disk:   ${disk_min_gb} GB minimum, ${disk_ok_gb} GB comfortable, ${disk_min_pro_gb} GB for Pro"
 } > "$WORK/techfull.txt"
 
 # ============================================================================

@@ -16,3 +16,18 @@ ram_ok_mb=7000
 # below that the owner runs out within months. 60 GB is comfortable.
 disk_min_gb=25
 disk_ok_gb=60
+
+# Pro needs more, and this file is the only place that number is allowed to
+# live. It was published on the website (download.html: "25 GB free (Free) /
+# 40 GB (Pro)") and existed nowhere in the image, so the tool that tells people
+# whether their computer is big enough knew only the free figure — and it runs
+# from the FREE ISO, which is the one a prospective Pro buyer boots to decide.
+# A machine with 25-39 GB free was told "Dagric needs 25 GB, so it will fit"
+# and "You can install with confidence", then could not fit the edition the
+# owner had just paid $39 for. That lands as a refund, and it lands on the
+# person who did the responsible thing and checked first.
+#
+# The tool now names both numbers whenever the free floor is met but the Pro
+# one is not. It does NOT try to detect which edition the buyer intends —
+# it cannot, and guessing would trade a false all-clear for a false alarm.
+disk_min_pro_gb=40

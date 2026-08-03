@@ -77,8 +77,17 @@ dl.meta dd{margin:0}
   The gaps are the login password prompt, refreshable braille displays, and slow keys — all
   three are described below with the reason, not glossed.</p>
 
-  <h2>Keyboard access — Section 508 502.4 / ANSI-HFES 9.3</h2>
-  <div class="tablewrap">
+  <h2 id="tbl-keyboard-access-section-508-502-4">Keyboard access — Section 508 502.4 / ANSI-HFES 9.3</h2>
+  <!-- tabindex+role+aria-label, not a bare div. This wrapper is overflow-x:auto,
+       and on a 360px phone its table is 403px wide, so the "Remarks" column is
+       only reachable by scrolling the region. A div with overflow:auto is NOT
+       focusable in Chrome without tabindex, so a keyboard-only reader could not
+       scroll it at all - WCAG 2.1.1 (Keyboard), on the page that publishes this
+       product's WCAG 2.1 AA conformance claim. role=region plus a name makes it
+       a landmark a screen reader announces and can jump to, instead of an
+       unlabelled focus stop that appears to do nothing. The name is the id of
+       the h2 immediately above, so the two cannot drift apart. -->
+  <div class="tablewrap" tabindex="0" role="region" aria-labelledby="tbl-keyboard-access-section-508-502-4">
   <table class="acr">
     <thead><tr><th>Criterion</th><th>Conformance</th><th>Remarks</th></tr></thead>
     <tbody>
@@ -125,8 +134,17 @@ dl.meta dd{margin:0}
   </table>
   </div>
 
-  <h2>Screen reader and non-visual access</h2>
-  <div class="tablewrap">
+  <h2 id="tbl-screen-reader-and-non-visual-acces">Screen reader and non-visual access</h2>
+  <!-- tabindex+role+aria-label, not a bare div. This wrapper is overflow-x:auto,
+       and on a 360px phone its table is 403px wide, so the "Remarks" column is
+       only reachable by scrolling the region. A div with overflow:auto is NOT
+       focusable in Chrome without tabindex, so a keyboard-only reader could not
+       scroll it at all - WCAG 2.1.1 (Keyboard), on the page that publishes this
+       product's WCAG 2.1 AA conformance claim. role=region plus a name makes it
+       a landmark a screen reader announces and can jump to, instead of an
+       unlabelled focus stop that appears to do nothing. The name is the id of
+       the h2 immediately above, so the two cannot drift apart. -->
+  <div class="tablewrap" tabindex="0" role="region" aria-labelledby="tbl-screen-reader-and-non-visual-acces">
   <table class="acr">
     <thead><tr><th>Criterion</th><th>Conformance</th><th>Remarks</th></tr></thead>
     <tbody>
@@ -185,8 +203,17 @@ dl.meta dd{margin:0}
   </table>
   </div>
 
-  <h2>Low vision — contrast, magnification, text size</h2>
-  <div class="tablewrap">
+  <h2 id="tbl-low-vision-contrast-magnification">Low vision — contrast, magnification, text size</h2>
+  <!-- tabindex+role+aria-label, not a bare div. This wrapper is overflow-x:auto,
+       and on a 360px phone its table is 403px wide, so the "Remarks" column is
+       only reachable by scrolling the region. A div with overflow:auto is NOT
+       focusable in Chrome without tabindex, so a keyboard-only reader could not
+       scroll it at all - WCAG 2.1.1 (Keyboard), on the page that publishes this
+       product's WCAG 2.1 AA conformance claim. role=region plus a name makes it
+       a landmark a screen reader announces and can jump to, instead of an
+       unlabelled focus stop that appears to do nothing. The name is the id of
+       the h2 immediately above, so the two cannot drift apart. -->
+  <div class="tablewrap" tabindex="0" role="region" aria-labelledby="tbl-low-vision-contrast-magnification">
   <table class="acr">
     <thead><tr><th>Criterion</th><th>Conformance</th><th>Remarks</th></tr></thead>
     <tbody>
@@ -229,8 +256,17 @@ dl.meta dd{margin:0}
   </table>
   </div>
 
-  <h2>Other</h2>
-  <div class="tablewrap">
+  <h2 id="tbl-other">Other</h2>
+  <!-- tabindex+role+aria-label, not a bare div. This wrapper is overflow-x:auto,
+       and on a 360px phone its table is 403px wide, so the "Remarks" column is
+       only reachable by scrolling the region. A div with overflow:auto is NOT
+       focusable in Chrome without tabindex, so a keyboard-only reader could not
+       scroll it at all - WCAG 2.1.1 (Keyboard), on the page that publishes this
+       product's WCAG 2.1 AA conformance claim. role=region plus a name makes it
+       a landmark a screen reader announces and can jump to, instead of an
+       unlabelled focus stop that appears to do nothing. The name is the id of
+       the h2 immediately above, so the two cannot drift apart. -->
+  <div class="tablewrap" tabindex="0" role="region" aria-labelledby="tbl-other">
   <table class="acr">
     <thead><tr><th>Criterion</th><th>Conformance</th><th>Remarks</th></tr></thead>
     <tbody>

@@ -19,6 +19,28 @@ p{color:var(--muted);margin:10px 0}
 .small{font-size:.86rem;margin-top:22px}
 a{color:var(--accent);text-decoration:none}
 .sums{background:#0a1420;border:1px solid var(--line);border-radius:10px;padding:12px 14px;font:11.5px/1.7 ui-monospace,Consolas,monospace;color:#7fd1a8;overflow-x:auto;white-space:nowrap;margin-top:18px;text-align:left}
+/* This page is the ONLY one of the sixteen that does not link site.css — it is
+   deliberately self-contained so a receipt page cannot be broken by a stylesheet
+   edit — which also means site.css's print block does not reach it. It needs one
+   more than any other page does: this is the post-purchase page, it carries the
+   Pro download link and the SHA256 a buyer is asked to check, and printing or
+   saving-to-PDF is exactly what somebody does with a receipt. Browsers drop
+   background-color and keep color, so without this it printed as #e8eef6 on
+   white (1.17:1) with the checksum in #7fd1a8 (1.81:1) — the two pieces of
+   information the page exists to hand over, invisible on the paper.
+   white-space is unset on .sums because a 64-character hash cannot scroll on
+   paper; it has to wrap or it is simply cut off at the margin. */
+@media print{
+  body{background:#fff!important;color:#000!important;display:block;padding:0}
+  @page{margin:16mm}
+  .card{max-width:none;background:#fff;border:none;border-radius:0;box-shadow:none;padding:0;text-align:left}
+  h1,p,.small{color:#000!important}
+  .grad{background:none;-webkit-text-fill-color:#000;color:#000!important}
+  a{color:#12507e!important;text-decoration:underline}
+  .btn{color:#000!important;background:none!important;box-shadow:none;border:1px solid #555;padding:8px 14px}
+  .sums{background:#fff!important;border:1px solid #777;color:#000!important;white-space:pre-wrap;word-break:break-all;overflow:visible}
+  img.logo{box-shadow:none;margin:0 0 14px}
+}
 </style>
 <meta name="theme-color" content="#0a111c">
 <link rel="icon" href="/favicon.ico" sizes="32x32">
