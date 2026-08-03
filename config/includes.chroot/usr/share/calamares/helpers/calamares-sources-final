@@ -1,0 +1,101 @@
+#!/bin/sh
+# SPDX-FileCopyrightText: 2026 DGR Operations <repo@dagric.com>
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+# Dagric OS — the apt sources the INSTALLED system gets.
+#
+# THIS REPLACES calamares-settings-debian's OWN COPY, BECAUSE THAT VERSION
+# QUIETLY DROPS contrib AND non-free AND TAKES THREE ADVERTISED FEATURES WITH
+# THEM.
+#
+# ---------------------------------------------------------------------------
+# WHAT WENT WRONG
+# ---------------------------------------------------------------------------
+# The LIVE session, built by auto/config with
+# --archive-areas "main contrib non-free non-free-firmware", has:
+#
+#     deb http://deb.debian.org/debian/ trixie main contrib non-free non-free-firmware
+#
+# Debian's calamares-sources-final then wrote the installed system:
+#
+#     deb http://deb.debian.org/debian trixie main non-free-firmware
+#
+# contrib and non-free are gone. Nothing says so, and the live session behaves
+# correctly right up until the moment the machine reboots into the install.
+#
+# WHAT THAT BREAKS, all of it advertised:
+#   * the NVIDIA driver helper. nvidia-driver and nvidia-detect are both in
+#     non-free. dagric-drivers runs `apt-get install -y nvidia-detect`, which
+#     can only fail, and then reports a connection problem for what is actually
+#     a missing component. The Hub row, features.html and the FAQ all sell this.
+#   * one-click Steam. steam-installer is in non-free.
+#   * any other contrib/non-free package an owner reasonably reaches for later,
+#     with no clue why apt claims it does not exist.
+#
+# The live ISO is the thing customers evaluate, so this fails in the least
+# visible way possible: everything works in the trial and stops working after
+# they commit.
+#
+# ---------------------------------------------------------------------------
+# WHY THE COMPONENTS ARE THE ONES BELOW
+# ---------------------------------------------------------------------------
+# They are exactly what the live system carries, so an installed machine
+# behaves like the one the owner tried. That is the whole contract of a live
+# installer.
+#
+# non-free-firmware is what makes Wi-Fi and graphics work on the 2012-2018
+# hardware this product targets; non-free carries the NVIDIA driver and Steam;
+# contrib carries the packages that glue non-free bits to the system. Debian
+# splits them for its own policy reasons, which are about Debian's guarantees
+# and not about what a person who just left Windows needs from their laptop.
+#
+# -backports is deliberately NOT here even though Debian's version adds it.
+# Nothing in Dagric pulls from backports, and an enabled backports suite is a
+# loaded footgun on a machine sold on stability: one `apt install -t
+# trixie-backports` from a forum post and the owner has a mixed system with no
+# way back. The update channel in sources.list.d/dagric.list is how Dagric
+# ships newer things, deliberately and signed.
+#
+# deb-src lines are kept. They cost nothing until used, and this product ships
+# modified GPL software — an owner who wants the source of what is on their
+# machine should find `apt-get source` simply works.
+# ---------------------------------------------------------------------------
+
+CHROOT=$(mount | grep proc | grep calamares | awk '{print $3}' | sed -e "s#/proc##g")
+RELEASE="trixie"
+
+if [ -z "$CHROOT" ] || [ ! -d "$CHROOT" ]; then
+    echo "ERROR: could not locate the Calamares target root." >&2
+    exit 1
+fi
+
+COMPONENTS="main contrib non-free non-free-firmware"
+
+cat << EOF > "$CHROOT"/etc/apt/sources.list
+# Written by Dagric's installer. These are the same components the live session
+# used, so this machine behaves like the one you tried.
+#
+# non-free-firmware  Wi-Fi, Bluetooth and graphics firmware
+# non-free           the NVIDIA driver, Steam
+# contrib            packages that depend on non-free pieces
+#
+# Dagric's own updates come from /etc/apt/sources.list.d/dagric.list, which is
+# signed with a key in /usr/share/keyrings/. Security updates from Debian
+# install themselves; Dagric's appear in Discover for you to click.
+deb http://deb.debian.org/debian $RELEASE $COMPONENTS
+deb-src http://deb.debian.org/debian $RELEASE $COMPONENTS
+deb http://deb.debian.org/debian $RELEASE-updates $COMPONENTS
+deb-src http://deb.debian.org/debian $RELEASE-updates $COMPONENTS
+deb http://security.debian.org/debian-security/ $RELEASE-security $COMPONENTS
+deb-src http://security.debian.org/debian-security/ $RELEASE-security $COMPONENTS
+EOF
+
+# Prove it landed. A sources.list the installer failed to write is a machine
+# with no updates at all, which is worse than the components being wrong.
+if ! grep -q "non-free" "$CHROOT"/etc/apt/sources.list 2>/dev/null; then
+    echo "ERROR: failed to write $CHROOT/etc/apt/sources.list" >&2
+    exit 1
+fi
+
+echo "sources-final: trixie $COMPONENTS (matching the live session)"
+exit 0

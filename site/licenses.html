@@ -68,8 +68,29 @@
 
   <h2>What's never bundled</h2>
   <p>Proprietary <strong>applications</strong> are <strong>never preinstalled</strong>. Steam (Valve),
-  the NVIDIA driver, Widevine DRM, and DaVinci Resolve (Blackmagic) are only ever installed when
-  <em>you</em> ask — one-click, clearly labeled — fetched from their vendors under their own EULAs.
+  the NVIDIA driver and DaVinci Resolve (Blackmagic) are only ever installed when
+  <em>you</em> ask — one-click, clearly labeled — fetched from their vendors under their own EULAs.</p>
+
+  <!-- Widevine was in the sentence above, in the "only when you ask" list. It does
+       not belong there and the tree says why: policies.json sets
+       EncryptedMediaExtensions.Enabled = true, and no CDM ships on either ISO (a
+       grep for "widevine" across both build logs returns nothing). So Firefox
+       fetches a proprietary Google binary at first use, and there is no click to
+       make — dagric-setup offers exactly three boxes, drivers, HP and Flathub,
+       and Widevine is not one of them.
+       Disabling EME instead was considered and rejected: it would break Netflix,
+       Spotify, Disney+ and Amazon, which features.html promises work, for an
+       audience that left Windows partly to keep watching things. The honest move
+       is to keep it working and stop claiming an absolute that is not true. It is
+       also listed on the privacy page's outbound-connection list. -->
+  <p>One exception on that list is worth stating plainly: <strong>DRM playback</strong>. Netflix,
+  Spotify, Disney+ and Amazon all need Google's Widevine module, so Firefox ships configured to
+  allow it. The module is proprietary and is <em>not</em> on the disc image — Firefox downloads it
+  from Google the first time something needs it, without asking, because otherwise those services
+  would simply appear broken. Turn it off in <em>☰ → Settings → General → Play DRM-controlled
+  content</em>, and it is never fetched.</p>
+
+  <p>
   One honest exception, the same one Debian's own official media makes: redistributable closed-source
   <em>device firmware and CPU microcode</em> (Wi-Fi chips, sound, security updates for your processor)
   ship preinstalled from Debian's <code>non-free-firmware</code> area, because without them Wi-Fi and

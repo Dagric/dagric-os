@@ -73,6 +73,50 @@ if [ -n "$_missing" ]; then
     exit 1
 fi
 
+# --- the apt-sources helper -------------------------------------------------
+#
+# Same replacement, same reason. Debian's calamares-sources-final writes the
+# installed system "main non-free-firmware" while the LIVE session runs "main
+# contrib non-free non-free-firmware" — so contrib and non-free silently vanish
+# the moment the machine reboots into the install, and with them the NVIDIA
+# driver (non-free), nvidia-detect (non-free) and one-click Steam
+# (steam-installer, non-free). All three are advertised. The failure is
+# invisible during evaluation, because the live ISO has the components and only
+# the installed system does not.
+SRC=/usr/share/calamares/helpers/calamares-sources-final
+
+if [ ! -f "$SRC" ]; then
+    echo "ERROR: $SRC is missing." >&2
+    exit 1
+fi
+
+chmod 0755 "$SRC"
+
+if ! grep -q 'the apt sources the INSTALLED system gets' "$SRC"; then
+    echo "ERROR: $SRC is not the Dagric replacement — the packaged version has" >&2
+    echo "       been restored over it. That version drops contrib and non-free," >&2
+    echo "       which breaks the NVIDIA driver helper and one-click Steam on" >&2
+    echo "       every installed machine while the live session still works." >&2
+    exit 1
+fi
+
+if ! sh -n "$SRC"; then
+    echo "ERROR: $SRC has a syntax error and would fail at install time." >&2
+    exit 1
+fi
+
+# The components it writes must match what auto/config gave the live session,
+# because "the installed machine behaves like the one you tried" is the whole
+# contract. Checked against the live system's own sources.list rather than a
+# string copied into this hook, so the two cannot drift apart silently.
+for _c in contrib non-free non-free-firmware; do
+    grep -q "$_c" "$SRC" || {
+        echo "ERROR: $SRC does not enable '$_c', which the live session has." >&2
+        exit 1
+    }
+done
+
 echo "calamares-helper: Dagric bootloader helper installed, executable, and all"
 echo "                  8 bootloader packages present — offline install is possible"
-unset _missing _p
+echo "calamares-helper: sources-final writes contrib + non-free, matching live"
+unset _missing _p _c
