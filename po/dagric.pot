@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: dagric 1.0\n"
 "Report-Msgid-Bugs-To: repo@dagric.com\n"
-"POT-Creation-Date: 2026-08-03 03:05+0000\n"
+"POT-Creation-Date: 2026-08-03 04:05+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -172,12 +172,12 @@ msgid "Theme"
 msgstr ""
 
 #: po/dagric-data-strings.sh:49
-#: config/includes.chroot/usr/bin/dagric-firstrun:766
+#: config/includes.chroot/usr/bin/dagric-firstrun:779
 msgid "Light"
 msgstr ""
 
 #: po/dagric-data-strings.sh:50
-#: config/includes.chroot/usr/bin/dagric-firstrun:766
+#: config/includes.chroot/usr/bin/dagric-firstrun:779
 msgid "Dark"
 msgstr ""
 
@@ -299,7 +299,7 @@ msgid "You can change this again in System Settings ▸ Display & Monitor."
 msgstr ""
 
 #: po/dagric-data-strings.sh:79
-#: config/includes.chroot/usr/bin/dagric-firstrun:805
+#: config/includes.chroot/usr/bin/dagric-firstrun:818
 msgid "Where should the taskbar go?"
 msgstr ""
 
@@ -415,7 +415,7 @@ msgid "Open %1"
 msgstr ""
 
 #: po/dagric-data-strings.sh:105
-#: config/includes.chroot/usr/bin/dagric-firstrun:711
+#: config/includes.chroot/usr/bin/dagric-firstrun:724
 msgid "Your desktop is back the way it was."
 msgstr ""
 
@@ -945,24 +945,24 @@ msgid ""
 "restore them."
 msgstr ""
 
-#: config/includes.chroot/usr/bin/dagric-appearance:368
+#: config/includes.chroot/usr/bin/dagric-appearance:384
 msgid ""
 "Your previous layout could not be read, so the standard Dagric layout was "
 "restored."
 msgstr ""
 
-#: config/includes.chroot/usr/bin/dagric-appearance:505
+#: config/includes.chroot/usr/bin/dagric-appearance:523
 #, sh-format
 msgid "Kept: $name"
 msgstr ""
 
-#: config/includes.chroot/usr/bin/dagric-appearance:526
+#: config/includes.chroot/usr/bin/dagric-appearance:544
 msgid ""
 "The gallery closed while a preview was running, so the desktop was put back."
 msgstr ""
 
 #. TRANSLATORS: "Dagric Styles" is a tool name — leave it as it is.
-#: config/includes.chroot/usr/bin/dagric-appearance:548
+#: config/includes.chroot/usr/bin/dagric-appearance:566
 msgid ""
 "The appearance gallery could not start. Opening the classic Styles menu "
 "instead."
@@ -1266,13 +1266,13 @@ msgstr ""
 msgid "Slate"
 msgstr ""
 
-#: config/includes.chroot/usr/bin/dagric-firstrun:613
+#: config/includes.chroot/usr/bin/dagric-firstrun:623
 msgid ""
 "The text size could not be changed here. Open System Settings ▸ Display & "
 "Monitor to set it."
 msgstr ""
 
-#: config/includes.chroot/usr/bin/dagric-firstrun:757
+#: config/includes.chroot/usr/bin/dagric-firstrun:770
 #, sh-format
 msgid ""
 "Welcome to $EDITION_NAME.\n"
@@ -1282,34 +1282,34 @@ msgid ""
 "permanent — you can change all of it later from the Dagric Hub."
 msgstr ""
 
-#: config/includes.chroot/usr/bin/dagric-firstrun:765
+#: config/includes.chroot/usr/bin/dagric-firstrun:778
 msgid "Light or dark?"
 msgstr ""
 
-#: config/includes.chroot/usr/bin/dagric-firstrun:767
 #: config/includes.chroot/usr/bin/dagric-firstrun:780
-#: config/includes.chroot/usr/bin/dagric-firstrun:791
-#: config/includes.chroot/usr/bin/dagric-firstrun:806
+#: config/includes.chroot/usr/bin/dagric-firstrun:793
+#: config/includes.chroot/usr/bin/dagric-firstrun:804
+#: config/includes.chroot/usr/bin/dagric-firstrun:819
 msgid "Stop here — I'll finish later"
 msgstr ""
 
-#: config/includes.chroot/usr/bin/dagric-firstrun:779
+#: config/includes.chroot/usr/bin/dagric-firstrun:792
 msgid "Pick a wallpaper:"
 msgstr ""
 
-#: config/includes.chroot/usr/bin/dagric-firstrun:787
+#: config/includes.chroot/usr/bin/dagric-firstrun:800
 msgid "How big should everything be?"
 msgstr ""
 
-#: config/includes.chroot/usr/bin/dagric-firstrun:788
+#: config/includes.chroot/usr/bin/dagric-firstrun:801
 msgid "Normal (100%)"
 msgstr ""
 
-#: config/includes.chroot/usr/bin/dagric-firstrun:789
+#: config/includes.chroot/usr/bin/dagric-firstrun:802
 msgid "Bigger (125%)"
 msgstr ""
 
-#: config/includes.chroot/usr/bin/dagric-firstrun:790
+#: config/includes.chroot/usr/bin/dagric-firstrun:803
 msgid "Biggest (150%)"
 msgstr ""
 
@@ -1317,7 +1317,7 @@ msgstr ""
 #. is the product's central promise, said to somebody who is afraid of
 #. losing the Windows install they may still need. Keep the negation and
 #. keep the emphasis on READ.
-#: config/includes.chroot/usr/bin/dagric-firstrun:818
+#: config/includes.chroot/usr/bin/dagric-firstrun:831
 msgid ""
 "A Windows drive was found on this PC.\n"
 "\n"
@@ -1330,7 +1330,7 @@ msgstr ""
 #. they must match the Name= of dagric-hub.desktop, dagric-manual.desktop
 #. and dagric-firstrun.desktop in your language, exactly. "Dagric Hub" is
 #. not translated at all — it is a product name.
-#: config/includes.chroot/usr/bin/dagric-firstrun:832
+#: config/includes.chroot/usr/bin/dagric-firstrun:845
 msgid ""
 "You're set up.\n"
 "\n"
@@ -1342,7 +1342,7 @@ msgid ""
 "To see this again, open \"Set Up Dagric\" from the launcher."
 msgstr ""
 
-#: config/includes.chroot/usr/bin/dagric-firstrun:1161
+#: config/includes.chroot/usr/bin/dagric-firstrun:1174
 msgid "Dagric is set up. Everything else lives in the Dagric Hub."
 msgstr ""
 

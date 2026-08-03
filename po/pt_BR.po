@@ -39,7 +39,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: dagric 1.0\n"
 "Report-Msgid-Bugs-To: repo@dagric.com\n"
-"POT-Creation-Date: 2026-08-03 03:05+0000\n"
+"POT-Creation-Date: 2026-08-03 04:05+0000\n"
 "PO-Revision-Date: 2026-07-27 09:00+0000\n"
 "Last-Translator: Machine translation, unreviewed <repo@dagric.com>\n"
 "Language-Team: none\n"
@@ -215,12 +215,12 @@ msgid "Theme"
 msgstr "Tema"
 
 #: po/dagric-data-strings.sh:49
-#: config/includes.chroot/usr/bin/dagric-firstrun:766
+#: config/includes.chroot/usr/bin/dagric-firstrun:779
 msgid "Light"
 msgstr "Claro"
 
 #: po/dagric-data-strings.sh:50
-#: config/includes.chroot/usr/bin/dagric-firstrun:766
+#: config/includes.chroot/usr/bin/dagric-firstrun:779
 msgid "Dark"
 msgstr "Escuro"
 
@@ -351,7 +351,7 @@ msgstr ""
 "monitor."
 
 #: po/dagric-data-strings.sh:79
-#: config/includes.chroot/usr/bin/dagric-firstrun:805
+#: config/includes.chroot/usr/bin/dagric-firstrun:818
 msgid "Where should the taskbar go?"
 msgstr "Onde deve ficar a barra de tarefas?"
 
@@ -479,7 +479,7 @@ msgid "Open %1"
 msgstr "Abrir %1"
 
 #: po/dagric-data-strings.sh:105
-#: config/includes.chroot/usr/bin/dagric-firstrun:711
+#: config/includes.chroot/usr/bin/dagric-firstrun:724
 msgid "Your desktop is back the way it was."
 msgstr "Sua área de trabalho voltou a ser como era."
 
@@ -488,7 +488,9 @@ msgid ""
 "You're running the live trial from the USB stick, so anything you set here "
 "lasts until you shut down. Install Dagric first if you want it to stick."
 msgstr ""
-"Você está no teste ao vivo, rodando a partir do pendrive, então tudo o que ajustar aqui dura até desligar. Instale o Dagric primeiro se quiser que isso permaneça."
+"Você está no teste ao vivo, rodando a partir do pendrive, então tudo o que "
+"ajustar aqui dura até desligar. Instale o Dagric primeiro se quiser que isso "
+"permaneça."
 
 #: po/dagric-data-strings.sh:107
 msgid ""
@@ -502,14 +504,16 @@ msgid ""
 "This is the live trial. To keep any of it, run Install Dagric OS from the "
 "desktop."
 msgstr ""
-"Este é o teste ao vivo. Para manter qualquer coisa, abra \"Instalar o Dagric OS\" na área de trabalho."
+"Este é o teste ao vivo. Para manter qualquer coisa, abra \"Instalar o Dagric "
+"OS\" na área de trabalho."
 
 #: po/dagric-data-strings.sh:109
 msgid ""
 "Want to run through this again? It's called \"Set Up Dagric\" in your apps "
 "list."
 msgstr ""
-"Quer passar por isso de novo? Ele se chama \"Configurar o Dagric\" na sua lista de aplicativos."
+"Quer passar por isso de novo? Ele se chama \"Configurar o Dagric\" na sua "
+"lista de aplicativos."
 
 #. TRANSLATORS: name of the "classic" taskbar layout in Dagric Looks and the
 #. setup wizard. One or two words, shown as the title of a picture tile.
@@ -929,7 +933,8 @@ msgid ""
 "both, and the app is then permanent."
 msgstr ""
 "OBSERVAÇÃO — este é o teste ao vivo rodando a partir do pendrive.\n"
-"Tudo o que for instalado agora fica na memória deste computador, não em disco:\n"
+"Tudo o que for instalado agora fica na memória deste computador, não em "
+"disco:\n"
 "some ao desligar, e num computador com pouca RAM um aplicativo grande pode\n"
 "deixar a sessão de teste instável. Instalar o Dagric primeiro evita as duas\n"
 "coisas, e o aplicativo passa a ser permanente."
@@ -976,14 +981,16 @@ msgstr ""
 "Configuração de IA local do Dagric\n"
 "=======================\n"
 "Isto instala o Ollama, um executor local de modelos de linguagem:\n"
-"  * os modelos rodam inteiramente neste computador (usando a GPU, se houver)\n"
+"  * os modelos rodam inteiramente neste computador (usando a GPU, se "
+"houver)\n"
 "  * funciona offline; nada é enviado a lugar nenhum\n"
 "\n"
 "O que isso muda nesta máquina:\n"
 "  * instala o binário ollama e cria um usuário de sistema para ele\n"
 "  * ativa um serviço em segundo plano que inicia com o sistema e escuta\n"
 "    só neste computador (127.0.0.1 porta 11434) — inacessível pela sua rede\n"
-"  * os modelos baixados ficam em /usr/share/ollama e podem ter vários GB cada\n"
+"  * os modelos baixados ficam em /usr/share/ollama e podem ter vários GB "
+"cada\n"
 "\n"
 "Para remover completamente:\n"
 "  sudo systemctl disable --now ollama\n"
@@ -1000,7 +1007,8 @@ msgid ""
 "Could not download the installer — nothing was changed. Check your internet "
 "connection and try again."
 msgstr ""
-"Não foi possível baixar o instalador — nada foi alterado. Verifique sua conexão com a internet e tente de novo."
+"Não foi possível baixar o instalador — nada foi alterado. Verifique sua "
+"conexão com a internet e tente de novo."
 
 #. TRANSLATORS: "ollama run llama3.2" is a command typed verbatim.
 #: config/includes.chroot/usr/bin/dagric-ai:59
@@ -1012,7 +1020,8 @@ msgid ""
 "The Ollama installer did not finish. It may be partly installed — the "
 "removal commands shown above will clear whatever landed."
 msgstr ""
-"O instalador do Ollama não terminou. Ele pode ter ficado parcialmente instalado — os comandos de remoção mostrados acima limpam o que tiver ficado."
+"O instalador do Ollama não terminou. Ele pode ter ficado parcialmente "
+"instalado — os comandos de remoção mostrados acima limpam o que tiver ficado."
 
 #: config/includes.chroot/usr/bin/dagric-ai:67
 #: config/includes.chroot/usr/bin/dagric-drivers:237
@@ -1042,7 +1051,7 @@ msgstr ""
 "Nenhum estilo ou layout está instalado. Reinstale o pacote dagric-branding "
 "para recuperá-los."
 
-#: config/includes.chroot/usr/bin/dagric-appearance:368
+#: config/includes.chroot/usr/bin/dagric-appearance:384
 msgid ""
 "Your previous layout could not be read, so the standard Dagric layout was "
 "restored."
@@ -1050,12 +1059,12 @@ msgstr ""
 "Não foi possível ler o seu layout anterior, então o layout padrão do Dagric "
 "foi restaurado."
 
-#: config/includes.chroot/usr/bin/dagric-appearance:505
+#: config/includes.chroot/usr/bin/dagric-appearance:523
 #, sh-format
 msgid "Kept: $name"
 msgstr "Mantido: $name"
 
-#: config/includes.chroot/usr/bin/dagric-appearance:526
+#: config/includes.chroot/usr/bin/dagric-appearance:544
 msgid ""
 "The gallery closed while a preview was running, so the desktop was put back."
 msgstr ""
@@ -1063,12 +1072,13 @@ msgstr ""
 "foi restaurada."
 
 #. TRANSLATORS: "Dagric Styles" is a tool name — leave it as it is.
-#: config/includes.chroot/usr/bin/dagric-appearance:548
+#: config/includes.chroot/usr/bin/dagric-appearance:566
 msgid ""
 "The appearance gallery could not start. Opening the classic Styles menu "
 "instead."
 msgstr ""
-"A galeria de aparência não conseguiu iniciar. Abrindo o menu clássico do Dagric Styles em vez disso."
+"A galeria de aparência não conseguiu iniciar. Abrindo o menu clássico do "
+"Dagric Styles em vez disso."
 
 #: config/includes.chroot/usr/bin/dagric-display:61
 msgid "System Settings is not installed on this system."
@@ -1316,7 +1326,8 @@ msgstr ""
 "\n"
 "Nada foi instalado, e sua tela continua funcionando com o driver de código\n"
 "aberto que ela usa agora. Instalar a versão errada desativaria esse driver\n"
-"e poderia deixar você com a tela preta, então isto para em vez de adivinhar.\n"
+"e poderia deixar você com a tela preta, então isto para em vez de "
+"adivinhar.\n"
 "\n"
 "Verifique sua conexão e tente de novo — ou informe a placa em\n"
 "https://dagric.com/support e dizemos qual driver ela pede."
@@ -1334,7 +1345,8 @@ msgid ""
 msgstr ""
 "O driver não foi instalado.\n"
 "\n"
-"O driver de código aberto foi deixado ligado, então sua tela segue funcionando.\n"
+"O driver de código aberto foi deixado ligado, então sua tela segue "
+"funcionando.\n"
 "Se você estava sem internet, tente de novo quando voltar; caso contrário,\n"
 "informe a placa em https://dagric.com/support e dizemos qual driver ela pede."
 
@@ -1347,7 +1359,8 @@ msgid ""
 msgstr ""
 "ATENÇÃO: o módulo de kernel da NVIDIA não terminou de compilar.\n"
 "O driver de código aberto foi religado, então a tela continua funcionando\n"
-"depois de reiniciar. Rode este assistente de novo em seguida e ele vai dizer\n"
+"depois de reiniciar. Rode este assistente de novo em seguida e ele vai "
+"dizer\n"
 "o que deu errado."
 
 #. TRANSLATORS: 'MOK Management', 'Enroll MOK' and 'Continue' are
@@ -1424,7 +1437,7 @@ msgstr "Rosa"
 msgid "Slate"
 msgstr "Ardósia"
 
-#: config/includes.chroot/usr/bin/dagric-firstrun:613
+#: config/includes.chroot/usr/bin/dagric-firstrun:623
 msgid ""
 "The text size could not be changed here. Open System Settings ▸ Display & "
 "Monitor to set it."
@@ -1432,7 +1445,7 @@ msgstr ""
 "Não foi possível mudar o tamanho do texto aqui. Abra Configurações do "
 "sistema ▸ Tela e monitor para ajustar."
 
-#: config/includes.chroot/usr/bin/dagric-firstrun:757
+#: config/includes.chroot/usr/bin/dagric-firstrun:770
 #, sh-format
 msgid ""
 "Welcome to $EDITION_NAME.\n"
@@ -1449,34 +1462,34 @@ msgstr ""
 "mudar\n"
 "tudo depois pelo Dagric Hub."
 
-#: config/includes.chroot/usr/bin/dagric-firstrun:765
+#: config/includes.chroot/usr/bin/dagric-firstrun:778
 msgid "Light or dark?"
 msgstr "Claro ou escuro?"
 
-#: config/includes.chroot/usr/bin/dagric-firstrun:767
 #: config/includes.chroot/usr/bin/dagric-firstrun:780
-#: config/includes.chroot/usr/bin/dagric-firstrun:791
-#: config/includes.chroot/usr/bin/dagric-firstrun:806
+#: config/includes.chroot/usr/bin/dagric-firstrun:793
+#: config/includes.chroot/usr/bin/dagric-firstrun:804
+#: config/includes.chroot/usr/bin/dagric-firstrun:819
 msgid "Stop here — I'll finish later"
 msgstr "Parar por aqui — termino depois"
 
-#: config/includes.chroot/usr/bin/dagric-firstrun:779
+#: config/includes.chroot/usr/bin/dagric-firstrun:792
 msgid "Pick a wallpaper:"
 msgstr "Escolha um papel de parede:"
 
-#: config/includes.chroot/usr/bin/dagric-firstrun:787
+#: config/includes.chroot/usr/bin/dagric-firstrun:800
 msgid "How big should everything be?"
 msgstr "De que tamanho deve ficar tudo?"
 
-#: config/includes.chroot/usr/bin/dagric-firstrun:788
+#: config/includes.chroot/usr/bin/dagric-firstrun:801
 msgid "Normal (100%)"
 msgstr "Normal (100%)"
 
-#: config/includes.chroot/usr/bin/dagric-firstrun:789
+#: config/includes.chroot/usr/bin/dagric-firstrun:802
 msgid "Bigger (125%)"
 msgstr "Maior (125%)"
 
-#: config/includes.chroot/usr/bin/dagric-firstrun:790
+#: config/includes.chroot/usr/bin/dagric-firstrun:803
 msgid "Biggest (150%)"
 msgstr "O maior (150%)"
 
@@ -1484,7 +1497,7 @@ msgstr "O maior (150%)"
 #. is the product's central promise, said to somebody who is afraid of
 #. losing the Windows install they may still need. Keep the negation and
 #. keep the emphasis on READ.
-#: config/includes.chroot/usr/bin/dagric-firstrun:818
+#: config/includes.chroot/usr/bin/dagric-firstrun:831
 msgid ""
 "A Windows drive was found on this PC.\n"
 "\n"
@@ -1502,7 +1515,7 @@ msgstr ""
 #. they must match the Name= of dagric-hub.desktop, dagric-manual.desktop
 #. and dagric-firstrun.desktop in your language, exactly. "Dagric Hub" is
 #. not translated at all — it is a product name.
-#: config/includes.chroot/usr/bin/dagric-firstrun:832
+#: config/includes.chroot/usr/bin/dagric-firstrun:845
 msgid ""
 "You're set up.\n"
 "\n"
@@ -1523,7 +1536,7 @@ msgstr ""
 "\n"
 "Para ver isto de novo, abra \"Configurar o Dagric\" pelo menu de aplicativos."
 
-#: config/includes.chroot/usr/bin/dagric-firstrun:1161
+#: config/includes.chroot/usr/bin/dagric-firstrun:1174
 msgid "Dagric is set up. Everything else lives in the Dagric Hub."
 msgstr "O Dagric está configurado. Todo o resto fica no Dagric Hub."
 
@@ -1585,7 +1598,8 @@ msgstr "Baixando: $URL"
 msgid ""
 "Download failed — nothing was installed. Check your connection and try again."
 msgstr ""
-"O download falhou — nada foi instalado. Verifique sua conexão e tente de novo."
+"O download falhou — nada foi instalado. Verifique sua conexão e tente de "
+"novo."
 
 #: config/includes.chroot/usr/bin/dagric-gaming:107
 msgid ""
@@ -1598,7 +1612,8 @@ msgid ""
 "Could not move the unpacked files into Steam's folder — nothing was "
 "installed."
 msgstr ""
-"Não foi possível mover os arquivos descompactados para a pasta do Steam — nada foi instalado."
+"Não foi possível mover os arquivos descompactados para a pasta do Steam — "
+"nada foi instalado."
 
 #: config/includes.chroot/usr/bin/dagric-gaming:119
 #, sh-format
@@ -1625,7 +1640,8 @@ msgid ""
 "login."
 msgstr ""
 "Mais uma coisa: o GameMode pode dar ao jogo em execução prioridade sobre\n"
-"todo o resto, o que suaviza as travadas em máquinas mais lentas. Para isso sua\n"
+"todo o resto, o que suaviza as travadas em máquinas mais lentas. Para isso "
+"sua\n"
 "conta precisa entrar no grupo \"gamemode\", e vale a partir do próximo login."
 
 #: config/includes.chroot/usr/bin/dagric-gaming:149
@@ -1641,7 +1657,8 @@ msgid ""
 "Could not change the group (administrator access is required). Games still "
 "run; only the priority boost is skipped."
 msgstr ""
-"Não foi possível alterar o grupo (é necessário acesso de administrador). Os jogos continuam funcionando; só o ganho de prioridade fica de fora."
+"Não foi possível alterar o grupo (é necessário acesso de administrador). Os "
+"jogos continuam funcionando; só o ganho de prioridade fica de fora."
 
 #: config/includes.chroot/usr/bin/dagric-gaming:158
 msgid "Left as it is. Games still run normally."
@@ -2058,8 +2075,10 @@ msgstr ""
 "\n"
 "    /usr/share/wallpapers\n"
 "\n"
-"São os trinta e quatro pacotes do Dagric, e todos os papéis de parede do KDE\n"
-"além deles. Uma pasta como fonte funciona totalmente offline — nada é baixado\n"
+"São os trinta e quatro pacotes do Dagric, e todos os papéis de parede do "
+"KDE\n"
+"além deles. Uma pasta como fonte funciona totalmente offline — nada é "
+"baixado\n"
 "e nenhum site é contatado."
 
 #: config/includes.chroot/usr/bin/dagric-get-variety:71
@@ -2264,7 +2283,9 @@ msgid ""
 "The layout could not be applied — the desktop did not answer. If the panels "
 "are missing now, log out and back in, then try again."
 msgstr ""
-"Não foi possível aplicar o layout — a área de trabalho não respondeu. Se os painéis estiverem faltando agora, saia e entre novamente e depois tente de novo."
+"Não foi possível aplicar o layout — a área de trabalho não respondeu. Se os "
+"painéis estiverem faltando agora, saia e entre novamente e depois tente de "
+"novo."
 
 #: config/includes.chroot/usr/bin/dagric-looks:139
 #, sh-format
@@ -2680,7 +2701,8 @@ msgstr ""
 "⚠ NEM tudo foi copiado.\n"
 "\n"
 "Algumas pastas não foram copiadas por completo — leia as mensagens acima,\n"
-"libere espaço no disco ou verifique a unidade, e rode a Migração de novo. NÃO\n"
+"libere espaço no disco ou verifique a unidade, e rode a Migração de novo. "
+"NÃO\n"
 "apague nada do Windows enquanto isso não terminar sem erros.\n"
 "\n"
 "O Windows em si continuou sendo apenas lido; nada lá foi alterado."
@@ -2738,7 +2760,8 @@ msgstr ""
 #: config/includes.chroot/usr/bin/dagric-security-checkup:66
 msgid "Drive health:  no failures reported, but some drives could not be read"
 msgstr ""
-"Saúde do disco:  nenhuma falha relatada, mas alguns discos não puderam ser lidos"
+"Saúde do disco:  nenhuma falha relatada, mas alguns discos não puderam ser "
+"lidos"
 
 #: config/includes.chroot/usr/bin/dagric-security-checkup:70
 msgid "Drive health:  all drives report healthy (SMART)"
@@ -2792,7 +2815,8 @@ msgid ""
 "HP support could NOT be installed — see the messages above. Check your "
 "internet connection and try again from the Hub."
 msgstr ""
-"O suporte a HP NÃO pôde ser instalado — veja as mensagens acima. Verifique sua conexão com a internet e tente de novo pelo Hub."
+"O suporte a HP NÃO pôde ser instalado — veja as mensagens acima. Verifique "
+"sua conexão com a internet e tente de novo pelo Hub."
 
 #: config/includes.chroot/usr/bin/dagric-setup:28
 #: config/includes.chroot/usr/bin/dagric-setup:49
@@ -2831,7 +2855,8 @@ msgid ""
 msgstr ""
 "Você está no teste ao vivo, rodando a partir do pendrive.\n"
 "\n"
-"Tudo o que for instalado agora fica na memória deste computador, não em disco:\n"
+"Tudo o que for instalado agora fica na memória deste computador, não em "
+"disco:\n"
 "some ao desligar, e num computador com pouca RAM isso pode deixar a sessão\n"
 "de teste instável. Instalar o Dagric primeiro evita as duas coisas.\n"
 "\n"
@@ -2851,7 +2876,8 @@ msgid ""
 "Flathub could NOT be enabled — you may be offline, or the password prompt "
 "was cancelled. Try again anytime from the Hub."
 msgstr ""
-"O Flathub NÃO pôde ser ativado — você pode estar sem internet, ou o pedido de senha foi cancelado. Tente de novo quando quiser, pelo Hub."
+"O Flathub NÃO pôde ser ativado — você pode estar sem internet, ou o pedido "
+"de senha foi cancelado. Tente de novo quando quiser, pelo Hub."
 
 #: config/includes.chroot/usr/bin/dagric-style:99
 msgid ""
@@ -2889,7 +2915,8 @@ msgid ""
 "The standard Dagric style is missing, so nothing was changed. Reinstall the "
 "dagric-branding package to restore it."
 msgstr ""
-"O estilo padrão do Dagric está faltando, então nada foi alterado. Reinstale o pacote dagric-branding para recuperá-lo."
+"O estilo padrão do Dagric está faltando, então nada foi alterado. Reinstale "
+"o pacote dagric-branding para recuperá-lo."
 
 #: config/includes.chroot/usr/bin/dagric-style:178
 msgid "Reset to the standard Dagric look"
@@ -2920,8 +2947,10 @@ msgid ""
 msgstr ""
 "A proteção USB só pode ser configurada num sistema Dagric instalado.\n"
 "\n"
-"Este é o teste ao vivo rodando no pendrive: a lista de dispositivos permitidos\n"
-"ficaria na memória e sumiria ao desligar, e qualquer pendrive conectado até lá\n"
+"Este é o teste ao vivo rodando no pendrive: a lista de dispositivos "
+"permitidos\n"
+"ficaria na memória e sumiria ao desligar, e qualquer pendrive conectado até "
+"lá\n"
 "seria bloqueado. Instale o Dagric primeiro e ligue isto pelo Dagric Hub."
 
 #: config/includes.chroot/usr/bin/dagric-usb-protect:50
@@ -3020,7 +3049,8 @@ msgid ""
 "stack and Virtual Machine Manager are not installed on this edition.\n"
 "Nothing was changed."
 msgstr ""
-"Windows em uma máquina virtual é um recurso do Dagric Pro — a pilha KVM/QEMU\n"
+"Windows em uma máquina virtual é um recurso do Dagric Pro — a pilha KVM/"
+"QEMU\n"
 "e o Gerenciador de Máquinas Virtuais não estão instalados nesta edição.\n"
 "Nada foi alterado."
 
