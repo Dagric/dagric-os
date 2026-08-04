@@ -147,12 +147,54 @@ function parseRange(h) {
   return end === null ? { offset } : { offset, length: end - offset + 1 };
 }
 
+// The ERROR page only. A paid session never reaches this function: the success
+// path above returns the ISO body with Content-Type application/octet-stream and
+// a Content-Disposition attachment, and renders no HTML at all. msg() fires on
+// 400/403/500/503 — an expired link, a session that is not paid, R2 unavailable.
+//
+// TWO THINGS WERE WRONG HERE AND ONLY ONE OF THEM WAS COSMETIC.
+//
+// 1. THE RECOVERY LINK WAS DEAD. It pointed at https://dagric-os.web.app/#pro:
+//    the superseded Firebase hostname (dagric-os.web.app serves a byte-identical
+//    copy of dagric.com and carries <link rel="canonical" href="https://dagric.com/">),
+//    and a #pro fragment that exists on neither host — the only ids on either are
+//    download, main, pricing, tbl-compare-editions, tbl-windows-equivalents. Pro
+//    is a page, /pro, not an anchor. So the one link offered to a customer whose
+//    download just failed landed them on the wrong hostname at the top of the
+//    homepage. Now https://dagric.com/pro.
+//
+// 2. THE PALETTE WAS THE PRE-REDESIGN ONE. #0a111c / #e8eef6 / #3fa9f5 and a
+//    #59c2e8->#2f7fd1 gradient wordmark, against Daybook's --ink-0 #0C0F14,
+//    --paper #F5F2EB, --accent #7CB8EC and a Georgia display face. Contrast was
+//    never the problem and is not now. Both versions were rendered from this
+//    template and measured in a browser, not estimated:
+//      new, on #0C0F14: wordmark #F5F2EB 17.17:1, body #C0C8D4 11.38:1,
+//                       link #7CB8EC 9.07:1
+//      old, on #0a111c: gradient stops 9.29:1 and 4.57:1 (44px/800, large
+//                       text), body #9db1c8 8.61:1, link #3fa9f5 7.39:1
+//    Nothing was failing; nothing is failing. This was a brand fix.
+//
+//    The old markup also had no viewport meta, so its layout viewport measured
+//    980px in a 320px window — a phone rendered it zoomed out. With the meta
+//    and the margin reset it now measures scrollWidth 320 = clientWidth 320.
+//
+//    DO NOT set the wordmark to --accent-deep #14487A. That token is a FILL
+//    (it is the only fill on the site that carries #fff text, at 9.38:1); as
+//    text on #0C0F14 it measures 2.05:1, under the 3:1 large-text floor. The
+//    Daybook wordmark is .brand{color:var(--on)} = --paper. It is a flat colour
+//    rather than a clipped gradient for the same reason the rest of the site
+//    dropped .grad: background-clip:text with color:transparent renders nothing
+//    at all wherever it is unsupported, so the failure mode is an invisible
+//    product name on an error page.
+//
+// lang="en" and a viewport meta are here because this page has neither a
+// stylesheet nor a nav to inherit them from.
 function msg(status, text, extra) {
-  const body = `<!doctype html><meta charset="utf-8"><title>Dagric OS</title>
-<body style="background:#0a111c;color:#e8eef6;font-family:system-ui;display:flex;align-items:center;justify-content:center;min-height:100vh;text-align:center">
-<div><div style="font-size:44px;font-weight:800;background:linear-gradient(135deg,#59c2e8,#2f7fd1);-webkit-background-clip:text;color:transparent">Dagric OS</div>
-<p style="color:#9db1c8;max-width:420px">${text}</p>
-<p><a style="color:#3fa9f5" href="https://dagric-os.web.app/#pro">Get Dagric Pro</a></p></div>`;
+  const body = `<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Dagric OS</title>
+<body style="background:#0C0F14;color:#C0C8D4;font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;text-align:center;margin:0;padding:24px">
+<div><div style="font-size:44px;font-weight:500;letter-spacing:-.012em;color:#F5F2EB;font-family:Georgia,'Iowan Old Style','Palatino Linotype','Source Serif 4','Noto Serif','Liberation Serif',serif">Dagric OS</div>
+<p style="color:#C0C8D4;max-width:420px">${text}</p>
+<p><a style="color:#7CB8EC" href="https://dagric.com/pro">Get Dagric Pro</a></p></div>`;
   return new Response(body, {
     status,
     headers: { "Content-Type": "text/html; charset=utf-8", ...extra },

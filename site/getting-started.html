@@ -28,7 +28,7 @@
 <body>
 <a class="skip" href="#main">Skip to content</a>
 <nav><div class="nav-in">
-  <a class="brand" href="/"><img src="/assets/dagric-logo.png" alt="Dagric OS" width="30" height="30">Dagric&nbsp;OS</a>
+  <a class="brand" href="/"><img src="/assets/dagric-logo.png" alt="" width="30" height="30">Dagric&nbsp;OS</a>
   <div class="nav-links">
     <a href="/features">Features</a><a href="/pro">Pro</a><a href="/about">About</a>
     <a href="/guide">Guide</a><a href="/support">Support</a>
@@ -56,12 +56,20 @@
       On macOS/Linux, <a href="https://etcher.balena.io">balenaEtcher</a> works the same way.</li>
     <li><strong>Boot from the USB.</strong> Restart with the stick plugged in and tap the
       boot-menu key as the machine starts:
+      <!-- The maker column is a row LABEL, not data: reading down the Key column,
+           "F9" only means something once you know the row is HP. Left as plain
+           <td> the relationship is not programmatically determinable, so a screen
+           reader navigating column-wise announces the key and never the maker —
+           WCAG 1.3.1 Info and Relationships, Level A. scope="col" is on the head
+           row here (and NOT on the thead tables elsewhere on the site) because
+           this table has no <thead>: once the first column carries row headers,
+           the direction of a bare <th> is ambiguous and has to be stated. -->
       <table>
-        <tr><th>Maker</th><th>Key</th></tr>
-        <tr><td>Dell, Lenovo, Acer</td><td><kbd>F12</kbd></td></tr>
-        <tr><td>HP</td><td><kbd>F9</kbd> (or <kbd>Esc</kbd>)</td></tr>
-        <tr><td>ASUS, MSI, Gigabyte</td><td><kbd>F8</kbd> / <kbd>F11</kbd> / <kbd>Del</kbd></td></tr>
-        <tr><td>Most others</td><td><kbd>F12</kbd>, <kbd>F10</kbd> or <kbd>Esc</kbd></td></tr>
+        <tr><th scope="col">Maker</th><th scope="col">Key</th></tr>
+        <tr><th scope="row">Dell, Lenovo, Acer</th><td><kbd>F12</kbd></td></tr>
+        <tr><th scope="row">HP</th><td><kbd>F9</kbd> (or <kbd>Esc</kbd>)</td></tr>
+        <tr><th scope="row">ASUS, MSI, Gigabyte</th><td><kbd>F8</kbd> / <kbd>F11</kbd> / <kbd>Del</kbd></td></tr>
+        <tr><th scope="row">Most others</th><td><kbd>F12</kbd>, <kbd>F10</kbd> or <kbd>Esc</kbd></td></tr>
       </table>
       Choose the USB entry (the one that says UEFI if both appear).</li>
     <li><strong>Try it, risk-free.</strong> Pick <em>Live system</em> in the menu. You get the

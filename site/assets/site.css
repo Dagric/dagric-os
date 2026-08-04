@@ -844,7 +844,21 @@ details[open] > p{animation:reveal .16s ease-out}
      re-points to #fff, so the site's only form printed a white label on a white
      ground: a button that vanishes on the page people print to post a refund
      request. */
-  thead th,td.y,td.n,.y,.n,.s-yes,.s-part,.s-no,#status.err,.refund::before{color:#000}
+  thead th,td.y,td.n,.y,.n,.s-yes,.s-part,.s-no,.refund::before{color:#000}
+  /* #status.err NEEDS !important AND THE LIST ABOVE COULD NOT GIVE IT.
+     It was in that selector list and it did not work, because the rule it has
+     to beat is contact.html:51 `#status.err{color:#F0837B}` — identical
+     specificity (1,1,0), and it lives in a page-local <style> at contact.html:10
+     that loads AFTER the <link> to this file, so source order handed the tie to
+     the page. Measured in the browser under print media on /contact: the failure
+     message printed rgb(240,131,123) on white = 2.55:1, while #status.ok printed
+     black at 21:1 only because --good is remapped at the top of this block. So
+     the site's one form printed its SUCCESS message clearly and its FAILURE
+     message faintly, on the page somebody prints to post a refund request —
+     the same shape of defect as the .s-part/.s-no verdicts noted above.
+     Split into its own rule rather than adding !important to the shared list,
+     because those other selectors are already winning and do not need it. */
+  #status.err{color:#000!important}
   form button{color:#000!important;background:none!important;border:1px solid #555!important}
   footer{border-top:1px solid #bbb;padding:10px 0 0;font-size:9pt;color:#444}
 }

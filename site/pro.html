@@ -83,7 +83,7 @@ table.cmp td:nth-child(2),table.cmp td:nth-child(3),table.cmp th:nth-child(2),ta
 <body>
 <a class="skip" href="#main">Skip to content</a>
 <nav><div class="nav-in">
-  <a class="brand" href="/"><img src="/assets/dagric-logo.png" alt="Dagric OS" width="30" height="30">Dagric&nbsp;OS</a>
+  <a class="brand" href="/"><img src="/assets/dagric-logo.png" alt="" width="30" height="30">Dagric&nbsp;OS</a>
   <div class="nav-links">
     <a href="/features">Features</a><a href="/pro">Pro</a><a href="/about">About</a>
     <a href="/guide">Guide</a><a href="/support">Support</a>
@@ -331,16 +331,23 @@ table.cmp td:nth-child(2),table.cmp td:nth-child(3),table.cmp th:nth-child(2),ta
        on index.html and the four on accessibility.html; the name is the id of
        the h2 immediately above so the two cannot drift apart. -->
   <div class="tablewrap" tabindex="0" role="region" aria-labelledby="tbl-compare-editions-pro">
+  <!-- FIRST COLUMN IS <th scope="row">, NOT <td>, for the reason recorded on the
+       homepage's copy of this table: these 14 cells are row LABELS, and left as
+       <td> the row-header relationship is not programmatically determinable —
+       WCAG 1.3.1, Level A. Measured after the change at 320px: this table grew
+       317.4 -> 336.5px inside its .tablewrap, and documentElement.scrollWidth
+       stayed at 320. The extra width is scroll distance inside the wrapper, not
+       page overflow; do not "fix" it by taking the scope back off. -->
   <table class="cmp">
     <thead><tr><th>What you get</th><th>Free</th><th>Pro</th></tr></thead>
     <tbody>
-    <tr><td>Private, hardened, debloated desktop</td><td class="y">✓</td><td class="y">✓</td></tr>
-    <tr><td>Snapshot rollback &amp; silent updates</td><td class="y">✓</td><td class="y">✓</td></tr>
-    <tr><td>Dagric Looks layouts</td><td>3</td><td class="y">7</td></tr>
-    <tr><td>Office suite</td><td>Writer · Calc · Impress · Draw</td><td class="y">Full LibreOffice + CJK</td></tr>
-    <tr><td>Creative &amp; video suite</td><td class="n">—</td><td class="y">✓</td></tr>
-    <tr><td>Photo/audio/video studio (darktable, Audacity, HandBrake)</td><td class="n">—</td><td class="y">✓</td></tr>
-    <tr><td>Privacy toolkit (KeePassXC, Syncthing, Flatseal)</td><td class="n">—</td><td class="y">✓</td></tr>
+    <tr><th scope="row">Private, hardened, debloated desktop</th><td class="y">✓</td><td class="y">✓</td></tr>
+    <tr><th scope="row">Snapshot rollback &amp; silent updates</th><td class="y">✓</td><td class="y">✓</td></tr>
+    <tr><th scope="row">Dagric Looks layouts</th><td>3</td><td class="y">7</td></tr>
+    <tr><th scope="row">Office suite</th><td>Writer · Calc · Impress · Draw</td><td class="y">Full LibreOffice + CJK</td></tr>
+    <tr><th scope="row">Creative &amp; video suite</th><td class="n">—</td><td class="y">✓</td></tr>
+    <tr><th scope="row">Photo/audio/video studio (darktable, Audacity, HandBrake)</th><td class="n">—</td><td class="y">✓</td></tr>
+    <tr><th scope="row">Privacy toolkit (KeePassXC, Syncthing, Flatseal)</th><td class="n">—</td><td class="y">✓</td></tr>
     <!-- Both of these rows said "Preinstalled", and neither could be true.
          Steam, Heroic and Bottles are in no package list and never will be:
          Steam and Heroic are proprietary and Bottles is a Flatpak, and this
@@ -351,13 +358,13 @@ table.cmp td:nth-child(2),table.cmp td:nth-child(3),table.cmp th:nth-child(2),ta
          32-bit Vulkan. That is a genuine advantage and it is what these rows
          claim now. Selling "Preinstalled" to somebody who boots Pro and finds
          no Steam is a refund at best, and it contradicts our own licence page. -->
-    <tr><td>Windows apps (Wine runtime)</td><td>Bottles, one-click</td><td class="y">Wine + winetricks, preinstalled and tuned</td></tr>
-    <tr><td>Gaming stack</td><td>Launchers, one-click</td><td class="y">GameMode, MangoHud, Lutris, 32-bit Vulkan preinstalled</td></tr>
-    <tr><td>Steam, Heroic, Bottles</td><td>One-click</td><td class="y">One-click</td></tr>
-    <tr><td>Local AI (Ollama)</td><td>One-click</td><td class="y">One-click</td></tr>
-    <tr><td>Developer toolchain (Docker, Podman, Distrobox, Git, SSH)</td><td class="n">—</td><td class="y">✓</td></tr>
-    <tr><td>Phone integration, cloud backup, Drive in Dolphin</td><td class="n">—</td><td class="y">✓</td></tr>
-    <tr><td>Opt-in security suite</td><td class="n">—</td><td class="y">✓</td></tr>
+    <tr><th scope="row">Windows apps (Wine runtime)</th><td>Bottles, one-click</td><td class="y">Wine + winetricks, preinstalled and tuned</td></tr>
+    <tr><th scope="row">Gaming stack</th><td>Launchers, one-click</td><td class="y">GameMode, MangoHud, Lutris, 32-bit Vulkan preinstalled</td></tr>
+    <tr><th scope="row">Steam, Heroic, Bottles</th><td>One-click</td><td class="y">One-click</td></tr>
+    <tr><th scope="row">Local AI (Ollama)</th><td>One-click</td><td class="y">One-click</td></tr>
+    <tr><th scope="row">Developer toolchain (Docker, Podman, Distrobox, Git, SSH)</th><td class="n">—</td><td class="y">✓</td></tr>
+    <tr><th scope="row">Phone integration, cloud backup, Drive in Dolphin</th><td class="n">—</td><td class="y">✓</td></tr>
+    <tr><th scope="row">Opt-in security suite</th><td class="n">—</td><td class="y">✓</td></tr>
     </tbody>
   </table>
   </div>

@@ -49,7 +49,7 @@ dl.meta dd{margin:0;color:var(--on-2)}
 <body>
 <a class="skip" href="#main">Skip to content</a>
 <nav><div class="nav-in">
-  <a class="brand" href="/"><img src="/assets/dagric-logo.png" alt="Dagric OS" width="30" height="30">Dagric&nbsp;OS</a>
+  <a class="brand" href="/"><img src="/assets/dagric-logo.png" alt="" width="30" height="30">Dagric&nbsp;OS</a>
   <div class="nav-links">
     <a href="/features">Features</a><a href="/pro">Pro</a><a href="/about">About</a>
     <a href="/guide">Guide</a><a href="/support">Support</a>
@@ -97,18 +97,27 @@ dl.meta dd{margin:0;color:var(--on-2)}
        unlabelled focus stop that appears to do nothing. The name is the id of
        the h2 immediately above, so the two cannot drift apart. -->
   <div class="tablewrap" tabindex="0" role="region" aria-labelledby="tbl-keyboard-access-section-508-502-4">
+  <!-- FIRST COLUMN IS <th scope="row"> IN ALL FOUR TABLES ON THIS PAGE. The
+       criterion name is the row label; "Supports" / "Does Not Support" beside it
+       is meaningless without it. As plain <td> that relationship was not
+       programmatically determinable — WCAG 1.3.1 Info and Relationships,
+       Level A — on the four tables of the conformance report itself. The
+       report's scope statement further down covers the shipped OS rather than
+       this website, so nothing published was false; it was still the worst page
+       on the site to have it. <thead> keeps bare <th>: one header row does not
+       need scope="col". -->
   <table class="acr">
     <thead><tr><th>Criterion</th><th>Conformance</th><th>Remarks</th></tr></thead>
     <tbody>
       <tr>
-        <td>502.4(A) Sticky Keys<br><span style="color:var(--muted)">ANSI-HFES 9.3.3</span></td>
+        <th scope="row">502.4(A) Sticky Keys<br><span style="color:var(--muted)">ANSI-HFES 9.3.3</span></th>
         <td class="s-yes">Supports</td>
         <td>Implemented by KWin's StickyKeysPlugin, which ships loaded and enabled by default in
         its own metadata. Off at install; switched on in System&nbsp;Settings →
         Accessibility.</td>
       </tr>
       <tr>
-        <td>502.4(B) Slow Keys<br><span style="color:var(--muted)">ANSI-HFES 9.3.4</span></td>
+        <th scope="row">502.4(B) Slow Keys<br><span style="color:var(--muted)">ANSI-HFES 9.3.4</span></th>
         <td class="s-no">Does Not Support</td>
         <td><strong>This is a real gap.</strong> KWin 4:6.3.6-1 ships sticky, bounce and mouse
         keys plugins and no slow-keys plugin. The older path — kaccess applying it through
@@ -117,25 +126,25 @@ dl.meta dd{margin:0;color:var(--on-2)}
         applications. We would rather report this than ship a switch that lies.</td>
       </tr>
       <tr>
-        <td>502.4(C) Bounce Keys<br><span style="color:var(--muted)">ANSI-HFES 9.3.5</span></td>
+        <th scope="row">502.4(C) Bounce Keys<br><span style="color:var(--muted)">ANSI-HFES 9.3.5</span></th>
         <td class="s-yes">Supports</td>
         <td>KWin's BounceKeysPlugin. The repeat-rejection delay defaults to 200&nbsp;ms and is
         configurable.</td>
       </tr>
       <tr>
-        <td>502.4(D) Visual alternative to audio cues</td>
+        <th scope="row">502.4(D) Visual alternative to audio cues</th>
         <td class="s-yes">Supports</td>
         <td>Visible bell (screen flash in place of the system beep), implemented by kaccess. Off
         by default because an unrequested full-screen flash on every terminal bell is startling.</td>
       </tr>
       <tr>
-        <td>Mouse Keys (pointer from the number pad)</td>
+        <th scope="row">Mouse Keys (pointer from the number pad)</th>
         <td class="s-yes">Supports</td>
         <td>KWin's MouseKeysPlugin. Off by default, since enabling it takes the number pad away
         from numeric entry.</td>
       </tr>
       <tr>
-        <td>Full keyboard operation of the desktop</td>
+        <th scope="row">Full keyboard operation of the desktop</th>
         <td class="s-yes">Supports</td>
         <td>KDE Plasma 6 desktop, launcher, panels and System Settings are keyboard navigable.</td>
       </tr>
@@ -158,7 +167,7 @@ dl.meta dd{margin:0;color:var(--on-2)}
     <thead><tr><th>Criterion</th><th>Conformance</th><th>Remarks</th></tr></thead>
     <tbody>
       <tr>
-        <td>Screen reader, installed desktop session</td>
+        <th scope="row">Screen reader, installed desktop session</th>
         <td class="s-yes">Supports</td>
         <td>Orca 48.1 with speech-dispatcher and espeak-ng over the AT-SPI2 bus. The build
         verifies the whole chain — reader, speech daemon, the <code>sd_espeak-ng</code> output
@@ -167,7 +176,7 @@ dl.meta dd{margin:0;color:var(--on-2)}
         <kbd>Meta</kbd>+<kbd>Alt</kbd>+<kbd>S</kbd>, which is bound before first login.</td>
       </tr>
       <tr>
-        <td>Screen reader discoverable in the menu</td>
+        <th scope="row">Screen reader discoverable in the menu</th>
         <td class="s-yes">Supports</td>
         <td>Debian's Orca package ships no menu entry at all, so searching the launcher for
         "screen reader" or "narrator" on a stock system finds nothing. Dagric adds its own
@@ -176,7 +185,7 @@ dl.meta dd{margin:0;color:var(--on-2)}
         <em>VoiceOver</em>.</td>
       </tr>
       <tr>
-        <td>Screen reader before purchase / during evaluation</td>
+        <th scope="row">Screen reader before purchase / during evaluation</th>
         <td class="s-yes">Supports</td>
         <td>The live USB boot menu carries a second entry, <em>"… (with screen reader)"</em>, in
         both the BIOS and UEFI menus. It boots with autologin and starts Orca automatically.
@@ -188,7 +197,7 @@ dl.meta dd{margin:0;color:var(--on-2)}
         same key as in the live session, bound before first login.</td>
       </tr>
       <tr>
-        <td>Screen reader at the login password prompt</td>
+        <th scope="row">Screen reader at the login password prompt</th>
         <td class="s-no">Does Not Support</td>
         <td><strong>A real gap, and not one we can close.</strong> SDDM 0.21.0 has no mechanism
         to run assistive technology in its greeter; the upstream request is open and unassigned.
@@ -202,7 +211,7 @@ dl.meta dd{margin:0;color:var(--on-2)}
         rather state this than imply coverage we do not have.</td>
       </tr>
       <tr>
-        <td>Refreshable braille display support</td>
+        <th scope="row">Refreshable braille display support</th>
         <td class="s-no">Does Not Support</td>
         <td>Orca is capable of driving a braille display, but <code>brltty</code> — the driver
         layer — is not installed, so no braille device will work out of the box. A user can
@@ -227,7 +236,7 @@ dl.meta dd{margin:0;color:var(--on-2)}
     <thead><tr><th>Criterion</th><th>Conformance</th><th>Remarks</th></tr></thead>
     <tbody>
       <tr>
-        <td>WCAG 1.4.6 Contrast (Enhanced), 7:1 — high-contrast theme</td>
+        <th scope="row">WCAG 1.4.6 Contrast (Enhanced), 7:1 — high-contrast theme</th>
         <td class="s-yes">Supports</td>
         <td>The bundled <em>High&nbsp;Contrast</em> style is measured, not named on trust: the
         build computes WCAG relative luminance for its colour pairs and <em>fails</em> if the
@@ -236,26 +245,26 @@ dl.meta dd{margin:0;color:var(--on-2)}
         wallpaper, because text over a photograph has no statable contrast ratio.</td>
       </tr>
       <tr>
-        <td>Screen magnification</td>
+        <th scope="row">Screen magnification</th>
         <td class="s-yes">Supports</td>
         <td>KWin's built-in zoom, available from System&nbsp;Settings → Accessibility. There is no
         separate magnifier application.</td>
       </tr>
       <tr>
-        <td>Text and interface scaling</td>
+        <th scope="row">Text and interface scaling</th>
         <td class="s-yes">Supports</td>
         <td>A dedicated <em>Text Size</em> tool in the Dagric Hub, plus global scaling in
         System&nbsp;Settings.</td>
       </tr>
       <tr>
-        <td>Pointer visibility at the login screen</td>
+        <th scope="row">Pointer visibility at the login screen</th>
         <td class="s-yes">Supports</td>
         <td>The login screen pointer is enlarged to 32&nbsp;px to match the desktop; the stock
         24&nbsp;px pointer is genuinely hard to find on a 4K panel, and the login screen is the
         first thing a new owner sees.</td>
       </tr>
       <tr>
-        <td>Colour is not the sole means of conveying information</td>
+        <th scope="row">Colour is not the sole means of conveying information</th>
         <td class="s-part">Partially Supports</td>
         <td>Dagric's own tools, wizard and documentation were checked for this. Bundled
         third-party applications (LibreOffice, Firefox, GIMP and the rest) carry their own upstream
@@ -280,13 +289,13 @@ dl.meta dd{margin:0;color:var(--on-2)}
     <thead><tr><th>Criterion</th><th>Conformance</th><th>Remarks</th></tr></thead>
     <tbody>
       <tr>
-        <td>Biometric sign-in not the only method</td>
+        <th scope="row">Biometric sign-in not the only method</th>
         <td class="s-yes">Supports</td>
         <td>Fingerprint sign-in is available (fprintd) and always optional; a password always
         works.</td>
       </tr>
       <tr>
-        <td>Documentation in an accessible format</td>
+        <th scope="row">Documentation in an accessible format</th>
         <td class="s-yes">Supports</td>
         <td>The user guide and the 95-page application manual ship on the machine as plain,
         semantic HTML readable by Orca, and work with no network connection. The user guide and
@@ -294,13 +303,13 @@ dl.meta dd{margin:0;color:var(--on-2)}
         English only.</td>
       </tr>
       <tr>
-        <td>No automatic restarts or timed interruptions</td>
+        <th scope="row">No automatic restarts or timed interruptions</th>
         <td class="s-yes">Supports</td>
         <td>The system never reboots itself. Updates apply in the background and wait for the
         user.</td>
       </tr>
       <tr>
-        <td>Accessibility settings preserved across sessions</td>
+        <th scope="row">Accessibility settings preserved across sessions</th>
         <td class="s-yes">Supports</td>
         <td>Settings are stored per user and reapplied at every login.</td>
       </tr>

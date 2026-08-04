@@ -113,7 +113,15 @@ main{max-width:none;margin:0;padding:0}
 <body>
 <a class="skip" href="#main">Skip to content</a>
 <nav><div class="nav-in">
-  <a class="brand" href="/"><img src="/assets/dagric-logo.png" alt="Dagric OS" width="30" height="30">Dagric&nbsp;OS</a>
+  <!-- alt="" ON PURPOSE. The logo sits INSIDE a link that already carries the
+       text "Dagric OS", so alt="Dagric OS" made the link's accessible name
+       compute to "Dagric OS Dagric OS" — the name is announced twice, on every
+       page, as the first thing in the tab order after the skip link. The image
+       is decorative in this position; the link keeps a visible, non-empty name
+       at every width (measured 115.45px wide at a 320px viewport, of which the
+       text node is 77.45px), so emptying the alt removes nothing. Do not put
+       the alt back unless a breakpoint is ever added that hides the text. -->
+  <a class="brand" href="/"><img src="/assets/dagric-logo.png" alt="" width="30" height="30">Dagric&nbsp;OS</a>
   <div class="nav-links">
     <a href="/features">Features</a>
     <a href="/pro">Pro</a>
@@ -126,7 +134,13 @@ main{max-width:none;margin:0;padding:0}
 
 <main id="main">
 <header class="phero hero">
-  <img class="logo" src="/assets/dagric-logo.png" alt="Dagric OS logo" width="44" height="44">
+  <!-- "logo" dropped from the alt, the name kept. The word restates the img role
+       to a screen reader ("image, Dagric OS logo"), and this mark is NOT
+       decorative the way the nav one is: it is the first node inside #main, so a
+       user who takes the skip link lands here, and the <h1> below is "Your
+       computer. Yours again." — it does not contain the product name anywhere.
+       alt="" would leave the top of the main content with no brand at all. -->
+  <img class="logo" src="/assets/dagric-logo.png" alt="Dagric OS" width="44" height="44">
   <h1>Your computer.<br><span class="grad">Yours again.</span></h1>
   <!-- The one paragraph every visitor reads spent half its words on the word
        origin, which /about already opens with and which answers no question the
@@ -486,30 +500,41 @@ main{max-width:none;margin:0;padding:0}
            right and the measurement was borrowed. The pattern is kept anyway, for
            the reason in the paragraph above it. -->
       <div class="tablewrap" tabindex="0" role="region" aria-labelledby="tbl-compare-editions">
+      <!-- FIRST COLUMN IS <th scope="row">, NOT <td>. These 13 cells are the row
+           LABELS; the two columns beside them are the values. As plain <td> the
+           relationship was not programmatically determinable, so a screen-reader
+           user moving down the Pro column heard the column header and the cell
+           and never which feature the row was about — WCAG 1.3.1, Level A, and
+           a Level A failure breaks the AA claim the site publishes. The table
+           directly above this one ("Everything you know is still here") already
+           did it correctly on all 14 of its rows, and so does every locale of
+           the guide; these six were the exception, not the house style.
+           <thead> keeps bare <th> deliberately: a single header row needs no
+           scope="col", and adding one is a technique, not a fix. -->
       <table class="cmp">
         <thead><tr><th>What you get</th><th>Free</th><th>Pro</th></tr></thead>
         <tbody>
-        <tr><td>Debloated Debian 13 + KDE Plasma, zero telemetry</td><td class="y">✓</td><td class="y">✓</td></tr>
-        <tr><td>Hardened security, firewall, silent updates, no forced reboots</td><td class="y">✓</td><td class="y">✓</td></tr>
+        <tr><th scope="row">Debloated Debian 13 + KDE Plasma, zero telemetry</th><td class="y">✓</td><td class="y">✓</td></tr>
+        <tr><th scope="row">Hardened security, firewall, silent updates, no forced reboots</th><td class="y">✓</td><td class="y">✓</td></tr>
         <!-- Both editions genuinely have this, so the ticks are right for an
              EDITION comparison. What they hid is that it is btrfs-only: it is the
              installer's default, but someone who picks ext4 gets no rollback, and
              finding that out at the moment you need it is the worst time. -->
-        <tr><td>Snapshot recovery (roll back from the boot menu)<br><small style="color:var(--on-3)">on the default btrfs install</small></td><td class="y">✓</td><td class="y">✓</td></tr>
-        <tr><td>Dagric Looks layouts · Styles</td><td>3 · 4</td><td class="y">7 · 7</td></tr>
-        <tr><td>Office suite</td><td>Writer · Calc · Impress · Draw</td><td class="y">Full LibreOffice + CJK</td></tr>
-        <tr><td>Creative, video &amp; audio studio</td><td class="n">—</td><td class="y">✓</td></tr>
+        <tr><th scope="row">Snapshot recovery (roll back from the boot menu)<br><small style="color:var(--on-3)">on the default btrfs install</small></th><td class="y">✓</td><td class="y">✓</td></tr>
+        <tr><th scope="row">Dagric Looks layouts · Styles</th><td>3 · 4</td><td class="y">7 · 7</td></tr>
+        <tr><th scope="row">Office suite</th><td>Writer · Calc · Impress · Draw</td><td class="y">Full LibreOffice + CJK</td></tr>
+        <tr><th scope="row">Creative, video &amp; audio studio</th><td class="n">—</td><td class="y">✓</td></tr>
         <!-- The homepage keeps its own copy of this table, so the same correction
              applies here as on /pro: Steam, Heroic and Bottles are in no package
              list and never will be — the licences page says so on this very site.
              What Pro preinstalls is the runtime underneath. -->
-        <tr><td>Windows apps (Wine runtime)</td><td>Bottles, one-click</td><td class="y">Wine + winetricks, preinstalled and tuned</td></tr>
-        <tr><td>Gaming stack</td><td>Launchers, one-click</td><td class="y">GameMode, MangoHud, Lutris preinstalled</td></tr>
-        <tr><td>Steam, Heroic, Bottles</td><td>One-click</td><td class="y">One-click</td></tr>
-        <tr><td>Local AI (Ollama)</td><td>One-click</td><td class="y">One-click</td></tr>
-        <tr><td>Developer toolchain (Docker, Podman, Distrobox, Git, SSH)</td><td class="n">—</td><td class="y">✓</td></tr>
-        <tr><td>Privacy toolkit (KeePassXC, Syncthing, Flatseal)</td><td class="n">—</td><td class="y">✓</td></tr>
-        <tr><td>Opt-in security suite: app firewall + USB device control</td><td class="n">—</td><td class="y">✓</td></tr>
+        <tr><th scope="row">Windows apps (Wine runtime)</th><td>Bottles, one-click</td><td class="y">Wine + winetricks, preinstalled and tuned</td></tr>
+        <tr><th scope="row">Gaming stack</th><td>Launchers, one-click</td><td class="y">GameMode, MangoHud, Lutris preinstalled</td></tr>
+        <tr><th scope="row">Steam, Heroic, Bottles</th><td>One-click</td><td class="y">One-click</td></tr>
+        <tr><th scope="row">Local AI (Ollama)</th><td>One-click</td><td class="y">One-click</td></tr>
+        <tr><th scope="row">Developer toolchain (Docker, Podman, Distrobox, Git, SSH)</th><td class="n">—</td><td class="y">✓</td></tr>
+        <tr><th scope="row">Privacy toolkit (KeePassXC, Syncthing, Flatseal)</th><td class="n">—</td><td class="y">✓</td></tr>
+        <tr><th scope="row">Opt-in security suite: app firewall + USB device control</th><td class="n">—</td><td class="y">✓</td></tr>
         </tbody>
       </table>
       </div>
