@@ -2,9 +2,32 @@
 # "Zero-friction setup out of the box."
 
 # Containers
+#
+# docker-cli IS THE `docker` COMMAND AND IT IS NOT OPTIONAL. In Debian 13 the
+# client was split out of docker.io, which now ships only /usr/sbin/dockerd,
+# /usr/sbin/docker-proxy and /usr/bin/docker-init — verified against Debian's
+# own file list for trixie/amd64/docker.io. docker-cli is a RECOMMENDS, and
+# --apt-recommends false is in force for this whole build, so it was dropped:
+# out/manifest/pro.packages has docker.io and no docker-cli.
+#
+# The result shipped on the 3.9 GB Pro ISO. A buyer opens Konsole, types the
+# first line of every Docker tutorial — `docker run hello-world` — and gets
+# "docker: command not found", with the daemon running fine underneath. The Pro
+# page sells "Docker + Compose, Podman, Distrobox ... all preinstalled". That is
+# a refund conversation caused by a Recommends nobody could see.
+#
+# passt provides pasta, the default rootless network backend for podman 5, and
+# is likewise only a Recommends. Without it `podman run` as a normal user fails
+# to set up networking — and site/pro.html promises "Podman runs rootless the
+# moment you open a terminal", offered as the safe alternative to adding
+# yourself to the docker group. slirp0netns is the older fallback and is listed
+# too so an owner following any tutorial written before netavark finds it there.
 docker.io
+docker-cli
 docker-compose
 podman
+passt
+slirp4netns
 
 # Any distro in a terminal: run Ubuntu/Fedora/Arch toolchains inside
 # containers with full host integration (audio, GPU, home dir) —

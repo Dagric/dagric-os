@@ -23,6 +23,19 @@ zstd
 
 # Networking
 network-manager
+# modemmanager is what NetworkManager uses to drive a WWAN card or a USB
+# broadband dongle, and it is a Recommends — dropped, and absent from both
+# built images. An ex-corporate ThinkPad, Latitude or EliteBook with a built-in
+# mobile-broadband card is exactly the second-hand hardware this product is
+# sold to rescue, and on this image its "Mobile Broadband" tab never appears.
+modemmanager
+
+# usbmuxd carries USB tethering from a phone. dagric-hardware-check tells an
+# owner whose Wi-Fi chip has no driver to "plug your phone in by USB and turn on
+# its personal hotspot" — advice printed by the tool the product tells people to
+# run FIRST, on the machine least likely to have another way online. It is a
+# Recommends of libimobiledevice and was dropped.
+usbmuxd
 wireless-regdb
 
 # WI-FI DOES NOT WORK WITHOUT THIS, AND EVERY ISO SHIPPED SO FAR WAS MISSING IT.

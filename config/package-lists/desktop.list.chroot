@@ -39,6 +39,13 @@ xdg-desktop-portal-kde
 dolphin
 konsole
 kate
+# KDE's spell-check backend. apps.list.chroot deliberately ships five hunspell
+# dictionaries so that "a German owner gets no red underline anywhere in
+# Writer" — LibreOffice links hunspell directly and is fine. Everything KDE
+# does not: Kate, KMail and every Plasma text field go through Sonnet, whose
+# hunspell plugin lives in sonnet6-plugins, a Recommends. Dropped, so the
+# dictionaries are on the image and nothing in KDE can reach them.
+sonnet6-plugins
 ark
 gwenview
 okular

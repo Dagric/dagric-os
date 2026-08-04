@@ -9,9 +9,26 @@ thunderbird
 
 # The FULL office suite (free edition ships Writer/Calc/Impress only)
 libreoffice
+# LibreOffice Base needs a JVM and will not open one without it. The suite is
+# pinned above as "the FULL office suite", and Base is the half of it that
+# depends on java: `libreoffice-base Recommends: default-jre | java-runtime`,
+# which --apt-recommends false drops. Verified absent from the built image —
+# out/manifest/pro.packages has no default-jre and no java of any kind.
+# A Pro owner opens the database application the paid tier sold them and gets
+# "LibreOffice requires a Java runtime environment (JRE) to perform this task".
+# -headless, not the full default-jre: Base needs the runtime, not a second
+# desktop Java with its own icons and browser plugin.
+default-jre-headless
 
 # Creative tools
 inkscape
+# Inkscape's Extensions menu is Python and its libraries are Recommends only.
+# Without scour, File -> Save As -> Optimized SVG raises a Python traceback
+# naming a missing module instead of saving. python3-lxml and python3-numpy
+# back most of the Generate/Modify Path entries.
+python3-scour
+python3-lxml
+python3-numpy
 gimp
 blender
 krita
@@ -19,6 +36,12 @@ krita
 # Video: recording and editing
 obs-studio
 kdenlive
+# frei0r-plugins is where most of kdenlive's effects actually live — colour
+# grading, blur, distortion, keying and several standard transitions. It is a
+# Recommends of kdenlive and was dropped, so the Effects panel on the shipped
+# Pro image is missing most of its entries with no error to explain why. The
+# video editor is one of the tier's headline applications.
+frei0r-plugins
 
 # Backup: local + any cloud (Borg with a friendly GUI, rclone for
 # Drive/Dropbox/S3/OneDrive and 70+ other providers)
@@ -34,6 +57,16 @@ kio-gdrive
 # no way to add an account. The OAuth login window needs the QtWebEngine QML
 # module. (Audit: verified missing in the shipped Pro image.)
 kaccounts-providers
+# signon-ui renders the sign-in window, and without it Online Accounts cannot
+# complete a single login. kaccounts-providers is here and correct; signond is
+# pulled in; but the UI plugin that draws the Google consent screen is a
+# Recommends and was dropped. Verified: out/manifest/pro.packages has
+# kaccounts-integration and kaccounts-providers, and no signon-ui.
+# The owner picks System Settings -> Online Accounts -> Google, signond opens an
+# authentication session with nothing to display it, and the dialog either never
+# appears or closes immediately. The advertised Google Drive integration in
+# Dolphin can therefore never be set up.
+signon-ui
 qml6-module-qtwebengine
 
 # Optional scheduled-snapshot GUI. The automatic pre-update rollback stack
