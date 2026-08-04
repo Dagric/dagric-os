@@ -52,6 +52,11 @@
   var toc = Array.prototype.slice.call(document.querySelectorAll('nav.toc a'));
   var tocFor = {};
   toc.forEach(function (a) { tocFor[a.getAttribute('href').slice(1)] = a; });
+  /* Every direct child of the nav, in order: group headings and links mixed.
+     Needed because hiding links leaves their heading standing over nothing —
+     harmless when the headings are a faint desktop label, actively confusing
+     once they also appear in the phone pill strip. */
+  var navKids = Array.prototype.slice.call(document.querySelectorAll('nav.toc > *'));
 
   /* The searchable text is cached once. textContent on every keystroke over
      twenty sections is cheap, but doing it once is free. Synonyms travel in
@@ -72,11 +77,24 @@
       var a = tocFor[s.id];
       if (a) { a.hidden = !hit; }
     });
+    /* Walk the nav backwards: a group heading is worth showing only if at
+       least one link below it, before the next heading, survived the filter. */
+    for (var i = navKids.length - 1, live = false; i >= 0; i--) {
+      var k = navKids[i];
+      if (k.className.indexOf('navgroup') !== -1) { k.hidden = !live; live = false; }
+      else if (!k.hidden) { live = true; }
+    }
     if (status) {
       if (!q) { status.textContent = ''; }
       else if (shown === 0) { status.textContent = input.getAttribute('data-none') || ''; }
       else {
-        var t = input.getAttribute('data-count') || '%1';
+        /* One match is the commonest result this search returns, and the count
+           string had no singular, so the first thing a reader saw when the
+           search WORKED was "1 sections match". data-count-one is optional:
+           a translation that has not been given one falls back to the plural
+           string and behaves exactly as it does today. */
+        var t = (shown === 1 && input.getAttribute('data-count-one'))
+                || input.getAttribute('data-count') || '%1';
         status.textContent = t.replace('%1', String(shown));
       }
     }
@@ -84,6 +102,28 @@
   input.addEventListener('input', apply);
   input.addEventListener('keydown', function (e) {
     if (e.key === 'Escape') { input.value = ''; apply(); }
+  });
+
+  /* THE CROSS-LINKS THE FILTER STRANDS. Hiding a section also breaks every
+     in-content link pointing INTO it — the checklist's eight "More" links, the
+     tips, "Text Size (above)". Search "checklist" and section 2 survives with
+     all eight of its links aimed at sections that are no longer on the page;
+     clicking one jumps to a display:none element and the page looks frozen.
+     That is the exact defect `nav.toc a[hidden]` in guide.css fixes for the
+     sidebar and that content links never got.
+     Clearing the query beats disabling the link: the reader asked to be taken
+     there, so take them there and drop the filter on the way. Delegated, so it
+     covers links added to any section without further wiring. */
+  document.addEventListener('click', function (e) {
+    if (!input.value) { return; }
+    var t = e.target;
+    var a = (t && t.closest) ? t.closest('a[href^="#"]') : null;
+    if (!a) { return; }
+    var el = document.getElementById(a.getAttribute('href').slice(1));
+    var sec = (el && el.closest) ? el.closest('section') : null;
+    if (!sec || !sec.hidden) { return; }
+    input.value = '';
+    apply();
   });
 })();
 

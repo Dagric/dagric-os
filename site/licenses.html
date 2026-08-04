@@ -9,9 +9,16 @@
 <link rel="stylesheet" href="/assets/site.css">
 <link rel="canonical" href="https://dagric.com/licenses">
 <meta name="theme-color" content="#0C0F14">
+<script src="/assets/theme.js"></script>
 <link rel="icon" href="/favicon.ico" sizes="32x32">
 <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
 <link rel="manifest" href="/site.webmanifest">
+<!-- Builds the right-gutter section index from this page's own h2s. defer,
+     because it touches the DOM and there is nothing here worth blocking a
+     paint for; same-origin, so script-src 'self' is satisfied. Only the five
+     long document pages carry it — see assets/pageindex.js for why, and for
+     why the page is unchanged at every width below 1440px and with JS off. -->
+<script src="/assets/pageindex.js" defer></script>
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Dagric OS">
 <meta property="og:title" content="Licenses — Dagric OS">

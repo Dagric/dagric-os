@@ -9,6 +9,19 @@
 # left to click "allow". This helper does it in the only safe order —
 # allow-list what's plugged in FIRST, then start the daemon.
 #
+# THERE ARE THREE THINGS AN OWNER CAN WANT HERE, NOT TWO. This file used to
+# have exactly two paths — service active means turn it OFF, otherwise turn it
+# ON — while two of its own dialogs and the manual page all told the owner to
+# "re-run this tool to refresh the list". No such branch existed. So the owner
+# who enabled protection, bought a USB printer two months later, found it
+# blocked, and did precisely what the tool told them to do, hit the disable
+# branch: the printer started working, which read as success, and their machine
+# was silently unprotected. Nothing said so. A promise in a dialog is a feature
+# the product owes; the third path below is that debt paid rather than the
+# promise retracted, because "turn your security off, plug the thing in, and
+# remember to turn it back on" is not an instruction this audience should be
+# given.
+#
 # EVERY STRING IN THIS FILE IS TIER-ONE FOR TRANSLATION REVIEW. The dialog
 # below is the one that decides whether the owner's keyboard still works after
 # they click. A translation that loses "plug in everything you normally use
@@ -44,12 +57,198 @@ be blocked. Install Dagric first, then turn this on from the Dagric Hub.")" 2>/d
     exit 0
 fi
 
-# Already on? Offer to turn it off.
+# dg_usb_refresh — ADD whatever is being blocked right now to the permanent
+# allow-list, without ever stopping the daemon. This is the branch the tool has
+# been promising in three places and not shipping.
+#
+# WHY THIS IS NOT `usbguard generate-policy` A SECOND TIME. The switch-on path
+# below generates a whole policy from what is attached, which is correct exactly
+# once — when nothing is being enforced yet, so every device the owner uses is
+# necessarily still authorized and visible. Running it again with the daemon up
+# has two failure modes, and either one ends at a machine its owner cannot type
+# on:
+#
+#   1. A generated policy REPLACES the old one, so it silently drops every
+#      device that happens to be unplugged at that moment. On a laptop docked
+#      over USB that is the keyboard, and once the new policy is applied there
+#      is nothing left to click "allow" with. That is the lockout this entire
+#      file exists to prevent, reintroduced by the feature meant to make the
+#      file honest.
+#   2. generate-policy reads the device tree out of sysfs, and the kernel tears
+#      down a deauthorized device's interface nodes when it deauthorizes it
+#      (usb_deauthorize_device unbinds and removes X-Y:N.M). The blocked printer
+#      the owner is trying to add is therefore the one device whose interface
+#      descriptors cannot be read — so the rule generated for it is precisely
+#      the rule that would not match, and the refresh would "succeed" while the
+#      printer stayed blocked.
+#
+# So this path is APPEND-ONLY and goes through the daemon, which captured the
+# descriptors at insertion time, BEFORE it deauthorized anything.
+# `allow-device --permanent` authorizes the device now and writes the rule into
+# RuleFile (/etc/usbguard/rules.conf — Debian's stock usbguard-daemon.conf is in
+# force, this image ships no override), so it survives a reboot. Nothing is
+# removed, nothing is restarted, and there is no instant in which protection is
+# not being enforced. An append-only refresh cannot lock anybody out; that is a
+# property of the design, not a guard bolted onto it.
+#
+# AND IT DOES NOT TAKE ITS OWN WORD FOR THE RESULT. This was written where no
+# usbguard exists and could not be run against real hardware, so the success
+# dialog is driven by a SECOND `list-devices --blocked` taken afterwards, not by
+# the exit status of the allow calls. If the devices are still blocked the owner
+# is told they are still blocked. A tool that reports a success it has not
+# observed is the same defect as the phantom refresh, one layer down.
+dg_usb_refresh() {
+    # The script handed to pkexec stays a single-quoted LITERAL with no
+    # translated text in it — same rule as the enable path below: it runs as
+    # root, and a msgstr is data that arrived from a translator.
+    #
+    # It prints ONE line, "<blocked-before> <blocked-after>", and nothing else.
+    # Each allow call's own output is discarded so it can never be mistaken for
+    # that line, and an unparseable answer is treated as "could not confirm"
+    # rather than as success.
+    _res=$(pkexec sh -c '
+umask 077
+_blocked() {
+    _raw=$(usbguard list-devices --blocked) || return 1
+    printf "%s\n" "$_raw" | sed -n "s/^\([0-9][0-9]*\):.*/\1/p"
+}
+_count() {
+    _c=0
+    for _x in $1; do _c=$((_c + 1)); done
+    printf "%s" "$_c"
+}
+_ids=$(_blocked) || exit 2
+for _i in $_ids; do
+    usbguard allow-device --permanent "$_i" >/dev/null 2>&1 || true
+done
+_left=$(_blocked) || exit 2
+printf "%s %s\n" "$(_count "$_ids")" "$(_count "$_left")"
+') || {
+        # TRANSLATORS: the owner dismissed the password prompt, or it failed.
+        # Keep "still ON" — the whole point of this tool is that the owner
+        # always knows whether the machine is protected.
+        kdialog --title "$TITLE" --sorry \
+"$(gettext "Nothing was added — USB protection is still ON and everything you
+already allowed keeps working.
+
+(Adding a device needs administrator access.)")" 2>/dev/null
+        return 1
+    }
+
+    # The protection state is re-tested before any dialog CLAIMS it. This path
+    # never stops the daemon, so this should be unreachable — which is exactly
+    # why it is checked. "The machine is unprotected and nothing said so" is the
+    # bug being fixed here, and a dialog that asserts protection is still on
+    # without looking would be a fresh instance of it.
+    if ! systemctl is-active --quiet usbguard.service 2>/dev/null; then
+        kdialog --title "$TITLE" --sorry \
+"$(gettext "USB protection is no longer running.
+
+The USB protection service has stopped, so unknown USB devices are
+NOT being blocked at the moment. Restart this computer, then open
+USB protection from the Dagric Hub to switch it back on.")" 2>/dev/null
+        return 1
+    fi
+
+    _was=${_res%% *}
+    _now=${_res##* }
+    case "$_was" in ''|*[!0-9]*) _was= ;; esac
+    case "$_now" in ''|*[!0-9]*) _now= ;; esac
+
+    if [ -n "$_was" ] && [ "$_was" -eq 0 ]; then
+        # Nothing was blocked. Saying so plainly is worth a dialog of its own:
+        # the owner is here because something does not work, and the useful
+        # answer is that USB protection is not what is stopping it — otherwise
+        # they turn their security off to chase an unrelated fault.
+        kdialog --title "$TITLE" --msgbox \
+"$(gettext "Nothing is being blocked right now.
+
+Every USB device plugged into this computer is already allowed, so
+there was nothing to add. If something still does not work, USB
+protection is not what is stopping it.
+
+Protection is still ON.")" 2>/dev/null
+        return 0
+    elif [ -n "$_was" ] && [ -n "$_now" ] && [ "$_now" -eq 0 ]; then
+        kdialog --title "$TITLE" --msgbox \
+"$(gettext "Your new device is allowed now.
+
+The USB devices that were being blocked have been added to the
+allow-list, and they stay allowed after you restart.
+
+USB protection is still ON — devices you have not approved are
+still blocked.")" 2>/dev/null
+        return 0
+    fi
+
+    # Some are still blocked, or the count came back unreadable. Both are
+    # reported as "not everything worked" rather than as success: this branch
+    # exists so the tool can be wrong out loud instead of quietly.
+    #
+    # The blank line below is load-bearing. `xgettext --add-comments=TRANSLATORS:`
+    # only carries a comment block that STARTS with the tag, so a note appended
+    # to the end of a block like this one never reaches the .pot at all and the
+    # translator never sees it. Hence the split.
+
+    # TRANSLATORS: "nothing that already worked has changed" is literally true —
+    # this path only ever ADDS allow rules — and it is the sentence that stops a
+    # worried owner from switching protection off to be safe. Keep it.
+    kdialog --title "$TITLE" --sorry \
+"$(gettext "Some USB devices are still blocked.
+
+Dagric could not add all of them. Nothing that already worked has
+changed, and USB protection is still ON.
+
+If your new device still does not appear, unplug it, plug it back
+in, and run this again.")" 2>/dev/null
+    return 1
+}
+
+# Already on? Ask WHICH of the three things is wanted. The old two-button
+# question assumed the answer was "turn it off", which is how the phantom
+# refresh documented at the top of this file became an unannounced disarm.
+#
+# Plain --yesnocancel, not --warningyesnocancel: the recommended action here is
+# the harmless one, and hanging a warning triangle on a dialog whose default is
+# safe teaches this audience to click through warnings — which is the habit the
+# genuinely dangerous dialogs in dagric-migrate and dagric-drivers depend on
+# them NOT having.
+#
+# Button order is a safety decision. kdialog's Yes is the default that Return
+# presses, so Yes is the ADDITIVE action; disarming the machine takes a
+# deliberate click on a button that says what it does; and Escape — the reflex
+# of someone who opened this by accident — is Cancel and changes nothing.
+# Exit codes are 0/1/2 for yes/no/cancel, and anything else (kdialog missing,
+# killed, X gone) falls through the `*` case and also changes nothing.
 if systemctl is-active --quiet usbguard.service 2>/dev/null; then
-    kdialog --title "$TITLE" --warningyesno \
+    # TRANSLATORS: three buttons, and the body text names two of them in
+    # typographic quotes — “Allow my new device” and “Turn protection off”.
+    # Those two labels are separate messages immediately below this one;
+    # translate them the SAME way in both places or the dialog tells the owner
+    # to press a button that is not there. The warning to unplug anything
+    # unrecognised is a real one, not filler: this path allow-lists whatever is
+    # attached, exactly as the switch-on dialog does.
+    kdialog --title "$TITLE" \
+        --yes-label "$(gettext "Allow my new device")" \
+        --no-label "$(gettext "Turn protection off")" \
+        --cancel-label "$(gettext "Cancel")" \
+        --yesnocancel \
 "$(gettext "USB protection is currently ON — unknown USB devices are blocked.
 
-Turn it OFF and allow all USB devices again?")" 2>/dev/null || exit 0
+Plugged something in and it does not appear? Leave it plugged in
+and choose “Allow my new device”. Everything plugged in and blocked
+right now is added to the allow-list for good, so unplug anything
+you do not recognise first. Protection stays ON and nothing that
+already works is taken away.
+
+“Turn protection off” allows every USB device again, including ones
+you have never seen.")" 2>/dev/null
+    _ans=$?
+    case "$_ans" in
+        0) dg_usb_refresh; exit $? ;;
+        1) ;;               # fall through to the disable path below
+        *) exit 0 ;;        # Cancel, Escape, or no dialog at all: change nothing
+    esac
     # The exit status of a `;` chain is the LAST command's, and `mask` succeeds
     # on a unit that is still RUNNING — it only rewrites the unit link and warns.
     # So a `disable --now` whose stop timed out, or that left the unit failed or

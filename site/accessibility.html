@@ -17,10 +17,17 @@ table.acr th,table.acr td{border:1px solid var(--rule-2);padding:10px 12px;text-
 table.acr th{background:var(--ink-1);font-weight:600;color:var(--on)}
 table.acr thead th{border-bottom:1px solid var(--rule-2)}
 table.acr td:nth-child(2){white-space:nowrap;font-weight:700}
-/* Measured on --ink-0: yes 11.02:1, partial 8.15:1, no 6.09:1. Status is never
-   carried by colour alone — the words "Supports", "Partially Supports" and
-   "Does Not Support" are the value in the cell. */
-.s-yes{color:var(--good)}.s-part{color:#E8B339}.s-no{color:#F0837B}
+/* Status is never carried by colour alone — the words "Supports", "Partially
+   Supports" and "Does Not Support" are the value in the cell.
+   All three are tokens now. --warn and --bad were literals (#E8B339/#F0837B),
+   which measured 1.70:1 and 2.26:1 the moment a light ground existed: this
+   page publishes the WCAG claim, so its own verdicts failing AA would have
+   been the worst single defect the light theme could ship.
+   Re-measured with the exact relative-luminance formula rather than carried
+   over — the old comment here claimed 8.15 and 6.09 on --ink-0 and neither
+   reproduces; the real dark figures are yes 11.02, partial 10.00, no 7.53.
+   Light: yes 6.15, partial 6.26, no 6.56 on the page. */
+.s-yes{color:var(--good)}.s-part{color:var(--warn)}.s-no{color:var(--bad)}
 .tablewrap{overflow-x:auto}
 dl.meta{display:grid;grid-template-columns:auto 1fr;gap:var(--s-2) var(--s-4);margin:var(--s-4) 0;
   border-top:1px solid var(--rule);border-bottom:1px solid var(--rule);padding:var(--s-4) 0}
@@ -30,9 +37,16 @@ dl.meta dd{margin:0;color:var(--on-2)}
 </style>
 <link rel="canonical" href="https://dagric.com/accessibility">
 <meta name="theme-color" content="#0C0F14">
+<script src="/assets/theme.js"></script>
 <link rel="icon" href="/favicon.ico" sizes="32x32">
 <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
 <link rel="manifest" href="/site.webmanifest">
+<!-- Builds the right-gutter section index from this page's own h2s. defer,
+     because it touches the DOM and there is nothing here worth blocking a
+     paint for; same-origin, so script-src 'self' is satisfied. Only the five
+     long document pages carry it — see assets/pageindex.js for why, and for
+     why the page is unchanged at every width below 1440px and with JS off. -->
+<script src="/assets/pageindex.js" defer></script>
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Dagric OS">
 <meta property="og:title" content="Accessibility Conformance — Dagric OS">

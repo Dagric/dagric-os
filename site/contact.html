@@ -13,6 +13,18 @@
    decoration rather than as a thing to fill. */
 form{background:var(--surface-2);border:1px solid var(--rule);border-radius:var(--r-md);
   padding:var(--s-5);margin-top:var(--s-5)}
+/* THE PANEL ALREADY PAYS PART OF THE CLOSING AIR, SO main MUST NOT PAY ALL OF
+   IT AGAIN. Every other page ends on bare prose, so main's --s-7 bottom is the
+   whole gap between the last word and the footer rule. Here the last element
+   is a bounded panel that carries --s-5 of its own padding below the button,
+   and the two stacked: 189px between "Send message" and the footer at
+   1280-1920 (191px at 768), against 136px everywhere else, on a 1,388px page —
+   28.3% of this document was empty band, the highest ratio of any page that is
+   not an error page.
+   --s-6 + the panel's --s-5 is 84px = --s-7: the same closing air the rest of
+   the site has, arrived at by subtraction rather than by inventing a value.
+   Both numbers are on the scale; nothing here is a nudge. */
+main{padding-bottom:var(--s-6)}
 label{display:block;font-weight:600;margin:var(--s-4) 0 var(--s-2);color:var(--on);
   font-family:var(--ff-display);font-size:var(--t-body)}
 /* --rule-2 measures only 2.31:1 once it sits on a raised --ink-2 surface, and a
@@ -41,14 +53,40 @@ textarea{min-height:160px;resize:vertical}
    gradient is gone from the rest of the site: this is a <button>, not a .btn,
    and a submit control that reads as the page's one action is worth the
    colour. Nothing else on the site fills with it any more. */
-button{margin-top:var(--s-5);padding:14px 30px;border-radius:2px;font-weight:600;
+/* `form button`, NOT `button`. This page is no longer the only page with one
+   button on it: assets/theme.js appends the light/dark control to <footer> on
+   every page, so an unscoped element selector here reaches a control this page
+   knows nothing about. site.css's `.themetog` is (0,1,0) and wins every
+   property it declares, but it declares no margin — and this rule's
+   `margin-top:var(--s-5)` therefore leaked straight through. Measured in a
+   browser at 1440px, light theme: .themebox stood 76px tall on /contact
+   against 44px on /about, the toggle carrying 32px of margin-top that exists
+   on no other page. (margin-top was the ONLY leak: padding, colour,
+   background, border, radius and the font shorthand are all declared by
+   .themetog and were already winning.) Qualifying by `form` keeps the rule at (0,0,2), still below
+   `.themetog`, and — the point — stops it matching the toggle at all.
+   The print block in site.css already names this control `form button` for the
+   same reason, so the two now agree on what this selector means. */
+form button{margin-top:var(--s-5);padding:14px 30px;border-radius:2px;font-weight:600;
   font-size:var(--t-ui);border:1px solid transparent;color:#fff;background:var(--grad-fill);
   cursor:pointer;font-family:var(--ff-ui)}
-button:disabled{opacity:.6;cursor:wait}
+form button:disabled{opacity:.6;cursor:wait}
 .hp{position:absolute;left:-9999px;opacity:0;height:0;overflow:hidden}
 #status{margin-top:var(--s-4);font-weight:600}
+/* Empty, this reserved 20px under the send button on every page load — a gap
+   held open for a message that is not there yet, at the exact point where the
+   page already had the most empty space on the site. It keeps its box rather
+   than becoming display:none: removing an aria-live region from the
+   accessibility tree and putting it back together with its text in the same
+   frame is the case screen readers miss. It simply stops reserving height
+   until there is something to announce. (The guide's search status does the
+   same thing for the same reason — see .gsearch-status:empty in guide.css.) */
+#status:empty{margin-top:0}
 #status.ok{color:var(--good)}
-#status.err{color:#F0837B}
+/* --bad, not #F0837B: the literal measured 2.26:1 on a light ground, so the
+   one message that tells somebody their refund or support request did NOT
+   send would have failed AA on the light theme. Dark 7.53:1, light 6.56:1. */
+#status.err{color:var(--bad)}
 /* The only form on the site, and the route people take for refunds and support,
    had no phone rule at all: 34px of form padding inside main's 20px left 250px of
    a 360px screen for the fields — 110px per side, 31% of the viewport, spent on
@@ -66,6 +104,7 @@ button:disabled{opacity:.6;cursor:wait}
 </style>
 <link rel="canonical" href="https://dagric.com/contact">
 <meta name="theme-color" content="#0C0F14">
+<script src="/assets/theme.js"></script>
 <link rel="icon" href="/favicon.ico" sizes="32x32">
 <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
 <link rel="manifest" href="/site.webmanifest">
@@ -102,7 +141,29 @@ button:disabled{opacity:.6;cursor:wait}
   and attaches your purchase details automatically — that's the fastest route for order and
   refund questions.</div>
 
-  <form id="cform" novalidate>
+  <!-- method="post" IS A PRIVACY FIX, NOT A FORMALITY. This form has no action,
+       and assets/contact.js submits it with fetch() after preventDefault(). With
+       JavaScript disabled that handler never binds, so the browser falls back to
+       its own default — method="get" against the current URL — and every field
+       is appended to the address bar as a query string. That means the visitor's
+       name, their email address and the whole text of their message, which on
+       this page is often a bug report or a refund request, land in their browser
+       history, in any proxy or corporate gateway between them and us, and in the
+       Referer of the next page they open. The message is lost either way; only
+       one of the two ways also publishes it.
+       post sends the same fields in a body instead. There is still no action, so
+       the submission goes nowhere — but it goes nowhere quietly, and the
+       <noscript> below tells the reader that before they type anything.
+       Do not "fix" this by adding an action to the Worker: it expects JSON and
+       would reject a form encoding, and a failed POST is not better than an
+       honest instruction to use email. -->
+  <noscript>
+    <div class="note"><strong>This form needs JavaScript.</strong> It is switched
+    off in your browser, so the send button will not work. Reply to your Stripe
+    receipt if you bought Pro, or use the routes on the
+    <a href="/support">support page</a> — both reach the same people.</div>
+  </noscript>
+  <form id="cform" method="post" novalidate>
     <label for="topic">What's it about?</label>
     <select id="topic" name="topic">
       <option value="support">Help with Dagric OS</option>

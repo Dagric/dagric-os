@@ -16,7 +16,8 @@
 .dl{display:grid;gap:var(--s-4);grid-template-columns:repeat(auto-fit,minmax(min(19rem,100%),1fr));margin:var(--s-5) 0}
 .dl .card{margin:0;background:var(--surface-2);border:1px solid var(--rule);
   border-radius:var(--r-md);padding:var(--s-5)}
-.dl .card.pro{background:var(--ink-1);border-color:rgba(227,194,125,.35);border-top:2px solid var(--pro)}
+/* --pro-edge — see the identical note on index.html's .price.pro. */
+.dl .card.pro{background:var(--ink-1);border-color:var(--pro-edge);border-top:2px solid var(--pro)}
 /* The two download cards are h2, not h3. This page was the site's only heading-level
    skip — its outline ran h1, h3, h3, h2, h2, h2, h2 — so a screen-reader user browsing
    by heading dropped two levels into the two most important elements on the page and
@@ -45,6 +46,7 @@
 </style>
 <link rel="canonical" href="https://dagric.com/download">
 <meta name="theme-color" content="#0C0F14">
+<script src="/assets/theme.js"></script>
 <link rel="icon" href="/favicon.ico" sizes="32x32">
 <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
 <link rel="manifest" href="/site.webmanifest">
@@ -79,7 +81,10 @@
      edition cards, the installer capture and the walkthrough all want more than
      820px; the prose under them keeps its own measure. -->
 <main id="main" class="wide">
-  <header class="phero" style="padding-left:0;padding-right:0">
+  <!-- The inline padding override that used to sit here is gone: site.css's
+       `main.wide > .phero` now owns it, so this page and /features open on the
+       same measured rhythm instead of on two different hand-patches. -->
+  <header class="phero">
     <h1>Get <span class="grad">Dagric OS.</span></h1>
     <p class="lead">Both editions are full 64-bit systems you can try live from USB before
     installing. New to this? The <a href="/getting-started">step-by-step guide</a> takes you from
@@ -239,7 +244,7 @@
   <p>If it finds nothing, it says so — you can install with confidence. If it flags something, it
   tells you what to do about it, and you've spent ten minutes instead of an evening.</p>
 
-  <h2>Verify your download</h2>
+  <h2 id="h-verify-download">Verify your download</h2>
   <p>Don't skip this for installs that matter — it proves your ISO is byte-for-byte what we built.</p>
   <!-- No checksums are printed inline on this page, deliberately.
        There used to be a copy here and a second copy in index.html, both transcribed by
@@ -249,7 +254,18 @@
        or tampered download rather than as a stale web page, on a product they paid for.
        SHA256SUMS is now the only published source, because one copy of a checksum cannot
        disagree with itself, and it is the copy the signature actually covers. -->
-  <pre><code>gpg --import dagric-signing-key.asc
+  <!-- tabindex+role+a name, matching the .tablewrap wrappers on /index and
+       /accessibility. site.css gives every <pre> overflow-x:auto, and measured
+       at a 320px viewport this block is 296px of content in a 278px box: 18px
+       of horizontal scroll, on the three commands that prove the ISO is what
+       we built. An overflow container is not keyboard-focusable in Chrome
+       without tabindex, so a reader using only a keyboard could not scroll to
+       the end of `gpg --verify SHA256SUMS.sig SHA256SUMS` at all (WCAG 2.1.1),
+       and without role+name a screen reader announces the scroll region as
+       nothing (WCAG 1.3.1, 4.1.2). aria-labelledby points at the section's own
+       h2 rather than carrying an aria-label, so the name is text that is
+       already on the page and no new wording is introduced. -->
+  <pre tabindex="0" role="region" aria-labelledby="h-verify-download"><code>gpg --import dagric-signing-key.asc
 gpg --verify SHA256SUMS.sig SHA256SUMS
 sha256sum -c SHA256SUMS</code></pre>
   <p>Files: <a href="SHA256SUMS">SHA256SUMS</a> · <a href="SHA256SUMS.sig">SHA256SUMS.sig</a> ·

@@ -26,12 +26,45 @@
   --paper:#F5F2EB;--body:#C0C8D4;--soft:#98A2B0;
   --accent:#7CB8EC;--accent-2:#8FC3EE;--accent-deep:#14487A;--pro:#E3C27D;--good:#4ADE80;
   --mono-b:#8FD6AE;
+  /* Ported with the light band: the two literals this page carried are now
+     tokens, exactly as in site.css, and for the same reason — composited on a
+     light card they measured 1.15:1 (the Pro rail) and printed as a grey
+     smudge (the .85 black plate shadow). Dark keeps the identical rgba, so
+     this receipt renders precisely as it did. */
+  --pro-edge:rgba(227,194,125,.35);
+  --shadow:0 30px 60px -30px rgba(0,0,0,.85);
+  --focus:var(--accent-2);
   --ff-display:Georgia,"Iowan Old Style","Palatino Linotype","Source Serif 4","Noto Serif","Liberation Serif",serif;
   --ff-ui:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
   /* --grad-fill is kept, and it is the last fill on the site that carries white
      text: 9.38:1. The bright --grad it used to pair with is gone, along with the
      hazard that made two tokens necessary. */
   --grad-fill:var(--accent-deep);
+  color-scheme:dark;
+}
+/* THE LIGHT BAND, HAND-PORTED TOO — and this is the page most likely to be
+   missed, because it links no stylesheet so nothing fails loudly when it
+   drifts. Every value below is the same one site.css uses; keep them in step
+   in the same commit, as the note above requires for every other token.
+   There is no control on this screen and that is correct: it is a centred
+   receipt with no footer, so theme.js finds nowhere to put a button and
+   simply applies the choice the reader already made elsewhere on the site.
+   Measured on this page's two grounds — the page (--ink-0) and the card
+   (--ink-1), which is where all of its text actually sits:
+     --paper  14.24 / 12.54     --body 8.56 / 7.54     --soft 5.88 / 5.18
+     --accent  6.49 /  5.71     --pro  5.90 / 5.20     --good 6.15 / 5.42
+     --mono-b on --well 5.55    #fff on --grad-fill 9.38 (fixed dark fill)
+     --focus 7.43 / 6.54 */
+:root[data-theme="light"]{
+  --ink-0:#F3EFE4;--ink-1:#E8E1CE;--ink-2:#FFFDF7;--well:#E4DCC6;
+  --rule:#C3BBA5;--rule-2:#7C7666;
+  --paper:#241F17;--body:#3D444E;--soft:#555C66;
+  --accent:#15588E;--accent-2:#1B4F7D;--accent-deep:#14487A;--pro:#755614;--good:#116632;
+  --mono-b:#14603A;
+  --pro-edge:#A8862B;
+  --shadow:0 30px 60px -30px rgba(31,35,45,.22);
+  --focus:#1B4F7D;
+  color-scheme:light;
 }
 *{margin:0;padding:0;box-sizing:border-box}
 body{background:var(--ink-0);color:var(--body);
@@ -39,9 +72,9 @@ body{background:var(--ink-0);color:var(--body);
   display:flex;min-height:100vh;align-items:center;justify-content:center;padding:24px}
 /* A gold top rule, the same mark the Pro price card and the Pro column of the
    compare table carry. This is the page you land on after buying Pro. */
-.card{max-width:640px;background:var(--ink-1);border:1px solid rgba(227,194,125,.35);
+.card{max-width:640px;background:var(--ink-1);border:1px solid var(--pro-edge);
   border-top:2px solid var(--pro);border-radius:3px;padding:44px;
-  box-shadow:0 30px 60px -30px rgba(0,0,0,.85)}
+  box-shadow:var(--shadow)}
 img.logo{width:44px;height:44px;border-radius:2px;margin:0 0 20px;display:block}
 h1{font:500 2.125rem/1.16 var(--ff-display);letter-spacing:-.012em;color:var(--paper);
   margin-bottom:12px;text-wrap:balance}
@@ -53,7 +86,11 @@ p{color:var(--body);margin:12px 0;max-width:34rem}
 .small{font-size:.9375rem;margin-top:20px;color:var(--soft)}
 a{color:var(--accent);text-decoration:none}
 a:hover{text-decoration:underline;text-underline-offset:3px}
-:focus-visible{outline:2px solid var(--accent-2);outline-offset:2px}
+/* --focus, not --accent-2 directly: the light band re-points it to #1B4F7D
+   because #8FC3EE measures 1.87:1 on a light ground. outline-offset:2px is
+   load-bearing — it keeps the ring on the surface behind a control, never on
+   the near-black .btn fill. Do not set it to 0. */
+:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
 .sums{background:var(--well);border:1px solid var(--rule);border-radius:2px;padding:12px 14px;
   font:.8125rem/1.8 ui-monospace,Consolas,monospace;color:var(--mono-b);overflow-x:auto;
   white-space:nowrap;margin-top:18px;font-variant-numeric:tabular-nums}
@@ -70,6 +107,16 @@ a:hover{text-decoration:underline;text-underline-offset:3px}
    white-space is unset on .sums because a 64-character hash cannot scroll on
    paper; it has to wrap or it is simply cut off at the margin. */
 @media print{
+  /* Token reset first, with `:root,:root[data-theme]` so it ties the light
+     band's (0,2,0) and wins on order — the same reconciliation site.css's
+     print block uses. Every rule below already overrode its literal directly,
+     so this is belt and braces rather than a fix; it is here so that the next
+     token added to this page cannot quietly print in screen colours. */
+  :root,:root[data-theme]{
+    --ink-0:#fff;--ink-1:#fff;--ink-2:#fff;--well:#fff;
+    --rule:#bbb;--rule-2:#999;--paper:#000;--body:#1c1c1c;--soft:#444;
+    --accent:#12507e;--accent-2:#12507e;--pro:#000;--good:#000;--mono-b:#000;
+    --pro-edge:#999;--shadow:none;--focus:#12507e;color-scheme:light}
   body{background:#fff!important;color:#000!important;display:block;padding:0}
   @page{margin:16mm}
   .card{max-width:none;background:#fff;border:none;border-radius:0;box-shadow:none;padding:0}
@@ -82,6 +129,7 @@ a:hover{text-decoration:underline;text-underline-offset:3px}
 }
 </style>
 <meta name="theme-color" content="#0C0F14">
+<script src="/assets/theme.js"></script>
 <link rel="icon" href="/favicon.ico" sizes="32x32">
 <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
 </head>

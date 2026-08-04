@@ -3004,60 +3004,192 @@ msgstr "Auf das Standardaussehen von Dagric zurückgesetzt"
 msgid "Style applied: $NAME"
 msgstr "Stil angewendet: $NAME"
 
-#: config/includes.chroot/usr/bin/dagric-usb-protect:18
+#: config/includes.chroot/usr/bin/dagric-usb-protect:31
 msgid "Dagric USB Protection"
 msgstr "Dagric USB-Schutz"
 
-#: config/includes.chroot/usr/bin/dagric-usb-protect:22
+#: config/includes.chroot/usr/bin/dagric-usb-protect:35
 msgid "USB protection is a Dagric Pro feature."
 msgstr "Der USB-Schutz ist eine Funktion von Dagric Pro."
 
-#: config/includes.chroot/usr/bin/dagric-usb-protect:39
+#: config/includes.chroot/usr/bin/dagric-usb-protect:52
 msgid ""
 "USB protection can only be set up on an installed Dagric system.\n"
 "\n"
-"This is the live trial running from the USB stick: the allow-list would be "
-"kept\n"
-"in memory and lost at shutdown, and any USB drive you plug in before then "
-"would\n"
+"This is the live trial running from the USB stick: the allow-list would be kept\n"
+"in memory and lost at shutdown, and any USB drive you plug in before then would\n"
 "be blocked. Install Dagric first, then turn this on from the Dagric Hub."
 msgstr ""
-"Der USB-Schutz lässt sich nur auf einem installierten Dagric-System "
-"einrichten.\n"
+"Der USB-Schutz lässt sich nur auf einem installierten Dagric-System einrichten.\n"
 "\n"
-"Das ist der Live-Test vom USB-Stick: Die Freigabeliste läge im "
-"Arbeitsspeicher und wäre\n"
-"beim Herunterfahren verloren, und jedes USB-Laufwerk, das Sie bis dahin "
-"anstecken, wäre\n"
-"blockiert. Installieren Sie Dagric zuerst, dann schalten Sie ihn im Dagric "
-"Hub ein."
+"Das ist der Live-Test vom USB-Stick: Die Freigabeliste läge im Arbeitsspeicher und wäre\n"
+"beim Herunterfahren verloren, und jedes USB-Laufwerk, das Sie bis dahin anstecken, wäre\n"
+"blockiert. Installieren Sie Dagric zuerst, dann schalten Sie ihn im Dagric Hub ein."
 
-#: config/includes.chroot/usr/bin/dagric-usb-protect:50
+#. TRANSLATORS: the owner dismissed the password prompt, or it failed.
+#. Keep "still ON" — the whole point of this tool is that the owner
+#. always knows whether the machine is protected.
+#: config/includes.chroot/usr/bin/dagric-usb-protect:131
+msgid ""
+"Nothing was added — USB protection is still ON and everything you\n"
+"already allowed keeps working.\n"
+"\n"
+"(Adding a device needs administrator access.)"
+msgstr ""
+"Es wurde nichts hinzugefügt — der USB-Schutz ist weiterhin AKTIV und alles, was Sie\n"
+"bereits zugelassen haben, funktioniert weiterhin.\n"
+"\n"
+"(Das Hinzufügen eines Geräts erfordert Administratorzugriff.)"
+
+#: config/includes.chroot/usr/bin/dagric-usb-protect:145
+msgid ""
+"USB protection is no longer running.\n"
+"\n"
+"The USB protection service has stopped, so unknown USB devices are\n"
+"NOT being blocked at the moment. Restart this computer, then open\n"
+"USB protection from the Dagric Hub to switch it back on."
+msgstr ""
+"Der USB-Schutz wird nicht mehr ausgeführt.\n"
+"\n"
+"Der USB-Schutz-Dienst wurde beendet, daher werden unbekannte USB-Geräte derzeit\n"
+"NICHT blockiert. Starten Sie diesen Computer neu und öffnen Sie dann den\n"
+"USB-Schutz im Dagric Hub, um ihn wieder zu aktivieren."
+
+#: config/includes.chroot/usr/bin/dagric-usb-protect:164
+msgid ""
+"Nothing is being blocked right now.\n"
+"\n"
+"Every USB device plugged into this computer is already allowed, so\n"
+"there was nothing to add. If something still does not work, USB\n"
+"protection is not what is stopping it.\n"
+"\n"
+"Protection is still ON."
+msgstr ""
+"Derzeit wird nichts blockiert.\n"
+"\n"
+"Jedes USB-Gerät, das an diesen Computer angeschlossen ist, ist bereits zugelassen, daher\n"
+"gab es nichts hinzuzufügen. Falls etwas weiterhin nicht funktioniert, liegt es nicht am\n"
+"USB-Schutz.\n"
+"\n"
+"Der Schutz ist weiterhin AKTIV."
+
+#: config/includes.chroot/usr/bin/dagric-usb-protect:174
+msgid ""
+"Your new device is allowed now.\n"
+"\n"
+"The USB devices that were being blocked have been added to the\n"
+"allow-list, and they stay allowed after you restart.\n"
+"\n"
+"USB protection is still ON — devices you have not approved are\n"
+"still blocked."
+msgstr ""
+"Ihr neues Gerät ist jetzt zugelassen.\n"
+"\n"
+"Die USB-Geräte, die blockiert wurden, wurden zur Zulassungsliste hinzugefügt und\n"
+"bleiben auch nach einem Neustart zugelassen.\n"
+"\n"
+"Der USB-Schutz ist weiterhin AKTIV — Geräte, die Sie nicht freigegeben haben, werden\n"
+"weiterhin blockiert."
+
+#. TRANSLATORS: "nothing that already worked has changed" is literally true —
+#. this path only ever ADDS allow rules — and it is the sentence that stops a
+#. worried owner from switching protection off to be safe. Keep it.
+#: config/includes.chroot/usr/bin/dagric-usb-protect:197
+msgid ""
+"Some USB devices are still blocked.\n"
+"\n"
+"Dagric could not add all of them. Nothing that already worked has\n"
+"changed, and USB protection is still ON.\n"
+"\n"
+"If your new device still does not appear, unplug it, plug it back\n"
+"in, and run this again."
+msgstr ""
+"Einige USB-Geräte werden weiterhin blockiert.\n"
+"\n"
+"Dagric konnte nicht alle hinzufügen. Nichts, was bereits funktioniert hat, wurde\n"
+"geändert, und der USB-Schutz ist weiterhin AKTIV.\n"
+"\n"
+"Falls Ihr neues Gerät weiterhin nicht angezeigt wird, ziehen Sie es ab, stecken Sie es\n"
+"erneut ein und führen Sie diesen Vorgang erneut aus."
+
+#. TRANSLATORS: three buttons, and the body text names two of them in
+#. typographic quotes — “Allow my new device” and “Turn protection off”.
+#. Those two labels are separate messages immediately below this one;
+#. translate them the SAME way in both places or the dialog tells the owner
+#. to press a button that is not there. The warning to unplug anything
+#. unrecognised is a real one, not filler: this path allow-lists whatever is
+#. attached, exactly as the switch-on dialog does.
+#: config/includes.chroot/usr/bin/dagric-usb-protect:232
+msgid "Allow my new device"
+msgstr "Mein neues Gerät zulassen"
+
+#. TRANSLATORS: three buttons, and the body text names two of them in
+#. typographic quotes — “Allow my new device” and “Turn protection off”.
+#. Those two labels are separate messages immediately below this one;
+#. translate them the SAME way in both places or the dialog tells the owner
+#. to press a button that is not there. The warning to unplug anything
+#. unrecognised is a real one, not filler: this path allow-lists whatever is
+#. attached, exactly as the switch-on dialog does.
+#: config/includes.chroot/usr/bin/dagric-usb-protect:233
+msgid "Turn protection off"
+msgstr "Schutz ausschalten"
+
+#. TRANSLATORS: three buttons, and the body text names two of them in
+#. typographic quotes — “Allow my new device” and “Turn protection off”.
+#. Those two labels are separate messages immediately below this one;
+#. translate them the SAME way in both places or the dialog tells the owner
+#. to press a button that is not there. The warning to unplug anything
+#. unrecognised is a real one, not filler: this path allow-lists whatever is
+#. attached, exactly as the switch-on dialog does.
+#: config/includes.chroot/usr/bin/dagric-usb-protect:234
+msgid "Cancel"
+msgstr "Abbrechen"
+
+#. TRANSLATORS: three buttons, and the body text names two of them in
+#. typographic quotes — “Allow my new device” and “Turn protection off”.
+#. Those two labels are separate messages immediately below this one;
+#. translate them the SAME way in both places or the dialog tells the owner
+#. to press a button that is not there. The warning to unplug anything
+#. unrecognised is a real one, not filler: this path allow-lists whatever is
+#. attached, exactly as the switch-on dialog does.
+#: config/includes.chroot/usr/bin/dagric-usb-protect:236
 msgid ""
 "USB protection is currently ON — unknown USB devices are blocked.\n"
 "\n"
-"Turn it OFF and allow all USB devices again?"
-msgstr ""
-"Der USB-Schutz ist derzeit EINGESCHALTET — unbekannte USB-Geräte werden "
-"blockiert.\n"
+"Plugged something in and it does not appear? Leave it plugged in\n"
+"and choose “Allow my new device”. Everything plugged in and blocked\n"
+"right now is added to the allow-list for good, so unplug anything\n"
+"you do not recognise first. Protection stays ON and nothing that\n"
+"already works is taken away.\n"
 "\n"
-"Ausschalten und wieder alle USB-Geräte zulassen?"
+"“Turn protection off” allows every USB device again, including ones\n"
+"you have never seen."
+msgstr ""
+"Der USB-Schutz ist derzeit AKTIV — unbekannte USB-Geräte werden blockiert.\n"
+"\n"
+"Haben Sie etwas angeschlossen und es wird nicht angezeigt? Lassen Sie es eingesteckt\n"
+"und wählen Sie „Mein neues Gerät zulassen“. Alles, was gerade eingesteckt und blockiert\n"
+"ist, wird dauerhaft zur Zulassungsliste hinzugefügt. Ziehen Sie daher zuerst alles ab,\n"
+"was Sie nicht kennen. Der Schutz bleibt AKTIV und nichts, was bereits funktioniert,\n"
+"wird entfernt.\n"
+"\n"
+"„Schutz ausschalten“ lässt wieder jedes USB-Gerät zu, auch solche, die Sie noch nie\n"
+"gesehen haben."
 
-#: config/includes.chroot/usr/bin/dagric-usb-protect:64
+#: config/includes.chroot/usr/bin/dagric-usb-protect:263
 msgid "USB protection is off. All USB devices work normally."
 msgstr "Der USB-Schutz ist aus. Alle USB-Geräte funktionieren wieder normal."
 
-#: config/includes.chroot/usr/bin/dagric-usb-protect:67
+#: config/includes.chroot/usr/bin/dagric-usb-protect:266
 msgid "Could not turn it off (administrator access is required)."
-msgstr ""
-"Konnte nicht ausgeschaltet werden (es werden Administratorrechte benötigt)."
+msgstr "Konnte nicht ausgeschaltet werden (es werden Administratorrechte benötigt)."
 
 #. TRANSLATORS: the most consequential dialog in the product. "plug in
 #. everything you normally use before continuing" is a WARNING, not advice —
 #. a device that is unplugged now really is blocked when it comes back, and
 #. that can include the owner's keyboard. Do not soften it, and do not drop
 #. the reassurance that this can be re-run or turned off.
-#: config/includes.chroot/usr/bin/dagric-usb-protect:78
+#: config/includes.chroot/usr/bin/dagric-usb-protect:277
 msgid ""
 "Turn ON USB protection?\n"
 "\n"
@@ -3073,10 +3205,8 @@ msgid ""
 msgstr ""
 "USB-Schutz einschalten?\n"
 "\n"
-"Dagric merkt sich jedes USB-Gerät, das GERADE JETZT angeschlossen ist — "
-"Ihre\n"
-"Tastatur, Maus, Webcam, Drucker, Laufwerke — und lässt genau diese zu. "
-"Jedes\n"
+"Dagric merkt sich jedes USB-Gerät, das GERADE JETZT angeschlossen ist — Ihre\n"
+"Tastatur, Maus, Webcam, Drucker, Laufwerke — und lässt genau diese zu. Jedes\n"
 "ANDERE USB-Gerät, das später angeschlossen wird, ist blockiert, bis Sie es\n"
 "freigeben.\n"
 "\n"
@@ -3087,7 +3217,7 @@ msgstr ""
 "\n"
 "Schützt vor bösartigen USB-Geräten, die sich als Tastatur ausgeben."
 
-#: config/includes.chroot/usr/bin/dagric-usb-protect:130
+#: config/includes.chroot/usr/bin/dagric-usb-protect:329
 msgid ""
 "USB protection is ON.\n"
 "\n"
@@ -3098,13 +3228,12 @@ msgstr ""
 "Der USB-Schutz ist EINGESCHALTET.\n"
 "\n"
 "Alles, was gerade angeschlossen ist, ist zugelassen. Neue USB-Geräte werden\n"
-"blockiert, bis Sie sie freigeben — führen Sie dieses Werkzeug jederzeit "
-"erneut\n"
+"blockiert, bis Sie sie freigeben — führen Sie dieses Werkzeug jederzeit erneut\n"
 "aus, um die Liste zu aktualisieren oder den Schutz wieder auszuschalten."
 
 #. TRANSLATORS: this is the reassuring failure case — nothing was changed
 #. and every USB device still works. Keep "nothing was changed" explicit.
-#: config/includes.chroot/usr/bin/dagric-usb-protect:139
+#: config/includes.chroot/usr/bin/dagric-usb-protect:338
 msgid ""
 "USB protection was NOT enabled — nothing was changed, and all your\n"
 "USB devices keep working.\n"
@@ -3112,12 +3241,10 @@ msgid ""
 "(This needs administrator access, and Dagric deliberately refuses to\n"
 "arm USB blocking without a device allow-list.)"
 msgstr ""
-"Der USB-Schutz wurde NICHT eingeschaltet — es wurde nichts geändert, und "
-"alle\n"
+"Der USB-Schutz wurde NICHT eingeschaltet — es wurde nichts geändert, und alle\n"
 "Ihre USB-Geräte funktionieren weiter.\n"
 "\n"
-"(Dafür werden Administratorrechte benötigt, und Dagric weigert sich "
-"bewusst,\n"
+"(Dafür werden Administratorrechte benötigt, und Dagric weigert sich bewusst,\n"
 "die USB-Blockade ohne eine Geräte-Freigabeliste zu aktivieren.)"
 
 #: config/includes.chroot/usr/bin/dagric-vm:34
@@ -3285,3 +3412,13 @@ msgstr "Die Dagric-Willkommensseite ist nicht installiert."
 
 #~ msgid "Open the manual"
 #~ msgstr "Handbuch öffnen"
+
+#~ msgid ""
+#~ "USB protection is currently ON — unknown USB devices are blocked.\n"
+#~ "\n"
+#~ "Turn it OFF and allow all USB devices again?"
+#~ msgstr ""
+#~ "Der USB-Schutz ist derzeit EINGESCHALTET — unbekannte USB-Geräte werden "
+#~ "blockiert.\n"
+#~ "\n"
+#~ "Ausschalten und wieder alle USB-Geräte zulassen?"

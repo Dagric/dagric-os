@@ -497,7 +497,23 @@ footer.colophon {
     --ink:       #101a26;
     --ink-soft:  #2c3c50;
     --muted:     #586a80;
-    --faint:     #64758a;
+    /* Was #64758a. The dark palette's --faint was lifted (see the note beside
+       it) until the DARKEST surface it lands on cleared 4.5:1; the light one
+       was never given the same treatment from the other direction, and it did
+       not clear it. Measured with the WCAG relative-luminance formula:
+         #64758a on --bg      #f3f6fa  4.35:1   FAIL
+         #64758a on --bg-raise #ffffff 4.72:1   pass
+       Every use of this token here is small text — the sidebar group headings
+       at 10.9px, the LANGUAGE label on the language bar, the colophon, the
+       search result count, the checklist tally, the search placeholder — so
+       all of it is held to 4.5:1, and four of those six sit directly on --bg.
+       Same hue and saturation, deepened until --bg clears it:
+         #607085 on --bg      #f3f6fa  4.66:1
+         #607085 on --bg-raise #ffffff 5.06:1
+       Not deepened further than that on purpose: --muted measures 5.11:1 on
+       --bg, and --faint has to stay the lighter of the two or the one step of
+       hierarchy this pair exists to draw disappears. */
+    --faint:     #607085;
     /* The accent stays the brand blue for fills and badges, but as TEXT it
        fails on white (3fa9f5 measures ~2.4:1), so links use the deepened
        variant — same hue, readable. */
@@ -517,6 +533,20 @@ footer.colophon {
     border-color:rgba(28,110,168,.18);
     color:#155d8e;
   }
+  /* THE PRO BADGE STACKS ITS OWN GROUND ON TOP OF ANOTHER ONE. --accent-bg is
+     8% alpha here, and .pro sets it while sitting inside a .tip that has
+     already set it, so the badge's ground is that tint applied TWICE over the
+     page: #f3f6fa -> #e2ebf3 -> #d2e1ed. Measured with the WCAG formula, and
+     .pro is 9.9px at weight 700, which is small text and held to 4.5:1:
+       --accent #1c6ea8 on #f3f6fa (bare)        5.04:1  pass
+       --accent #1c6ea8 on #e2ebf3 (one layer)   4.53:1  pass, barely
+       --accent #1c6ea8 on #d2e1ed (inside .tip) 4.10:1  FAIL
+     The same double stack in the dark palette measures 5.45:1 and is fine, so
+     this is a light-only miss and it belongs here. #155d8e is not a new
+     colour — it is the deepened accent `code` two rules up already uses for
+     exactly this reason, and it takes the worst of the three grounds to
+     5.27:1 (5.83 on one layer, 6.48 bare). */
+  .pro { color:#155d8e; }
   .tip { border-color:rgba(28,110,168,.20); }
   .tip::before { background:#1c6ea8; color:#ffffff; }
 }

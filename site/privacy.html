@@ -9,9 +9,16 @@
 <link rel="stylesheet" href="/assets/site.css">
 <link rel="canonical" href="https://dagric.com/privacy">
 <meta name="theme-color" content="#0C0F14">
+<script src="/assets/theme.js"></script>
 <link rel="icon" href="/favicon.ico" sizes="32x32">
 <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
 <link rel="manifest" href="/site.webmanifest">
+<!-- Builds the right-gutter section index from this page's own h2s. defer,
+     because it touches the DOM and there is nothing here worth blocking a
+     paint for; same-origin, so script-src 'self' is satisfied. Only the five
+     long document pages carry it — see assets/pageindex.js for why, and for
+     why the page is unchanged at every width below 1440px and with JS off. -->
+<script src="/assets/pageindex.js" defer></script>
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Dagric OS">
 <meta property="og:title" content="Privacy — Dagric OS">
@@ -38,7 +45,7 @@
 
 <main id="main">
   <h1>Privacy, <span class="grad">in plain words.</span></h1>
-  <p class="lead">Short policy, because there's little to disclose. Last updated July&nbsp;2026.</p>
+  <p class="lead">Short policy, because there's little to disclose. Last updated August&nbsp;2026.</p>
 
   <h2>The operating system</h2>
   <p><strong>Dagric OS collects nothing.</strong> The OS contains no telemetry, no analytics, no
@@ -63,10 +70,73 @@
        this page, the one a school or procurement officer actually reads, was the
        only place that did not. If a policy or a package ever adds another outbound
        host, name it here in the same commit — otherwise the sentence above becomes
-       a false claim again. -->
-  <p><strong>What the machine connects to, in full.</strong> Nothing here is
-  optional-but-on; this is the complete list, and every item is a fetch <em>from</em>
-  a server, never a report <em>to</em> one:</p>
+       a false claim again.
+
+       THIRD ROUND, and this one was six omissions, not one. The instruction two
+       paragraphs up was written and then not followed for a year of package-list
+       changes, which is the whole lesson: a comment does not enforce anything.
+       What was missing, each confirmed against the built image before it was
+       written here rather than after —
+
+         Chromium        pro-apps.list.chroot, and out/manifest/pro.packages line
+                         "chromium 150.0.7871.181-1~deb13u1". This page enumerated
+                         Firefox down to the captive-portal ping while a second,
+                         Google-derived browser shipped in the PAID tier and was
+                         not named once. That is the version of this mistake that
+                         does the most damage, because the reader who checks is
+                         the procurement officer.
+         Lutris          pro-gaming.list.chroot, manifest "lutris 0.5.19-2". The
+                         launcher is a catalogue; the catalogue lives on lutris.net.
+         The KDE Store   BOTH editions. libkf6newstuffcore6, libkf6newstuffwidgets6,
+                         qml6-module-org-kde-newstuff and libkf6attica6 (the OCS
+                         protocol client) are all in free.packages AND pro.packages,
+                         and a case-insensitive grep of the entire config/ tree for
+                         ghns / KNewStuff / "KDE Action Restrictions" returns no
+                         restriction — so every "Get New ..." button is live on both
+                         discs. docs/APPEARANCE-ROADMAP.md states as policy that
+                         this is "Not enabled by default". Nothing implements that.
+                         The roadmap is the thing that is wrong, not this page; it
+                         is named here so the next person does not trust it.
+         Flathub scope   0400-flathub.hook.chroot adds the remote in the BUILD
+                         chroot, so it is configured before first boot;
+                         /etc/xdg/autostart/org.kde.discover.notifier.desktop is on
+                         the image, so the notifier polls the Flatpak backend every
+                         login; and eight /usr/bin/dagric-get-* helpers run
+                         `flatpak install ... flathub` with the software centre not
+                         involved. The old bullet said "when you browse or install
+                         Flatpak apps in the software centre", which excluded all
+                         three.
+         Thunderbird     manifest "thunderbird 1:140.12.0esr-1~deb13u1". Second
+                         Mozilla application on the image, and its account setup
+                         sends the domain part of an email address to a lookup
+                         service — the only item on this page that transmits
+                         anything the owner typed.
+         Syncthing       manifest "syncthing 1.29.5~ds1-2". THIS ONE BROKE TWO
+                         SENTENCES, not just the list. Global discovery and relaying
+                         are on by default, so a started Syncthing announces a
+                         stable device ID to servers Syncthing operates. The lead
+                         therefore could not keep "every item is a fetch FROM a
+                         server, never a report TO one", and the closing paragraph
+                         could not keep "None of them carries a device ID". Both
+                         were corrected rather than the bullet being left off, which
+                         is the only honest way round: the claim was written before
+                         the package shipped and the package won.
+
+       Two claims here were also false against this page's OWN bullets, before any
+       package was considered. "Nothing here is optional-but-on" was contradicted by
+       the Firefox bullet three lines below it, which says in as many words that
+       those services are Mozilla defaults "which we have not switched off", and by
+       the Widevine bullet. And the Hub bullet named ollama.com and GitHub while the
+       same menu also installs Valve's Steam and opens Blackmagic Design's site.
+
+       The rule stands and is worth restating in the imperative: A PACKAGE ADDED TO
+       config/package-lists/ IS A HOST ADDED TO THIS LIST. Check it against
+       out/manifest/*.packages, not against what you meant to ship. -->
+  <p><strong>What the machine connects to, in full.</strong> This is the complete list.
+  Most of it is on by default and stays on until you switch it off; where that is true the
+  item says so, and says how. All but one are a fetch <em>from</em> a server rather than a
+  report <em>to</em> one, and the one that is not is marked as such. Items marked
+  <strong>Pro</strong> are on the paid edition only.</p>
   <ul>
     <li><strong>Debian's mirrors</strong>, for system updates and anything you install.</li>
     <li><strong>Our update channel</strong> (<code>dagric-os.web.app</code>), which carries fixes
@@ -81,8 +151,21 @@
     Windows, or a laptop whose small internal battery has died, both put the clock out on their
     own. Stop it with <code>sudo systemctl disable --now chrony</code> — but then nothing keeps
     the clock right, and updates can stop.</li>
-    <li><strong>Flathub</strong>, when you browse or install Flatpak apps in the software centre —
-    browsing is enough, because the app list itself is fetched from there.</li>
+    <li><strong>Flathub.</strong> The Flathub remote is added while the disc image is being
+    built, so it is configured before you have done anything at all, and three separate things
+    reach it. The software centre contacts it to list or install a Flatpak app — browsing is
+    enough, because the app list itself is fetched from there. The software centre's update
+    notifier starts with your desktop session and checks it for Flatpak updates without being
+    asked. And eight of the Hub's one-click installers — Bottles, Cryptomator, Heroic, Joplin,
+    LocalSend, ONLYOFFICE, ProtonUp-Qt and Upscayl — install from Flathub directly, with the
+    software centre not involved.</li>
+    <li><strong>The KDE Store</strong> (<code>store.kde.org</code>), which is behind every
+    <em>Get New Wallpapers…</em>, <em>Get New Global Themes…</em> and <em>Get New Widgets…</em>
+    button — in System Settings, and on the desktop's own right-click menu. Nothing is fetched
+    until you press one; then a listing of what other people have uploaded comes back. Read the
+    rest of this before you press one. We do not vet any of it, and a Plasma theme or widget is
+    not a picture — it is a program, and it runs in your session. Dagric's own wallpapers and
+    styles are already on the disc and need none of this.</li>
     <li><strong>Mozilla's add-on site</strong>, the first time you open Firefox. We set Firefox up
     with the <strong>uBlock Origin</strong> ad blocker, but the blocker is not in the disc image —
     Firefox fetches it, then checks it for updates exactly as it would an add-on you chose
@@ -102,9 +185,46 @@
     unless you ask", and it is here rather than buried: turn it off in
     <em>☰ → Settings → General → Play DRM-controlled content</em>, and those services stop
     working.</li>
-    <li><strong>ollama.com and GitHub</strong>, only when you run the local-AI or the gaming
-    Proton installer from the Hub, and only after the confirmation screen that tells you exactly
-    what will be installed.</li>
+    <li><strong>Chromium's own services</strong> (<strong>Pro</strong>). Pro ships a second
+    browser, for the site that has only ever been tested against Chrome. Chromium is what Google
+    Chrome is built from with Google's proprietary parts taken out, and Debian builds it without
+    the API keys that Chrome Sync and the Google account features need — so those genuinely do
+    not work here. What is left still talks to Google-operated servers on its own: a connectivity
+    check, so it can tell a hotel Wi-Fi page from a broken network, and update checks for any
+    extension you add from the Chrome Web Store. We have not gone through Chromium's settings the
+    way we went through Firefox's above, and this page is not going to imply that we have.
+    Nothing in Dagric launches it; Firefox is the default browser and stays the default until you
+    change it.</li>
+    <li><strong>Mozilla again, and your own mail provider</strong> (<strong>Pro</strong>), for
+    Thunderbird. It fetches its settings and blocklists from Mozilla exactly as Firefox does.
+    Adding an account does one more thing worth knowing about: rather than make you type a page
+    of server names and port numbers, Thunderbird looks them up — it sends the domain part of the
+    email address you entered to Mozilla's configuration database, and asks your mail provider's
+    own servers directly. That is the only thing on this page that transmits something you typed.
+    Choose <em>Configure manually</em> at that screen and it asks nobody.</li>
+    <li><strong>lutris.net</strong> (<strong>Pro</strong>), because the gaming launcher is a
+    catalogue and the catalogue is not on the disc. Lutris asks lutris.net's API for the list of
+    game installers and for the runner and runtime versions a game needs; without that request it
+    has nothing to show you. It is normal operation, not a prompt — it happens when you open
+    Lutris. Nothing starts it for you.</li>
+    <li><strong>Syncthing's discovery and relay servers</strong> (<strong>Pro</strong>), and this
+    is the one item on this page that is a report <em>to</em> a server rather than a fetch
+    <em>from</em> one. Syncthing does not run until you start it. Once you do, it announces this
+    machine's device ID and its network addresses to Syncthing's global discovery servers, and
+    registers with the public relay pool, which is how two of your own machines find each other
+    across the internet without you configuring anything. That device ID is a stable identifier
+    for the computer, and it is the only identifier anything on this list sends. Switch both off
+    in Syncthing's own settings page — <em>Actions → Settings → Connections</em>, clear
+    <em>Global Discovery</em> and <em>Enable Relaying</em> — after which your devices find each
+    other only on the same network, or at addresses you type in yourself.</li>
+    <li><strong>ollama.com, GitHub, Valve and Blackmagic Design</strong>, only when you pick the
+    matching row in the Hub, and only after the confirmation screen that tells you exactly what
+    will be installed: <em>Local AI</em> fetches Ollama's installer from ollama.com,
+    <em>Proton-GE for Steam</em> fetches a release from GitHub, <em>Steam</em> installs Valve's
+    installer package from Debian and Steam then updates itself from Valve on first run, and
+    <em>DaVinci Resolve</em> opens Blackmagic Design's download page in your browser, because
+    their licence does not let us ship the software. The Hub's other installers use Flathub —
+    see above.</li>
     <li><strong>The Linux Vendor Firmware Service</strong>, which is how your laptop learns a
     firmware update exists. It fetches a catalogue; it does not upload your hardware list.
     Switch it off with <code>sudo systemctl disable --now fwupd-refresh.timer</code>.</li>
@@ -113,8 +233,9 @@
     receive none of it — it goes to KDE, not to us.</li>
   </ul>
   <p>All of these reveal your IP address to the server being asked, the same as any Linux
-  distribution. None of them carries a device ID, an account, or anything about what you do on
-  the machine.</p>
+  distribution. None of them carries an account, and none carries anything about what you do on
+  the machine. One carries a device identifier — Syncthing's discovery, and only once you have
+  started it — and it is named as such above rather than left out of the list.</p>
 
   <h2>This website</h2>
   <ul>

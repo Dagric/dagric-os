@@ -18,6 +18,7 @@
      head and twice in site.webmanifest; a redesign that moves the page colour and
      misses one leaves that page flashing the old chrome colour on a phone. -->
 <meta name="theme-color" content="#0C0F14">
+<script src="/assets/theme.js"></script>
 <link rel="icon" href="/favicon.ico" sizes="32x32">
 <link rel="icon" type="image/png" href="/assets/dagric-logo.png">
 <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
@@ -57,8 +58,21 @@ main{max-width:none;margin:0;padding:0}
 
 /* The three free layouts sit three-across and the four Pro layouts four-across,
    so the geometry states "3 free · 7 on Pro" without restating a word of it.
-   Twelve columns is what makes 3 and 4 both divide cleanly. */
-@media(min-width:900px){
+   Twelve columns is what makes 3 and 4 both divide cleanly.
+   THE BREAKPOINT IS 641, NOT 900, AND THE 259px BETWEEN THEM ARE THE POINT.
+   site.css's tablet rule hands .looks-grid a 12rem auto-fit track below 900px,
+   which resolves to three columns from 641px up — so every tablet width got
+   3+3+1 and a hole where the seventh Look should be: measured 504x261px at
+   768px, the largest last-row hole anywhere on the site.
+   641 is not a round number, it is the exact width site.css's phone rule stops
+   collapsing this grid to one column, so the template now covers the entire
+   range in which these tiles can be ragged at all and no band is left out.
+   The cost is thumbnail size — 157px wide at 768px against 220px before, 130px
+   at the bottom of the band — and it is the right trade for these seven
+   pictures specifically, because their only job is showing WHERE THE TASKBAR
+   SITS (site.css's height:auto note makes the same point about the same
+   files). A 130px diagram still answers that; a missing tile does not. */
+@media(min-width:641px){
   .looks-grid{grid-template-columns:repeat(12,1fr)}
   .looks-grid .look:nth-child(-n+3){grid-column:span 4}
   .looks-grid .look:nth-child(n+4){grid-column:span 3}
@@ -78,7 +92,10 @@ main{max-width:none;margin:0;padding:0}
   max-width:var(--w-col);margin:var(--s-5) 0 0}
 .price{background:none;border:1px solid var(--rule);border-radius:var(--r-md);
   padding:var(--s-5);display:flex;flex-direction:column}
-.price.pro{background:var(--ink-1);border-color:rgba(227,194,125,.35);border-top:2px solid var(--pro)}
+/* --pro-edge, not the raw rgba: composited on a light card the literal
+   measured 1.15:1 and the Pro card simply lost its edge. The token keeps the
+   identical rgba in dark, so this card renders exactly as it did. */
+.price.pro{background:var(--ink-1);border-color:var(--pro-edge);border-top:2px solid var(--pro)}
 .price .tier{font:600 var(--t-h3)/1.3 var(--ff-display);color:var(--on)}
 .price .amount{font-family:var(--ff-ui);font-size:2.75rem;font-weight:800;letter-spacing:-.03em;
   line-height:1.05;margin:var(--s-3) 0 2px;color:var(--on)}
@@ -96,6 +113,13 @@ main{max-width:none;margin:0;padding:0}
   .trust span{border-top:1px solid var(--rule)}
   .trust span:nth-child(odd){border-left:0}
   .trust span:nth-child(-n+2){border-top:0}
+  /* Five cells do not divide by two, so the standfirst ended 2+2+1 with a
+     360x58px hole beside "Own it outright" — measured at 768px. Five verified
+     claims with a visible gap where a sixth would be is the wrong thing to
+     print directly under the headline. The last one takes the full row; it is
+     also the only one of the five that is a summary of the other four, so the
+     shape it makes is the shape the sentence already had. */
+  .trust span:last-child{grid-column:1/-1;border-left:0}
 }
 @media(max-width:640px){
   .hero .logo{width:38px;height:38px;margin-bottom:var(--s-4)}

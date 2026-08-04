@@ -62,7 +62,7 @@ All added to free (necessity, not suite):
 
 Pro completeness (kept as the step-up):
 - Gaming: lutris + goverlay (Steam-only felt half-finished)
-- Full international text: fonts-noto-cjk (~200 MB, kept in Pro to keep free lean)
+- Full international text: fonts-noto-cjk (89 MB installed per Debian, kept in Pro to keep free lean)
 
 ## Backlog features — DELIVERED + VERIFIED (2026-07-22)
 

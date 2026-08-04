@@ -17,9 +17,61 @@ article .date{color:var(--accent);font-family:var(--ff-ui);font-size:var(--t-met
   font-weight:600;letter-spacing:.10em;text-transform:uppercase}
 article h2{margin:var(--s-2) 0 var(--s-3);border-bottom:0;padding-bottom:0}
 article img{border-radius:2px;border:1px solid var(--rule);margin:var(--s-4) 0}
+/* The last note's --s-6 stacked onto main's --s-7 and the footer's --s-6, so
+   this page closed on 203px of empty band at 1280-1920 where every other
+   document page closes on 136px. Trailing padding on the last item of a list
+   is separation from something that is not there. Measured: 203 -> 151px, in
+   line with its siblings. */
+article:last-of-type{padding-bottom:0}
+
+/* ── THE DATE RAIL ───────────────────────────────────────────────────
+   This was the worst content-to-viewport ratio of any real content page on
+   the site. `article` is in the reading-measure rule's :is() list in site.css,
+   so each release note was capped at --w-text and ragged left inside an 820px
+   main that is itself centred: measured at 1920px, 543px of content in a
+   1920px window — 0.283 — with a 574px left gutter and an 804px right one.
+   71.7% of the screen carrying nothing.
+   The fix is the device the homepage already owns. .dept puts a numeral and a
+   hairline in a 8rem left rail and lets the copy run flush left beside it; a
+   changelog wants exactly that, with the date in the rail, because the date is
+   the one thing a reader scanning release notes is actually looking for and it
+   was buried as the first line inside each entry. Zero markup changes: .date
+   is already the first child of every article.
+   THE MEASURE IS NOT WIDENED — it was derived on purpose and it stays at
+   --w-text. What grows is the article's box, by exactly the rail plus its gap
+   (8rem + --s-6 + --w-text = 724px), which spends main's own dead right side
+   rather than the page gutter, so nothing moves outside a container that was
+   already there.
+   #main, not main, and that is the only reason an id appears in this file: the
+   measure rule computes to (0,3,1), so `main > article` at (0,0,2) loses to it
+   on specificity no matter what order the sheets load in. The alternatives
+   were !important or three more :not() clauses restating site.css's internals
+   here, where they would go stale. The id is on the element already.
+   NOT sticky, unlike .dept-rail: that rail is sticky because a homepage
+   section runs to 1,434px, while the tallest note here is ~800px and a date
+   that follows you down two screens of its own entry is a distraction rather
+   than an aid.
+   `screen and` is load-bearing — @media print has no width guarantee and would
+   otherwise match this on a wide sheet, turning every printed release note
+   into a two-column grid. The print block in site.css flattens .dept for the
+   same reason. Below 901px the rail folds away and the date rides above the
+   heading, which is what .dept does below 960px. */
+@media screen and (min-width:901px){
+  #main > article{
+    max-width:calc(8rem + var(--s-6) + var(--w-text));
+    display:grid;grid-template-columns:8rem minmax(0,1fr);gap:0 var(--s-6);
+    align-items:start}
+  #main > article > *{grid-column:2;min-width:0}
+  #main > article > .date{grid-column:1;padding-top:3px}
+  /* The heading's own top margin is what separated the date from the title
+     when they were stacked. Side by side they must sit on the same baseline
+     band, or the rail reads as belonging to the entry above it. */
+  #main > article > h2{margin-top:0}
+}
 </style>
 <link rel="canonical" href="https://dagric.com/news">
 <meta name="theme-color" content="#0C0F14">
+<script src="/assets/theme.js"></script>
 <link rel="icon" href="/favicon.ico" sizes="32x32">
 <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
 <link rel="manifest" href="/site.webmanifest">

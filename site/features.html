@@ -11,6 +11,33 @@
 .feat{display:grid;gap:var(--s-5);grid-template-columns:repeat(auto-fit,minmax(min(17rem,100%),1fr));
   margin:var(--s-5) 0 var(--s-2)}
 .feat .card{margin:0}
+/* .feat is site.css's .grid with a different name and a different rhythm, so
+   it inherited none of the last-row arithmetic that lives on .grid. The two
+   rules below are that arithmetic, restated for the two counts this page has.
+   Everything else — why 22rem, why the 900px gate, why "exactly n" is spelled
+   with :has() and a :not(:has()) — is documented once, in site.css, above
+   `.grid:has(> :nth-child(4))`. Do not re-derive it here; change it there.
+
+   FOUR ITEMS ("Snapshots before every update", the four undo/backup cards):
+   3+1 left a 736x202px hole, 69% of the row. Two columns give a 2x2 block.
+
+   EIGHT ITEMS (the "Everything just works" grid): 3+3+2 left 368x229px empty.
+   Promoting the first card to a two-column lead makes the grid occupy nine
+   cells — exactly three full rows, zero holes — and it is the same magazine
+   lead-item device site.css already applies to a six-item .grid.c3, including
+   the heading step, so this is one device used twice rather than two devices.
+   Exactly 8 because the condition is (n+1) divisible by 3: it holds for 2, 5,
+   8 and 11 and fails for the 3- and 6-item .feat grids above it, which are
+   already whole. A 6-item grid given this rule would go 3+3 -> 3+3+1. */
+@media(min-width:900px){
+  .feat:has(> :nth-child(4)):not(:has(> :nth-child(5))){
+    grid-template-columns:repeat(auto-fit,minmax(min(22rem,100%),1fr))}
+}
+@media(min-width:760px){
+  .feat:has(> :nth-child(8)):not(:has(> :nth-child(9))) > :first-child{grid-column:span 2}
+  .feat:has(> :nth-child(8)):not(:has(> :nth-child(9))) > :first-child h3{
+    font-size:var(--t-h2s);line-height:1.22}
+}
 /* Frame, radius, shadow and the shared cap come from `.shot,.strip` in
    site.css now, so this page's two screenshots match the homepage and the
    download page. Only the vertical rhythm stays local. */
@@ -33,6 +60,7 @@ h2.sec{margin-top:var(--s-7)}
 </style>
 <link rel="canonical" href="https://dagric.com/features">
 <meta name="theme-color" content="#0C0F14">
+<script src="/assets/theme.js"></script>
 <link rel="icon" href="/favicon.ico" sizes="32x32">
 <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
 <link rel="manifest" href="/site.webmanifest">
@@ -61,7 +89,9 @@ h2.sec{margin-top:var(--s-7)}
 </div></nav>
 
 <main id="main" class="wide">
-  <header class="phero" style="padding:0 0 var(--s-5)">
+  <!-- The inline padding override that used to sit here is now site.css's
+       `main.wide > .phero`, so /download gets it too. -->
+  <header class="phero">
     <div class="eyebrow">Everything, already working</div>
     <h1>Built like it's <span class="grad">your machine.</span></h1>
     <p class="lead">Because it is. Every feature below ships enabled,
