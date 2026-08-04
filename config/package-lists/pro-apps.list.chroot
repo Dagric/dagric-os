@@ -83,8 +83,17 @@ kdeconnect
 papirus-icon-theme
 
 # Full international text — CJK + broad Unicode so nothing renders as tofu
-# boxes. Kept in Pro (~200 MB) so the free edition stays lean; free users
-# can add languages on demand through Discover.
+# boxes. Kept in Pro so the free edition stays lean; free users can add
+# languages on demand through Discover.
+#
+# THE SIZE WAS WRONG BY MORE THAN DOUBLE. This comment said ~200 MB, and so
+# did docs/TEST-REPORT.md and, once it was copied onto the Pro sales page, a
+# page a customer reads before paying. Debian publishes the real figures for
+# trixie/fonts-noto-cjk: 54 MB download, 89 MB installed. Nothing else Pro
+# adds closes that gap — the only other Pro-only font packages are
+# fonts-dejavu, fonts-dejavu-extra and libfontconfig1:i386, none of them
+# large. Overstating a paid asset by 2x on the page that asks for the money
+# is the kind of number that makes a reader doubt the rest of it.
 fonts-noto-cjk
 
 # System maintenance GUI: clean caches, logs, and freed disk space visually
