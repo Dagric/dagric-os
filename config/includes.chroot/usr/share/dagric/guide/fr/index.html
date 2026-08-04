@@ -29,28 +29,28 @@
         <a href="#windowsmap">Vous venez de Windows</a>
         <a href="#firstday">Votre premier jour</a>
         <div class="navgroup">Au quotidien</div>
-        <a href="#apps">Installer des applications</a>
-        <a href="#updates">Mises à jour</a>
+        <a href="#migrate">Installer des applications</a>
+        <a href="#drives">Mises à jour</a>
         <a href="#tray">Wi-Fi, son, écrans</a>
-        <a href="#printers">Imprimantes</a>
-        <a href="#shortcuts">Raccourcis clavier</a>
+        <a href="#updates">Imprimantes</a>
+        <a href="#apps">Raccourcis clavier</a>
         <div class="navgroup">À votre goût</div>
-        <a href="#setup">L'assistant de configuration</a>
-        <a href="#looks">Looks et Styles</a>
+        <a href="#printers">L'assistant de configuration</a>
+        <a href="#shortcuts">Looks et Styles</a>
         <a href="#textsize">Taille du texte &amp; couleur nocturne</a>
         <a href="#access">Accessibilité</a>
-        <a href="#migrate">Vos fichiers depuis Windows</a>
-        <a href="#drives">Disques &amp; clés USB</a>
+        <a href="#setup">Vos fichiers depuis Windows</a>
+        <a href="#looks">Disques &amp; clés USB</a>
         <div class="navgroup">Quand quelque chose ne va pas</div>
         <a href="#trouble">Dépannage</a>
         <div class="navgroup">Pour aller plus loin</div>
-        <a href="#manual">Le manuel complet</a>
-        <a href="#phone">Connecter votre téléphone</a>
-        <a href="#usbguard">Protection USB</a>
-        <a href="#backups">Sauvegardes &amp; santé des disques</a>
-        <a href="#windows">Programmes Windows</a>
-        <a href="#helpers">Aides du terminal</a>
-        <a href="#help">Obtenir de l'aide</a>
+        <a href="#help">Le manuel complet</a>
+        <a href="#manual">Connecter votre téléphone</a>
+        <a href="#backups">Protection USB</a>
+        <a href="#windows">Sauvegardes &amp; santé des disques</a>
+        <a href="#phone">Programmes Windows</a>
+        <a href="#usbguard">Aides du terminal</a>
+        <a href="#helpers">Obtenir de l'aide</a>
       </nav>
     </div>
   </aside>
@@ -190,13 +190,34 @@
       <p class="ck-count" id="ck-count" aria-live="polite"></p>
     </section>
 
-    <section id="apps" data-syn="installer logithèque logitheque discover programmes applications télécharger telecharger supprimer désinstaller desinstaller">
-      <h2>Installer des applications</h2>
-      <p>Ouvrez la <strong>Logithèque</strong> (l'icône de sac dans la barre des
-      tâches ; son nom d'origine est Discover, et ce nom la retrouve aussi).
-      Cherchez, cliquez sur Installer, c'est fait. Tout est gratuit, vérifié et
-      désinstallable. Supprimer une application la supprime réellement — rien ne
-      revient tout seul.</p>
+    <section id="migrate" data-syn="transfert copier fichiers documents images musique favoris importer windows migration">
+      <h2>Récupérer vos fichiers depuis Windows</h2>
+      <p>Ouvrez le <strong>Dagric Hub</strong> et choisissez <strong>Migrer
+      depuis Windows</strong> (ou lancez <code>dagric-migrate</code>). L'outil
+      trouve le Windows encore présent sur ce PC, vous montre vos Documents,
+      Images, Musique, Vidéos, votre Bureau et les favoris de votre navigateur,
+      et copie ce que vous choisissez dans votre nouveau dossier personnel.</p>
+      <div class="tip">Windows n'est jamais que <em>lu</em> — rien n'y est
+      touché, vous pouvez donc toujours y redémarrer.</div>
+    </section>
+
+    <section id="drives" data-syn="usb clé cle disque externe ntfs exfat explorateur dolphin éjecter ejecter">
+      <h2>Vos disques Windows et vos clés USB</h2>
+      <p>Ils fonctionnent, tout simplement. Branchez une clé USB ou un disque
+      externe (y compris les disques Windows formatés en NTFS) et il apparaît
+      dans <strong>Fichiers</strong> — l'icône de dossier dans la barre des
+      tâches, ce que Windows appelait l'Explorateur de fichiers. Si vous lisez
+      sur un forum un message qui l'appelle <em>Dolphin</em>, c'est le même
+      programme : Dagric nomme les applications d'après ce qu'elles font, et le
+      nom d'origine les retrouve quand même dans la recherche du lanceur.</p>
+    </section>
+
+    <section id="tray" data-syn="wifi wi-fi sans fil réseau reseau volume son haut-parleur écran ecran moniteur vidéoprojecteur videoprojecteur deuxième écran bluetooth">
+      <h2>Wi-Fi, son, écrans</h2>
+      <p>Tout se trouve dans la zone de notification, en bas à droite. Cliquez
+      sur l'icône réseau pour rejoindre un Wi-Fi, sur le haut-parleur pour le
+      volume et le périphérique de sortie, et sur l'icône d'écran dès que vous
+      branchez un moniteur ou un vidéoprojecteur.</p>
     </section>
 
     <section id="updates" data-syn="windows update mise à jour mises a jour correctif redémarrage redemarrage sécurité securite">
@@ -207,12 +228,13 @@
       <strong>Dagric ne redémarre jamais votre ordinateur à votre place.</strong></p>
     </section>
 
-    <section id="tray" data-syn="wifi wi-fi sans fil réseau reseau volume son haut-parleur écran ecran moniteur vidéoprojecteur videoprojecteur deuxième écran bluetooth">
-      <h2>Wi-Fi, son, écrans</h2>
-      <p>Tout se trouve dans la zone de notification, en bas à droite. Cliquez
-      sur l'icône réseau pour rejoindre un Wi-Fi, sur le haut-parleur pour le
-      volume et le périphérique de sortie, et sur l'icône d'écran dès que vous
-      branchez un moniteur ou un vidéoprojecteur.</p>
+    <section id="apps" data-syn="installer logithèque logitheque discover programmes applications télécharger telecharger supprimer désinstaller desinstaller">
+      <h2>Installer des applications</h2>
+      <p>Ouvrez la <strong>Logithèque</strong> (l'icône de sac dans la barre des
+      tâches ; son nom d'origine est Discover, et ce nom la retrouve aussi).
+      Cherchez, cliquez sur Installer, c'est fait. Tout est gratuit, vérifié et
+      désinstallable. Supprimer une application la supprime réellement — rien ne
+      revient tout seul.</p>
     </section>
 
     <section id="printers" data-syn="imprimer impression scanner pilote">
@@ -265,6 +287,71 @@
       </div>
     </section>
 
+    <section id="textsize" data-syn="mise à l'échelle echelle dpi petit minuscule énorme enorme zoom couleur nocturne lumière nocturne lumiere filtre bleu">
+      <h2>Si tout paraît trop petit</h2>
+      <p>Sur un portable à écran très fin, le texte peut sortir minuscule. Ouvrez
+      <strong>Taille du texte</strong> depuis le lanceur (ou le Hub &rarr;
+      <em>Taille du texte et lumière nocturne</em>) et choisissez une taille
+      entre 100&nbsp;% et 200&nbsp;%. Dagric ne propose que des tailles qui
+      laissent encore de la place aux fenêtres et aux boutons sur votre écran :
+      vous ne pouvez donc pas en choisir une qui rende le bureau inutilisable.</p>
+      <p>Le changement prend effet immédiatement, puis vous demande s'il faut le
+      garder. <strong>Si vous ne répondez pas, il se remet tout seul au bout de
+      vingt secondes</strong> — donc si la nouvelle taille a tout rendu
+      illisible, ou si la question s'est retrouvée hors de l'écran, attendez
+      simplement et le bureau redevient ce qu'il était. Dagric mesure aussi votre
+      écran à votre première connexion et choisit de lui-même une taille sensée,
+      comme le fait Windows.</p>
+      <p>Le même outil dispose d'une <strong>couleur nocturne</strong> — Windows
+      l'appelle éclairage nocturne. Elle réchauffe les couleurs de l'écran pour
+      que la lecture tard le soir fatigue moins les yeux. Choisissez
+      <em>Activé le soir</em> (de 20&nbsp;h à 7&nbsp;h), <em>Activé en
+      permanence</em>, ou Désactivé, et n'y pensez plus.</p>
+    </section>
+
+        <section id="access" data-syn="lecteur d'écran ecran orca loupe agrandissement zoom accessibilité accessibilite aveugle malvoyant touches rémanentes remanentes">
+      <h2>Accessibilité</h2>
+      <p>Tout cela est déjà sur cet ordinateur &mdash; rien à télécharger, pas de
+      compte, pas d'édition supplémentaire.</p>
+      <p><strong>Faire lire l'écran à voix haute.</strong> Le lecteur d'écran
+      <strong>Orca</strong> est installé dans chaque édition, avec son moteur de
+      synthèse vocale et sa voix &mdash; un lecteur d'écran sans voix installée
+      est un résultat fréquent et inutilisable, alors Dagric fixe délibérément
+      les deux. Activez-le avec <kbd>Meta</kbd>+<kbd>Alt</kbd>+<kbd>S</kbd>, ou
+      dans <strong>Configuration du système &rarr; Accessibilité &rarr; Lecteur
+      d'écran</strong>. Le manuel consacre une page entière à Orca, y compris ce
+      qu'il faut installer d'abord pour utiliser un afficheur braille &mdash; le
+      pilote correspondant, <code>brltty</code>, ne fait pas partie de
+      Dagric.</p>
+      <p><strong>Tout agrandir.</strong> <strong>Taille du texte</strong>
+      (ci-dessus) met tout le bureau à l'échelle entre 100&nbsp;% et
+      200&nbsp;% et se remet en place si vous ne dites rien. Pour une loupe qui
+      suit la souris, <strong>Configuration du système &rarr;
+      Accessibilité</strong> active l'agrandissement de l'écran ; la même page
+      indique les touches qui le pilotent.</p>
+      <p><strong>Clavier et souris.</strong> Les touches de modification
+      rémanentes (pour taper <kbd>Ctrl</kbd>+<kbd>C</kbd> une touche à la fois),
+      un clignotement visible à la place du bip système, et le déplacement du
+      pointeur avec le pavé numérique se trouvent tous dans
+      <strong>Configuration du système &rarr; Accessibilité</strong>. Les
+      filtres de couleur pour le daltonisme aussi.</p>
+      <p><strong>Ce guide et le manuel</strong> sont conçus pour être lus avec un
+      lecteur d'écran et pilotés au clavier : appuyez sur <kbd>Tab</kbd> sur
+      n'importe quelle page et le premier arrêt est <em>Aller au contenu</em>,
+      qui vous fait sauter la barre latérale.</p>
+      <div class="tip"><strong>Une chose que Dagric ne sait pas encore faire,
+      dite clairement : l'écran de connexion ne peut pas se lire à voix
+      haute.</strong> Le lecteur d'écran démarre avec votre session, pas avant
+      elle, et l'écran de connexion qu'utilise Dagric n'a aucune prise en charge
+      des lecteurs d'écran. Deux moyens de contourner cela : la clé USB live
+      ouvre la session toute seule, vous pouvez donc essayer le système entier
+      avec Orca avant d'installer ; et sur une machine installée, vous pouvez
+      activer la connexion automatique (<strong>Configuration du système &rarr;
+      Démarrage et arrêt &rarr; Écran de connexion</strong>). C'est un vrai
+      compromis de sécurité sur un ordinateur partagé, et c'est à vous de le
+      faire.</div>
+    </section>
+
     <section id="setup" data-syn="assistant première configuration premier démarrage demarrage fond d'écran accentuation annuler">
       <h2>L'assistant de configuration est toujours là</h2>
       <p>À votre première connexion, Dagric vous a guidé à travers six écrans
@@ -310,194 +397,7 @@
       essayez tout.</p>
     </section>
 
-    <section id="textsize" data-syn="mise à l'échelle echelle dpi petit minuscule énorme enorme zoom couleur nocturne lumière nocturne lumiere filtre bleu">
-      <h2>Si tout paraît trop petit</h2>
-      <p>Sur un portable à écran très fin, le texte peut sortir minuscule. Ouvrez
-      <strong>Taille du texte</strong> depuis le lanceur (ou le Hub &rarr;
-      <em>Taille du texte et lumière nocturne</em>) et choisissez une taille
-      entre 100&nbsp;% et 200&nbsp;%. Dagric ne propose que des tailles qui
-      laissent encore de la place aux fenêtres et aux boutons sur votre écran :
-      vous ne pouvez donc pas en choisir une qui rende le bureau inutilisable.</p>
-      <p>Le changement prend effet immédiatement, puis vous demande s'il faut le
-      garder. <strong>Si vous ne répondez pas, il se remet tout seul au bout de
-      vingt secondes</strong> — donc si la nouvelle taille a tout rendu
-      illisible, ou si la question s'est retrouvée hors de l'écran, attendez
-      simplement et le bureau redevient ce qu'il était. Dagric mesure aussi votre
-      écran à votre première connexion et choisit de lui-même une taille sensée,
-      comme le fait Windows.</p>
-      <p>Le même outil dispose d'une <strong>couleur nocturne</strong> — Windows
-      l'appelle éclairage nocturne. Elle réchauffe les couleurs de l'écran pour
-      que la lecture tard le soir fatigue moins les yeux. Choisissez
-      <em>Activé le soir</em> (de 20&nbsp;h à 7&nbsp;h), <em>Activé en
-      permanence</em>, ou Désactivé, et n'y pensez plus.</p>
-    </section>
-
-    <!-- Cette section n'est pas de la décoration. La documentation livrée avec
-         un produit doit indiquer quelles sont ses fonctions d'accessibilité et
-         comment s'en servir (EN 301 549, clause 12.1, et la même question
-         figure sur chaque formulaire d'appel d'offres public). Elle n'annonce
-         que ce qui est installé et fonctionne aujourd'hui — y compris ce qui
-         ne fonctionne pas. -->
-    <section id="access" data-syn="lecteur d'écran ecran orca loupe agrandissement zoom accessibilité accessibilite aveugle malvoyant touches rémanentes remanentes">
-      <h2>Accessibilité</h2>
-      <p>Tout cela est déjà sur cet ordinateur &mdash; rien à télécharger, pas de
-      compte, pas d'édition supplémentaire.</p>
-      <p><strong>Faire lire l'écran à voix haute.</strong> Le lecteur d'écran
-      <strong>Orca</strong> est installé dans chaque édition, avec son moteur de
-      synthèse vocale et sa voix &mdash; un lecteur d'écran sans voix installée
-      est un résultat fréquent et inutilisable, alors Dagric fixe délibérément
-      les deux. Activez-le avec <kbd>Meta</kbd>+<kbd>Alt</kbd>+<kbd>S</kbd>, ou
-      dans <strong>Configuration du système &rarr; Accessibilité &rarr; Lecteur
-      d'écran</strong>. Le manuel consacre une page entière à Orca, y compris ce
-      qu'il faut installer d'abord pour utiliser un afficheur braille &mdash; le
-      pilote correspondant, <code>brltty</code>, ne fait pas partie de
-      Dagric.</p>
-      <p><strong>Tout agrandir.</strong> <strong>Taille du texte</strong>
-      (ci-dessus) met tout le bureau à l'échelle entre 100&nbsp;% et
-      200&nbsp;% et se remet en place si vous ne dites rien. Pour une loupe qui
-      suit la souris, <strong>Configuration du système &rarr;
-      Accessibilité</strong> active l'agrandissement de l'écran ; la même page
-      indique les touches qui le pilotent.</p>
-      <p><strong>Clavier et souris.</strong> Les touches de modification
-      rémanentes (pour taper <kbd>Ctrl</kbd>+<kbd>C</kbd> une touche à la fois),
-      un clignotement visible à la place du bip système, et le déplacement du
-      pointeur avec le pavé numérique se trouvent tous dans
-      <strong>Configuration du système &rarr; Accessibilité</strong>. Les
-      filtres de couleur pour le daltonisme aussi.</p>
-      <p><strong>Ce guide et le manuel</strong> sont conçus pour être lus avec un
-      lecteur d'écran et pilotés au clavier : appuyez sur <kbd>Tab</kbd> sur
-      n'importe quelle page et le premier arrêt est <em>Aller au contenu</em>,
-      qui vous fait sauter la barre latérale.</p>
-      <div class="tip"><strong>Une chose que Dagric ne sait pas encore faire,
-      dite clairement : l'écran de connexion ne peut pas se lire à voix
-      haute.</strong> Le lecteur d'écran démarre avec votre session, pas avant
-      elle, et l'écran de connexion qu'utilise Dagric n'a aucune prise en charge
-      des lecteurs d'écran. Deux moyens de contourner cela : la clé USB live
-      ouvre la session toute seule, vous pouvez donc essayer le système entier
-      avec Orca avant d'installer ; et sur une machine installée, vous pouvez
-      activer la connexion automatique (<strong>Configuration du système &rarr;
-      Démarrage et arrêt &rarr; Écran de connexion</strong>). C'est un vrai
-      compromis de sécurité sur un ordinateur partagé, et c'est à vous de le
-      faire.</div>
-    </section>
-
-    <section id="migrate" data-syn="transfert copier fichiers documents images musique favoris importer windows migration">
-      <h2>Récupérer vos fichiers depuis Windows</h2>
-      <p>Ouvrez le <strong>Dagric Hub</strong> et choisissez <strong>Migrer
-      depuis Windows</strong> (ou lancez <code>dagric-migrate</code>). L'outil
-      trouve le Windows encore présent sur ce PC, vous montre vos Documents,
-      Images, Musique, Vidéos, votre Bureau et les favoris de votre navigateur,
-      et copie ce que vous choisissez dans votre nouveau dossier personnel.</p>
-      <div class="tip">Windows n'est jamais que <em>lu</em> — rien n'y est
-      touché, vous pouvez donc toujours y redémarrer.</div>
-    </section>
-
-    <section id="drives" data-syn="usb clé cle disque externe ntfs exfat explorateur dolphin éjecter ejecter">
-      <h2>Vos disques Windows et vos clés USB</h2>
-      <p>Ils fonctionnent, tout simplement. Branchez une clé USB ou un disque
-      externe (y compris les disques Windows formatés en NTFS) et il apparaît
-      dans <strong>Fichiers</strong> — l'icône de dossier dans la barre des
-      tâches, ce que Windows appelait l'Explorateur de fichiers. Si vous lisez
-      sur un forum un message qui l'appelle <em>Dolphin</em>, c'est le même
-      programme : Dagric nomme les applications d'après ce qu'elles font, et le
-      nom d'origine les retrouve quand même dans la recherche du lanceur.</p>
-    </section>
-
-    <section id="manual" data-syn="aide documentation référence reference applications notepad manuel">
-      <h2>Le manuel complet</h2>
-      <p>Cette page, c'est votre première semaine. Pour chaque application de
-      l'ordinateur — ce qu'elle est, ce qu'elle remplace sous Windows, et les
-      cinq choses que vous en ferez vraiment — ouvrez le <strong>Manuel
-      Dagric</strong> depuis le lanceur, ou lancez <code>dagric-manual</code>. Il
-      est aussi dans le Hub, sous <em>Manuel des applis</em>.</p>
-      <p><strong>Le manuel n'existe pour l'instant qu'en anglais.</strong> Il
-      fonctionne hors ligne exactement comme cette page, et sa recherche repose
-      sur les noms Windows anglais : tapez <em>Notepad</em> et vous
-      obtenez l'éditeur de texte, tapez <em>Task Manager</em> et vous obtenez le
-      moniteur système, tapez <em>PDF</em> et vous obtenez tout ce qui en ouvre
-      un. Une recherche à moitié traduite casserait précisément cela, alors le
-      manuel est resté honnêtement anglais plutôt que de faire semblant.
-      <a href="../../manual/index.html#l=fr" hreflang="en">Ouvrir le manuel (en
-      anglais)</a></p>
-      <div class="tip">Deux entrées d'aide, et c'est voulu. Ce
-      <strong>guide</strong> est la lecture courte de votre première semaine. Le
-      <strong>manuel</strong> est la référence vers laquelle vous revenez quand
-      vous avez besoin d'une application précise.</div>
-    </section>
-
-    <section id="phone" data-syn="android iphone téléphone telephone portable kde connect notifications sms">
-      <h2>Connecter votre téléphone <span class="pro">PRO</span></h2>
-      <p><strong>KDE Connect</strong> relie votre téléphone à ce PC pour les
-      notifications, le transfert de fichiers et le partage du presse-papiers.
-      Pour votre sécurité, ses ports ne sont ouverts que sur les réseaux que vous
-      avez marqués comme <em>Home</em> — jamais sur le Wi-Fi d'un café ou d'un
-      aéroport. Si l'association ne trouve pas votre téléphone, ouvrez
-      <strong>Configuration du système → Pare-feu</strong> et réglez la zone de
-      la connexion en cours sur <em>home</em>.</p>
-    </section>
-
-    <section id="usbguard" data-syn="sécurité securite usb attaque badusb bloquer">
-      <h2>Protection USB <span class="pro">PRO</span></h2>
-      <p>Ouvrez le Hub et choisissez <strong>Protection USB</strong> pour bloquer
-      les périphériques USB malveillants (ceux qui se font passer pour un clavier
-      et tapent des commandes). Branchez <em>d'abord</em> tout ce que vous
-      utilisez habituellement — Dagric les retient et ne bloque que les
-      inconnus. Relancez-la à tout moment pour rafraîchir la liste ou désactiver
-      à nouveau la protection.</p>
-    </section>
-
-    <section id="backups" data-syn="sauvegarde restaurer timeshift vorta rclone onedrive google drive dropbox cloud smart santé sante disque">
-      <h2>Sauvegardes &amp; santé des disques</h2>
-      <p>Sur Dagric Pro : <strong>Vorta</strong> réalise des sauvegardes
-      chiffrées vers un disque ou un serveur, et <code>rclone</code> se connecte
-      à Google Drive, Dropbox, OneDrive et plus de 70 autres services.
-      <strong>Timeshift</strong> crée des points de restauration système — si une
-      mise à jour se comporte mal, revenez à hier. Dans chaque édition, Dagric
-      surveille la santé SMART de vos disques et vous prévient en mots simples si
-      l'un d'eux commence à lâcher — et le Contrôle de sécurité affiche à tout
-      moment l'état de chaque disque.</p>
-    </section>
-
-    <section id="windows" data-syn="exe wine jeux steam proton epic gog bottles machine virtuelle exécuter executer programmes windows">
-      <h2>Exécuter des programmes Windows</h2>
-      <p>Pour les jeux, installez <strong>Steam</strong> en un clic depuis le
-      Dagric Hub (il n'est jamais fourni d'office), puis activez Proton dans
-      Paramètres → Compatibilité. <strong>Heroic</strong> couvre Epic, GOG et
-      Amazon, et la commande <code>dagric-gaming</code> ajoute la version
-      communautaire Proton-GE. Pour les logiciels Windows ordinaires,
-      <strong>Bottles</strong> — également en un clic depuis le Hub — garde
-      chaque programme dans son propre conteneur bien rangé. Tout cela
-      fonctionne dans les deux éditions.</p>
-      <p><strong>Sur Pro</strong> <span class="pro">PRO</span>, la couche
-      d'exécution sous-jacente est déjà installée et réglée : Wine exécute
-      beaucoup de fichiers <code>.exe</code> d'un double clic, et GameMode,
-      MangoHud, Lutris et Vulkan 32 bits sont en place pour les jeux. Et pour la
-      rare application qui refuse totalement de tourner sous Wine, il y a
-      <strong>Windows dans une machine virtuelle</strong> : choisissez-la dans le
-      Hub (<code>dagric-vm</code>) pour activer les machines virtuelles et faire
-      tourner un vrai Windows en sécurité à l'intérieur de Dagric.</p>
-    </section>
-
-    <section id="helpers" data-syn="terminal ligne de commande cli nvidia resolve ia ollama">
-      <h2>Les aides du terminal</h2>
-      <div class="helpers">
-        <div class="helpers-title">Une commande chacune</div>
-        <div class="helpers-sub">Chaque aide demande avant d'agir.</div>
-        <div class="helper-row"><code>sudo dagric-drivers</code><span>NVIDIA</span></div>
-        <div class="helper-row"><code>dagric-migrate</code><span>récupérer les fichiers de Windows</span></div>
-        <div class="helper-row"><code>dagric-get-resolve</code><span>DaVinci Resolve</span></div>
-        <div class="helper-row"><code>dagric-ai</code><span>IA locale et privée</span></div>
-        <div class="helper-row"><code>dagric-gaming</code><span>Proton-GE</span></div>
-        <div class="helper-row"><code>dagric-vm</code><span>machines virtuelles, Pro</span></div>
-      </div>
-    </section>
-
-    <!-- h3 + texte suivi, pas d'accordéon : une réponse repliée échappe à
-         Ctrl+F comme à la recherche ci-dessus. Chaque entrée commence par le
-         symptôme dans les mots du propriétaire — personne ne cherche
-         « périphérique de sortie audio », on cherche « pas de son ». L'entrée
-         NTFS est le piège de migration le plus courant qui soit. -->
-    <section id="trouble"
+        <section id="trouble"
       data-syn="pas de son muet haut-parleurs hdmi wifi wi-fi internet ne fonctionne pas imprimante introuvable figé fige bloqué bloque plantage forcer à quitter ntfs lecture seule démarrage rapide demarrage rapide disque ne s'ouvre pas petit énorme minuscule résolution resolution téléchargement telechargement introuvable disque plein espace lent cassé casse bureau restaurer retour arrière arriere instantané instantane snapshot">
       <h2>Quand quelque chose ne va pas</h2>
       <p>Les huit situations qui arrivent vraiment, chacune avec la solution qui
@@ -604,6 +504,95 @@
       <strong>dagric.com/support</strong>. Les informations de votre système pour
       toute demande d'assistance : ouvrez le <strong>Terminal</strong> (Konsole)
       et lancez <code>cat /etc/os-release</code>.</p>
+    </section>
+
+    <section id="manual" data-syn="aide documentation référence reference applications notepad manuel">
+      <h2>Le manuel complet</h2>
+      <p>Cette page, c'est votre première semaine. Pour chaque application de
+      l'ordinateur — ce qu'elle est, ce qu'elle remplace sous Windows, et les
+      cinq choses que vous en ferez vraiment — ouvrez le <strong>Manuel
+      Dagric</strong> depuis le lanceur, ou lancez <code>dagric-manual</code>. Il
+      est aussi dans le Hub, sous <em>Manuel des applis</em>.</p>
+      <p><strong>Le manuel n'existe pour l'instant qu'en anglais.</strong> Il
+      fonctionne hors ligne exactement comme cette page, et sa recherche repose
+      sur les noms Windows anglais : tapez <em>Notepad</em> et vous
+      obtenez l'éditeur de texte, tapez <em>Task Manager</em> et vous obtenez le
+      moniteur système, tapez <em>PDF</em> et vous obtenez tout ce qui en ouvre
+      un. Une recherche à moitié traduite casserait précisément cela, alors le
+      manuel est resté honnêtement anglais plutôt que de faire semblant.
+      <a href="../../manual/index.html#l=fr" hreflang="en">Ouvrir le manuel (en
+      anglais)</a></p>
+      <div class="tip">Deux entrées d'aide, et c'est voulu. Ce
+      <strong>guide</strong> est la lecture courte de votre première semaine. Le
+      <strong>manuel</strong> est la référence vers laquelle vous revenez quand
+      vous avez besoin d'une application précise.</div>
+    </section>
+
+    <section id="backups" data-syn="sauvegarde restaurer timeshift vorta rclone onedrive google drive dropbox cloud smart santé sante disque">
+      <h2>Sauvegardes &amp; santé des disques</h2>
+      <p>Sur Dagric Pro : <strong>Vorta</strong> réalise des sauvegardes
+      chiffrées vers un disque ou un serveur, et <code>rclone</code> se connecte
+      à Google Drive, Dropbox, OneDrive et plus de 70 autres services.
+      <strong>Timeshift</strong> crée des points de restauration système — si une
+      mise à jour se comporte mal, revenez à hier. Dans chaque édition, Dagric
+      surveille la santé SMART de vos disques et vous prévient en mots simples si
+      l'un d'eux commence à lâcher — et le Contrôle de sécurité affiche à tout
+      moment l'état de chaque disque.</p>
+    </section>
+
+    <section id="windows" data-syn="exe wine jeux steam proton epic gog bottles machine virtuelle exécuter executer programmes windows">
+      <h2>Exécuter des programmes Windows</h2>
+      <p>Pour les jeux, installez <strong>Steam</strong> en un clic depuis le
+      Dagric Hub (il n'est jamais fourni d'office), puis activez Proton dans
+      Paramètres → Compatibilité. <strong>Heroic</strong> couvre Epic, GOG et
+      Amazon, et la commande <code>dagric-gaming</code> ajoute la version
+      communautaire Proton-GE. Pour les logiciels Windows ordinaires,
+      <strong>Bottles</strong> — également en un clic depuis le Hub — garde
+      chaque programme dans son propre conteneur bien rangé. Tout cela
+      fonctionne dans les deux éditions.</p>
+      <p><strong>Sur Pro</strong> <span class="pro">PRO</span>, la couche
+      d'exécution sous-jacente est déjà installée et réglée : Wine exécute
+      beaucoup de fichiers <code>.exe</code> d'un double clic, et GameMode,
+      MangoHud, Lutris et Vulkan 32 bits sont en place pour les jeux. Et pour la
+      rare application qui refuse totalement de tourner sous Wine, il y a
+      <strong>Windows dans une machine virtuelle</strong> : choisissez-la dans le
+      Hub (<code>dagric-vm</code>) pour activer les machines virtuelles et faire
+      tourner un vrai Windows en sécurité à l'intérieur de Dagric.</p>
+    </section>
+
+    <section id="phone" data-syn="android iphone téléphone telephone portable kde connect notifications sms">
+      <h2>Connecter votre téléphone <span class="pro">PRO</span></h2>
+      <p><strong>KDE Connect</strong> relie votre téléphone à ce PC pour les
+      notifications, le transfert de fichiers et le partage du presse-papiers.
+      Pour votre sécurité, ses ports ne sont ouverts que sur les réseaux que vous
+      avez marqués comme <em>Home</em> — jamais sur le Wi-Fi d'un café ou d'un
+      aéroport. Si l'association ne trouve pas votre téléphone, ouvrez
+      <strong>Configuration du système → Pare-feu</strong> et réglez la zone de
+      la connexion en cours sur <em>home</em>.</p>
+    </section>
+
+    <section id="usbguard" data-syn="sécurité securite usb attaque badusb bloquer">
+      <h2>Protection USB <span class="pro">PRO</span></h2>
+      <p>Ouvrez le Hub et choisissez <strong>Protection USB</strong> pour bloquer
+      les périphériques USB malveillants (ceux qui se font passer pour un clavier
+      et tapent des commandes). Branchez <em>d'abord</em> tout ce que vous
+      utilisez habituellement — Dagric les retient et ne bloque que les
+      inconnus. Relancez-la à tout moment pour rafraîchir la liste ou désactiver
+      à nouveau la protection.</p>
+    </section>
+
+    <section id="helpers" data-syn="terminal ligne de commande cli nvidia resolve ia ollama">
+      <h2>Les aides du terminal</h2>
+      <div class="helpers">
+        <div class="helpers-title">Une commande chacune</div>
+        <div class="helpers-sub">Chaque aide demande avant d'agir.</div>
+        <div class="helper-row"><code>sudo dagric-drivers</code><span>NVIDIA</span></div>
+        <div class="helper-row"><code>dagric-migrate</code><span>récupérer les fichiers de Windows</span></div>
+        <div class="helper-row"><code>dagric-get-resolve</code><span>DaVinci Resolve</span></div>
+        <div class="helper-row"><code>dagric-ai</code><span>IA locale et privée</span></div>
+        <div class="helper-row"><code>dagric-gaming</code><span>Proton-GE</span></div>
+        <div class="helper-row"><code>dagric-vm</code><span>machines virtuelles, Pro</span></div>
+      </div>
     </section>
 
     <footer class="colophon">Dagric OS · Ce guide est stocké sur votre ordinateur et ne nécessite aucune connexion Internet.</footer>

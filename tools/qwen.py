@@ -66,16 +66,50 @@ def _key():
     return k
 
 
+DS_KEY_FILE = os.path.join(ROOT, ".secrets", "deepseek.key")
+DS_BASE = "https://api.deepseek.com"
+
+
+def _route(model):
+    """Pick the account that should serve this model.
+
+    DeepSeek models exist on BOTH accounts: the Qwen Cloud Token Plan carries
+    deepseek-v4-pro, and there is a direct DeepSeek account with its own
+    balance. They are not interchangeable in the way that matters — the Token
+    Plan enforces a rolling 5-hour quota, and when it is exhausted every model
+    on it returns 429 including the DeepSeek ones.
+
+    That is not hypothetical: an audit run had all three panel members die at
+    once mid-pass, and the separate DeepSeek balance sat unused because this
+    client only ever read .secrets/qwen.key. A three-model panel whose members
+    share one quota is one model wearing three hats.
+
+    So deepseek-* prefers the direct account whenever its key is present, and
+    falls back to the Token Plan when it is not. An explicit QWEN_API_KEY or
+    QWEN_BASE_URL in the environment still wins over both, because callers that
+    set them are doing so deliberately.
+    """
+    if os.environ.get("QWEN_API_KEY") or os.environ.get("QWEN_BASE_URL"):
+        return None
+    if model.startswith("deepseek"):
+        k = _read(DS_KEY_FILE)
+        if k:
+            return k, DS_BASE
+    return None
+
+
 def _base():
     return os.environ.get("QWEN_BASE_URL") or _read(BASE_FILE, DEFAULT_BASE)
 
 
 def _post(path, payload, timeout):
+    r = _route(payload.get("model", ""))
+    key, base = (r if r else (_key(), _base()))
     req = urllib.request.Request(
-        _base() + path,
+        base + path,
         data=json.dumps(payload).encode("utf-8"),
         headers={
-            "Authorization": "Bearer " + _key(),
+            "Authorization": "Bearer " + key,
             "Content-Type": "application/json",
         },
         method="POST",
@@ -88,7 +122,7 @@ def _post(path, payload, timeout):
         # Deliberately not echoing the key or the Authorization header here.
         sys.exit("HTTP %s from %s\n%s" % (e.code, _base() + path, body[:1500]))
     except urllib.error.URLError as e:
-        sys.exit("Could not reach %s: %s" % (_base(), e.reason))
+        sys.exit("Could not reach %s: %s" % (base, e.reason))
 
 
 def _get(path, timeout=60):

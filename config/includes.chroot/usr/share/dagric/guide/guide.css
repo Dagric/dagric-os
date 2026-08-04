@@ -158,6 +158,12 @@ nav.toc a:hover { color:var(--ink); background:var(--line-soft); text-decoration
    standing, several now pointing at a section no longer on the page — clicking
    one calls focus() on a display:none element and the page looks frozen. */
 nav.toc a[hidden] { display:none; }
+/* Same reasoning one level up. A filtered search can hide every link in a
+   group and leave its heading standing over nothing — "Going further" with
+   nothing further under it. guide.js sets the attribute; this makes it mean
+   something. Written as an attribute selector rather than a class so it cannot
+   be undone by the phone rules below, which give .navgroup a display. */
+nav.toc .navgroup[hidden] { display:none; }
 nav.toc a.active {
   color:var(--accent);
   background:var(--accent-bg);
@@ -187,6 +193,27 @@ h1 {
   margin-top:12px;
   max-width:46ch;
 }
+
+/* ---------- "where do I start?" ---------- */
+/* The hero promised "everything you need for your first week" and the next
+   thing on the page was a fourteen-row table. This is the instruction that was
+   missing: one route for somebody setting up, one for somebody whose machine is
+   already misbehaving. Boxed like a tip because it is an aside, but built from
+   --panel rather than the accent so it does not compete with the real tips, and
+   a <nav> in the HTML so a screen reader can skip it. */
+.startline {
+  background:var(--bg-raise);
+  border:1px solid var(--line-soft);
+  border-radius:var(--radius);
+  padding:14px 18px;
+  margin:4px 0 6px;
+}
+.startline p { font-size:.92rem; margin:0; }
+.startline p + p { margin-top:6px; color:var(--muted); }
+
+/* The PRO badge legend, at the badge's first appearance. Muted and small: it is
+   a key to a symbol, not a claim competing with the table under it. */
+.badge-key { font-size:.86rem; color:var(--muted); }
 
 section {
   padding:36px 0 6px;
@@ -248,6 +275,22 @@ code {
   gap:12px;
   margin:18px 0 10px;
 }
+/* Nine cards in a track that resolves to two columns is 4 rows and a half —
+   measured 336x103px of hole beside the ninth card at every width from 768px
+   up, in the one section of this guide that is a reference table people come
+   back to. auto-fill will not make it three columns and it should not: a key
+   combination plus its description does not fit in 212px.
+   The ninth card takes the full row instead. It costs nothing — the card is a
+   flow-layout box that simply gets wider — and there is no "last row is short"
+   state left to look at.
+   :last-child:nth-child(odd) IS ONLY CORRECT WHILE THIS GRID CANNOT REACH
+   THREE COLUMNS, so here is the arithmetic: three tracks need 3*280 + 2*12 =
+   864px. On desktop .content is capped at 660px, and below 900px it is the
+   viewport minus 44px of shell padding — which tops out at 856px at the very
+   last width the phone block applies. 864 is unreachable in both, so the grid
+   is always one or two columns and an odd last child is always alone in its
+   row. If .content's cap or the 280px minimum ever moves, re-run this. */
+.keys > :last-child:nth-child(odd) { grid-column:1 / -1; }
 .key-card {
   background:var(--bg-raise);
   border:1px solid var(--line-soft);
@@ -520,7 +563,19 @@ footer.colophon {
   .gsearch-status:empty { min-height:0; margin-top:0; }
 
   /* Row two: the section strip, full width. */
-  .navgroup { display:none; }
+  /* THE GROUP HEADINGS USED TO BE display:none HERE, and that turned five
+     labelled groups into one unlabelled strip of twenty-one identical pills.
+     Finding "Troubleshooting" meant swiping sideways past thirteen of them with
+     nothing to orient by — on the surface most likely to be read on a phone, by
+     the reader most likely to BE on a phone precisely because the PC's Wi-Fi is
+     what broke. They stay, inline, as dividers in the scroll: the same five
+     words that do the work on desktop, costing one short label per group. */
+  .navgroup {
+    display:flex; align-items:center;
+    flex:none; margin:0; padding:0 4px 0 8px;
+    white-space:nowrap;
+  }
+  .navgroup:first-child { padding-left:0; }
   nav.toc {
     grid-column:1 / -1;
     display:flex; gap:6px; overflow-x:auto;
@@ -591,7 +646,14 @@ footer.colophon {
   @page { margin:16mm; }
   html, body { background:#fff !important; color:#000 !important; }
   body { font-size:10.5pt; line-height:1.5; }
-  .skip, .side, .langbar, .langnote, .gsearch, .gsearch-status, .back-to-site { display:none !important; }
+  /* .sitebar and .sitefoot exist only in the published web copy (they are
+     injected by tools/publish-guide.py and match nothing in this file offline),
+     and they are furniture in the same sense .side is: a printed page has no
+     route back to a website. Listed here rather than in the publisher's own
+     appended block so there is one print rule for all of this guide's
+     chrome. */
+  .skip, .side, .langbar, .langnote, .gsearch, .gsearch-status,
+  .sitebar, .sitefoot { display:none !important; }
   .shell { display:block; max-width:none; padding:0; }
   .content { padding:0; max-width:none; }
   section { padding:14px 0 0; margin-top:10px; }
