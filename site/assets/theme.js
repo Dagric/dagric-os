@@ -126,14 +126,58 @@
     });
 
     box.appendChild(btn);
-    /* Appended to <footer> as its own row rather than into .foot. .foot's
-       phone layout is a measured three-row plateau with 44px targets; adding a
-       third flex item to it would re-wrap that and invalidate the measurement
-       the comment on .foot .links records. The nav is out of the question for
-       the same reason, one step worse: --nav-h and the 487/615 breakpoints
-       come from a scrollbar-inclusive 1px sweep from 320-1300px, and the bar
-       already wraps to three rows at 118px on a phone. */
-    footer.appendChild(box);
+
+    /* WHERE THIS LIVES, AND WHY IT MOVED.
+       It was appended to <footer> and nowhere else, for a defensible reason:
+       --nav-h and the 487/615 breakpoints come from a scrollbar-inclusive 1px
+       sweep across 320-1300px, and the bar already wraps to three rows at
+       118px on a phone, so adding an item risked a fourth row and every
+       in-page anchor landing under the bar.
+       The result was a control nobody could find. The owner scrolled the live
+       site and reported not seeing it at all — and he is right: /faq is
+       2,544px, the homepage 16,000px, and nobody scrolls to the bottom of a
+       page looking for a theme switch. An undiscoverable control is not a
+       safer control, it is an absent one.
+       So it mounts in the NAV at >=641px, where the bar is a single row with
+       the links right-aligned and horizontal room to spare, and stays in the
+       FOOTER below that, where the measured three-row plateau is left exactly
+       as it was. Nothing about the phone layout changes; nothing about the
+       desktop measurements depends on a sweep, because one row does not wrap.
+       ONE button, MOVED between two mounts rather than duplicated. Two copies
+       hidden by CSS would put a second control in the accessibility tree and
+       give a screen-reader user two switches for one setting. matchMedia's
+       change event re-mounts it when the window crosses the breakpoint, so a
+       reader who resizes does not lose it. */
+    var wide = window.matchMedia('(min-width:641px)');
+    var navLinks = document.querySelector('nav .nav-links');
+
+    function mount() {
+      var target = (wide.matches && navLinks) ? navLinks : footer;
+      if (box.parentNode === target) return;
+      if (target === navLinks) {
+        /* BEFORE the Download pill, not after it. .nav-links is a flex row
+           pushed right by margin-left:auto, so appending would seat the
+           toggle to the RIGHT of the one control on this bar that is supposed
+           to be the last thing your eye reaches. The filled CTA stays the end
+           of the row; the toggle joins the quiet links to its left. */
+        var cta = navLinks.querySelector('.cta');
+        if (cta) navLinks.insertBefore(box, cta);
+        else navLinks.appendChild(box);
+      } else {
+        target.appendChild(box);
+      }
+      /* The nav copy sits inline with the links; the footer copy is its own
+         row. One class, so site.css can style each context without this file
+         knowing anything about layout. */
+      box.className = 'themebox' + (target === navLinks ? ' themebox-nav' : '');
+    }
+    mount();
+
+    /* addEventListener on the query, with the legacy addListener fallback —
+       Safari did not support the modern form until 14 and this site is aimed
+       at people running whatever their old machine came with. */
+    if (wide.addEventListener) wide.addEventListener('change', mount);
+    else if (wide.addListener) wide.addListener(mount);
   }
 
   if (document.readyState === 'loading')

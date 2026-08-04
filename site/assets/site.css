@@ -962,6 +962,27 @@ footer{border-top:1px solid var(--rule-2);padding:var(--s-6) 24px;color:var(--on
 .themetog:hover{color:var(--on);border-color:var(--on);background:var(--surface-2)}
 @media(max-width:640px){.themebox{justify-content:center;margin-top:var(--s-3)}}
 
+/* THE NAV MOUNT. assets/theme.js moves this one element into .nav-links at
+   >=641px and back to the footer below that; .themebox-nav is the class it
+   swaps on. The control was footer-only and the owner could not find it —
+   /faq is 2,544px and the homepage 16,000px, and nobody scrolls to the bottom
+   of a page hunting for a theme switch.
+   Everything here neutralises the footer-row styling for the inline context:
+   the auto margins and the 1120px cap would otherwise stretch a flex item
+   across the whole bar and push the Download pill off the end. Height is 34px
+   rather than 44 because in the nav it sits in a row whose OWN links are 44px
+   targets by padding, and a 44px bordered box beside them would be the tallest
+   thing in the bar and set the bar's height. It is only ever shown at >=641px,
+   where the pointer is a mouse — the 44px minimum this project holds itself to
+   is a touch target, and the phone mount keeps it. */
+.themebox-nav{margin:0;max-width:none;display:flex;align-items:center}
+.themebox-nav .themetog{min-height:34px;padding:7px 12px;font-size:var(--t-meta);
+  border-color:var(--rule);color:var(--on-3)}
+.themebox-nav .themetog:hover{color:var(--on);border-color:var(--on-3);background:none}
+/* Below 641px the element is in the footer, so the nav rules must not apply
+   even for the instant before matchMedia fires on a resize. */
+@media(max-width:640px){.themebox-nav{justify-content:center;margin-top:var(--s-3)}}
+
 /* ── responsive: tablet ── */
 @media(max-width:900px){
   section{padding:var(--s-6) 22px}

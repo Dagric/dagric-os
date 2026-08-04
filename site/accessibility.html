@@ -41,12 +41,22 @@ dl.meta dd{margin:0;color:var(--on-2)}
 <link rel="icon" href="/favicon.ico" sizes="32x32">
 <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
 <link rel="manifest" href="/site.webmanifest">
-<!-- Builds the right-gutter section index from this page's own h2s. defer,
-     because it touches the DOM and there is nothing here worth blocking a
-     paint for; same-origin, so script-src 'self' is satisfied. Only the five
-     long document pages carry it — see assets/pageindex.js for why, and for
-     why the page is unchanged at every width below 1440px and with JS off. -->
-<script src="/assets/pageindex.js" defer></script>
+<!-- assets/pageindex.js is deliberately NOT loaded. It built a sticky section
+     index into the right-hand gutter on the five long document pages, and the
+     owner reported it misbehaving on scroll — "when I scroll down it is funny
+     and doesn't work how it's supposed to". The mechanism is a position:sticky
+     <ol> inside a position:absolute box that carries BOTH top and bottom, so
+     the rail stops dead --s-7 above the end of <main> and slides away while
+     there is still page left; that is the "funny" part, and it is the shape of
+     the bug even before anything else is measured.
+     It is out rather than patched because nothing here has a browser to verify
+     a fix in — every check available is layout arithmetic, and this is a defect
+     you can only see. A feature nobody asked for that confuses the owner is
+     worse than an empty gutter. The file stays in the tree; put the tag back
+     when somebody can watch it scroll.
+     Removing the tag is the whole revert: the nav is display:none below
+     1440px, absolutely positioned above it, and takes part in no layout at any
+     width, so these pages are byte-for-byte what they were before it existed. -->
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Dagric OS">
 <meta property="og:title" content="Accessibility Conformance — Dagric OS">
