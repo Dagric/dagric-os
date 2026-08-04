@@ -61,7 +61,7 @@ msgstr "Configurar o Dagric"
 
 #: po/dagric-data-strings.sh:15
 msgid "Every step can be skipped, and you can change all of it later."
-msgstr "Qualquer etapa pode ser pulada e tudo pode mudar depois."
+msgstr "Qualquer etapa pode ser pulada, e você pode mudar tudo depois."
 
 #: po/dagric-data-strings.sh:16
 msgid "I'll do this later"
@@ -188,19 +188,13 @@ msgid ""
 "Let's make it yours. A few minutes now — the colours, the wallpaper, how big "
 "the text is, where the taskbar sits, and your files from Windows — and then "
 "it's out of your way."
-msgstr ""
-"Vamos deixar do seu jeito. Alguns minutos agora — as cores, o papel de "
-"parede, o tamanho do texto, onde fica a barra de tarefas e seus arquivos do "
-"Windows — e depois saímos do seu caminho."
+msgstr "Vamos deixar do seu jeito. Alguns minutos agora — as cores, o papel de parede, o tamanho do texto, onde fica a barra de tarefas e seus arquivos do Windows — e depois não atrapalha mais."
 
 #: po/dagric-data-strings.sh:45
 msgid ""
 "Let's make it yours. A few minutes now — the colours, the wallpaper, how big "
 "the text is, where the taskbar sits — and then it's out of your way."
-msgstr ""
-"Vamos deixar do seu jeito. Alguns minutos agora — as cores, o papel de "
-"parede, o tamanho do texto e onde fica a barra de tarefas — e depois saímos "
-"do seu caminho."
+msgstr "Vamos deixar do seu jeito. Alguns minutos agora — as cores, o papel de parede, o tamanho do texto e onde fica a barra de tarefas — e depois não atrapalha mais."
 
 #: po/dagric-data-strings.sh:46
 msgid "Pick a look."
@@ -266,7 +260,7 @@ msgstr "Papel de parede %1 de %2"
 
 #: po/dagric-data-strings.sh:61
 msgid "Arrow keys to move between wallpapers, Space to apply one"
-msgstr "As setas movem entre os papéis de parede, Espaço aplica um"
+msgstr "Use as setas para alternar entre os papéis de parede e Espaço para aplicar um"
 
 #: po/dagric-data-strings.sh:62
 msgid "%1 wallpaper applied."
@@ -368,7 +362,7 @@ msgstr "Layout da barra de tarefas"
 
 #: po/dagric-data-strings.sh:82
 msgid "Arrow keys to move between layouts, Space to try one"
-msgstr "As setas movem entre os layouts, Espaço experimenta um"
+msgstr "Use as setas para alternar entre os layouts e Espaço para experimentar um"
 
 #: po/dagric-data-strings.sh:83
 msgid "%1 taskbar applied."
@@ -412,13 +406,11 @@ msgstr "Trazer meus arquivos"
 msgid ""
 "Opens the migration tool in its own window. Nothing on the Windows drive is "
 "changed."
-msgstr ""
-"Abre o assistente de migração na própria janela. Nada é alterado no disco do "
-"Windows."
+msgstr "Abre o assistente de migração em uma janela própria. Nada é alterado no disco do Windows."
 
 #: po/dagric-data-strings.sh:91
 msgid "This opens in its own window — carry on here while it works."
-msgstr "Isso abre na própria janela — continue aqui enquanto ele trabalha."
+msgstr "Isso abre em uma janela própria — continue aqui enquanto ele trabalha."
 
 #: po/dagric-data-strings.sh:92
 msgid ""
@@ -537,7 +529,7 @@ msgstr "Command"
 #. under its name. Keep it short — it has to fit on one line beside a tile.
 #: po/dagric-data-strings.sh:122
 msgid "a side dock for living in your apps"
-msgstr "um dock lateral para viver dentro dos seus aplicativos"
+msgstr "um dock lateral para quem vive nos seus aplicativos"
 
 #. TRANSLATORS: name of the "duo" taskbar layout in Dagric Looks and the
 #. setup wizard. One or two words, shown as the title of a picture tile.
@@ -681,7 +673,7 @@ msgstr "Neon"
 #. under its name. Keep it short.
 #: po/dagric-data-strings.sh:194
 msgid "electric cyan, blur and wobbly windows"
-msgstr "ciano elétrico, desfoque e janelas elásticas"
+msgstr "ciano elétrico, desfoque e janelas gelatinosas"
 
 #. TRANSLATORS: the name of a Dagric wallpaper pack. "Dagric" is the brand
 #. and never changes; translate only the descriptive word after it.
@@ -1076,9 +1068,7 @@ msgstr ""
 msgid ""
 "The appearance gallery could not start. Opening the classic Styles menu "
 "instead."
-msgstr ""
-"A galeria de aparência não conseguiu iniciar. Abrindo o menu clássico do "
-"Dagric Styles em vez disso."
+msgstr "A galeria de aparência não conseguiu iniciar. Abrindo o menu clássico de Estilos em vez disso."
 
 #: config/includes.chroot/usr/bin/dagric-display:61
 msgid "System Settings is not installed on this system."
@@ -1091,8 +1081,7 @@ msgid ""
 "not one. Sign out and log back in with the standard Dagric session, or use\n"
 "System Settings ▸ Display & Monitor."
 msgstr ""
-"O Dagric muda o tamanho do texto pela sessão Wayland, e esta sessão não é "
-"uma.\n"
+"O Dagric muda o tamanho do texto pela sessão Wayland, e esta não é uma sessão Wayland.\n"
 "Saia e entre novamente com a sessão padrão do Dagric, ou use\n"
 "Configurações do sistema ▸ Tela e monitor."
 
@@ -1178,9 +1167,7 @@ msgstr "Tamanho do texto restaurado para $_cur%."
 msgid ""
 "Right now it follows sunset and sunrise, which was set on the full Night "
 "Light page."
-msgstr ""
-"No momento ele segue o pôr e o nascer do sol, o que foi definido na página "
-"completa de Luz noturna."
+msgstr "No momento, segue o pôr e o nascer do sol, o que foi definido na página completa de Luz noturna."
 
 #: config/includes.chroot/usr/bin/dagric-display:289
 msgid "Off — normal colours all day"
@@ -1561,16 +1548,14 @@ msgstr ""
 "Configuração de jogos do Dagric\n"
 "=====================\n"
 "Já vem pré-instalado no Dagric Pro:\n"
-"  * Wine + winetricks       rodar aplicativos do Windows:  wine setup.exe\n"
+"  * Wine + winetricks       executar aplicativos do Windows:  wine setup.exe\n"
 "  * gamemode + mangohud     regulador de desempenho + contador de FPS\n"
 "  * Vulkan de 32 bits       pronto para os jogos Windows via Proton\n"
 "\n"
-"O Steam em si NUNCA é incluído (é proprietário) — instale quando quiser com "
-"um\n"
+"O Steam em si NUNCA é incluído (é proprietário) — instale quando quiser com um\n"
 "clique pelo Dagric Hub, ou rode:  dagric-get-steam\n"
 "\n"
-"Este assistente adiciona o Proton-GE (o Proton da comunidade, do "
-"GloriousEggroll,\n"
+"Este assistente adiciona o Proton-GE (o Proton da comunidade, do GloriousEggroll,\n"
 "com codecs de mídia extras e correções por jogo) para um Steam já instalado."
 
 #: config/includes.chroot/usr/bin/dagric-gaming:46
@@ -1662,7 +1647,7 @@ msgstr ""
 
 #: config/includes.chroot/usr/bin/dagric-gaming:158
 msgid "Left as it is. Games still run normally."
-msgstr "Deixado como está. Os jogos continuam funcionando normalmente."
+msgstr "Ficou como está. Os jogos continuam funcionando normalmente."
 
 #: config/includes.chroot/usr/bin/dagric-get-bottles:18
 msgid ""
@@ -1674,14 +1659,11 @@ msgid ""
 "working. It's the easy way to bring a Windows app across. Installs from "
 "Flathub."
 msgstr ""
-"Dagric — instalar o Bottles (executar programas do Windows)\n"
+"Dagric — instalar o Bottles (executar aplicativos do Windows)\n"
 "\n"
-"O Bottles é um aplicativo livre e de código aberto que executa programas e "
-"jogos do\n"
-"Windows no Linux dentro de \"bottles\" independentes, ajustadas para cada "
-"aplicativo\n"
-"para dar a melhor chance de funcionar. É o jeito fácil de trazer um "
-"aplicativo do\n"
+"O Bottles é um aplicativo livre e de código aberto que executa programas e jogos do\n"
+"Windows no Linux dentro de \"bottles\" independentes, ajustadas para cada aplicativo\n"
+"para dar a melhor chance de funcionar. É o jeito fácil de trazer um aplicativo do\n"
 "Windows. Instala a partir do Flathub."
 
 #: config/includes.chroot/usr/bin/dagric-get-bottles:25
@@ -1731,12 +1713,9 @@ msgid ""
 msgstr ""
 "Dagric — instalar o Cryptomator (criptografar antes da nuvem)\n"
 "\n"
-"O Cryptomator cria cofres criptografados que ficam dentro das suas pastas de "
-"nuvem\n"
-"de sempre. Seus arquivos são criptografados primeiro na sua máquina, então o "
-"Google,\n"
-"a Dropbox ou qualquer outro só chega a guardar dados embaralhados. A única "
-"chave é\n"
+"O Cryptomator cria cofres criptografados que ficam dentro das suas pastas de nuvem\n"
+"de sempre. Seus arquivos são criptografados primeiro na sua máquina, então o Google,\n"
+"o Dropbox ou qualquer outro só armazena dados embaralhados. A única chave é\n"
 "sua.\n"
 "Do Flathub."
 
@@ -1940,14 +1919,11 @@ msgid ""
 msgstr ""
 "Dagric — instalar o Steam\n"
 "\n"
-"O Steam é a loja e o lançador de jogos proprietários da Valve. O Dagric não "
-"o entrega\n"
-"pré-instalado (a licença dele proíbe qualquer um de incluí-lo), mas instalar "
-"é um\n"
+"O Steam é a loja e o lançador de jogos da Valve, e é proprietário. O Dagric não o entrega\n"
+"pré-instalado (a licença dele proíbe qualquer um de incluí-lo), mas instalar é um\n"
 "passo só. Tudo de que ele depende já está pronto no Dagric Pro.\n"
 "\n"
-"Sua senha de administrador será solicitada e então o Steam será baixado e "
-"instalado.\n"
+"Sua senha de administrador será solicitada e então o Steam será baixado e instalado.\n"
 "Depois, abra o \"Steam\" pelo menu de aplicativos."
 
 #: config/includes.chroot/usr/bin/dagric-get-steam:26
@@ -2024,25 +2000,19 @@ msgid ""
 msgstr ""
 "Dagric — instalar o Variety (troca automática de papel de parede)\n"
 "\n"
-"O Variety troca seu papel de parede em intervalos definidos, a partir das "
-"suas\n"
-"próprias pastas e, se você ligar, de coleções online. Ele adiciona um ícone "
-"na área\n"
+"O Variety troca seu papel de parede em intervalos definidos, a partir das suas\n"
+"próprias pastas e, se você ligar, de coleções online. Ele adiciona um ícone na área\n"
 "de notificação para pular, pausar e favoritar a imagem atual.\n"
 "\n"
-"Duas coisas que vale saber antes de instalar:\n"
+"Duas coisas que valem a pena saber antes de instalar:\n"
 "  * O Variety pode baixar papéis de parede de sites de terceiros. Isso fica\n"
-"    DESLIGADO até você habilitar uma fonte, mas é por isso que o Dagric não "
-"o\n"
-"    deixa pré-instalado.\n"
-"  * Se você só quer uma apresentação girando as SUAS próprias fotos, não "
-"precisa\n"
-"    disso — clique com o botão direito na área de trabalho, \"Configurar "
-"área de\n"
-"    trabalho e papel de parede\" e escolha \"Apresentação de slides\".\n"
+"    DESLIGADO até você habilitar uma fonte, mas é por isso que o Dagric não o\n"
+"    traz pré-instalado.\n"
+"  * Se você só quer uma apresentação de slides rotativa com as SUAS próprias fotos, não precisa\n"
+"    disso — clique com o botão direito na área de trabalho, selecione \"Configurar área de trabalho e papel de parede\"\n"
+"    e escolha \"Apresentação de slides\".\n"
 "\n"
-"Instalado a partir dos repositórios do sistema (GPL-3, código aberto), cerca "
-"de 25 MB\n"
+"Instalado a partir dos repositórios do sistema (GPL-3, código aberto), cerca de 25 MB\n"
 "com as dependências."
 
 #: config/includes.chroot/usr/bin/dagric-get-variety:37
@@ -2075,11 +2045,9 @@ msgstr ""
 "\n"
 "    /usr/share/wallpapers\n"
 "\n"
-"São os trinta e quatro pacotes do Dagric, e todos os papéis de parede do "
-"KDE\n"
-"além deles. Uma pasta como fonte funciona totalmente offline — nada é "
-"baixado\n"
-"e nenhum site é contatado."
+"São os trinta e quatro pacotes do Dagric, e todos os papéis de parede do KDE\n"
+"além deles. Uma pasta como fonte funciona totalmente offline — nada é baixado\n"
+"e nenhum site é acessado."
 
 #: config/includes.chroot/usr/bin/dagric-get-variety:71
 msgid "Install did not complete (administrator access is required)."
@@ -2200,7 +2168,7 @@ msgstr "Procurar uma nova versão do Dagric"
 
 #: config/includes.chroot/usr/bin/dagric-hub:115
 msgid "User guide — your first week"
-msgstr "Guia — sua primeira semana"
+msgstr "Guia do usuário — sua primeira semana"
 
 #: config/includes.chroot/usr/bin/dagric-hub:116
 msgid "App manual — every program explained"
@@ -2224,7 +2192,7 @@ msgstr "Proton-GE para o Steam"
 
 #: config/includes.chroot/usr/bin/dagric-hub:124
 msgid "Windows apps — Bottles"
-msgstr "Aplicativos do Windows — Bottles"
+msgstr "Apps do Windows — Bottles"
 
 #: config/includes.chroot/usr/bin/dagric-hub:125
 msgid "Office suite — ONLYOFFICE"
@@ -2388,13 +2356,11 @@ msgid ""
 "Device encryption), or copy your files to a plain USB drive instead.\n"
 "Nothing on the drive was changed."
 msgstr ""
-"Foi encontrado um disco criptografado com BitLocker ($BITLOCKER), mas o "
-"Dagric não\n"
+"Foi encontrado um disco criptografado com BitLocker ($BITLOCKER), mas o Dagric não\n"
 "consegue desbloqueá-lo sem a chave de recuperação.\n"
 "\n"
 "No Windows: desative o BitLocker (Configurações > Privacidade e segurança >\n"
-"Criptografia de dispositivo), ou copie seus arquivos para um pendrive "
-"comum.\n"
+"Criptografia do dispositivo), ou copie seus arquivos para um pendrive comum.\n"
 "Nada no disco foi alterado."
 
 #: config/includes.chroot/usr/bin/dagric-migrate:116
@@ -2482,7 +2448,7 @@ msgstr "Abas do navegador que você tinha abertas"
 
 #: config/includes.chroot/usr/bin/dagric-migrate:210
 msgid "Saved passwords (Firefox only - Chrome explains why)"
-msgstr "Senhas salvas (só do Firefox - a nota sobre o Chrome explica por quê)"
+msgstr "Senhas salvas (só do Firefox - o Chrome explica por quê)"
 
 #: config/includes.chroot/usr/bin/dagric-migrate:277
 #, sh-format
@@ -2492,7 +2458,7 @@ msgid ""
 "(Videos are usually the big one) and try again. Nothing was copied."
 msgstr ""
 "Espaço insuficiente: sua seleção tem $NEED_GB GB mas este disco só tem\n"
-"$FREE_GB GB livres. Desmarque algumas pastas (os vídeos costumam ser os\n"
+"$FREE_GB GB de espaço livre. Desmarque algumas pastas (os vídeos costumam ser os\n"
 "maiores) e tente de novo. Nada foi copiado."
 
 #. TRANSLATORS: "read-only; Windows is not modified" is the promise the whole
@@ -2531,7 +2497,7 @@ msgid ""
 "Import and Backup > Import Bookmarks from HTML."
 msgstr ""
 "Para importar no Firefox:  Favoritos > Gerenciar favoritos >\n"
-"Importar e fazer backup > Importar favoritos de HTML."
+"Importar e Backup > Importar favoritos de HTML."
 
 #: config/includes.chroot/usr/bin/dagric-migrate:443
 msgid "--- browser tabs and logins ---"
@@ -2668,17 +2634,15 @@ msgid ""
 "• Open tabs — import Windows-open-tabs.html the same way; they arrive as a\n"
 "  bookmark folder you can 'Open All in Tabs'"
 msgstr ""
-"Pronto! Seus arquivos do Windows agora estão na sua pasta pessoal do "
-"Dagric.\n"
+"Pronto! Seus arquivos do Windows agora estão na sua pasta pessoal do Dagric.\n"
 "\n"
 "O Windows em si não foi modificado — ele foi apenas lido.\n"
 "\n"
 "Para terminar, no Firefox:\n"
-"• Favoritos — Favoritos ▸ Gerenciar favoritos ▸ Importar e fazer backup ▸\n"
+"• Favoritos — Favoritos ▸ Gerenciar favoritos ▸ Importar e Backup ▸\n"
 "  Importar favoritos de HTML ▸ Windows-bookmarks.html\n"
-"• Abas abertas — importe Windows-open-tabs.html do mesmo jeito; elas chegam "
-"como uma\n"
-"  pasta de favoritos em que você pode usar \"Abrir tudo em abas\""
+"• Abas abertas — importe Windows-open-tabs.html do mesmo jeito; elas chegam como uma\n"
+"  pasta de favoritos. Nela, você pode usar \"Abrir tudo em abas\""
 
 #. TRANSLATORS: shown only when at least one folder did not copy completely.
 #. It sits ABOVE the "Done!" paragraph and has to contradict it, so lead with
@@ -2701,8 +2665,7 @@ msgstr ""
 "⚠ NEM tudo foi copiado.\n"
 "\n"
 "Algumas pastas não foram copiadas por completo — leia as mensagens acima,\n"
-"libere espaço no disco ou verifique a unidade, e rode a Migração de novo. "
-"NÃO\n"
+"libere espaço no disco ou verifique o disco, e rode a Migração de novo. NÃO\n"
 "apague nada do Windows enquanto isso não terminar sem erros.\n"
 "\n"
 "O Windows em si continuou sendo apenas lido; nada lá foi alterado."
@@ -2920,7 +2883,7 @@ msgstr ""
 
 #: config/includes.chroot/usr/bin/dagric-style:178
 msgid "Reset to the standard Dagric look"
-msgstr "Redefinido para a aparência padrão do Dagric"
+msgstr "Redefinir para a aparência padrão do Dagric"
 
 #: config/includes.chroot/usr/bin/dagric-style:190
 #, sh-format
@@ -3150,26 +3113,20 @@ msgid ""
 "\n"
 "Your files stay outside the VM unless you share them on purpose."
 msgstr ""
-"Pronto. Uma coisa importante: mudanças de grupo só valem no seu PRÓXIMO "
-"login —\n"
+"Pronto. Uma coisa importante: mudanças de grupo só valem no seu PRÓXIMO login —\n"
 "saia e entre novamente uma vez antes de criar sua primeira máquina virtual.\n"
 "\n"
 "Para instalar o Windows numa máquina virtual:\n"
 "  1. Baixe a ISO do Windows na página oficial da Microsoft:\n"
 "        https://www.microsoft.com/software-download/windows11\n"
-"     (Numa máquina virtual o Windows roda sem ativação, com pequenas "
-"limitações\n"
+"     (Numa máquina virtual o Windows roda sem ativação, com pequenas limitações\n"
 "      estéticas, ou use sua chave de licença.)\n"
 "  2. Abra o \"Gerenciador de Máquinas Virtuais\" pelo menu de aplicativos.\n"
-"  3. Nova VM > Mídia de instalação local > escolha a ISO > dê 4 GB de RAM ou "
-"mais,\n"
-"     2 CPUs ou mais e 64 GB de disco ou mais. A exigência de TPM do Windows "
-"11 está\n"
-"     coberta — o Pro traz swtpm (um TPM por software) e firmware UEFI "
-"(OVMF).\n"
+"  3. Nova VM > Mídia de instalação local > escolha a ISO > dê 4 GB de RAM ou mais,\n"
+"     2 CPUs ou mais e 64 GB de disco ou mais. A exigência de TPM do Windows 11 é\n"
+"     atendida — o Pro traz swtpm (um TPM por software) e firmware UEFI (OVMF).\n"
 "\n"
-"Seus arquivos ficam fora da máquina virtual, a menos que você os compartilhe "
-"de propósito."
+"Seus arquivos ficam fora da máquina virtual, a menos que você os compartilhe de propósito."
 
 #: config/includes.chroot/usr/bin/dagric-welcome:31
 msgid "The Dagric welcome page is not installed."
