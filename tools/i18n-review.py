@@ -180,6 +180,66 @@ def guard(msgid, msgstr):
     return bad
 
 
+def _emit(key, s):
+    """Render `key "..."` in gettext form, multi-line when the string has newlines.
+
+    A single escaped line is legal gettext and msgfmt accepts it, but collapsing
+    a twenty-line warning onto one line makes the .po unreadable and every future
+    diff useless. So a string containing a newline is written the way gettext
+    writes it: an empty first line, then one quoted chunk per source line with
+    the \\n kept at the end of each.
+    """
+    esc = _escape(s)
+    if '\\n' not in esc:
+        return '%s "%s"' % (key, esc)
+    parts = esc.split('\\n')
+    chunks = [p + '\\n' for p in parts[:-1]]
+    if parts[-1]:
+        chunks.append(parts[-1])
+    return '%s ""\n' % key + '\n'.join('"%s"' % c for c in chunks)
+
+
+def _replace_msgstr(src, msgid, new):
+    """Swap the msgstr belonging to msgid, handling multi-line on BOTH sides.
+
+    The first version of this used one regex assuming `msgid "x"` and `msgstr "y"`
+    each sat on a single line. Ten of the thirty-three Spanish changes silently
+    did not match — among them the NVIDIA kernel-module warning, which is exactly
+    the safety string this whole review exists for. A no-op that reports success
+    is the worst failure mode available here, so the applier now scans rather
+    than pattern-matches, and cmd_apply counts and prints every non-match.
+    """
+    lines = src.split('\n')
+    i = 0
+    while i < len(lines):
+        if not lines[i].startswith('msgid '):
+            i += 1
+            continue
+        # collect this entry's msgid, including continuation lines
+        m = re.match(r'^msgid\s+"(.*)"\s*$', lines[i])
+        if not m:
+            i += 1
+            continue
+        parts, j = [m.group(1)], i + 1
+        while j < len(lines):
+            c = re.match(r'^"(.*)"\s*$', lines[j])
+            if not c:
+                break
+            parts.append(c.group(1))
+            j += 1
+        if _unescape(''.join(parts)) != msgid:
+            i = j
+            continue
+        # j now points at msgstr (or msgid_plural, which this tool does not touch)
+        if j >= len(lines) or not lines[j].startswith('msgstr '):
+            return src, 0
+        k = j + 1
+        while k < len(lines) and re.match(r'^"(.*)"\s*$', lines[k]):
+            k += 1
+        return '\n'.join(lines[:j] + _emit('msgstr', new).split('\n') + lines[k:]), 1
+    return src, 0
+
+
 def cmd_extract(a):
     path = os.path.join(PO, a.lang + ".po")
     ents = parse(path)
@@ -211,11 +271,7 @@ def cmd_apply(a):
             rejected += 1
             problems.append((mid[:60], bad))
             continue
-        emid, enew = _escape(mid), _escape(new)
-        # Replace only the msgstr belonging to THIS msgid, single-line form.
-        pat = re.compile(r'(^msgid "%s"\n)msgstr "(?:[^"\\]|\\.)*"'
-                         % re.escape(emid), re.M)
-        src2, n = pat.subn(lambda m: m.group(1) + 'msgstr "%s"' % enew, src, count=1)
+        src2, n = _replace_msgstr(src, mid, new)
         if n:
             src = src2
             applied += 1

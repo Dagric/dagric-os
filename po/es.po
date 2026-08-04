@@ -177,7 +177,7 @@ msgstr "hecho"
 
 #: po/dagric-data-strings.sh:42
 msgid "not done yet"
-msgstr "aún no hecho"
+msgstr "aún sin hacer"
 
 #: po/dagric-data-strings.sh:43
 msgid "Welcome to %1."
@@ -266,7 +266,7 @@ msgstr "Fondo de pantalla %1 de %2"
 
 #: po/dagric-data-strings.sh:61
 msgid "Arrow keys to move between wallpapers, Space to apply one"
-msgstr "Las flechas se mueven entre los fondos de pantalla, Espacio aplica uno"
+msgstr "Usa las flechas para moverte entre los fondos de pantalla y Espacio para aplicar uno"
 
 #: po/dagric-data-strings.sh:62
 msgid "%1 wallpaper applied."
@@ -370,7 +370,7 @@ msgstr "Disposición de la barra de tareas"
 
 #: po/dagric-data-strings.sh:82
 msgid "Arrow keys to move between layouts, Space to try one"
-msgstr "Las flechas se mueven entre las disposiciones, Espacio prueba una"
+msgstr "Usa las flechas para moverte entre las disposiciones y Espacio para probar una"
 
 #: po/dagric-data-strings.sh:83
 msgid "%1 taskbar applied."
@@ -540,7 +540,7 @@ msgstr "Command"
 #. under its name. Keep it short — it has to fit on one line beside a tile.
 #: po/dagric-data-strings.sh:122
 msgid "a side dock for living in your apps"
-msgstr "un dock lateral para vivir dentro de tus aplicaciones"
+msgstr "un dock lateral para tener tus aplicaciones siempre a mano"
 
 #. TRANSLATORS: name of the "duo" taskbar layout in Dagric Looks and the
 #. setup wizard. One or two words, shown as the title of a picture tile.
@@ -636,7 +636,7 @@ msgstr "Amanecer"
 #. under its name. Keep it short.
 #: po/dagric-data-strings.sh:170
 msgid "the Dagric default: bright, blue, calm"
-msgstr "el ajuste predeterminado de Dagric: claro, azul, tranquilo"
+msgstr "el tema predeterminado de Dagric: claro, azul, tranquilo"
 
 #. TRANSLATORS: name of the "forest" desktop style (colours, wallpaper and
 #. effects) in Dagric Styles and the appearance gallery. One or two words.
@@ -684,7 +684,7 @@ msgstr "Neón"
 #. under its name. Keep it short.
 #: po/dagric-data-strings.sh:194
 msgid "electric cyan, blur and wobbly windows"
-msgstr "cian eléctrico, desenfoque y ventanas elásticas"
+msgstr "cian eléctrico, desenfoque y ventanas gelatinosas"
 
 #. TRANSLATORS: the name of a Dagric wallpaper pack. "Dagric" is the brand
 #. and never changes; translate only the descriptive word after it.
@@ -983,17 +983,14 @@ msgstr ""
 "Configuración de la IA local de Dagric\n"
 "=======================\n"
 "Esto instala Ollama, un ejecutor local de modelos de lenguaje grandes:\n"
-"  * los modelos se ejecutan por completo en este ordenador (con GPU si la "
-"hay)\n"
+"  * los modelos se ejecutan por completo en este ordenador (con GPU si la hay)\n"
 "  * funciona sin conexión; no se envía nada a ninguna parte\n"
 "\n"
 "Lo que cambia en este ordenador:\n"
 "  * instala el binario ollama y añade un usuario del sistema para él\n"
 "  * activa un servicio en segundo plano que arranca al iniciar y escucha\n"
-"    solo en este ordenador (127.0.0.1 puerto 11434) — inaccesible desde tu "
-"red\n"
-"  * los modelos descargados van a /usr/share/ollama y pueden pesar varios "
-"GB\n"
+"    solo en este ordenador (127.0.0.1 puerto 11434) — inaccesible desde tu red\n"
+"  * los modelos descargados van a /usr/share/ollama y pueden pesar varios GB cada uno\n"
 "\n"
 "Para eliminarlo por completo:\n"
 "  sudo systemctl disable --now ollama\n"
@@ -1080,9 +1077,7 @@ msgstr ""
 msgid ""
 "The appearance gallery could not start. Opening the classic Styles menu "
 "instead."
-msgstr ""
-"La galería de apariencia no se pudo iniciar. Se abrirá el menú clásico de "
-"Dagric Styles en su lugar."
+msgstr "La galería de apariencia no se pudo iniciar. Se abrirá el menú clásico de Estilos en su lugar."
 
 #: config/includes.chroot/usr/bin/dagric-display:61
 msgid "System Settings is not installed on this system."
@@ -1363,11 +1358,9 @@ msgid ""
 "after a reboot. Re-run this helper afterwards and it will report what went\n"
 "wrong."
 msgstr ""
-"AVISO: el módulo del núcleo de NVIDIA no terminó de compilarse.\n"
-"Se ha vuelto a activar el controlador de código abierto, así que la "
-"pantalla\n"
-"seguirá funcionando tras reiniciar. Vuelve a ejecutar este asistente "
-"después\n"
+"ADVERTENCIA: el módulo del núcleo de NVIDIA no terminó de compilarse.\n"
+"Se ha vuelto a activar el controlador de código abierto, así que la pantalla\n"
+"seguirá funcionando tras reiniciar. Vuelve a ejecutar este asistente después\n"
 "y te dirá qué falló."
 
 #. TRANSLATORS: 'MOK Management', 'Enroll MOK' and 'Continue' are
@@ -1406,7 +1399,7 @@ msgid ""
 "open-source drivers — nothing to install."
 msgstr ""
 "No se encontró ninguna tarjeta NVIDIA. Las gráficas de AMD e Intel usan los\n"
-"controladores libres integrados: no hay nada que instalar."
+"controladores de código abierto integrados: no hay nada que instalar."
 
 #: config/includes.chroot/usr/bin/dagric-firstrun:376
 msgid "Theme default"
@@ -1683,11 +1676,9 @@ msgid ""
 msgstr ""
 "Dagric — instalar Bottles (ejecutar programas de Windows)\n"
 "\n"
-"Bottles es una aplicación libre y de código abierto que ejecuta programas y "
-"juegos\n"
-"de Windows en Linux dentro de «bottles» independientes, ajustadas para cada\n"
-"aplicación para que tenga la mayor probabilidad de funcionar. Es la forma "
-"sencilla\n"
+"Bottles es una aplicación libre y de código abierto que ejecuta programas y juegos\n"
+"de Windows en Linux dentro de «botellas» independientes, ajustadas para cada\n"
+"aplicación para que tenga la mayor probabilidad de funcionar. Es la forma sencilla\n"
 "de traerte una aplicación de Windows. Se instala desde Flathub."
 
 #: config/includes.chroot/usr/bin/dagric-get-bottles:25
@@ -2137,7 +2128,7 @@ msgstr "──  Sistema  ──────────────────�
 #. TRANSLATORS: section heading — see the note on "Get started". Decoration only.
 #: config/includes.chroot/usr/bin/dagric-hub:64
 msgid "──  Add more apps  ────────────────"
-msgstr "──  Añadir más apps  ──────────────"
+msgstr "──  Añadir más aplicaciones  ──────"
 
 #. TRANSLATORS: section heading — see the note on "Get started". Decoration only.
 #: config/includes.chroot/usr/bin/dagric-hub:66
@@ -2178,7 +2169,7 @@ msgstr "Tamaño del texto y luz nocturna"
 
 #: config/includes.chroot/usr/bin/dagric-hub:91
 msgid "Desktop layout"
-msgstr "Diseño del escritorio"
+msgstr "Disposición del escritorio"
 
 #: config/includes.chroot/usr/bin/dagric-hub:92
 msgid "Colors and mood"
@@ -2206,7 +2197,7 @@ msgstr "Buscar una versión nueva de Dagric"
 
 #: config/includes.chroot/usr/bin/dagric-hub:115
 msgid "User guide — your first week"
-msgstr "Guía — tu primera semana"
+msgstr "Guía de usuario — tu primera semana"
 
 #: config/includes.chroot/usr/bin/dagric-hub:116
 msgid "App manual — every program explained"
@@ -2327,22 +2318,16 @@ msgstr ""
 "Manual de Dagric: todas las aplicaciones de este ordenador, sin conexión.\n"
 "\n"
 "  dagric-manual              abrir la portada (buscar desde ahí)\n"
-"  dagric-manual <tema>       abrir una página, p. ej.  dagric-manual "
-"dolphin\n"
+"  dagric-manual <tema>       abrir una página, p. ej.  dagric-manual dolphin\n"
 "  dagric-manual --list       listar todos los temas\n"
 "  dagric-manual --help       este texto\n"
 "\n"
-"Los temas se comparan con NOMBRES DE PÁGINA: «kate», «app-kate» y «ate» "
-"llegan\n"
-"todos a la página de Kate. Los nombres de Windows no funcionan aquí: "
-"«notepad» no\n"
-"coincide con ningún nombre de página y falla. Busca por el nombre de Windows "
-"en el\n"
-"buscador del propio manual; ese índice es a lo que se refiere «notepad "
-"encuentra Kate».\n"
+"Los temas se comparan con NOMBRES DE PÁGINA: «kate», «app-kate» y «ate» llegan\n"
+"todos a la página de Kate. Los nombres de Windows no funcionan aquí: «notepad» no\n"
+"coincide con ningún nombre de página y falla. Busca por el nombre de Windows en el\n"
+"buscador del propio manual; ese índice es al que se refiere «notepad encuentra Kate».\n"
 "\n"
-"Las páginas están en /usr/share/dagric/manual y no necesitan conexión a "
-"internet."
+"Las páginas están en /usr/share/dagric/manual y no necesitan conexión a internet."
 
 #: config/includes.chroot/usr/bin/dagric-manual:137
 #: config/includes.chroot/usr/bin/dagric-manual:141
@@ -2491,8 +2476,7 @@ msgstr "Pestañas del navegador que tenías abiertas"
 
 #: config/includes.chroot/usr/bin/dagric-migrate:210
 msgid "Saved passwords (Firefox only - Chrome explains why)"
-msgstr ""
-"Contraseñas guardadas (solo Firefox: la nota sobre Chrome explica por qué)"
+msgstr "Contraseñas guardadas (solo Firefox: Chrome explica por qué)"
 
 #: config/includes.chroot/usr/bin/dagric-migrate:277
 #, sh-format
@@ -2556,11 +2540,10 @@ msgid ""
 "\n"
 "Leave it blank if they never set one (most people haven't)."
 msgstr ""
-"Si esta persona puso una contraseña maestra en Firefox, escríbela para "
-"poder\n"
+"Si esta persona puso una contraseña principal en Firefox, escríbela para poder\n"
 "desbloquear las credenciales guardadas.\n"
 "\n"
-"Déjalo en blanco si nunca puso ninguna (la mayoría no lo hace)."
+"Déjala en blanco si nunca puso ninguna (la mayoría no lo hace)."
 
 #: config/includes.chroot/usr/bin/dagric-migrate:495
 msgid "the browser recovery helper did not finish"
@@ -2584,9 +2567,8 @@ msgid ""
 "  A half-written session file (an unclean Windows shutdown) can cause this."
 msgstr ""
 "No se ha podido recuperar ninguna pestaña abierta: no se pudieron leer los\n"
-"  archivos de sesión. Un archivo de sesión escrito a medias (un apagado "
-"sucio de\n"
-"  Windows) puede ser la causa."
+"  archivos de sesión. Un archivo de sesión escrito a medias (un apagado incorrecto\n"
+"  de Windows) puede ser la causa."
 
 #: config/includes.chroot/usr/bin/dagric-migrate:516
 msgid "No open tabs were found (the browsers may have been closed cleanly)."
@@ -2712,10 +2694,10 @@ msgstr ""
 "⚠ NO se copió todo.\n"
 "\n"
 "Algunas carpetas no se copiaron por completo: lee los mensajes de arriba,\n"
-"libera espacio en el disco o revisa la unidad, y vuelve a ejecutar la\n"
+"libera espacio en el disco o revisa el disco, y vuelve a ejecutar la\n"
 "migración. NO borres nada de Windows hasta que termine sin errores.\n"
 "\n"
-"Windows en sí solo se ha leído, como siempre; allí no se ha cambiado nada."
+"Windows en sí solo se ha leído; allí no se ha cambiado nada."
 
 #. TRANSLATORS: a warning that a plain-text password file is sitting in the
 #. owner's home folder. "Delete it once imported" must survive translation.
@@ -2934,7 +2916,7 @@ msgstr ""
 
 #: config/includes.chroot/usr/bin/dagric-style:178
 msgid "Reset to the standard Dagric look"
-msgstr "Restablecido al aspecto estándar de Dagric"
+msgstr "Restablecer el aspecto estándar de Dagric"
 
 #: config/includes.chroot/usr/bin/dagric-style:190
 #, sh-format
@@ -3090,18 +3072,14 @@ msgid ""
 msgstr ""
 "Dagric — Windows en una ventana (máquinas virtuales)\n"
 "\n"
-"Pro incluye una pila de virtualización libre y completa: KVM (el hipervisor "
-"propio\n"
-"del núcleo Linux), QEMU y la aplicación Gestor de máquinas virtuales. Una "
-"máquina\n"
-"virtual ejecuta otro sistema operativo entero —incluido Windows de verdad— "
-"dentro\n"
+"Pro incluye un conjunto de virtualización completo y de código abierto: KVM (el hipervisor propio\n"
+"del núcleo Linux), QEMU y la aplicación Gestor de máquinas virtuales. Una máquina\n"
+"virtual ejecuta otro sistema operativo entero —incluido Windows de verdad— dentro\n"
 "de una ventana, aislado con seguridad de tus archivos.\n"
 "\n"
 "Esta configuración va a:\n"
 "  1. comprobar que la virtualización de tu CPU está activada,\n"
-"  2. añadir tu usuario a los grupos 'libvirt' y 'kvm' (necesita tu "
-"contraseña),\n"
+"  2. añadir tu usuario a los grupos 'libvirt' y 'kvm' (necesita tu contraseña),\n"
 "  3. asegurarse de que el servicio de máquinas virtuales está en marcha."
 
 #. TRANSLATORS: "Virtualization", "SVM" and "VT-x" are the literal words on
