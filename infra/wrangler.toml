@@ -1,0 +1,61 @@
+# Dagric OS — deploy config for the two Cloudflare Workers.
+#
+# WHY THIS FILE EXISTS, AND WHY IT IS NOT OPTIONAL. Both workers were first
+# uploaded through the Cloudflare API by hand, so nothing in git described their
+# bindings. That is fine until the day somebody edits a worker and runs
+# `wrangler deploy` — because a deploy REPLACES the script and its binding set
+# with whatever the config declares, and a config that declares no R2 bucket
+# removes the one the live worker has.
+#
+# For dagric-gate that is not a cosmetic failure. `env.PRO` is the private
+# bucket holding the Pro ISO; lose the binding and every paying customer's
+# download link starts throwing, with no error anywhere until somebody
+# complains. The gate worker's pending change is a RESTYLE of its error page —
+# so the downside of a careless deploy is orders of magnitude larger than the
+# upside of the deploy itself. Declaring the bindings here is what makes the
+# deploy safe to run.
+#
+# SECRETS ARE NOT DECLARED HERE AND MUST NOT BE. `STRIPE_KEY` is a Worker
+# secret, set once with `wrangler secret put STRIPE_KEY --name dagric-gate`.
+# Secrets survive a deploy; bindings declared in config do not survive being
+# omitted from it. Never paste the Stripe key into this file — it is committed.
+#
+# BEFORE THE FIRST DEPLOY THROUGH WRANGLER, confirm the live bindings match what
+# is written below, because this file was reconstructed from infra/README.md and
+# the worker source rather than exported from Cloudflare:
+#
+#     wrangler deployments list --name dagric-gate
+#     wrangler secret list --name dagric-gate      # expect STRIPE_KEY
+#
+# Then, and only then:
+#
+#     wrangler deploy --config infra/wrangler.toml
+#
+# Verify immediately afterwards that the paid path still works — a 400 from the
+# root is correct and expected, a 500 is the binding being gone:
+#
+#     curl -si https://dagric-gate.dagric.workers.dev/ | head -1        # 400
+#     curl -si 'https://dagric-gate.dagric.workers.dev/?session_id=cs_test_x' | head -1
+
+name = "dagric-gate"
+main = "gate-worker.js"
+compatibility_date = "2026-01-01"
+
+# The PRIVATE bucket. dagric-downloads is the PUBLIC one and holds only the free
+# ISO and the checksums; the Pro ISO must never be placed there, which is the
+# entire reason this worker exists.
+[[r2_buckets]]
+binding = "PRO"
+bucket_name = "dagric-pro"
+
+# ── the contact-form backend ────────────────────────────────────────────────
+# Deployed separately:  wrangler deploy --config infra/wrangler.toml --env contact
+# It has no secrets. Its R2 bucket is where /contact messages land, read from
+# the Cloudflare dashboard under R2 -> dagric-contact -> inbox/.
+[env.contact]
+name = "dagric-contact"
+main = "contact-worker.js"
+
+[[env.contact.r2_buckets]]
+binding = "MAIL"
+bucket_name = "dagric-contact"

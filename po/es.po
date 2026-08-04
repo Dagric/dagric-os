@@ -3,21 +3,36 @@
 # This file is distributed under the same license as the dagric package.
 #
 # ###########################################################################
-# MACHINE TRANSLATION. NOT YET REVIEWED BY A NATIVE SPEAKER.
+# REVIEWED BY A SECOND MODEL, NOT BY A NATIVE SPEAKER. The difference matters
+# and is the reason this block still exists.
 #
-# Every msgstr below was produced by machine and has NOT been checked by
-# anyone who speaks Spanish as a first language. The provenance is
-# recorded in Last-Translator and X-Generator so it can still be answered for
-# a year from now.
+# Every msgstr below was produced by machine translation and has since been
+# read end to end, in context and in batches grouped by the program each string
+# comes from, by a different model family from the one that wrote it
+# (qwen3.8-max). 21 changes were applied to this catalogue.
 #
-# Before this language is advertised anywhere -- the download page, a
-# first-run language picker, the shop -- a native speaker must read at least
-# the strings below, which are the ones that cost money when they are wrong:
+# 1 of them fixed a SAFETY string:
+#     the NVIDIA kernel-module failure opened "AVISO" (a notice) where the English
+#     says WARNING; it now opens "ADVERTENCIA".
+#
+# What that review IS: a careful second pass by something that does not share
+# the first pass's blind spots, held to a written brief -- change what is wrong,
+# do not restyle what is merely different -- with every proposed change put
+# through mechanical guards (tools/i18n-review.py) that reject a translation
+# which loses a $VAR, drops a URL, translates a product name, or breaks an
+# accepted-answer list. 0 were rejected. 0 untouched strings drifted.
+#
+# What it is NOT: a native speaker of Spanish reading this for release. Nobody
+# who speaks Spanish as a first language has read this file. If that ever
+# happens, this block is what should be replaced, and the five categories below
+# are still where to start -- they are the strings that cost money when they
+# are wrong, and a second machine pass does not retire that risk, only reduce
+# it:
 #
 #   * everything from dagric-migrate. It touches the owner's Windows
 #     partition, and the product rests on "Windows is only ever READ".
 #     Negation and modality are where machine translation fails, and this
-#     file is made of them.
+#     file is made of them. The French catalogue had exactly this defect.
 #   * everything from dagric-usb-protect. A translation that loses "plug in
 #     everything you normally use before continuing" produces a machine its
 #     owner cannot type on.
@@ -28,7 +43,13 @@
 #     not polish.
 #   * "y yes". Translating the [y/N] prompt without translating the accepted
 #     answer means the owner types their own language's letter and nothing
-#     happens.
+#     happens. This catalogue gets it right; keep it that way.
+#
+# The [y/N] PROMPT INDICATOR is deliberately NOT localised to show the English
+# letter as well. The reviewer proposed that in every language, 38 times in
+# total; a three-model panel (qwen3.8-max, glm-5.2, deepseek-v4-pro) rejected it
+# unanimously, including the model that proposed it. The accepted-answer list
+# still takes "y" everywhere -- only the display was left alone.
 #
 # A string that should ship in English until it has been checked can be
 # marked "#, fuzzy": msgfmt drops fuzzy messages and the English source is
@@ -40,16 +61,16 @@ msgstr ""
 "Project-Id-Version: dagric 1.0\n"
 "Report-Msgid-Bugs-To: repo@dagric.com\n"
 "POT-Creation-Date: 2026-08-03 04:05+0000\n"
-"PO-Revision-Date: 2026-07-27 09:00+0000\n"
-"Last-Translator: Machine translation, unreviewed <repo@dagric.com>\n"
+"PO-Revision-Date: 2026-08-04 01:00+0000\n"
+"Last-Translator: Machine translation, reviewed by a second model <repo@dagric.com>\n"
 "Language-Team: none\n"
 "Language: es\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: machine translation (unreviewed), 2026-07-27\n"
-"X-Dagric-Review-Status: unreviewed\n"
+"X-Generator: machine translation 2026-07-27, reviewed qwen3.8-max 2026-08-04\n"
+"X-Dagric-Review-Status: second-model-reviewed; no-native-speaker-pass; 21-changes\n"
 
 #. TRANSLATORS: the setup wizard's own buttons, headings and step names.
 #. This is the first screen a new owner sees. Keep button labels short;

@@ -42,6 +42,17 @@ rclone.conf
 .dev.vars
 .dev.vars.*
 wrangler.toml
+# …with one deliberate exception. infra/wrangler.toml carries no account id and
+# no secret — only the two R2 bucket names, which infra/README.md already states
+# in this same repo. It has to be committed, because it is what makes a deploy
+# SAFE: `wrangler deploy` replaces a worker's binding set with whatever the
+# config declares, so deploying dagric-gate without a config that names the PRO
+# binding would remove the private bucket holding the Pro ISO and break the
+# download for every paying customer — silently, and in exchange for shipping a
+# restyled error page. A config that only exists on one laptop is a config that
+# is missing the day somebody else runs the deploy.
+# If an account_id or a secret is ever added to it, delete this line first.
+!infra/wrangler.toml
 
 # Local editor/tooling settings. Personal to whoever is working on the tree and
 # of no use to anyone cloning it.

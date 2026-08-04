@@ -288,11 +288,49 @@ def cmd_apply(a):
     return 1 if problems else 0
 
 
+def header_damage(path):
+    """Every quoted line in a .po must open and close on the same line.
+
+    THIS CHECK EXISTS BECAUSE ITS ABSENCE COST AN HOUR. A metadata rewrite used
+    re.sub with a replacement containing "\\n", which re.sub reads as a NEWLINE
+    rather than as the two characters a .po needs, so four header lines in each
+    of the five catalogues were split in half:
+
+        "PO-Revision-Date: 2026-08-04 01:00+0000
+        "
+
+    That is not valid gettext. And `check` reported 438 entries and zero
+    problems on all five, because parse() skips the header entry (its msgid is
+    the empty string) and therefore never looked at the lines that were broken.
+    A validator that is structurally incapable of seeing the most-edited block
+    in the file is worse than no validator, since it answers "clean" with
+    authority. The same blind spot would hide a corrupted Plural-Forms, which
+    breaks every plural in the language at runtime.
+    """
+    bad = []
+    for n, line in enumerate(open(path, encoding="utf-8").read().split("\n"), 1):
+        s = line.rstrip()
+        if not s.startswith('"'):
+            continue
+        # strip escaped quotes before counting, so \" inside a string is not
+        # mistaken for the terminator
+        if not s.replace('\\"', "").endswith('"') or s.replace('\\"', "") == '"':
+            bad.append((n, line[:60]))
+    return bad
+
+
 def cmd_check(a):
     langs = [a.lang] if a.lang else [f[:-3] for f in sorted(os.listdir(PO))
                                      if f.endswith(".po")]
     rc = 0
     for lang in langs:
+        dmg = header_damage(os.path.join(PO, lang + ".po"))
+        if dmg:
+            rc = 1
+            print("%-8s %d MALFORMED quoted line(s) — this file is not valid gettext"
+                  % (lang, len(dmg)))
+            for n, txt in dmg[:6]:
+                print("   line %-5d %s" % (n, txt))
         ents = parse(os.path.join(PO, lang + ".po"))
         bad = [(e, guard(e['msgid'], e['msgstr'])) for e in ents]
         bad = [(e, b) for e, b in bad if b]
