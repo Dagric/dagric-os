@@ -8,14 +8,18 @@
 <link rel="icon" type="image/png" href="/assets/dagric-logo.png">
 <link rel="stylesheet" href="/assets/site.css">
 <style>
-article{background:var(--panel);border:1px solid var(--line);border-radius:var(--r-lg);padding:32px 36px;margin:22px 0}
-article .date{color:var(--accent2);font-size:.85rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase}
-article h2{margin:8px 0 12px}
-article img{border-radius:var(--r-md);border:1px solid var(--line);margin:16px 0}
-@media(max-width:640px){article{padding:24px 22px}}
+/* A release note is a dated article, not a panel. Panels put four identical
+   boxes down a page and the reader has to find the date inside each one; a rule
+   with the date above it reads as a changelog, which is what this page is. */
+article{background:none;border:0;border-top:1px solid var(--rule);border-radius:0;
+  padding:var(--s-5) 0 var(--s-6);margin:0}
+article .date{color:var(--accent);font-family:var(--ff-ui);font-size:var(--t-meta);
+  font-weight:600;letter-spacing:.10em;text-transform:uppercase}
+article h2{margin:var(--s-2) 0 var(--s-3);border-bottom:0;padding-bottom:0}
+article img{border-radius:2px;border:1px solid var(--rule);margin:var(--s-4) 0}
 </style>
 <link rel="canonical" href="https://dagric.com/news">
-<meta name="theme-color" content="#0a111c">
+<meta name="theme-color" content="#0C0F14">
 <link rel="icon" href="/favicon.ico" sizes="32x32">
 <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
 <link rel="manifest" href="/site.webmanifest">

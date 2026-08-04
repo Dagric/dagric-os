@@ -14,7 +14,10 @@
      Windows, which is the word people are typing. -->
 <meta name="description" content="A fast, private desktop OS built on Debian and KDE Plasma, for the PC Windows 10 left behind. No telemetry, no ads, no accounts. Free, or Pro for $39.">
 <link rel="canonical" href="https://dagric.com/">
-<meta name="theme-color" content="#0a111c">
+<!-- Kept in step with --ink-0 in site.css. This value is repeated in every page's
+     head and twice in site.webmanifest; a redesign that moves the page colour and
+     misses one leaves that page flashing the old chrome colour on a phone. -->
+<meta name="theme-color" content="#0C0F14">
 <link rel="icon" href="/favicon.ico" sizes="32x32">
 <link rel="icon" type="image/png" href="/assets/dagric-logo.png">
 <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
@@ -35,33 +38,75 @@
 <link rel="stylesheet" href="/assets/site.css">
 <style>
 main{max-width:none;margin:0;padding:0}
-.hero .logo{width:92px;height:92px;margin:0 auto 24px;border-radius:24px;box-shadow:0 20px 60px rgba(63,169,245,.35)}
-.trust{display:flex;gap:10px 34px;justify-content:center;flex-wrap:wrap;padding:24px;
-  border-top:1px solid var(--line);border-bottom:1px solid var(--line);background:var(--bg2)}
-.trust span{color:var(--muted);font-size:.94rem;font-weight:600}
-.trust b{color:var(--good);margin-right:5px}
-.win10{background:linear-gradient(180deg,rgba(63,169,245,.08),transparent);border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
-.win10 .in{max-width:760px;margin:0 auto;text-align:center}
-.why{display:grid;gap:18px;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));margin-top:36px;text-align:left}
-.price-grid{display:grid;gap:22px;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));max-width:840px;margin:40px auto 0}
-.price{background:var(--panel);border:1px solid var(--line);border-radius:var(--r-lg);padding:32px;display:flex;flex-direction:column;text-align:left}
-.price.pro{border:1px solid rgba(63,169,245,.5);background:linear-gradient(180deg,rgba(63,169,245,.09),var(--panel) 45%);box-shadow:0 20px 70px rgba(63,169,245,.18)}
-.price .tier{font-weight:800;font-size:1.2rem}
-.price .amount{font-size:2.6rem;font-weight:800;margin:8px 0 2px}
-.price .amount small{font-size:1rem;color:var(--muted);font-weight:600}
-.price .sub{font-size:.9rem;margin:0}
-.price ul{list-style:none;margin:20px 0 22px;display:grid;gap:9px}
-.price li{padding-left:26px;position:relative;color:var(--muted);font-size:.95rem}
+/* 92px with a 60px blue glow was the THIRD sighting of this mark inside 200px —
+   nav, favicon, hero — and the first sighting of anything else. At 44px, flush
+   left and square, it reads as a masthead device instead of a splash. */
+.hero .logo{width:44px;height:44px;margin:0 0 var(--s-5);border-radius:2px}
+
+/* The five verified one-line claims were a grey inline row that read as
+   decoration. Five ruled cells read as a standfirst — five separate things,
+   each of which somebody checked. No new copy: these are the strings that were
+   already here. */
+.trust{border-top:1px solid var(--rule);border-bottom:1px solid var(--rule);padding:0 24px}
+.trust-in{max-width:var(--w-page);margin:0 auto;display:grid;grid-template-columns:repeat(5,1fr)}
+.trust span{display:flex;align-items:center;justify-content:center;gap:8px;text-align:center;
+  padding:18px 12px;color:var(--body);font-size:var(--t-meta);font-weight:600;letter-spacing:.04em;
+  border-left:1px solid var(--rule)}
+.trust span:first-child{border-left:0}
+.trust b{color:var(--good)}
+
+/* The three free layouts sit three-across and the four Pro layouts four-across,
+   so the geometry states "3 free · 7 on Pro" without restating a word of it.
+   Twelve columns is what makes 3 and 4 both divide cleanly. */
+@media(min-width:900px){
+  .looks-grid{grid-template-columns:repeat(12,1fr)}
+  .looks-grid .look:nth-child(-n+3){grid-column:span 4}
+  .looks-grid .look:nth-child(n+4){grid-column:span 3}
+}
+
+/* Two questions set as a ruled Q&A pair rather than two boxes. */
+.why{display:grid;gap:var(--s-5);grid-template-columns:repeat(auto-fit,minmax(min(19rem,100%),1fr));margin-top:var(--s-5)}
+
+/* THE PAID TIER NOW WINS ON WEIGHT. It used to be the lighter of the two: a
+   50%-alpha border over a 9%-alpha tint, against a solid --panel fill on the
+   free card, at an identical 409x705 — so the $39 option was the less
+   substantial object on the page it is sold from. Now Pro is the only filled
+   card on the homepage, with a 2px gold rule across its top, and Free is an
+   outline. No scale transform (it blurs text and breaks the grid alignment)
+   and no invented "Most popular" ribbon — that would be new copy. */
+.price-grid{display:grid;gap:var(--s-4);grid-template-columns:repeat(auto-fit,minmax(min(19rem,100%),1fr));
+  max-width:var(--w-col);margin:var(--s-5) 0 0}
+.price{background:none;border:1px solid var(--rule);border-radius:var(--r-md);
+  padding:var(--s-5);display:flex;flex-direction:column}
+.price.pro{background:var(--ink-1);border-color:rgba(227,194,125,.35);border-top:2px solid var(--pro)}
+.price .tier{font:600 var(--t-h3)/1.3 var(--ff-display);color:var(--on)}
+.price .amount{font-family:var(--ff-ui);font-size:2.75rem;font-weight:800;letter-spacing:-.03em;
+  line-height:1.05;margin:var(--s-3) 0 2px;color:var(--on)}
+.price.pro .amount{color:var(--pro)}
+.price .amount small{font-size:1rem;color:var(--on-3);font-weight:600;letter-spacing:0}
+.price .sub{font-family:var(--ff-ui);font-size:var(--t-ui);margin:0;color:var(--on-3)}
+.price ul{list-style:none;margin:var(--s-4) 0;display:grid;gap:var(--s-2)}
+.price li{padding-left:24px;position:relative;color:var(--on-2);font-size:var(--t-ui)}
 .price li::before{content:"✓";position:absolute;left:0;color:var(--good);font-weight:800}
-.price li.no::before{content:"—";color:var(--faint)}
+.price li.no::before{content:"—";color:var(--on-3)}
 .price .btn{margin-top:auto;text-align:center}
+
+@media(max-width:900px){
+  .trust-in{grid-template-columns:repeat(2,1fr)}
+  .trust span{border-top:1px solid var(--rule)}
+  .trust span:nth-child(odd){border-left:0}
+  .trust span:nth-child(-n+2){border-top:0}
+}
 @media(max-width:640px){
-  .hero .logo{width:78px;height:78px;margin-bottom:18px}
-  .trust{gap:8px 16px;padding:18px 14px}
-  .trust span{font-size:.84rem}
-  .win10 .in{padding:0 4px}
-  .price{padding:26px 22px}
-  .price .amount{font-size:2.3rem}
+  .hero .logo{width:38px;height:38px;margin-bottom:var(--s-4)}
+  .trust span{padding:14px 10px;font-size:12px}
+  .price{padding:var(--s-4)}
+  .price .amount{font-size:2.25rem}
+}
+@media(max-width:420px){
+  .trust-in{grid-template-columns:1fr}
+  .trust span{border-left:0;border-top:1px solid var(--rule)}
+  .trust span:first-child{border-top:0}
 }
 </style>
 </head>
@@ -81,7 +126,7 @@ main{max-width:none;margin:0;padding:0}
 
 <main id="main">
 <header class="phero hero">
-  <img class="logo" src="/assets/dagric-logo.png" alt="Dagric OS logo" width="92" height="92">
+  <img class="logo" src="/assets/dagric-logo.png" alt="Dagric OS logo" width="44" height="44">
   <h1>Your computer.<br><span class="grad">Yours again.</span></h1>
   <!-- The one paragraph every visitor reads spent half its words on the word
        origin, which /about already opens with and which answers no question the
@@ -143,8 +188,15 @@ main{max-width:none;margin:0;padding:0}
        One honest note for whoever replaces it: the live session's user is
        "Debian Live user", which is what a live USB is called before anyone
        installs. On an installed machine it is the owner's own name. Do not
-       retouch it — capture a fresh one from an installed system instead. -->
-  <div class="shot" style="max-width:900px;margin-left:auto;margin-right:auto">
+       retouch it — capture a fresh one from an installed system instead.
+
+       REDESIGN NOTE — assets/shot-desktop.png was proposed as a replacement
+       hero on the grounds that it is a real capture nothing on the site
+       references. It is not used, and it stays unused: it is the branded
+       wallpaper with two desktop icons and an empty taskbar, which is the
+       same object this comment removed 820px of, for the reason above. An
+       unreferenced asset is not automatically a wasted one. -->
+  <div class="shot">
     <picture>
       <source type="image/webp" srcset="/assets/shot-launcher.webp">
       <img src="/assets/shot-launcher.png"
@@ -155,123 +207,135 @@ main{max-width:none;margin:0;padding:0}
 
 </header>
 
-<div class="trust">
+<div class="trust"><div class="trust-in">
   <span><b>✓</b>Zero telemetry</span>
   <span><b>✓</b>No ads, no accounts</span>
   <span><b>✓</b>Open-source base</span>
   <span><b>✓</b>Never restarts itself</span>
   <span><b>✓</b>Own it outright</span>
-</div>
+</div></div>
 
-<section class="win10">
-  <div class="in">
-    <div class="eyebrow">The end of Windows 10</div>
-    <h2>Windows 10 is done. <span class="grad">Your PC isn't.</span></h2>
-    <p class="lead" style="margin:14px auto 22px">Microsoft ended Windows 10 support and left a
-    perfectly good computer behind. Dagric OS brings it back — fast, private, secure, and yours.
-    No new hardware, no subscription, no account — and the Migration Assistant copies your
-    documents, pictures, music and videos across in one click, then gathers your old bookmarks
-    into one file Firefox imports from its own menu.</p>
+<section class="alt win10">
+  <div class="dept">
+    <div class="dept-rail"></div>
+    <div>
+      <div class="eyebrow">The end of Windows 10</div>
+      <h2>Windows 10 is done. <span class="grad">Your PC isn't.</span></h2>
+      <p class="lead">Microsoft ended Windows 10 support and left a
+      perfectly good computer behind. Dagric OS brings it back — fast, private, secure, and yours.
+      No new hardware, no subscription, no account — and the Migration Assistant copies your
+      documents, pictures, music and videos across in one click, then gathers your old bookmarks
+      into one file Firefox imports from its own menu.</p>
       <!-- The obvious next thought after "Windows 10 is done" is "so how long
            until you do the same to me?" It had no answer anywhere on the site.
            Dates are Debian's published LTS schedule for trixie, inherited
            because Dagric IS Debian underneath - not a promise invented here. -->
-      <p class="lead" style="margin:0 auto 22px;font-size:1.02rem">And when you ask how long
+      <p style="max-width:var(--w-text);margin:0 0 var(--s-5)">And when you ask how long
       <em>this</em> one lasts: <strong>security updates into 2030</strong> &mdash; Debian's own
       published schedule, which Dagric inherits. Roughly five more years out of the machine
       Windows already gave up on. <a href="/faq">The dates, in full</a>.</p>
-    <a class="btn primary" href="/download">Give your PC a second life — free</a>
+      <a class="btn primary" href="/download">Give your PC a second life — free</a>
+    </div>
   </div>
 </section>
 
-<section class="center">
-  <div class="wrap">
-    <div class="sec-head">
+<section>
+  <div class="dept">
+    <div class="dept-rail"></div>
+    <div>
       <h2>Pick a desktop. <span class="grad">Your desktop.</span></h2>
       <p class="lead">Open <strong>Dagric Looks</strong> and reshape your desktop in one click —
       switch back anytime. Every layout keeps your apps, files, and settings. Then open
       <strong>Dagric Styles</strong> to set the mood: light or dark, any accent color,
       Dagric wallpapers, even glassy blur — four styles free, all seven on Pro.
       Mix any Look with any Style.</p>
-    </div>
 
-    <!-- The seven diagrams below are stills of seven different desktops, and a
-         reader has to do the work of imagining the change between them. This
-         section is selling a VERB — "reshape your desktop in one click" — and a
-         grid of nouns cannot show it. So the video goes first: the grid builds,
-         the camera visits each layout in turn, and it closes on the free three
-         bracketed against the Pro four so the split is a picture rather than a
-         count of badges.
+      <!-- The seven diagrams below are stills of seven different desktops, and a
+           reader has to do the work of imagining the change between them. This
+           section is selling a VERB — "reshape your desktop in one click" — and a
+           grid of nouns cannot show it. So the video goes first: the grid builds,
+           the camera visits each layout in turn, and it closes on the free three
+           bracketed against the Pro four so the split is a picture rather than a
+           count of badges.
 
-         Every panel in it is drawn from the shipped .look files rather than
-         traced off these SVGs — edge, thickness in grid units, and widget order
-         all come out of the SCRIPT= line. That is not pedantry: building it
-         that way is what surfaced that look-horizon.svg had been drawing
-         Horizon's dock as a floating centred pill with a launcher on it for as
-         long as this page has existed, when horizon.look builds a full-width
-         square bar with icontasks and nothing else. The SVG is corrected in the
-         same commit. A Pro layout was being advertised as something the product
-         does not do.
+           Every panel in it is drawn from the shipped .look files rather than
+           traced off these SVGs — edge, thickness in grid units, and widget order
+           all come out of the SCRIPT= line. That is not pedantry: building it
+           that way is what surfaced that look-horizon.svg had been drawing
+           Horizon's dock as a floating centred pill with a launcher on it for as
+           long as this page has existed, when horizon.look builds a full-width
+           square bar with icontasks and nothing else. The SVG is corrected in the
+           same commit. A Pro layout was being advertised as something the product
+           does not do.
 
-         Markup matches the tour on /features and the walkthrough on /download:
-         controls, preload="none" so a 2 MB file is never fetched by somebody
-         who scrolled past, playsinline so iOS does not take over the screen,
-         and no autoplay of any kind. width/height are the real 1920x1080 to
-         reserve the box before the poster arrives; site.css's img,video rule
-         supplies the height:auto that stops those attributes rendering it
-         1080px tall on a phone. -->
-    <div class="shot" style="margin:34px auto 30px">
-      <video controls preload="none" playsinline width="1920" height="1080"
-             poster="/assets/looks-poster.jpg" style="width:100%;display:block"
-             aria-label="A 34-second tour of all seven Dagric OS desktop layouts, drawn from the layout files that ship inside the system">
-        <source src="/assets/dagric-looks.mp4" type="video/mp4">
-        Your browser can't play this video. It is a 34-second tour of all seven
-        layouts — each one is pictured and described below.
-      </video>
-    </div>
+           Markup matches the tour on /features and the walkthrough on /download:
+           controls, preload="none" so a 2 MB file is never fetched by somebody
+           who scrolled past, playsinline so iOS does not take over the screen,
+           and no autoplay of any kind. width/height are the real 1920x1080 to
+           reserve the box before the poster arrives; site.css's img,video rule
+           supplies the height:auto that stops those attributes rendering it
+           1080px tall on a phone. -->
+      <div class="shot">
+        <video controls preload="none" playsinline width="1920" height="1080"
+               poster="/assets/looks-poster.jpg" style="width:100%;display:block"
+               aria-label="A 34-second tour of all seven Dagric OS desktop layouts, drawn from the layout files that ship inside the system">
+          <source src="/assets/dagric-looks.mp4" type="video/mp4">
+          Your browser can't play this video. It is a 34-second tour of all seven
+          layouts — each one is pictured and described below.
+        </video>
+      </div>
 
-    <div class="looks-grid">
-      <div class="look"><img src="/assets/look-classic.svg" alt="Classic layout" width="640" height="400" loading="lazy"><div class="pad"><h3>Classic</h3><p>A taskbar at the bottom — familiar from day one.</p></div></div>
-      <div class="look"><img src="/assets/look-focus.svg" alt="Focus layout" width="640" height="400" loading="lazy"><div class="pad"><h3>Focus</h3><p>One tidy bar, nothing in your way.</p></div></div>
-      <div class="look"><img src="/assets/look-eleven.svg" alt="Eleven layout" width="640" height="400" loading="lazy"><div class="pad"><h3>Eleven</h3><p>A centered taskbar, clean and modern.</p></div></div>
-      <div class="look"><img src="/assets/look-horizon.svg" alt="Horizon layout" width="640" height="400" loading="lazy"><div class="pad"><h3>Horizon<span class="badge">PRO</span></h3><p>A menu bar up top with a dock below.</p></div></div>
-      <div class="look"><img src="/assets/look-command.svg" alt="Command layout" width="640" height="400" loading="lazy"><div class="pad"><h3>Command<span class="badge">PRO</span></h3><p>A side dock for living in your apps.</p></div></div>
-      <div class="look"><img src="/assets/look-unity.svg" alt="Unity layout" width="640" height="400" loading="lazy"><div class="pad"><h3>Unity<span class="badge">PRO</span></h3><p>A side dock with a global menu bar on top.</p></div></div>
-      <div class="look"><img src="/assets/look-duo.svg" alt="Duo layout" width="640" height="400" loading="lazy"><div class="pad"><h3>Duo<span class="badge">PRO</span></h3><p>Two panels, top and bottom, for power users.</p></div></div>
+      <div class="looks-grid">
+        <div class="look"><img src="/assets/look-classic.svg" alt="Classic layout" width="640" height="400" loading="lazy"><div class="pad"><h3>Classic</h3><p>A taskbar at the bottom — familiar from day one.</p></div></div>
+        <div class="look"><img src="/assets/look-focus.svg" alt="Focus layout" width="640" height="400" loading="lazy"><div class="pad"><h3>Focus</h3><p>One tidy bar, nothing in your way.</p></div></div>
+        <div class="look"><img src="/assets/look-eleven.svg" alt="Eleven layout" width="640" height="400" loading="lazy"><div class="pad"><h3>Eleven</h3><p>A centered taskbar, clean and modern.</p></div></div>
+        <div class="look"><img src="/assets/look-horizon.svg" alt="Horizon layout" width="640" height="400" loading="lazy"><div class="pad"><h3>Horizon<span class="badge">PRO</span></h3><p>A menu bar up top with a dock below.</p></div></div>
+        <div class="look"><img src="/assets/look-command.svg" alt="Command layout" width="640" height="400" loading="lazy"><div class="pad"><h3>Command<span class="badge">PRO</span></h3><p>A side dock for living in your apps.</p></div></div>
+        <div class="look"><img src="/assets/look-unity.svg" alt="Unity layout" width="640" height="400" loading="lazy"><div class="pad"><h3>Unity<span class="badge">PRO</span></h3><p>A side dock with a global menu bar on top.</p></div></div>
+        <div class="look"><img src="/assets/look-duo.svg" alt="Duo layout" width="640" height="400" loading="lazy"><div class="pad"><h3>Duo<span class="badge">PRO</span></h3><p>Two panels, top and bottom, for power users.</p></div></div>
+      </div>
     </div>
   </div>
 </section>
 
-<section class="alt center">
-  <div class="wrap">
-    <div class="sec-head">
+<section class="alt">
+  <div class="dept">
+    <div class="dept-rail"></div>
+    <div>
       <h2>Private by design. <span class="grad">Secure by default.</span></h2>
       <p class="lead">Everything is on before you change a thing — and nothing phones home, ever.</p>
-    </div>
-    <div class="grid c3" style="text-align:left">
-      <div class="card"><span class="ico">🛡️</span><h3>Hardened out of the box</h3><p>AppArmor confinement, a hardened kernel, and a firewall from first boot. Pro adds an opt-in application firewall and USB device controls.</p></div>
-      <div class="card"><span class="ico">⏪</span><h3>Undo anything</h3><p>Automatic snapshots before every update. If anything goes sideways, roll the whole system back from the boot menu.</p></div>
-      <div class="card"><span class="ico">🔄</span><h3>Updates, your way</h3><p>Security patches install silently. The computer <em>never</em> restarts itself — you reboot when it suits you.</p></div>
-      <div class="card"><span class="ico">🧭</span><h3>The Dagric Hub</h3><p>Drivers, security checkup, the layout switcher, the guide, and every owner tool — gathered in one friendly window.</p></div>
-      <div class="card"><span class="ico">🖨️</span><h3>Everything just works</h3><p>Printers, scanners, Wi-Fi, Bluetooth, NTFS drives, Print-to-PDF, media codecs, streaming — working from the first minute.</p></div>
-      <div class="card"><span class="ico">♿</span><h3>For everyone</h3><p>A talking screen reader you can boot straight from the USB stick, a measured high-contrast theme, and fingerprint login. The <a href="/accessibility">conformance report</a> states the gaps as plainly as the features.</p></div>
+      <!-- The nine .ico emoji that used to open these cards are gone, along with
+           the twenty-nine on /pro that were set INSIDE the <h3> at heading size —
+           the same object, two treatments, on the two pages that sell. The
+           counter is the icon now: a numbered annotation costs nothing, cannot
+           render as a box on a machine without the emoji font, and reads as an
+           index rather than as clip art. Not one word of any card moved. -->
+      <div class="calls">
+        <div class="call"><div><h3>Hardened out of the box</h3><p>AppArmor confinement, a hardened kernel, and a firewall from first boot. Pro adds an opt-in application firewall and USB device controls.</p></div></div>
+        <div class="call"><div><h3>Undo anything</h3><p>Automatic snapshots before every update. If anything goes sideways, roll the whole system back from the boot menu.</p></div></div>
+        <div class="call"><div><h3>Updates, your way</h3><p>Security patches install silently. The computer <em>never</em> restarts itself — you reboot when it suits you.</p></div></div>
+        <div class="call"><div><h3>The Dagric Hub</h3><p>Drivers, security checkup, the layout switcher, the guide, and every owner tool — gathered in one friendly window.</p></div></div>
+        <div class="call"><div><h3>Everything just works</h3><p>Printers, scanners, Wi-Fi, Bluetooth, NTFS drives, Print-to-PDF, media codecs, streaming — working from the first minute.</p></div></div>
+        <div class="call"><div><h3>For everyone</h3><p>A talking screen reader you can boot straight from the USB stick, a measured high-contrast theme, and fingerprint login. The <a href="/accessibility">conformance report</a> states the gaps as plainly as the features.</p></div></div>
+      </div>
     </div>
   </div>
 </section>
 
-<section class="center">
-  <div class="wrap">
-    <div class="sec-head">
+<section>
+  <div class="dept">
+    <div class="dept-rail"></div>
+    <div>
       <h2>Bring your <span class="grad">Windows apps.</span></h2>
       <p class="lead">Dagric runs Windows software in tidy, per-app containers with
       <strong>Bottles</strong> — and sets up Steam, Proton, and the Epic/GOG launcher in one click
       each, on <em>both</em> editions. Pro adds the runtime underneath: Wine, GameMode, MangoHud
       and 32-bit Vulkan, preinstalled and tuned.</p>
-    </div>
-    <div class="grid c3" style="text-align:left">
-      <div class="card"><span class="ico">📦</span><h3>Bottles</h3><p>Windows apps in self-contained “bottles,” tuned per app for the best chance of working. One click to install.</p></div>
-      <div class="card"><span class="ico">🎮</span><h3>Gaming, sorted</h3><p>Steam with Proton, Heroic for Epic/GOG/Amazon and ProtonUp-Qt install in one click on any edition — consent-first, never bundled. GameMode, MangoHud and Lutris come preinstalled on Pro.</p></div>
-      <div class="card"><span class="ico">📄</span><h3>Your documents open</h3><p>Office-metric fonts render your Word and Excel files with the right layout, and the full LibreOffice suite is preinstalled on Pro.</p></div>
+      <div class="grid c3">
+        <div class="card"><h3>Bottles</h3><p>Windows apps in self-contained “bottles,” tuned per app for the best chance of working. One click to install.</p></div>
+        <div class="card"><h3>Gaming, sorted</h3><p>Steam with Proton, Heroic for Epic/GOG/Amazon and ProtonUp-Qt install in one click on any edition — consent-first, never bundled. GameMode, MangoHud and Lutris come preinstalled on Pro.</p></div>
+        <div class="card"><h3>Your documents open</h3><p>Office-metric fonts render your Word and Excel files with the right layout, and the full LibreOffice suite is preinstalled on Pro.</p></div>
+      </div>
     </div>
   </div>
 </section>
@@ -280,209 +344,240 @@ main{max-width:none;margin:0;padding:0}
      inside the OS where nobody could read it until after they had installed.
      Straight from the user guide's "Coming from Windows" table. Keep the two in
      step: tools/publish-guide.py republishes the guide, this is its summary. -->
-<section class="center">
-  <div class="wrap">
-    <div class="sec-head">
-      <h2>Everything you know <span class="grad">is still here.</span></h2>
+<section>
+  <div class="dept">
+    <div class="dept-rail"></div>
+    <div>
+      <h2 id="tbl-windows-equivalents">Everything you know <span class="grad">is still here.</span></h2>
       <p class="lead">Not equivalents you have to learn — the same jobs, mostly the same keys.
       This is the first page of the guide that comes with it.</p>
-    </div>
-    <div style="max-width:820px;margin:0 auto;text-align:left;overflow-x:auto">
-      <table>
-        <thead><tr><th>On Windows</th><th>On Dagric</th></tr></thead>
-        <tbody>
-          <tr><th scope="row">Start menu</th><td><strong>Launcher</strong> — press <kbd>Meta</kbd> and type</td></tr>
-          <tr><th scope="row">File Explorer</th><td><strong>Files</strong> — <kbd>Meta</kbd>+<kbd>E</kbd>, same keys</td></tr>
-          <tr><th scope="row">Task Manager</th><td><strong>System Monitor</strong> — <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>Esc</kbd>, same keys</td></tr>
-          <tr><th scope="row">Snipping Tool</th><td><strong>Spectacle</strong> — <kbd>Meta</kbd>+<kbd>Shift</kbd>+<kbd>S</kbd>, same keys</td></tr>
-          <tr><th scope="row">Control Panel / Settings</th><td><strong>System Settings</strong> — one place, searchable</td></tr>
-          <tr><th scope="row">Microsoft Edge</th><td><strong>Firefox</strong> — import your bookmarks from its menu</td></tr>
-          <tr><th scope="row">Word / Excel / PowerPoint</th><td><strong>LibreOffice</strong> Writer / Calc / Impress — opens and saves the same files</td></tr>
-          <tr><th scope="row">Photos</th><td><strong>Gwenview</strong> — double-click a picture, same as ever</td></tr>
-          <tr><th scope="row">Notepad</th><td><strong>Text Editor</strong></td></tr>
-          <tr><th scope="row">Recycle Bin</th><td><strong>Trash</strong> — in the Files sidebar</td></tr>
-          <tr><th scope="row">Windows Update</th><td>a tray icon when updates are ready — security fixes install themselves, and it <em>never</em> reboots on its own</td></tr>
-          <tr><th scope="row">Defender / antivirus</th><td>built in — the firewall is on from first boot and apps are confined</td></tr>
-          <tr><th scope="row">Command Prompt / PowerShell</th><td><strong>Terminal</strong> (Konsole)</td></tr>
-          <tr><th scope="row">Outlook</th><td><strong>Thunderbird</strong> on Pro — on the free edition, your webmail in Firefox</td></tr>
-        </tbody>
-      </table>
-    </div>
-    <p style="margin-top:22px"><a class="btn ghost" href="/guide">Read the whole guide</a></p>
-    <p class="lead" style="margin-top:12px;font-size:.95rem">It ships inside the OS too, offline, in
-    English and German — so it still works when the thing you are fixing is the Wi-Fi.</p>
-  </div>
-</section>
-
-<section class="alt center">
-  <div class="wrap">
-    <div class="sec-head">
-      <h2>Why Dagric? <span class="grad">Because it's finished.</span></h2>
-      <p class="lead">Two honest questions, answered plainly.</p>
-    </div>
-    <div class="why">
-      <div class="card"><h3>Why not just stay on Windows?</h3><p>Because your desktop stopped working for you — watching, advertising, nagging, restarting itself, renting back features you already owned. Dagric collects nothing, shows no ads, needs no account, and never reboots on its own. Same familiar taskbar; none of the noise.</p></div>
-      <div class="card"><h3>Why pay when other Linux is free?</h3><p>You don't have to — the free edition is a complete, private, hardened distro you can use forever. Pro is for people who'd rather not assemble and harden it themselves: one curated, tested product with the Hub, Looks, snapshot-rollback, signed releases, Windows-app support, and real human support. The tools are open source; the $39 buys the craftsmanship and the time. No disrespect to Mint, Ubuntu, or Zorin — Dagric is just a different trade.</p></div>
-    </div>
-  </div>
-</section>
-
-<section class="center" id="pricing">
-  <div class="wrap">
-    <div class="sec-head">
-      <h2>Simple pricing. <span class="grad">Own it outright.</span></h2>
-      <p class="lead">No subscriptions. No license servers. Buy Pro once, install it on your own machines, keep it forever — updates included.</p>
-    </div>
-    <div class="price-grid">
-      <div class="price">
-        <div class="tier">Dagric OS</div>
-        <div class="amount">$0</div>
-        <p class="sub">free forever</p>
-        <ul>
-          <li>The full private, hardened desktop</li>
-          <li>Snapshot rollback &amp; silent updates</li>
-          <li>Dagric Looks — 3 layouts · 4 Styles</li>
-          <li>Writer, Calc, Impress, Draw, Firefox &amp; essentials</li>
-          <li>Printers, scanners, codecs, streaming</li>
-          <li>One-click Steam, Heroic, Bottles &amp; Ollama</li>
-          <li class="no">Creative, video &amp; audio studio</li>
-          <li class="no">Wine, GameMode &amp; the tuned gaming runtime</li>
-          <li class="no">Developer toolchain (Docker, Git, SSH)</li>
-        </ul>
-        <a class="btn ghost" href="/download">Download free</a>
+      <!-- tabindex + role + a name, matching the Compare-editions wrapper below.
+           This div is overflow-x:auto and a div with overflow:auto is NOT
+           focusable in Chrome without tabindex, so if it ever starts scrolling a
+           keyboard-only reader cannot scroll it at all — WCAG 2.1.1 (Keyboard),
+           on the site that publishes a WCAG 2.1 AA conformance claim. It does
+           not overflow today (324px inside a 324px wrapper at 360px), but this
+           redesign is a type-scale change and a type-scale change is exactly what
+           starts a table scrolling, silently. The name is the id of the h2
+           immediately above, so the two cannot drift apart. -->
+      <div class="tablewrap" tabindex="0" role="region" aria-labelledby="tbl-windows-equivalents">
+        <table>
+          <thead><tr><th>On Windows</th><th>On Dagric</th></tr></thead>
+          <tbody>
+            <tr><th scope="row">Start menu</th><td><strong>Launcher</strong> — press <kbd>Meta</kbd> and type</td></tr>
+            <tr><th scope="row">File Explorer</th><td><strong>Files</strong> — <kbd>Meta</kbd>+<kbd>E</kbd>, same keys</td></tr>
+            <tr><th scope="row">Task Manager</th><td><strong>System Monitor</strong> — <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>Esc</kbd>, same keys</td></tr>
+            <tr><th scope="row">Snipping Tool</th><td><strong>Spectacle</strong> — <kbd>Meta</kbd>+<kbd>Shift</kbd>+<kbd>S</kbd>, same keys</td></tr>
+            <tr><th scope="row">Control Panel / Settings</th><td><strong>System Settings</strong> — one place, searchable</td></tr>
+            <tr><th scope="row">Microsoft Edge</th><td><strong>Firefox</strong> — import your bookmarks from its menu</td></tr>
+            <tr><th scope="row">Word / Excel / PowerPoint</th><td><strong>LibreOffice</strong> Writer / Calc / Impress — opens and saves the same files</td></tr>
+            <tr><th scope="row">Photos</th><td><strong>Gwenview</strong> — double-click a picture, same as ever</td></tr>
+            <tr><th scope="row">Notepad</th><td><strong>Text Editor</strong></td></tr>
+            <tr><th scope="row">Recycle Bin</th><td><strong>Trash</strong> — in the Files sidebar</td></tr>
+            <tr><th scope="row">Windows Update</th><td>a tray icon when updates are ready — security fixes install themselves, and it <em>never</em> reboots on its own</td></tr>
+            <tr><th scope="row">Defender / antivirus</th><td>built in — the firewall is on from first boot and apps are confined</td></tr>
+            <tr><th scope="row">Command Prompt / PowerShell</th><td><strong>Terminal</strong> (Konsole)</td></tr>
+            <tr><th scope="row">Outlook</th><td><strong>Thunderbird</strong> on Pro — on the free edition, your webmail in Firefox</td></tr>
+          </tbody>
+        </table>
       </div>
-      <div class="price pro">
-        <div class="tier">Dagric OS <span class="grad">Pro</span></div>
-        <div class="amount">$39 <small>one-time</small></div>
-        <p class="sub">own it forever · free updates</p>
-        <ul>
-          <li><strong>Everything in Dagric OS</strong>, plus:</li>
-          <li>Creative studio: GIMP, Krita, Inkscape, Blender, Kdenlive, OBS, darktable</li>
-          <!-- Was "Wine preinstalled, Bottles tuned", which reads as Bottles
-               being part of Pro. It is not, on either edition: it is a Flatpak
-               installed from the Hub with one click, exactly as licenses.html
-               says. Wine genuinely is preinstalled and tuned, so the claim is
-               kept for the half that is true. -->
-          <li>Windows apps: Wine + winetricks preinstalled and tuned</li>
-          <li>All 7 Dagric Looks layouts · all 7 Styles</li>
-          <li>Dev stack: Docker, Podman, Distrobox, Git, SSH</li>
-          <li>Gaming runtime: GameMode, MangoHud, Lutris, 32-bit Vulkan</li>
-          <li>Privacy toolkit: KeePassXC, Syncthing, Flatseal</li>
-          <li>Opt-in security suite: app firewall + USB control</li>
-        </ul>
-        <a class="btn primary" href="https://buy.stripe.com/6oU5kwbye2Jogri31D8k809">Get Dagric Pro — $39</a>
-        <p class="refund" style="text-align:center">14-day, no-questions refund</p>
-      </div>
+      <p style="margin-top:var(--s-5)"><a class="btn ghost" href="/guide">Read the whole guide</a></p>
+      <p style="margin-top:var(--s-3);color:var(--on-3);font-size:var(--t-ui);max-width:var(--w-text)">It ships inside the OS too, offline, in
+      English and German — so it still works when the thing you are fixing is the Wi-Fi.</p>
     </div>
-    <!-- This is where a homepage visitor actually chooses, and the one fact that makes the choice
-         consequential lived two clicks away on /download and /faq: there is no in-place upgrade.
-         Six buy buttons ship on this site; five of them (two here, three on /pro) never said so.
-         The omission falls on the free-path buyer, who learns it after moving their files onto the
-         machine. Same note download.html already carries, at the site's other decision point, and
-         framed the same way — it argues for starting at Pro, so honesty and conversion agree. -->
-    <p style="color:var(--muted);font-size:.95rem;max-width:620px;margin:26px auto 0">One thing worth
-    knowing before you pick: <strong>there is no in-place upgrade yet</strong>. Moving a free install
-    to Pro today means installing the Pro ISO, so if you already know you want the creative, gaming
-    or developer suites, starting there saves doing it twice — and Pro refunds in full for 14 days,
-    no questions, so finding out costs nothing.</p>
-    <p style="color:var(--faint);font-size:.85rem;margin-top:18px">Secure checkout by Stripe · The software is open source — you pay for curation, convenience, and support, not exclusivity.</p>
   </div>
 </section>
 
 <section class="alt">
-  <div class="wrap">
-    <div class="sec-head"><h2 id="tbl-compare-editions" class="center">Compare <span class="grad">editions</span></h2></div>
-    <!-- tabindex+role+aria-label, not a bare div. This wrapper is overflow-x:auto,
-         and on a 360px phone its table is 403px wide, so the "Remarks" column is
-         only reachable by scrolling the region. A div with overflow:auto is NOT
-         focusable in Chrome without tabindex, so a keyboard-only reader could not
-         scroll it at all - WCAG 2.1.1 (Keyboard), on the page that publishes this
-         product's WCAG 2.1 AA conformance claim. role=region plus a name makes it
-         a landmark a screen reader announces and can jump to, instead of an
-         unlabelled focus stop that appears to do nothing. The name is the id of
-         the h2 immediately above, so the two cannot drift apart. -->
-    <div class="tablewrap" tabindex="0" role="region" aria-labelledby="tbl-compare-editions">
-    <table class="cmp">
-      <thead><tr><th>What you get</th><th>Free</th><th>Pro</th></tr></thead>
-      <tbody>
-      <tr><td>Debloated Debian 13 + KDE Plasma, zero telemetry</td><td class="y">✓</td><td class="y">✓</td></tr>
-      <tr><td>Hardened security, firewall, silent updates, no forced reboots</td><td class="y">✓</td><td class="y">✓</td></tr>
-      <!-- Both editions genuinely have this, so the ticks are right for an
-           EDITION comparison. What they hid is that it is btrfs-only: it is the
-           installer's default, but someone who picks ext4 gets no rollback, and
-           finding that out at the moment you need it is the worst time. -->
-      <tr><td>Snapshot recovery (roll back from the boot menu)<br><small style="color:var(--muted)">on the default btrfs install</small></td><td class="y">✓</td><td class="y">✓</td></tr>
-      <tr><td>Dagric Looks layouts · Styles</td><td>3 · 4</td><td class="y">7 · 7</td></tr>
-      <tr><td>Office suite</td><td>Writer · Calc · Impress · Draw</td><td class="y">Full LibreOffice + CJK</td></tr>
-      <tr><td>Creative, video &amp; audio studio</td><td class="n">—</td><td class="y">✓</td></tr>
-      <!-- The homepage keeps its own copy of this table, so the same correction
-           applies here as on /pro: Steam, Heroic and Bottles are in no package
-           list and never will be — the licences page says so on this very site.
-           What Pro preinstalls is the runtime underneath. -->
-      <tr><td>Windows apps (Wine runtime)</td><td>Bottles, one-click</td><td class="y">Wine + winetricks, preinstalled and tuned</td></tr>
-      <tr><td>Gaming stack</td><td>Launchers, one-click</td><td class="y">GameMode, MangoHud, Lutris preinstalled</td></tr>
-      <tr><td>Steam, Heroic, Bottles</td><td>One-click</td><td class="y">One-click</td></tr>
-      <tr><td>Local AI (Ollama)</td><td>One-click</td><td class="y">One-click</td></tr>
-      <tr><td>Developer toolchain (Docker, Podman, Distrobox, Git, SSH)</td><td class="n">—</td><td class="y">✓</td></tr>
-      <tr><td>Privacy toolkit (KeePassXC, Syncthing, Flatseal)</td><td class="n">—</td><td class="y">✓</td></tr>
-      <tr><td>Opt-in security suite: app firewall + USB device control</td><td class="n">—</td><td class="y">✓</td></tr>
-      </tbody>
-    </table>
+  <div class="dept">
+    <div class="dept-rail"></div>
+    <div>
+      <h2>Why Dagric? <span class="grad">Because it's finished.</span></h2>
+      <p class="lead">Two honest questions, answered plainly.</p>
+      <div class="why">
+        <div class="card"><h3>Why not just stay on Windows?</h3><p>Because your desktop stopped working for you — watching, advertising, nagging, restarting itself, renting back features you already owned. Dagric collects nothing, shows no ads, needs no account, and never reboots on its own. Same familiar taskbar; none of the noise.</p></div>
+        <div class="card"><h3>Why pay when other Linux is free?</h3><p>You don't have to — the free edition is a complete, private, hardened distro you can use forever. Pro is for people who'd rather not assemble and harden it themselves: one curated, tested product with the Hub, Looks, snapshot-rollback, signed releases, Windows-app support, and real human support. The tools are open source; the $39 buys the craftsmanship and the time. No disrespect to Mint, Ubuntu, or Zorin — Dagric is just a different trade.</p></div>
+      </div>
     </div>
-    <p class="center" style="margin-top:26px"><a class="btn primary" href="https://buy.stripe.com/6oU5kwbye2Jogri31D8k809">Get all of Pro — $39, once</a></p>
-    <p class="center refund">14-day, no-questions refund</p>
   </div>
 </section>
 
-<section class="center" id="download">
-  <div class="wrap">
-    <div class="sec-head">
+<section id="pricing">
+  <div class="dept">
+    <div class="dept-rail"></div>
+    <div>
+      <h2>Simple pricing. <span class="grad">Own it outright.</span></h2>
+      <p class="lead">No subscriptions. No license servers. Buy Pro once, install it on your own machines, keep it forever — updates included.</p>
+      <div class="price-grid">
+        <div class="price">
+          <div class="tier">Dagric OS</div>
+          <div class="amount">$0</div>
+          <p class="sub">free forever</p>
+          <ul>
+            <li>The full private, hardened desktop</li>
+            <li>Snapshot rollback &amp; silent updates</li>
+            <li>Dagric Looks — 3 layouts · 4 Styles</li>
+            <li>Writer, Calc, Impress, Draw, Firefox &amp; essentials</li>
+            <li>Printers, scanners, codecs, streaming</li>
+            <li>One-click Steam, Heroic, Bottles &amp; Ollama</li>
+            <li class="no">Creative, video &amp; audio studio</li>
+            <li class="no">Wine, GameMode &amp; the tuned gaming runtime</li>
+            <li class="no">Developer toolchain (Docker, Git, SSH)</li>
+          </ul>
+          <a class="btn ghost" href="/download">Download free</a>
+        </div>
+        <div class="price pro">
+          <div class="tier">Dagric OS <span class="grad">Pro</span></div>
+          <div class="amount">$39 <small>one-time</small></div>
+          <p class="sub">own it forever · free updates</p>
+          <ul>
+            <li><strong>Everything in Dagric OS</strong>, plus:</li>
+            <li>Creative studio: GIMP, Krita, Inkscape, Blender, Kdenlive, OBS, darktable</li>
+            <!-- Was "Wine preinstalled, Bottles tuned", which reads as Bottles
+                 being part of Pro. It is not, on either edition: it is a Flatpak
+                 installed from the Hub with one click, exactly as licenses.html
+                 says. Wine genuinely is preinstalled and tuned, so the claim is
+                 kept for the half that is true. -->
+            <li>Windows apps: Wine + winetricks preinstalled and tuned</li>
+            <li>All 7 Dagric Looks layouts · all 7 Styles</li>
+            <li>Dev stack: Docker, Podman, Distrobox, Git, SSH</li>
+            <li>Gaming runtime: GameMode, MangoHud, Lutris, 32-bit Vulkan</li>
+            <li>Privacy toolkit: KeePassXC, Syncthing, Flatseal</li>
+            <li>Opt-in security suite: app firewall + USB control</li>
+          </ul>
+          <a class="btn primary" href="https://buy.stripe.com/6oU5kwbye2Jogri31D8k809">Get Dagric Pro — $39</a>
+          <p class="refund" style="text-align:center">14-day, no-questions refund</p>
+        </div>
+      </div>
+      <!-- This is where a homepage visitor actually chooses, and the one fact that makes the choice
+           consequential lived two clicks away on /download and /faq: there is no in-place upgrade.
+           Six buy buttons ship on this site; five of them (two here, three on /pro) never said so.
+           The omission falls on the free-path buyer, who learns it after moving their files onto the
+           machine. Same note download.html already carries, at the site's other decision point, and
+           framed the same way — it argues for starting at Pro, so honesty and conversion agree. -->
+      <p class="note" style="margin-top:var(--s-5)">One thing worth
+      knowing before you pick: <strong>there is no in-place upgrade yet</strong>. Moving a free install
+      to Pro today means installing the Pro ISO, so if you already know you want the creative, gaming
+      or developer suites, starting there saves doing it twice — and Pro refunds in full for 14 days,
+      no questions, so finding out costs nothing.</p>
+      <p style="color:var(--on-3);font-size:var(--t-meta);margin-top:var(--s-4)">Secure checkout by Stripe · The software is open source — you pay for curation, convenience, and support, not exclusivity.</p>
+    </div>
+  </div>
+</section>
+
+<section class="alt">
+  <div class="dept">
+    <div class="dept-rail"></div>
+    <div>
+      <h2 id="tbl-compare-editions">Compare <span class="grad">editions</span></h2>
+      <!-- tabindex+role+aria-label, not a bare div. This wrapper is overflow-x:auto,
+           and a div with overflow:auto is NOT focusable in Chrome without tabindex,
+           so a keyboard-only reader could not scroll it at all - WCAG 2.1.1
+           (Keyboard), on the page that publishes this product's WCAG 2.1 AA
+           conformance claim. role=region plus a name makes it a landmark a screen
+           reader announces and can jump to, instead of an unlabelled focus stop
+           that appears to do nothing. The name is the id of the h2 immediately
+           above, so the two cannot drift apart.
+           An earlier version of this comment claimed the table was 403px wide on
+           a 360px phone with a "Remarks" column only reachable by scrolling. It
+           was describing accessibility.html's first ACR table, not this one: this
+           table has three columns — What you get / Free / Pro — and measures
+           324px inside a 324px wrapper, which does not scroll. The markup was
+           right and the measurement was borrowed. The pattern is kept anyway, for
+           the reason in the paragraph above it. -->
+      <div class="tablewrap" tabindex="0" role="region" aria-labelledby="tbl-compare-editions">
+      <table class="cmp">
+        <thead><tr><th>What you get</th><th>Free</th><th>Pro</th></tr></thead>
+        <tbody>
+        <tr><td>Debloated Debian 13 + KDE Plasma, zero telemetry</td><td class="y">✓</td><td class="y">✓</td></tr>
+        <tr><td>Hardened security, firewall, silent updates, no forced reboots</td><td class="y">✓</td><td class="y">✓</td></tr>
+        <!-- Both editions genuinely have this, so the ticks are right for an
+             EDITION comparison. What they hid is that it is btrfs-only: it is the
+             installer's default, but someone who picks ext4 gets no rollback, and
+             finding that out at the moment you need it is the worst time. -->
+        <tr><td>Snapshot recovery (roll back from the boot menu)<br><small style="color:var(--on-3)">on the default btrfs install</small></td><td class="y">✓</td><td class="y">✓</td></tr>
+        <tr><td>Dagric Looks layouts · Styles</td><td>3 · 4</td><td class="y">7 · 7</td></tr>
+        <tr><td>Office suite</td><td>Writer · Calc · Impress · Draw</td><td class="y">Full LibreOffice + CJK</td></tr>
+        <tr><td>Creative, video &amp; audio studio</td><td class="n">—</td><td class="y">✓</td></tr>
+        <!-- The homepage keeps its own copy of this table, so the same correction
+             applies here as on /pro: Steam, Heroic and Bottles are in no package
+             list and never will be — the licences page says so on this very site.
+             What Pro preinstalls is the runtime underneath. -->
+        <tr><td>Windows apps (Wine runtime)</td><td>Bottles, one-click</td><td class="y">Wine + winetricks, preinstalled and tuned</td></tr>
+        <tr><td>Gaming stack</td><td>Launchers, one-click</td><td class="y">GameMode, MangoHud, Lutris preinstalled</td></tr>
+        <tr><td>Steam, Heroic, Bottles</td><td>One-click</td><td class="y">One-click</td></tr>
+        <tr><td>Local AI (Ollama)</td><td>One-click</td><td class="y">One-click</td></tr>
+        <tr><td>Developer toolchain (Docker, Podman, Distrobox, Git, SSH)</td><td class="n">—</td><td class="y">✓</td></tr>
+        <tr><td>Privacy toolkit (KeePassXC, Syncthing, Flatseal)</td><td class="n">—</td><td class="y">✓</td></tr>
+        <tr><td>Opt-in security suite: app firewall + USB device control</td><td class="n">—</td><td class="y">✓</td></tr>
+        </tbody>
+      </table>
+      </div>
+      <p style="margin-top:var(--s-5)"><a class="btn primary" href="https://buy.stripe.com/6oU5kwbye2Jogri31D8k809">Get all of Pro — $39, once</a></p>
+      <p class="refund">14-day, no-questions refund</p>
+    </div>
+  </div>
+</section>
+
+<section id="download">
+  <div class="dept">
+    <div class="dept-rail"></div>
+    <div>
       <h2>Download <span class="grad">Dagric OS</span></h2>
       <p class="lead">Write the ISO to a USB stick, boot it, try the live desktop, then install.
       UEFI &amp; Secure Boot supported. New to this? The
       <a href="/getting-started">step-by-step guide</a> takes you from download to desktop.</p>
+      <!-- These two keep a bounded surface where the rest of the page went to
+           ruled entries. A boundary is worth its ink where the reader is being
+           asked to compare two things and pick one; it is not worth it on a
+           six-item feature list. -->
+      <div class="grid c2" style="max-width:var(--w-col)">
+        <!-- Measured, not rounded: the live free object in R2 is 2,126,544,896 bytes (1.98 GiB) and
+             the Pro image from the latest CI build is 3,931,095,040 (3.66 GiB). download.html and
+             thanks-pro.html were corrected to 2.0 / 3.7 GB; this card was missed, so the homepage
+             understated the free download by ~200 MB and disagreed with the download page one click
+             away. Keep all three in step — it is the number someone on a metered or slow connection
+             plans around, and a site that contradicts itself on a fact this checkable is not trusted
+             on the ones that aren't. -->
+        <div class="card boxed"><h3>Dagric OS — Free</h3><p style="margin:var(--s-2) 0 var(--s-4)">The lean, private daily driver. 2.0&nbsp;GB.</p><a class="btn primary" href="/download">Download ISO</a></div>
+        <div class="card boxed"><h3>Dagric OS — Pro</h3><p style="margin:var(--s-2) 0 var(--s-4)">The complete suite. 3.7&nbsp;GB. $39, delivered after purchase.</p><a class="btn ghost" href="/pro">See what's inside →</a></div>
+      </div>
+      <h3 style="margin-top:var(--s-6)">Verify your download</h3>
+      <!-- The checksums were printed here too, and drifted from the signed SHA256SUMS
+           they told people to check against. Two pages, one signed file, two different
+           values for the same ISO. Only the signed file is published now - see the
+           longer note in download.html. -->
+      <p style="color:var(--on-3);font-size:var(--t-ui);margin-top:var(--s-3);max-width:var(--w-text)">
+        Releases are GPG-signed — download <a href="/SHA256SUMS">SHA256SUMS</a>,
+        <a href="/SHA256SUMS.sig">SHA256SUMS.sig</a>, and the
+        <a href="/dagric-signing-key.asc">signing key</a>, then verify.
+        Full instructions on the <a href="/download">download page</a>.
+      </p>
     </div>
-    <div class="grid c2" style="max-width:820px;margin:36px auto 0">
-      <!-- Measured, not rounded: the live free object in R2 is 2,126,544,896 bytes (1.98 GiB) and
-           the Pro image from the latest CI build is 3,931,095,040 (3.66 GiB). download.html and
-           thanks-pro.html were corrected to 2.0 / 3.7 GB; this card was missed, so the homepage
-           understated the free download by ~200 MB and disagreed with the download page one click
-           away. Keep all three in step — it is the number someone on a metered or slow connection
-           plans around, and a site that contradicts itself on a fact this checkable is not trusted
-           on the ones that aren't. -->
-      <div class="card center"><h3>Dagric OS — Free</h3><p style="margin:8px 0 18px">The lean, private daily driver. 2.0&nbsp;GB.</p><a class="btn primary" href="/download">Download ISO</a></div>
-      <div class="card center"><h3>Dagric OS — Pro</h3><p style="margin:8px 0 18px">The complete suite. 3.7&nbsp;GB. $39, delivered after purchase.</p><a class="btn ghost" href="/pro">See what's inside →</a></div>
-    </div>
-    <h3 style="margin-top:44px">Verify your download</h3>
-    <!-- The checksums were printed here too, and drifted from the signed SHA256SUMS
-         they told people to check against. Two pages, one signed file, two different
-         values for the same ISO. Only the signed file is published now - see the
-         longer note in download.html. -->
-    <p style="color:var(--muted);font-size:.9rem;margin-top:12px">
-      Releases are GPG-signed — download <a href="/SHA256SUMS">SHA256SUMS</a>,
-      <a href="/SHA256SUMS.sig">SHA256SUMS.sig</a>, and the
-      <a href="/dagric-signing-key.asc">signing key</a>, then verify.
-      Full instructions on the <a href="/download">download page</a>.
-    </p>
   </div>
 </section>
 
 <section class="alt">
-  <div class="wrap" style="max-width:760px">
-    <div class="sec-head"><h2 class="center">Questions, <span class="grad">answered</span></h2></div>
-    <details><summary>Is Dagric OS really free?</summary><p>Yes. The free edition is a complete, private, hardened desktop — free forever, no account. Pro adds the creative, gaming, developer, and Windows-app suites for a one-time $39.</p></details>
-    <details><summary>Why pay $39 when other Linux is free?</summary><p>You don't have to — the free edition is a real, complete distro. Pro is one curated, tested, supported product (the Hub, Looks, snapshot-rollback, signed releases, Windows-app support, human support) for people who'd rather not assemble and harden a general distro themselves. The tools are open source; the $39 buys the craftsmanship.</p></details>
-    <details><summary>Will it run on my PC?</summary><p>Almost certainly, if it's a 64-bit Intel or AMD machine from roughly 2012 onward with 4 GB of RAM (8 GB recommended) and 25 GB of free disk — 40 GB for Pro. UEFI with Secure Boot and older BIOS machines both work. And you don't have to take our word for it: every Dagric USB stick puts <strong>Check This PC</strong> on the live desktop, right beside the installer. It reports in plain language on your Wi-Fi and network, graphics, sound, Secure Boot and drives — before anything is installed, without changing a thing. <a href="/download">Get a stick going →</a></p></details>
-    <!-- Was "Pro runs many Windows programs": Bottles is one click on BOTH
-         editions — dagric-hub lists it above the Pro gate — and the compare
-         table four sections up says exactly that. Pro's half is the Wine
-         runtime underneath. -->
-    <details><summary>Will my Windows files and drives work?</summary><p>Yes. NTFS and exFAT drives mount out of the box, your Office documents open with matching fonts, and both editions run many Windows programs through Bottles — one click from the Hub — with Pro adding the tuned Wine runtime underneath.</p></details>
-    <details><summary>Can I keep Windows and dual-boot?</summary><p>Yes — choose <em>Install alongside</em> in the installer and pick how much space each system gets. You choose which to boot at startup.</p></details>
-    <details><summary>Is it a subscription?</summary><p>No. Pro is a one-time purchase — no license servers, no activation. You own your copy outright, with free updates.</p></details>
-    <details><summary>What if I buy Pro and don't like it?</summary><p>Reply to your receipt within 14 days and we refund in full — no quiz, no hoops. Details in the <a href="/terms">terms &amp; refunds</a>.</p></details>
-    <details><summary>Is the software open source?</summary><p>Yes — built from open-source software on a Debian base, and every release is GPG-signed and checksummed so you can verify it. Proprietary extras like Steam or the NVIDIA driver are never bundled; they install only when you ask.</p></details>
-    <p class="center" style="margin-top:22px"><a href="/faq">More questions answered →</a> · <a href="/contact">Contact us</a></p>
+  <div class="dept">
+    <div class="dept-rail"></div>
+    <div>
+      <h2>Questions, <span class="grad">answered</span></h2>
+      <div style="max-width:var(--w-col)">
+      <details><summary>Is Dagric OS really free?</summary><p>Yes. The free edition is a complete, private, hardened desktop — free forever, no account. Pro adds the creative, gaming, developer, and Windows-app suites for a one-time $39.</p></details>
+      <details><summary>Why pay $39 when other Linux is free?</summary><p>You don't have to — the free edition is a real, complete distro. Pro is one curated, tested, supported product (the Hub, Looks, snapshot-rollback, signed releases, Windows-app support, human support) for people who'd rather not assemble and harden a general distro themselves. The tools are open source; the $39 buys the craftsmanship.</p></details>
+      <details><summary>Will it run on my PC?</summary><p>Almost certainly, if it's a 64-bit Intel or AMD machine from roughly 2012 onward with 4 GB of RAM (8 GB recommended) and 25 GB of free disk — 40 GB for Pro. UEFI with Secure Boot and older BIOS machines both work. And you don't have to take our word for it: every Dagric USB stick puts <strong>Check This PC</strong> on the live desktop, right beside the installer. It reports in plain language on your Wi-Fi and network, graphics, sound, Secure Boot and drives — before anything is installed, without changing a thing. <a href="/download">Get a stick going →</a></p></details>
+      <!-- Was "Pro runs many Windows programs": Bottles is one click on BOTH
+           editions — dagric-hub lists it above the Pro gate — and the compare
+           table four sections up says exactly that. Pro's half is the Wine
+           runtime underneath. -->
+      <details><summary>Will my Windows files and drives work?</summary><p>Yes. NTFS and exFAT drives mount out of the box, your Office documents open with matching fonts, and both editions run many Windows programs through Bottles — one click from the Hub — with Pro adding the tuned Wine runtime underneath.</p></details>
+      <details><summary>Can I keep Windows and dual-boot?</summary><p>Yes — choose <em>Install alongside</em> in the installer and pick how much space each system gets. You choose which to boot at startup.</p></details>
+      <details><summary>Is it a subscription?</summary><p>No. Pro is a one-time purchase — no license servers, no activation. You own your copy outright, with free updates.</p></details>
+      <details><summary>What if I buy Pro and don't like it?</summary><p>Reply to your receipt within 14 days and we refund in full — no quiz, no hoops. Details in the <a href="/terms">terms &amp; refunds</a>.</p></details>
+      <details><summary>Is the software open source?</summary><p>Yes — built from open-source software on a Debian base, and every release is GPG-signed and checksummed so you can verify it. Proprietary extras like Steam or the NVIDIA driver are never bundled; they install only when you ask.</p></details>
+      </div>
+      <p style="margin-top:var(--s-5)"><a href="/faq">More questions answered →</a> · <a href="/contact">Contact us</a></p>
+    </div>
   </div>
 </section>
 

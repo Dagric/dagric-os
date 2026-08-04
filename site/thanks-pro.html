@@ -7,42 +7,75 @@
 <meta name="robots" content="noindex">
 <link rel="icon" type="image/png" href="/assets/dagric-logo.png">
 <style>
-:root{--bg:#0a111c;--panel:#131f31;--line:#22344f;--text:#e8eef6;--muted:#9db1c8;--accent:#3fa9f5;--good:#4ade80;--grad:linear-gradient(135deg,#59c2e8,#3fa9f5 55%,#2f7fd1);--grad-fill:linear-gradient(135deg,#2170ae,#1a63a8 55%,#134f8c)}
+/* HAND-PORTED FROM site.css, DELIBERATELY. This page is the ONLY one of the
+   sixteen that links no stylesheet — it is self-contained so that a stylesheet
+   edit cannot break a receipt page — which means every token change in site.css
+   has to be copied here in the same commit or the one screen a paying customer
+   sees becomes the odd page out. These values are the Daybook tokens: the
+   surface ramp, the display serif, the near-square radii, and .grad as the
+   italic of the display face rather than a clipped gradient. */
+:root{
+  --ink-0:#0C0F14;--ink-1:#1D2126;--ink-2:#25292E;--well:#080B0F;
+  --rule:#43474C;--rule-2:#5C6065;
+  --paper:#F5F2EB;--body:#C0C8D4;--soft:#98A2B0;
+  --accent:#7CB8EC;--accent-2:#8FC3EE;--accent-deep:#14487A;--pro:#E3C27D;--good:#4ADE80;
+  --mono-b:#8FD6AE;
+  --ff-display:Georgia,"Iowan Old Style","Palatino Linotype","Source Serif 4","Noto Serif","Liberation Serif",serif;
+  --ff-ui:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  /* --grad-fill is kept, and it is the last fill on the site that carries white
+     text: 9.38:1. The bright --grad it used to pair with is gone, along with the
+     hazard that made two tokens necessary. */
+  --grad-fill:var(--accent-deep);
+}
 *{margin:0;padding:0;box-sizing:border-box}
-body{background:var(--bg);color:var(--text);font:16px/1.65 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;display:flex;min-height:100vh;align-items:center;justify-content:center;padding:24px}
-.card{max-width:640px;background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:44px;text-align:center;box-shadow:0 30px 90px rgba(0,0,0,.5)}
-img.logo{width:84px;height:84px;border-radius:20px;margin:0 auto 20px;display:block;box-shadow:0 16px 50px rgba(63,169,245,.35)}
-h1{font-size:1.9rem;letter-spacing:-.01em;margin-bottom:8px}
-.grad{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
-p{color:var(--muted);margin:10px 0}
-.btn{display:inline-block;margin-top:22px;padding:15px 34px;border-radius:999px;font-weight:700;color:#fff;background:var(--grad-fill);text-decoration:none;box-shadow:0 8px 30px rgba(63,169,245,.35)}
-.small{font-size:.86rem;margin-top:22px}
+body{background:var(--ink-0);color:var(--body);
+  font:1.0625rem/1.62 var(--ff-ui);-webkit-font-smoothing:antialiased;
+  display:flex;min-height:100vh;align-items:center;justify-content:center;padding:24px}
+/* A gold top rule, the same mark the Pro price card and the Pro column of the
+   compare table carry. This is the page you land on after buying Pro. */
+.card{max-width:640px;background:var(--ink-1);border:1px solid rgba(227,194,125,.35);
+  border-top:2px solid var(--pro);border-radius:3px;padding:44px;
+  box-shadow:0 30px 60px -30px rgba(0,0,0,.85)}
+img.logo{width:44px;height:44px;border-radius:2px;margin:0 0 20px;display:block}
+h1{font:500 2.125rem/1.16 var(--ff-display);letter-spacing:-.012em;color:var(--paper);
+  margin-bottom:12px;text-wrap:balance}
+.grad{font-style:italic;color:inherit}
+p{color:var(--body);margin:12px 0;max-width:34rem}
+.btn{display:inline-block;margin-top:22px;padding:14px 26px;border-radius:2px;font-weight:600;
+  font-size:.9375rem;letter-spacing:.01em;color:#fff;background:var(--grad-fill);
+  border:1px solid transparent;text-decoration:none}
+.small{font-size:.9375rem;margin-top:20px;color:var(--soft)}
 a{color:var(--accent);text-decoration:none}
-.sums{background:#0a1420;border:1px solid var(--line);border-radius:10px;padding:12px 14px;font:11.5px/1.7 ui-monospace,Consolas,monospace;color:#7fd1a8;overflow-x:auto;white-space:nowrap;margin-top:18px;text-align:left}
+a:hover{text-decoration:underline;text-underline-offset:3px}
+:focus-visible{outline:2px solid var(--accent-2);outline-offset:2px}
+.sums{background:var(--well);border:1px solid var(--rule);border-radius:2px;padding:12px 14px;
+  font:.8125rem/1.8 ui-monospace,Consolas,monospace;color:var(--mono-b);overflow-x:auto;
+  white-space:nowrap;margin-top:18px;font-variant-numeric:tabular-nums}
+@media(max-width:640px){.card{padding:28px 22px}h1{font-size:1.6875rem}}
 /* This page is the ONLY one of the sixteen that does not link site.css — it is
    deliberately self-contained so a receipt page cannot be broken by a stylesheet
    edit — which also means site.css's print block does not reach it. It needs one
    more than any other page does: this is the post-purchase page, it carries the
    Pro download link and the SHA256 a buyer is asked to check, and printing or
    saving-to-PDF is exactly what somebody does with a receipt. Browsers drop
-   background-color and keep color, so without this it printed as #e8eef6 on
-   white (1.17:1) with the checksum in #7fd1a8 (1.81:1) — the two pieces of
+   background-color and keep color, so without this it printed as light ink on
+   white (1.17:1) with the checksum in a pale green (1.81:1) — the two pieces of
    information the page exists to hand over, invisible on the paper.
    white-space is unset on .sums because a 64-character hash cannot scroll on
    paper; it has to wrap or it is simply cut off at the margin. */
 @media print{
   body{background:#fff!important;color:#000!important;display:block;padding:0}
   @page{margin:16mm}
-  .card{max-width:none;background:#fff;border:none;border-radius:0;box-shadow:none;padding:0;text-align:left}
+  .card{max-width:none;background:#fff;border:none;border-radius:0;box-shadow:none;padding:0}
   h1,p,.small{color:#000!important}
-  .grad{background:none;-webkit-text-fill-color:#000;color:#000!important}
+  .grad{font-style:italic;color:#000!important;-webkit-text-fill-color:#000!important}
   a{color:#12507e!important;text-decoration:underline}
   .btn{color:#000!important;background:none!important;box-shadow:none;border:1px solid #555;padding:8px 14px}
   .sums{background:#fff!important;border:1px solid #777;color:#000!important;white-space:pre-wrap;word-break:break-all;overflow:visible}
-  img.logo{box-shadow:none;margin:0 0 14px}
+  img.logo{margin:0 0 14px}
 }
 </style>
-<meta name="theme-color" content="#0a111c">
+<meta name="theme-color" content="#0C0F14">
 <link rel="icon" href="/favicon.ico" sizes="32x32">
 <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
 </head>

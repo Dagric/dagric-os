@@ -8,19 +8,28 @@
 <link rel="icon" type="image/png" href="/assets/dagric-logo.png">
 <link rel="stylesheet" href="/assets/site.css">
 <style>
-table.acr{width:100%;border-collapse:collapse;margin:18px 0;font-size:.94rem}
-table.acr th,table.acr td{border:1px solid var(--line);padding:10px 12px;text-align:left;vertical-align:top}
-table.acr th{background:var(--bg2);font-weight:700}
+/* The ACR tables keep their full cell borders — a conformance table is read
+   cell by cell across three columns, which is the one place a grid of rules
+   beats a set of hairlines. --rule-2 rather than --rule because these lines
+   are doing structural work, not decoration. */
+table.acr{width:100%;border-collapse:collapse;margin:var(--s-4) 0;font-size:.94rem}
+table.acr th,table.acr td{border:1px solid var(--rule-2);padding:10px 12px;text-align:left;vertical-align:top}
+table.acr th{background:var(--ink-1);font-weight:600;color:var(--on)}
+table.acr thead th{border-bottom:1px solid var(--rule-2)}
 table.acr td:nth-child(2){white-space:nowrap;font-weight:700}
-.s-yes{color:var(--good)}.s-part{color:#e8b339}.s-no{color:#e8736b}
+/* Measured on --ink-0: yes 11.02:1, partial 8.15:1, no 6.09:1. Status is never
+   carried by colour alone — the words "Supports", "Partially Supports" and
+   "Does Not Support" are the value in the cell. */
+.s-yes{color:var(--good)}.s-part{color:#E8B339}.s-no{color:#F0837B}
 .tablewrap{overflow-x:auto}
-dl.meta{display:grid;grid-template-columns:auto 1fr;gap:6px 18px;margin:16px 0}
-dl.meta dt{font-weight:700;color:var(--muted)}
-dl.meta dd{margin:0}
+dl.meta{display:grid;grid-template-columns:auto 1fr;gap:var(--s-2) var(--s-4);margin:var(--s-4) 0;
+  border-top:1px solid var(--rule);border-bottom:1px solid var(--rule);padding:var(--s-4) 0}
+dl.meta dt{font-weight:600;color:var(--on-3);font-size:var(--t-ui)}
+dl.meta dd{margin:0;color:var(--on-2)}
 @media(max-width:640px){dl.meta{grid-template-columns:1fr;gap:2px}dl.meta dd{margin-bottom:10px}}
 </style>
 <link rel="canonical" href="https://dagric.com/accessibility">
-<meta name="theme-color" content="#0a111c">
+<meta name="theme-color" content="#0C0F14">
 <link rel="icon" href="/favicon.ico" sizes="32x32">
 <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
 <link rel="manifest" href="/site.webmanifest">

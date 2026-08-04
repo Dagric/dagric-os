@@ -8,16 +8,15 @@
 <link rel="icon" type="image/png" href="/assets/dagric-logo.png">
 <link rel="stylesheet" href="/assets/site.css">
 <style>
-details{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:18px 22px;margin-top:12px}
-details summary{cursor:pointer;font-weight:700;list-style:none;color:var(--text)}
-details summary::-webkit-details-marker{display:none}
-details summary::after{content:"+";float:right;color:var(--accent);font-weight:800}
-details[open] summary::after{content:"–"}
-details p{color:var(--muted);margin-top:10px;font-size:.97rem}
-h2{margin-top:44px}
+/* The full local re-declaration of details/summary that used to sit here is
+   deleted. site.css owns the disclosure component, so the twenty answers on
+   this page and the eight on the homepage are the same object — which is what
+   stopped .shot forking into four copies across three files and is the same
+   argument here. Only the department rhythm is local. */
+h2{margin-top:var(--s-7)}
 </style>
 <link rel="canonical" href="https://dagric.com/faq">
-<meta name="theme-color" content="#0a111c">
+<meta name="theme-color" content="#0C0F14">
 <link rel="icon" href="/favicon.ico" sizes="32x32">
 <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
 <link rel="manifest" href="/site.webmanifest">

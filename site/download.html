@@ -8,38 +8,43 @@
 <link rel="icon" type="image/png" href="/assets/dagric-logo.png">
 <link rel="stylesheet" href="/assets/site.css">
 <style>
-.dl{display:grid;gap:22px;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));margin:34px 0}
-.dl .card{margin:0;text-align:center;padding:34px}
-.dl .card.pro{border:1px solid rgba(63,169,245,.5);background:linear-gradient(180deg,rgba(63,169,245,.09),var(--panel) 45%)}
+/* The two download cards keep a bounded surface while the rest of the site went
+   to ruled entries: a boundary earns its ink where a reader is being asked to
+   compare two things and pick one. Pro is the filled one with a gold rule
+   across its top — the same mark the homepage price card and the compare
+   table's Pro column carry, so "gold means Pro" is one idea in three places. */
+.dl{display:grid;gap:var(--s-4);grid-template-columns:repeat(auto-fit,minmax(min(19rem,100%),1fr));margin:var(--s-5) 0}
+.dl .card{margin:0;background:var(--surface-2);border:1px solid var(--rule);
+  border-radius:var(--r-md);padding:var(--s-5)}
+.dl .card.pro{background:var(--ink-1);border-color:rgba(227,194,125,.35);border-top:2px solid var(--pro)}
 /* The two download cards are h2, not h3. This page was the site's only heading-level
    skip — its outline ran h1, h3, h3, h2, h2, h2, h2 — so a screen-reader user browsing
    by heading dropped two levels into the two most important elements on the page and
    heard the free/Pro choice announced as subsections of a heading that does not exist,
-   then climbed back up to "System requirements". The four extra declarations below are
-   not new styling: they hold what h3 rendered, because the shared h2 rule brings a 1.16
-   line-height, 800 weight and negative tracking that tighten each card by ~10px. Keep
-   them if you touch this. .dl h2 (0,1,1) outranks main h2 (0,0,2), so it wins on desktop
-   and at the 640px breakpoint alike. */
-.dl h2{font-size:1.35rem;font-weight:700;line-height:1.65;letter-spacing:normal;margin:26px 0 6px}
-.dl .meta{color:var(--muted);font-size:.9rem;margin:8px 0 20px}
-.sums{background:#0a1420;border:1px solid var(--line);border-radius:12px;padding:16px 18px;font:12.5px/1.8 ui-monospace,Consolas,monospace;color:#7fd1a8;overflow-x:auto;white-space:nowrap;margin:14px 0}
-/* site.css drops .card to 20px 22px on phones, but `.dl .card` is (0,2,0) and beats
-   it from here, so the two cards that ARE this page kept desktop's 34px on a 360px
-   screen: 320px of card holding 250px of content, 70px of it padding. These are the
-   most important elements on the download page and they were the most cramped.
-   Measured at 360px: card content 250 -> 278px (+11%), the pair 619 -> 571px tall.
+   then climbed back up to "System requirements". The declarations below are not new
+   styling: they hold what h3 renders, because the shared h2 rule brings a tighter
+   line-height and a bigger size. Keep them if you touch this.
+   .dl h2 (0,1,1) outranks main h2 (0,0,2), so it wins on desktop and at the 640px
+   breakpoint alike. */
+.dl h2{font-size:var(--t-h3);font-weight:600;line-height:1.28;letter-spacing:-.005em;
+  margin:0 0 var(--s-2);border-bottom:0;padding-bottom:0}
+.dl .meta{color:var(--on-3);font-size:var(--t-ui);margin:0 0 var(--s-4)}
+/* site.css drops .card.boxed to a tighter padding on phones, but `.dl .card` is
+   (0,2,0) and beats it from here, so the two cards that ARE this page kept
+   desktop padding on a 360px screen: 320px of card holding 250px of content.
+   These are the most important elements on the download page and they were the
+   most cramped. Measured at 360px: card content 250 -> 278px (+11%).
    The .strip frame that used to sit at the bottom of this block has moved into
-   site.css, where `.shot,.strip` is now one rule for all four real screenshots.
+   site.css, where `.shot,.strip` is now one rule for all real screenshots.
    Redeclaring it here fixed this page but left three copies with three different
-   shadows across three files, and only the homepage kept the 1px accent ring. */
+   shadows across three files, and only the homepage kept the accent ring. */
 @media(max-width:640px){
-  .dl{gap:14px;margin:26px 0}
-  .dl .card{padding:24px 20px}
-  .dl h2{margin:18px 0 6px}
+  .dl{gap:var(--s-3);margin:var(--s-4) 0}
+  .dl .card{padding:var(--s-4)}
 }
 </style>
 <link rel="canonical" href="https://dagric.com/download">
-<meta name="theme-color" content="#0a111c">
+<meta name="theme-color" content="#0C0F14">
 <link rel="icon" href="/favicon.ico" sizes="32x32">
 <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
 <link rel="manifest" href="/site.webmanifest">
@@ -67,11 +72,19 @@
   </div>
 </div></nav>
 
-<main id="main">
-  <h1>Get <span class="grad">Dagric OS.</span></h1>
-  <p class="lead">Both editions are full 64-bit systems you can try live from USB before
-  installing. New to this? The <a href="/getting-started">step-by-step guide</a> takes you from
-  download to desktop in about 20 minutes.</p>
+<!-- This page opened on a bare <h1> at the top of an 820px document column —
+     the same shell privacy.html uses, on the page where money changes hands.
+     It uses the shared .phero now, nested inside <main> so href="#main" still
+     lands ABOVE the headline rather than below it. main.wide because the two
+     edition cards, the installer capture and the walkthrough all want more than
+     820px; the prose under them keeps its own measure. -->
+<main id="main" class="wide">
+  <header class="phero" style="padding-left:0;padding-right:0">
+    <h1>Get <span class="grad">Dagric OS.</span></h1>
+    <p class="lead">Both editions are full 64-bit systems you can try live from USB before
+    installing. New to this? The <a href="/getting-started">step-by-step guide</a> takes you from
+    download to desktop in about 20 minutes.</p>
+  </header>
 
   <div class="dl">
     <div class="card">
@@ -134,11 +147,27 @@
   <p>Seven steps, and it tells you all of them before it starts. Nothing is written to your
   disk until the <strong>Summary</strong> step, where you confirm — you can back out of every
   screen before it.</p>
-  <div class="strip" style="max-width:880px;margin-left:auto;margin-right:auto">
+  <div class="strip">
     <picture>
       <source type="image/webp" srcset="/assets/shot-installer.webp">
       <img src="/assets/shot-installer.png"
            alt="The Dagric OS installer, showing its seven steps: Welcome, Location, Keyboard, Partitions, Users, Summary, Install and Finish"
+           width="1280" height="800" loading="lazy" decoding="async">
+    </picture>
+  </div>
+  <!-- assets/shot-partitions.png has been in the tree unreferenced by any of the
+       sixteen pages. It belongs here and nowhere else: the paragraph above it
+       says nothing is written to your disk until the Summary step, and this is
+       the step before it — the seven-step rail with Partitions selected, the
+       Erase disk and Manual partitioning choices, and the before/after disk
+       bars. A real capture from the QEMU harness, same run as the still above.
+       The alt text describes what is visible in the frame and asserts nothing
+       else; alt text that states a fact is content. -->
+  <div class="strip">
+    <picture>
+      <source type="image/webp" srcset="/assets/shot-partitions.webp">
+      <img src="/assets/shot-partitions.png"
+           alt="The Partitions step of the Dagric OS installer, with Erase disk selected and the resulting EFI system and Dagric partitions shown on the after bar"
            width="1280" height="800" loading="lazy" decoding="async">
     </picture>
   </div>
@@ -166,7 +195,7 @@
        tell apart at 770px. <video poster> takes no <source> fallback, so this
        has to be one universally decodable file rather than a WebP with an
        alternative. -->
-  <div class="strip" style="max-width:880px;margin:26px auto 0">
+  <div class="strip">
     <video controls preload="none" playsinline width="1920" height="1080"
            poster="/assets/walkthrough-poster.jpg" style="width:100%;display:block"
            aria-label="A 47-second walkthrough of installing Dagric OS, recorded from a real install">
@@ -176,7 +205,7 @@
       the <a href="/getting-started">step-by-step guide</a>.
     </video>
   </div>
-  <p class="refund" style="text-align:center">47 seconds, no narration &mdash; every screen is a real
+  <p class="refund">47 seconds, no narration &mdash; every screen is a real
   capture, not a mockup.</p>
 
   <h2>System requirements</h2>

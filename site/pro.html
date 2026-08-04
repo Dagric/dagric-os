@@ -8,11 +8,17 @@
 <link rel="icon" type="image/png" href="/assets/dagric-logo.png">
 <link rel="stylesheet" href="/assets/site.css">
 <style>
-.hero-pro{text-align:center;padding:80px 24px 40px;background:radial-gradient(900px 480px at 50% -10%, rgba(63,169,245,.18), transparent 60%)}
-.hero-pro h1{font-size:clamp(2.4rem,6vw,3.6rem)}
-.hero-pro .lead{max-width:620px;margin:16px auto 28px}
+/* .hero-pro is gone. site.css's .phero is the shared page opening now — its own
+   comment claimed pro/features/download/faq used it, and grep found it on index
+   alone while four different hand-rolled openings shipped instead. Only the
+   class on the <header> changed: id="main" stays on that same element (see the
+   note above it) so the 1290px skip-link defect cannot return.
+   The 640px h1 restatement that used to live here is gone with it: the shared
+   .phero h1 clamp bottoms out at 40px on a phone, so this page can no longer
+   opt out of the site scale by accident. */
+
 /* The fourth screenshot frame used to live here — a private .shot with an
-   880px cap and its own shadow, against the shared rule's 900px and
+   880px cap and its own shadow, against the shared rule's cap and
    var(--shadow). It matched nothing (this page has no class="shot" today),
    which is exactly why it was dangerous: it is (0,1,0) in a stylesheet that
    loads after site.css, and it sat in the slot this page's own comment
@@ -20,40 +26,44 @@
    would have silently re-forked on the one page selling the $39 product,
    after the commit that consolidated the other three. Deleted rather than
    corrected: the shared .shot,.strip rule in site.css is the frame now. */
-.grid{display:grid;gap:18px;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));margin:34px 0}
-.grid .card{margin:0}
-.value{max-width:700px;margin:28px auto 0}
+
+/* The local .grid override is gone too — site.css owns the component, so this
+   page's card grid is the same object as the homepage's. */
+.grid{margin:var(--s-5) 0}
+
+/* THE ONE PLACE THIS PAGE STILL NEEDS ITS OWN COMPONENT. A value table is not
+   a card grid: it is two columns of ruled rows with a total under them. */
+.value{max-width:var(--w-col);margin:var(--s-5) 0 0}
 .value .row{display:grid;grid-template-columns:1fr auto;gap:2px 16px;align-items:center;
-  background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:13px 20px;margin-top:10px}
-.value .row b{color:var(--text);grid-column:1;grid-row:1}
-.value .row span:not(.price){color:var(--muted);font-size:.86rem;grid-column:1;grid-row:2}
-.value .row .price{color:var(--good);font-weight:800;white-space:nowrap;grid-column:2;grid-row:1/3;align-self:center}
-.value .total{border:1px solid rgba(63,169,245,.5);background:linear-gradient(180deg,rgba(63,169,245,.1),var(--panel))}
-.cta-band{text-align:center;background:var(--bg2);border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:52px 24px;margin:52px 0}
-.big{font-size:clamp(1.6rem,4.5vw,2.4rem);font-weight:800;line-height:1.2}
-.looks-strip{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));margin:30px 0}
-.looks-strip img{border:1px solid var(--line);border-radius:12px;aspect-ratio:16/10;object-fit:cover;width:100%}
-.looks-strip .cap{color:var(--muted);font-size:.9rem;text-align:center;margin-top:6px}
+  border-top:1px solid var(--rule);padding:var(--s-3) 0}
+.value .row b{color:var(--on);grid-column:1;grid-row:1;font-family:var(--ff-display);font-weight:600}
+.value .row span:not(.price){color:var(--on-3);font-size:var(--t-ui);grid-column:1;grid-row:2}
+.value .row .price{color:var(--good);font-weight:700;white-space:nowrap;grid-column:2;grid-row:1/3;align-self:center}
+.value .total{border-top:2px solid var(--pro);border-bottom:1px solid var(--rule)}
+.value .total .price{color:var(--pro)}
+
+.cta-band{border-top:1px solid var(--rule);border-bottom:1px solid var(--rule);
+  padding:var(--s-6) 0;margin:var(--s-7) 0}
+.big{font-family:var(--ff-display);font-size:clamp(1.6875rem,1.05rem + 1.6vw,2.125rem);
+  font-weight:500;line-height:1.16;letter-spacing:-.012em;color:var(--on)}
+
+.looks-strip{display:grid;gap:var(--s-4);grid-template-columns:repeat(auto-fit,minmax(min(11rem,100%),1fr));
+  margin:var(--s-5) 0}
+.looks-strip img{border:1px solid var(--rule);border-radius:2px;aspect-ratio:16/10;
+  object-fit:cover;width:100%}
+.looks-strip .cap{color:var(--on-3);font-size:var(--t-ui);margin-top:var(--s-2)}
+/* The four Pro layouts carry the same gold rail the homepage grid uses, so the
+   3-free/7-on-Pro split is drawn on both pages with the same mark. */
+.looks-strip div:nth-child(n+4) img{border-top:3px solid var(--pro)}
+
 table.cmp td:nth-child(2),table.cmp td:nth-child(3),table.cmp th:nth-child(2),table.cmp th:nth-child(3){text-align:center}
-.y{color:var(--good);font-weight:700}.n{color:var(--faint)}
 @media(max-width:640px){
-  /* .hero-pro h1 (0,2,0) outranks the phone h1 rule in site.css (0,0,1), so this
-     page quietly opted out of the shared phone type cap: 38.4px here against
-     31.2px on every other page, because clamp()'s MINIMUM is 2.4rem and a phone
-     never gets past it. The one page selling a $39 product had the largest
-     heading on the narrowest screen — 3 lines, 124px, 15.5% of a 360x800 phone —
-     and the only Buy button on the page started at 630px, at or under the fold on
-     an Android viewport. Re-stating the shared clamp puts this h1 back on the site
-     scale and lifts the button to 607px. The desktop clamp is unchanged. */
-  .hero-pro h1{font-size:clamp(1.95rem,8.5vw,2.5rem)}
-  .hero-pro{padding:52px 20px 30px}
-  .grid{margin:24px 0}
-  .cta-band{padding:40px 18px;margin:40px 0}
-  .value .row{padding:12px 16px}
+  .grid{margin:var(--s-4) 0}
+  .cta-band{padding:var(--s-5) 0;margin:var(--s-6) 0}
 }
 </style>
 <link rel="canonical" href="https://dagric.com/pro">
-<meta name="theme-color" content="#0a111c">
+<meta name="theme-color" content="#0C0F14">
 <link rel="icon" href="/favicon.ico" sizes="32x32">
 <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
 <link rel="manifest" href="/site.webmanifest">
@@ -91,7 +101,7 @@ table.cmp td:nth-child(2),table.cmp td:nth-child(3),table.cmp th:nth-child(2),ta
      hero's full-bleed radial gradient stays outside main.wide's 1120px max-width and
      60px top padding. index.html can nest its hero inside <main> only because it also
      resets main{max-width:none;margin:0;padding:0}; this page does not. -->
-<header class="hero-pro" id="main">
+<header class="phero" id="main">
   <h1>Your computer. <span class="grad">Everything, unlocked.</span></h1>
   <!-- Above the fold this page named a price with nothing to weigh it against. Both
        lines that do the anchoring — "for the price of one month of Photoshop" and the
@@ -118,7 +128,7 @@ table.cmp td:nth-child(2),table.cmp td:nth-child(3),table.cmp th:nth-child(2),ta
   <p class="lead">The complete edition — creative studio, Windows apps and gaming, the developer
   stack and all seven desktop layouts — installed, tuned and working the first time you
   switch the computer on. Nothing to assemble. One purchase. Yours forever.</p>
-  <p class="lead" style="margin:-8px auto 26px;font-size:1.02rem;color:var(--muted)">The
+  <p style="max-width:var(--w-text);margin:0 0 var(--s-5)">The
   subscriptions it replaces run past <strong>$1,000 a year</strong> — again next year, and the year
   after. Dagric Pro is <strong>$39, once</strong>, and then it's yours.</p>
   <a class="btn primary lg" href="https://buy.stripe.com/6oU5kwbye2Jogri31D8k809">Get Dagric Pro — $39</a>
@@ -130,7 +140,7 @@ table.cmp td:nth-child(2),table.cmp td:nth-child(3),table.cmp th:nth-child(2),ta
        download.html's own section, "same system underneath" is download.html's "Pro is that same
        system with...", and the no-in-place-upgrade sentence is faq.html verbatim in substance. It
        ends pointing at Pro on purpose: removing the risk should not cost the sale. -->
-  <p class="lead" style="max-width:640px;margin:18px auto 0;font-size:.96rem">Not sure it will even
+  <p class="note" style="margin-top:var(--s-5)">Not sure it will even
   work on your machine? Find out before you spend anything: <a href="/download">the free edition</a>
   is the same system underneath, it runs live from a USB stick without touching your disk, and every
   stick carries <strong>Check This PC</strong> — a plain-language report on your Wi-Fi, graphics,
@@ -151,25 +161,25 @@ table.cmp td:nth-child(2),table.cmp td:nth-child(3),table.cmp th:nth-child(2),ta
 </header>
 
 <main class="wide">
-  <p style="text-align:center;max-width:660px;margin:0 auto;font-size:1.15rem;color:var(--muted)">
+  <p class="lead">
   Everything a creator, gamer, developer, or switching household needs — set up the way a careful
   friend would set it up, for the price of one month of Photoshop.</p>
 
-  <h2 style="text-align:center;margin-top:44px">A professional-grade <span class="grad">creative suite</span></h2>
-  <p style="text-align:center;max-width:640px;margin:0 auto">Preinstalled, integrated, and ready on
+  <h2>A professional-grade <span class="grad">creative suite</span></h2>
+  <p class="lead">Preinstalled, integrated, and ready on
   first boot — the open-source tools professionals actually use.</p>
   <div class="grid">
-    <div class="card"><h3>🖼️ GIMP + PhotoGIMP</h3><p>Full photo editing with a familiar,
+    <div class="card"><h3>GIMP + PhotoGIMP</h3><p>Full photo editing with a familiar,
     Photoshop-style layout out of the box.</p></div>
-    <div class="card"><h3>🎨 Krita</h3><p>A digital art studio for sketching, painting, comics,
+    <div class="card"><h3>Krita</h3><p>A digital art studio for sketching, painting, comics,
     and concept art.</p></div>
-    <div class="card"><h3>✒️ Inkscape</h3><p>Vector design — logos, icons, diagrams,
+    <div class="card"><h3>Inkscape</h3><p>Vector design — logos, icons, diagrams,
     print-ready artwork.</p></div>
-    <div class="card"><h3>🎬 Kdenlive</h3><p>A capable video editor: multitrack, effects,
+    <div class="card"><h3>Kdenlive</h3><p>A capable video editor: multitrack, effects,
     transitions, color tools.</p></div>
-    <div class="card"><h3>🧊 Blender</h3><p>3D modeling, animation, and rendering — the industry's
+    <div class="card"><h3>Blender</h3><p>3D modeling, animation, and rendering — the industry's
     open-source powerhouse.</p></div>
-    <div class="card"><h3>📹 OBS Studio</h3><p>Record and stream with the same tool the pros
+    <div class="card"><h3>OBS Studio</h3><p>Record and stream with the same tool the pros
     use.</p></div>
   </div>
   <!-- "Pro includes a guided installer" made two claims and neither held.
@@ -205,31 +215,31 @@ table.cmp td:nth-child(2),table.cmp td:nth-child(3),table.cmp th:nth-child(2),ta
       <div class="row"><b>1Password</b><span>→ KeePassXC</span><span class="price">$36/yr → $0</span></div>
       <div class="row total"><b>Dagric OS Pro</b><span>everything above, integrated &amp; tested</span><span class="price">$39, once</span></div>
     </div>
-    <p style="color:var(--muted);font-size:.85rem;margin-top:14px">Honest math: the tools on the
+    <p style="color:var(--on-3);font-size:var(--t-ui);margin-top:var(--s-4);max-width:var(--w-col)">Honest math: the tools on the
     right are the leading free, open-source alternatives — not the trademarked products, and free to
     anyone. What the $39 buys is the finished suite: hand-picked, preinstalled, integrated, tested,
     and supported, so it just works on first boot instead of being a weekend of setup. (Blender,
     Krita, Inkscape, OBS and more are in there too.)</p>
-    <p style="text-align:center;margin-top:26px">
+    <p style="margin-top:var(--s-5)">
       <a class="btn primary lg" href="https://buy.stripe.com/6oU5kwbye2Jogri31D8k809">Get all of it — $39, once</a></p>
-    <p class="center refund">14-day, no-questions refund</p>
+    <p class="refund">14-day, no-questions refund</p>
   </div>
 
-  <h2 style="text-align:center">Windows apps &amp; <span class="grad">serious gaming</span></h2>
+  <h2>Windows apps &amp; <span class="grad">serious gaming</span></h2>
   <div class="grid">
-    <div class="card"><h3>📦 Bottles + Wine</h3><p>Run Windows software in tidy per-app containers
+    <div class="card"><h3>Bottles + Wine</h3><p>Run Windows software in tidy per-app containers
     tuned for compatibility — one click from the Dagric Hub.</p></div>
-    <div class="card"><h3>🎮 Steam + Proton</h3><p>One-click consent install, with 32-bit Vulkan,
+    <div class="card"><h3>Steam + Proton</h3><p>One-click consent install, with 32-bit Vulkan,
     GameMode, and MangoHud already in place.</p></div>
-    <div class="card"><h3>🚀 Heroic &amp; ProtonUp-Qt</h3><p>Your Epic, GOG, and Amazon libraries —
+    <div class="card"><h3>Heroic &amp; ProtonUp-Qt</h3><p>Your Epic, GOG, and Amazon libraries —
     plus point-and-click Proton-GE management. One click from the Hub, like Steam
     and Bottles beside it.</p></div>
-    <div class="card"><h3>🪟 Windows in a window</h3><p>For the rare app Wine can't run: a full
+    <div class="card"><h3>Windows in a window</h3><p>For the rare app Wine can't run: a full
     KVM virtual-machine stack — UEFI and TPM 2.0 included, so even Windows 11 installs. Real
     Windows, safely boxed inside Dagric. You bring the Windows ISO; we never bundle it.</p></div>
   </div>
 
-  <h2 style="text-align:center">All seven <span class="grad">Dagric Looks</span></h2>
+  <h2>All seven <span class="grad">Dagric Looks</span></h2>
   <div class="looks-strip">
     <div><img src="/assets/look-classic.svg" alt="Classic"><div class="cap">Classic</div></div>
     <div><img src="/assets/look-focus.svg" alt="Focus"><div class="cap">Focus</div></div>
@@ -240,7 +250,7 @@ table.cmp td:nth-child(2),table.cmp td:nth-child(3),table.cmp th:nth-child(2),ta
     <div><img src="/assets/look-duo.svg" alt="Duo"><div class="cap">Duo · Pro</div></div>
   </div>
 
-  <h2 style="text-align:center">And the <span class="grad">working stack</span></h2>
+  <h2>And the <span class="grad">working stack</span></h2>
   <div class="grid">
     <!-- "working out of the box" was false for the two items in the list that are
          daemons. 0600-pro-edition.hook.chroot:171 runs `systemctl disable docker.service
@@ -252,66 +262,75 @@ table.cmp td:nth-child(2),table.cmp td:nth-child(3),table.cmp th:nth-child(2),ta
          while the page had told them otherwise. Do not restore the short line: the
          correction is the stronger pitch, because "nothing listens uninvited" is a promise
          this product actually keeps. -->
-    <div class="card"><h3>🧰 Developer-ready</h3><p>Docker + Compose, Podman, Distrobox,
+    <div class="card"><h3>Developer-ready</h3><p>Docker + Compose, Podman, Distrobox,
     build-essential, Git, Python and SSH, all preinstalled. Podman runs rootless the moment
     you open a terminal; the Docker daemon and the SSH server ship switched off until you
     turn them on — one command each, spelled out in the built-in manual — so nothing listens
     on your machine uninvited.</p></div>
-    <div class="card"><h3>🤖 Local, private AI</h3><p>Ollama one-click: run capable language models
+    <div class="card"><h3>Local, private AI</h3><p>Ollama one-click: run capable language models
     on your hardware. Nothing leaves the machine.</p></div>
-    <div class="card"><h3>📱 Phone + cloud</h3><p>KDE Connect pairing, Google Drive in Dolphin,
+    <div class="card"><h3>Phone + cloud</h3><p>KDE Connect pairing, Google Drive in Dolphin,
     Borg/Vorta backups to any cloud via rclone.</p></div>
-    <div class="card"><h3>🛡️ Security suite</h3><p>Opt-in OpenSnitch application firewall, and USB
+    <div class="card"><h3>Security suite</h3><p>Opt-in OpenSnitch application firewall, and USB
     Protection that allow-lists your own devices before it blocks anything — armed when you
     choose, never at the cost of your keyboard.</p></div>
-    <div class="card"><h3>📚 Full office &amp; fonts</h3><p>The complete LibreOffice suite plus CJK
+    <div class="card"><h3>Full office &amp; fonts</h3><p>The complete LibreOffice suite plus CJK
     and broad Unicode coverage — nothing renders as boxes.</p></div>
-    <div class="card"><h3>🌗 All seven Dagric Styles</h3><p>Free picks from four moods (Dawn,
+    <div class="card"><h3>All seven Dagric Styles</h3><p>Free picks from four moods (Dawn,
     Daybreak, Midnight and a WCAG-measured High Contrast); Pro unlocks Classy (dark glass and
     amber), Neon (electric cyan with blur and wobbly windows) and Forest — each pairing a Dagric
     wallpaper with matched colors and effects.</p></div>
-    <div class="card"><h3>🎨 Pro look</h3><p>Papirus icon theme and the full layout set, branded
+    <div class="card"><h3>Pro look</h3><p>Papirus icon theme and the full layout set, branded
     and coherent.</p></div>
   </div>
 
-  <h2 style="text-align:center">Curated <span class="grad">open-source gems</span></h2>
-  <p style="text-align:center;max-width:640px;margin:0 auto">Hand-picked tools that make
+  <h2>Curated <span class="grad">open-source gems</span></h2>
+  <p class="lead">Hand-picked tools that make
   "own it outright" real — private by default, no accounts, no cloud lock-in.</p>
-  <p style="text-align:center;max-width:640px;margin:10px auto 0;color:var(--muted);font-size:.9rem">
+  <p class="note">
   Straight answer: the ones marked <em>one-click install</em> below are in the free edition's Hub
   too — we don't gate a download button. What Pro buys is everything else on this page, already
   installed and tuned.</p>
   <div class="grid">
-    <div class="card"><h3>🔑 KeePassXC</h3><p>Your passwords in a local vault only you hold —
+    <div class="card"><h3>KeePassXC</h3><p>Your passwords in a local vault only you hold —
     no cloud, no subscription.</p></div>
-    <div class="card"><h3>🔄 Syncthing</h3><p>Sync files between your own devices directly —
+    <div class="card"><h3>Syncthing</h3><p>Sync files between your own devices directly —
     no cloud, no account, no middleman.</p></div>
-    <div class="card"><h3>📡 LocalSend</h3><p>Send files across the room like AirDrop — private,
+    <div class="card"><h3>LocalSend</h3><p>Send files across the room like AirDrop — private,
     cross-platform, over your own network (one-click install).</p></div>
-    <div class="card"><h3>🔐 Cryptomator</h3><p>Encrypt your files into a vault before they ever
+    <div class="card"><h3>Cryptomator</h3><p>Encrypt your files into a vault before they ever
     touch a cloud folder — the provider only sees ciphertext (one-click install).</p></div>
-    <div class="card"><h3>🖼️ Upscayl</h3><p>Enlarge and enhance images with AI that runs entirely
+    <div class="card"><h3>Upscayl</h3><p>Enlarge and enhance images with AI that runs entirely
     on your machine — no upload, no account (one-click install).</p></div>
-    <div class="card"><h3>📝 Joplin</h3><p>Notes and to-dos in open Markdown on your own disk —
+    <div class="card"><h3>Joplin</h3><p>Notes and to-dos in open Markdown on your own disk —
     offline-first, no account, optional end-to-end-encrypted sync. The private OneNote/Notion
     alternative (one-click install).</p></div>
-    <div class="card"><h3>📄 ONLYOFFICE</h3><p>The ribbon layout Office veterans know, with the
+    <div class="card"><h3>ONLYOFFICE</h3><p>The ribbon layout Office veterans know, with the
     best open-source .docx/.xlsx/.pptx fidelity — runs alongside LibreOffice; keep whichever
     fits (one-click install).</p></div>
-    <div class="card"><h3>🛂 Flatseal</h3><p>See and control exactly what each app is allowed to
+    <div class="card"><h3>Flatseal</h3><p>See and control exactly what each app is allowed to
     access. Permissions you can actually read.</p></div>
-    <div class="card"><h3>📷 darktable</h3><p>A full RAW photo-development workflow — the
+    <div class="card"><h3>darktable</h3><p>A full RAW photo-development workflow — the
     open-source answer to Lightroom.</p></div>
-    <div class="card"><h3>🎚️ Audacity &amp; HandBrake</h3><p>Multitrack audio editing and
+    <div class="card"><h3>Audacity &amp; HandBrake</h3><p>Multitrack audio editing and
     video conversion, both open, both included.</p></div>
-    <div class="card"><h3>🌊 qBittorrent</h3><p>A clean, ad-free BitTorrent client — the way it
+    <div class="card"><h3>qBittorrent</h3><p>A clean, ad-free BitTorrent client — the way it
     should be.</p></div>
-    <div class="card"><h3>🗂️ Filelight</h3><p>See what's eating your disk at a glance, and reclaim
+    <div class="card"><h3>Filelight</h3><p>See what's eating your disk at a glance, and reclaim
     the space.</p></div>
   </div>
 
-  <h2 style="text-align:center">Compare <span class="grad">editions</span></h2>
-  <div style="overflow-x:auto">
+  <h2 id="tbl-compare-editions-pro">Compare <span class="grad">editions</span></h2>
+  <!-- This wrapper is overflow-x:auto and had no tabindex, no role and no
+       name — a div with overflow:auto is NOT focusable in Chrome without
+       tabindex, so the moment this table starts scrolling a keyboard-only
+       reader cannot scroll it at all. WCAG 2.1.1, on the page that takes the
+       money. It measures exactly 320px inside a 320px wrapper at 360px today
+       and does not scroll, but this redesign moves the type scale and a type
+       scale is what starts a table scrolling, silently. Same trio as the two
+       on index.html and the four on accessibility.html; the name is the id of
+       the h2 immediately above so the two cannot drift apart. -->
+  <div class="tablewrap" tabindex="0" role="region" aria-labelledby="tbl-compare-editions-pro">
   <table class="cmp">
     <thead><tr><th>What you get</th><th>Free</th><th>Pro</th></tr></thead>
     <tbody>
@@ -345,10 +364,10 @@ table.cmp td:nth-child(2),table.cmp td:nth-child(3),table.cmp th:nth-child(2),ta
 
   <div class="cta-band" style="margin-bottom:0">
     <div class="big">Ready to <span class="grad">unlock everything?</span></div>
-    <p style="color:var(--muted);max-width:520px;margin:10px auto 24px">Instant download after
+    <p style="color:var(--on-2);max-width:var(--w-text);margin:var(--s-3) 0 var(--s-5)">Instant download after
     checkout. Install on the machines you own. If it's not for you, 14 days, full refund.</p>
     <a class="btn primary" href="https://buy.stripe.com/6oU5kwbye2Jogri31D8k809">Get Dagric Pro — $39</a>
-    <p style="margin-top:14px"><a href="/download">Or start with the free edition →</a></p>
+    <p style="margin-top:var(--s-4)"><a href="/download">Or start with the free edition →</a></p>
   </div>
 </main>
 

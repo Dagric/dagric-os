@@ -8,19 +8,31 @@
 <link rel="icon" type="image/png" href="/assets/dagric-logo.png">
 <link rel="stylesheet" href="/assets/site.css">
 <style>
-.feat{display:grid;gap:18px;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));margin:26px 0 8px}
+.feat{display:grid;gap:var(--s-5);grid-template-columns:repeat(auto-fit,minmax(min(17rem,100%),1fr));
+  margin:var(--s-5) 0 var(--s-2)}
 .feat .card{margin:0}
-/* Frame, radius, shadow and the shared 900px cap come from `.shot,.strip`
-   in site.css now, so this page's two screenshots match the homepage and the
-   download page. Only the tighter vertical rhythm stays local; `auto` sides
-   centre it inside main.wide's 1120px, where shot-hub used to run the full
-   width while the launcher shot on the homepage sat at 900px. */
-.strip{margin:14px auto 34px}
-h2.sec{margin-top:56px}
-@media(max-width:640px){h2.sec{margin-top:38px}.strip{border-radius:var(--r-md);margin-bottom:24px}}
+/* Frame, radius, shadow and the shared cap come from `.shot,.strip` in
+   site.css now, so this page's two screenshots match the homepage and the
+   download page. Only the vertical rhythm stays local. */
+.strip{margin:var(--s-4) 0 var(--s-6)}
+/* h2.sec is the department mark on this page: site.css gives main.wide > h2 a
+   hairline, and this only adds the extra air between departments. */
+h2.sec{margin-top:var(--s-7)}
+/* The mid-page CTA was a .note overridden inline into a centred bordered box —
+   an inline style re-styling a shared component is how components fork. It is a
+   ruled band now, declared once, here, where it is used. */
+.midcta{border-top:1px solid var(--rule);border-bottom:1px solid var(--rule);
+  padding:var(--s-5) 0;margin:var(--s-6) 0;
+  display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+/* flex-basis:100% keeps the line above its own button row. The two buttons are
+   siblings of the <p>, not inside it, so site.css's p:has(> .btn + .btn) rule
+   cannot reach them — without this they touch. */
+.midcta p{flex:0 0 100%;margin:0 0 var(--s-3);color:var(--on);font-weight:600;
+  font-size:var(--t-h3);font-family:var(--ff-display)}
+@media(max-width:640px){h2.sec{margin-top:var(--s-6)}.strip{margin-bottom:var(--s-5)}}
 </style>
 <link rel="canonical" href="https://dagric.com/features">
-<meta name="theme-color" content="#0a111c">
+<meta name="theme-color" content="#0C0F14">
 <link rel="icon" href="/favicon.ico" sizes="32x32">
 <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
 <link rel="manifest" href="/site.webmanifest">
@@ -49,12 +61,12 @@ h2.sec{margin-top:56px}
 </div></nav>
 
 <main id="main" class="wide">
-  <div style="text-align:center;max-width:720px;margin:0 auto 6px">
+  <header class="phero" style="padding:0 0 var(--s-5)">
     <div class="eyebrow">Everything, already working</div>
     <h1>Built like it's <span class="grad">your machine.</span></h1>
-    <p class="lead" style="margin:14px auto 0">Because it is. Every feature below ships enabled,
+    <p class="lead">Because it is. Every feature below ships enabled,
     tested, and quiet — no setup scavenger hunt, no settings to un-break.</p>
-  </div>
+  </header>
 
   <!-- Was shot-welcome.png with alt "The Dagric OS welcome screen and Hub". The
        alt was half wrong: that file is a FIREFOX WINDOW showing the welcome
@@ -86,7 +98,7 @@ h2.sec{margin-top:56px}
        and Hub in it are the same real frames as the stills above and below.
        No autoplay, no loop, no muted-autoplay pattern: this is a 53-second
        trailer someone chooses to watch, not decoration that starts talking. -->
-  <div class="strip" style="max-width:900px;margin-left:auto;margin-right:auto">
+  <div class="strip">
     <video controls preload="none" playsinline width="1280" height="720"
            poster="/assets/promo-poster.png" style="width:100%;display:block"
            aria-label="A 53-second tour of Dagric OS, recorded from a running system">
@@ -130,10 +142,10 @@ h2.sec{margin-top:56px}
     impostors — without ever locking out your own keyboard.</p></div>
   </div>
 
-  <div class="note" style="text-align:center;border-left:none;border:1px solid var(--line);border-radius:var(--r-md);margin:40px 0;padding:26px">
-    <p style="margin:0 0 16px;color:var(--text);font-weight:600;font-size:1.1rem">All of this is in the free edition. Try it today.</p>
+  <div class="midcta">
+    <p>All of this is in the free edition. Try it today.</p>
     <a class="btn primary" href="/download">Download Dagric OS — free</a>
-    <a class="btn ghost" href="/pro" style="margin-left:8px">See Pro · $39</a>
+    <a class="btn ghost" href="/pro">See Pro · $39</a>
   </div>
 
   <h2 class="sec">Un-breakable, practically</h2>
@@ -190,11 +202,11 @@ h2.sec{margin-top:56px}
        is refundable, while index, pro and download all pair the two — asking for the
        decision after the longest evidence page on the site with no safety net under
        it. .refund already renders the green check and muted type; nothing new needed. -->
-  <p style="margin:48px 0 0;text-align:center;justify-content:center">
+  <p style="margin:var(--s-7) 0 0">
     <a class="btn primary lg" href="/download">Download Dagric OS — free</a>
     <a class="btn ghost lg" href="/pro">See Pro · $39</a>
   </p>
-  <p class="refund" style="text-align:center">Free forever, no account. Pro is a one-time $39 with a
+  <p class="refund">Free forever, no account. Pro is a one-time $39 with a
   14-day, no-questions refund.</p>
 </main>
 
