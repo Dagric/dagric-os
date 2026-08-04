@@ -288,6 +288,34 @@ def cmd_apply(a):
     return 1 if problems else 0
 
 
+def set_header_field(src, field, value):
+    """Rewrite one `"Field: value\\n"` header line safely.
+
+    USE THIS INSTEAD OF re.sub, ALWAYS. The obvious one-liner —
+
+        re.sub(r'"X-Field:[^"]*"', '"X-Field: new\\\\n"', src)
+
+    — is a trap that has now been walked into twice in this repo, four hours
+    apart. re.sub processes escapes in the REPLACEMENT string, so a `\\n`
+    intended as the two characters gettext requires is emitted as a real
+    newline, splitting the line in half:
+
+        "X-Dagric-Review-Status: second-model-reviewed
+        "
+
+    which is not valid gettext. The second occurrence was caught in seconds by
+    header_damage() below, which exists because of the first. A function that
+    cannot be called wrongly is better than a rule nobody remembers, so the
+    replacement goes through a lambda — which re.sub does not escape-process —
+    and the literal backslash is built from chr(92) so it cannot be mangled by
+    whatever quoting the caller is written in.
+    """
+    bs_n = chr(92) + "n"
+    new = '"%s: %s%s"' % (field, value, bs_n)
+    out, n = re.subn(r'"%s:[^"]*"' % re.escape(field), lambda _m: new, src, count=1)
+    return out, n
+
+
 def header_damage(path):
     """Every quoted line in a .po must open and close on the same line.
 

@@ -51,6 +51,30 @@
 # unanimously, including the model that proposed it. The accepted-answer list
 # still takes "y" everywhere -- only the display was left alone.
 #
+#
+# BACK-TRANSLATION QA, 2026-08-04. Every string in this catalogue was rendered
+# back into English by deepseek-v4-pro, which was shown the Spanish and NOTHING
+# else — no English source, no product name, no description of what the program
+# does. A model that cannot see the original cannot agree with it, which is the
+# point: a meaning inversion survives a review that pattern-matches two texts
+# into agreement, and cannot survive a round trip.
+#
+# glm-5.2 then compared each round trip against the real English and marked it
+# SAME, DRIFT or INVERSION. Three model families, three jobs, none of them
+# checking work it produced.
+#
+# Result for Spanish: 28 of 438 flagged, 2 of them as INVERSION.
+# Across all five catalogues: 3 inversions raised out of 2,189 strings, and all
+# three were put to a three-model panel with the source, the translation and the
+# back-translation pasted in. Unanimous REFUTED at high confidence: Spanish
+# "Windows solo se LEE" is the pasiva refleja and means "Windows is only read",
+# not "Windows reads"; Portuguese "rode antes X" is an adverb meaning run X
+# first, not run something before X. Both were literal-back-translation
+# artifacts. ZERO genuine inversions remain.
+#
+# That is the strongest check available short of a native speaker, and it is
+# still not one. The block above stands.
+#
 # A string that should ship in English until it has been checked can be
 # marked "#, fuzzy": msgfmt drops fuzzy messages and the English source is
 # shown instead. Never build with --use-fuzzy.
@@ -70,7 +94,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Generator: machine translation 2026-07-27, reviewed qwen3.8-max 2026-08-04\n"
-"X-Dagric-Review-Status: second-model-reviewed; no-native-speaker-pass; 21-changes\n"
+"X-Dagric-Review-Status: second-model-reviewed; back-translation-verified; no-native-speaker-pass\n"
 
 #. TRANSLATORS: the setup wizard's own buttons, headings and step names.
 #. This is the first screen a new owner sees. Keep button labels short;
