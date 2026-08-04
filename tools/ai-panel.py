@@ -15,6 +15,15 @@ Token Plan on this account serves several unrelated families through one
 endpoint — Qwen, GLM and DeepSeek — so a three-way panel costs one subscription
 and buys genuinely independent readings.
 
+INDEPENDENT IN TRAINING IS NOT INDEPENDENT IN AVAILABILITY, and that distinction
+cost a run. One endpoint means one rolling 5-hour quota, so when it emptied all
+three panel members returned the same 429 from the same host within a second of
+each other. The standing advice — fall back to --models deepseek-v4-pro, which
+is on a separate account — was false while this tool read one credential pair:
+the fallback resolved to the same exhausted plan. tools/qwen.py now routes
+deepseek-* to .secrets/deepseek.{key,base}, so that fallback is real. The panel
+still shares a quota by default; only the DeepSeek member escapes it.
+
 The output that matters is DISAGREEMENT. Unanimity is weak evidence (models
 share plenty of priors); a split is a reliable signal that the question is
 actually hard and a human should look. So this prints the split first and does
@@ -99,6 +108,14 @@ def run(prompt, models, max_tokens, temperature, system=None):
 
 
 def main():
+    # FIRST, before anything can reach a stream. A panel answer is the most
+    # expensive text this repo produces — three concurrent reasoning calls,
+    # minutes of wall clock, real tokens — and printing it is the last step.
+    # A U+2011 non-breaking hyphen in one model's prose raised
+    # UnicodeEncodeError on Windows' cp1252 stdout and discarded a run that had
+    # already completed and been parsed. See qwen.use_utf8_stdout.
+    qwen.use_utf8_stdout()
+
     ap = argparse.ArgumentParser()
     ap.add_argument("--prompt")
     ap.add_argument("--prompt-file")
@@ -115,7 +132,17 @@ def main():
     # possible failure mode for a panel: a truncated model looks like an
     # abstaining model, so a budget that is merely too low silently turns into a
     # third opinion that was never actually given.
-    ap.add_argument("--max-tokens", type=int, default=12000)
+    #
+    # RAISED FROM 12000 TO 24000 after glm-5.2 truncated at exactly 12001
+    # completion tokens on two separate real questions — once on the reflow
+    # claim and again on the NVIDIA blacklist claim — returning an empty
+    # string both times and scoring UNCLEAR. Twice is a pattern, not bad luck:
+    # this model spends far more of its budget reasoning than the other two
+    # (deepseek answered the same question in 1,442 tokens, qwen in 17,517),
+    # so a ceiling that is comfortable for two of the panel silently removes
+    # the third. A panel that reports 2-1 when it was really 2-0-and-a-timeout
+    # is worse than one that reports nothing.
+    ap.add_argument("--max-tokens", type=int, default=24000)
     ap.add_argument("--temperature", type=float, default=0.2)
     a = ap.parse_args()
 

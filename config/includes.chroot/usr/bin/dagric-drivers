@@ -147,6 +147,39 @@ https://dagric.com/support and we will tell you which driver it takes.")"
             fi
             echo "nvidia-detect recommends: $NVPKG" >&2
 
+            # PUT BACK ANYTHING A PREVIOUS FAILED ATTEMPT SWITCHED OFF, BEFORE
+            # TRYING AGAIN. Both recovery paths below rescue a broken install by
+            # renaming the nouveau blacklist to *.dagric-disabled — correct, and
+            # it is why the owner still has a screen to read this on. But it was
+            # a ONE-WAY DOOR: nothing anywhere put the file back.
+            #
+            # The trap is dpkg's conffile rule. A conffile renamed by the
+            # administrator is recorded as removed-by-admin, and dpkg does NOT
+            # restore it when an ALREADY-INSTALLED package is installed again.
+            # So the second run — the one that succeeds — ended with the
+            # proprietary driver present and nouveau not blacklisted. Both
+            # drivers then race for the card at boot; the kernel binds only one
+            # to a PCI device, so the usual outcome is nouveau winning and the
+            # driver the owner just paid two attempts to install never loading,
+            # with no error anywhere to say why.
+            #
+            # The initramfs regeneration is not optional and is easy to miss:
+            # the failure paths run update-initramfs AFTER removing the
+            # blacklist, so nouveau-enabled is baked into the image. Restoring
+            # the file on disk without rebuilding the initramfs leaves nouveau
+            # loading early regardless of what /etc/modprobe.d now says.
+            _restored=""
+            for _d in /etc/modprobe.d/*.dagric-disabled; do
+                [ -e "$_d" ] || continue
+                if mv "$_d" "${_d%.dagric-disabled}" 2>/dev/null; then
+                    _restored=yes
+                fi
+            done
+            if [ -n "$_restored" ]; then
+                echo "restored a nouveau blacklist disabled by an earlier failed attempt" >&2
+                update-initramfs -u >/dev/null 2>&1 || true
+            fi
+
             # A wrong or unavailable package name must not abort the script
             # under set -e with raw apt output as the only explanation.
             if ! apt-get install -y linux-headers-amd64 "$NVPKG" firmware-misc-nonfree; then
