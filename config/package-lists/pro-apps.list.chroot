@@ -57,7 +57,13 @@ kio-gdrive
 # no way to add an account. The OAuth login window needs the QtWebEngine QML
 # module. (Audit: verified missing in the shipped Pro image.)
 kaccounts-providers
-# signon-ui renders the sign-in window, and without it Online Accounts cannot
+# signon-ui-qt renders the sign-in window and signon-ui-service is the D-Bus
+# service behind it. NOT "signon-ui" — that name does not exist in trixie and
+# would have aborted the Pro chroot stage an hour into the build. The real
+# names are in kaccounts-integration's own Recommends line, which is where a
+# package name should always be read from rather than guessed:
+#   Recommends: kaccounts-providers, signon-ui-qt, signon-ui-service, systemsettings
+# Without them Online Accounts cannot
 # complete a single login. kaccounts-providers is here and correct; signond is
 # pulled in; but the UI plugin that draws the Google consent screen is a
 # Recommends and was dropped. Verified: out/manifest/pro.packages has
@@ -66,7 +72,8 @@ kaccounts-providers
 # authentication session with nothing to display it, and the dialog either never
 # appears or closes immediately. The advertised Google Drive integration in
 # Dolphin can therefore never be set up.
-signon-ui
+signon-ui-qt
+signon-ui-service
 qml6-module-qtwebengine
 
 # Optional scheduled-snapshot GUI. The automatic pre-update rollback stack
