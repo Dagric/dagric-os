@@ -57,7 +57,18 @@ apply() {
 lkey() { sed -n "s/^[[:space:]]*$2[[:space:]]*=[[:space:]]*//p" "$1" | head -1; }
 
 TMPLIST=$(mktemp) || exit 1
-trap 'rm -f "$TMPLIST" "$TMPLIST.n"' EXIT INT TERM
+# PAIRED TRAPS, NOT ONE COMBINED TRAP. The old form was
+#     trap 'rm -rf "$WORK"' EXIT INT TERM
+# and it deleted the state and then KEPT RUNNING. A trap handler that returns
+# does not end the script in dash: the shell resumes at the next statement with
+# $TMPLIST already gone. Verified empirically, not assumed.
+# So a logout, a session-manager reap or any TERM in the middle of a preview
+# left this running against files it had just erased. Cleanup belongs on EXIT,
+# which fires once no matter how the script ends; the signal traps exist only to
+# make the script actually stop. dagric-display and dagric-hardware-check
+# already do it this way.
+trap 'rm -f "$TMPLIST" "$TMPLIST.n"' EXIT
+trap 'exit 130' INT TERM HUP
 
 for dir in $LOOK_DIRS; do
     [ -d "$dir" ] || continue

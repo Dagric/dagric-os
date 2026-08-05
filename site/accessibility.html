@@ -349,8 +349,17 @@ dl.meta dd{margin:0;color:var(--on-2)}
   independently developed applications bundled with the system — LibreOffice, Firefox, GIMP,
   Blender and the rest each publish their own accessibility information.</p>
   <p>Where a row above says <em>Does Not Support</em>, that is a deliberate statement rather than
-  an omission. Slow keys, braille and the login prompt are the three known gaps as of this
-  release; if that changes, this page changes with it.</p>
+  an omission. Slow keys, braille and the login prompt are three of the four known gaps as of
+  this release.</p>
+  <p>The fourth is stated here rather than left for you to find: the two default colour schemes,
+  <strong>DagricLight</strong> and <strong>DagricDark</strong>, inherit accent colours from Breeze
+  that fail the 4.5:1 contrast minimum in several places &mdash; measured at 2.43:1 for active
+  foreground on a button and 2.14:1 on a header. That is a real WCAG&nbsp;1.4.3 exposure in the
+  schemes every owner gets by default. It is an open decision rather than an oversight: repainting
+  the brand is a deliberate change, not something to slip into an accessibility fix. Every other
+  colour pair in the shipped stylesheets is measured and passes. If you are evaluating Dagric
+  against a procurement standard, weigh this row on its own terms &mdash; a gap list that quietly
+  rounds itself down is worth less to you than one that does not.</p>
 
   <h2>Feedback</h2>
   <p>If you use assistive technology and something here is wrong, incomplete, or does not match

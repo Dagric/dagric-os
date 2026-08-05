@@ -161,8 +161,24 @@ URL="file://$ROOT/$PAGE#e=$EDITION"
 #
 # Only languages that actually have a guide are listed. Advertising a
 # translation that is not there is worse than saying nothing.
+#
+# THAT RULE WAS RIGHT AND THE LIST WENT STALE UNDER IT. When this was written
+# German was the only translated guide. Five ship now — guide/de, es, fr, it and
+# pt_BR — and manual.js has had complete LANGS entries for all five for as long.
+# So a Spanish, French, Italian or Brazilian owner opened the manual, was told
+# nothing about why it is in English, and was offered no route to the guide that
+# IS in their language. Exactly the defect the comment above describes, in four
+# more languages than it was written for.
+#
+# The key is manual.js's, not the directory name: its entry is `pt` and its dir
+# is pt_BR. Bare pt* is deliberately absent — pt_PT has no guide, and the rule
+# at the top of this comment still holds.
 case "$(dg_lang)" in
-    de*) URL="$URL&l=de" ;;
+    de*)    URL="$URL&l=de" ;;
+    es*)    URL="$URL&l=es" ;;
+    fr*)    URL="$URL&l=fr" ;;
+    it*)    URL="$URL&l=it" ;;
+    pt_BR*) URL="$URL&l=pt" ;;
 esac
 
 # x-www-browser first — it is Debian's alternatives link to whichever browser
