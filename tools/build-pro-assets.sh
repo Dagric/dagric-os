@@ -50,9 +50,15 @@ for f in $(grep -rlx 'EDITION=pro' "$SRC/looks" "$SRC/styles" 2>/dev/null | sort
         cp "$thumb" "$WORK/thumbs/"
         n_thumb=$((n_thumb + 1))
     else
-        # Loud, not silent. A missing preview is a blank tile in the gallery,
-        # and the gallery is most of what the extra layouts ARE.
-        echo "assets: WARNING no thumbnail for $base" >&2
+        # Loud, but NOT because it breaks anything. Thumbnails are optional by
+        # design: dagric-appearance:37-38 says a missing one draws "a tile in
+        # that style's own accent colour instead of a broken image", and
+        # highcontrast.style ships with no thumbnail on the free edition for
+        # exactly that reason. So this is a quality note, not a fault — the
+        # gallery is most of what the paid layouts ARE, and a purchased layout
+        # deserves a real preview rather than a coloured square.
+        echo "assets: NOTE no thumbnail for $base (gallery will draw its accent" >&2
+        echo "        colour instead; harmless, but a paid layout deserves art)" >&2
     fi
 done
 
