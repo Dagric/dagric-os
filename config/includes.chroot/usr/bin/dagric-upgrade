@@ -391,6 +391,24 @@ apt-get -y --purge autoremove || true
 # 0100-identity.hook.chroot in step: if one gains a field, so does the other.
 say ""
 say "Restoring Dagric branding (the upgrade replaces it with Debian's)..."
+
+# AND STOP IT HAPPENING AGAIN, for a machine that predates the diversion.
+#
+# 0100-identity.hook.chroot now diverts this file at build time, so images
+# built after that change are already protected and this is a no-op. Machines
+# installed from an earlier ISO are not, and they are the ones that need it:
+# without a diversion the next POINT release quietly rebrands them to Debian,
+# and unlike this upgrade nothing runs afterwards to put it back. Running
+# dagric-upgrade is the only moment this code gets to reach such a machine.
+#
+# --no-rename because base-files is Essential and dpkg-divert warns that
+# renaming a file out of one is dangerous. See the hook for the tested
+# sequence.
+if ! dpkg-divert --list /usr/lib/os-release 2>/dev/null | grep -q os-release; then
+    dpkg-divert --local --no-rename \
+        --divert /usr/lib/os-release.debian --add /usr/lib/os-release >/dev/null 2>&1 || true
+fi
+
 NEWDEB=$(sed -n 's/^VERSION_ID="\([0-9]*\)".*/\1/p' /usr/lib/os-release 2>/dev/null | head -1)
 cat > /usr/lib/os-release <<EOF
 NAME="Dagric OS"

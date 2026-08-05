@@ -19,6 +19,45 @@ set -e
 # somewhere else — /bugs is what a decade of Linux tooling expects to find here,
 # and the two must be changed together. It goes live with the next site deploy;
 # until that deploy runs, this link is still a 404.
+
+# WITHOUT THIS DIVERSION EVERY DAGRIC MACHINE TURNS BACK INTO DEBIAN AT THE
+# FIRST POINT RELEASE, and nothing warns anybody.
+#
+# /usr/lib/os-release belongs to base-files, and it is a plain packaged file
+# rather than a conffile — so dpkg overwrites it with no prompt and no note in
+# the log. base-files is re-released at every Debian point release (13.1, 13.2,
+# …), which arrives through ordinary apt upgrade or unattended-upgrades. Not
+# through dagric-upgrade: that tool restores the branding afterwards, but it is
+# for the 13-to-14 jump and an owner has no reason to run it for a point
+# release. So the whole fleet quietly loses its name within a couple of months
+# of trixie shipping.
+#
+# MEASURED, NOT ASSUMED. In a trixie container: write ID=dagric, then
+# `apt-get install --reinstall base-files`, then read it back — ID=debian. With
+# the diversion below, the same test reads back ID=dagric, twice in a row, and
+# Debian's copy lands at os-release.debian.
+#
+# What the owner would have seen: KDE's crash handler, About This System and
+# every "report a problem" link pointing at Debian instead of dagric.com, the
+# logo gone, and — on Pro — VARIANT_ID=pro gone with it. They paid for Dagric
+# and an unattended security update would have handed them stock Debian.
+#
+# --no-rename IS NOT OPTIONAL. dpkg-divert warns, in these words, that
+# diverting a file from an Essential package WITH rename is dangerous, and
+# names --no-rename as the fix. Renaming would move the live os-release aside
+# at a moment when nothing has yet written a replacement; --no-rename records
+# the diversion and leaves the current file exactly where it is, so the write
+# below simply replaces it and os-release is never absent for an instant. The
+# tested sequence is: add diversion, write ours, reinstall base-files — held.
+#
+# dagric-upgrade's own restore block stays. This makes it belt-and-braces
+# rather than the only thing standing between a customer and Debian branding,
+# which is what it was.
+if ! dpkg-divert --list /usr/lib/os-release | grep -q os-release; then
+    dpkg-divert --local --no-rename \
+        --divert /usr/lib/os-release.debian --add /usr/lib/os-release
+fi
+
 cat > /usr/lib/os-release << 'EOF'
 NAME="Dagric OS"
 PRETTY_NAME="Dagric OS 1.0 (Foundation)"
