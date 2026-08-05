@@ -151,7 +151,19 @@ say "Checking the purchase..."
 # HEAD, not GET: this asks the gate the same question the download does, without
 # pulling a 4 GB ISO to find out. The gate answers 200 for a paid session and
 # 403 for anything else.
-HTTP=$(curl -fsS -o /dev/null -w '%{http_code}' -I --max-time 30 \
+#
+# NO -f HERE, AND THAT IS THE WHOLE POINT OF THIS CALL. `curl -f` exits non-zero
+# on an HTTP error, so with it the 403 that means "we checked, and that session
+# has not paid" arrived at the `||` branch as 000 and got reported as "could not
+# reach the licence check, try again in a minute" — telling someone with a
+# mistyped session id to keep retrying a check that was working perfectly.
+# Measured against the live gate: -f gives 000, without it gives 403.
+#
+# Without -f, curl still returns 000 for a genuine connection failure and
+# nothing else, which is exactly the distinction this needs. The assets fetch
+# further down DOES keep -f, because there the desired behaviour is the
+# opposite: fail, and write no file, on any non-200.
+HTTP=$(curl -sS -o /dev/null -w '%{http_code}' -I --max-time 30 \
        "$GATE/?session_id=$SID" 2>/dev/null) || HTTP=000
 
 case "$HTTP" in
@@ -161,6 +173,14 @@ case "$HTTP" in
         die "that purchase session was not recognised as paid. If you have just
         bought Pro, give it a minute and try again — and if it keeps failing,
         dagric.com/support can look it up. Nothing was changed." ;;
+    400)
+        # The local check above only tests the cs_ prefix; the gate also requires
+        # at least eight more characters. A code pasted short — which is what
+        # happens when a line wraps in an email — passes here and fails there,
+        # and it is a typo rather than a fault worth sending to support.
+        die "that session code looks incomplete. Copy the whole cs_... value
+        from the address bar of your download page — it is long, and it is easy
+        to miss the end of it. Nothing was changed." ;;
     000|503)
         die "could not reach the licence check just now. Your purchase is fine;
         this is our end or your connection. Try again in a minute. Nothing was
