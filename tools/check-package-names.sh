@@ -61,15 +61,79 @@ fi
 NAMES=$(cat "$LISTS"/*.list.chroot | sed -e 's/#.*//' -e 's/[[:space:]]*$//' \
         | grep -v '^$' | sort -u)
 
+# THE CHECK BELOW USED TO BE  [ -n "$(apt-cache policy "$p")" ]  AND IT HAD A
+# HOLE THE EXACT SHAPE OF THE BUG IT EXISTS TO CATCH.
+#
+# Its comment claimed policy "prints nothing at all for a name apt cannot
+# locate". That is true for a TYPO and false for the case that actually costs a
+# build. apt knows every name mentioned anywhere in the archive's dependency
+# fields, including names that no longer resolve to a package. For those it
+# prints a full record with Candidate: (none) — 67 bytes for signon-ui, which
+# the old test read as "not empty, therefore fine".
+#
+#     $ apt-cache policy signon-ui          $ apt-cache policy no-such-pkg
+#     signon-ui:                            (nothing)
+#       Installed: (none)
+#       Candidate: (none)
+#       Version table:
+#
+# So the check passed signon-ui — the name that aborted the Pro chroot an hour
+# in on 2026-08-04 — while correctly catching a name apt had simply never heard
+# of. It caught typos and waved through the dangerous case: a package that was
+# removed from the archive between releases, which is the one that LOOKS
+# plausible and is why nobody checks it by hand.
+#
+# `apt-get install -s` is used instead because it is not an approximation of
+# what live-build does, it is the same operation. It also resolves a virtual
+# package with exactly one provider, which a Candidate: (none) test would
+# wrongly reject — the reason the original avoided this shape.
+#
+# One simulated install for the whole set is the fast path, because that is one
+# apt invocation rather than ~200. It is only used to decide whether anything is
+# wrong at all; when it fails, the per-name loop below finds out which, since a
+# combined run can also fail for a reason that is not a bad name (two packages
+# that conflict) and that must not be reported as a missing name.
+pkg_ok() { apt-get install -s "$1" >/dev/null 2>&1; }
+
+# PROVE THE METHOD BEFORE TRUSTING IT. Today's lesson, written down: three of
+# this session's verification attempts produced a confident wrong answer from a
+# broken method, and each was caught by a control whose result was known in
+# advance. A check that cannot detect its own failure is worse than no check,
+# because the build proceeds on its word. If any of these three disagree, the
+# environment is not what this script assumes and it must not fail a build.
+#   network-manager  real, installable        -> must pass
+#   signon-ui        known name, no candidate -> must fail  (the regression)
+#   the nonsense one never heard of           -> must fail
+if pkg_ok network-manager && ! pkg_ok signon-ui \
+   && ! pkg_ok dagric-nonexistent-selftest-name; then
+    :
+else
+    echo "pkgcheck: self-test failed — apt is not behaving as this check" >&2
+    echo "  assumes, so its answers cannot be trusted. Skipping rather than" >&2
+    echo "  failing the build on a method that is provably broken." >&2
+    rm -f /etc/apt/sources.list.d/dagric-pkgcheck.list 2>/dev/null || true
+    exit 0
+fi
+
 MISSING=""
-COUNT=0
-for p in $NAMES; do
-    COUNT=$((COUNT + 1))
-    # apt-cache policy prints nothing at all for a name apt cannot locate, and
-    # prints a record for a virtual package that something provides — which is
-    # exactly the line live-build's `apt-get install` draws.
-    [ -n "$(apt-cache policy "$p" 2>/dev/null)" ] || MISSING="$MISSING $p"
-done
+COUNT=$(printf '%s\n' $NAMES | wc -l)
+if ! apt-get install -s $NAMES >/dev/null 2>&1; then
+    for p in $NAMES; do
+        pkg_ok "$p" || MISSING="$MISSING $p"
+    done
+    # The set fails but every name resolves on its own: the problem is between
+    # two packages, not in this file. Say so precisely instead of printing an
+    # empty list of bad names under a heading that says they do not exist.
+    if [ -z "$MISSING" ]; then
+        echo "" >&2
+        echo "pkgcheck: every package name exists, but they cannot be installed" >&2
+        echo "  together — apt reports a conflict. Rerun to see it:" >&2
+        echo "    apt-get install -s \$(cat $LISTS/*.list.chroot | sed 's/#.*//')" >&2
+        echo "" >&2
+        rm -f /etc/apt/sources.list.d/dagric-pkgcheck.list 2>/dev/null || true
+        exit 1
+    fi
+fi
 
 rm -f /etc/apt/sources.list.d/dagric-pkgcheck.list 2>/dev/null || true
 

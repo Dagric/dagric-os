@@ -51,6 +51,17 @@ fi
 # The bar is written by hand in six files. A typo, or a language added to the
 # bar before its directory lands, gives a dead link on the one control whose
 # entire job is getting a reader to a language they can read.
+#
+# THIS LOOP COVERS THE GUIDE ONLY, AND THAT WAS A HOLE. Check 1 above catches
+# root-absolute paths anywhere under $DOCS, and this check resolves langbar
+# links in the guide — so a page whose ORDINARY relative paths are wrong passed
+# both. That is exactly what happened to the welcome page: es/, fr/, it/ and
+# pt_BR/ were translated from the English copy, which sits one level HIGHER in
+# the tree, so all four kept href="welcome.css" and src="../logo/..." and every
+# one of the twelve resolved to nothing. Unstyled page, no logo, dead guide
+# link, in four languages, and nothing in the build said a word.
+# Check 2b below is the general form: every relative href and src in every
+# offline page must resolve from where that page actually sits.
 for _page in "$GUIDE/index.html" "$GUIDE"/*/index.html; do
     [ -f "$_page" ] || continue
     _dir=$(dirname "$_page")
@@ -65,6 +76,39 @@ for _page in "$GUIDE/index.html" "$GUIDE"/*/index.html; do
         if [ ! -f "$_dir/$_href" ]; then
             echo "ERROR: $_page language switcher points at" >&2
             echo "       $_href, which does not resolve to a file." >&2
+            exit 1
+        fi
+    done || fail=1
+done
+
+# --- 2b. every relative href and src in every offline page must resolve -------
+#
+# The general form of check 2. Anything opened with file:// has no server to
+# forgive a wrong path, so a stylesheet one directory off is a page that renders
+# as unstyled text — and it renders that way only for the readers who are not
+# using English, which is the group least likely to report it.
+#
+# Fragments are stripped before the test and anchors are NOT resolved here;
+# a #target that does not exist is a bad jump, not a blank page, and this check
+# is about the blank-page class. http(s) and mailto are external by definition.
+for _page in $(find "$DOCS" -name '*.html' -type f 2>/dev/null); do
+    _dir=$(dirname "$_page")
+    grep -o '\(href\|src\)="[^"]*"' "$_page" 2>/dev/null \
+        | sed 's/^[a-z]*="//; s/"$//' \
+    | while IFS= read -r _ref; do
+        [ -n "$_ref" ] || continue
+        case "$_ref" in
+            http*|mailto:*|data:*|"#"*|"") continue ;;
+        esac
+        _target=${_ref%%#*}
+        [ -n "$_target" ] || continue
+        if [ ! -e "$_dir/$_target" ]; then
+            echo "ERROR: $_page references" >&2
+            echo "       $_ref" >&2
+            echo "       which does not resolve from $_dir." >&2
+            echo "       Opened offline this is a missing stylesheet, image or" >&2
+            echo "       link. A page translated from a copy at a different" >&2
+            echo "       depth in the tree is the usual cause." >&2
             exit 1
         fi
     done || fail=1
@@ -102,6 +146,9 @@ fi
 [ "$fail" -eq 0 ] || exit 1
 
 _n=$(find "$GUIDE" -mindepth 2 -name index.html | wc -l)
-echo "offline-docs: guide in $((_n + 1)) languages, every switcher target present,"
-echo "              manual.js language table matches, no root-absolute paths"
-unset _abs _page _dir _href _d _p _n MJS
+_w=$(find "$DOCS/welcome" -mindepth 1 -maxdepth 1 -type d 2>/dev/null | wc -l)
+_h=$(find "$DOCS" -name '*.html' -type f 2>/dev/null | wc -l)
+echo "offline-docs: guide in $((_n + 1)) languages, welcome page in $((_w + 1)),"
+echo "              every switcher target present, manual.js table matches,"
+echo "              no root-absolute paths, and all relative refs in $_h pages resolve"
+unset _abs _page _dir _href _ref _target _d _p _n _w _h MJS
