@@ -212,18 +212,72 @@ check_live() {
     return $_bad
 }
 
+# ---------------------------------------------------------------------------
+# THERE ARE TWO PUBLICLY REACHABLE MANIFESTS AND THEY CAN DISAGREE.
+#
+# This is what actually went wrong on 2026-08-02, and it is not what
+# verify-published.sh reported. That tool said "the image was copied to the
+# bucket and SHA256SUMS + .sig were not". Checked against the bucket with real
+# credentials, the opposite is true: R2 holds dagric-os-1.0-amd64.iso at
+# 23:08:36 and SHA256SUMS and SHA256SUMS.sig at 23:09:17-18, one minute later.
+# The bucket side of that release was done correctly and completely.
+#
+# What never happened was the SITE redeploy. download.html links SHA256SUMS
+# RELATIVELY, so a customer fetches dagric.com/SHA256SUMS — the copy in site/,
+# which still carried the 2026-07-28 hashes. R2's copy has been correct the
+# whole time and nothing points at it.
+#
+# So the release has three artefacts, not two, and the third is invisible:
+#   1. the ISOs on R2
+#   2. SHA256SUMS + .sig ON R2, publicly readable beside them
+#   3. SHA256SUMS + .sig on the site, which is the pair customers actually use
+# The site deliberately deleted its inline #sha256sums block because two copies
+# of a checksum drift and the drifting one is always the one the customer reads.
+# That reasoning applies to this pair too, and nothing was enforcing it.
+#
+# Needs no credentials: the bucket is public, so the manifest beside the ISO can
+# just be fetched.
+check_r2_manifest() {
+    _sums=$1
+    _base=$2
+    _r2m=$(curl -fsS "$_base/SHA256SUMS" 2>/dev/null) || {
+        echo "  no SHA256SUMS beside the ISO on R2 — nothing to disagree with"
+        return 0
+    }
+    if [ "$_r2m" = "$(cat "$_sums")" ]; then
+        echo "  the manifest beside the ISO on R2 is identical"
+        return 0
+    fi
+    echo "  THE TWO PUBLISHED MANIFESTS DISAGREE." >&2
+    echo "    about to publish to the site:" >&2
+    sed 's/^/      /' "$_sums" >&2
+    echo "    already sitting beside the ISO on R2:" >&2
+    printf '%s\n' "$_r2m" | sed 's/^/      /' >&2
+    echo "    Upload this manifest to the bucket as well, so the copy next to" >&2
+    echo "    the download agrees with the copy customers are sent to." >&2
+    return 1
+}
+
 do_check() {
     _src=$OUT/SHA256SUMS
     [ -f "$_src" ] || { echo "release: no $_src — run 'sign' first" >&2; exit 1; }
     require_all_editions "$_src" || exit 1
     echo "Comparing the manifest against the bytes R2 is serving right now."
     echo
-    if check_live "$_src"; then
-        echo
-        echo "  every publicly served ISO matches the manifest"
+    _ok=0
+    check_live "$_src" || _ok=1
+    echo
+    # Both checks always run. Reporting only the first failure would hide the
+    # second, and on 2026-08-02 the second one was the whole story.
+    _url_base=$(grep -oE 'https://[^"]*/dagric-os-1\.0-amd64\.iso' "$SITE/download.html" \
+                | head -1 | sed 's|/dagric-os-1\.0-amd64\.iso$||')
+    check_r2_manifest "$_src" "$_url_base" || _ok=1
+    echo
+    if [ "$_ok" -eq 0 ]; then
+        echo "  every publicly served ISO matches the manifest, and both published"
+        echo "  copies of the manifest agree"
         return 0
     fi
-    echo
     echo "  DO NOT PUBLISH until the uploads match." >&2
     return 1
 }
