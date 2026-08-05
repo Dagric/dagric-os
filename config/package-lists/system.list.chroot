@@ -218,6 +218,18 @@ rtkit
 cups
 cups-filters
 printer-driver-gutenprint
+
+# THE "WINDOWS PRINTER VIA SAMBA" ENTRY IS MISSING FROM THE ADD-PRINTER DIALOG
+# ENTIRELY — not greyed out, not failing, simply absent, because CUPS builds
+# that list from the backends present in /usr/lib/cups/backend and the smb one
+# is a symlink shipped by smbclient (-> ../../../bin/smbspool). Verified from
+# the .debs: cups itself ships only dnssd, lpd, snmp, socket and usb.
+#
+# The household this matters to is the exact one Dagric is sold into: they kept
+# one Windows PC, the printer is attached to it, and there is no error message
+# anywhere explaining why the option they were told to look for does not exist.
+# 2.1 MB.
+smbclient
 ipp-usb
 # ipp-usb one line up only covers printers that speak IPP-over-USB, which in
 # practice means printers made from roughly 2017 onwards — not the hardware
@@ -287,6 +299,16 @@ libnss-mdns
 # Firmware updates (LVFS) — Discover already surfaces these; the backend
 # was missing. Matters for a distro sold to run on real hardware.
 fwupd
+
+# fwupd alone cannot apply a UEFI capsule update on a machine with Secure Boot
+# enabled, which is every machine this is sold for. The owner sees the firmware
+# update offered in Discover, clicks it, and it fails at the reboot.
+#
+# Named as the CONCRETE package, not the virtual `fwupd-signed`. The virtual one
+# resolves today because exactly one package provides it (fwupd-amd64-signed);
+# the day a second provider appears apt stops resolving it and the build dies on
+# a name that had worked for a year. This image is amd64-only.
+fwupd-amd64-signed
 
 # Locales — without this, every terminal shows locale warnings
 # (found by the install run-through test)

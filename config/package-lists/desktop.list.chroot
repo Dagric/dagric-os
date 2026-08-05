@@ -47,10 +47,41 @@ kate
 # dictionaries are on the image and nothing in KDE can reach them.
 sonnet6-plugins
 ark
+
+# Ark handles RAR by shelling out to a command-line tool and ships no such tool
+# itself, so a double-clicked .rar gives "no suitable plugin found" on a stock
+# image. app-ark.html says unpacking RAR is fine. unar is the unencumbered
+# reader (Debian keeps unrar-free/unrar-nonfree separate for licensing); it also
+# restores .cbr comics in Okular, which is the same gap from the other side.
+# 5.9 MB.
+unar
 gwenview
 okular
+
+# Okular ships TEN generators and epub is not one of them. Read out of the .deb:
+# base okular has comicbook, dvi, fax, fb, ghostview, kimgio, mobi, poppler, txt
+# and xps; djvu, epub, md and tiff are in this Suggests, which apt never
+# installs. app-okular.html names ePub as the first thing it opens, and this OS
+# is sold to libraries — where .epub and .djvu are most of the collection.
+# Opening one today gives "no plugin for this mimetype". 974 KB.
+okular-extra-backends
 kde-spectacle
 kwalletmanager
+
+# THE WALLET PROMPT THE MANUAL PROMISES YOU WILL NEVER SEE.
+#
+# app-kwallet.html says the wallet is unlocked by your login password "so you
+# never see it". That is only true with the PAM module, and the PAM module is a
+# Recommends, which --apt-recommends false drops. Without it the first Wi-Fi
+# password saved pops the wallet-creation wizard asking a non-technical owner to
+# invent a second password, and then a "KDE Wallet Service wants to open the
+# wallet" dialog on every single login afterwards, forever.
+#
+# THE NAME IS THE TRAP. This is Plasma 6, so the obvious guess is
+# libpam-kwallet6 — that package does not exist. The Plasma 6 module is still
+# published as libpam-kwallet5 and its version is 6.3.4. Checked with
+# `apt-get install -s`, not with the name that reads correctly. 43 KB.
+libpam-kwallet5
 print-manager
 
 # Software center (Flatpak-backed)

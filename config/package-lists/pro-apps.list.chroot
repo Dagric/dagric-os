@@ -33,6 +33,13 @@ libreoffice
 # desktop Java with its own icons and browser plugin.
 default-jre-headless
 
+# The JRE above lets Base OPEN. It does not make the wizards work. The four
+# "Use Wizard to Create Table / Query / Form / Report" buttons on Base's start
+# page are Java, and their .jar files live here — without them the buttons do
+# nothing at all, silently, which is worse than the missing-JVM dialog that was
+# fixed by adding the runtime. 625 KB.
+libreoffice-java-common
+
 # Creative tools
 inkscape
 # Inkscape's Extensions menu is Python and its libraries are Recommends only.
@@ -45,6 +52,14 @@ python3-numpy
 gimp
 blender
 krita
+
+# Krita's interface in the five languages Dagric ships. Same reasoning as the
+# Firefox, LibreOffice and Thunderbird langpacks: on a fully translated desktop
+# a single entirely-English creative application reads as half-finished rather
+# than lean, and Krita is the one a Pro buyer opens first. 24 MB, and it is the
+# largest single thing added here — it carries every language Krita has, because
+# Debian ships no per-language split for it.
+krita-l10n
 
 # Video: recording and editing
 obs-studio
