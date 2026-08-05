@@ -315,13 +315,23 @@ done
 # The locale strings MUST match 0150-locales.hook.chroot's DAGRIC_LOCALES, or
 # the boot parameter names a locale that was never generated and the session
 # silently falls back to English — the exact failure this is meant to remove.
+# TWO SPELLINGS PER LANGUAGE, AND THAT IS NOT REDUNDANCY.
+#
+# GRUB renders UTF-8 and gets the real name. Syslinux's vesamenu does not: it
+# draws a fixed codepage and paints each BYTE of a multibyte character as its
+# own glyph, so "Español" arrived on screen as "Espa##ol" and "Français" as
+# "Fran##ais". Booted and photographed, not guessed.
+#
+# The ASCII column drops the accent and nothing else. A Spanish speaker reading
+# "Espanol" is in no doubt; a Spanish speaker reading "Espa##ol" is looking at a
+# fault. Fields are locale:utf8:ascii.
 LANGROW="Language / Sprache / Idioma / Langue / Lingua"
-LANGS="de_DE.UTF-8:Deutsch
-en_US.UTF-8:English
-es_ES.UTF-8:Español
-fr_FR.UTF-8:Français
-it_IT.UTF-8:Italiano
-pt_BR.UTF-8:Português (Brasil)"
+LANGS="de_DE.UTF-8:Deutsch:Deutsch
+en_US.UTF-8:English:English
+es_ES.UTF-8:Español:Espanol
+fr_FR.UTF-8:Français:Francais
+it_IT.UTF-8:Italiano:Italiano
+pt_BR.UTF-8:Português (Brasil):Portugues (Brasil)"
 
 # --- GRUB (UEFI) -----------------------------------------------------------
 # Cloned from the primary entry rather than written from scratch, so the kernel
@@ -333,7 +343,7 @@ if [ -f boot/grub/grub.cfg ] && ! grep -q 'dagric-langmenu' boot/grub/grub.cfg; 
         {
             printf '\n# dagric-langmenu\n'
             printf 'submenu "%s" {\n' "$LANGROW"
-            printf '%s\n' "$LANGS" | while IFS=: read -r _loc _name; do
+            printf '%s\n' "$LANGS" | while IFS=: read -r _loc _name _ascii; do
                 [ -n "$_loc" ] || continue
                 printf '  menuentry "%s" {\n' "$_name"
                 printf '  %s locales=%s\n' "$_lin" "$_loc"
@@ -363,10 +373,10 @@ if [ -f isolinux/live.cfg ] && ! grep -q 'dagric-langmenu' isolinux/live.cfg; th
             printf 'menu begin dagric-lang\n'
             printf '    menu label %s\n' "$LANGROW"
             printf '    menu title %s\n' "$LANGROW"
-            printf '%s\n' "$LANGS" | while IFS=: read -r _loc _name; do
+            printf '%s\n' "$LANGS" | while IFS=: read -r _loc _name _ascii; do
                 [ -n "$_loc" ] || continue
                 printf '    label lang-%s\n' "${_loc%%.*}"
-                printf '        menu label %s\n' "$_name"
+                printf '        menu label %s\n' "$_ascii"
                 printf '        linux /live/vmlinuz\n'
                 printf '        initrd /live/initrd.img\n'
                 printf '        %s locales=%s\n' "$_app" "$_loc"
