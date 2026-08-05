@@ -17,6 +17,34 @@ CFG="$HOME/.config/plasma-org.kde.plasma.desktop-appletsrc"
 command -v kwriteconfig6 >/dev/null 2>&1 || exit 0
 command -v gawk >/dev/null 2>&1 || exit 0
 
+# WAIT FOR THE SETUP WIZARD TO FINISH BEFORE TEARING THE DESKTOP DOWN.
+#
+# Four things autostart at first login and two of them are this and
+# dagric-firstrun. The sequence below quits plasmashell and relaunches it, so
+# the taskbar, the desktop icons and the wallpaper all vanish and come back —
+# seconds into the very first login, while the wizard is on screen telling a
+# nervous owner that "the desktop behind this window changes as you go". It
+# does change, but not like that. To someone who has just installed an
+# operating system for the first time, the whole desktop disappearing reads as
+# a crash they caused.
+#
+# There is a second cost: dagric-firstrun's set_layout calls wait_plasma, and
+# if the owner picks a taskbar layout during the gap that call fails and the
+# click is silently dropped.
+#
+# This is the guard dagric-driver-offer already uses for the same collision,
+# copied deliberately rather than invented — same 150 x 2s ceiling, same
+# reasoning. Five minutes is generous because the failure mode of waiting too
+# long is benign: the autostart entry is only removed once the icon is actually
+# branded, so a session that runs out of patience simply tries again at the
+# next login. Nothing is lost by being late here; something real is lost by
+# being early.
+i=0
+while [ "$i" -lt 150 ] && pgrep -f '/usr/bin/dagric-firstrun' >/dev/null 2>&1; do
+    i=$((i + 1))
+    sleep 2
+done
+
 # Wait up to ~60s for plasmashell to write its applet config AND for it to
 # contain a kickoff/kicker launcher applet. plasmashell writes this file
 # lazily after the session settles, so a fixed short sleep races against it.
