@@ -78,8 +78,10 @@ export default {
       if (!a) {
         return msg(
           503,
-          "The Pro extras are temporarily unavailable. Your purchase is fine — " +
-            "run the upgrade again in a few minutes and it will pick them up."
+          "The Pro extras are temporarily unavailable. Your purchase is fine, and " +
+            "the upgrade will have stopped without changing anything on your " +
+            "machine — please run it again in a few minutes.",
+          { "Retry-After": "60", "Cache-Control": "no-store" }
         );
       }
       return new Response(a.body, {

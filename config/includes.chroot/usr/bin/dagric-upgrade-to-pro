@@ -227,8 +227,11 @@ What this will do
   * install the Pro applications — the creator suite, the gaming stack, the
     virtualisation tools, the backup tools and the rest (about 83 packages)
   * install them the way the Pro ISO does: Docker, virtual machines, USB
-    protection, the firewall UI and remote login are all set up but left OFF
-    until you switch them on
+    protection and remote login are all set up but left OFF until you switch
+    them on. The one exception is OpenSnitch, the application firewall, which
+    is switched ON — the same as the Pro ISO, because a firewall nobody turned
+    on protects nobody. It starts in monitor mode and blocks nothing until you
+    tell it to.
   * add the four extra desktop layouts and three extra colour styles
   * mark this machine as Pro, so the Hub and the appearance gallery show
     everything you have paid for
@@ -285,19 +288,46 @@ trap 'exit 130' INT TERM HUP
 
 say ""
 say "Fetching the Pro layouts and styles..."
+# THIS IS THE ONE PART THE LICENCE GATES, AND THE ONE PART THAT CANNOT BE
+# OBTAINED LATER.
+#
+# A failed fetch used to be a warning: the run carried on, installed the 83
+# packages, and wrote 'pro' to the marker anyway. After that the pre-flight at
+# the top of this file refuses every future run with "This machine is already
+# running Dagric OS Pro. Nothing to do.", and the Hub drops the row that
+# launches it — so the layouts and styles could never arrive, on a machine now
+# advertising itself as Pro. The printed advice to re-run was the single action
+# guaranteed not to work, and recovery meant hand-editing /etc/dagric-edition
+# back to free, which nothing told anyone.
+#
+# So: retry, and if the gate is genuinely unreachable, STOP. That is exactly why
+# this fetch sits ahead of apt — nothing is installed, nothing is marked, and
+# the machine is bit for bit as it was. Cheap to abandon, honest to repeat.
 ASSETS_OK=no
-if curl -fsS --max-time 120 -o "$WORK/assets.tar.gz" \
-        "$GATE/assets?session_id=$SID" 2>/dev/null; then
-    if tar -tzf "$WORK/assets.tar.gz" >/dev/null 2>&1; then
+n=1
+while [ "$n" -le 3 ]; do
+    if curl -fsS --max-time 120 -o "$WORK/assets.tar.gz" \
+            "$GATE/assets?session_id=$SID" 2>/dev/null &&
+       tar -tzf "$WORK/assets.tar.gz" >/dev/null 2>&1; then
         ASSETS_OK=yes
         say "  done."
-    else
-        say "  WARNING: what arrived is not a readable archive. Skipping the"
-        say "           extra layouts and styles; everything else continues."
+        break
     fi
-else
-    say "  WARNING: could not fetch them. Everything else continues, and they"
-    say "           will arrive with a later update."
+    rm -f "$WORK/assets.tar.gz"
+    if [ "$n" -lt 3 ]; then
+        say "  that attempt did not work; trying again in a few seconds..."
+        sleep 5
+    fi
+    n=$((n + 1))
+done
+
+if [ "$ASSETS_OK" != yes ]; then
+    die "the extra desktop layouts and colour styles could not be downloaded,
+        and they are the one part of Pro that has to come from us rather than
+        from Debian. NOTHING has been installed and nothing on this machine has
+        been changed, so there is nothing half-finished to clean up. Your
+        purchase is fine. Run this again when the connection is steady — and if
+        it keeps failing, dagric.com/support can look it up."
 fi
 
 # ------------------------------------------------------------------ packages
@@ -338,18 +368,54 @@ say "Installing..."
 # --no-install-recommends matches the ISO exactly. Without it an upgraded
 # machine ends up with a different package set from an installed-from-Pro one,
 # and every future audit of "what does Pro contain" has two answers.
+# THE RESULT IS RECORDED, NOT ACTED ON YET, and that ordering is the entire
+# point of this block. apt is not atomic. dpkg configures packages in order, and
+# every package configured BEFORE the failing one has already run its postinst —
+# docker.io's starts dockerd, openssh-server's starts sshd, libvirt-daemon-
+# system's starts libvirtd and builds virbr0, usbguard's starts the blocking
+# daemon.
+#
+# This used to `exit 1` right here, ahead of the policy block below. A failed
+# install therefore left a machine that had been quiet an hour earlier running a
+# root container daemon with ip_forward=1, sshd listening on 22, a NAT bridge,
+# and usbguard with Debian's empty rules.conf and ImplicitPolicyTarget=block —
+# which 0600-pro-edition.hook.chroot:71 documents as deauthorizing every USB
+# device so that "the owner's keyboard and mouse go dead". On their only
+# computer, minutes after paying, with nothing on screen mentioning any of it.
+#
+# So the policy is applied to whatever DID get installed, and only then is the
+# failure reported.
 # shellcheck disable=SC2086
-if ! DEBIAN_FRONTEND=noninteractive apt-get -y --no-install-recommends \
-     install $PRO_PACKAGES; then
+INSTALL_OK=yes
+DEBIAN_FRONTEND=noninteractive apt-get -y --no-install-recommends \
+    install $PRO_PACKAGES || INSTALL_OK=no
+
+# ------------------------------------------------------------------ 32-bit
+# WINE IS THE HEADLINE PRO FEATURE AND WITHOUT THIS IT IS HALF A FEATURE.
+# 0600-pro-edition.hook.chroot:39-41 enables i386 multiarch and installs
+# wine32:i386 and mesa-vulkan-drivers:i386. Classic Windows .exe installers are
+# overwhelmingly 32-bit, and DXVK/Proton needs 32-bit Vulkan, so an upgraded
+# machine without this runs 64-bit Wine only — it looks installed and fails on
+# the first real .exe, while an ISO-installed Pro machine works.
+#
+# Non-fatal, and worded the same way the hook words it: 64-bit Wine is still
+# useful, and a machine that cannot reach the i386 archive should still finish
+# the rest of the upgrade it paid for.
+if [ "$INSTALL_OK" = yes ]; then
     say ""
-    say "ERROR: the install did not finish cleanly."
-    say ""
-    say "This machine is still marked as free ON PURPOSE — a machine that claims"
-    say "to be Pro without the applications is harder to fix than one that is"
-    say "honestly still free."
-    say ""
-    say "Try:  sudo apt-get -f install   then run this again."
-    exit 1
+    say "Adding 32-bit support for Windows applications and games..."
+    if dpkg --add-architecture i386 && apt-get update >/dev/null 2>&1; then
+        if DEBIAN_FRONTEND=noninteractive apt-get -y --no-install-recommends \
+             install wine32:i386 mesa-vulkan-drivers:i386 >/dev/null 2>&1; then
+            say "  done."
+        else
+            say "  note: 32-bit Wine and Vulkan did not install. Wine still works"
+            say "        for 64-bit Windows programs; older installers may not run."
+        fi
+    else
+        say "  note: could not enable 32-bit support. Wine still works for 64-bit"
+        say "        Windows programs; older installers may not run."
+    fi
 fi
 
 # ------------------------------------------------------------------ the policy
@@ -360,12 +426,42 @@ fi
 say ""
 say "Setting the opt-in policy (everything installed, nothing switched on)..."
 
+# THE LIBVIRT LIST IS COPIED FROM 0600-pro-edition.hook.chroot:135-137, WHICH
+# TOOK IT FROM A REAL BUILD LOG. This named three units of the eight the
+# postinst enables. A still-enabled .socket starts its service on first
+# connection, so libvirtd-admin.socket would socket-activate the very daemon the
+# line above had just disabled, and virtlogd would run at every boot. The hook's
+# own comment calls that out: "Disabling virtlogd.service while leaving one of
+# its sockets enabled is the same half-measure in a different package." Any unit
+# added there has to be added here in the same commit.
 for unit in docker.service docker.socket \
             libvirtd.service libvirtd.socket libvirtd-ro.socket \
-            ssh.service; do
+            libvirtd-admin.socket \
+            virtlogd.service virtlogd.socket virtlogd-admin.socket \
+            libvirt-guests.service \
+            ssh.service ssh.socket; do
     systemctl disable "$unit" >/dev/null 2>&1 || true
     systemctl stop "$unit" >/dev/null 2>&1 || true
 done
+
+# The hardened sshd drop-in the Pro ISO ships (0600:23-30). That hook is the
+# ONLY thing that writes it — there is no sshd_config anywhere under
+# config/includes.chroot — so without this an upgraded machine that later
+# switches SSH on from the Hub starts at stock Debian defaults
+# (PermitRootLogin prohibit-password, MaxAuthTries 6, X11Forwarding yes) while
+# an ISO-installed Pro machine starts locked down. Two machines both sold as
+# Pro, and the weaker one is the one nobody wrote down.
+if [ -d /etc/ssh ]; then
+    mkdir -p /etc/ssh/sshd_config.d
+    cat > /etc/ssh/sshd_config.d/50-dagric.conf <<'SSHEOF'
+# Dagric OS hardened SSH defaults (only apply if the owner enables sshd).
+PermitRootLogin no
+MaxAuthTries 3
+X11Forwarding no
+# For a keys-only posture, also set: PasswordAuthentication no
+SSHEOF
+    chmod 0644 /etc/ssh/sshd_config.d/50-dagric.conf
+fi
 
 # usbguard is masked as well as disabled: its own package enables
 # usbguard-dbus.service, which declares Requires=usbguard.service and would pull
@@ -381,11 +477,43 @@ systemctl --global disable usbguard-notifier.service >/dev/null 2>&1 || true
 # before the owner has asked for a virtual machine.
 rm -f /etc/libvirt/qemu/networks/autostart/default.xml 2>/dev/null || true
 
+# KDE Connect needs ports open to pair with a phone. 0600:59 does this at build
+# time with firewall-offline-cmd, which REFUSES to run while firewalld is
+# active — on a booted machine it has to be firewall-cmd --permanent plus a
+# reload. Without it, phone pairing silently never works on an upgraded machine
+# and works on a Pro-ISO one, while the manual describes the ISO behaviour.
+if command -v firewall-cmd >/dev/null 2>&1; then
+    if firewall-cmd --permanent --zone=home --add-service=kdeconnect >/dev/null 2>&1; then
+        firewall-cmd --reload >/dev/null 2>&1 || true
+    else
+        say "  note: could not open the KDE Connect ports. Phone pairing may need"
+        say "        the firewall adjusting by hand; everything else is unaffected."
+    fi
+fi
+
 # opensnitch is the exception and is ON, because a firewall nobody switched on
 # protects nobody. This matches the Pro ISO.
 systemctl enable opensnitch.service >/dev/null 2>&1 || true
 
 say "  done."
+
+# NOW the failure may be reported — after the machine has been put into the
+# state it was promised, not before it.
+if [ "$INSTALL_OK" = no ]; then
+    say ""
+    say "ERROR: the install did not finish cleanly."
+    say ""
+    say "This machine is still marked as free ON PURPOSE — one that claims to be"
+    say "Pro without the applications is harder to fix than one that is honestly"
+    say "still free."
+    say ""
+    say "Whatever DID install has been set to the Pro edition's opt-in policy, so"
+    say "nothing that arrived is running: no Docker daemon, no remote login, no"
+    say "USB blocking, no virtual-machine services."
+    say ""
+    say "Try:  sudo apt-get -f install   then run this again."
+    exit 1
+fi
 
 # ------------------------------------------------------------------ assets in
 if [ "$ASSETS_OK" = yes ]; then
@@ -400,7 +528,15 @@ if [ "$ASSETS_OK" = yes ]; then
         for f in "$WORK"/x/applications/*.desktop; do [ -e "$f" ] && cp -f "$f" "$APPS/"; done
         say "  done."
     else
-        say "  WARNING: the archive would not unpack. Everything else is in place."
+        # NOT a warning. An unpack that fails here is past apt, so continuing
+        # would write the marker and recreate exactly the trap the retry loop
+        # above was added to remove: a machine calling itself Pro that can never
+        # receive the one thing the licence gates. Stopping short of the marker
+        # leaves the tool able to finish the job on a second run.
+        die "the layouts and styles arrived but would not unpack — usually that
+        is disk space. The applications ARE installed and set to the Pro opt-in
+        policy, but this machine has deliberately not been marked as Pro yet, so
+        running this tool again will finish the job."
     fi
 fi
 
@@ -451,15 +587,6 @@ intercept is OFF until you turn it on:
 Turn any of them on from the Dagric Hub.
 
 EOF
-
-if [ "$ASSETS_OK" != yes ]; then
-    cat <<'EOF'
-ONE THING DID NOT ARRIVE: the four extra desktop layouts and three extra colour
-styles could not be downloaded. Everything else is in place. Run this tool again
-when you have a connection and it will pick them up — it is safe to re-run.
-
-EOF
-fi
 
 cat <<'EOF'
 Two honest differences from a machine installed from the Pro ISO:
