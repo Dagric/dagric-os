@@ -256,6 +256,45 @@ SITE_CSS = """
 }
 .sitefoot a + a { margin-left:0; }
 .sitefoot a:hover { color:var(--ink); background:var(--line-soft); text-decoration:none; }
+
+/* ── the light/dark switch ────────────────────────────────────────────────
+   WEB COPY ONLY, and only because the site gained a light mode. Before that
+   the guide correctly had no switch: assets/theme.js's own comment said the
+   guide "does not host the switch ... if the guide is ever given the control,
+   it needs .themebox/.themetog in guide.css first", because those classes are
+   declared in site.css and the guide loads this file instead. This is that
+   prerequisite; theme.js now mounts the control in .sitebar-in when it finds
+   one.
+   Leaving it out stopped making sense the moment the site had two modes. A
+   reader in light mode clicked Guide, got a guide that correctly followed
+   their choice, and then had no way to change it without navigating to a
+   different page to find the control. The theme was never the problem —
+   apply() runs before any mount — the missing control was.
+   Written entirely against this file's OWN tokens, so it follows whatever
+   palette guide.css resolves to and there is no second set of colours to keep
+   in step. The offline copy has no .sitebar and therefore no switch, which is
+   right: it follows the desktop's own setting through prefers-color-scheme
+   and has no second preference to store.
+   44px because this bar is the one place a phone reader can reach it, and the
+   guide's own sidebar links and language pills were both rebuilt to that
+   height — a 31px control beside them would be the odd one out again. */
+.themebox-bar { display:flex; align-items:center; margin-left:auto; }
+.themebox-bar .themetog {
+  min-height:44px; padding:9px 14px;
+  background:var(--bg-raise); cursor:pointer;
+  border:1px solid var(--line-soft); border-radius:99px;
+  color:var(--muted); font:500 .85rem/1 inherit;
+}
+.themebox-bar .themetog:hover {
+  color:var(--ink); border-color:var(--accent-brd);
+}
+/* The bar is a flex row whose home link is already pushed left; on a phone it
+   wraps, and the switch must not land alone on a third row above an 11,000px
+   document. */
+@media (max-width:640px) {
+  .themebox-bar { margin-left:0; }
+  .themebox-bar .themetog { padding:9px 12px; font-size:.8rem; }
+}
 """
 
 PAGES = {

@@ -86,19 +86,35 @@
   function build() {
     paintMeta();   /* <body> exists now, so the chrome colour can be read */
 
-    /* `footer .foot`, NOT `footer`. That selector is the site's own footer
-       component, and it is the gate that keeps this control off /guide: the
-       guide has a <footer class="colophon"> but loads guide.css, not site.css,
-       so a button styled by .themetog would render there completely unstyled.
-       The guide still gets the THEME — apply() ran above — it just does not
-       host the switch, which is consistent with it being a document rather
-       than a page of the site, and it carries a "← dagric.com" link back to
-       where the control lives. If the guide is ever given the control, it
-       needs .themebox/.themetog in guide.css first. */
+    /* THE GUIDE NOW HOSTS THE SWITCH TOO, and the comment that used to sit
+       here explained exactly why it did not: .themetog is styled in site.css
+       and the guide loads guide.css, so the button would have rendered
+       unstyled. It named its own prerequisite — "if the guide is ever given
+       the control, it needs .themebox/.themetog in guide.css first" — and
+       publish-guide.py now appends them to the published copy.
+       Leaving it out stopped making sense the moment the site gained a light
+       mode. A reader in light mode clicked Guide, got a guide that correctly
+       followed their choice, and then had no way to change it without going
+       back to a different page. apply() has always run above, so the theme
+       was never the problem; the missing control was.
+       The guide's own header bar is the mount — it is the component
+       publish-guide.py injects for exactly this kind of site-level control,
+       and it is at the top of the page rather than the end of an 11,000px
+       document. The OFFLINE copy has no site bar, so it gets no switch, which
+       is right: it follows the desktop's own light/dark setting through
+       prefers-color-scheme and has no second preference to store. */
+    var sitebar = document.querySelector('.sitebar .sitebar-in');
     var foot = document.querySelector('footer .foot');
-    if (!foot) return;
-    var footer = foot.parentNode;
-    if (!footer || footer.querySelector('.themetog')) return;
+    if (!foot && !sitebar) return;
+    var footer = foot ? foot.parentNode : null;
+    /* Guard on the DOCUMENT, not on one container. The old form was
+       `if (!footer || footer.querySelector('.themetog')) return;`, which does
+       two jobs badly once there is more than one possible mount: on the guide
+       `footer` is null, so it returned before building anything, and even on
+       the site it only ever checked the footer — so once the nav became a
+       mount, a second run could have inserted a duplicate the check could not
+       see. One control per page is the actual rule; this is the actual test. */
+    if (document.querySelector('.themetog')) return;
 
     var box = document.createElement('div');
     box.className = 'themebox';
@@ -152,8 +168,17 @@
     var navLinks = document.querySelector('nav .nav-links');
 
     function mount() {
-      var target = (wide.matches && navLinks) ? navLinks : footer;
-      if (box.parentNode === target) return;
+      /* The guide has no site nav and no .foot, so its bar is the only mount
+         and the breakpoint does not apply — it is one row at every width. */
+      var target = sitebar ? sitebar
+                 : (wide.matches && navLinks) ? navLinks
+                 : footer;
+      if (!target || box.parentNode === target) return;
+      if (target === sitebar) {
+        box.className = 'themebox themebox-bar';
+        sitebar.appendChild(box);
+        return;
+      }
       if (target === navLinks) {
         /* BEFORE the Download pill, not after it. .nav-links is a flex row
            pushed right by margin-left:auto, so appending would seat the
