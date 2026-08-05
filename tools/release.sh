@@ -68,6 +68,35 @@ list_isos() {
     find "$OUT" -maxdepth 1 -name 'dagric-os-*-amd64.iso' -type f 2>/dev/null | sort
 }
 
+# THE MANIFEST MUST COVER EVERY EDITION THE SITE ACTUALLY OFFERS.
+#
+# do_sign hashes whatever dagric-os-*-amd64.iso happens to be in out/ at that
+# moment, and nothing downstream noticed if one was missing. That is not
+# theoretical: during tonight's rebuild the Pro image sat in out/prev/ while the
+# free one was in out/, and `sign` at that instant would have written a one-line
+# manifest — then `publish` would have dropped the Pro line out of
+# site/SHA256SUMS entirely.
+#
+# /download links the free image directly and streams Pro through the gate
+# worker, and tells buyers of BOTH to run `sha256sum -c SHA256SUMS`. An ISO
+# absent from the file customers are told to verify against is indistinguishable
+# from an unofficial build. Sign after the LAST build; this enforces it rather
+# than asking.
+REQUIRED_ISOS='dagric-os-1.0-amd64.iso dagric-os-pro-1.0-amd64.iso'
+
+require_all_editions() {
+    _m=$1
+    _missing=
+    for _want in $REQUIRED_ISOS; do
+        awk -v n="$_want" '$2==n{f=1} END{exit !f}' "$_m" || _missing="$_missing $_want"
+    done
+    [ -z "$_missing" ] && return 0
+    echo "release: the manifest does not cover every ISO the site offers." >&2
+    for _w in $_missing; do echo "  missing: $_w" >&2; done
+    echo "  Build that edition, or move it back into $OUT/, and re-run 'sign'." >&2
+    return 1
+}
+
 do_sign() {
     _isos=$(list_isos)
     [ -n "$_isos" ] || { echo "release: no out/dagric-os-*-amd64.iso — build first" >&2; exit 1; }
@@ -87,6 +116,8 @@ do_sign() {
     # will not start passing once a signature is wrapped around it.
     ( cd "$OUT" && sha256sum -c SHA256SUMS >/dev/null ) || {
         echo "release: the manifest does not verify against its own files" >&2; exit 1; }
+
+    require_all_editions "$OUT/SHA256SUMS" || exit 1
 
     rm -f "$OUT/SHA256SUMS.sig"
     gpg --batch --yes --local-user "$KEYID" \
@@ -119,6 +150,7 @@ check_live() {
     [ -n "$_url_base" ] || { echo "release: no ISO URL in $SITE/download.html" >&2; exit 1; }
 
     _bad=0
+    _checked=0
     while read -r _hash _name; do
         [ -n "$_name" ] || continue
         case "$_name" in
@@ -129,6 +161,7 @@ check_live() {
                 continue ;;
         esac
 
+        _checked=$((_checked + 1))
         _u="$_url_base/$_name"
         printf '  %s\n' "$_name"
         printf '    fetching %s\n' "$_u"
@@ -163,12 +196,26 @@ check_live() {
             _bad=1
         fi
     done < "$_sums"
+    # A GATE THAT SKIPPED EVERY LINE IS NOT A GATE THAT PASSED. The loop body is
+    # the only thing that can set _bad, and Pro lines `continue` past it, so a
+    # manifest containing nothing publicly fetchable returned 0 having compared
+    # zero bytes — and then printed that everything matched. That is precisely
+    # the defect class this whole script was written to stop, reproduced inside
+    # it. `done < "$_sums"` is a redirect and not a pipe, so the loop runs in
+    # this shell and _checked survives, the same reason _bad already works.
+    if [ "$_checked" -eq 0 ]; then
+        echo "    NOTHING WAS CHECKED — the manifest holds no publicly" >&2
+        echo "    fetchable ISO, so this compared nothing. Refusing to call" >&2
+        echo "    that a pass." >&2
+        return 1
+    fi
     return $_bad
 }
 
 do_check() {
     _src=$OUT/SHA256SUMS
     [ -f "$_src" ] || { echo "release: no $_src — run 'sign' first" >&2; exit 1; }
+    require_all_editions "$_src" || exit 1
     echo "Comparing the manifest against the bytes R2 is serving right now."
     echo
     if check_live "$_src"; then
