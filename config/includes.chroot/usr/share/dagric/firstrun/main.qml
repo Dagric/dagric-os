@@ -514,7 +514,7 @@ ApplicationWindow {
     // colours, wallpaper, text size, taskbar. It was nonetheless being armed by
     // two acts that live outside that set:
     //
-    //   * "Open Display Settings" launches dagric-display, which owns the scale
+    //   * "Choose a text size" launches dagric-display, which owns the scale
     //     and carries its own Keep/Revert with a twenty-second self-restore.
     //     The wizard deliberately records no scale baseline when that helper is
     //     driving (see dagric-firstrun), so there was nothing to put back.
@@ -1805,7 +1805,7 @@ ApplicationWindow {
                 PageHead {
                     heading: app.t("Is the text the right size?")
                     sub: app.hasDisplayTool
-                         ? app.t("Dagric guessed from your screen. Open Display Settings if it guessed wrong.")
+                         ? app.t("Dagric guessed from your screen. Pick another size if it guessed wrong.")
                          : (app.scaleMode === "x11"
                             ? app.t("Dagric guessed from your screen. A change here takes effect the next time you sign in.")
                             : app.t("Dagric guessed from your screen. Pick another size and it changes right away."))
@@ -1814,14 +1814,24 @@ ApplicationWindow {
                 // The dedicated tool owns this properly when it is installed —
                 // shipping a second, disagreeing text-size control would just
                 // give support two answers to the same question.
+                //
+                // THE LABEL NAMES THE ACTION, NOT A DESTINATION, and it used to
+                // do neither correctly. It read "Open Display Settings", which
+                // in KDE means one specific thing: System Settings ▸ Display &
+                // Monitor. The button does not open that. It opens a small
+                // Dagric window — and the footer four lines below this one
+                // names the real System Settings page, so the page carried two
+                // similar phrases pointing at two different places, with the
+                // wrong one on the button. "Choose a text size" cannot be
+                // misread, and stays true whichever window the helper draws.
                 RowLayout {
                     Layout.fillWidth: true
                     spacing: app.px(14)
                     visible: app.hasDisplayTool
 
                     Primary {
-                        text: app.t("Open Display Settings")
-                        Accessible.description: app.t("Opens the full display and text size settings in a separate window")
+                        text: app.t("Choose a text size")
+                        Accessible.description: app.t("Opens a list of text sizes in a separate window. A new size is tried for twenty seconds and put back on its own unless you keep it.")
                         onClicked: { app.markVisited("display"); app.run("display"); }
                     }
                 }

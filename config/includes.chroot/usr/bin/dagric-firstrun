@@ -758,7 +758,12 @@ run_helper() {
             _close=$(gettext "Press Enter to close...")
             konsole -e sh -c \
 '/usr/bin/dagric-migrate ; echo ; printf "%s" "$1" ; read x' sh "$_close" & ;;
-        display)  /usr/bin/dagric-display & ;;
+        # `size`, not a bare call. The bare call opens that tool's top-level
+        # menu, which asks "What would you like to change?" — a question this
+        # step answered in its own heading, with two of the three rows being
+        # night colour and resolution. See the direct-entry block in
+        # dagric-display for why the door exists.
+        display)  /usr/bin/dagric-display size & ;;
         hub)      /usr/bin/dagric-hub & ;;
         # Also NOT a bare firefox call, for the same family of reason: the guide
         # ships per language (guide/de/index.html exists) and dagric-guide is the
@@ -1000,11 +1005,11 @@ Arrow keys to move between wallpapers, Space to apply one
 Want your own picture? Right-click the desktop and choose Configure Desktop.
 
 Is the text the right size?
-Dagric guessed from your screen. Open Display Settings if it guessed wrong.
+Dagric guessed from your screen. Pick another size if it guessed wrong.
 Dagric guessed from your screen. A change here takes effect the next time you sign in.
 Dagric guessed from your screen. Pick another size and it changes right away.
-Open Display Settings
-Opens the full display and text size settings in a separate window
+Choose a text size
+Opens a list of text sizes in a separate window. A new size is tried for twenty seconds and put back on its own unless you keep it.
 Normal
 Standard size
 Bigger

@@ -323,6 +323,39 @@ $(gettext "Right now it follows sunset and sunrise, which was set on the full Ni
     return 0
 }
 
+# --- direct entry ------------------------------------------------------------
+#
+# WHY A WIZARD STEP NEEDS ITS OWN DOOR INTO THIS FILE.
+#
+# The menu below is right for the Hub and the launcher, where the owner has
+# said "display" and nothing narrower. It is wrong for the first-run step
+# headed "Is the text the right size?", because that step has ALREADY asked the
+# narrow question. Opening the menu there answers a question with a different
+# question — "What would you like to change?" — and two of its three rows have
+# nothing to do with text. FOUND BY BOOTING THE WIZARD AND PRESSING THE BUTTON:
+# the step's only control led to a chooser, so the owner had to re-state what
+# the heading four lines above had already established.
+#
+# It also contradicted this file's own opening argument, which is that somebody
+# who wants bigger text should not have to walk past unrelated display options
+# to get it. That was written about System Settings. It applies here too.
+#
+# So the wizard calls `dagric-display size` and lands on the sizes. Nothing
+# else changes: same per-screen clamping, same twenty-second trial, same
+# crash-recovery file, same EXIT trap — because this runs the same do_size the
+# menu runs. A door, not a second implementation. The other two tags exist so
+# the command line is coherent rather than having one magic word.
+case "${1:-}" in
+    '')      ;;
+    size)    do_size;              exit 0 ;;
+    night)   do_night;             exit 0 ;;
+    screens) open_kcm kcm_kscreen; exit 0 ;;
+    *)
+        printf '%s: unknown argument "%s"\n' "${0##*/}" "$1" >&2
+        printf 'usage: %s [size|night|screens]\n' "${0##*/}" >&2
+        exit 2 ;;
+esac
+
 # --- the menu ----------------------------------------------------------------
 while :; do
     # size/night/screens are tags matched by the case below — never translated.

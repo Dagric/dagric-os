@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: dagric 1.0\n"
 "Report-Msgid-Bugs-To: repo@dagric.com\n"
-"POT-Creation-Date: 2026-08-03 04:05+0000\n"
+"POT-Creation-Date: 2026-08-05 21:39+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -172,12 +172,12 @@ msgid "Theme"
 msgstr ""
 
 #: po/dagric-data-strings.sh:49
-#: config/includes.chroot/usr/bin/dagric-firstrun:779
+#: config/includes.chroot/usr/bin/dagric-firstrun:812
 msgid "Light"
 msgstr ""
 
 #: po/dagric-data-strings.sh:50
-#: config/includes.chroot/usr/bin/dagric-firstrun:779
+#: config/includes.chroot/usr/bin/dagric-firstrun:812
 msgid "Dark"
 msgstr ""
 
@@ -239,8 +239,7 @@ msgid "Is the text the right size?"
 msgstr ""
 
 #: po/dagric-data-strings.sh:65
-msgid ""
-"Dagric guessed from your screen. Open Display Settings if it guessed wrong."
+msgid "Dagric guessed from your screen. Pick another size if it guessed wrong."
 msgstr ""
 
 #: po/dagric-data-strings.sh:66
@@ -255,11 +254,13 @@ msgid ""
 msgstr ""
 
 #: po/dagric-data-strings.sh:68
-msgid "Open Display Settings"
+msgid "Choose a text size"
 msgstr ""
 
 #: po/dagric-data-strings.sh:69
-msgid "Opens the full display and text size settings in a separate window"
+msgid ""
+"Opens a list of text sizes in a separate window. A new size is tried for "
+"twenty seconds and put back on its own unless you keep it."
 msgstr ""
 
 #: po/dagric-data-strings.sh:70
@@ -299,7 +300,7 @@ msgid "You can change this again in System Settings ▸ Display & Monitor."
 msgstr ""
 
 #: po/dagric-data-strings.sh:79
-#: config/includes.chroot/usr/bin/dagric-firstrun:818
+#: config/includes.chroot/usr/bin/dagric-firstrun:851
 msgid "Where should the taskbar go?"
 msgstr ""
 
@@ -415,7 +416,7 @@ msgid "Open %1"
 msgstr ""
 
 #: po/dagric-data-strings.sh:105
-#: config/includes.chroot/usr/bin/dagric-firstrun:724
+#: config/includes.chroot/usr/bin/dagric-firstrun:735
 msgid "Your desktop is back the way it was."
 msgstr ""
 
@@ -464,7 +465,7 @@ msgstr ""
 #. TRANSLATORS: one-line description of the "command" taskbar layout, shown
 #. under its name. Keep it short — it has to fit on one line beside a tile.
 #: po/dagric-data-strings.sh:122
-msgid "a side dock for living in your apps"
+msgid "the same side dock, but each window keeps its own menu bar"
 msgstr ""
 
 #. TRANSLATORS: name of the "duo" taskbar layout in Dagric Looks and the
@@ -524,7 +525,7 @@ msgstr ""
 #. TRANSLATORS: one-line description of the "unity" taskbar layout, shown
 #. under its name. Keep it short — it has to fit on one line beside a tile.
 #: po/dagric-data-strings.sh:152
-msgid "a side dock with a global menu bar on top"
+msgid "a side dock, with every window's menu moved to the top bar"
 msgstr ""
 
 #. TRANSLATORS: name of the "classy" desktop style (colours, wallpaper and
@@ -922,7 +923,7 @@ msgid ""
 msgstr ""
 
 #: config/includes.chroot/usr/bin/dagric-ai:67
-#: config/includes.chroot/usr/bin/dagric-drivers:237
+#: config/includes.chroot/usr/bin/dagric-drivers:270
 #: config/includes.chroot/usr/bin/dagric-gaming:49
 msgid "Nothing changed."
 msgstr ""
@@ -939,30 +940,30 @@ msgid ""
 "installed. Opening the classic Styles menu instead."
 msgstr ""
 
-#: config/includes.chroot/usr/bin/dagric-appearance:188
+#: config/includes.chroot/usr/bin/dagric-appearance:199
 msgid ""
 "No styles or layouts are installed. Reinstall the dagric-branding package to "
 "restore them."
 msgstr ""
 
-#: config/includes.chroot/usr/bin/dagric-appearance:384
+#: config/includes.chroot/usr/bin/dagric-appearance:395
 msgid ""
 "Your previous layout could not be read, so the standard Dagric layout was "
 "restored."
 msgstr ""
 
-#: config/includes.chroot/usr/bin/dagric-appearance:523
+#: config/includes.chroot/usr/bin/dagric-appearance:534
 #, sh-format
 msgid "Kept: $name"
 msgstr ""
 
-#: config/includes.chroot/usr/bin/dagric-appearance:544
+#: config/includes.chroot/usr/bin/dagric-appearance:555
 msgid ""
 "The gallery closed while a preview was running, so the desktop was put back."
 msgstr ""
 
 #. TRANSLATORS: "Dagric Styles" is a tool name — leave it as it is.
-#: config/includes.chroot/usr/bin/dagric-appearance:566
+#: config/includes.chroot/usr/bin/dagric-appearance:577
 msgid ""
 "The appearance gallery could not start. Opening the classic Styles menu "
 "instead."
@@ -1091,23 +1092,24 @@ msgstr ""
 msgid "Night colour is on all the time."
 msgstr ""
 
-#: config/includes.chroot/usr/bin/dagric-display:330
+#: config/includes.chroot/usr/bin/dagric-display:363
 msgid "What would you like to change?"
 msgstr ""
 
-#: config/includes.chroot/usr/bin/dagric-display:331
+#: config/includes.chroot/usr/bin/dagric-display:364
 msgid "Text and icon size"
 msgstr ""
 
-#: config/includes.chroot/usr/bin/dagric-display:332
+#: config/includes.chroot/usr/bin/dagric-display:365
 msgid "Night colour — a warmer screen in the evening"
 msgstr ""
 
-#: config/includes.chroot/usr/bin/dagric-display:333
+#: config/includes.chroot/usr/bin/dagric-display:366
 msgid "More screens, resolution and refresh rate"
 msgstr ""
 
 #: config/includes.chroot/usr/bin/dagric-driver-offer:51
+#: config/includes.chroot/usr/bin/dagric-firstrun:758
 #: config/includes.chroot/usr/bin/dagric-hub:25
 #: config/includes.chroot/usr/bin/dagric-setup:17
 msgid "Press Enter to close..."
@@ -1182,7 +1184,7 @@ msgid ""
 "https://dagric.com/support and we will tell you which driver it takes."
 msgstr ""
 
-#: config/includes.chroot/usr/bin/dagric-drivers:172
+#: config/includes.chroot/usr/bin/dagric-drivers:205
 msgid ""
 "The driver did not install.\n"
 "\n"
@@ -1194,7 +1196,7 @@ msgid ""
 "takes."
 msgstr ""
 
-#: config/includes.chroot/usr/bin/dagric-drivers:204
+#: config/includes.chroot/usr/bin/dagric-drivers:237
 msgid ""
 "WARNING: the NVIDIA kernel module did not finish building.\n"
 "The open-source driver has been switched back on, so the screen still works\n"
@@ -1208,7 +1210,7 @@ msgstr ""
 #. these three must stay in English or the owner will hunt for a
 #. button that is not there. Everything around them should be
 #. translated.
-#: config/includes.chroot/usr/bin/dagric-drivers:225
+#: config/includes.chroot/usr/bin/dagric-drivers:258
 msgid ""
 "IMPORTANT — finish Secure Boot enrollment:\n"
 "  1. Reboot now.\n"
@@ -1220,59 +1222,59 @@ msgid ""
 "back to the open-source driver. You can re-run this anytime."
 msgstr ""
 
-#: config/includes.chroot/usr/bin/dagric-drivers:234
+#: config/includes.chroot/usr/bin/dagric-drivers:267
 msgid "Done. Reboot to switch to the NVIDIA driver."
 msgstr ""
 
-#: config/includes.chroot/usr/bin/dagric-drivers:240
+#: config/includes.chroot/usr/bin/dagric-drivers:273
 msgid ""
 "No NVIDIA GPU found. AMD and Intel graphics use the built-in\n"
 "open-source drivers — nothing to install."
 msgstr ""
 
-#: config/includes.chroot/usr/bin/dagric-firstrun:376
+#: config/includes.chroot/usr/bin/dagric-firstrun:387
 msgid "Theme default"
 msgstr ""
 
-#: config/includes.chroot/usr/bin/dagric-firstrun:377
+#: config/includes.chroot/usr/bin/dagric-firstrun:388
 msgid "Dagric blue"
 msgstr ""
 
-#: config/includes.chroot/usr/bin/dagric-firstrun:378
+#: config/includes.chroot/usr/bin/dagric-firstrun:389
 msgid "Teal"
 msgstr ""
 
-#: config/includes.chroot/usr/bin/dagric-firstrun:379
+#: config/includes.chroot/usr/bin/dagric-firstrun:390
 msgid "Green"
 msgstr ""
 
-#: config/includes.chroot/usr/bin/dagric-firstrun:380
+#: config/includes.chroot/usr/bin/dagric-firstrun:391
 msgid "Amber"
 msgstr ""
 
-#: config/includes.chroot/usr/bin/dagric-firstrun:381
+#: config/includes.chroot/usr/bin/dagric-firstrun:392
 msgid "Coral"
 msgstr ""
 
-#: config/includes.chroot/usr/bin/dagric-firstrun:382
+#: config/includes.chroot/usr/bin/dagric-firstrun:393
 msgid "Violet"
 msgstr ""
 
-#: config/includes.chroot/usr/bin/dagric-firstrun:383
+#: config/includes.chroot/usr/bin/dagric-firstrun:394
 msgid "Pink"
 msgstr ""
 
-#: config/includes.chroot/usr/bin/dagric-firstrun:384
+#: config/includes.chroot/usr/bin/dagric-firstrun:395
 msgid "Slate"
 msgstr ""
 
-#: config/includes.chroot/usr/bin/dagric-firstrun:623
+#: config/includes.chroot/usr/bin/dagric-firstrun:634
 msgid ""
 "The text size could not be changed here. Open System Settings ▸ Display & "
 "Monitor to set it."
 msgstr ""
 
-#: config/includes.chroot/usr/bin/dagric-firstrun:770
+#: config/includes.chroot/usr/bin/dagric-firstrun:803
 #, sh-format
 msgid ""
 "Welcome to $EDITION_NAME.\n"
@@ -1282,34 +1284,34 @@ msgid ""
 "permanent — you can change all of it later from the Dagric Hub."
 msgstr ""
 
-#: config/includes.chroot/usr/bin/dagric-firstrun:778
+#: config/includes.chroot/usr/bin/dagric-firstrun:811
 msgid "Light or dark?"
 msgstr ""
 
-#: config/includes.chroot/usr/bin/dagric-firstrun:780
-#: config/includes.chroot/usr/bin/dagric-firstrun:793
-#: config/includes.chroot/usr/bin/dagric-firstrun:804
-#: config/includes.chroot/usr/bin/dagric-firstrun:819
+#: config/includes.chroot/usr/bin/dagric-firstrun:813
+#: config/includes.chroot/usr/bin/dagric-firstrun:826
+#: config/includes.chroot/usr/bin/dagric-firstrun:837
+#: config/includes.chroot/usr/bin/dagric-firstrun:852
 msgid "Stop here — I'll finish later"
 msgstr ""
 
-#: config/includes.chroot/usr/bin/dagric-firstrun:792
+#: config/includes.chroot/usr/bin/dagric-firstrun:825
 msgid "Pick a wallpaper:"
 msgstr ""
 
-#: config/includes.chroot/usr/bin/dagric-firstrun:800
+#: config/includes.chroot/usr/bin/dagric-firstrun:833
 msgid "How big should everything be?"
 msgstr ""
 
-#: config/includes.chroot/usr/bin/dagric-firstrun:801
+#: config/includes.chroot/usr/bin/dagric-firstrun:834
 msgid "Normal (100%)"
 msgstr ""
 
-#: config/includes.chroot/usr/bin/dagric-firstrun:802
+#: config/includes.chroot/usr/bin/dagric-firstrun:835
 msgid "Bigger (125%)"
 msgstr ""
 
-#: config/includes.chroot/usr/bin/dagric-firstrun:803
+#: config/includes.chroot/usr/bin/dagric-firstrun:836
 msgid "Biggest (150%)"
 msgstr ""
 
@@ -1317,7 +1319,7 @@ msgstr ""
 #. is the product's central promise, said to somebody who is afraid of
 #. losing the Windows install they may still need. Keep the negation and
 #. keep the emphasis on READ.
-#: config/includes.chroot/usr/bin/dagric-firstrun:831
+#: config/includes.chroot/usr/bin/dagric-firstrun:864
 msgid ""
 "A Windows drive was found on this PC.\n"
 "\n"
@@ -1330,7 +1332,7 @@ msgstr ""
 #. they must match the Name= of dagric-hub.desktop, dagric-manual.desktop
 #. and dagric-firstrun.desktop in your language, exactly. "Dagric Hub" is
 #. not translated at all — it is a product name.
-#: config/includes.chroot/usr/bin/dagric-firstrun:845
+#: config/includes.chroot/usr/bin/dagric-firstrun:878
 msgid ""
 "You're set up.\n"
 "\n"
@@ -1342,7 +1344,7 @@ msgid ""
 "To see this again, open \"Set Up Dagric\" from the launcher."
 msgstr ""
 
-#: config/includes.chroot/usr/bin/dagric-firstrun:1174
+#: config/includes.chroot/usr/bin/dagric-firstrun:1207
 msgid "Dagric is set up. Everything else lives in the Dagric Hub."
 msgstr ""
 
@@ -1837,91 +1839,95 @@ msgstr ""
 msgid "Check for a new Dagric version"
 msgstr ""
 
-#: config/includes.chroot/usr/bin/dagric-hub:115
-msgid "User guide — your first week"
-msgstr ""
-
-#: config/includes.chroot/usr/bin/dagric-hub:116
-msgid "App manual — every program explained"
-msgstr ""
-
-#: config/includes.chroot/usr/bin/dagric-hub:117
-msgid "Welcome page — what Dagric promises"
-msgstr ""
-
-#: config/includes.chroot/usr/bin/dagric-hub:118
-msgid "Get help — contact a human"
-msgstr ""
-
 #: config/includes.chroot/usr/bin/dagric-hub:121
-msgid "Heroic — Epic, GOG, Amazon"
-msgstr ""
-
-#: config/includes.chroot/usr/bin/dagric-hub:123
-msgid "Proton-GE for Steam"
-msgstr ""
-
-#: config/includes.chroot/usr/bin/dagric-hub:124
-msgid "Windows apps — Bottles"
-msgstr ""
-
-#: config/includes.chroot/usr/bin/dagric-hub:125
-msgid "Office suite — ONLYOFFICE"
+msgid "Upgrade to Pro — already bought it?"
 msgstr ""
 
 #: config/includes.chroot/usr/bin/dagric-hub:126
-msgid "Private notes — Joplin"
+msgid "User guide — your first week"
 msgstr ""
 
 #: config/includes.chroot/usr/bin/dagric-hub:127
-msgid "Local sharing — LocalSend"
+msgid "App manual — every program explained"
 msgstr ""
 
 #: config/includes.chroot/usr/bin/dagric-hub:128
-msgid "Cloud encryption — Cryptomator"
+msgid "Welcome page — what Dagric promises"
 msgstr ""
 
 #: config/includes.chroot/usr/bin/dagric-hub:129
+msgid "Get help — contact a human"
+msgstr ""
+
+#: config/includes.chroot/usr/bin/dagric-hub:132
+msgid "Heroic — Epic, GOG, Amazon"
+msgstr ""
+
+#: config/includes.chroot/usr/bin/dagric-hub:134
+msgid "Proton-GE for Steam"
+msgstr ""
+
+#: config/includes.chroot/usr/bin/dagric-hub:135
+msgid "Windows apps — Bottles"
+msgstr ""
+
+#: config/includes.chroot/usr/bin/dagric-hub:136
+msgid "Office suite — ONLYOFFICE"
+msgstr ""
+
+#: config/includes.chroot/usr/bin/dagric-hub:137
+msgid "Private notes — Joplin"
+msgstr ""
+
+#: config/includes.chroot/usr/bin/dagric-hub:138
+msgid "Local sharing — LocalSend"
+msgstr ""
+
+#: config/includes.chroot/usr/bin/dagric-hub:139
+msgid "Cloud encryption — Cryptomator"
+msgstr ""
+
+#: config/includes.chroot/usr/bin/dagric-hub:140
 msgid "Image upscaler — Upscayl"
 msgstr ""
 
-#: config/includes.chroot/usr/bin/dagric-hub:131
+#: config/includes.chroot/usr/bin/dagric-hub:142
 msgid "Local AI — Ollama"
 msgstr ""
 
-#: config/includes.chroot/usr/bin/dagric-hub:149
+#: config/includes.chroot/usr/bin/dagric-hub:160
 msgid "──  Windows and security  ─────────"
 msgstr ""
 
-#: config/includes.chroot/usr/bin/dagric-hub:150
+#: config/includes.chroot/usr/bin/dagric-hub:161
 msgid "Windows in a VM"
 msgstr ""
 
-#: config/includes.chroot/usr/bin/dagric-hub:151
+#: config/includes.chroot/usr/bin/dagric-hub:162
 msgid "USB protection"
 msgstr ""
 
-#: config/includes.chroot/usr/bin/dagric-hub:191
+#: config/includes.chroot/usr/bin/dagric-hub:202
 msgid "What would you like to do?"
 msgstr ""
 
-#: config/includes.chroot/usr/bin/dagric-looks:87
+#: config/includes.chroot/usr/bin/dagric-looks:98
 msgid ""
 "No layouts are installed. Reinstall the dagric-branding package to restore "
 "them."
 msgstr ""
 
-#: config/includes.chroot/usr/bin/dagric-looks:103
+#: config/includes.chroot/usr/bin/dagric-looks:114
 msgid "Pick a layout — switch back anytime:"
 msgstr ""
 
-#: config/includes.chroot/usr/bin/dagric-looks:126
+#: config/includes.chroot/usr/bin/dagric-looks:137
 msgid ""
 "The layout could not be applied — the desktop did not answer. If the panels "
 "are missing now, log out and back in, then try again."
 msgstr ""
 
-#: config/includes.chroot/usr/bin/dagric-looks:139
+#: config/includes.chroot/usr/bin/dagric-looks:150
 #, sh-format
 msgid "Layout applied: $NAME"
 msgstr ""
@@ -1959,7 +1965,7 @@ msgstr ""
 msgid "No page called \"$ASKED\". Try: dagric-manual --list"
 msgstr ""
 
-#: config/includes.chroot/usr/bin/dagric-manual:179
+#: config/includes.chroot/usr/bin/dagric-manual:195
 #, sh-format
 msgid "No browser found. The manual is at $ROOT/$PAGE"
 msgstr ""
@@ -2381,44 +2387,44 @@ msgid ""
 "was cancelled. Try again anytime from the Hub."
 msgstr ""
 
-#: config/includes.chroot/usr/bin/dagric-style:99
+#: config/includes.chroot/usr/bin/dagric-style:110
 msgid ""
 "No styles are installed. Reinstall the dagric-branding package to restore "
 "them."
 msgstr ""
 
-#: config/includes.chroot/usr/bin/dagric-style:120
+#: config/includes.chroot/usr/bin/dagric-style:131
 msgid "Accent color — pick any color"
 msgstr ""
 
-#: config/includes.chroot/usr/bin/dagric-style:121
+#: config/includes.chroot/usr/bin/dagric-style:132
 msgid "Reset — standard Dagric look"
 msgstr ""
 
-#: config/includes.chroot/usr/bin/dagric-style:124
+#: config/includes.chroot/usr/bin/dagric-style:135
 msgid "Pick a mood — colors, wallpaper, effects. Panels stay put:"
 msgstr ""
 
-#: config/includes.chroot/usr/bin/dagric-style:144
+#: config/includes.chroot/usr/bin/dagric-style:155
 msgid "accent color"
 msgstr ""
 
-#: config/includes.chroot/usr/bin/dagric-style:151
+#: config/includes.chroot/usr/bin/dagric-style:162
 #, sh-format
 msgid "Accent color set to $HEX"
 msgstr ""
 
-#: config/includes.chroot/usr/bin/dagric-style:174
+#: config/includes.chroot/usr/bin/dagric-style:185
 msgid ""
 "The standard Dagric style is missing, so nothing was changed. Reinstall the "
 "dagric-branding package to restore it."
 msgstr ""
 
-#: config/includes.chroot/usr/bin/dagric-style:178
+#: config/includes.chroot/usr/bin/dagric-style:189
 msgid "Reset to the standard Dagric look"
 msgstr ""
 
-#: config/includes.chroot/usr/bin/dagric-style:190
+#: config/includes.chroot/usr/bin/dagric-style:201
 #, sh-format
 msgid "Style applied: $NAME"
 msgstr ""
@@ -2435,8 +2441,10 @@ msgstr ""
 msgid ""
 "USB protection can only be set up on an installed Dagric system.\n"
 "\n"
-"This is the live trial running from the USB stick: the allow-list would be kept\n"
-"in memory and lost at shutdown, and any USB drive you plug in before then would\n"
+"This is the live trial running from the USB stick: the allow-list would be "
+"kept\n"
+"in memory and lost at shutdown, and any USB drive you plug in before then "
+"would\n"
 "be blocked. Install Dagric first, then turn this on from the Dagric Hub."
 msgstr ""
 
@@ -2482,6 +2490,10 @@ msgid ""
 "still blocked."
 msgstr ""
 
+#. TRANSLATORS:`
+#. only carries a comment block that STARTS with the tag, so a note appended
+#. to the end of a block like this one never reaches the .pot at all and the
+#. translator never sees it. Hence the split.
 #. TRANSLATORS: "nothing that already worked has changed" is literally true —
 #. this path only ever ADDS allow rules — and it is the sentence that stops a
 #. worried owner from switching protection off to be safe. Keep it.
@@ -2507,35 +2519,14 @@ msgstr ""
 msgid "Allow my new device"
 msgstr ""
 
-#. TRANSLATORS: three buttons, and the body text names two of them in
-#. typographic quotes — “Allow my new device” and “Turn protection off”.
-#. Those two labels are separate messages immediately below this one;
-#. translate them the SAME way in both places or the dialog tells the owner
-#. to press a button that is not there. The warning to unplug anything
-#. unrecognised is a real one, not filler: this path allow-lists whatever is
-#. attached, exactly as the switch-on dialog does.
 #: config/includes.chroot/usr/bin/dagric-usb-protect:233
 msgid "Turn protection off"
 msgstr ""
 
-#. TRANSLATORS: three buttons, and the body text names two of them in
-#. typographic quotes — “Allow my new device” and “Turn protection off”.
-#. Those two labels are separate messages immediately below this one;
-#. translate them the SAME way in both places or the dialog tells the owner
-#. to press a button that is not there. The warning to unplug anything
-#. unrecognised is a real one, not filler: this path allow-lists whatever is
-#. attached, exactly as the switch-on dialog does.
 #: config/includes.chroot/usr/bin/dagric-usb-protect:234
 msgid "Cancel"
 msgstr ""
 
-#. TRANSLATORS: three buttons, and the body text names two of them in
-#. typographic quotes — “Allow my new device” and “Turn protection off”.
-#. Those two labels are separate messages immediately below this one;
-#. translate them the SAME way in both places or the dialog tells the owner
-#. to press a button that is not there. The warning to unplug anything
-#. unrecognised is a real one, not filler: this path allow-lists whatever is
-#. attached, exactly as the switch-on dialog does.
 #: config/includes.chroot/usr/bin/dagric-usb-protect:236
 msgid ""
 "USB protection is currently ON — unknown USB devices are blocked.\n"
@@ -2678,14 +2669,4 @@ msgstr ""
 
 #: config/includes.chroot/usr/bin/dagric-welcome:31
 msgid "The Dagric welcome page is not installed."
-msgstr ""
-
-#~ msgid ""
-#~ "USB protection is currently ON — unknown USB devices are blocked.\n"
-#~ "\n"
-#~ "Turn it OFF and allow all USB devices again?"
-#~ msgstr ""
-
-#: usr/bin/dagric-hub
-msgid "Upgrade to Pro — already bought it?"
 msgstr ""

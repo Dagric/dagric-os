@@ -62,11 +62,11 @@ gettext "Arrow keys to move between wallpapers, Space to apply one"
 gettext "%1 wallpaper applied."
 gettext "Want your own picture? Right-click the desktop and choose Configure Desktop."
 gettext "Is the text the right size?"
-gettext "Dagric guessed from your screen. Open Display Settings if it guessed wrong."
+gettext "Dagric guessed from your screen. Pick another size if it guessed wrong."
 gettext "Dagric guessed from your screen. A change here takes effect the next time you sign in."
 gettext "Dagric guessed from your screen. Pick another size and it changes right away."
-gettext "Open Display Settings"
-gettext "Opens the full display and text size settings in a separate window"
+gettext "Choose a text size"
+gettext "Opens a list of text sizes in a separate window. A new size is tried for twenty seconds and put back on its own unless you keep it."
 gettext "Normal"
 gettext "Standard size"
 gettext "Bigger"
@@ -119,7 +119,7 @@ gettext "a taskbar at the bottom, familiar and comfortable"
 gettext "Command"
 # TRANSLATORS: one-line description of the "command" taskbar layout, shown
 # under its name. Keep it short — it has to fit on one line beside a tile.
-gettext "a side dock for living in your apps"
+gettext "the same side dock, but each window keeps its own menu bar"
 # TRANSLATORS: name of the "duo" taskbar layout in Dagric Looks and the
 # setup wizard. One or two words, shown as the title of a picture tile.
 gettext "Duo"
@@ -149,7 +149,7 @@ gettext "a menu bar up top with a dock below"
 gettext "Unity"
 # TRANSLATORS: one-line description of the "unity" taskbar layout, shown
 # under its name. Keep it short — it has to fit on one line beside a tile.
-gettext "a side dock with a global menu bar on top"
+gettext "a side dock, with every window's menu moved to the top bar"
 # TRANSLATORS: name of the "classy" desktop style (colours, wallpaper and
 # effects) in Dagric Styles and the appearance gallery. One or two words.
 gettext "Classy"
