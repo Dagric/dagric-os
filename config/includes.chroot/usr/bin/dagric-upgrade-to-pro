@@ -91,7 +91,23 @@ if [ -d /run/live/medium ]; then
 fi
 
 # apt in a broken state is the commonest reason a long install dies halfway.
-if ! dpkg --audit 2>/dev/null | grep -q '^$' && [ -n "$(dpkg --audit 2>/dev/null)" ]; then
+#
+# THE FIRST VERSION OF THIS CHECK COULD NOT DETECT THE THING IT CHECKS FOR. It
+# read
+#     if ! dpkg --audit | grep -q '^$' && [ -n "$(dpkg --audit)" ]
+# and dpkg's real report is multi-line WITH a blank line in it:
+#     The following packages are only half configured.
+#
+#      some-package
+# so grep -q '^$' matched, the ! flipped it to false, and a genuinely broken
+# machine passed straight through into an 83-package install — which is the
+# exact state this guard exists to refuse. Measured against simulated dpkg
+# output, not reasoned about: the old form reported "clean", the new one
+# reports "broken".
+#
+# dpkg --audit prints nothing at all when there is nothing wrong, so "is the
+# output empty" is the whole test and anything cleverer is a way to be wrong.
+if [ -n "$(dpkg --audit 2>/dev/null)" ]; then
     say "ERROR: some packages on this machine are half-configured."
     say "       Run  sudo dpkg --configure -a  first, then try again."
     fail=1
