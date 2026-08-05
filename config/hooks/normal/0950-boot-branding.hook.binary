@@ -290,6 +290,99 @@ for f in boot/grub/grub.cfg boot/grub/config.cfg; do
     if [ "$rc" -eq 0 ] && [ -s "$f.a11y" ]; then mv "$f.a11y" "$f"; else rm -f "$f.a11y"; fi
 done
 
+# ---------------------------------------------------------------------------
+# A LANGUAGE SUBMENU, BECAUSE THE TRIAL WAS ENGLISH-ONLY ON A SIX-LANGUAGE
+# PRODUCT.
+#
+# Found by booting the image and looking at the menu: four entries, none of them
+# a language, none passing a locale. So the guide, the welcome page, the Hub,
+# the launcher entries and KDE are all translated into five languages besides
+# English — and a German visitor evaluating the USB stick never saw any of it.
+# The installed system was always fine, because Calamares carries its own
+# language page; it was the shop window that was English.
+#
+# ONE LINE, NOT FIVE. Five extra top-level entries would take the menu from four
+# items to nine and make the common case worse to serve the uncommon one. A
+# submenu costs the English-speaking majority a single row and matches the
+# Utilities > entry already sitting beside it.
+#
+# THE LABEL CARRIES ITS OWN TRANSLATION, which is the whole point: a reader who
+# cannot read "Language" is exactly the reader this row exists for. Sprache,
+# Idioma, Langue, Lingua covers all five, because Portuguese and Spanish share
+# Idioma. No word here is invented — they are the same words the guide's own
+# language bar uses.
+#
+# The locale strings MUST match 0150-locales.hook.chroot's DAGRIC_LOCALES, or
+# the boot parameter names a locale that was never generated and the session
+# silently falls back to English — the exact failure this is meant to remove.
+LANGROW="Language / Sprache / Idioma / Langue / Lingua"
+LANGS="de_DE.UTF-8:Deutsch
+en_US.UTF-8:English
+es_ES.UTF-8:Español
+fr_FR.UTF-8:Français
+it_IT.UTF-8:Italiano
+pt_BR.UTF-8:Português (Brasil)"
+
+# --- GRUB (UEFI) -----------------------------------------------------------
+# Cloned from the primary entry rather than written from scratch, so the kernel
+# path, findiso= and every other parameter stay whatever live-build decided.
+if [ -f boot/grub/grub.cfg ] && ! grep -q 'dagric-langmenu' boot/grub/grub.cfg; then
+    _lin=$(awk '/^menuentry /{i++} i==1 && /^[[:space:]]*linux/{print; exit}' boot/grub/grub.cfg)
+    _ini=$(awk '/^menuentry /{i++} i==1 && /^[[:space:]]*initrd/{print; exit}' boot/grub/grub.cfg)
+    if [ -n "$_lin" ] && [ -n "$_ini" ]; then
+        {
+            printf '\n# dagric-langmenu\n'
+            printf 'submenu "%s" {\n' "$LANGROW"
+            printf '%s\n' "$LANGS" | while IFS=: read -r _loc _name; do
+                [ -n "$_loc" ] || continue
+                printf '  menuentry "%s" {\n' "$_name"
+                printf '  %s locales=%s\n' "$_lin" "$_loc"
+                printf '  %s\n' "$_ini"
+                printf '  }\n'
+            done
+            printf '}\n'
+        } >> boot/grub/grub.cfg
+        echo "boot-branding: GRUB language submenu added"
+    else
+        echo "WARNING: could not read the primary GRUB entry — no language submenu" >&2
+    fi
+fi
+
+# --- isolinux (BIOS) -------------------------------------------------------
+# The machines this OS is sold for are old, and plenty of them boot BIOS rather
+# than UEFI. A language row on only one of the two firmwares would be worse than
+# none, because which one you get is invisible to the owner.
+if [ -f isolinux/live.cfg ] && ! grep -q 'dagric-langmenu' isolinux/live.cfg; then
+    # Leading whitespace is stripped: the source line carries a tab, and pasting
+    # it after eight spaces produces mixed indentation that syslinux ignores and
+    # a human reading live.cfg does not.
+    _app=$(awk '/^label live-amd64$/{f=1} f && /^[[:space:]]*append/{sub(/^[[:space:]]+/,""); print; exit}' isolinux/live.cfg)
+    if [ -n "$_app" ]; then
+        {
+            printf '\n# dagric-langmenu\n'
+            printf 'menu begin dagric-lang\n'
+            printf '    menu label %s\n' "$LANGROW"
+            printf '    menu title %s\n' "$LANGROW"
+            printf '%s\n' "$LANGS" | while IFS=: read -r _loc _name; do
+                [ -n "$_loc" ] || continue
+                printf '    label lang-%s\n' "${_loc%%.*}"
+                printf '        menu label %s\n' "$_name"
+                printf '        linux /live/vmlinuz\n'
+                printf '        initrd /live/initrd.img\n'
+                printf '        %s locales=%s\n' "$_app" "$_loc"
+            done
+            printf '    menu separator\n'
+            printf '    label lang-back\n'
+            printf '        menu label ^Back\n'
+            printf '        menu exit\n'
+            printf 'menu end\n'
+        } >> isolinux/live.cfg
+        echo "boot-branding: isolinux language submenu added"
+    else
+        echo "WARNING: could not read the primary isolinux entry — no language submenu" >&2
+    fi
+fi
+
 # GRUB has no timeout line to rewrite — live-build never writes one — so add it
 # rather than sed it. Prepended, because a menuentry block must not be split and
 # the first line is the only position guaranteed to be outside one.
