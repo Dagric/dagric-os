@@ -211,7 +211,7 @@ free-edition features. Everything below ships on both editions.
       which claims only what is installed and states what does not work.
 - [x] **Five languages for the shell tools and launcher entries** (de, fr, es,
       pt_BR, it) on a committed gettext catalogue, with build-time drift gates.
-      German for the welcome page and the user guide.
+      The user guide and the welcome page ship in all six.
 - [x] **The live-locale defect fixed** — `0150-locales.hook.chroot` used to
       clobber `/etc/locale.gen`, so both mechanisms that give an owner a
       non-English system silently failed.
@@ -220,8 +220,11 @@ free-edition features. Everything below ships on both editions.
       commercially: `QT_LINUX_ACCESSIBILITY_ALWAYS_ON=1 accerciser` against both
       QML tools on the built image, and one pass with Orca and the mouse
       unplugged. Confirm Meta+Alt+S actually fires.
-- [ ] **Native review of the translations.** They are machine-generated and
-      marked unreviewed in every `.po` header. No language may be advertised
+- [ ] **Native review of the translations.** They are machine-generated and every
+      `.po` header carries `X-Dagric-Review-Status: second-model-reviewed;
+      back-translation-verified; no-native-speaker-pass` — reviewed by a second
+      model and checked by blind back-translation, which is not the same thing
+      as read by a native speaker, and is why this item is still open. No language may be advertised
       until at least the tier-one strings are cleared — see EDITIONS.md.
 - [ ] **Repaint the two default colour schemes.** `DagricLight` and
       `DagricDark` inherit Breeze accents that fail 4.5:1 in several places

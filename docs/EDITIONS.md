@@ -153,9 +153,13 @@ own.
   `/usr/local/share/applications`, re-run by an apt `Post-Invoke-Success` hook.
   dpkg never writes to `/usr/local`, so the rename survives KDE point releases;
   everything except the three changed keys is re-derived from upstream, so
-  `Exec=`/`MimeType=`/Desktop Actions never freeze. Only the English
-  translations are overridden — a German install keeps its German names, which
-  is a market decision, not a technical limit.
+  `Exec=`/`MimeType=`/Desktop Actions never freeze. The rename applies in every
+  language Dagric ships: `applang_data()` carries de, fr, es, it and pt_BR rows,
+  and `rename()` strips upstream's `Name[xx]` before emitting its own — so a
+  German launcher reads **Dateien** and **Software-Shop**, not **Dolphin** and
+  **Discover**. The script's header comment (b) explains why the strip is
+  mandatory: two `Name[de]` lines in one group are undefined by the spec, and
+  GLib's key-file parser and KConfig resolve the duplicate differently.
 - **Dagric Manual** (`dagric-manual`) — an offline, searchable handbook with a
   page for every application and for all but three of the `dagric-*` tools: what
   it is, what it replaces on Windows, five common tasks, and the one thing that
@@ -269,9 +273,9 @@ What ships and works:
   names on all 94 unnamed `<nav>`s, a real `<label>` on the search box, and 97
   colour pairs measured across three stylesheets with **0** failures. The bare
   `/` search shortcut now has a visible off switch (WCAG 2.1.4). The guide
-  gained an Accessibility section in both languages, because EN 301 549 clause
-  12.1.1 requires shipped documentation to describe these features and nothing
-  did.
+  gained an Accessibility section in every language it ships in, because EN 301
+  549 clause 12.1.1 requires shipped documentation to describe these features
+  and nothing did.
 
 What does **not** work, stated plainly because a VPAT that rounds these up is
 worse than no VPAT:
@@ -304,8 +308,10 @@ worse than no VPAT:
 ### Languages
 
 The shell tools and the launcher entries speak **German, French, Spanish,
-Brazilian Portuguese and Italian** — 310 messages per language, compiled to
-`.mo` catalogues that ship in the image (280 KB total; `msgfmt` is a build-host
+Brazilian Portuguese and Italian** — 448 messages per language, all five at
+448/448 with nothing untranslated, compiled to `.mo` catalogues that ship in
+the image (397 KiB total, measured: de 82,700 + es 80,871 + fr 82,698 +
+it 80,273 + pt_BR 80,115 bytes; `msgfmt` is a build-host
 tool and has no business on a desktop ISO, so compilation happens here and the
 output is committed like the wallpapers). `0150-locales.hook.chroot` fails the
 build if a catalogue is missing.
@@ -316,7 +322,8 @@ Coverage is honest rather than uniform:
 |---|---|
 | Every `dagric-*` shell tool, the Hub, the launcher entries | de, fr, es, pt_BR, it |
 | Style / layout / wallpaper-pack names (they cross into the QML as data) | de, fr, es, pt_BR, it |
-| Welcome page, user guide | **German only** |
+| User guide | en, de, es, fr, it, pt_BR |
+| Welcome page | en, de, es, fr, it, pt_BR |
 | The setup wizard's and gallery's own chrome (QML strings) | English |
 | `dagric-hardware-check`'s output | English |
 | The 94-page manual | **English, deliberately and permanently** |
@@ -325,12 +332,14 @@ The manual is not a gap that will be closed. Its entire value is that the
 search index knows the *English* Windows names — type *notepad*, get the Text
 Editor. A German index would have to carry German keywords across 94 cards or
 a German owner typing "Editor" finds nothing, and a page that looks translated
-but answers in English is worse than one that never claimed to be. It says so,
-in German, at the top of the page, and links back to the German guide.
+but answers in English is worse than one that never claimed to be. The manual
+is `<html lang="en">` throughout and says nothing in any other language; the
+guide, which does ship translated, is where a non-English reader is sent.
 
 > **THE TRANSLATIONS ARE MACHINE-GENERATED AND HAVE NOT BEEN READ BY A NATIVE
 > SPEAKER.** Every `.po` header records this (`Last-Translator`, `X-Generator`,
-> `X-Dagric-Review-Status: unreviewed`) and names the tier-one strings that
+> `X-Dagric-Review-Status: second-model-reviewed; back-translation-verified;
+> no-native-speaker-pass`) and names the tier-one strings that
 > must be reviewed first: all of `dagric-migrate`, all of `dagric-usb-protect`,
 > the Secure Boot notice in `dagric-drivers`, the Steam and Resolve licence
 > paragraphs, and the translated affirmative in `y yes`. **Do not list

@@ -112,9 +112,14 @@
       than no rename. So Dagric writes complete overriding copies into a directory the
       package manager never touches, and regenerates them after every package
       operation from whatever upstream currently ships.</p>
-      <p>One honest limit: the renames apply to English installs. Install in German or
-      French and the menu keeps the translated upstream names, because throwing away
-      real translations to impose English labels would be a worse trade.</p>
+      <p>The renames apply in every language Dagric ships. <code>applang_data()</code>
+      carries German, French, Spanish, Italian and Brazilian Portuguese rows, and the
+      generator strips upstream's own <code>Name[xx]</code> before writing Dagric's —
+      so a German menu reads <em>Dateien</em> and <em>Software-Shop</em> rather than
+      <em>Dolphin</em> and <em>Discover</em>. Keywords are the deliberate exception:
+      upstream's translated search terms are left alone, because they are written by
+      KDE's own language teams and are better than a machine translation of a search
+      index would be.</p>
     </section>
 
     <section>

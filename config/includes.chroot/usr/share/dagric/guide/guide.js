@@ -1,5 +1,5 @@
 /* Dagric OS User Guide — sidebar highlighting. Lifted out of index.html so the
-   English and German pages run identical code; it reads nothing but the DOM,
+   All six language editions run identical code; it reads nothing but the DOM,
    so it needs no translating. */
 (function () {
   var links = Array.prototype.slice.call(document.querySelectorAll('nav.toc a'));
@@ -41,7 +41,7 @@
 /* ---------- search ----------
    Filters the guide's sections as you type. Every user-visible string comes
    from data attributes on the input, so this file stays identical for the
-   English and German pages — the rule at the top of this file, kept.
+   all six language editions — the rule at the top of this file, kept.
    Sections are hidden with [hidden] rather than a class so the state is
    visible to assistive tech for free. */
 (function () {
