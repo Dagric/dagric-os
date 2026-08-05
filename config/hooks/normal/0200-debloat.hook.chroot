@@ -40,7 +40,27 @@ echo "debloat: dropped ${_lists:-0} of apt indices (live-build's --apt-indices f
 # No pre-seeded MOTD ads/news
 rm -f /etc/update-motd.d/* 2>/dev/null || true
 
-# Disable services that serve no purpose on a desktop
-for svc in ModemManager.service; do
+# Disable services that serve no purpose on a desktop.
+#
+# openvpn.service was FOUND BY BOOTING THE PRO IMAGE AND READING THE BOOT
+# PROFILE, not by reading this tree. systemd-analyze blame listed it starting on
+# every boot, and `systemctl is-enabled openvpn` said enabled, while
+# /etc/openvpn/ held only the stock empty client/ and server/ directories — a
+# daemon starting on every boot to manage nothing.
+#
+# It arrives as a dependency of network-manager-openvpn, which is the package
+# actually wanted and is a NetworkManager PLUGIN: it runs the openvpn binary
+# itself when the owner connects a VPN, and never consults this unit. So
+# disabling the service costs no functionality at all.
+#
+# It also sat oddly against the rest of the product. Pro deliberately ships
+# docker, libvirt, usbguard and sshd installed-and-off so that nothing listens
+# until the owner opts in, and 0600-pro-edition verifies that at build time.
+# openvpn being enabled by default was the one service that had escaped that
+# rule, on the edition sold hardest on not running things you did not ask for.
+#
+# ModemManager is the same shape and was already here: the package ships so a
+# plugged-in 4G dongle works, and the service stays off until there is one.
+for svc in ModemManager.service openvpn.service; do
     systemctl disable "$svc" 2>/dev/null || true
 done
