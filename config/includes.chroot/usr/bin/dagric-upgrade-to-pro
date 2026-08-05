@@ -57,14 +57,25 @@ THUMBS=/usr/share/dagric/appearance/thumbs
 APPS=/usr/share/applications
 
 say() { printf '%s\n' "$*"; }
-die() { printf 'STOPPED: %s\n' "$*" >&2; exit 1; }
+# The format string stays a literal and the translation arrives as an argument.
+# dagric-i18n.sh states the rule and the reason: a msgstr that becomes a printf
+# FORMAT hands a translator — or a community .po from a stranger — control of
+# the conversion specifiers.
+die() { printf '%s %s\n' "$(gettext "STOPPED:")" "$*" >&2; exit 1; }
 
-[ "$(id -u)" -eq 0 ] || die "run this as root:  sudo dagric-upgrade-to-pro"
+# rule — underline a translated heading to the length of the TRANSLATION.
+# "Your Pro purchase" is 17 characters and "Ihr Pro-Kauf" is 12, so a fixed
+# 17-dash rule sits under a German heading trailing five dashes into space.
+# sed counts characters rather than bytes in a UTF-8 locale, which is what makes
+# this right for the accented languages rather than only for English.
+rule() { printf '%s' "$1" | sed 's/./-/g'; }
+
+[ "$(id -u)" -eq 0 ] || die "$(gettext "run this as root:  sudo dagric-upgrade-to-pro")"
 
 DRY=no
 [ "$1" = "--check" ] && DRY=yes
 
-say "Dagric OS — upgrade this machine to Pro"
+say "$(gettext "Dagric OS — upgrade this machine to Pro")"
 say "======================================="
 say ""
 
@@ -72,8 +83,8 @@ say ""
 CUR=free
 [ -r "$EDITION_FILE" ] && CUR=$(cat "$EDITION_FILE" 2>/dev/null)
 if [ "$CUR" = "pro" ]; then
-    say "This machine is already running Dagric OS Pro."
-    say "Nothing to do."
+    say "$(gettext "This machine is already running Dagric OS Pro.")"
+    say "$(gettext "Nothing to do.")"
     exit 0
 fi
 
@@ -83,10 +94,10 @@ fail=0
 # the tmpfs overlay and vanish at shutdown, and the owner would have paid and
 # apparently received nothing.
 if [ -d /run/live/medium ]; then
-    say "This is the live USB session, not an installed system."
+    say "$(gettext "This is the live USB session, not an installed system.")"
     say ""
-    say "An upgrade here would be written to memory and lost at shutdown."
-    say "Install Dagric first, then run this on the installed machine."
+    say "$(gettext "An upgrade here would be written to memory and lost at shutdown.")"
+    say "$(gettext "Install Dagric first, then run this on the installed machine.")"
     exit 1
 fi
 
@@ -108,8 +119,11 @@ fi
 # dpkg --audit prints nothing at all when there is nothing wrong, so "is the
 # output empty" is the whole test and anything cleverer is a way to be wrong.
 if [ -n "$(dpkg --audit 2>/dev/null)" ]; then
-    say "ERROR: some packages on this machine are half-configured."
-    say "       Run  sudo dpkg --configure -a  first, then try again."
+    say "$(gettext "ERROR: some packages on this machine are half-configured.")"
+    # The seven-space indent is the CALLER's layout, not the translator's
+    # problem: leading whitespace inside a msgid is invisible in a .po editor
+    # and is the first thing a well-meaning translator trims.
+    say "       $(gettext "Run  sudo dpkg --configure -a  first, then try again.")"
     fail=1
 fi
 
@@ -118,9 +132,14 @@ fi
 # needing the rollback this tool works hard to provide.
 FREE_KB=$(df -Pk / 2>/dev/null | awk 'NR==2{print $4}')
 NEED_KB=$((6 * 1024 * 1024))
+# Computed ONCE into a plain variable, because eval_gettext expands variables
+# and cannot do arithmetic: $((FREE_KB / 1024 / 1024)) inside a msgid would
+# reach the owner as that literal text. The :-0 also covers a df that printed
+# nothing, which the two bare expansions here used to assume could not happen.
+FREE_GB=$(( ${FREE_KB:-0} / 1024 / 1024 ))
 if [ -n "$FREE_KB" ] && [ "$FREE_KB" -lt "$NEED_KB" ]; then
-    say "ERROR: not enough free disk space."
-    say "       Pro needs about 6 GB free; this machine has $((FREE_KB / 1024 / 1024)) GB."
+    say "$(gettext "ERROR: not enough free disk space.")"
+    say "       $(eval_gettext 'Pro needs about 6 GB free; this machine has $FREE_GB GB.')"
     fail=1
 fi
 
@@ -128,29 +147,33 @@ fi
 # machine is thirty seconds away.
 if [ -r /sys/class/power_supply/AC/online ] && \
    [ "$(cat /sys/class/power_supply/AC/online 2>/dev/null)" = "0" ]; then
-    say "ERROR: this machine is running on battery."
-    say "       Plug it in first — this installs several gigabytes."
+    say "$(gettext "ERROR: this machine is running on battery.")"
+    say "       $(gettext "Plug it in first — this installs several gigabytes.")"
     fail=1
 fi
 
-command -v curl >/dev/null 2>&1 || { say "ERROR: curl is missing."; fail=1; }
+command -v curl >/dev/null 2>&1 || { say "$(gettext "ERROR: curl is missing.")"; fail=1; }
 
-[ "$fail" -eq 0 ] || die "fix the above and run this again. Nothing was changed."
+[ "$fail" -eq 0 ] || die "$(gettext "fix the above and run this again. Nothing was changed.")"
 
-say "This machine: Dagric OS $CUR"
-say "Free disk:    $((FREE_KB / 1024 / 1024)) GB"
+say "$(eval_gettext 'This machine: Dagric OS $CUR')"
+say "$(eval_gettext 'Free disk:    $FREE_GB GB')"
 say ""
 
 # ------------------------------------------------------------------ the licence
 # Asked for and verified BEFORE anything is touched. A wrong or mistyped licence
 # should cost the owner nothing but the retyping.
-say "Your Pro purchase"
-say "-----------------"
-say "Open the download page from your purchase email. Its address ends in"
+_h=$(gettext "Your Pro purchase")
+say "$_h"
+say "$(rule "$_h")"
+say "$(gettext "Open the download page from your purchase email. Its address ends in")"
 say "  ?session_id=cs_...."
-say "Paste that cs_... value here (it is not a password and not secret)."
+say "$(gettext "Paste that cs_... value here (it is not a password and not secret).")"
 say ""
-printf 'Purchase session: '
+# printf '%s', never printf "$(...)": the translation is an ARGUMENT, so a
+# msgstr containing a % can never become a conversion specifier. The trailing
+# space survives — command substitution strips trailing NEWLINES, not spaces.
+printf '%s' "$(gettext "Purchase session: ")"
 read -r SID
 
 case "$SID" in
@@ -158,12 +181,12 @@ case "$SID" in
 esac
 case "$SID" in
     cs_*) : ;;
-    *) die "that does not look like a purchase session. It starts with cs_ and
-        appears in the address of your download page. Nothing was changed." ;;
+    *) die "$(gettext "that does not look like a purchase session. It starts with cs_ and
+        appears in the address of your download page. Nothing was changed.")" ;;
 esac
 
 say ""
-say "Checking the purchase..."
+say "$(gettext "Checking the purchase...")"
 # HEAD, not GET: this asks the gate the same question the download does, without
 # pulling a 4 GB ISO to find out. The gate answers 200 for a paid session and
 # 403 for anything else.
@@ -184,32 +207,35 @@ HTTP=$(curl -sS -o /dev/null -w '%{http_code}' -I --max-time 30 \
 
 case "$HTTP" in
     200)
-        say "  Confirmed. Thank you." ;;
+        say "  $(gettext "Confirmed. Thank you.")" ;;
     403)
-        die "that purchase session was not recognised as paid. If you have just
+        die "$(gettext "that purchase session was not recognised as paid. If you have just
         bought Pro, give it a minute and try again — and if it keeps failing,
-        dagric.com/support can look it up. Nothing was changed." ;;
+        dagric.com/support can look it up. Nothing was changed.")" ;;
     400)
         # The local check above only tests the cs_ prefix; the gate also requires
         # at least eight more characters. A code pasted short — which is what
         # happens when a line wraps in an email — passes here and fails there,
         # and it is a typo rather than a fault worth sending to support.
-        die "that session code looks incomplete. Copy the whole cs_... value
+        die "$(gettext "that session code looks incomplete. Copy the whole cs_... value
         from the address bar of your download page — it is long, and it is easy
-        to miss the end of it. Nothing was changed." ;;
+        to miss the end of it. Nothing was changed.")" ;;
     000|503)
-        die "could not reach the licence check just now. Your purchase is fine;
+        die "$(gettext "could not reach the licence check just now. Your purchase is fine;
         this is our end or your connection. Try again in a minute. Nothing was
-        changed." ;;
+        changed.")" ;;
     *)
-        die "the licence check answered $HTTP, which it should not. Please send
-        that number to dagric.com/support. Nothing was changed." ;;
+        # eval_gettext and therefore SINGLE quotes: in double quotes the shell
+        # would expand $HTTP before gettext saw the string, the lookup would
+        # miss, and this line alone would come out in English with no warning.
+        die "$(eval_gettext 'the licence check answered $HTTP, which it should not. Please send
+        that number to dagric.com/support. Nothing was changed.')" ;;
 esac
 say ""
 
 if [ "$DRY" = yes ]; then
-    say "--check: the purchase is valid and this machine can be upgraded."
-    say "Run without --check to do it."
+    say "$(gettext "--check: the purchase is valid and this machine can be upgraded.")"
+    say "$(gettext "Run without --check to do it.")"
     exit 0
 fi
 
@@ -221,60 +247,106 @@ if command -v snapper >/dev/null 2>&1 && \
     CAN_SNAPSHOT=yes
 fi
 
-cat <<'EOF'
-What this will do
------------------
-  * install the Pro applications — the creator suite, the gaming stack, the
-    virtualisation tools, the backup tools and the rest (about 83 packages)
-  * install them the way the Pro ISO does: Docker, virtual machines, USB
+# WAS A `cat <<'EOF'` HEREDOC, which is a wall of untranslatable text: xgettext
+# cannot see into one, so every word of the consent screen — the screen where
+# somebody agrees to an 83-package install — was English on a product sold in
+# six languages. One msgid per bullet rather than one for the block, so a
+# reworded bullet does not invalidate the other three in five catalogues.
+_h=$(gettext "What this will do")
+say "$_h"
+say "$(rule "$_h")"
+say "$(gettext "  * install the Pro applications — the creator suite, the gaming stack, the
+    virtualisation tools, the backup tools and the rest (about 83 packages)")"
+say "$(gettext "  * install them the way the Pro ISO does: Docker, virtual machines, USB
     protection and remote login are all set up but left OFF until you switch
     them on. The one exception is OpenSnitch, the application firewall, which
     is switched ON — the same as the Pro ISO, because a firewall nobody turned
     on protects nobody. It starts in monitor mode and blocks nothing until you
-    tell it to.
-  * add the four extra desktop layouts and three extra colour styles
-  * mark this machine as Pro, so the Hub and the appearance gallery show
-    everything you have paid for
+    tell it to.")"
+say "$(gettext "  * add the four extra desktop layouts and three extra colour styles")"
+say "$(gettext "  * mark this machine as Pro, so the Hub and the appearance gallery show
+    everything you have paid for")"
+say ""
+say "$(gettext "Your files, your settings, your installed applications and your wallpaper are
+not touched.")"
+say ""
+say "$(gettext "This downloads several gigabytes and takes a while on a slow connection.")"
+say ""
 
-Your files, your settings, your installed applications and your wallpaper are
-not touched.
-
-This downloads several gigabytes and takes a while on a slow connection.
-
-EOF
+# THE WORD THE OWNER TYPES IS TRANSLATED, AND ENGLISH IS ALWAYS STILL ACCEPTED.
+#
+# This is the same rule dg_is_yes states in dagric-i18n.sh, and it exists for
+# the same reason: translating the PROMPT without translating the ANSWER is a
+# bug, not a nicety. A German owner told "Geben Sie UPGRADE ein" who types the
+# German word gets "Nothing changed" and no explanation — on the paid path,
+# minutes after being charged $39.
+#
+# The reverse failure is worse and is why both are accepted. If only the
+# translation were compared, one wrong or missing msgstr would leave a paying
+# customer unable to type ANY word that works, locked out of the thing they
+# just bought by a catalogue bug. Accepting the English word as well means a
+# broken translation can only ever add an answer, never take one away.
+#
+# TRANSLATORS: a word the owner must TYPE EXACTLY to confirm. Short, UPPERCASE,
+# one word, no spaces. Use ASCII LETTERS ONLY — no accents, no umlauts, no
+# cedillas: this is typed at a bare terminal prompt on whatever keyboard layout
+# the machine happens to have, and a character the owner cannot produce turns a
+# speed bump into a wall. Write it the way your language transliterates into
+# ASCII (German ue for u-umlaut, and so on). Make it a word your language
+# actually uses for "upgrade" — a speed bump nobody can read is also a wall.
+# The English UPGRADE keeps working whatever you put here.
+UPGRADE_WORD=$(gettext "UPGRADE")
+# TRANSLATORS: as above, ASCII letters only. Deliberately a DIFFERENT word from
+# the one above, because it is a different and more serious decision — typing
+# the same thing for both would make them feel like one.
+NOROLLBACK_WORD=$(gettext "NO-ROLLBACK")
 
 if [ "$CAN_SNAPSHOT" = yes ]; then
-    say "A snapshot is taken first, so this is recoverable from the boot menu."
+    say "$(gettext "A snapshot is taken first, so this is recoverable from the boot menu.")"
     say ""
-    printf 'Type UPGRADE to continue: '
+    printf '%s' "$(eval_gettext 'Type $UPGRADE_WORD to continue: ')"
     read -r ans
-    [ "$ans" = "UPGRADE" ] || { say "Nothing changed."; exit 0; }
+    # `if` with two explicit compares rather than a case: a case PATTERN would
+    # treat a translated word as a glob, and [ ] compares the bytes.
+    if [ "$ans" != "$UPGRADE_WORD" ] && [ "$ans" != "UPGRADE" ]; then
+        say "$(gettext "Nothing changed.")"
+        exit 0
+    fi
 else
-    # Same wording rule as dagric-upgrade: a different word, because it is not
-    # the same decision and typing the same thing would make it feel like one.
-    cat <<'EOF'
-THIS MACHINE HAS NO ROLLBACK.
-
-Snapshots need a btrfs root and this install does not have one. Nothing here
+    say "$(gettext "THIS MACHINE HAS NO ROLLBACK.")"
+    say ""
+    # The command is set off with double spaces, not backticks. The backticks
+    # this line used to carry were harmless inside a quoted heredoc and become
+    # COMMAND SUBSTITUTION the moment the text moves into "$(gettext "...")" —
+    # `sudo apt-get -f install` would have run, as root, while merely printing
+    # a warning. Double spaces are also what the dpkg --audit message above
+    # already uses for a command.
+    say "$(gettext "Snapshots need a btrfs root and this install does not have one. Nothing here
 deletes your files, and the worst realistic outcome is a half-installed set of
-applications you can finish with `sudo apt-get -f install` — but there is no
-one-click way back.
-
-EOF
-    printf 'Type NO-ROLLBACK to continue anyway, or press Enter to stop: '
+applications you can finish with  sudo apt-get -f install  — but there is no
+one-click way back.")"
+    say ""
+    printf '%s' "$(eval_gettext 'Type $NOROLLBACK_WORD to continue anyway, or press Enter to stop: ')"
     read -r ans
-    [ "$ans" = "NO-ROLLBACK" ] || { say "Nothing changed. That was the safe answer."; exit 0; }
+    if [ "$ans" != "$NOROLLBACK_WORD" ] && [ "$ans" != "NO-ROLLBACK" ]; then
+        say "$(gettext "Nothing changed. That was the safe answer.")"
+        exit 0
+    fi
 fi
 
 # ------------------------------------------------------------------ snapshot
 if [ "$CAN_SNAPSHOT" = yes ]; then
     say ""
-    say "Taking a rollback snapshot..."
+    say "$(gettext "Taking a rollback snapshot...")"
+    # The snapshot DESCRIPTION stays English on purpose. It is an identifier
+    # shown by snapper and in the boot menu, it is matched by eye during a
+    # rescue, and a machine whose language was changed after the upgrade must
+    # still show the same string it was created with.
     if snapper -c root create -d "before upgrade to Dagric OS Pro" 2>/dev/null; then
-        say "  done."
+        say "  $(gettext "done.")"
     else
-        die "the snapshot failed, so this stopped before changing anything.
-        That is deliberate: the rollback was the reason it was safe to proceed."
+        die "$(gettext "the snapshot failed, so this stopped before changing anything.
+        That is deliberate: the rollback was the reason it was safe to proceed.")"
     fi
 fi
 
@@ -282,12 +354,12 @@ fi
 # Fetched BEFORE apt runs. These are the only licence-gated part, they are small,
 # and finding out the gate is unreachable after a twenty-minute install would be
 # the worst possible ordering.
-WORK=$(mktemp -d /tmp/dagric-pro.XXXXXX) || die "cannot create a working directory."
+WORK=$(mktemp -d /tmp/dagric-pro.XXXXXX) || die "$(gettext "cannot create a working directory.")"
 trap 'rm -rf "$WORK"' EXIT
 trap 'exit 130' INT TERM HUP
 
 say ""
-say "Fetching the Pro layouts and styles..."
+say "$(gettext "Fetching the Pro layouts and styles...")"
 # THIS IS THE ONE PART THE LICENCE GATES, AND THE ONE PART THAT CANNOT BE
 # OBTAINED LATER.
 #
@@ -310,24 +382,24 @@ while [ "$n" -le 3 ]; do
             "$GATE/assets?session_id=$SID" 2>/dev/null &&
        tar -tzf "$WORK/assets.tar.gz" >/dev/null 2>&1; then
         ASSETS_OK=yes
-        say "  done."
+        say "  $(gettext "done.")"
         break
     fi
     rm -f "$WORK/assets.tar.gz"
     if [ "$n" -lt 3 ]; then
-        say "  that attempt did not work; trying again in a few seconds..."
+        say "  $(gettext "that attempt did not work; trying again in a few seconds...")"
         sleep 5
     fi
     n=$((n + 1))
 done
 
 if [ "$ASSETS_OK" != yes ]; then
-    die "the extra desktop layouts and colour styles could not be downloaded,
+    die "$(gettext "the extra desktop layouts and colour styles could not be downloaded,
         and they are the one part of Pro that has to come from us rather than
         from Debian. NOTHING has been installed and nothing on this machine has
         been changed, so there is nothing half-finished to clean up. Your
         purchase is fine. Run this again when the connection is steady — and if
-        it keeps failing, dagric.com/support can look it up."
+        it keeps failing, dagric.com/support can look it up.")"
 fi
 
 # ------------------------------------------------------------------ packages
@@ -350,21 +422,21 @@ usbguard-notifier virt-manager virt-viewer vorta vulkan-tools wine wine-binfmt
 winetricks zoxide"
 
 say ""
-say "Reading package lists..."
+say "$(gettext "Reading package lists...")"
 apt-get update >/dev/null 2>&1 || \
-    die "could not read the package lists. Check the network and try again.
-    Nothing was installed."
+    die "$(gettext "could not read the package lists. Check the network and try again.
+    Nothing was installed.")"
 
 # DOWNLOAD FIRST, INSTALL SECOND. A transaction interrupted by a dropped
 # connection halfway through unpacking is the classic way to end up with a
 # machine in a state its owner cannot reason about.
-say "Downloading (this is the long part)..."
+say "$(gettext "Downloading (this is the long part)...")"
 # shellcheck disable=SC2086
 DEBIAN_FRONTEND=noninteractive apt-get -y -d install $PRO_PACKAGES || \
-    die "the download did not finish, so nothing was installed. This is usually
-    the connection. Run this again — apt keeps what it already fetched."
+    die "$(gettext "the download did not finish, so nothing was installed. This is usually
+    the connection. Run this again — apt keeps what it already fetched.")"
 
-say "Installing..."
+say "$(gettext "Installing...")"
 # --no-install-recommends matches the ISO exactly. Without it an upgraded
 # machine ends up with a different package set from an installed-from-Pro one,
 # and every future audit of "what does Pro contain" has two answers.
@@ -403,18 +475,18 @@ DEBIAN_FRONTEND=noninteractive apt-get -y --no-install-recommends \
 # the rest of the upgrade it paid for.
 if [ "$INSTALL_OK" = yes ]; then
     say ""
-    say "Adding 32-bit support for Windows applications and games..."
+    say "$(gettext "Adding 32-bit support for Windows applications and games...")"
     if dpkg --add-architecture i386 && apt-get update >/dev/null 2>&1; then
         if DEBIAN_FRONTEND=noninteractive apt-get -y --no-install-recommends \
              install wine32:i386 mesa-vulkan-drivers:i386 >/dev/null 2>&1; then
-            say "  done."
+            say "  $(gettext "done.")"
         else
-            say "  note: 32-bit Wine and Vulkan did not install. Wine still works"
-            say "        for 64-bit Windows programs; older installers may not run."
+            say "  $(gettext "note: 32-bit Wine and Vulkan did not install. Wine still works
+        for 64-bit Windows programs; older installers may not run.")"
         fi
     else
-        say "  note: could not enable 32-bit support. Wine still works for 64-bit"
-        say "        Windows programs; older installers may not run."
+        say "  $(gettext "note: could not enable 32-bit support. Wine still works for 64-bit
+        Windows programs; older installers may not run.")"
     fi
 fi
 
@@ -424,7 +496,7 @@ fi
 # 0600-pro-edition.hook.chroot verifies it at build time. An upgraded machine
 # must land in the same place or "Pro" means two different things.
 say ""
-say "Setting the opt-in policy (everything installed, nothing switched on)..."
+say "$(gettext "Setting the opt-in policy (everything installed, nothing switched on)...")"
 
 # THE LIBVIRT LIST IS COPIED FROM 0600-pro-edition.hook.chroot:135-137, WHICH
 # TOOK IT FROM A REAL BUILD LOG. This named three units of the eight the
@@ -486,8 +558,8 @@ if command -v firewall-cmd >/dev/null 2>&1; then
     if firewall-cmd --permanent --zone=home --add-service=kdeconnect >/dev/null 2>&1; then
         firewall-cmd --reload >/dev/null 2>&1 || true
     else
-        say "  note: could not open the KDE Connect ports. Phone pairing may need"
-        say "        the firewall adjusting by hand; everything else is unaffected."
+        say "  $(gettext "note: could not open the KDE Connect ports. Phone pairing may need
+        the firewall adjusting by hand; everything else is unaffected.")"
     fi
 fi
 
@@ -495,30 +567,30 @@ fi
 # protects nobody. This matches the Pro ISO.
 systemctl enable opensnitch.service >/dev/null 2>&1 || true
 
-say "  done."
+say "  $(gettext "done.")"
 
 # NOW the failure may be reported — after the machine has been put into the
 # state it was promised, not before it.
 if [ "$INSTALL_OK" = no ]; then
     say ""
-    say "ERROR: the install did not finish cleanly."
+    say "$(gettext "ERROR: the install did not finish cleanly.")"
     say ""
-    say "This machine is still marked as free ON PURPOSE — one that claims to be"
-    say "Pro without the applications is harder to fix than one that is honestly"
-    say "still free."
+    say "$(gettext "This machine is still marked as free ON PURPOSE — one that claims to be
+Pro without the applications is harder to fix than one that is honestly
+still free.")"
     say ""
-    say "Whatever DID install has been set to the Pro edition's opt-in policy, so"
-    say "nothing that arrived is running: no Docker daemon, no remote login, no"
-    say "USB blocking, no virtual-machine services."
+    say "$(gettext "Whatever DID install has been set to the Pro edition's opt-in policy, so
+nothing that arrived is running: no Docker daemon, no remote login, no
+USB blocking, no virtual-machine services.")"
     say ""
-    say "Try:  sudo apt-get -f install   then run this again."
+    say "$(gettext "Try:  sudo apt-get -f install   then run this again.")"
     exit 1
 fi
 
 # ------------------------------------------------------------------ assets in
 if [ "$ASSETS_OK" = yes ]; then
     say ""
-    say "Adding the Pro layouts and styles..."
+    say "$(gettext "Adding the Pro layouts and styles...")"
     mkdir -p "$WORK/x"
     if tar -xzf "$WORK/assets.tar.gz" -C "$WORK/x" 2>/dev/null; then
         mkdir -p "$LOOKS" "$STYLES" "$THUMBS"
@@ -526,17 +598,17 @@ if [ "$ASSETS_OK" = yes ]; then
         for f in "$WORK"/x/styles/*.style; do [ -e "$f" ] && cp -f "$f" "$STYLES/"; done
         for f in "$WORK"/x/thumbs/*.png;   do [ -e "$f" ] && cp -f "$f" "$THUMBS/"; done
         for f in "$WORK"/x/applications/*.desktop; do [ -e "$f" ] && cp -f "$f" "$APPS/"; done
-        say "  done."
+        say "  $(gettext "done.")"
     else
         # NOT a warning. An unpack that fails here is past apt, so continuing
         # would write the marker and recreate exactly the trap the retry loop
         # above was added to remove: a machine calling itself Pro that can never
         # receive the one thing the licence gates. Stopping short of the marker
         # leaves the tool able to finish the job on a second run.
-        die "the layouts and styles arrived but would not unpack — usually that
+        die "$(gettext "the layouts and styles arrived but would not unpack — usually that
         is disk space. The applications ARE installed and set to the Pro opt-in
         policy, but this machine has deliberately not been marked as Pro yet, so
-        running this tool again will finish the job."
+        running this tool again will finish the job.")"
     fi
 fi
 
@@ -546,13 +618,23 @@ fi
 # have meant a failed run leaving a machine that advertises what it does not
 # have.
 say ""
-say "Marking this machine as Pro..."
+say "$(gettext "Marking this machine as Pro...")"
 printf 'pro\n' > "$EDITION_FILE"
 
-# os-release is base-files' file and a point release will overwrite it. That is
-# a known open issue with the same fix owed on the ISO side; it is written here
-# so an upgraded machine matches an installed one, including in being wrong the
-# same way.
+# os-release is base-files' file and a point release will overwrite it, so a
+# diversion has to be in place for this write to survive one.
+#
+# 0100-identity.hook.chroot now adds that diversion at build time, and
+# dagric-upgrade adds it on machines older than that change. Neither reaches a
+# machine that installed from an early ISO and then upgrades to Pro without
+# ever running a release upgrade — which is precisely the machine standing here
+# — so it is added on this path too. Idempotent: the guard makes a second
+# diversion impossible, and --no-rename is what dpkg-divert itself recommends
+# for a file belonging to an Essential package.
+if ! dpkg-divert --list /usr/lib/os-release 2>/dev/null | grep -q os-release; then
+    dpkg-divert --local --no-rename \
+        --divert /usr/lib/os-release.debian --add /usr/lib/os-release >/dev/null 2>&1 || true
+fi
 if [ -w /usr/lib/os-release ]; then
     sed -i 's/^PRETTY_NAME=.*/PRETTY_NAME="Dagric OS Pro 1.0 (Foundation)"/' /usr/lib/os-release 2>/dev/null || true
     grep -q '^VARIANT_ID=pro' /usr/lib/os-release 2>/dev/null || \
@@ -568,33 +650,32 @@ if command -v dagric-app-names >/dev/null 2>&1; then
 fi
 update-desktop-database >/dev/null 2>&1 || true
 
-say "  done."
+say "  $(gettext "done.")"
 
 # ------------------------------------------------------------------ report
-cat <<'EOF'
-
-Done — this is a Dagric OS Pro machine.
-
-  Log out and back in to see it. The Hub will show the Pro tools, and the
-  appearance gallery will show the extra layouts and styles.
-
-Everything the Pro edition installs is here, and everything that can listen or
-intercept is OFF until you turn it on:
-
-  Docker, virtual machines, USB protection and remote login  installed, off
-  OpenSnitch application firewall                            installed, on
-
-Turn any of them on from the Dagric Hub.
-
-EOF
-
-cat <<'EOF'
-Two honest differences from a machine installed from the Pro ISO:
-
-  * The Pro ISO ships CJK fonts and a few defaults chosen at install time. Those
+# The last two heredocs. Same reason as the consent screen: this is the closing
+# word of a paid transaction and it was English on a product sold in six
+# languages. The two-column status block keeps its own layout rather than being
+# translated as a block, so a longer translated label cannot shear the columns.
+say ""
+say "$(gettext "Done — this is a Dagric OS Pro machine.")"
+say ""
+say "  $(gettext "Log out and back in to see it. The Hub will show the Pro tools, and the
+  appearance gallery will show the extra layouts and styles.")"
+say ""
+say "$(gettext "Everything the Pro edition installs is here, and everything that can listen or
+intercept is OFF until you turn it on:")"
+say ""
+say "  $(gettext "Docker, virtual machines, USB protection and remote login")  $(gettext "installed, off")"
+say "  $(gettext "OpenSnitch application firewall")  $(gettext "installed, on")"
+say ""
+say "$(gettext "Turn any of them on from the Dagric Hub.")"
+say ""
+say "$(gettext "Two honest differences from a machine installed from the Pro ISO:")"
+say ""
+say "$(gettext "  * The Pro ISO ships CJK fonts and a few defaults chosen at install time. Those
     are here too, but your existing settings were kept rather than replaced —
-    which is the point of upgrading rather than reinstalling.
-  * Your snapshot history starts before this upgrade, not at a fresh install.
-
-Thank you for buying Pro.
-EOF
+    which is the point of upgrading rather than reinstalling.")"
+say "$(gettext "  * Your snapshot history starts before this upgrade, not at a fresh install.")"
+say ""
+say "$(gettext "Thank you for buying Pro.")"

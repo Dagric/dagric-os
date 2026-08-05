@@ -86,7 +86,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: dagric 1.0\n"
 "Report-Msgid-Bugs-To: repo@dagric.com\n"
-"POT-Creation-Date: 2026-08-05 22:20+0000\n"
+"POT-Creation-Date: 2026-08-05 23:18+0000\n"
 "PO-Revision-Date: 2026-08-04 01:00+0000\n"
 "Last-Translator: Machine translation, reviewed by a second model "
 "<repo@dagric.com>\n"
@@ -988,32 +988,6 @@ msgstr ""
 "La taille du texte a été rétablie — le dernier changement n'a jamais été "
 "confirmé."
 
-#. TRANSLATORS: shown only in the live USB session, before an install.
-#: config/includes.chroot/usr/bin/dagric-i18n.sh:199
-msgid ""
-"NOTE — this is the live trial running from the USB stick.\n"
-"Anything installed now is kept in this computer's memory rather than on a "
-"disk:\n"
-"it disappears when you shut down, and on a machine without much RAM a large\n"
-"application can make the trial session unstable. Installing Dagric first "
-"avoids\n"
-"both, and the app is then permanent."
-msgstr ""
-"REMARQUE — ceci est l'essai live lancé depuis la clé USB.\n"
-"Tout ce qui est installé maintenant reste dans la mémoire de cet "
-"ordinateur,\n"
-"pas sur un disque : cela disparaît à l'extinction et, sur une machine qui a\n"
-"peu de RAM, une grosse application peut rendre la session d'essai instable.\n"
-"Installer d'abord Dagric évite les deux, et l'application devient définitive."
-
-#. TRANSLATORS: a space-separated list of the words that mean YES at a
-#. "[y/N]" prompt in your language, lower case, shortest first. English
-#. "y" and "yes" are always accepted as well — do not remove them, and do
-#. not translate them. German: "j ja y yes". French: "o oui y yes".
-#: config/includes.chroot/usr/bin/dagric-i18n.sh:231
-msgid "y yes"
-msgstr "o oui y yes"
-
 #. TRANSLATORS: every indented line under "To remove it completely" is a COMMAND
 #. typed verbatim into a terminal — translate the prose around them, never the
 #. commands themselves. "Ollama" is a product name.
@@ -1095,6 +1069,7 @@ msgstr ""
 #: config/includes.chroot/usr/bin/dagric-ai:67
 #: config/includes.chroot/usr/bin/dagric-drivers:270
 #: config/includes.chroot/usr/bin/dagric-gaming:49
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:312
 msgid "Nothing changed."
 msgstr "Rien n'a été modifié."
 
@@ -2353,6 +2328,32 @@ msgstr "Protection USB"
 msgid "What would you like to do?"
 msgstr "Que voulez-vous faire ?"
 
+#. TRANSLATORS: shown only in the live USB session, before an install.
+#: config/includes.chroot/usr/bin/dagric-i18n.sh:199
+msgid ""
+"NOTE — this is the live trial running from the USB stick.\n"
+"Anything installed now is kept in this computer's memory rather than on a "
+"disk:\n"
+"it disappears when you shut down, and on a machine without much RAM a large\n"
+"application can make the trial session unstable. Installing Dagric first "
+"avoids\n"
+"both, and the app is then permanent."
+msgstr ""
+"REMARQUE — ceci est l'essai live lancé depuis la clé USB.\n"
+"Tout ce qui est installé maintenant reste dans la mémoire de cet "
+"ordinateur,\n"
+"pas sur un disque : cela disparaît à l'extinction et, sur une machine qui a\n"
+"peu de RAM, une grosse application peut rendre la session d'essai instable.\n"
+"Installer d'abord Dagric évite les deux, et l'application devient définitive."
+
+#. TRANSLATORS: a space-separated list of the words that mean YES at a
+#. "[y/N]" prompt in your language, lower case, shortest first. English
+#. "y" and "yes" are always accepted as well — do not remove them, and do
+#. not translate them. German: "j ja y yes". French: "o oui y yes".
+#: config/includes.chroot/usr/bin/dagric-i18n.sh:231
+msgid "y yes"
+msgstr "o oui y yes"
+
 #: config/includes.chroot/usr/bin/dagric-looks:98
 msgid ""
 "No layouts are installed. Reinstall the dagric-branding package to restore "
@@ -2756,7 +2757,8 @@ msgid ""
 "\n"
 "Windows itself was not modified — it was only ever read."
 msgstr ""
-"Terminé ! Vos fichiers Windows sont maintenant dans votre dossier personnel Dagric.\n"
+"Terminé ! Vos fichiers Windows sont maintenant dans votre dossier personnel "
+"Dagric.\n"
 "\n"
 "Windows lui-même n'a pas été modifié — il a uniquement été lu."
 
@@ -2765,7 +2767,8 @@ msgid ""
 "• Bookmarks — Bookmarks ▸ Manage Bookmarks ▸ Import and Backup ▸\n"
 "  Import Bookmarks from HTML ▸ Windows-bookmarks.html"
 msgstr ""
-"• Marque-pages — Marque-pages ▸ Gérer les marque-pages ▸ Importation et sauvegarde ▸\n"
+"• Marque-pages — Marque-pages ▸ Gérer les marque-pages ▸ Importation et "
+"sauvegarde ▸\n"
 "  Importer des marque-pages depuis un fichier HTML ▸ Windows-bookmarks.html"
 
 #: config/includes.chroot/usr/bin/dagric-migrate:609
@@ -2773,8 +2776,10 @@ msgid ""
 "• Open tabs — import Windows-open-tabs.html the same way; they arrive as a\n"
 "  bookmark folder you can 'Open All in Tabs'"
 msgstr ""
-"• Onglets ouverts — importez Windows-open-tabs.html de la même façon ; ils arrivent\n"
-"  sous forme d'un dossier de marque-pages sur lequel vous pouvez utiliser « Tout ouvrir dans des onglets »"
+"• Onglets ouverts — importez Windows-open-tabs.html de la même façon ; ils "
+"arrivent\n"
+"  sous forme d'un dossier de marque-pages sur lequel vous pouvez utiliser "
+"« Tout ouvrir dans des onglets »"
 
 #. TRANSLATORS: shown only when at least one folder did not copy completely.
 #. It sits ABOVE the "Done!" paragraph and has to contradict it, so lead with
@@ -3029,6 +3034,565 @@ msgstr "Réinitialiser l'apparence Dagric standard"
 #, sh-format
 msgid "Style applied: $NAME"
 msgstr "Style appliqué : $NAME"
+
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:64
+msgid "STOPPED:"
+msgstr "ARRÊTÉ :"
+
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:73
+msgid "run this as root:  sudo dagric-upgrade-to-pro"
+msgstr "exécutez ceci en tant que root :  sudo dagric-upgrade-to-pro"
+
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:78
+msgid "Dagric OS — upgrade this machine to Pro"
+msgstr "Dagric OS — passer cette machine à Pro"
+
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:86
+msgid "This machine is already running Dagric OS Pro."
+msgstr "Cette machine exécute déjà Dagric OS Pro."
+
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:87
+msgid "Nothing to do."
+msgstr "Rien à faire."
+
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:97
+msgid "This is the live USB session, not an installed system."
+msgstr "Ceci est la session USB live, pas un système installé."
+
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:99
+msgid "An upgrade here would be written to memory and lost at shutdown."
+msgstr "Une mise à niveau ici serait écrite en mémoire et perdue à l'arrêt."
+
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:100
+msgid "Install Dagric first, then run this on the installed machine."
+msgstr "Installez d'abord Dagric, puis exécutez ceci sur la machine installée."
+
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:122
+msgid "ERROR: some packages on this machine are half-configured."
+msgstr "ERREUR : certains paquets sur cette machine sont à moitié configurés."
+
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:126
+msgid "Run  sudo dpkg --configure -a  first, then try again."
+msgstr "Exécutez d'abord  sudo dpkg --configure -a , puis réessayez."
+
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:141
+msgid "ERROR: not enough free disk space."
+msgstr "ERREUR : espace disque libre insuffisant."
+
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:142
+#, sh-format
+msgid "Pro needs about 6 GB free; this machine has $FREE_GB GB."
+msgstr ""
+"Pro nécessite environ 6 Go libres ; cette machine dispose de $FREE_GB Go."
+
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:150
+msgid "ERROR: this machine is running on battery."
+msgstr "ERREUR : cette machine fonctionne sur batterie."
+
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:151
+msgid "Plug it in first — this installs several gigabytes."
+msgstr "Branchez-la d'abord — cela installe plusieurs gigaoctets."
+
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:155
+msgid "ERROR: curl is missing."
+msgstr "ERREUR : curl est manquant."
+
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:157
+msgid "fix the above and run this again. Nothing was changed."
+msgstr "corrigez ce qui précède et réexécutez ceci. Rien n'a été modifié."
+
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:159
+#, sh-format
+msgid "This machine: Dagric OS $CUR"
+msgstr "Cette machine : Dagric OS $CUR"
+
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:160
+#, sh-format
+msgid "Free disk:    $FREE_GB GB"
+msgstr "Espace libre :    $FREE_GB Go"
+
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:166
+msgid "Your Pro purchase"
+msgstr "Votre achat Pro"
+
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:169
+msgid "Open the download page from your purchase email. Its address ends in"
+msgstr ""
+"Ouvrez la page de téléchargement depuis votre e-mail d'achat. Son adresse se "
+"termine par"
+
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:171
+msgid "Paste that cs_... value here (it is not a password and not secret)."
+msgstr ""
+"Collez cette valeur cs_... ici (ce n'est pas un mot de passe et ce n'est pas "
+"secret)."
+
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:176
+msgid "Purchase session: "
+msgstr "Session d'achat : "
+
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:184
+msgid ""
+"that does not look like a purchase session. It starts with cs_ and\n"
+"        appears in the address of your download page. Nothing was changed."
+msgstr ""
+"cela ne ressemble pas à une session d'achat. Elle commence par cs_ et\n"
+"        apparaît dans l'adresse de votre page de téléchargement. Rien n'a "
+"été modifié."
+
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:189
+msgid "Checking the purchase..."
+msgstr "Vérification de l'achat..."
+
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:210
+msgid "Confirmed. Thank you."
+msgstr "Confirmé. Merci."
+
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:212
+msgid ""
+"that purchase session was not recognised as paid. If you have just\n"
+"        bought Pro, give it a minute and try again — and if it keeps "
+"failing,\n"
+"        dagric.com/support can look it up. Nothing was changed."
+msgstr ""
+"cette session d'achat n'a pas été reconnue comme payée. Si vous venez\n"
+"        d'acheter Pro, attendez une minute et réessayez — et si cela échoue "
+"toujours,\n"
+"        dagric.com/support pourra la rechercher. Rien n'a été modifié."
+
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:220
+msgid ""
+"that session code looks incomplete. Copy the whole cs_... value\n"
+"        from the address bar of your download page — it is long, and it is "
+"easy\n"
+"        to miss the end of it. Nothing was changed."
+msgstr ""
+"ce code de session semble incomplet. Copiez toute la valeur cs_...\n"
+"        depuis la barre d'adresse de votre page de téléchargement — elle est "
+"longue, et il est facile\n"
+"        d'en manquer la fin. Rien n'a été modifié."
+
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:224
+msgid ""
+"could not reach the licence check just now. Your purchase is fine;\n"
+"        this is our end or your connection. Try again in a minute. Nothing "
+"was\n"
+"        changed."
+msgstr ""
+"la vérification de licence est temporairement inaccessible. Votre achat est "
+"valide ;\n"
+"        le problème vient de notre côté ou de votre connexion. Réessayez "
+"dans une minute. Rien n'a été\n"
+"        modifié."
+
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:231
+#, sh-format
+msgid ""
+"the licence check answered $HTTP, which it should not. Please send\n"
+"        that number to dagric.com/support. Nothing was changed."
+msgstr ""
+"la vérification de licence a répondu $HTTP, ce qui ne devrait pas arriver. "
+"Veuillez envoyer\n"
+"        ce numéro à dagric.com/support. Rien n'a été modifié."
+
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:237
+msgid "--check: the purchase is valid and this machine can be upgraded."
+msgstr "--check : l'achat est valide et cette machine peut être mise à niveau."
+
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:238
+msgid "Run without --check to do it."
+msgstr "Exécutez sans --check pour le faire."
+
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:255
+msgid "What this will do"
+msgstr "Ce qui va se passer"
+
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:258
+msgid ""
+"  * install the Pro applications — the creator suite, the gaming stack, the\n"
+"    virtualisation tools, the backup tools and the rest (about 83 packages)"
+msgstr ""
+"  * installer les applications Pro — la suite créateur, la pile de jeu, les\n"
+"    outils de virtualisation, les outils de sauvegarde et le reste (environ "
+"83 paquets)"
+
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:260
+msgid ""
+"  * install them the way the Pro ISO does: Docker, virtual machines, USB\n"
+"    protection and remote login are all set up but left OFF until you "
+"switch\n"
+"    them on. The one exception is OpenSnitch, the application firewall, "
+"which\n"
+"    is switched ON — the same as the Pro ISO, because a firewall nobody "
+"turned\n"
+"    on protects nobody. It starts in monitor mode and blocks nothing until "
+"you\n"
+"    tell it to."
+msgstr ""
+"  * les installer comme le fait l'ISO Pro : Docker, les machines virtuelles, "
+"la protection\n"
+"    USB et la connexion à distance sont tous configurés mais laissés "
+"DÉSACTIVÉS jusqu'à ce que vous les\n"
+"    activiez. La seule exception est OpenSnitch, le pare-feu applicatif, "
+"qui\n"
+"    est ACTIVÉ — comme sur l'ISO Pro, car un pare-feu que personne n'active\n"
+"    ne protège personne. Il démarre en mode surveillance et ne bloque rien "
+"jusqu'à ce que vous\n"
+"    le lui demandiez."
+
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:266
+msgid "  * add the four extra desktop layouts and three extra colour styles"
+msgstr ""
+"  * ajouter les quatre mises en page de bureau supplémentaires et trois "
+"styles de couleurs supplémentaires"
+
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:267
+msgid ""
+"  * mark this machine as Pro, so the Hub and the appearance gallery show\n"
+"    everything you have paid for"
+msgstr ""
+"  * marquer cette machine comme Pro, afin que le Hub et la galerie "
+"d'apparence affichent\n"
+"    tout ce que vous avez payé"
+
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:270
+msgid ""
+"Your files, your settings, your installed applications and your wallpaper "
+"are\n"
+"not touched."
+msgstr ""
+"Vos fichiers, vos paramètres, vos applications installées et votre fond "
+"d'écran ne sont\n"
+"pas touchés."
+
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:273
+msgid ""
+"This downloads several gigabytes and takes a while on a slow connection."
+msgstr ""
+"Cela télécharge plusieurs gigaoctets et prend du temps sur une connexion "
+"lente."
+
+#. TRANSLATORS: a word the owner must TYPE EXACTLY to confirm. Short, UPPERCASE,
+#. one word, no spaces. Use ASCII LETTERS ONLY — no accents, no umlauts, no
+#. cedillas: this is typed at a bare terminal prompt on whatever keyboard layout
+#. the machine happens to have, and a character the owner cannot produce turns a
+#. speed bump into a wall. Write it the way your language transliterates into
+#. ASCII (German ue for u-umlaut, and so on). Make it a word your language
+#. actually uses for "upgrade" — a speed bump nobody can read is also a wall.
+#. The English UPGRADE keeps working whatever you put here.
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:298
+msgid "UPGRADE"
+msgstr "MAJ"
+
+#. TRANSLATORS: as above, ASCII letters only. Deliberately a DIFFERENT word from
+#. the one above, because it is a different and more serious decision — typing
+#. the same thing for both would make them feel like one.
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:302
+msgid "NO-ROLLBACK"
+msgstr "SANSRETOUR"
+
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:305
+msgid "A snapshot is taken first, so this is recoverable from the boot menu."
+msgstr ""
+"Un instantané est pris d'abord, donc cela est récupérable depuis le menu de "
+"démarrage."
+
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:307
+#, sh-format
+msgid "Type $UPGRADE_WORD to continue: "
+msgstr "Tapez $UPGRADE_WORD pour continuer : "
+
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:316
+msgid "THIS MACHINE HAS NO ROLLBACK."
+msgstr "CETTE MACHINE N'A AUCUN RETOUR EN ARRIÈRE."
+
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:324
+msgid ""
+"Snapshots need a btrfs root and this install does not have one. Nothing "
+"here\n"
+"deletes your files, and the worst realistic outcome is a half-installed set "
+"of\n"
+"applications you can finish with  sudo apt-get -f install  — but there is "
+"no\n"
+"one-click way back."
+msgstr ""
+"Les instantanés nécessitent une racine btrfs et cette installation n'en a "
+"pas. Rien ici\n"
+"ne supprime vos fichiers, et le pire résultat réaliste est un ensemble "
+"d'applications à moitié\n"
+"installé que vous pouvez terminer avec  sudo apt-get -f install  — mais il "
+"n'y a aucun\n"
+"moyen simple de revenir en arrière."
+
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:329
+#, sh-format
+msgid "Type $NOROLLBACK_WORD to continue anyway, or press Enter to stop: "
+msgstr ""
+"Tapez $NOROLLBACK_WORD pour continuer quand même, ou appuyez sur Entrée pour "
+"arrêter : "
+
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:332
+msgid "Nothing changed. That was the safe answer."
+msgstr "Rien n'a été modifié. C'était la réponse sûre."
+
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:340
+msgid "Taking a rollback snapshot..."
+msgstr "Prise d'un instantané de restauration..."
+
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:346
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:385
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:482
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:570
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:601
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:653
+msgid "done."
+msgstr "terminé."
+
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:348
+msgid ""
+"the snapshot failed, so this stopped before changing anything.\n"
+"        That is deliberate: the rollback was the reason it was safe to "
+"proceed."
+msgstr ""
+"l'instantané a échoué, donc cela s'est arrêté avant de modifier quoi que ce "
+"soit.\n"
+"        C'est délibéré : la restauration était la raison pour laquelle il "
+"était sûr de continuer."
+
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:357
+msgid "cannot create a working directory."
+msgstr "impossible de créer un répertoire de travail."
+
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:362
+msgid "Fetching the Pro layouts and styles..."
+msgstr "Récupération des mises en page et styles Pro..."
+
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:390
+msgid "that attempt did not work; trying again in a few seconds..."
+msgstr ""
+"cette tentative n'a pas fonctionné ; nouvel essai dans quelques secondes..."
+
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:397
+msgid ""
+"the extra desktop layouts and colour styles could not be downloaded,\n"
+"        and they are the one part of Pro that has to come from us rather "
+"than\n"
+"        from Debian. NOTHING has been installed and nothing on this machine "
+"has\n"
+"        been changed, so there is nothing half-finished to clean up. Your\n"
+"        purchase is fine. Run this again when the connection is steady — and "
+"if\n"
+"        it keeps failing, dagric.com/support can look it up."
+msgstr ""
+"les mises en page de bureau et styles de couleurs supplémentaires n'ont pas "
+"pu être téléchargés,\n"
+"        et ils sont la seule partie de Pro qui doit venir de nous plutôt "
+"que\n"
+"        de Debian. RIEN n'a été installé et rien sur cette machine n'a\n"
+"        été modifié, donc il n'y a rien de à moitié terminé à nettoyer. "
+"Votre\n"
+"        achat est valide. Réexécutez ceci lorsque la connexion est stable — "
+"et si\n"
+"        cela échoue toujours, dagric.com/support pourra le rechercher."
+
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:425
+msgid "Reading package lists..."
+msgstr "Lecture des listes de paquets..."
+
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:427
+msgid ""
+"could not read the package lists. Check the network and try again.\n"
+"    Nothing was installed."
+msgstr ""
+"impossible de lire les listes de paquets. Vérifiez le réseau et réessayez.\n"
+"    Rien n'a été installé."
+
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:433
+msgid "Downloading (this is the long part)..."
+msgstr "Téléchargement (c'est la partie longue)..."
+
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:436
+msgid ""
+"the download did not finish, so nothing was installed. This is usually\n"
+"    the connection. Run this again — apt keeps what it already fetched."
+msgstr ""
+"le téléchargement ne s'est pas terminé, donc rien n'a été installé. C'est "
+"généralement\n"
+"    la connexion. Réexécutez ceci — apt conserve ce qu'il a déjà téléchargé."
+
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:439
+msgid "Installing..."
+msgstr "Installation..."
+
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:478
+msgid "Adding 32-bit support for Windows applications and games..."
+msgstr "Ajout du support 32 bits pour les applications et jeux Windows..."
+
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:484
+msgid ""
+"note: 32-bit Wine and Vulkan did not install. Wine still works\n"
+"        for 64-bit Windows programs; older installers may not run."
+msgstr ""
+"note : Wine et Vulkan 32 bits ne se sont pas installés. Wine fonctionne "
+"toujours\n"
+"        pour les programmes Windows 64 bits ; les anciens installateurs "
+"peuvent ne pas fonctionner."
+
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:488
+msgid ""
+"note: could not enable 32-bit support. Wine still works for 64-bit\n"
+"        Windows programs; older installers may not run."
+msgstr ""
+"note : impossible d'activer le support 32 bits. Wine fonctionne toujours "
+"pour les programmes\n"
+"        Windows 64 bits ; les anciens installateurs peuvent ne pas "
+"fonctionner."
+
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:499
+msgid ""
+"Setting the opt-in policy (everything installed, nothing switched on)..."
+msgstr ""
+"Configuration de la politique d'activation (tout est installé, rien n'est "
+"activé)..."
+
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:561
+msgid ""
+"note: could not open the KDE Connect ports. Phone pairing may need\n"
+"        the firewall adjusting by hand; everything else is unaffected."
+msgstr ""
+"note : impossible d'ouvrir les ports KDE Connect. L'appairage du téléphone "
+"peut nécessiter\n"
+"        un ajustement manuel du pare-feu ; tout le reste n'est pas affecté."
+
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:576
+msgid "ERROR: the install did not finish cleanly."
+msgstr "ERREUR : l'installation ne s'est pas terminée proprement."
+
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:578
+msgid ""
+"This machine is still marked as free ON PURPOSE — one that claims to be\n"
+"Pro without the applications is harder to fix than one that is honestly\n"
+"still free."
+msgstr ""
+"Cette machine est toujours marquée comme gratuite VOLONTAIREMENT — une "
+"machine qui prétend être\n"
+"Pro sans les applications est plus difficile à réparer qu'une machine qui "
+"est honnêtement\n"
+"encore gratuite."
+
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:582
+msgid ""
+"Whatever DID install has been set to the Pro edition's opt-in policy, so\n"
+"nothing that arrived is running: no Docker daemon, no remote login, no\n"
+"USB blocking, no virtual-machine services."
+msgstr ""
+"Tout ce qui s'est installé a été configuré selon la politique d'activation "
+"de l'édition Pro, donc\n"
+"rien de ce qui est arrivé ne fonctionne : pas de démon Docker, pas de "
+"connexion à distance, pas de\n"
+"blocage USB, pas de services de machines virtuelles."
+
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:586
+msgid "Try:  sudo apt-get -f install   then run this again."
+msgstr "Essayez :  sudo apt-get -f install   puis réexécutez ceci."
+
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:593
+msgid "Adding the Pro layouts and styles..."
+msgstr "Ajout des mises en page et styles Pro..."
+
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:608
+msgid ""
+"the layouts and styles arrived but would not unpack — usually that\n"
+"        is disk space. The applications ARE installed and set to the Pro opt-"
+"in\n"
+"        policy, but this machine has deliberately not been marked as Pro "
+"yet, so\n"
+"        running this tool again will finish the job."
+msgstr ""
+"les mises en page et styles sont arrivés mais n'ont pas pu être décompressés "
+"— c'est généralement\n"
+"        une question d'espace disque. Les applications SONT installées et "
+"configurées selon la politique\n"
+"        d'activation Pro, mais cette machine n'a volontairement pas encore "
+"été marquée comme Pro, donc\n"
+"        réexécuter cet outil terminera le travail."
+
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:621
+msgid "Marking this machine as Pro..."
+msgstr "Marquage de cette machine comme Pro..."
+
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:661
+msgid "Done — this is a Dagric OS Pro machine."
+msgstr "Terminé — c'est une machine Dagric OS Pro."
+
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:663
+msgid ""
+"Log out and back in to see it. The Hub will show the Pro tools, and the\n"
+"  appearance gallery will show the extra layouts and styles."
+msgstr ""
+"Déconnectez-vous puis reconnectez-vous pour le voir. Le Hub affichera les "
+"outils Pro, et la\n"
+"  galerie d'apparence affichera les mises en page et styles supplémentaires."
+
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:666
+msgid ""
+"Everything the Pro edition installs is here, and everything that can listen "
+"or\n"
+"intercept is OFF until you turn it on:"
+msgstr ""
+"Tout ce que l'édition Pro installe est ici, et tout ce qui peut écouter ou\n"
+"intercepter est DÉSACTIVÉ jusqu'à ce que vous l'activiez :"
+
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:669
+msgid "Docker, virtual machines, USB protection and remote login"
+msgstr "Docker, machines virtuelles, protection USB et connexion à distance"
+
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:669
+msgid "installed, off"
+msgstr "installé, désactivé"
+
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:670
+msgid "OpenSnitch application firewall"
+msgstr "Pare-feu applicatif OpenSnitch"
+
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:670
+msgid "installed, on"
+msgstr "installé, activé"
+
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:672
+msgid "Turn any of them on from the Dagric Hub."
+msgstr "Activez-les depuis le Dagric Hub."
+
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:674
+msgid "Two honest differences from a machine installed from the Pro ISO:"
+msgstr ""
+"Deux différences honnêtes par rapport à une machine installée depuis l'ISO "
+"Pro :"
+
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:676
+msgid ""
+"  * The Pro ISO ships CJK fonts and a few defaults chosen at install time. "
+"Those\n"
+"    are here too, but your existing settings were kept rather than replaced "
+"—\n"
+"    which is the point of upgrading rather than reinstalling."
+msgstr ""
+"  * L'ISO Pro inclut les polices CJK et quelques réglages par défaut choisis "
+"à l'installation. Ceux-ci\n"
+"    sont aussi présents, mais vos paramètres existants ont été conservés "
+"plutôt que remplacés —\n"
+"    c'est le but de la mise à niveau plutôt que de la réinstallation."
+
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:679
+msgid ""
+"  * Your snapshot history starts before this upgrade, not at a fresh install."
+msgstr ""
+"  * Votre historique d'instantanés commence avant cette mise à niveau, pas à "
+"une installation fraîche."
+
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:681
+msgid "Thank you for buying Pro."
+msgstr "Merci d'avoir acheté Pro."
 
 #: config/includes.chroot/usr/bin/dagric-usb-protect:31
 msgid "Dagric USB Protection"

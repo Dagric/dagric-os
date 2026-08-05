@@ -142,6 +142,41 @@ command -v xgettext >/dev/null 2>&1 || {
 # --add-comments=TRANSLATORS: carries the notes above each call into the .pot.
 # Without it a translator sees "y yes" and "Documents" with no context at all,
 # which is how "Documents" ends up translated as a verb.
+# THE SOURCE LIST IS DERIVED, BECAUSE THE HAND-WRITTEN ONE FAILED SILENTLY.
+#
+# This used to be thirty-one paths typed out by hand. dagric-upgrade-to-pro —
+# the tool that takes somebody's $39 and turns their machine into a Pro one —
+# was not among them. That did not matter while the file had no gettext calls,
+# and became the whole problem the moment it got 91 of them: xgettext was never
+# shown the file, not one msgid reached the .pot, `msgmerge` reported every
+# catalogue as 100% translated, and the paid upgrade path would have shipped in
+# English with every check in this repo saying it was fine. The failure mode of
+# a hand-maintained list is not a build error, it is a quiet nothing.
+#
+# So the list is now computed the same way tools/build-pro-assets.sh computes
+# the Pro bundle, and for the reason its header gives: "A hardcoded list would
+# have been shorter and would have been wrong within a month."
+#
+# EVERY file in $BIN is passed, not only the ones that currently call gettext.
+# xgettext contributes nothing for a file with no keywords in it, so the cost of
+# including one is zero — while the cost of EXCLUDING one is the bug above.
+# That also preserves the property the old list had deliberately: a tool with no
+# gettext calls yet (dagric-hardware-check was listed for exactly that reason)
+# stays wired in, so its first translated string works without anyone
+# remembering this file exists.
+#
+# `sort` keeps the "#:" source references stable between runs, so a diff of the
+# .pot still means something.
+set -- "$GEN" "$LIB"/display-common.sh "$LIB"/display-autoscale
+for _f in $(ls "$BIN" | sort); do
+    [ -f "$BIN/$_f" ] || continue
+    set -- "$@" "$BIN/$_f"
+done
+echo "extract: $(($# - 3)) files from $BIN, plus 2 from $LIB and the generated data strings"
+
+# --add-comments=TRANSLATORS: carries the notes above each call into the .pot.
+# Without it a translator sees "y yes" and "Documents" with no context at all,
+# which is how "Documents" ends up translated as a verb.
 xgettext \
     --language=Shell \
     --from-code=UTF-8 \
@@ -151,40 +186,7 @@ xgettext \
     --msgid-bugs-address=repo@dagric.com \
     --copyright-holder='DGR Operations' \
     -o po/dagric.pot \
-    "$GEN" \
-    "$LIB"/display-common.sh \
-    "$LIB"/display-autoscale \
-    "$BIN"/dagric-i18n.sh \
-    "$BIN"/dagric-ai \
-    "$BIN"/dagric-appearance \
-    "$BIN"/dagric-display \
-    "$BIN"/dagric-driver-offer \
-    "$BIN"/dagric-drivers \
-    "$BIN"/dagric-firstrun \
-    "$BIN"/dagric-gaming \
-    "$BIN"/dagric-get-bottles \
-    "$BIN"/dagric-get-cryptomator \
-    "$BIN"/dagric-get-heroic \
-    "$BIN"/dagric-get-joplin \
-    "$BIN"/dagric-get-localsend \
-    "$BIN"/dagric-get-onlyoffice \
-    "$BIN"/dagric-get-protonup \
-    "$BIN"/dagric-get-resolve \
-    "$BIN"/dagric-get-steam \
-    "$BIN"/dagric-get-upscayl \
-    "$BIN"/dagric-get-variety \
-    "$BIN"/dagric-guide \
-    "$BIN"/dagric-hardware-check \
-    "$BIN"/dagric-hub \
-    "$BIN"/dagric-looks \
-    "$BIN"/dagric-manual \
-    "$BIN"/dagric-migrate \
-    "$BIN"/dagric-security-checkup \
-    "$BIN"/dagric-setup \
-    "$BIN"/dagric-style \
-    "$BIN"/dagric-usb-protect \
-    "$BIN"/dagric-vm \
-    "$BIN"/dagric-welcome
+    "$@"
 
 echo "po/dagric.pot: $(grep -c '^msgid ' po/dagric.pot) messages (including the header)"
 
