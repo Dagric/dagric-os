@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Check This PC &mdash; Dagric OS Manual</title>
+<link rel="stylesheet" href="manual.css">
+<script src="manual.js"></script>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<div class="shell">
+  <aside class="side">
+    <div class="sidebox">
+      <a class="brand" href="index.html">
+        <div class="mark">D</div>
+        <div class="brand-name">Dagric OS<small>Manual</small></div>
+      </a>
+      <nav class="toc" aria-label="Dagric&#x27;s own tools">
+        <a class="back" href="index.html">&larr; All applications</a>
+        <div class="navgroup">Dagric&#x27;s own tools</div>
+        <a href="tool-dagric-hub.html">Dagric Hub</a>
+        <a href="tool-dagric-setup.html">Finish Setup</a>
+        <a href="tool-dagric-firstrun.html">Set Up Dagric</a>
+        <a href="tool-dagric-migrate.html">Migration Assistant</a>
+        <a href="tool-dagric-appearance.html">Dagric Appearance</a>
+        <a href="tool-dagric-looks.html">Dagric Looks</a>
+        <a href="tool-dagric-style.html">Dagric Styles</a>
+        <a href="tool-dagric-display.html">Dagric Display</a>
+        <a href="tool-dagric-app-names.html">Why the apps have plain names</a>
+        <a href="tool-dagric-get-variety.html">Rotating wallpapers (Variety)</a>
+        <a href="tool-dagric-drivers.html">NVIDIA driver helper</a>
+        <a href="tool-dagric-hardware-check.html" class="active">Check This PC</a>
+        <a href="tool-dagric-security-checkup.html">Security Checkup</a>
+        <a href="tool-dagric-usb-protect.html">USB Protection</a>
+        <a href="tool-dagric-vm.html">Windows in a window (VM setup)</a>
+        <a href="tool-dagric-gaming.html">Proton-GE helper</a>
+        <a href="tool-dagric-ai.html">Local AI (Ollama)</a>
+        <a href="tool-dagric-manual.html">This manual</a>
+        <a href="tool-dagric-background.html">Helpers that run by themselves</a>
+        <a href="tool-dagric-commands.html">Every dagric command</a>
+      </nav>
+    </div>
+  </aside>
+
+  <main class="content" id="main" tabindex="-1">
+
+    <header class="hero">
+      <div class="eyebrow">Dagric&#x27;s own tools</div>
+      <h1>Check This PC</h1>
+      <p class="sub">What is inside this computer, whether Dagric will run well on it, and which parts need a driver.</p>
+    </header>
+
+    <div class="swap"><span>On Windows this was</span><strong>PC Health Check &mdash; the app that told you this PC could not have Windows&nbsp;11</strong></div>
+
+    <section>
+      <h2>What it is</h2>
+      <p><strong>Check This PC</strong> reads the machine and writes you a plain-language
+      report: how much memory and disk you have, what graphics chip and screen, which
+      network and Wi-Fi cards, cameras, and every drive attached. It compares the
+      numbers against what Dagric actually needs and tells you whether you are
+      comfortable, tight, or short.</p>
+      <p>It changes nothing. It installs nothing, downloads nothing, and does not need
+      the internet. It only looks.</p>
+      <p>It answers a different question depending on when you run it. From the live
+      USB stick, before you install, it answers <em>will this work on my computer?</em>
+      Afterwards it answers <em>why is this one part not working?</em> The Hub words
+      the entry differently in each case for exactly that reason.</p>
+    </section>
+
+    <section>
+      <h2>Five things you will actually do</h2>
+      <ol class="tasks">
+        <li><span class="t">Run it before you install</span><p>Boot the USB stick, open the Dagric Hub, and pick
+         <em>Check this PC &mdash; will Dagric work here?</em> This is the cheapest way to
+         find out whether your Wi-Fi card needs firmware, before you have committed
+         anything to the disk.</p></li>
+        <li><span class="t">Read the memory and disk lines</span><p>Dagric wants at least <strong>3500&nbsp;MB</strong> of memory and is
+         comfortable from <strong>7000&nbsp;MB</strong>. It needs <strong>25&nbsp;GB</strong>
+         of disk at minimum, is comfortable from <strong>60&nbsp;GB</strong>, and Pro wants
+         <strong>40&nbsp;GB</strong> because of the creator applications. The report prints
+         these numbers next to yours rather than just saying pass or fail.</p></li>
+        <li><span class="t">Look for missing firmware</span><p>There is a section headed <em>firmware files the kernel could not load</em>.
+         That list is the single most useful thing in the report: a Wi-Fi card, a
+         graphics chip or a fingerprint reader that needs a firmware blob Debian cannot
+         ship will appear there by name, and the guide's
+         <a href="../guide/index.html#trouble">troubleshooting section</a> covers what to
+         do about it.</p></li>
+        <li><span class="t">Check Secure Boot before you worry about it</span><p>The report says whether Secure Boot is on and whether the firmware is
+         enforcing. Dagric ships a signed boot chain and works with it enabled; you do
+         not need to turn it off. The line matters if you later install the NVIDIA
+         driver, because an unsigned kernel module will not load under enforcing Secure
+         Boot until it is enrolled.</p></li>
+        <li><span class="t">Save the report before you ask for help</span><p>The <em>Save</em> button writes the whole thing, including the technical
+         summary, to <code>dagric-hardware-check.txt</code> on your Desktop. Send that
+         file with any support request &mdash; it answers most of the questions anyone
+         would ask you first. From the live USB, save it to a USB stick or a phone: the
+         Desktop there is in memory and disappears when you reboot.</p></li>
+      </ol>
+    </section>
+
+    <section>
+      <h2>One thing that will surprise you</h2>
+      <p><strong>It does not tell you your computer is too old.</strong> That is the
+      whole reason it exists. The Windows tool with the same job handed out a verdict
+      &mdash; unsupported processor, no TPM 2.0, buy a new machine &mdash; and a great many
+      perfectly good computers were retired on the strength of it.</p>
+      <p>This one prints what it found and what Dagric needs, side by side, and lets you
+      read them. A machine that falls short on one line usually still installs and runs;
+      it just tells you which line, so you can decide rather than be told.</p>
+    </section>
+
+    <section>
+      <h2>Where to find it</h2>
+      <p>Dagric Hub &rarr; <em>Check this PC</em>, launcher &rarr; <em>Check This
+      PC</em>, or <code>dagric-hardware-check</code>. With no desktop session it prints
+      the same report to the terminal instead of opening a window, so it works over SSH
+      and in a recovery shell.</p>
+    </section>
+
+    <section>
+      <h2>See also</h2>
+      <div class="related"><a href="tool-dagric-drivers.html">NVIDIA driver helper</a><a href="tool-dagric-security-checkup.html">Security Checkup</a><a href="app-drive-health.html">Drive health</a><a href="tool-dagric-hub.html">Dagric Hub</a></div>
+    </section>
+
+    <footer class="colophon">Dagric OS Manual &middot; stored on this computer, no internet needed &middot; <a href="index.html">every application</a></footer>
+
+  </main>
+</div>
+</body>
+</html>
