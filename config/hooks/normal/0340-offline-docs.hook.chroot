@@ -114,6 +114,39 @@ for _page in $(find "$DOCS" -name '*.html' -type f 2>/dev/null); do
     done || fail=1
 done
 
+# --- 2c. the manual's page count must be the number of pages ----------------
+#
+# The count is written down in eight places and computed in one. manual.js sets
+# the counter from the real card total at load, so the LIVE product is always
+# right; every other copy is a human typing a number that was true once.
+#
+# It has already drifted twice. A comment in manual.js records the first: the
+# German guide said "95 Seiten" while the manual held 94 and the counter beside
+# it displayed 94. The second was caused by ADDING A PAGE — the Check This PC
+# page took the real total from 94 to 95, which silently made the German and
+# Spanish guides correct and the static fallback, the CSS comments and
+# EDITIONS.md wrong, all in the same commit.
+#
+# The static span is the no-JavaScript fallback, so it is the one a reader with
+# scripting off actually sees. Checking it against the file count is one line
+# and removes the whole class.
+_mpages=$(find "$DOCS/manual" -maxdepth 1 -name '*.html' ! -name 'index.html' | wc -l)
+_mcards=$(grep -c '<a class="card"' "$DOCS/manual/index.html" 2>/dev/null || echo 0)
+_mstatic=$(grep -o 'id="count"[^>]*>[0-9]* pages<' "$DOCS/manual/index.html" | tr -dc '0-9' | head -1)
+if [ "$_mcards" != "$_mpages" ]; then
+    echo "ERROR: the manual has $_mpages pages but index.html lists $_mcards cards." >&2
+    echo "       A page with no card is unreachable; a card with no page is a" >&2
+    echo "       dead link. Add the card, or delete it." >&2
+    fail=1
+fi
+if [ -n "$_mstatic" ] && [ "$_mstatic" != "$_mpages" ]; then
+    echo "ERROR: the manual has $_mpages pages and its static counter says" >&2
+    echo "       $_mstatic. manual.js overwrites this at load, so the wrong" >&2
+    echo "       number is shown only to a reader with JavaScript off — which is" >&2
+    echo "       the reader the fallback exists for." >&2
+    fail=1
+fi
+
 # --- 3. the manual's language notice must match the guides we ship -----------
 #
 # manual.js offers "this manual is English, here is your language's guide" and

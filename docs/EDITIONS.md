@@ -166,7 +166,7 @@ own.
   will surprise a switcher. (`dagric-hardware-check`, `dagric-guide` and
   `dagric-game-launch` are listed on the manual's "Every dagric command" page but
   have no page of their own. hardware-check is the one worth writing: it is the
-  tool the live desktop puts an icon next to the installer.) 94 pages, 892 KB,
+  tool the live desktop puts an icon next to the installer.) 95 pages, 892 KB,
   zero network calls. Search indexes the Windows
   name, so *notepad* finds the Text Editor and *task manager* finds System
   Monitor. Pro-only applications are documented on the free edition too, badged

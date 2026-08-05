@@ -16,7 +16,7 @@
  *
  * Dagric's German documentation is the welcome page and the user guide — the
  * two things a new owner reads in their first hour, both single pages, both
- * translated in full. This manual is 94 pages and 46,000 words of reference
+ * translated in full. This manual is 95 pages and 46,000 words of reference
  * material, and translating it has two costs that do not shrink: the words
  * themselves, and the fact that every English edit re-opens every language.
  * More to the point, this manual's whole promise is that its search knows the
@@ -59,7 +59,7 @@
          or whose browser is German. Keep it short and keep it true. */
       note:    'Das Handbuch gibt es bisher nur auf Englisch.',
       /* No page count in this sentence, deliberately. It said "95 Seiten"
-         while the manual has 94 pages and the counter beside it displayed 94
+         while the manual had 94 pages and the counter beside it displayed 94
          — a visible self-contradiction on the one notice whose entire subject
          is being honest about translation. A hardcoded count next to a
          directory that grows is a permanent drift source, so the number is
