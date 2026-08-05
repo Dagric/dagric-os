@@ -32,18 +32,34 @@ command -v gawk >/dev/null 2>&1 || exit 0
 # if the owner picks a taskbar layout during the gap that call fails and the
 # click is silently dropped.
 #
-# This is the guard dagric-driver-offer already uses for the same collision,
-# copied deliberately rather than invented — same 150 x 2s ceiling, same
-# reasoning. Five minutes is generous because the failure mode of waiting too
-# long is benign: the autostart entry is only removed once the icon is actually
-# branded, so a session that runs out of patience simply tries again at the
-# next login. Nothing is lost by being late here; something real is lost by
-# being early.
+# The wait is dagric-driver-offer's, copied rather than invented — same
+# 150 x 2s ceiling. What happens WHEN IT RUNS OUT is deliberately different
+# here, and a boot test is what showed why.
+#
+# driver-offer asks a question when it gives up waiting; asking late is still
+# asking. This script tears the desktop down, so giving up and proceeding is the
+# exact harm the wait exists to prevent, just delayed by five minutes. Booted,
+# with the wizard left open on step 1, that is precisely what happened: at the
+# five-minute mark plasmashell was restarted underneath the wizard. Nothing
+# broke — the taskbar and the wizard both survived — but an owner reading the
+# five screens carefully is the owner most likely to still be there, and is
+# exactly who this was written for.
+#
+# So a wizard that is STILL running means: not this session. Exit and leave the
+# autostart entry alone, so the next login does it with nothing on screen. That
+# is the same self-healing choice this file already makes when the launcher
+# applet cannot be found (see below) and for the same stated reason — better a
+# delayed brand than a disruptive one. The cost is that a slow owner's launcher
+# carries the stock icon until their second login, which nobody will notice; the
+# cost of the alternative is the desktop vanishing while they read.
 i=0
 while [ "$i" -lt 150 ] && pgrep -f '/usr/bin/dagric-firstrun' >/dev/null 2>&1; do
     i=$((i + 1))
     sleep 2
 done
+if pgrep -f '/usr/bin/dagric-firstrun' >/dev/null 2>&1; then
+    exit 0
+fi
 
 # Wait up to ~60s for plasmashell to write its applet config AND for it to
 # contain a kickoff/kicker launcher applet. plasmashell writes this file
