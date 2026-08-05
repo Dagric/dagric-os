@@ -564,19 +564,51 @@ dg_say "$(gettext "=== Migration finished ===")"
 # TRANSLATORS: the closing promise of the whole tool — "Windows itself was not
 # modified — it was only ever read" is the sentence the owner will remember,
 # and the one that decides whether they trust this product. Do not weaken the
-# negation. The ▸ chains are menu paths inside FIREFOX; use Firefox's own
-# wording in your language. File names (Windows-bookmarks.html,
-# Windows-open-tabs.html, Windows-passwords.csv) are literal and must not be
-# translated — the owner has to find them on disk.
+# negation.
 SUMMARY=$(gettext "Done! Your Windows files are now in your Dagric home folder.
 
-Windows itself was not modified — it was only ever read.
+Windows itself was not modified — it was only ever read.")
 
-To finish up, in Firefox:
-• Bookmarks — Bookmarks ▸ Manage Bookmarks ▸ Import and Backup ▸
-  Import Bookmarks from HTML ▸ Windows-bookmarks.html
-• Open tabs — import Windows-open-tabs.html the same way; they arrive as a
-  bookmark folder you can 'Open All in Tabs'")
+# EVERY LINE OF THIS SECTION IS EARNED, AND TWO OF THE THREE WERE NOT.
+#
+# The bookmarks and open-tabs bullets used to be baked into the paragraph above
+# and therefore printed on EVERY run. An owner who ticked only Documents and
+# Pictures — leaving the browser boxes alone, which is an ordinary thing to do —
+# finished the migration and was told to open Firefox, walk a four-step menu and
+# import Windows-bookmarks.html and Windows-open-tabs.html. Neither file was
+# ever written. They would reach a file picker showing nothing and conclude the
+# migration had failed, on the one screen whose job is to tell them it worked.
+#
+# The passwords bullet below was already conditional on N_PWDS, so the rule was
+# understood; these two were simply missed. Same treatment now, keyed off the
+# same signals the per-section messages already use:
+#
+#   SAVED   set only where the bookmark count was positive AND the staged file
+#           was non-empty AND the move into place succeeded. Not `-s "$OUT"`,
+#           which an earlier bug proved passes on the wrapper HTML alone.
+#   N_TABS  the recovered tab count. The section above already prints
+#           "No open tabs could be recovered" on zero, so claiming otherwise
+#           down here contradicted a message on the same screen.
+#
+# The header is built with them: with nothing to import, "To finish up, in
+# Firefox:" is an instruction to do nothing.
+#
+# TRANSLATORS: the ▸ chains are menu paths inside FIREFOX; use Firefox's own
+# wording in your language rather than translating literally, or the owner will
+# hunt for a menu item that is not there. File names (Windows-bookmarks.html,
+# Windows-open-tabs.html, Windows-passwords.csv) are literal and must NOT be
+# translated — the owner has to find them on disk.
+FIREFOX_STEPS=
+if [ "${SAVED:-no}" = yes ]; then
+    FIREFOX_STEPS="$FIREFOX_STEPS
+$(gettext "• Bookmarks — Bookmarks ▸ Manage Bookmarks ▸ Import and Backup ▸
+  Import Bookmarks from HTML ▸ Windows-bookmarks.html")"
+fi
+if [ "${N_TABS:-0}" -gt 0 ] 2>/dev/null; then
+    FIREFOX_STEPS="$FIREFOX_STEPS
+$(gettext "• Open tabs — import Windows-open-tabs.html the same way; they arrive as a
+  bookmark folder you can 'Open All in Tabs'")"
+fi
 
 SUMMARY_DLG=--msgbox
 if [ -n "$COPY_FAILED" ]; then
@@ -604,11 +636,19 @@ fi
 if [ "${N_PWDS:-0}" -gt 0 ] 2>/dev/null; then
     # TRANSLATORS: a warning that a plain-text password file is sitting in the
     # owner's home folder. "Delete it once imported" must survive translation.
-    SUMMARY="$SUMMARY
+    FIREFOX_STEPS="$FIREFOX_STEPS
 $(gettext "• Passwords — Firefox ▸ Passwords ▸ ⋯ ▸ Import from a File ▸
   Windows-passwords.csv   (KeePassXC on Pro can import the same file)
 
 ⚠ Windows-passwords.csv is PLAIN TEXT. Delete it once imported.")"
+fi
+
+# Appended LAST so it lands below the failure warning when there is one, and
+# only when at least one bullet was earned above.
+if [ -n "$FIREFOX_STEPS" ]; then
+    SUMMARY="$SUMMARY
+
+$(gettext "To finish up, in Firefox:")$FIREFOX_STEPS"
 fi
 
 kdialog --title "$TITLE" "$SUMMARY_DLG" "$SUMMARY" 2>/dev/null

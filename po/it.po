@@ -80,7 +80,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: dagric 1.0\n"
 "Report-Msgid-Bugs-To: repo@dagric.com\n"
-"POT-Creation-Date: 2026-08-05 21:39+0000\n"
+"POT-Creation-Date: 2026-08-05 22:20+0000\n"
 "PO-Revision-Date: 2026-08-04 01:00+0000\n"
 "Last-Translator: Machine translation, reviewed by a second model "
 "<repo@dagric.com>\n"
@@ -329,7 +329,9 @@ msgstr "La dimensione del testo va bene?"
 
 #: po/dagric-data-strings.sh:65
 msgid "Dagric guessed from your screen. Pick another size if it guessed wrong."
-msgstr "Dagric ha stimato in base al tuo schermo. Scegli un'altra dimensione se ha sbagliato."
+msgstr ""
+"Dagric ha stimato in base al tuo schermo. Scegli un'altra dimensione se ha "
+"sbagliato."
 
 #: po/dagric-data-strings.sh:66
 msgid ""
@@ -354,7 +356,10 @@ msgstr "Scegli una dimensione del testo"
 msgid ""
 "Opens a list of text sizes in a separate window. A new size is tried for "
 "twenty seconds and put back on its own unless you keep it."
-msgstr "Apre un elenco di dimensioni del testo in una finestra separata. Una nuova dimensione viene provata per venti secondi e poi torna da sola a meno che non la mantieni."
+msgstr ""
+"Apre un elenco di dimensioni del testo in una finestra separata. Una nuova "
+"dimensione viene provata per venti secondi e poi torna da sola a meno che "
+"non la mantieni."
 
 #: po/dagric-data-strings.sh:70
 msgid "Normal"
@@ -581,7 +586,8 @@ msgstr "Command"
 #. under its name. Keep it short — it has to fit on one line beside a tile.
 #: po/dagric-data-strings.sh:122
 msgid "the same side dock, but each window keeps its own menu bar"
-msgstr "lo stesso dock laterale, ma ogni finestra mantiene la propria barra dei menu"
+msgstr ""
+"lo stesso dock laterale, ma ogni finestra mantiene la propria barra dei menu"
 
 #. TRANSLATORS: name of the "duo" taskbar layout in Dagric Looks and the
 #. setup wizard. One or two words, shown as the title of a picture tile.
@@ -641,7 +647,8 @@ msgstr "Unity"
 #. under its name. Keep it short — it has to fit on one line beside a tile.
 #: po/dagric-data-strings.sh:152
 msgid "a side dock, with every window's menu moved to the top bar"
-msgstr "un dock laterale, con il menu di ogni finestra spostato nella barra superiore"
+msgstr ""
+"un dock laterale, con il menu di ogni finestra spostato nella barra superiore"
 
 #. TRANSLATORS: name of the "classy" desktop style (colours, wallpaper and
 #. effects) in Dagric Styles and the appearance gallery. One or two words.
@@ -2716,32 +2723,31 @@ msgstr "=== Migrazione completata ==="
 #. TRANSLATORS: the closing promise of the whole tool — "Windows itself was not
 #. modified — it was only ever read" is the sentence the owner will remember,
 #. and the one that decides whether they trust this product. Do not weaken the
-#. negation. The ▸ chains are menu paths inside FIREFOX; use Firefox's own
-#. wording in your language. File names (Windows-bookmarks.html,
-#. Windows-open-tabs.html, Windows-passwords.csv) are literal and must not be
-#. translated — the owner has to find them on disk.
-#: config/includes.chroot/usr/bin/dagric-migrate:571
+#. negation.
+#: config/includes.chroot/usr/bin/dagric-migrate:568
 msgid ""
 "Done! Your Windows files are now in your Dagric home folder.\n"
 "\n"
-"Windows itself was not modified — it was only ever read.\n"
+"Windows itself was not modified — it was only ever read."
+msgstr ""
+"Fatto! I tuoi file di Windows sono ora nella tua cartella personale di Dagric.\n"
 "\n"
-"To finish up, in Firefox:\n"
+"Windows non è stato modificato — è stato soltanto letto."
+
+#: config/includes.chroot/usr/bin/dagric-migrate:604
+msgid ""
 "• Bookmarks — Bookmarks ▸ Manage Bookmarks ▸ Import and Backup ▸\n"
-"  Import Bookmarks from HTML ▸ Windows-bookmarks.html\n"
+"  Import Bookmarks from HTML ▸ Windows-bookmarks.html"
+msgstr ""
+"• Segnalibri — Segnalibri ▸ Gestisci segnalibri ▸ Importa e salva ▸\n"
+"  Importa segnalibri da HTML ▸ Windows-bookmarks.html"
+
+#: config/includes.chroot/usr/bin/dagric-migrate:609
+msgid ""
 "• Open tabs — import Windows-open-tabs.html the same way; they arrive as a\n"
 "  bookmark folder you can 'Open All in Tabs'"
 msgstr ""
-"Fatto! I tuoi file di Windows sono ora nella tua cartella personale di "
-"Dagric.\n"
-"\n"
-"Windows non è stato modificato — è stato soltanto letto.\n"
-"\n"
-"Per concludere, in Firefox:\n"
-"• Segnalibri — Segnalibri ▸ Gestisci segnalibri ▸ Importa e salva ▸\n"
-"  Importa segnalibri da HTML ▸ Windows-bookmarks.html\n"
-"• Schede aperte — importa Windows-open-tabs.html allo stesso modo; arrivano "
-"come una\n"
+"• Schede aperte — importa Windows-open-tabs.html allo stesso modo; arrivano come una\n"
 "  cartella di segnalibri su cui puoi usare «Apri tutte le schede»"
 
 #. TRANSLATORS: shown only when at least one folder did not copy completely.
@@ -2751,7 +2757,7 @@ msgstr ""
 #. reclaim the Windows partition next. "Windows itself was still only ever
 #. read" keeps the product's central promise intact on the failure path — the
 #. copy went wrong, the Windows installation did not.
-#: config/includes.chroot/usr/bin/dagric-migrate:590
+#: config/includes.chroot/usr/bin/dagric-migrate:622
 msgid ""
 "⚠ NOT everything was copied.\n"
 "\n"
@@ -2773,7 +2779,7 @@ msgstr ""
 
 #. TRANSLATORS: a warning that a plain-text password file is sitting in the
 #. owner's home folder. "Delete it once imported" must survive translation.
-#: config/includes.chroot/usr/bin/dagric-migrate:608
+#: config/includes.chroot/usr/bin/dagric-migrate:640
 msgid ""
 "• Passwords — Firefox ▸ Passwords ▸ ⋯ ▸ Import from a File ▸\n"
 "  Windows-passwords.csv   (KeePassXC on Pro can import the same file)\n"
@@ -2784,6 +2790,10 @@ msgstr ""
 "  Windows-passwords.csv   (KeePassXC su Pro può importare lo stesso file)\n"
 "\n"
 "⚠ Windows-passwords.csv è in TESTO IN CHIARO. Eliminalo una volta importato."
+
+#: config/includes.chroot/usr/bin/dagric-migrate:651
+msgid "To finish up, in Firefox:"
+msgstr "Per concludere, in Firefox:"
 
 #: config/includes.chroot/usr/bin/dagric-security-checkup:9
 msgid "Dagric Security Checkup"
@@ -3362,6 +3372,30 @@ msgstr ""
 #: config/includes.chroot/usr/bin/dagric-welcome:31
 msgid "The Dagric welcome page is not installed."
 msgstr "La pagina di benvenuto di Dagric non è installata."
+
+#~ msgid ""
+#~ "Done! Your Windows files are now in your Dagric home folder.\n"
+#~ "\n"
+#~ "Windows itself was not modified — it was only ever read.\n"
+#~ "\n"
+#~ "To finish up, in Firefox:\n"
+#~ "• Bookmarks — Bookmarks ▸ Manage Bookmarks ▸ Import and Backup ▸\n"
+#~ "  Import Bookmarks from HTML ▸ Windows-bookmarks.html\n"
+#~ "• Open tabs — import Windows-open-tabs.html the same way; they arrive as "
+#~ "a\n"
+#~ "  bookmark folder you can 'Open All in Tabs'"
+#~ msgstr ""
+#~ "Fatto! I tuoi file di Windows sono ora nella tua cartella personale di "
+#~ "Dagric.\n"
+#~ "\n"
+#~ "Windows non è stato modificato — è stato soltanto letto.\n"
+#~ "\n"
+#~ "Per concludere, in Firefox:\n"
+#~ "• Segnalibri — Segnalibri ▸ Gestisci segnalibri ▸ Importa e salva ▸\n"
+#~ "  Importa segnalibri da HTML ▸ Windows-bookmarks.html\n"
+#~ "• Schede aperte — importa Windows-open-tabs.html allo stesso modo; "
+#~ "arrivano come una\n"
+#~ "  cartella di segnalibri su cui puoi usare «Apri tutte le schede»"
 
 #~ msgid ""
 #~ "Dagric guessed from your screen. Open Display Settings if it guessed "

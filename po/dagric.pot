@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: dagric 1.0\n"
 "Report-Msgid-Bugs-To: repo@dagric.com\n"
-"POT-Creation-Date: 2026-08-05 21:39+0000\n"
+"POT-Creation-Date: 2026-08-05 22:20+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -2214,19 +2214,22 @@ msgstr ""
 #. TRANSLATORS: the closing promise of the whole tool — "Windows itself was not
 #. modified — it was only ever read" is the sentence the owner will remember,
 #. and the one that decides whether they trust this product. Do not weaken the
-#. negation. The ▸ chains are menu paths inside FIREFOX; use Firefox's own
-#. wording in your language. File names (Windows-bookmarks.html,
-#. Windows-open-tabs.html, Windows-passwords.csv) are literal and must not be
-#. translated — the owner has to find them on disk.
-#: config/includes.chroot/usr/bin/dagric-migrate:571
+#. negation.
+#: config/includes.chroot/usr/bin/dagric-migrate:568
 msgid ""
 "Done! Your Windows files are now in your Dagric home folder.\n"
 "\n"
-"Windows itself was not modified — it was only ever read.\n"
-"\n"
-"To finish up, in Firefox:\n"
+"Windows itself was not modified — it was only ever read."
+msgstr ""
+
+#: config/includes.chroot/usr/bin/dagric-migrate:604
+msgid ""
 "• Bookmarks — Bookmarks ▸ Manage Bookmarks ▸ Import and Backup ▸\n"
-"  Import Bookmarks from HTML ▸ Windows-bookmarks.html\n"
+"  Import Bookmarks from HTML ▸ Windows-bookmarks.html"
+msgstr ""
+
+#: config/includes.chroot/usr/bin/dagric-migrate:609
+msgid ""
 "• Open tabs — import Windows-open-tabs.html the same way; they arrive as a\n"
 "  bookmark folder you can 'Open All in Tabs'"
 msgstr ""
@@ -2238,7 +2241,7 @@ msgstr ""
 #. reclaim the Windows partition next. "Windows itself was still only ever
 #. read" keeps the product's central promise intact on the failure path — the
 #. copy went wrong, the Windows installation did not.
-#: config/includes.chroot/usr/bin/dagric-migrate:590
+#: config/includes.chroot/usr/bin/dagric-migrate:622
 msgid ""
 "⚠ NOT everything was copied.\n"
 "\n"
@@ -2252,12 +2255,16 @@ msgstr ""
 
 #. TRANSLATORS: a warning that a plain-text password file is sitting in the
 #. owner's home folder. "Delete it once imported" must survive translation.
-#: config/includes.chroot/usr/bin/dagric-migrate:608
+#: config/includes.chroot/usr/bin/dagric-migrate:640
 msgid ""
 "• Passwords — Firefox ▸ Passwords ▸ ⋯ ▸ Import from a File ▸\n"
 "  Windows-passwords.csv   (KeePassXC on Pro can import the same file)\n"
 "\n"
 "⚠ Windows-passwords.csv is PLAIN TEXT. Delete it once imported."
+msgstr ""
+
+#: config/includes.chroot/usr/bin/dagric-migrate:651
+msgid "To finish up, in Firefox:"
 msgstr ""
 
 #: config/includes.chroot/usr/bin/dagric-security-checkup:9
