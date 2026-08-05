@@ -1,0 +1,200 @@
+#!/bin/sh
+# SPDX-FileCopyrightText: 2026 DGR Operations <repo@dagric.com>
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Dagric OS — cut a release without publishing a checksum for a file nobody can
+# download.
+#
+# WHY THIS EXISTS, AND WHAT IT IS REPLACING.
+#
+# On 2026-08-05 the live site published
+#   533126a5baff2fd7ae2f17f400da0bc8891bf04089a64f8dd8df78c8f1a7e270
+# for dagric-os-1.0-amd64.iso, and the file R2 actually served hashed to
+#   dabdc0b395fcfaade4c4705ce2be343f366b709572e1f8d1bbdbccd93c220261
+# Both verified twice, the second time with a byte count equal to R2's own
+# Content-Length so a truncated stream could not have faked it.
+#
+# download.html tells every customer to run
+#     gpg --verify SHA256SUMS.sig SHA256SUMS
+#     sha256sum -c SHA256SUMS
+# so following the published instructions printed FAILED. On a distribution
+# sold on privacy and verifiability, that does not read as "stale metadata", it
+# reads as a tampered download.
+#
+# Nothing was broken in the tooling. tools/verify-published.sh already downloads
+# the real ISO and compares it against the signed hash — it would have caught
+# this in one run. It was simply never run: the only references to it anywhere
+# in the tree are inside its own header comment. release.ps1 ends by PRINTING
+# "Publish the ISOs together with SHA256SUMS so buyers can verify", which is a
+# reminder, and a reminder is not a mechanism. The checksums were regenerated
+# 2026-07-28 and the ISO was replaced on R2 2026-08-02, and nothing connected
+# the two events.
+#
+# So this script makes the order structural instead of remembered:
+#
+#     sign      hash the local ISOs and sign the manifest      (always safe)
+#     publish   copy the manifest into site/ and deploy        (GATED)
+#
+# `publish` refuses to run unless the bytes R2 is serving RIGHT NOW already hash
+# to the value about to be published. Upload first, publish second — and if you
+# get it the wrong way round, this stops you instead of your customers finding
+# out.
+#
+# It deliberately does NOT upload. There is no R2 credential in this repo and
+# there should not be one; the upload stays a human step with the human's keys.
+set -e
+
+cd "$(dirname "$0")/.."
+OUT=out
+SITE=site
+KEYID=6CE37402BA0A0EF8
+MODE=${1:-}
+
+usage() {
+    cat >&2 <<'EOF'
+usage: sh tools/release.sh sign      hash out/*.iso and sign out/SHA256SUMS
+       sh tools/release.sh publish   verify R2 matches, then copy into site/
+       sh tools/release.sh check     verify only, change nothing
+
+The upload to R2 happens BETWEEN sign and publish, by hand.
+EOF
+    exit 2
+}
+
+# ---------------------------------------------------------------------------
+list_isos() {
+    # Named ISOs only. live-image-amd64.hybrid.iso is live-build's own output
+    # name and is the same filename for both editions, which is how a free
+    # image once got overwritten by a Pro one carrying the free name.
+    find "$OUT" -maxdepth 1 -name 'dagric-os-*-amd64.iso' -type f 2>/dev/null | sort
+}
+
+do_sign() {
+    _isos=$(list_isos)
+    [ -n "$_isos" ] || { echo "release: no out/dagric-os-*-amd64.iso — build first" >&2; exit 1; }
+
+    : > "$OUT/SHA256SUMS.tmp"
+    for _i in $_isos; do
+        printf '  hashing %s\n' "$(basename "$_i")" >&2
+        # Two spaces: the format `sha256sum -c` expects. One space is the
+        # "text mode" form and older coreutils reject the file outright.
+        printf '%s  %s\n' "$(sha256sum "$_i" | cut -d' ' -f1)" "$(basename "$_i")" \
+            >> "$OUT/SHA256SUMS.tmp"
+    done
+    mv "$OUT/SHA256SUMS.tmp" "$OUT/SHA256SUMS"
+
+    # Prove the manifest verifies against the files it was just made from,
+    # before it is signed. A manifest that cannot pass its own check locally
+    # will not start passing once a signature is wrapped around it.
+    ( cd "$OUT" && sha256sum -c SHA256SUMS >/dev/null ) || {
+        echo "release: the manifest does not verify against its own files" >&2; exit 1; }
+
+    rm -f "$OUT/SHA256SUMS.sig"
+    gpg --batch --yes --local-user "$KEYID" \
+        --output "$OUT/SHA256SUMS.sig" --detach-sign "$OUT/SHA256SUMS"
+    gpg --batch --verify "$OUT/SHA256SUMS.sig" "$OUT/SHA256SUMS" 2>/dev/null || {
+        echo "release: the signature does not verify — refusing to continue" >&2; exit 1; }
+
+    echo
+    sed 's/^/  /' "$OUT/SHA256SUMS"
+    echo
+    echo "  signed with $KEYID"
+    echo
+    echo "  NEXT: upload these ISOs to R2, then run"
+    echo "        sh tools/release.sh publish"
+    echo "  Publishing before the upload lands is the bug this script exists to stop."
+}
+
+# ---------------------------------------------------------------------------
+# The gate. Compares the hash about to be published against the bytes a
+# customer would actually receive, for every ISO that is publicly reachable.
+#
+# Pro is intentionally exempt: it streams from a PRIVATE bucket through
+# infra/gate-worker.js and returns 404 on the public r2.dev host by design.
+# There is no unauthenticated way to fetch it, so there is nothing to compare;
+# that is stated rather than silently skipped.
+check_live() {
+    _sums=$1
+    _url_base=$(grep -oE 'https://[^"]*/dagric-os-1\.0-amd64\.iso' "$SITE/download.html" \
+                | head -1 | sed 's|/dagric-os-1\.0-amd64\.iso$||')
+    [ -n "$_url_base" ] || { echo "release: no ISO URL in $SITE/download.html" >&2; exit 1; }
+
+    _bad=0
+    while read -r _hash _name; do
+        [ -n "$_name" ] || continue
+        case "$_name" in
+            *-pro-*)
+                echo "  $_name"
+                echo "    skipped: served from the private bucket via the gate worker,"
+                echo "    not publicly fetchable, so it cannot be checked from here."
+                continue ;;
+        esac
+
+        _u="$_url_base/$_name"
+        printf '  %s\n' "$_name"
+        printf '    fetching %s\n' "$_u"
+
+        _len=$(curl -fsSI "$_u" 2>/dev/null | tr -d '\r' \
+               | awk 'tolower($1)=="content-length:"{print $2}' | tail -1)
+        if [ -z "$_len" ]; then
+            echo "    NOT REACHABLE — nothing is being served at that URL." >&2
+            _bad=1; continue
+        fi
+
+        # Count the bytes as well as hashing them. A truncated transfer
+        # produces a wrong hash that looks exactly like a real mismatch, and
+        # that false alarm is worth more than one extra pipe.
+        _tmp=$(mktemp) || exit 1
+        _got=$(curl -fsS "$_u" 2>/dev/null | tee "$_tmp" | wc -c | tr -d ' ')
+        _live=$(sha256sum "$_tmp" | cut -d' ' -f1)
+        rm -f "$_tmp"
+
+        if [ "$_got" != "$_len" ]; then
+            echo "    TRANSFER INCOMPLETE — $_got of $_len bytes; result unusable." >&2
+            _bad=1; continue
+        fi
+        if [ "$_live" = "$_hash" ]; then
+            echo "    MATCHES the signed manifest ($_got bytes)"
+        else
+            echo "    MISMATCH" >&2
+            echo "      manifest says: $_hash" >&2
+            echo "      R2 serves:     $_live" >&2
+            echo "      A customer running the command printed on /download would" >&2
+            echo "      see FAILED. Upload the built ISO, then publish." >&2
+            _bad=1
+        fi
+    done < "$_sums"
+    return $_bad
+}
+
+do_check() {
+    _src=$OUT/SHA256SUMS
+    [ -f "$_src" ] || { echo "release: no $_src — run 'sign' first" >&2; exit 1; }
+    echo "Comparing the manifest against the bytes R2 is serving right now."
+    echo
+    if check_live "$_src"; then
+        echo
+        echo "  every publicly served ISO matches the manifest"
+        return 0
+    fi
+    echo
+    echo "  DO NOT PUBLISH until the uploads match." >&2
+    return 1
+}
+
+do_publish() {
+    [ -f "$OUT/SHA256SUMS" ] && [ -f "$OUT/SHA256SUMS.sig" ] \
+        || { echo "release: run 'sign' first" >&2; exit 1; }
+    do_check || exit 1
+    cp "$OUT/SHA256SUMS" "$OUT/SHA256SUMS.sig" "$SITE/"
+    echo
+    echo "  copied SHA256SUMS and SHA256SUMS.sig into $SITE/"
+    echo "  now: firebase deploy --only hosting"
+    echo "  then: sh tools/verify-published.sh   (checks the LIVE site end to end)"
+}
+
+case "$MODE" in
+    sign)    do_sign ;;
+    publish) do_publish ;;
+    check)   do_check ;;
+    *)       usage ;;
+esac
