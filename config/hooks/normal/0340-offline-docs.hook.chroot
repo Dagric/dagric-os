@@ -139,6 +139,34 @@ if [ "$_mcards" != "$_mpages" ]; then
     echo "       dead link. Add the card, or delete it." >&2
     fail=1
 fi
+# PER-GROUP COUNTS TOO, BECAUSE CHECKING THE TOTAL IS WHAT LET THIS THROUGH.
+#
+# The sidebar prints a count beside each of the nine groups. Adding the Check
+# This PC page moved "Dagric's own tools" from 19 to 20, the total from 94 to
+# 95, and the check written an hour earlier compared only the total — which the
+# card list had already updated, so it passed. The nine group counts sum to the
+# total, so a single group being wrong is invisible to a total-only check
+# UNLESS another group is wrong in the opposite direction, which is exactly the
+# case worth catching.
+#
+# awk walks the file once: it records each sidebar count by group id, then
+# counts a.card between one <section id="g-..."> and the next, and prints any
+# group where the two disagree.
+_gmis=$(gawk '
+  match($0, /data-goto="(g-[a-z]+)"/, g) {
+      if (match($0, /<span class="count">([0-9]+)<\/span>/, c)) want[g[1]] = c[1]
+  }
+  match($0, /<section[^>]*id="(g-[a-z]+)"/, s) { cur = s[1] }
+  cur && /<a class="card"/ { have[cur]++ }
+  END { for (k in want) if (want[k] != have[k]) print "  " k ": sidebar says " want[k] ", " have[k]+0 " cards" }
+' "$DOCS/manual/index.html" 2>/dev/null)
+if [ -n "$_gmis" ]; then
+    echo "ERROR: the manual sidebar's group counts disagree with the cards:" >&2
+    echo "$_gmis" >&2
+    echo "       Adding or moving a page means moving its group count with it." >&2
+    fail=1
+fi
+
 if [ -n "$_mstatic" ] && [ "$_mstatic" != "$_mpages" ]; then
     echo "ERROR: the manual has $_mpages pages and its static counter says" >&2
     echo "       $_mstatic. manual.js overwrites this at load, so the wrong" >&2
