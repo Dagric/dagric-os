@@ -110,6 +110,17 @@ if [ "$LIVE" != yes ]; then
     set -- "$@" upgrade "      $(gettext "Check for a new Dagric version")"
 fi
 
+# The route from free to Pro without a reinstall. Free editions only, and not on
+# the live stick — an upgrade there would be written to memory and lost at
+# shutdown, which is the one place this offer would take money for nothing.
+#
+# Sits in the System group beside the version check rather than at the top,
+# deliberately. A free machine is a finished product and this is not an upsell
+# banner; it is where you look when you have already decided.
+if [ "$EDITION" != "pro" ] && [ "$LIVE" != yes ]; then
+    set -- "$@" topro "      $(gettext "Upgrade to Pro — already bought it?")"
+fi
+
 set -- "$@" \
     _learn   "$H_LEARN" \
     userguide "      $(gettext "User guide — your first week")" \
@@ -224,6 +235,12 @@ case "$CHOICE" in
     # changing anything — the actual upgrade is typed deliberately with sudo,
     # because a release upgrade is not a thing to start from a menu click.
     upgrade)  konsole -e sh -c 'printf "%s\n\n" "$1"; sudo /usr/bin/dagric-upgrade --check; printf "\n%s\n" "$2"; echo; printf "%s" "$3"; read x' sh "$U_CHECK" "$U_HOWTO" "$CLOSE" & ;;
+    # Run directly rather than with --check: the tool asks for the purchase and
+    # confirms before it changes anything, so a second confirmation here would
+    # just be a door in front of a door. $CLOSE is passed as a parameter, never
+    # pasted into the quoted script — a translator's apostrophe would close the
+    # single quote early, which is the reasoning recorded at the top of this file.
+    topro)    konsole -e sh -c 'sudo /usr/bin/dagric-upgrade-to-pro; echo; printf "%s" "$1"; read x' sh "$CLOSE" & ;;
     # kcm_access is the one page that gathers the screen reader, the magnifier,
     # sticky/slow/bounce keys and the visible bell. It is reached this way
     # rather than through dagric-accessibility.desktop because that file is

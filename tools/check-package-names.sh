@@ -61,6 +61,52 @@ fi
 NAMES=$(cat "$LISTS"/*.list.chroot | sed -e 's/#.*//' -e 's/[[:space:]]*$//' \
         | grep -v '^$' | sort -u)
 
+# THE UPGRADE TOOL CARRIES ITS OWN COPY OF THE PRO PACKAGE LIST, AND A SECOND
+# COPY OF ANYTHING DRIFTS.
+#
+# dagric-upgrade-to-pro turns a free machine into a Pro one, and it has to know
+# what Pro contains. It embeds the list rather than fetching it, deliberately: a
+# machine that cannot reach a list server is exactly the machine that should
+# still be able to finish an upgrade somebody has paid for. The cost of that
+# choice is this check.
+#
+# The failure it prevents is quiet and expensive. Add a package to
+# pro-apps.list.chroot, ship it on the Pro ISO, and every customer who UPGRADES
+# instead of reinstalling silently does not get it — with nothing anywhere
+# saying the two paths now disagree about what Pro is.
+UPG=config/includes.chroot/usr/bin/dagric-upgrade-to-pro
+if [ -r "$UPG" ]; then
+    _pro_real=$(cat "$LISTS"/pro-*.list.chroot 2>/dev/null \
+                | sed -e 's/#.*//' -e 's/[[:space:]]*$//' | grep -v '^$' | sort -u)
+    # The embedded list is one shell string spanning several lines; splitting on
+    # whitespace is exactly how the tool itself expands it.
+    _pro_tool=$(sed -n '/^PRO_PACKAGES="/,/"$/p' "$UPG" \
+                | sed -e 's/^PRO_PACKAGES="//' -e 's/"$//' \
+                | tr ' \t' '\n\n' | grep -v '^$' | sort -u)
+    # Temp files, not process substitution. <(...) is bash-only and this file is
+    # /bin/sh — dash rejects it outright with "Syntax error: "(" unexpected",
+    # which would have turned the whole check into a build failure on every run.
+    _tl=$(mktemp) || exit 1
+    _tt=$(mktemp) || { rm -f "$_tl"; exit 1; }
+    printf '%s\n' "$_pro_real" > "$_tl"
+    printf '%s\n' "$_pro_tool" > "$_tt"
+    _only_list=$(comm -23 "$_tl" "$_tt")
+    _only_tool=$(comm -13 "$_tl" "$_tt")
+    rm -f "$_tl" "$_tt"
+    if [ -n "$_only_list$_only_tool" ]; then
+        echo "" >&2
+        echo "pkgcheck: the Pro package list and dagric-upgrade-to-pro disagree." >&2
+        [ -n "$_only_list" ] && { echo "  on the Pro ISO but NOT installed by an upgrade:" >&2
+                                  printf '%s\n' "$_only_list" | sed 's/^/    /' >&2; }
+        [ -n "$_only_tool" ] && { echo "  installed by an upgrade but NOT on the Pro ISO:" >&2
+                                  printf '%s\n' "$_only_tool" | sed 's/^/    /' >&2; }
+        echo "  A customer who upgrades and a customer who reinstalls must end up" >&2
+        echo "  with the same machine. Update PRO_PACKAGES in $UPG." >&2
+        echo "" >&2
+        exit 1
+    fi
+fi
+
 # THE CHECK BELOW USED TO BE  [ -n "$(apt-cache policy "$p")" ]  AND IT HAD A
 # HOLE THE EXACT SHAPE OF THE BUG IT EXISTS TO CATCH.
 #

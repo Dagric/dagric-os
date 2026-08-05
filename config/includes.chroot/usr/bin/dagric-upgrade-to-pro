@@ -1,0 +1,437 @@
+#!/bin/sh
+# SPDX-FileCopyrightText: 2026 DGR Operations <repo@dagric.com>
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Dagric OS — turn this free machine into a Pro one, in place.
+#
+# WHY THIS EXISTS. Somebody installs the free edition, uses it for a month,
+# decides the creator suite is worth $39, and buys Pro. Before this, the honest
+# answer was "download the Pro ISO and reinstall" — which for an owner with a
+# month of files, settings and installed applications is not an answer. It is
+# also the single worst moment to ask someone to reinstall: they have just paid.
+#
+# WHAT PRO ACTUALLY IS, because that decides what this has to do. Four things,
+# and only the third needs a licence to obtain:
+#
+#   1. 83 packages, every one of them from Debian main. A free owner could
+#      apt-get install all of them today and nobody would stop them. That is not
+#      a hole — the site says plainly that Pro buys curation, convenience,
+#      integration and support, not exclusivity over free software.
+#   2. The service policy. Pro ships docker, libvirt, usbguard, sshd and
+#      opensnitch INSTALLED AND DISABLED, so nothing listens or intercepts until
+#      the owner opts in. apt does not do that; installing docker.io starts
+#      dockerd. Replicating this is the least visible and most important thing
+#      here — an upgraded machine that quietly starts running daemons is not the
+#      product the Pro ISO is.
+#   3. Four Plasma layouts and three colour styles. These are DELETED from the
+#      free image at build time rather than hidden behind a flag, because a flag
+#      is one line of text to edit. They are the only part that has to be
+#      fetched, and the only part the licence gates.
+#   4. /etc/dagric-edition and the os-release VARIANT, which is what the Hub,
+#      the launcher entries and the appearance gallery read to decide what to
+#      show.
+#
+# WHAT THIS IS NOT. It does not pretend to be a reinstall. A machine upgraded
+# this way and a machine installed from the Pro ISO end up equivalent, but they
+# get there differently, and the differences that remain are listed at the end
+# rather than glossed over.
+#
+# THE SAFETY MODEL, borrowed wholesale from dagric-upgrade because it was right
+# there and it is the same class of operation:
+#   1. Refuse when the machine is not in a state to survive it.
+#   2. Snapshot FIRST and say plainly when a snapshot is impossible.
+#   3. Verify the purchase BEFORE touching anything, so a wrong licence costs
+#      nothing.
+#   4. Download everything before installing anything.
+#   5. Never leave the edition marker flipped if the install did not finish —
+#      a machine that CLAIMS to be Pro without the packages is worse than one
+#      that is honestly still free.
+set -e
+
+. /usr/bin/dagric-i18n.sh
+
+GATE="https://dagric-gate.dagric.workers.dev"
+EDITION_FILE=/etc/dagric-edition
+LOOKS=/usr/share/dagric/looks
+STYLES=/usr/share/dagric/styles
+THUMBS=/usr/share/dagric/appearance/thumbs
+APPS=/usr/share/applications
+
+say() { printf '%s\n' "$*"; }
+die() { printf 'STOPPED: %s\n' "$*" >&2; exit 1; }
+
+[ "$(id -u)" -eq 0 ] || die "run this as root:  sudo dagric-upgrade-to-pro"
+
+DRY=no
+[ "$1" = "--check" ] && DRY=yes
+
+say "Dagric OS — upgrade this machine to Pro"
+say "======================================="
+say ""
+
+# ------------------------------------------------------------------ pre-flight
+CUR=free
+[ -r "$EDITION_FILE" ] && CUR=$(cat "$EDITION_FILE" 2>/dev/null)
+if [ "$CUR" = "pro" ]; then
+    say "This machine is already running Dagric OS Pro."
+    say "Nothing to do."
+    exit 0
+fi
+
+fail=0
+
+# A live session has nowhere to put any of this. Everything below would land in
+# the tmpfs overlay and vanish at shutdown, and the owner would have paid and
+# apparently received nothing.
+if [ -d /run/live/medium ]; then
+    say "This is the live USB session, not an installed system."
+    say ""
+    say "An upgrade here would be written to memory and lost at shutdown."
+    say "Install Dagric first, then run this on the installed machine."
+    exit 1
+fi
+
+# apt in a broken state is the commonest reason a long install dies halfway.
+if ! dpkg --audit 2>/dev/null | grep -q '^$' && [ -n "$(dpkg --audit 2>/dev/null)" ]; then
+    say "ERROR: some packages on this machine are half-configured."
+    say "       Run  sudo dpkg --configure -a  first, then try again."
+    fail=1
+fi
+
+# 83 packages plus their dependencies. The number is deliberately generous:
+# running out of disk midway through an apt transaction is how a machine ends up
+# needing the rollback this tool works hard to provide.
+FREE_KB=$(df -Pk / 2>/dev/null | awk 'NR==2{print $4}')
+NEED_KB=$((6 * 1024 * 1024))
+if [ -n "$FREE_KB" ] && [ "$FREE_KB" -lt "$NEED_KB" ]; then
+    say "ERROR: not enough free disk space."
+    say "       Pro needs about 6 GB free; this machine has $((FREE_KB / 1024 / 1024)) GB."
+    fail=1
+fi
+
+# On battery, an interrupted apt transaction is a real risk and a plugged-in
+# machine is thirty seconds away.
+if [ -r /sys/class/power_supply/AC/online ] && \
+   [ "$(cat /sys/class/power_supply/AC/online 2>/dev/null)" = "0" ]; then
+    say "ERROR: this machine is running on battery."
+    say "       Plug it in first — this installs several gigabytes."
+    fail=1
+fi
+
+command -v curl >/dev/null 2>&1 || { say "ERROR: curl is missing."; fail=1; }
+
+[ "$fail" -eq 0 ] || die "fix the above and run this again. Nothing was changed."
+
+say "This machine: Dagric OS $CUR"
+say "Free disk:    $((FREE_KB / 1024 / 1024)) GB"
+say ""
+
+# ------------------------------------------------------------------ the licence
+# Asked for and verified BEFORE anything is touched. A wrong or mistyped licence
+# should cost the owner nothing but the retyping.
+say "Your Pro purchase"
+say "-----------------"
+say "Open the download page from your purchase email. Its address ends in"
+say "  ?session_id=cs_...."
+say "Paste that cs_... value here (it is not a password and not secret)."
+say ""
+printf 'Purchase session: '
+read -r SID
+
+case "$SID" in
+    *session_id=*) SID=${SID##*session_id=}; SID=${SID%%&*} ;;
+esac
+case "$SID" in
+    cs_*) : ;;
+    *) die "that does not look like a purchase session. It starts with cs_ and
+        appears in the address of your download page. Nothing was changed." ;;
+esac
+
+say ""
+say "Checking the purchase..."
+# HEAD, not GET: this asks the gate the same question the download does, without
+# pulling a 4 GB ISO to find out. The gate answers 200 for a paid session and
+# 403 for anything else.
+HTTP=$(curl -fsS -o /dev/null -w '%{http_code}' -I --max-time 30 \
+       "$GATE/?session_id=$SID" 2>/dev/null) || HTTP=000
+
+case "$HTTP" in
+    200)
+        say "  Confirmed. Thank you." ;;
+    403)
+        die "that purchase session was not recognised as paid. If you have just
+        bought Pro, give it a minute and try again — and if it keeps failing,
+        dagric.com/support can look it up. Nothing was changed." ;;
+    000|503)
+        die "could not reach the licence check just now. Your purchase is fine;
+        this is our end or your connection. Try again in a minute. Nothing was
+        changed." ;;
+    *)
+        die "the licence check answered $HTTP, which it should not. Please send
+        that number to dagric.com/support. Nothing was changed." ;;
+esac
+say ""
+
+if [ "$DRY" = yes ]; then
+    say "--check: the purchase is valid and this machine can be upgraded."
+    say "Run without --check to do it."
+    exit 0
+fi
+
+# ------------------------------------------------------------------ consent
+CAN_SNAPSHOT=no
+if command -v snapper >/dev/null 2>&1 && \
+   [ "$(findmnt -no FSTYPE / 2>/dev/null)" = "btrfs" ] && \
+   snapper -c root list >/dev/null 2>&1; then
+    CAN_SNAPSHOT=yes
+fi
+
+cat <<'EOF'
+What this will do
+-----------------
+  * install the Pro applications — the creator suite, the gaming stack, the
+    virtualisation tools, the backup tools and the rest (about 83 packages)
+  * install them the way the Pro ISO does: Docker, virtual machines, USB
+    protection, the firewall UI and remote login are all set up but left OFF
+    until you switch them on
+  * add the four extra desktop layouts and three extra colour styles
+  * mark this machine as Pro, so the Hub and the appearance gallery show
+    everything you have paid for
+
+Your files, your settings, your installed applications and your wallpaper are
+not touched.
+
+This downloads several gigabytes and takes a while on a slow connection.
+
+EOF
+
+if [ "$CAN_SNAPSHOT" = yes ]; then
+    say "A snapshot is taken first, so this is recoverable from the boot menu."
+    say ""
+    printf 'Type UPGRADE to continue: '
+    read -r ans
+    [ "$ans" = "UPGRADE" ] || { say "Nothing changed."; exit 0; }
+else
+    # Same wording rule as dagric-upgrade: a different word, because it is not
+    # the same decision and typing the same thing would make it feel like one.
+    cat <<'EOF'
+THIS MACHINE HAS NO ROLLBACK.
+
+Snapshots need a btrfs root and this install does not have one. Nothing here
+deletes your files, and the worst realistic outcome is a half-installed set of
+applications you can finish with `sudo apt-get -f install` — but there is no
+one-click way back.
+
+EOF
+    printf 'Type NO-ROLLBACK to continue anyway, or press Enter to stop: '
+    read -r ans
+    [ "$ans" = "NO-ROLLBACK" ] || { say "Nothing changed. That was the safe answer."; exit 0; }
+fi
+
+# ------------------------------------------------------------------ snapshot
+if [ "$CAN_SNAPSHOT" = yes ]; then
+    say ""
+    say "Taking a rollback snapshot..."
+    if snapper -c root create -d "before upgrade to Dagric OS Pro" 2>/dev/null; then
+        say "  done."
+    else
+        die "the snapshot failed, so this stopped before changing anything.
+        That is deliberate: the rollback was the reason it was safe to proceed."
+    fi
+fi
+
+# ------------------------------------------------------------------ the assets
+# Fetched BEFORE apt runs. These are the only licence-gated part, they are small,
+# and finding out the gate is unreachable after a twenty-minute install would be
+# the worst possible ordering.
+WORK=$(mktemp -d /tmp/dagric-pro.XXXXXX) || die "cannot create a working directory."
+trap 'rm -rf "$WORK"' EXIT
+trap 'exit 130' INT TERM HUP
+
+say ""
+say "Fetching the Pro layouts and styles..."
+ASSETS_OK=no
+if curl -fsS --max-time 120 -o "$WORK/assets.tar.gz" \
+        "$GATE/assets?session_id=$SID" 2>/dev/null; then
+    if tar -tzf "$WORK/assets.tar.gz" >/dev/null 2>&1; then
+        ASSETS_OK=yes
+        say "  done."
+    else
+        say "  WARNING: what arrived is not a readable archive. Skipping the"
+        say "           extra layouts and styles; everything else continues."
+    fi
+else
+    say "  WARNING: could not fetch them. Everything else continues, and they"
+    say "           will arrive with a later update."
+fi
+
+# ------------------------------------------------------------------ packages
+# The list is embedded rather than fetched. It is not secret — every name is in
+# Debian main — and a machine that cannot reach a list server is exactly the
+# machine that should still be able to finish an upgrade it has paid for.
+PRO_PACKAGES="audacity bat bleachbit blender borgbackup build-essential chromium
+darktable default-jre-headless distrobox dnsmasq-base docker-cli docker-compose
+docker.io filelight flatseal fonts-noto-cjk frei0r-plugins gamemode gimp git
+goverlay gvfs-backends handbrake inkscape kaccounts-providers kdeconnect kdenlive
+keepassxc kio-gdrive krita krita-l10n libreoffice libreoffice-java-common
+libvirt-clients libvirt-daemon-system lutris mangohud mesa-vulkan-drivers nala
+obs-studio opensnitch opensnitch-ebpf-modules openssh-client openssh-server ovmf
+papirus-icon-theme passt podman python3-lxml python3-numpy python3-opensnitch-ui
+python3-pip python3-scour python3-venv qbittorrent qemu-system-x86 qemu-utils
+qml6-module-qtwebengine rclone signon-ui-qt signon-ui-service slirp4netns swtpm
+swtpm-tools syncthing thunderbird thunderbird-l10n-de thunderbird-l10n-es-es
+thunderbird-l10n-fr thunderbird-l10n-it thunderbird-l10n-pt-br timeshift usbguard
+usbguard-notifier virt-manager virt-viewer vorta vulkan-tools wine wine-binfmt
+winetricks zoxide"
+
+say ""
+say "Reading package lists..."
+apt-get update >/dev/null 2>&1 || \
+    die "could not read the package lists. Check the network and try again.
+    Nothing was installed."
+
+# DOWNLOAD FIRST, INSTALL SECOND. A transaction interrupted by a dropped
+# connection halfway through unpacking is the classic way to end up with a
+# machine in a state its owner cannot reason about.
+say "Downloading (this is the long part)..."
+# shellcheck disable=SC2086
+DEBIAN_FRONTEND=noninteractive apt-get -y -d install $PRO_PACKAGES || \
+    die "the download did not finish, so nothing was installed. This is usually
+    the connection. Run this again — apt keeps what it already fetched."
+
+say "Installing..."
+# --no-install-recommends matches the ISO exactly. Without it an upgraded
+# machine ends up with a different package set from an installed-from-Pro one,
+# and every future audit of "what does Pro contain" has two answers.
+# shellcheck disable=SC2086
+if ! DEBIAN_FRONTEND=noninteractive apt-get -y --no-install-recommends \
+     install $PRO_PACKAGES; then
+    say ""
+    say "ERROR: the install did not finish cleanly."
+    say ""
+    say "This machine is still marked as free ON PURPOSE — a machine that claims"
+    say "to be Pro without the applications is harder to fix than one that is"
+    say "honestly still free."
+    say ""
+    say "Try:  sudo apt-get -f install   then run this again."
+    exit 1
+fi
+
+# ------------------------------------------------------------------ the policy
+# THE PART APT CANNOT DO. Installing docker.io starts dockerd; installing
+# usbguard starts usbguard. The Pro ISO ships every one of these OFF, and
+# 0600-pro-edition.hook.chroot verifies it at build time. An upgraded machine
+# must land in the same place or "Pro" means two different things.
+say ""
+say "Setting the opt-in policy (everything installed, nothing switched on)..."
+
+for unit in docker.service docker.socket \
+            libvirtd.service libvirtd.socket libvirtd-ro.socket \
+            ssh.service; do
+    systemctl disable "$unit" >/dev/null 2>&1 || true
+    systemctl stop "$unit" >/dev/null 2>&1 || true
+done
+
+# usbguard is masked as well as disabled: its own package enables
+# usbguard-dbus.service, which declares Requires=usbguard.service and would pull
+# it back up. dagric-usb-protect is the switch-on path.
+for unit in usbguard.service usbguard-dbus.service; do
+    systemctl disable "$unit" >/dev/null 2>&1 || true
+    systemctl stop "$unit" >/dev/null 2>&1 || true
+    systemctl mask "$unit" >/dev/null 2>&1 || true
+done
+systemctl --global disable usbguard-notifier.service >/dev/null 2>&1 || true
+
+# libvirt's default NAT network autostarts and puts a bridge on the machine
+# before the owner has asked for a virtual machine.
+rm -f /etc/libvirt/qemu/networks/autostart/default.xml 2>/dev/null || true
+
+# opensnitch is the exception and is ON, because a firewall nobody switched on
+# protects nobody. This matches the Pro ISO.
+systemctl enable opensnitch.service >/dev/null 2>&1 || true
+
+say "  done."
+
+# ------------------------------------------------------------------ assets in
+if [ "$ASSETS_OK" = yes ]; then
+    say ""
+    say "Adding the Pro layouts and styles..."
+    mkdir -p "$WORK/x"
+    if tar -xzf "$WORK/assets.tar.gz" -C "$WORK/x" 2>/dev/null; then
+        mkdir -p "$LOOKS" "$STYLES" "$THUMBS"
+        for f in "$WORK"/x/looks/*.look;   do [ -e "$f" ] && cp -f "$f" "$LOOKS/";  done
+        for f in "$WORK"/x/styles/*.style; do [ -e "$f" ] && cp -f "$f" "$STYLES/"; done
+        for f in "$WORK"/x/thumbs/*.png;   do [ -e "$f" ] && cp -f "$f" "$THUMBS/"; done
+        for f in "$WORK"/x/applications/*.desktop; do [ -e "$f" ] && cp -f "$f" "$APPS/"; done
+        say "  done."
+    else
+        say "  WARNING: the archive would not unpack. Everything else is in place."
+    fi
+fi
+
+# ------------------------------------------------------------------ the marker
+# LAST, and only after everything above worked. This is the line that makes the
+# Hub, the launcher and the gallery behave as Pro, and setting it early would
+# have meant a failed run leaving a machine that advertises what it does not
+# have.
+say ""
+say "Marking this machine as Pro..."
+printf 'pro\n' > "$EDITION_FILE"
+
+# os-release is base-files' file and a point release will overwrite it. That is
+# a known open issue with the same fix owed on the ISO side; it is written here
+# so an upgraded machine matches an installed one, including in being wrong the
+# same way.
+if [ -w /usr/lib/os-release ]; then
+    sed -i 's/^PRETTY_NAME=.*/PRETTY_NAME="Dagric OS Pro 1.0 (Foundation)"/' /usr/lib/os-release 2>/dev/null || true
+    grep -q '^VARIANT_ID=pro' /usr/lib/os-release 2>/dev/null || \
+        printf 'VARIANT="Pro"\nVARIANT_ID=pro\n' >> /usr/lib/os-release
+fi
+
+# The launcher reads .desktop files from /usr/local/share/applications, which
+# dagric-app-names regenerates. Pro adds entries, so it has to run again or the
+# new tools have no launcher entry until the next apt operation happens to
+# trigger it.
+if command -v dagric-app-names >/dev/null 2>&1; then
+    dagric-app-names >/dev/null 2>&1 || true
+fi
+update-desktop-database >/dev/null 2>&1 || true
+
+say "  done."
+
+# ------------------------------------------------------------------ report
+cat <<'EOF'
+
+Done — this is a Dagric OS Pro machine.
+
+  Log out and back in to see it. The Hub will show the Pro tools, and the
+  appearance gallery will show the extra layouts and styles.
+
+Everything the Pro edition installs is here, and everything that can listen or
+intercept is OFF until you turn it on:
+
+  Docker, virtual machines, USB protection and remote login  installed, off
+  OpenSnitch application firewall                            installed, on
+
+Turn any of them on from the Dagric Hub.
+
+EOF
+
+if [ "$ASSETS_OK" != yes ]; then
+    cat <<'EOF'
+ONE THING DID NOT ARRIVE: the four extra desktop layouts and three extra colour
+styles could not be downloaded. Everything else is in place. Run this tool again
+when you have a connection and it will pick them up — it is safe to re-run.
+
+EOF
+fi
+
+cat <<'EOF'
+Two honest differences from a machine installed from the Pro ISO:
+
+  * The Pro ISO ships CJK fonts and a few defaults chosen at install time. Those
+    are here too, but your existing settings were kept rather than replaced —
+    which is the point of upgrading rather than reinstalling.
+  * Your snapshot history starts before this upgrade, not at a fresh install.
+
+Thank you for buying Pro.
+EOF

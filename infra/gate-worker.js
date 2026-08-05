@@ -4,6 +4,9 @@
 // 3.3 GB download is resumable. Without a valid paid session: no file.
 const PRICE_ID = "price_1TwRxY6lZx4VOIr30Zvozvhb";
 const FILE = "dagric-os-pro-1.0-amd64.iso";
+// The layouts and styles the free image does not carry, for in-place upgrades.
+// Same private bucket, same licence check, ~100 KB instead of 3.8 GB.
+const ASSETS = "dagric-pro-assets.tar.gz";
 
 export default {
   async fetch(req, env) {
@@ -50,6 +53,42 @@ export default {
           "The copy you already downloaded is yours to keep and run. " +
           "You're welcome to re-purchase anytime."
       );
+    }
+
+    // ---------------------------------------------------------------------
+    // /assets — the same licence, a much smaller payload.
+    //
+    // dagric-upgrade-to-pro turns an installed free machine into a Pro one
+    // without a reinstall. Almost everything it needs is in Debian main and
+    // needs no permission from us; the exception is the four Plasma layouts and
+    // three colour styles, which the free ISO DELETES at build time rather than
+    // hiding behind a flag, because a flag is one line of text to edit.
+    //
+    // So this is the one thing an upgrade has to ask for, and it asks with the
+    // licence it already has. Everything above this line — the session shape,
+    // the Stripe lookup, paid, the right price, refunded — has already run and
+    // applies unchanged. A tarball of a few hundred kilobytes is the entire
+    // difference between having paid and not.
+    //
+    // Deliberately NOT Range-aware, unlike the ISO below: it is small enough
+    // that a failed fetch is cheaper to repeat than to resume, and the upgrade
+    // tool is safe to re-run.
+    if (url.pathname.replace(/\/+$/, "") === "/assets") {
+      const a = await env.PRO.get(ASSETS);
+      if (!a) {
+        return msg(
+          503,
+          "The Pro extras are temporarily unavailable. Your purchase is fine — " +
+            "run the upgrade again in a few minutes and it will pick them up."
+        );
+      }
+      return new Response(a.body, {
+        headers: {
+          "Content-Type": "application/gzip",
+          "Content-Length": String(a.size),
+          "Cache-Control": "no-store",
+        },
+      });
     }
 
     // Paid — stream the ISO from the private bucket, honoring Range.
