@@ -11,6 +11,46 @@ libreoffice-calc
 libreoffice-impress
 libreoffice-kf6
 
+# THE USER INTERFACE OF THESE TWO, IN THE LANGUAGES THIS OS ALREADY SPEAKS.
+#
+# The dictionaries below were the second half of this problem, not the whole of
+# it, and fixing them made the remaining half look finished. Read the Aug-4 Pro
+# ISO and the truth was: 544 German .mo catalogues on the image, plasmashell,
+# dolphin, konsole and systemsettings among them, so the DESKTOP is German —
+# and /usr/lib/libreoffice/share/registry/ held exactly one langpack file,
+# Langpack-en-US.xcd, with no locale packs under firefox-esr at all.
+#
+# So a German owner got a German desktop, German Dagric tools, and German red
+# underlines inside an English Writer. That is the worst of the three possible
+# states: fully English would at least be consistent, and fully German would be
+# right. Half-translated reads as broken, and it reads that way in Writer and
+# Firefox specifically — the two applications this audience spends its day in.
+#
+# These are Suggests, not Recommends, so 01dagric-norecommends is not the cause
+# here and removing it would not have helped; apt never installs Suggests. They
+# have to be named.
+#
+# NAMES CHECKED WITH `apt-get install -s`, NOT `apt-cache show`. Spanish has no
+# firefox-esr-l10n-es or thunderbird-l10n-es — only es-es, es-ar, es-cl, es-mx —
+# while LibreOffice does use a plain -es. Guessing a symmetric set would have
+# put two nonexistent names in this file and rolled the build back an hour in,
+# which is exactly how signon-ui went. apt-cache show is NOT the test: it exits
+# 0 with empty output for a name that only appears as a dependency reference,
+# so it calls signon-ui present. install -s calls it absent, correctly.
+#
+# 12.6 MB for both editions. The l10n packages are UI strings only; offline
+# help is a separate libreoffice-help-* set and is deliberately not taken.
+firefox-esr-l10n-de
+firefox-esr-l10n-es-es
+firefox-esr-l10n-fr
+firefox-esr-l10n-it
+firefox-esr-l10n-pt-br
+libreoffice-l10n-de
+libreoffice-l10n-es
+libreoffice-l10n-fr
+libreoffice-l10n-it
+libreoffice-l10n-pt-br
+
 # SPELL CHECK IN THE LANGUAGES THIS OS ACTUALLY SPEAKS.
 #
 # hunspell-en-us arrives already, as a dependency of LibreOffice — confirmed by

@@ -94,5 +94,70 @@ if [ ! -r /usr/bin/gettext.sh ]; then
     echo "         Add gettext-base to config/package-lists/system.list.chroot." >&2
 fi
 
+# THE OTHER HALF OF SPEAKING A LANGUAGE, ASSERTED THE SAME WAY.
+#
+# dagric.mo above only proves DAGRIC'S OWN tools are translated. It says nothing
+# about the two applications this audience actually spends its day in, and for a
+# long time the answer there was "English". Read off the 2026-08-04 Pro ISO:
+# 544 German .mo catalogues on the image — plasmashell, dolphin, konsole,
+# systemsettings — so the desktop was German, while
+# /usr/lib/libreoffice/share/registry/ held exactly one langpack, en-US, and
+# firefox-esr had no locale packs at all. A German owner got a German desktop,
+# German menus, German spell check, and English menus inside Writer.
+#
+# That is worse than shipping no translation, because half-translated reads as
+# broken where fully-English reads as merely untranslated.
+#
+# These are Suggests, so apt will never pull them on its own and no amount of
+# fiddling with 01dagric-norecommends brings them back — they are named in
+# config/package-lists/apps.list.chroot and can only disappear by being deleted
+# from it. This is a WARNING and not a build failure, because a missing UI
+# translation degrades to English, which is survivable; a missing dagric.mo
+# above means the tool the owner is standing in front of stopped speaking their
+# language, which is not.
+#
+# Thunderbird is deliberately NOT checked here. It is Pro-only and this hook
+# runs for both editions, so asserting its langpacks would print a warning on
+# every free build for a package free is not supposed to have.
+#
+# The paths below were read out of the .debs rather than guessed:
+#   firefox-esr-l10n-de  -> /usr/lib/firefox-esr/browser/extensions/
+#                           langpack-de@firefox-esr.mozilla.org.xpi
+#                           (firefox-ESR, not firefox — hence the glob)
+#   firefox-esr-l10n-es-es -> langpack-es-ES@...  (capital ES, and there is no
+#                           firefox-esr-l10n-es at all)
+#   libreoffice-l10n-de  -> registry/Langpack-de.xcd
+#   libreoffice-l10n-pt-br -> registry/Langpack-pt-BR.xcd
+# The two families disagree on both the code and the capitalisation, which is
+# why the two loops below do not share a list.
+lo_missing=
+ff_missing=
+for lang in de es fr it pt-BR; do
+    [ -e "/usr/lib/libreoffice/share/registry/Langpack-$lang.xcd" ] \
+        || lo_missing="$lo_missing $lang"
+done
+# Firefox langpacks land as langpack-<code>@firefox.mozilla.org.xpi. The glob is
+# tested with -e on the expansion because dash leaves an unmatched glob as the
+# literal pattern, which -e then correctly reports as absent.
+for lang in de es-ES fr it pt-BR; do
+    _found=no
+    for _x in /usr/lib/firefox-esr/browser/extensions/langpack-$lang@*.xpi \
+              /usr/share/firefox-esr/browser/extensions/langpack-$lang@*.xpi; do
+        [ -e "$_x" ] && _found=yes
+    done
+    [ "$_found" = yes ] || ff_missing="$ff_missing $lang"
+done
+if [ -n "$lo_missing" ]; then
+    echo "WARNING: no LibreOffice langpack for:$lo_missing" >&2
+    echo "         Writer's menus will be English for those owners." >&2
+    echo "         Check libreoffice-l10n-* in config/package-lists/apps.list.chroot." >&2
+fi
+if [ -n "$ff_missing" ]; then
+    echo "WARNING: no Firefox langpack for:$ff_missing" >&2
+    echo "         Firefox's interface will be English for those owners." >&2
+    echo "         Check firefox-esr-l10n-* in config/package-lists/apps.list.chroot." >&2
+fi
+[ -z "$lo_missing$ff_missing" ] && echo "locales: LibreOffice and Firefox langpacks present for all five"
+
 echo "locales: generated $DAGRIC_LOCALES"
 echo "locales: dagric.mo present for de fr es pt_BR it"

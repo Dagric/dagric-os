@@ -7,6 +7,19 @@ chromium
 # Email, calendar, contacts
 thunderbird
 
+# Thunderbird's interface in the five languages Dagric ships, for the same
+# reason Firefox and LibreOffice get theirs in apps.list.chroot: the desktop
+# around it is already translated, so leaving this one English makes the
+# machine look half-finished rather than lean. Verified absent from the Aug-4
+# Pro ISO — /usr/lib/thunderbird had no extensions or distribution locale dir.
+# Spanish is es-es here, not es; there is no thunderbird-l10n-es. Confirmed
+# with `apt-get install -s`. 3.2 MB for all five.
+thunderbird-l10n-de
+thunderbird-l10n-es-es
+thunderbird-l10n-fr
+thunderbird-l10n-it
+thunderbird-l10n-pt-br
+
 # The FULL office suite (free edition ships Writer/Calc/Impress only)
 libreoffice
 # LibreOffice Base needs a JVM and will not open one without it. The suite is
