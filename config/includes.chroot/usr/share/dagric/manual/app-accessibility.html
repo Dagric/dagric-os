@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Accessibility settings &mdash; Dagric OS Manual</title>
+<link rel="stylesheet" href="manual.css">
+<script src="manual.js"></script>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<div class="shell">
+  <aside class="side">
+    <div class="sidebox">
+      <a class="brand" href="index.html">
+        <div class="mark">D</div>
+        <div class="brand-name">Dagric OS<small>Manual</small></div>
+      </a>
+      <nav class="toc" aria-label="System and safety">
+        <a class="back" href="index.html">&larr; All applications</a>
+        <div class="navgroup">System and safety</div>
+        <a href="app-updates.html">Updates</a>
+        <a href="app-snapshots.html">Snapshot recovery</a>
+        <a href="app-timeshift.html">Timeshift</a>
+        <a href="app-kup.html">Kup</a>
+        <a href="app-vorta.html">Vorta and Borg</a>
+        <a href="app-firewall.html">The firewall</a>
+        <a href="app-opensnitch.html">OpenSnitch</a>
+        <a href="app-drive-health.html">Drive health</a>
+        <a href="app-keepassxc.html">KeePassXC</a>
+        <a href="app-cryptomator.html">Cryptomator</a>
+        <a href="app-bleachbit.html">BleachBit</a>
+        <a href="app-flatseal.html">Flatseal</a>
+        <a href="app-apparmor.html">AppArmor and the security baseline</a>
+        <a href="app-accounts.html">Accounts, passwords and disk encryption</a>
+        <a href="app-orca.html">Orca</a>
+        <a href="app-accessibility.html" class="active">Accessibility settings</a>
+      </nav>
+    </div>
+  </aside>
+
+  <main class="content" id="main" tabindex="-1">
+
+    <header class="hero">
+      <div class="eyebrow">System and safety</div>
+      <h1>Accessibility settings</h1>
+      <p class="sub">Make the keyboard, the mouse and the screen work the way your hands and eyes do.</p>
+    </header>
+
+    <div class="swap"><span>On Windows this was</span><strong>Ease of Access / Accessibility settings</strong></div>
+
+    <section>
+      <h2>What it is</h2>
+      <!-- Everything on this page was read off a running Dagric desktop, not
+           recalled: the eight section names, the default delays, and which
+           boxes are already ticked. Two things would have been wrong from
+           memory - Plasma 6 has Color Blindness Correction and Shake Cursor,
+           and it does NOT have the screen magnifier here (that lives in
+           Desktop Effects). If this page is ever revised, open the panel and
+           look rather than trusting this comment. -->
+      <p>The launcher entry called <strong>Accessibility</strong> &mdash; described
+      in the menu as &ldquo;make the computer easier to use&rdquo; &mdash; opens one
+      page of System Settings. It is the page for people who find a standard
+      keyboard or mouse hard to use: keys that repeat when you did not mean them
+      to, modifier combinations that need two hands at once, a pointer that is
+      hard to follow.</p>
+      <p>It is not the same thing as <a href="app-orca.html">Orca</a>, which reads
+      the screen aloud for blind users, and it is not where you make text bigger
+      &mdash; that is <a href="tool-dagric-display.html">Dagric Display</a>. Those
+      three cover three different needs and it is worth knowing which one you
+      want.</p>
+      <p><strong>Every setting on this page is off when Dagric is installed.</strong>
+      Nothing here changes until you turn it on.</p>
+    </section>
+
+    <section>
+      <h2>Five things you will actually do</h2>
+      <ol class="tasks">
+        <li><span class="t">Press shortcuts one key at a time</span><p><em>Modifier Keys</em> &rarr; <strong>Sticky keys</strong>. Ctrl+Alt+Delete
+         becomes Ctrl, then Alt, then Delete &mdash; each pressed and released on its
+         own. For anyone typing with one hand, a mouth stick or a head pointer, this
+         is the setting that makes the rest of the desktop usable. <em>Lock sticky
+         keys</em> holds a modifier down until you press it again, and there is an
+         option to switch the whole thing off automatically the moment you do hold
+         two keys together, so a two-handed user sharing the machine is not
+         fighting it.</p></li>
+        <li><span class="t">Stop a shaky hand typing double letters</span><p><em>Keyboard Filters</em> &rarr; <strong>Bounce keys</strong> ignores a second
+         press of the same key that arrives too soon. The delay starts at
+         <strong>200&nbsp;ms</strong>. If your problem is the opposite &mdash; keys
+         firing when a finger brushes them on the way past &mdash;
+         <strong>Slow keys</strong> makes a key count only once it has been held
+         down, starting at <strong>500&nbsp;ms</strong>. Both can beep when a key is
+         accepted or rejected, which is how you learn what the delay is doing.</p></li>
+        <li><span class="t">Move the pointer without a mouse</span><p><em>Mouse Navigation</em> drives the pointer from the number pad. Useful when
+         a mouse is temporarily impossible &mdash; a broken wrist, a dead trackpad on
+         a laptop far from a shop &mdash; and not only as a permanent
+         arrangement.</p></li>
+        <li><span class="t">See the beep instead of hearing it</span><p><em>System Bell</em> &rarr; <strong>Visual bell</strong> flashes the screen or
+         inverts its colours for <strong>500&nbsp;ms</strong> instead of making a
+         sound. This is for deaf and hard-of-hearing owners, and for anyone working
+         somewhere they cannot have the machine making noises.</p></li>
+        <li><span class="t">Correct for colour blindness</span><p><em>Color Blindness Correction</em> shifts the colours the screen produces to
+         separate the ones you cannot tell apart, with settings for the three common
+         forms. <em>Shake Cursor</em>, further down, briefly grows the pointer when
+         you shake it &mdash; the fastest fix there is for losing the mouse on a big
+         or a bright screen.</p></li>
+      </ol>
+    </section>
+
+    <section>
+      <h2>One thing that will surprise you</h2>
+      <p><strong>Pressing Shift five times does nothing here, and on Windows it
+      famously did.</strong> That dialog interrupting a game at the worst moment is
+      a quarter-century-old complaint, and the shortcuts that cause it &mdash; Shift
+      five times for sticky keys, Shift held for eight seconds for slow keys &mdash;
+      are turned <em>off</em> by default on Dagric. They are in
+      <em>Activation Shortcuts</em> if you want them, and they are genuinely worth
+      having if you need these features but cannot always reach the settings app to
+      turn them on.</p>
+      <p>If you do enable them, note what is already ticked underneath: the system
+      bell rings when a shortcut fires, so the machine tells you it has changed
+      something. There is also an option to switch sticky and slow keys back off
+      after a set time &mdash; thirty minutes by default &mdash; which is the safety
+      net for a shared or a public computer.</p>
+    </section>
+
+    <section>
+      <h2>Where to find it</h2>
+      <p>Launcher &rarr; <em>Accessibility</em>, or System Settings &rarr;
+      <em>Accessibility</em>. The eight sections are System Bell, Modifier Keys,
+      Keyboard Filters, Mouse Navigation, Activation Shortcuts, Screen Reader,
+      Color Blindness Correction and Shake Cursor.</p>
+      <p>Changes need <em>Apply</em>. <em>Defaults</em> puts the whole page back to
+      how Dagric shipped it, which is everything off &mdash; useful if a setting has
+      made the keyboard behave in a way you cannot undo by feel.</p>
+    </section>
+
+    <section>
+      <h2>See also</h2>
+      <div class="related"><a href="app-orca.html">Orca</a><a href="tool-dagric-display.html">Dagric Display</a><a href="app-system-settings.html">System Settings</a><a href="app-desktop.html">The desktop, panels and windows</a></div>
+    </section>
+
+    <footer class="colophon">Dagric OS Manual &middot; stored on this computer, no internet needed &middot; <a href="index.html">every application</a></footer>
+
+  </main>
+</div>
+</body>
+</html>
