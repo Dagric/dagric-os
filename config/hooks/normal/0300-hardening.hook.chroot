@@ -92,51 +92,76 @@ if ! command -v firewall-offline-cmd >/dev/null 2>&1; then
     echo "WARNING: firewall-offline-cmd not found — ssh was NOT closed in any" >&2
     echo "         firewalld zone. Any sshd the owner enables will be reachable." >&2
 else
-    # THIS IS NOT WORKING, AND THE FIRST GREEN BUILD AFTER THE CHECK WAS ADDED
-    # IS WHAT SAID SO. Every one of the seven zones below reported "STILL allows
-    # ssh after removal" in CI run 30780843410 — a build that SUCCEEDED. The
-    # check was added earlier this session; before that the removal ran with its
-    # output discarded and nothing ever confirmed it, so how long this has been
-    # inert is unknown.
+    # THE CAUSE IS NOW KNOWN, AND IT WAS NEVER GOING TO SHOW UP IN AN EXIT CODE.
     #
-    # The removal's stderr was thrown away too, which is why the reason is not
-    # known yet. `2>&1 || true` on a command whose failure is the thing you are
-    # investigating destroys the only evidence. It is captured now and printed
-    # on the failing path, so the next build names the cause instead of leaving
-    # the next reader to guess at firewalld semantics.
+    # The old line was
+    #     firewall-offline-cmd --zone="$_zone" --remove-service=ssh
+    # and every build printed, seven times, once per zone:
+    #     Can't use lokkit options with other options.
+    # `--remove-service` sits in firewall-offline-cmd's "Lokkit Compatibility
+    # Options" group — confirmed against `--help` in a trixie container — and an
+    # option from that group cannot be combined with `--zone`. `--query-service`
+    # is an ordinary option, which is exactly why the verification half of this
+    # block worked while the removal half was rejected outright.
     #
-    # Deliberately still a warning rather than an exit. firewalld itself IS
-    # enabled and the default zone still drops unsolicited inbound traffic, so
-    # the image is not open — what is missing is the belt-and-braces step that
-    # keeps a Pro owner's later `systemctl enable ssh` from being reachable on a
-    # network they marked "home". Failing the build would block every unrelated
-    # fix behind a defect that cannot be diagnosed without a build.
+    # AND IT EXITS 0 WHILE SAYING SO. Measured: the failing invocation returns
+    # status 0 with that message on stderr. No `|| true` was ever masking
+    # anything and no exit-code check would have caught it — only reading the
+    # log, or the --query-service probe added last round, could. That is the
+    # whole argument for probing post-state instead of trusting a return value.
+    # `--permanent` is not accepted either; firewall-offline-cmd is already
+    # permanent by definition.
     #
-    # DO NOT delete the warning to quieten the log. The whole reason this was
-    # found is that a green build was read line by line; a warning removed
-    # instead of fixed is how it stays broken for another five rounds.
+    # So the CLI is abandoned for this job and the zone files are written
+    # directly, which is what the CLI would have done anyway. Deterministic,
+    # inspectable, and testable without a running firewalld. Verified end to end
+    # in a trixie container: all seven zones ship `<service name="ssh"/>`, and
+    # after this transformation `--query-service=ssh` reports it gone in all
+    # seven.
+    #
+    # nm-shared.xml comes from network-manager, not from firewalld, so it only
+    # exists because Dagric ships NetworkManager. It is in the list because the
+    # "share this connection" zone is precisely the one an owner points at an
+    # untrusted machine.
+    #
+    # THIS IS FATAL NOW. The previous round deliberately warned instead of
+    # exiting, and said why: the cause was unknown and failing the build would
+    # have blocked every unrelated fix behind a defect nobody could diagnose
+    # without a build. That reasoning expired the moment the cause was found. A
+    # check that reports and lets the build continue already let this ship
+    # twice.
+    _fwsrc=/usr/lib/firewalld/zones
+    _fwdst=/etc/firewalld/zones
+    mkdir -p "$_fwdst"
+    _fwfail=
     for _zone in public home internal work external dmz nm-shared; do
-        _err=$(firewall-offline-cmd --zone="$_zone" --remove-service=ssh 2>&1) || true
+        if [ ! -f "$_fwsrc/$_zone.xml" ]; then
+            # Not fatal on its own: a zone with no definition cannot allow ssh.
+            echo "hardening: no $_zone zone definition on this image, nothing to close"
+            continue
+        fi
+        sed '/<service name="ssh"\/>/d' "$_fwsrc/$_zone.xml" > "$_fwdst/$_zone.xml"
 
         # --query-service exits 0 when the service is STILL allowed, so a zero
-        # here is the bad case.
+        # here is the bad case. This is the post-state, not the return value of
+        # the thing that was supposed to change it.
         if firewall-offline-cmd --zone="$_zone" --query-service=ssh >/dev/null 2>&1; then
-            echo "WARNING: firewalld's $_zone zone STILL allows ssh after removal." >&2
-            echo "         Any sshd the owner later enables would be reachable from" >&2
-            echo "         every network they join on that zone." >&2
-            if [ -n "$_err" ]; then
-                echo "         firewall-offline-cmd said: $_err" >&2
-            else
-                echo "         firewall-offline-cmd printed nothing and still did not" >&2
-                echo "         take effect — the write is landing somewhere --query-service" >&2
-                echo "         does not read." >&2
-            fi
+            echo "ERROR: firewalld's $_zone zone STILL allows ssh after rewriting" >&2
+            echo "       $_fwdst/$_zone.xml. Any sshd the owner later enables would" >&2
+            echo "       be reachable from every network they join on that zone." >&2
+            _fwfail=yes
         else
             echo "hardening: ssh closed in the $_zone zone"
         fi
     done
+    if [ -n "$_fwfail" ]; then
+        echo "ERROR: ssh could not be closed in every firewalld zone. This is" >&2
+        echo "       fatal because the cause of the previous failure is known" >&2
+        echo "       and fixed; a new failure here is a new defect." >&2
+        exit 1
+    fi
 fi
-unset _zone _err
+unset _zone _fwsrc _fwdst _fwfail
 
 # EVERY PRO MACHINE WAS SHIPPING THE SAME SSH HOST KEY.
 #
