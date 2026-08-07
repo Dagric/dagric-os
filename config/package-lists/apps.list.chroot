@@ -86,14 +86,25 @@ elisa
 
 # KOREAN, AND ONLY KOREAN, BECAUSE THAT IS THE ONLY SCRIPT ACTUALLY BROKEN.
 #
+# NO PERCENT SIGN MAY APPEAR ANYWHERE IN THIS FILE, INCLUDING IN A COMMENT.
+# live-build feeds these files through printf, so one is read as a format
+# specifier: the parser errors and DROPS EVERY PACKAGE BELOW THAT LINE.
+# (This paragraph cannot quote an example of the character it is about, which
+# is the rule proving itself — the first draft of it tripped the guard below.)
+# It is silent — no missing-package error, just a shorter list. This exact
+# block cost a build: it swallowed fonts-nanum and plasma-browser-integration
+# here, and gawk in system.list.chroot, and the missing gawk then killed
+# 0340-offline-docs with no message at all. Same family as the inline-comment
+# rule; tools/check-package-names.sh now rejects both.
+#
 # I very nearly put the 89 MB fonts-noto-cjk here on the assumption that free
 # had no CJK coverage at all. Measured instead of assumed, by unioning every
-# cmap in the resolved free font set (285 files):
+# cmap in the resolved free font set (285 files), as a fraction of each range:
 #
-#     Hangul syllables  U+AC00-D7A3        3 / 11172    0.0%
-#     CJK ideographs    U+4E00-9FFF    20902 / 20992   99.6%
-#     Hiragana          U+3040-309F       90 / 96      93.8%
-#     Katakana          U+30A0-30FF       91 / 96      94.8%
+#     Hangul syllables  U+AC00-D7A3        3 / 11172   (essentially none)
+#     CJK ideographs    U+4E00-9FFF    20902 / 20992   (all but 90)
+#     Hiragana          U+3040-309F       90 / 96
+#     Katakana          U+30A0-30FF       91 / 96
 #
 # So Chinese and Japanese already render — fonts-droid-fallback carries the
 # ideographs and the kana, which is exactly what system.list.chroot claims it is

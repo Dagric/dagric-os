@@ -195,4 +195,37 @@ if [ -n "$MISSING" ]; then
     exit 1
 fi
 
-echo "pkgcheck: all $COUNT package names resolve"
+# A PERCENT SIGN ANYWHERE IN THESE FILES SILENTLY TRUNCATES THE PACKAGE LIST.
+#
+# live-build's chroot_package-lists feeds each file through printf, so a "%" —
+# even inside a comment, even in the middle of a sentence — is read as a format
+# specifier. The parser prints "printf: %" to its own log and then DROPS EVERY
+# PACKAGE BELOW THAT LINE. Nothing reports a missing package, because as far as
+# apt is concerned it was never asked for.
+#
+# THIS COST A BUILD AND WAS EXPENSIVE TO FIND. A comment block quoting font
+# coverage as "0.0%" and "99.6%" swallowed fonts-nanum and
+# plasma-browser-integration out of apps.list.chroot, and gawk out of
+# system.list.chroot fifty lines further down. The visible symptom was none of
+# those: it was 0340-offline-docs.hook.chroot exiting non-zero with no message
+# at all, because the hook calls gawk and there was no longer any awk on the
+# image. Two hours, and the log line that named the real cause was eleven words
+# long and eight thousand lines above the failure.
+#
+# Checked here rather than in the hook because this is the same family as the
+# inline-comment rule above and belongs beside it: both are cases where a file
+# that reads perfectly well to a human is parsed as something else.
+PCT=$(grep -n '%' config/package-lists/*.list.chroot 2>/dev/null || true)
+if [ -n "$PCT" ]; then
+    echo "" >&2
+    echo "pkgcheck: a percent sign appears in a package list. live-build runs" >&2
+    echo "          these through printf, so everything BELOW each of these" >&2
+    echo "          lines is silently dropped from the build:" >&2
+    echo "$PCT" | sed 's/^/    /' >&2
+    echo "" >&2
+    echo "  Write the number in words, or drop the sign. Comments count." >&2
+    echo "" >&2
+    exit 1
+fi
+
+echo "pkgcheck: all $COUNT package names resolve, and no list contains a percent sign"

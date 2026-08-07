@@ -466,13 +466,17 @@ fonts-crosextra-caladea
 # package genuinely does cover the other two. Measured by unioning every cmap
 # across all 338 font files the free set resolves to:
 #
-#     Hangul syllables  U+AC00-D7A3        3 / 11172    0.0%
-#     CJK ideographs    U+4E00-9FFF    20902 / 20992   99.6%
-#     Hiragana / Katakana                             ~94%
+# NO PERCENT SIGN IN THIS FILE, NOT EVEN IN A COMMENT — see the note in
+# apps.list.chroot. printf eats it and silently drops every package below.
+# The first draft of this very block did that to gawk, 50 lines down.
+#
+#     Hangul syllables  U+AC00-D7A3        3 / 11172   (essentially none)
+#     CJK ideographs    U+4E00-9FFF    20902 / 20992   (all but 90)
+#     Hiragana / Katakana                90 and 91 / 96 each
 #
 # Droid Fallback carries three Hangul syllables. Not most, not some — three.
 # `fc-match :lang=ko` then answers "NotoSans-Regular.ttf", which contains no
-# Hangul at all, so fontconfig cannot rescue it either. Korean has been 100%
+# Hangul at all, so fontconfig cannot rescue it either. Korean has been wholly
 # tofu on the free edition since the beginning while the comment above promised
 # otherwise. fonts-nanum, in apps.list.chroot, fixes exactly that for 33 MB
 # rather than the 89 MB that would also re-buy the coverage already here.
