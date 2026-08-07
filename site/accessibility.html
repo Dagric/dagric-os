@@ -107,8 +107,9 @@ dl.meta dd{margin:0;color:var(--on-2)}
 
   <h2>Summary</h2>
   <p>A blind user can evaluate Dagric from the live USB and run it on an installed machine.
-  The gaps are the login password prompt, refreshable braille displays, and slow keys — all
-  three are described below with the reason, not glossed.</p>
+  Refreshable braille displays are driven by BrlTTY, which ships on every edition. The
+  remaining gaps are the login password prompt and slow keys — both are described below
+  with the reason, not glossed.</p>
 
   <h2 id="tbl-keyboard-access-section-508-502-4">Keyboard access — Section 508 502.4 / ANSI-HFES 9.3</h2>
   <!-- tabindex+role+aria-label, not a bare div. This wrapper is overflow-x:auto,
@@ -236,10 +237,13 @@ dl.meta dd{margin:0;color:var(--on-2)}
       </tr>
       <tr>
         <th scope="row">Refreshable braille display support</th>
-        <td class="s-no">Does Not Support</td>
-        <td>Orca is capable of driving a braille display, but <code>brltty</code> — the driver
-        layer — is not installed, so no braille device will work out of the box. A user can
-        install it themselves from Debian. We do not claim braille support.</td>
+        <td class="s-part">Supports with Exceptions</td>
+        <td>Orca drives refreshable braille displays, and <code>brltty</code> — the driver
+        layer — now ships on every edition, so a supported display works without installing
+        anything. The exception is deliberate and is the same one as above: braille is
+        available once you are signed in, not at the login password prompt. We have not
+        tested every display BrlTTY claims to drive, so this is stated as
+        "with exceptions" rather than as unqualified support.</td>
       </tr>
     </tbody>
   </table>

@@ -221,3 +221,53 @@ kimageformat6-plugins
 # disproportionately touchscreen convertibles, and Pro is aimed at exactly
 # those deployments.
 qt6-virtualkeyboard-plugin
+
+# THE STICKY NOTE ON THE DESKTOP, AND FOUR OTHER THINGS WINDOWS HAD.
+#
+# Day two: they right-click the desktop, choose "Add Widgets…", and find only
+# the applets plasma-desktop and plasma-workspace ship themselves. No Notes, no
+# Color Picker, no Timer, no Quicklaunch, no Dictionary. On Windows 10 there was
+# a Sticky Note holding the Wi-Fi password and the school pickup time.
+#
+# There is no notes GESTURE anywhere else on this image either — Kate wants a
+# filename and a save location, which makes a document, not a note. Picking a
+# colour off the screen has no tool at all.
+#
+# NOT a --apt-recommends false casualty, unlike the four packages above: this
+# one appears nowhere in any "Recommended packages:" block in the build logs.
+# It was simply never asked for. 395k download, 2.2 MB installed.
+plasma-widgets-addons
+
+# Brightness for EXTERNAL monitors, which the brightness slider silently does
+# not control. Plasma's slider drives laptop backlights through the kernel; a
+# desktop with a monitor on HDMI or DisplayPort has the slider do nothing at
+# all, or not appear. ddcutil talks DDC/CI over the video cable, which is how
+# the monitor's own on-screen menu changes brightness, and Powerdevil uses it
+# automatically when it is present. 464k.
+#
+# Desktops are the machines most likely to be kept and reused by the audience
+# this is sold to, and they are the machines where this is broken today.
+ddcutil
+
+# BRAILLE DISPLAYS, WHICH THE PRODUCT CURRENTLY DOCUMENTS AS "DOES NOT SUPPORT".
+#
+# Orca can drive a refreshable braille display and Dagric ships Orca, advertises
+# a screen-reader boot entry, and sells into schools and libraries where
+# accessibility is a procurement requirement. What it did not ship is the driver
+# layer, so a blind owner plugged a display in and it stayed blank. Both
+# app-orca.html and site/accessibility.html said so honestly, which was the
+# right thing to do about a gap and is not a reason to keep the gap.
+#
+# THE USUAL OBJECTION DOES NOT APPLY ON DEBIAN. brltty has a reputation for
+# stealing USB serial adapters — the Arduino/ESP32 complaint — and that is an
+# UBUNTU packaging decision. Checked against the trixie package: the only rules
+# files it ships are under /usr/share/doc/brltty/examples/ as documentation.
+# `dpkg -L brltty | grep udev` returns one path and it is an example wrapper.
+# Nothing is installed into /usr/lib/udev/rules.d at all, so no CH340, FTDI,
+# CP210x or PL2303 device is claimed.
+#
+# 1.5 MB download, 8.8 MB installed, and it turns a published "Does Not
+# Support" into a "Supports". The two documents that state the old answer are
+# updated in the same commit; they must not be allowed to disagree with the
+# image.
+brltty

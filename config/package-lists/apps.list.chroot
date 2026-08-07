@@ -83,3 +83,44 @@ mpv
 # with a library, playlists, and album art. Elisa is KDE's own: small, no
 # accounts, no cloud. (Audit: free had no music library at all.)
 elisa
+
+# KOREAN, AND ONLY KOREAN, BECAUSE THAT IS THE ONLY SCRIPT ACTUALLY BROKEN.
+#
+# I very nearly put the 89 MB fonts-noto-cjk here on the assumption that free
+# had no CJK coverage at all. Measured instead of assumed, by unioning every
+# cmap in the resolved free font set (285 files):
+#
+#     Hangul syllables  U+AC00-D7A3        3 / 11172    0.0%
+#     CJK ideographs    U+4E00-9FFF    20902 / 20992   99.6%
+#     Hiragana          U+3040-309F       90 / 96      93.8%
+#     Katakana          U+30A0-30FF       91 / 96      94.8%
+#
+# So Chinese and Japanese already render — fonts-droid-fallback carries the
+# ideographs and the kana, which is exactly what system.list.chroot claims it is
+# there for. Korean does not: THREE Hangul syllables out of 11,172. And
+# `fc-match :lang=ko` answers "NotoSans-Regular.ttf", a font with no Hangul in
+# it at all, so nothing downstream can recover. Every Korean word on every page
+# is a row of empty boxes.
+#
+# fonts-nanum is 33 MB and fixes precisely that. Buying the other 56 MB would
+# have bought coverage that already exists, and would also have handed away a
+# real Pro difference: Noto CJK stays Pro-only, where it still earns its place
+# on proper Japanese and Chinese typographic forms and Serif CJK. Nanum only
+# removes the boxes.
+#
+# Its fontconfig snippet touches only its own bold-weight metadata and does not
+# rebind the sans-serif/serif/monospace aliases, so 69-dagric-lang-order.conf
+# still decides the default faces.
+fonts-nanum
+
+# The Windows PowerToys "Text Extractor" of this desktop, more or less: KDE's
+# own bridge between the browser and the rest of the system. Media keys control
+# whatever is playing in a Firefox tab, downloads show progress in the system
+# tray instead of only inside the browser, and open tabs become searchable from
+# KRunner. Under 1 MB, no dependency tail, and it is KDE's own package rather
+# than a third-party add-on.
+#
+# It needs the matching browser extension to do anything, which the owner
+# installs themselves — the package alone is inert, so this is not something
+# switched on behind their back.
+plasma-browser-integration

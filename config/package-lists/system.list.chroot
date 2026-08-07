@@ -219,6 +219,51 @@ cups
 cups-filters
 printer-driver-gutenprint
 
+# THE TWO BRANDS GUTENPRINT DOES NOT ACTUALLY COVER, WHICH IS NOT WHAT THE LINE
+# ABOVE IMPLIES.
+#
+# "Gutenprint drives the majority of inkjets/lasers" is true and it hides two
+# specific holes, both of them squarely in the hardware this product's buyers
+# already own:
+#
+#   HP inkjet all-in-ones from roughly 2013-2018 (DeskJet 3630, ENVY 4520,
+#   OfficeJet 4650) are host-based hpcups-raster devices. Gutenprint's HP
+#   support is PCL — LaserJets and 1990s DeskJets. Plug one in today and the
+#   Add Printer list offers "Generic PCL", which prints blank sheets or pages
+#   of ASCII. The comment above sends these owners to the Finish Setup helper
+#   for hplip, which is a CHECKBOX THAT IS OFF BY DEFAULT and then needs
+#   working internet for a couple of hundred megabytes.
+#
+#   Brother budget mono lasers (HL-1110, DCP-1510, HL-L2300D, MFC-7360N) are
+#   host-based GDI devices that speak neither PCL nor PostScript. Gutenprint
+#   HAS a Brother section — which is exactly why nobody spotted this — but that
+#   section lists HL-1040, HL-1270N and HL-2250DN, not these. The job queues,
+#   completes, and no paper moves. Brother's own driver is a non-free .deb from
+#   brother.com that Dagric cannot ship and a switcher will never find.
+#
+# The 200 MB objection to hplip does NOT apply to the driver-only slice:
+# printer-driver-hpcups does not depend on hplip-data, and generates its PPDs
+# at runtime from a CUPS DDK file (cups-ppdc is already on the image). The
+# Finish Setup helper still works afterwards and simply has less to fetch.
+#
+# 268k + 134k + 23k download. Roughly a third of every consumer printer ever
+# sold, made to work offline, for under half a megabyte.
+printer-driver-hpcups
+printer-driver-brlaser
+
+# The scan half of the same HP all-in-one. sane-airscan only reaches a printer
+# new enough to speak eSCL over ipp-usb; a 2015 ENVY is not, so skanlite finds
+# nothing at all without this.
+libsane-hpaio
+
+# `man` ITSELF WAS NOT ON THE IMAGE. Debian marks man-db as Priority: standard,
+# and auto/config builds with --apt-recommends false, so it never arrived. Every
+# manual page shipped by every package is sitting in /usr/share/man being
+# unreadable, and `man ls` answers "command not found" — on a product that
+# advertises itself to developers and ships a Konsole. Dagric's own HTML manual
+# is a different thing and does not replace this.
+man-db
+
 # THE "WINDOWS PRINTER VIA SAMBA" ENTRY IS MISSING FROM THE ADD-PRINTER DIALOG
 # ENTIRELY — not greyed out, not failing, simply absent, because CUPS builds
 # that list from the backends present in /usr/lib/cups/backend and the smb one
@@ -415,6 +460,22 @@ fonts-crosextra-caladea
 # reads as "this OS is broken", not "this OS is lean". Droid Fallback is the
 # minimum that makes text legible everywhere; full-quality CJK typography
 # (fonts-noto-cjk, ~91 MB) stays the Pro upgrade.
+#
+# THE "KOREAN VIDEO TITLE" HALF OF THAT CLAIM WAS FALSE, and it was false for
+# two years without anyone noticing, because the sentence names Korean and the
+# package genuinely does cover the other two. Measured by unioning every cmap
+# across all 338 font files the free set resolves to:
+#
+#     Hangul syllables  U+AC00-D7A3        3 / 11172    0.0%
+#     CJK ideographs    U+4E00-9FFF    20902 / 20992   99.6%
+#     Hiragana / Katakana                             ~94%
+#
+# Droid Fallback carries three Hangul syllables. Not most, not some — three.
+# `fc-match :lang=ko` then answers "NotoSans-Regular.ttf", which contains no
+# Hangul at all, so fontconfig cannot rescue it either. Korean has been 100%
+# tofu on the free edition since the beginning while the comment above promised
+# otherwise. fonts-nanum, in apps.list.chroot, fixes exactly that for 33 MB
+# rather than the 89 MB that would also re-buy the coverage already here.
 fonts-droid-fallback
 
 # Multimedia codecs — mpv bundles ffmpeg for local files, but Plasma/Qt and

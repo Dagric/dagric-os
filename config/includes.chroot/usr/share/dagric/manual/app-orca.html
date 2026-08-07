@@ -51,15 +51,13 @@
 
     <section>
       <h2>What it is</h2>
-      <!-- DO NOT restore "and drives a Braille display" to this sentence. Orca
-           is capable of it, but the driver layer brltty is in none of
-           config/package-lists/*.list.chroot, so on a stock Dagric a display
-           plugged in stays blank. site/accessibility.html already reports
-           "Refreshable braille display support — Does Not Support"; this page
-           used to promise the opposite to the one reader who cannot check. -->
-      <p><strong>Orca</strong> reads the screen aloud. It can also drive a Braille
-      display, but only once <code>brltty</code> is installed, and it is not installed
-      here &mdash; see the last of the five tasks below.
+      <!-- The old note here said braille was NOT supported, because brltty was
+           in none of config/package-lists/*.list.chroot and a display plugged
+           into a stock Dagric stayed blank. That was true and is no longer:
+           brltty ships in desktop.list.chroot. site/accessibility.html was
+           changed in the same commit and the two must keep agreeing. -->
+      <p><strong>Orca</strong> reads the screen aloud, and drives a refreshable
+      Braille display.
       Orca ships on every edition of Dagric, with the speech engine and voice installed
       &mdash; which sounds obvious and is not: Orca's speech backend is only a
       recommended dependency in Debian, so a lean image can easily end up shipping a
@@ -87,11 +85,11 @@
          and icons bigger and offers to put the change back if it goes too far.
          System Settings &rarr; <em>Accessibility</em> adds a screen magnifier and
          colour filters.</p></li>
-        <li><span class="t">Use a Braille display</span><p>Not out of the box. Orca speaks to a Braille display through
-         <strong>BrlTTY</strong>, and BrlTTY is not installed on Dagric &mdash; plug a
-         display in today and it stays blank. Install it yourself with
-         <code>sudo apt install brltty</code>, then log out and back in; Orca's settings
-         for it are under <em>Braille</em> in its preferences.</p></li>
+        <li><span class="t">Use a Braille display</span><p>Plug it in. Orca speaks to a Braille display through
+         <strong>BrlTTY</strong>, which is installed on every edition of Dagric.
+         Orca's settings for it are under <em>Braille</em> in its preferences, and
+         BrlTTY has its own configuration in <code>/etc/brltty.conf</code> for a
+         display it does not detect automatically.</p></li>
       </ol>
     </section>
 
