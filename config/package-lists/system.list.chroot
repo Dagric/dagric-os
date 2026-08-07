@@ -256,6 +256,67 @@ printer-driver-brlaser
 # nothing at all without this.
 libsane-hpaio
 
+# THE ENCRYPTED-DISK PASSPHRASE PROMPT IS US QWERTY NO MATTER WHAT KEYBOARD YOU
+# TOLD THE INSTALLER YOU HAVE. This is the worst failure on this list: it locks
+# an owner out of their own computer, permanently, with correct-but-unusable
+# credentials.
+#
+# Calamares offers full-disk encryption (partition.conf argues for it: the buyer
+# who travels is exactly the one an unencrypted disk endangers). The owner picks
+# French, types a passphrase on AZERTY, and it is stored correctly. At the next
+# boot, cryptsetup asks for it from the initramfs — where there is no keymap at
+# all, so the kernel's built-in US layout applies. On AZERTY hardware the key
+# labelled A now emits Q, Z emits W, M emits a semicolon. The passphrase they
+# remember cannot be typed. On German QWERTZ it is Y and Z, which is subtler and
+# therefore worse.
+#
+# MEASURED IN THE SHIPPED IMAGE, not reasoned about:
+#   console-setup            not installed
+#   setupcon                 absent
+#   keyboard-configuration   installed (so /etc/default/keyboard exists)
+#   cryptsetup-initramfs     installed (so the prompt really does appear)
+#   /etc/default/keyboard    XKBLAYOUT="us"
+#   KEYMAP                   n, in initramfs.conf
+#
+# THE PACKAGE ALONE DOES NOT FIX IT, which is why the conf.d drop-in in
+# config/includes.chroot/etc/initramfs-tools/conf.d/ goes with it. The hook at
+# /usr/share/initramfs-tools/hooks/keymap opens with "if KEYMAP != y then exit
+# 0", and only then checks for setupcon. Ship console-setup without KEYMAP=y and
+# nothing changes; set KEYMAP=y without console-setup and the hook prints
+# "setupcon is missing" into a build log nobody reads. Both, or neither.
+#
+# It also fixes the text consoles on Ctrl+Alt+F3 — the classic "my screen is
+# black" rescue path, which /etc/motd is written for and which was equally US.
+console-setup
+
+# THE SCREEN NEVER TURNS ROUND ON A 2-IN-1, AND THERE IS NO SETTING FOR IT.
+#
+# Schools bought convertibles by the pallet and are now selling them off, which
+# makes a second-hand Yoga, HP x360 or Latitude 2-in-1 a very likely Dagric
+# machine. Fold one back into tablet mode and the picture stays locked in
+# landscape, so the owner holds a portrait tablet reading a sideways page. It
+# does not present as a missing driver: System Settings shows no "Automatic
+# screen rotation" control AT ALL, because KWin only offers that switch when
+# something is answering on the net.hadess.SensorProxy D-Bus name. So it reads
+# as a feature this OS simply lacks.
+#
+# WHY NO DEPENDENCY AUDIT WOULD EVER FIND IT: nothing on the image references
+# iio-sensor-proxy. KWin and Powerdevil reach it at RUNTIME over D-Bus, and
+# Debian's plasma-workspace declares no packaging relationship to it — so it is
+# not a dropped Recommends like wpasupplicant or rtkit, it is simply invisible.
+#
+# This tree has already bought this exact hardware class and stopped one step
+# short: qt6-virtualkeyboard-plugin is in desktop.list.chroot with the note "A
+# 2-in-1 with the keyboard folded back cannot log in without this". So today
+# such a machine can type its password in tablet mode and then holds the desktop
+# sideways forever. About 150 kB, and inert on hardware with no accelerometer.
+iio-sensor-proxy
+
+# The Thunderbolt authorisation daemon. See plasma-thunderbolt in
+# desktop.list.chroot for why a dock does nothing without this pair, and why
+# they must ship together.
+bolt
+
 # `man` ITSELF WAS NOT ON THE IMAGE. Debian marks man-db as Priority: standard,
 # and auto/config builds with --apt-recommends false, so it never arrived. Every
 # manual page shipped by every package is sitting in /usr/share/man being

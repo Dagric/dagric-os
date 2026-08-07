@@ -271,3 +271,61 @@ ddcutil
 # updated in the same commit; they must not be allowed to disagree with the
 # image.
 brltty
+
+# SCREEN SHARING IN ZOOM, TEAMS, DISCORD AND SLACK SHOWS A BLACK RECTANGLE.
+#
+# Dagric defaults to Wayland — kwin-x11 above is the rescue session, not the
+# normal one. Every one of those conferencing apps runs under XWayland, and an
+# XWayland client cannot capture a Wayland screen: the portal picker appears,
+# the owner picks a window, the button goes green, and the far end sees black.
+# No error, no warning, nothing in any log the owner would read. It fails live,
+# in front of a class or a client, which is the worst possible place to find it.
+#
+# xwaylandvideobridge is KDE's own fix — it feeds the portal's PipeWire stream
+# into an X11 window the legacy app can capture. It ships its own
+# /etc/xdg/autostart entry, so the package IS the whole fix: no hook, no config.
+#
+# Another dropped Recommends, of kwin-wayland, in the same apt block that
+# already cost this image wpasupplicant, alsa-ucm-conf, rtkit and
+# qt6-virtualkeyboard-plugin. 55 kB download, 287 kB installed, and every one of
+# its dependencies is already on the image.
+xwaylandvideobridge
+
+# THE SCREEN LOCKS AFTER FIVE MINUTES AND THERE IS NO SETTING TO CHANGE IT.
+#
+# kscreenlocker's default is five minutes and its System Settings page lives in
+# a separate package. Without it, Settings has no lock screen section at all —
+# so an owner reading a long article, watching a video, or following a recipe
+# gets locked out repeatedly and can find nothing to adjust. It reads as the OS
+# being broken rather than as a default they are allowed to change.
+#
+# It is also the page app-accounts.html sends people to when it explains what
+# protects a machine that is lost or stolen, so the manual currently points at
+# a screen that does not exist.
+kde-config-screenlocker
+
+# THUNDERBOLT DOCKS DO NOTHING AT ALL. The classic buy for this audience is an
+# ex-corporate 2016-2018 ThinkPad, Latitude or EliteBook sold on with the dock
+# it lived on. Plug in the one cable and both monitors stay black, the dock's
+# ethernet never appears, its USB ports are dead. These machines ship with the
+# BIOS Thunderbolt security level at "User Authorization", so the kernel leaves
+# the device unauthorised and waits for userspace to approve it — and with no
+# boltd there is no userspace. Windows showed an "Approve this device" dialog;
+# Dagric shows nothing whatsoever, so the owner concludes the dock is dead.
+#
+# plasma-thunderbolt is the approval UI and only appears when bolt is installed;
+# bolt without it is a daemon nobody can reach. They ship together or not at
+# all. Under 1 MB for the pair.
+#
+# Sell this as "your dock works once you approve it", never as automatic: on
+# pre-2019 hardware there is no IOMMU DMA protection, so boltd deliberately
+# will not auto-authorise an unknown device. One click, once per dock, is the
+# same gesture Windows asked for.
+plasma-thunderbolt
+
+# A MUSIC CD IN THE DRIVE OFFERS NOTHING. The 2013 laptop this OS exists to
+# rescue has an optical drive and its owner has a CD shelf. The disc spins up,
+# the Device Notifier pops, and there is no "play" and no "rip" — because the
+# audiocd:/ KIO worker that Dolphin and Elisa both rely on is a separate
+# package. Windows Media Player did this in 2001.
+kio-audiocd

@@ -1,0 +1,31 @@
+# Dagric OS — put the owner's keyboard layout inside the initramfs.
+#
+# WITHOUT THIS LINE, A FRENCH OR GERMAN OWNER CAN BE LOCKED OUT OF THEIR OWN
+# ENCRYPTED DISK. Calamares offers full-disk encryption, and Dagric argues for
+# it. The passphrase is typed at install on the layout the owner chose and is
+# stored correctly. It is then asked for again by cryptsetup from inside the
+# initramfs, and the initramfs has no keymap unless one is deliberately put
+# there — so the kernel's built-in US QWERTY applies. On AZERTY hardware the key
+# labelled A emits Q; on QWERTZ, Y and Z are swapped. The passphrase is right
+# and cannot be typed.
+#
+# /usr/share/initramfs-tools/hooks/keymap opens with
+#
+#     if [ "$KEYMAP" != "y" ] && [ "$KEYMAP" != "Y" ]; then exit 0; fi
+#
+# and Debian's initramfs.conf ships KEYMAP=n. The hook then requires setupcon,
+# which is why console-setup is in system.list.chroot alongside this file. One
+# without the other is a no-op: the package with KEYMAP=n never runs, and
+# KEYMAP=y without the package only prints "setupcon is missing" into a build
+# log nobody reads.
+#
+# A DROP-IN RATHER THAN AN EDIT TO initramfs.conf, because that file belongs to
+# initramfs-tools and is a conffile: editing it in place would make every future
+# initramfs-tools upgrade stop and ask the owner to resolve a conffile conflict
+# they have no way to judge. conf.d is the supported seam and wins over the
+# main file.
+#
+# This costs a little initramfs size and a little boot time, on every machine,
+# to protect the machines with encryption enabled. That trade is not close: the
+# cost is milliseconds and the failure it prevents is unrecoverable.
+KEYMAP=y
