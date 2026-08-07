@@ -63,10 +63,20 @@
     <section>
       <h2>Five things you will actually do</h2>
       <ol class="tasks">
-        <li><span class="t">Watch first, block later</span><p>Dagric ships OpenSnitch in <strong>monitor mode</strong>: its default
-         action is to allow, and it does not intercept connections it has no rule for.
-         So out of the box it observes and never interrupts you. Leave it there for a
-         week before changing anything.</p></li>
+        <!-- This used to say OpenSnitch "observes and never interrupts you",
+             reasoning from DefaultAction=allow and InterceptUnknown=false in
+             default-config.json. Booting the Pro ISO disproved it: three
+             prompts arrived within minutes of the welcome screen — chronyd,
+             then apt twice. InterceptUnknown governs processes the daemon
+             cannot resolve, not whether the UI asks. Do not restore the old
+             sentence without booting an image and watching an idle desktop. -->
+        <li><span class="t">Answer the first question about each program</span><p>OpenSnitch <strong>blocks nothing on its own</strong> — its default action
+         is to allow — but it does <em>ask</em>, the first time a program reaches the
+         internet, and the dialog waits for you. Dagric answers in advance for its own
+         background services (the clock, updates, printing, the software centre), so
+         the questions you get should be about programs you chose to run. Those
+         pre-answers live in <code>/etc/opensnitchd/rules</code> as one small file each;
+         delete one and you will be asked about that program again.</p></li>
         <li><span class="t">See what has been happening</span><p>Open the OpenSnitch UI from the tray. The tabs list connections by
          application, by host and by port, with counts. Sort by application and read
          down the list.</p></li>

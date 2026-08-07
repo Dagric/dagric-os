@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: dagric 1.0\n"
 "Report-Msgid-Bugs-To: repo@dagric.com\n"
-"POT-Creation-Date: 2026-08-05 23:18+0000\n"
+"POT-Creation-Date: 2026-08-07 23:09+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -905,7 +905,7 @@ msgstr ""
 #: config/includes.chroot/usr/bin/dagric-ai:67
 #: config/includes.chroot/usr/bin/dagric-drivers:270
 #: config/includes.chroot/usr/bin/dagric-gaming:49
-#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:312
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:314
 msgid "Nothing changed."
 msgstr ""
 
@@ -2600,29 +2600,31 @@ msgid ""
 "which\n"
 "    is switched ON — the same as the Pro ISO, because a firewall nobody "
 "turned\n"
-"    on protects nobody. It starts in monitor mode and blocks nothing until "
+"    on protects nobody. It blocks nothing on its own; it asks you the first\n"
+"    time a program reaches the internet. Dagric's own background services —\n"
+"    the clock, updates, printing, the software centre — are answered for "
 "you\n"
-"    tell it to."
+"    in advance, so the questions you get are about programs you chose."
 msgstr ""
 
-#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:266
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:268
 msgid "  * add the four extra desktop layouts and three extra colour styles"
 msgstr ""
 
-#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:267
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:269
 msgid ""
 "  * mark this machine as Pro, so the Hub and the appearance gallery show\n"
 "    everything you have paid for"
 msgstr ""
 
-#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:270
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:272
 msgid ""
 "Your files, your settings, your installed applications and your wallpaper "
 "are\n"
 "not touched."
 msgstr ""
 
-#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:273
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:275
 msgid ""
 "This downloads several gigabytes and takes a while on a slow connection."
 msgstr ""
@@ -2635,31 +2637,31 @@ msgstr ""
 #. ASCII (German ue for u-umlaut, and so on). Make it a word your language
 #. actually uses for "upgrade" — a speed bump nobody can read is also a wall.
 #. The English UPGRADE keeps working whatever you put here.
-#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:298
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:300
 msgid "UPGRADE"
 msgstr ""
 
 #. TRANSLATORS: as above, ASCII letters only. Deliberately a DIFFERENT word from
 #. the one above, because it is a different and more serious decision — typing
 #. the same thing for both would make them feel like one.
-#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:302
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:304
 msgid "NO-ROLLBACK"
 msgstr ""
 
-#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:305
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:307
 msgid "A snapshot is taken first, so this is recoverable from the boot menu."
 msgstr ""
 
-#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:307
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:309
 #, sh-format
 msgid "Type $UPGRADE_WORD to continue: "
 msgstr ""
 
-#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:316
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:318
 msgid "THIS MACHINE HAS NO ROLLBACK."
 msgstr ""
 
-#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:324
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:326
 msgid ""
 "Snapshots need a btrfs root and this install does not have one. Nothing "
 "here\n"
@@ -2670,48 +2672,48 @@ msgid ""
 "one-click way back."
 msgstr ""
 
-#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:329
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:331
 #, sh-format
 msgid "Type $NOROLLBACK_WORD to continue anyway, or press Enter to stop: "
 msgstr ""
 
-#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:332
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:334
 msgid "Nothing changed. That was the safe answer."
 msgstr ""
 
-#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:340
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:342
 msgid "Taking a rollback snapshot..."
 msgstr ""
 
-#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:346
-#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:385
-#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:482
-#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:570
-#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:601
-#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:653
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:348
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:387
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:485
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:573
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:604
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:656
 msgid "done."
 msgstr ""
 
-#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:348
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:350
 msgid ""
 "the snapshot failed, so this stopped before changing anything.\n"
 "        That is deliberate: the rollback was the reason it was safe to "
 "proceed."
 msgstr ""
 
-#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:357
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:359
 msgid "cannot create a working directory."
 msgstr ""
 
-#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:362
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:364
 msgid "Fetching the Pro layouts and styles..."
 msgstr ""
 
-#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:390
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:392
 msgid "that attempt did not work; trying again in a few seconds..."
 msgstr ""
 
-#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:397
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:399
 msgid ""
 "the extra desktop layouts and colour styles could not be downloaded,\n"
 "        and they are the one part of Pro that has to come from us rather "
@@ -2724,84 +2726,84 @@ msgid ""
 "        it keeps failing, dagric.com/support can look it up."
 msgstr ""
 
-#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:425
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:428
 msgid "Reading package lists..."
 msgstr ""
 
-#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:427
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:430
 msgid ""
 "could not read the package lists. Check the network and try again.\n"
 "    Nothing was installed."
 msgstr ""
 
-#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:433
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:436
 msgid "Downloading (this is the long part)..."
 msgstr ""
 
-#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:436
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:439
 msgid ""
 "the download did not finish, so nothing was installed. This is usually\n"
 "    the connection. Run this again — apt keeps what it already fetched."
 msgstr ""
 
-#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:439
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:442
 msgid "Installing..."
 msgstr ""
 
-#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:478
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:481
 msgid "Adding 32-bit support for Windows applications and games..."
 msgstr ""
 
-#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:484
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:487
 msgid ""
 "note: 32-bit Wine and Vulkan did not install. Wine still works\n"
 "        for 64-bit Windows programs; older installers may not run."
 msgstr ""
 
-#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:488
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:491
 msgid ""
 "note: could not enable 32-bit support. Wine still works for 64-bit\n"
 "        Windows programs; older installers may not run."
 msgstr ""
 
-#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:499
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:502
 msgid ""
 "Setting the opt-in policy (everything installed, nothing switched on)..."
 msgstr ""
 
-#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:561
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:564
 msgid ""
 "note: could not open the KDE Connect ports. Phone pairing may need\n"
 "        the firewall adjusting by hand; everything else is unaffected."
 msgstr ""
 
-#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:576
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:579
 msgid "ERROR: the install did not finish cleanly."
 msgstr ""
 
-#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:578
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:581
 msgid ""
 "This machine is still marked as free ON PURPOSE — one that claims to be\n"
 "Pro without the applications is harder to fix than one that is honestly\n"
 "still free."
 msgstr ""
 
-#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:582
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:585
 msgid ""
 "Whatever DID install has been set to the Pro edition's opt-in policy, so\n"
 "nothing that arrived is running: no Docker daemon, no remote login, no\n"
 "USB blocking, no virtual-machine services."
 msgstr ""
 
-#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:586
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:589
 msgid "Try:  sudo apt-get -f install   then run this again."
 msgstr ""
 
-#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:593
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:596
 msgid "Adding the Pro layouts and styles..."
 msgstr ""
 
-#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:608
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:611
 msgid ""
 "the layouts and styles arrived but would not unpack — usually that\n"
 "        is disk space. The applications ARE installed and set to the Pro opt-"
@@ -2811,52 +2813,52 @@ msgid ""
 "        running this tool again will finish the job."
 msgstr ""
 
-#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:621
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:624
 msgid "Marking this machine as Pro..."
 msgstr ""
 
-#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:661
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:664
 msgid "Done — this is a Dagric OS Pro machine."
 msgstr ""
 
-#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:663
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:666
 msgid ""
 "Log out and back in to see it. The Hub will show the Pro tools, and the\n"
 "  appearance gallery will show the extra layouts and styles."
 msgstr ""
 
-#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:666
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:669
 msgid ""
 "Everything the Pro edition installs is here, and everything that can listen "
 "or\n"
 "intercept is OFF until you turn it on:"
 msgstr ""
 
-#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:669
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:672
 msgid "Docker, virtual machines, USB protection and remote login"
 msgstr ""
 
-#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:669
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:672
 msgid "installed, off"
 msgstr ""
 
-#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:670
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:673
 msgid "OpenSnitch application firewall"
 msgstr ""
 
-#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:670
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:673
 msgid "installed, on"
 msgstr ""
 
-#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:672
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:675
 msgid "Turn any of them on from the Dagric Hub."
 msgstr ""
 
-#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:674
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:677
 msgid "Two honest differences from a machine installed from the Pro ISO:"
 msgstr ""
 
-#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:676
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:679
 msgid ""
 "  * The Pro ISO ships CJK fonts and a few defaults chosen at install time. "
 "Those\n"
@@ -2865,12 +2867,12 @@ msgid ""
 "    which is the point of upgrading rather than reinstalling."
 msgstr ""
 
-#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:679
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:682
 msgid ""
 "  * Your snapshot history starts before this upgrade, not at a fresh install."
 msgstr ""
 
-#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:681
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:684
 msgid "Thank you for buying Pro."
 msgstr ""
 

@@ -1,0 +1,18 @@
+{
+  "created": "2026-01-01T00:00:00Z",
+  "updated": "2026-01-01T00:00:00Z",
+  "name": "000-dagric-avahi-daemon",
+  "description": "Dagric ships and enables this: finds printers and other machines on the local network. Pre-answered so the owner is not asked about a program they never started. Delete this file to be asked about it.",
+  "enabled": true,
+  "precedence": false,
+  "nolog": false,
+  "action": "allow",
+  "duration": "always",
+  "operator": {
+    "type": "simple",
+    "sensitive": false,
+    "operand": "process.path",
+    "data": "/usr/sbin/avahi-daemon",
+    "list": []
+  }
+}

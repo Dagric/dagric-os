@@ -261,8 +261,10 @@ say "$(gettext "  * install them the way the Pro ISO does: Docker, virtual machi
     protection and remote login are all set up but left OFF until you switch
     them on. The one exception is OpenSnitch, the application firewall, which
     is switched ON — the same as the Pro ISO, because a firewall nobody turned
-    on protects nobody. It starts in monitor mode and blocks nothing until you
-    tell it to.")"
+    on protects nobody. It blocks nothing on its own; it asks you the first
+    time a program reaches the internet. Dagric's own background services —
+    the clock, updates, printing, the software centre — are answered for you
+    in advance, so the questions you get are about programs you chose.")"
 say "$(gettext "  * add the four extra desktop layouts and three extra colour styles")"
 say "$(gettext "  * mark this machine as Pro, so the Hub and the appearance gallery show
     everything you have paid for")"

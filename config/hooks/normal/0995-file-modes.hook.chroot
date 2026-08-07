@@ -47,13 +47,22 @@ FIXED=0
 # extension), but relying on that would mean the day someone drops a
 # 90-something.conf hook into system-sleep, this hook silently disables it.
 # Name the directories that contain unit files and nothing else.
+#
+# /etc/opensnitchd/rules is in the list because it holds the pre-answered
+# firewall rules, and *.json is in the name filter for the same reason. A rule
+# file is data that a ROOT daemon reads and enforces; shipping it executable is
+# the wrong bit on the wrong file even though opensnitchd does not care.
+# /etc/initramfs-tools/conf.d likewise: KEYMAP=y is sourced by mkinitramfs, and
+# a sourced fragment has no business being executable either.
 for d in /etc/systemd /usr/lib/systemd/system /usr/lib/systemd/user \
-         /etc/sysctl.d /etc/sddm.conf.d /etc/udev/rules.d /etc/calamares; do
+         /etc/sysctl.d /etc/sddm.conf.d /etc/udev/rules.d /etc/calamares \
+         /etc/opensnitchd /etc/initramfs-tools/conf.d; do
     [ -d "$d" ] || continue
     for f in $(find "$d" -type f \
                     \( -name '*.conf' -o -name '*.service' -o -name '*.socket' \
                        -o -name '*.timer'  -o -name '*.target'  -o -name '*.mount' \
-                       -o -name '*.path'   -o -name '*.preset'  -o -name '*.rules' \) \
+                       -o -name '*.path'   -o -name '*.preset'  -o -name '*.rules' \
+                       -o -name '*.json'   -o -name 'dagric-*' \) \
                     -perm /111 2>/dev/null); do
         chmod 0644 "$f"
         echo "file-modes: 0644 $f"
