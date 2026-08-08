@@ -187,10 +187,17 @@ fi
 #
 # The width went 440 -> 500 when the labels started being translated. German
 # runs roughly 30% longer than English and "Accessibility — screen reader,
-# magnifier, contrast" is the longest row in the file; kdialog treats geometry
-# as a hint and honours widget minimums, so 440 would not have truncated
-# anything — it would have quietly grown the window past the number written
-# here and made this comment a lie.
+# keyboard and mouse help" is the longest row in the file at 56 characters;
+# kdialog treats geometry as a hint and honours widget minimums, so 440 would
+# not have truncated anything — it would have quietly grown the window past the
+# number written here and made this comment a lie.
+#
+# That row was "…screen reader, magnifier, contrast" until the label was
+# corrected: it named two things kcm_access does not contain. The replacement
+# is SEVEN CHARACTERS LONGER, so it is still the row this width is sized for
+# and 500 still holds. Checked rather than assumed — a relabel that quietly
+# became the new longest row would be exactly the way this comment turns into
+# the lie it warns about.
 # +28 for the "Learn and get help" section: its own heading plus the new
 # "Get help — contact a human" row, at the ~14px per row this has always used.
 # The three documentation rows MOVED there from "Get started" rather than being
