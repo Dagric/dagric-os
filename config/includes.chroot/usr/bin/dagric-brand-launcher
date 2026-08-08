@@ -89,11 +89,46 @@ done
 # retries. Better a delayed brand than a permanent silent no-op.
 [ -n "$N" ] && [ -n "$M" ] || exit 0
 
-# Already branded (e.g. a prior login succeeded)? Then just retire and stop.
+# THE FAVOURITES THE LAUNCHER OPENS ON, seeded here for the same reason the
+# icon is: this is the one place that reliably runs once, on a real session,
+# with plasmashell stopped so the write cannot be flushed away.
+#
+# WHY NOT IN THE .look FILES. They do carry it too, and that is correct for the
+# path where somebody PICKS a layout — but a .look SCRIPT only runs at the
+# moment a layout is applied. Booted and confirmed: with no layout chosen, the
+# desktop comes up on Plasma's stock Breeze panel, there is no seeded appletsrc
+# in /etc/skel and no hook applies a layout at build time. So the default path
+# through the wizard — skip the layout step — never ran that script, and the
+# launcher kept KDE's own five defaults. This covers that path.
+#
+# COMMA-SEPARATED HERE, AN ARRAY THERE, and both are right. favorites is a
+# StringList: in the config FILE a list is comma-separated text, which is what
+# kwriteconfig6 writes; through Plasma's JS scripting API the same key needs a
+# real array. Passing a comma-joined string to the scripting API is what made
+# the first attempt at this a silent no-op for a whole build cycle.
+#
+# preferred://browser rather than firefox-esr.desktop is upstream's own idiom,
+# documented in the applet's config schema: it follows whatever the owner sets
+# as their browser instead of pinning the one we happened to ship.
+FAVS='dagric-hub.desktop,preferred://browser,systemsettings.desktop,org.kde.dolphin.desktop,org.kde.discover.desktop'
+
+# Already done (e.g. a prior login succeeded)? Then just retire and stop.
+#
+# BOTH keys are checked, not just the icon. An installed machine that branded
+# its launcher before this file learned about favourites would otherwise have
+# retired the autostart entry already, and would never get them — the upgrade
+# case is exactly the one an icon-only guard would silently skip.
 CUR=$(kreadconfig6 --file plasma-org.kde.plasma.desktop-appletsrc \
   --group Containments --group "$N" --group Applets --group "$M" \
   --group Configuration --group General --key icon 2>/dev/null)
-if [ "$CUR" = "dagric-logo" ]; then
+CURFAV=$(kreadconfig6 --file plasma-org.kde.plasma.desktop-appletsrc \
+  --group Containments --group "$N" --group Applets --group "$M" \
+  --group Configuration --group General --key favorites 2>/dev/null)
+case "$CURFAV" in
+    dagric-hub.desktop*) FAVDONE=yes ;;
+    *)                   FAVDONE=no  ;;
+esac
+if [ "$CUR" = "dagric-logo" ] && [ "$FAVDONE" = yes ]; then
     rm -f "$AUTOSTART"
     exit 0
 fi
@@ -115,6 +150,19 @@ kwriteconfig6 --file plasma-org.kde.plasma.desktop-appletsrc \
   --group Containments --group "$N" --group Applets --group "$M" \
   --group Configuration --group General --key icon dagric-logo 2>/dev/null
 
+# Favourites are seeded ONLY when the owner has not already chosen their own.
+# This runs once, but "once" is still someone's desktop: an owner who pinned
+# their own applications before this ever succeeded — a second monitor, a
+# failed first login, a machine that predates this key — must not have them
+# replaced by ours. An empty value means Plasma is falling back to its built-in
+# default and has nothing of the owner's in it, which is the only case where
+# overwriting is ours to do.
+if [ -z "$CURFAV" ]; then
+    kwriteconfig6 --file plasma-org.kde.plasma.desktop-appletsrc \
+      --group Containments --group "$N" --group Applets --group "$M" \
+      --group Configuration --group General --key favorites "$FAVS" 2>/dev/null
+fi
+
 # 3) Relaunch plasmashell — it reads the freshly branded config on start.
 if command -v kstart >/dev/null 2>&1; then
     ( kstart plasmashell >/dev/null 2>&1 & ) 2>/dev/null
@@ -128,4 +176,16 @@ sleep 2
 VERIFY=$(kreadconfig6 --file plasma-org.kde.plasma.desktop-appletsrc \
   --group Containments --group "$N" --group Applets --group "$M" \
   --group Configuration --group General --key icon 2>/dev/null)
-[ "$VERIFY" = "dagric-logo" ] && rm -f "$AUTOSTART"
+VFAV=$(kreadconfig6 --file plasma-org.kde.plasma.desktop-appletsrc \
+  --group Containments --group "$N" --group Applets --group "$M" \
+  --group Configuration --group General --key favorites 2>/dev/null)
+# Retire only when the icon stuck AND favourites are either ours or the owner's
+# own choice. Retiring on the icon alone would strand the favourites write on
+# any session where it did not take, which is the failure this file's whole
+# self-healing design exists to avoid.
+case "$VFAV" in
+    dagric-hub.desktop*) FAVOK=yes ;;
+    '')                  FAVOK=no  ;;
+    *)                   FAVOK=yes ;;
+esac
+[ "$VERIFY" = "dagric-logo" ] && [ "$FAVOK" = yes ] && rm -f "$AUTOSTART"
