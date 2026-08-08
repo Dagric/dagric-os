@@ -5,4 +5,4 @@ NAME=Horizon
 DESCRIPTION=a menu bar up top with a dock below
 SORT=40
 EDITION=pro
-SCRIPT=var t=new Panel; t.location="top"; t.height=Math.round(gridUnit*1.6); var k=t.addWidget("org.kde.plasma.kickoff"); k.currentConfigGroup=["General"]; k.writeConfig("icon","dagric-logo"); t.addWidget("org.kde.plasma.appmenu"); t.addWidget("org.kde.plasma.panelspacer"); t.addWidget("org.kde.plasma.systemtray"); t.addWidget("org.kde.plasma.digitalclock"); var d=new Panel; d.location="bottom"; d.height=Math.round(gridUnit*3); d.addWidget("org.kde.plasma.icontasks");
+SCRIPT=var t=new Panel; t.location="top"; t.height=Math.round(gridUnit*1.6); var k=t.addWidget("org.kde.plasma.kickoff"); k.currentConfigGroup=["General"]; k.writeConfig("icon","dagric-logo"); k.writeConfig("favorites","dagric-hub.desktop,org.kde.discover.desktop,org.kde.dolphin.desktop,systemsettings.desktop,firefox-esr.desktop"); t.addWidget("org.kde.plasma.appmenu"); t.addWidget("org.kde.plasma.panelspacer"); t.addWidget("org.kde.plasma.systemtray"); t.addWidget("org.kde.plasma.digitalclock"); var d=new Panel; d.location="bottom"; d.height=Math.round(gridUnit*3); d.addWidget("org.kde.plasma.icontasks");

@@ -4,4 +4,4 @@
 NAME=Focus
 DESCRIPTION=one tidy bar, nothing in your way
 SORT=20
-SCRIPT=var p=new Panel; p.location="bottom"; p.height=Math.round(gridUnit*2); var k=p.addWidget("org.kde.plasma.kickoff"); k.currentConfigGroup=["General"]; k.writeConfig("icon","dagric-logo"); p.addWidget("org.kde.plasma.icontasks"); p.addWidget("org.kde.plasma.marginsseparator"); p.addWidget("org.kde.plasma.systemtray"); p.addWidget("org.kde.plasma.digitalclock");
+SCRIPT=var p=new Panel; p.location="bottom"; p.height=Math.round(gridUnit*2); var k=p.addWidget("org.kde.plasma.kickoff"); k.currentConfigGroup=["General"]; k.writeConfig("icon","dagric-logo"); k.writeConfig("favorites","dagric-hub.desktop,org.kde.discover.desktop,org.kde.dolphin.desktop,systemsettings.desktop,firefox-esr.desktop"); p.addWidget("org.kde.plasma.icontasks"); p.addWidget("org.kde.plasma.marginsseparator"); p.addWidget("org.kde.plasma.systemtray"); p.addWidget("org.kde.plasma.digitalclock");
