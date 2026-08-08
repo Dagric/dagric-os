@@ -150,14 +150,46 @@ kwriteconfig6 --file plasma-org.kde.plasma.desktop-appletsrc \
   --group Containments --group "$N" --group Applets --group "$M" \
   --group Configuration --group General --key icon dagric-logo 2>/dev/null
 
-# Favourites are seeded ONLY when the owner has not already chosen their own.
-# This runs once, but "once" is still someone's desktop: an owner who pinned
-# their own applications before this ever succeeded — a second monitor, a
-# failed first login, a machine that predates this key — must not have them
-# replaced by ours. An empty value means Plasma is falling back to its built-in
-# default and has nothing of the owner's in it, which is the only case where
-# overwriting is ours to do.
-if [ -z "$CURFAV" ]; then
+# Favourites are seeded ONLY when the owner has not chosen their own — and
+# "has not chosen" is TWO states, not one. That distinction is the whole reason
+# the first version of this did nothing.
+#
+#   absent   the key is not in the file at all and the applet is falling back
+#            to its built-in default
+#   default  plasmashell has MATERIALISED that same built-in default into the
+#            file, so the key is present and non-empty and still represents no
+#            decision by anybody
+#
+# A bare `[ -z "$CURFAV" ]` treats the second as the owner's considered choice
+# and refuses to touch it. Booted with exactly that guard and the launcher kept
+# KDE's five, which is the symptom either state produces — the display cannot
+# tell them apart, so the code must handle both.
+#
+# The comparison value is READ FROM THE APPLET'S OWN SCHEMA rather than
+# hardcoded, so a future Plasma that ships a different default still matches and
+# this keeps working instead of quietly reverting to "leave it alone forever".
+KICKOFF_XML=/usr/share/plasma/plasmoids/org.kde.plasma.kickoff/contents/config/main.xml
+STOCK=$(gawk '
+  /<entry name="favorites"/ { inentry = 1 }
+  inentry && match($0, /<default>(.*)<\/default>/, d) { print d[1]; exit }
+' "$KICKOFF_XML" 2>/dev/null)
+
+UNTOUCHED=no
+[ -z "$CURFAV" ] && UNTOUCHED=yes
+[ -n "$STOCK" ] && [ "$CURFAV" = "$STOCK" ] && UNTOUCHED=yes
+
+# A LINE IN THE JOURNAL SAYING WHAT WAS DECIDED AND WHY.
+#
+# Four attempts at this shipped and four came back looking identical from the
+# outside, because every failure mode here — wrong key, wrong type, script
+# never runs, guard declines — produces the same screen: KDE's five favourites.
+# The screen cannot distinguish them and neither could I. One log line can.
+# `journalctl --user -t dagric-brand-launcher` now answers it in a second, on a
+# real machine, without a rebuild.
+logger -t dagric-brand-launcher \
+  "favourites: existing=[${CURFAV:-<absent>}] untouched=$UNTOUCHED" 2>/dev/null || true
+
+if [ "$UNTOUCHED" = yes ]; then
     kwriteconfig6 --file plasma-org.kde.plasma.desktop-appletsrc \
       --group Containments --group "$N" --group Applets --group "$M" \
       --group Configuration --group General --key favorites "$FAVS" 2>/dev/null
