@@ -54,8 +54,23 @@
       <!-- The old note here said braille was NOT supported, because brltty was
            in none of config/package-lists/*.list.chroot and a display plugged
            into a stock Dagric stayed blank. That was true and is no longer:
-           brltty ships in desktop.list.chroot. site/accessibility.html was
-           changed in the same commit and the two must keep agreeing. -->
+           brltty ships in desktop.list.chroot.
+
+           THE CLAIM LIVES ON FOUR SURFACES, AND ALL FOUR MUST KEEP AGREEING —
+           an earlier version of this note named only two, and the other two
+           kept telling braille users the opposite for a full release:
+             1. this page (the full reference: BrlTTY on every edition, plug it
+                in, /etc/brltty.conf for an undetected display);
+             2. site/accessibility.html — the conformance report. Braille is
+                "Supports with Exceptions" in the table AND is deliberately NOT
+                in the known-gaps paragraph under "Scope and limits";
+             3. the offline guide, usr/share/dagric/guide/index.html plus five
+                translations (de, es, fr, it, pt_BR);
+             4. the web guide, site/guide/index.html plus five translations —
+                whose Portuguese directory is HYPHENATED "pt-br" while the
+                shipped one is "pt_BR", so any loop over one naming convention
+                silently misses the other tree. -->
+
       <p><strong>Orca</strong> reads the screen aloud, and drives a refreshable
       Braille display.
       Orca ships on every edition of Dagric, with the speech engine and voice installed
