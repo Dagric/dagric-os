@@ -678,6 +678,18 @@ if command -v dagric-app-names >/dev/null 2>&1; then
 fi
 update-desktop-database >/dev/null 2>&1 || true
 
+# The login screen. The dagric SDDM theme shows one line under the logo, fed
+# from theme.conf's editionBadge key; 0600-pro-edition sets it at build time on
+# the Pro ISO, and this is the upgrade's half of that parity — without it an
+# upgraded machine says Pro everywhere EXCEPT the first thing its owner sees on
+# every boot. Tolerant where the build hook is fatal, deliberately: at this
+# point the machine IS Pro, and a missing or owner-swapped login theme must not
+# fail a paid upgrade at its last step over one decorative line.
+SDDMCONF=/usr/share/sddm/themes/dagric/theme.conf
+if [ -f "$SDDMCONF" ] && grep -q '^editionBadge=' "$SDDMCONF"; then
+    sed -i 's/^editionBadge=.*/editionBadge=PRO EDITION/' "$SDDMCONF" 2>/dev/null || true
+fi
+
 say "  $(gettext "done.")"
 
 # ------------------------------------------------------------------ report
