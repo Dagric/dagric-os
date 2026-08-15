@@ -40,3 +40,24 @@ zoomEnabled=true
 # MousePointer=0 scales the pointer with the zoom (1 keeps it, 2 hides it).
 ZoomFactor=1.2
 MousePointer=0
+
+[Wayland]
+# The on-screen keyboard and the input-method framework, one setting. Plasma's
+# default is "None": even with fcitx5 installed, a touchscreen owner gets no
+# keyboard and a Korean owner gets no way in short of finding this switch by
+# name in System Settings. kwin reads this entry, launches the .desktop it
+# names, and manages the process — fcitx5 ships no autostart entry (verified
+# in the trixie .deb), so this is the only place it starts and there is no
+# double-start to guard against.
+#
+# The value is the ABSOLUTE PATH because that is what kwin's own Virtual
+# Keyboard settings page writes when an owner picks a keyboard from its list;
+# the file is listable there because it carries
+# X-KDE-Wayland-VirtualKeyboard=true. An owner who later picks a different
+# keyboard — or None — overwrites this line in their own ~/.config/kwinrc and
+# is never overridden back: skel is a starting value, not policy.
+#
+# 0530-accessibility.hook.chroot asserts this line and every file it points
+# at, because each piece fails SILENTLY when absent — kwin logs one line and
+# simply shows no keyboard.
+InputMethod=/usr/share/applications/org.fcitx.Fcitx5.desktop

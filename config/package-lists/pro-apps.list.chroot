@@ -131,6 +131,14 @@ papirus-icon-theme
 # is the kind of number that makes a reader doubt the rest of it.
 fonts-noto-cjk
 
+# And TYPING Chinese, not only reading it. Free ships the fcitx5 input-method
+# stack with Korean and Japanese engines — the full reasoning lives with the
+# block in desktop.list.chroot. Chinese lands here because its cost is
+# different in kind: fcitx5-chinese-addons drags the libime language models,
+# and it belongs beside the font that makes its output render. Same split,
+# same reasoning, same edition as fonts-noto-cjk directly above.
+fcitx5-chinese-addons
+
 # System maintenance GUI: clean caches, logs, and freed disk space visually
 bleachbit
 

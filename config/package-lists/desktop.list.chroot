@@ -225,11 +225,19 @@ qt6-image-formats-plugins
 
 # A 2-in-1 with the keyboard folded back cannot log in without this.
 #
-# qt6-virtualkeyboard-plugin is the on-screen keyboard SDDM and kwin-wayland
-# use. Without it a convertible, detachable or tablet reaches the login screen,
-# has no way to type a password, and stops there — the owner never sees a
-# desktop at all, and no amount of accessibility work later in the session can
-# help because the session never starts.
+# qt6-virtualkeyboard-plugin is the on-screen keyboard SDDM uses — SDDM ONLY.
+# This comment used to say "SDDM and kwin-wayland", and the second half was
+# false: SDDM loads this plugin in-process as its Qt input context
+# (InputMethod=qtvirtualkeyboard in etc/sddm.conf.d/20-accessibility.conf),
+# but kwin_wayland chooses its keyboard by scanning /usr/share/applications
+# for entries carrying X-KDE-Wayland-VirtualKeyboard=true — and this plugin is
+# a bare Qt .so with no .desktop file, so kwin cannot see it at all. The
+# in-SESSION keyboard is fcitx5, two blocks down.
+#
+# Without this package a convertible, detachable or tablet reaches the login
+# screen, has no way to type a password, and stops there — the owner never
+# sees a desktop at all, and no amount of accessibility work later in the
+# session can help because the session never starts.
 #
 # Fourth package tonight found sitting in apt's "Recommended packages:" block
 # and never installed: out/free-rebuild.log:2459, inside the block spanning
@@ -240,6 +248,62 @@ qt6-image-formats-plugins
 # disproportionately touchscreen convertibles, and Pro is aimed at exactly
 # those deployments.
 qt6-virtualkeyboard-plugin
+
+# TYPING, PAST THE LOGIN SCREEN: fcitx5 is the session's input method.
+#
+# Two measured gaps, one cause — the image had NO input method provider at all
+# (nothing matching fcitx/ibus/im-config anywhere in the tree):
+#
+#   1. The same folded 2-in-1 the package above lets LOG IN could not type
+#      once the session started. kwin_wayland lists virtual keyboards by the
+#      X-KDE-Wayland-VirtualKeyboard=true scan described above, and NOTHING on
+#      the image carried that key — measured on a running install. Wayland is
+#      the only session this image can start (0520 fails the build otherwise),
+#      so there was no fallback session either. Connect to Wi-Fi, sign into a
+#      website, rename a file: all impossible without a hardware keyboard.
+#   2. Korean and Japanese owners could READ everything — fonts-nanum is 33 MB
+#      spent on exactly that, in apps.list.chroot — and TYPE nothing. Not a
+#      document, not a search box, not a filename, not a Wi-Fi password.
+#
+# What each name buys, and why each is written out instead of left to apt:
+#   fcitx5                the daemon. Its org.fcitx.Fcitx5.desktop carries
+#                         X-KDE-Wayland-VirtualKeyboard=true (verified in the
+#                         trixie .deb), which is what lets kwin adopt it, and
+#                         its hard dependency fcitx5-modules carries
+#                         libvirtualkeyboard.so — the on-screen keyboard
+#                         renderer itself.
+#   fcitx5-frontend-qt6   the app-side connectors. RECOMMENDS of fcitx5, so
+#   fcitx5-frontend-gtk3  under --apt-recommends false the daemon would
+#                         install and no application could talk to it — a
+#                         framework that types nothing, the exact shape of the
+#                         wpasupplicant/alsa-ucm-conf/rtkit failures. gtk3
+#                         covers XWayland and GTK3 clients.
+#   kde-config-fcitx5     the System Settings page (kcm_fcitx5.so). Without it
+#                         adding a language means editing config files by hand.
+#   fcitx5-hangul         Korean. fonts-nanum made Korean readable; this makes
+#   fcitx5-anthy          it writable. Anthy is the same for Japanese.
+#
+# Measured with apt-get install -s on the target: these six resolve to 22 new
+# packages containing zero libqt5*, libkf5*, gtk-4 or qml-module-* rows — a
+# clean Qt6/GTK3 stack. The rejected alternative, maliit-keyboard, is 241.8 MB
+# of Qt5 across 34 packages on an image that ships no Qt5 whatsoever.
+#
+# Chinese is Pro (fcitx5-chinese-addons, in pro-apps.list.chroot beside
+# fonts-noto-cjk): that is where the libime language-model cost sits, and it
+# mirrors exactly how the fonts were split. Hangul and Anthy stay free for the
+# same reason fonts-nanum did — without them free is broken for those owners,
+# not lean.
+#
+# The packages alone give a SETTABLE option, not a working keyboard: Plasma
+# leaves kwin's virtual keyboard at "None" even with a provider installed. The
+# default is set in etc/skel/.config/kwinrc ([Wayland] InputMethod=), and
+# 0530-accessibility.hook.chroot asserts every file this feature stands on.
+fcitx5
+fcitx5-frontend-qt6
+fcitx5-frontend-gtk3
+kde-config-fcitx5
+fcitx5-hangul
+fcitx5-anthy
 
 # THE STICKY NOTE ON THE DESKTOP, AND FOUR OTHER THINGS WINDOWS HAD.
 #

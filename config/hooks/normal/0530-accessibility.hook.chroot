@@ -505,4 +505,53 @@ if [ ! -f /etc/sddm.conf.d/20-accessibility.conf ]; then
     echo "WARNING: /etc/sddm.conf.d/20-accessibility.conf missing — login pointer stays small." >&2
 fi
 
+# ---------------------------------------------------------------------------
+# 9. The in-session input method: on-screen keyboard and CJK typing.
+#
+# Six packages in desktop.list.chroot and one line in skel's kwinrc together
+# mean a 2-in-1 can type past the login screen and a Korean or Japanese owner
+# can write their language. EVERY piece fails silently when absent — kwin logs
+# one line and shows no keyboard; apps simply never connect to the daemon — so
+# every piece is asserted, in the hook that already owns the a11y contract.
+#
+# Paths are amd64-hardcoded like the krunner path 0510 documents: this image
+# only builds for amd64, and a glob that matches nothing would turn these
+# checks into the silent no-ops they exist to prevent.
+FCITX_DESKTOP=/usr/share/applications/org.fcitx.Fcitx5.desktop
+if [ ! -f "$FCITX_DESKTOP" ]; then
+    echo "ERROR: $FCITX_DESKTOP missing — is fcitx5 still in desktop.list.chroot?" >&2
+    exit 1
+fi
+# The key kwin scans for. Without it kwin can neither list nor adopt fcitx5,
+# and skel's kwinrc now points at a provider kwin will refuse to start: the
+# on-screen keyboard and CJK input would both be dead with nothing in any log
+# but one kwin_wayland line nobody reads.
+if ! grep -q '^X-KDE-Wayland-VirtualKeyboard=true' "$FCITX_DESKTOP"; then
+    echo "ERROR: org.fcitx.Fcitx5.desktop no longer advertises" >&2
+    echo "       X-KDE-Wayland-VirtualKeyboard=true — kwin cannot adopt it, and" >&2
+    echo "       the skel kwinrc default points at a dead provider." >&2
+    exit 1
+fi
+for f in \
+    /usr/lib/x86_64-linux-gnu/fcitx5/libvirtualkeyboard.so \
+    /usr/lib/x86_64-linux-gnu/qt6/plugins/platforminputcontexts/libfcitx5platforminputcontextplugin.so \
+    /usr/lib/x86_64-linux-gnu/gtk-3.0/3.0.0/immodules/im-fcitx5.so \
+    /usr/lib/x86_64-linux-gnu/fcitx5/libhangul.so \
+    /usr/lib/x86_64-linux-gnu/fcitx5/libanthy.so \
+    /usr/lib/x86_64-linux-gnu/qt6/plugins/plasma/kcms/systemsettings/kcm_fcitx5.so; do
+    if [ ! -f "$f" ]; then
+        echo "ERROR: $f missing — the fcitx5 stack is incomplete. The frontends" >&2
+        echo "       are Recommends of fcitx5, so a resolver change can drop them" >&2
+        echo "       while the daemon still installs; that ships a daemon no" >&2
+        echo "       application can talk to." >&2
+        exit 1
+    fi
+done
+if ! grep -q '^InputMethod=/usr/share/applications/org.fcitx.Fcitx5.desktop$' /etc/skel/.config/kwinrc; then
+    echo "ERROR: skel kwinrc does not set kwin's InputMethod to fcitx5 — the" >&2
+    echo "       packages give a settable option, not a working keyboard." >&2
+    exit 1
+fi
+echo "accessibility: fcitx5 input-method stack complete and wired as the default"
+
 echo "Accessibility installed: Meta+Alt+S toggles Orca, High Contrast style measured at 7:1 or better."
