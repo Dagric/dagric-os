@@ -1,0 +1,25 @@
+[Unit]
+Description=Dagric — put the signed shim on the EFI removable-media path
+# The ESP has to be mounted before this can read or write it. local-fs.target
+# is what /boot/efi's fstab entry is ordered before, so this is the earliest
+# point the partition is guaranteed to be there.
+After=local-fs.target
+# No point starting at all on a BIOS install. The script checks this too and
+# exits 0, but the condition keeps a BIOS machine from logging a unit start on
+# every boot for work that can never apply.
+ConditionPathExists=/sys/firmware/efi
+ConditionPathExists=!/var/lib/dagric/efi-fallback-done
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/dagric-efi-fallback
+# The stamp is written only on success, so a run that failed (a full or
+# read-only ESP, a missing shim) is retried on the next boot rather than being
+# recorded as done. That is the same self-healing choice dagric-brand-launcher
+# makes, and for the same reason: the failure is invisible from the desktop and
+# only shows up when the machine will not boot.
+ExecStartPost=/bin/sh -c 'mkdir -p /var/lib/dagric && touch /var/lib/dagric/efi-fallback-done'
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target

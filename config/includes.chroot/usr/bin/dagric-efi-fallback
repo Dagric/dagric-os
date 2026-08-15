@@ -1,0 +1,124 @@
+#!/bin/sh
+# SPDX-FileCopyrightText: 2026 DGR Operations <repo@dagric.com>
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+# Dagric OS — put SHIM on the EFI removable-media path, not GRUB.
+#
+# ---------------------------------------------------------------------------
+# WHAT IS WRONG WITHOUT THIS
+# ---------------------------------------------------------------------------
+# MEASURED on a real UEFI erase-disk install of dagric-os-1.0-amd64.iso, by
+# loop-mounting the EFI system partition the installer produced:
+#
+#     EFI/Dagric/shimx64.efi    1036152 bytes   <- what the NVRAM entry loads
+#     EFI/Dagric/grubx64.efi    2684352 bytes
+#     EFI/boot/bootx64.efi      2684352 bytes   <- byte-identical to GRUB
+#
+# `cmp` confirms the fallback file IS grubx64.efi. That is Calamares' own
+# behaviour: its bootloader module has installEFIFallback enabled and copies
+# grubx64.efi over EFI/BOOT/BOOTX64.EFI.
+#
+# It works right up until the NVRAM entry is not used. Then the firmware falls
+# back to the removable path, finds a GRUB that Microsoft's key never signed,
+# refuses it, and the machine does not boot. The NVRAM entry is lost by:
+# a CMOS/BIOS reset, firmware that prunes or ignores custom entries (common on
+# consumer boards), moving the disk to another machine, or a firmware update.
+#
+# Dagric ships shim-signed and grub-efi-amd64-signed and asserts both fatally in
+# 0330-calamares-helper.hook.chroot, and sells Secure Boot support to people
+# rescuing Windows 10 machines that have it switched on. So the removable path
+# has to be shim, which chain-loads the signed GRUB exactly as the NVRAM path
+# does.
+#
+# ---------------------------------------------------------------------------
+# WHY AT FIRST BOOT RATHER THAN DURING THE INSTALL
+# ---------------------------------------------------------------------------
+# Three reasons, in order of weight:
+#
+#   1. IT REACHES MACHINES ALREADY SOLD. Every UEFI machine installed from a
+#      Dagric ISO so far has GRUB on its fallback path right now. This script
+#      ships in dagric-tools, so the update channel repairs them. An install-time
+#      fix only ever helps the next buyer.
+#   2. It needs nothing from Calamares. The alternative is overriding Debian's
+#      settings.conf to insert a module after `bootloader`, which means owning a
+#      file that upstream changes — and this tree has already been bitten twice
+#      by inheriting Debian's Calamares assumptions.
+#   3. It is idempotent and self-checking, so it costs one comparison per boot
+#      until it has work to do, and nothing after.
+#
+# It deliberately does NOT touch EFI/Dagric/. The NVRAM path already works; the
+# only broken thing is the copy under EFI/BOOT.
+set -eu
+
+ESP=${DAGRIC_ESP:-/boot/efi}
+SRC="$ESP/EFI/Dagric"
+FB="$ESP/EFI/BOOT"
+
+log() { logger -t dagric-efi-fallback "$*" 2>/dev/null || true; echo "dagric-efi-fallback: $*"; }
+
+# Not a UEFI machine at all. A BIOS install has no ESP and nothing to repair;
+# exiting 0 keeps the unit from being reported as failed on every BIOS boot.
+if [ ! -d /sys/firmware/efi ]; then
+    log "BIOS system, nothing to do"
+    exit 0
+fi
+
+if [ ! -d "$SRC" ]; then
+    # Some other bootloader-id, or the ESP is not mounted here. Say so rather
+    # than guessing at a path — a wrong guess writes an EFI binary to the wrong
+    # place, which is worse than doing nothing.
+    log "no $SRC — not a Dagric EFI install, leaving alone"
+    exit 0
+fi
+
+SHIM="$SRC/shimx64.efi"
+if [ ! -f "$SHIM" ]; then
+    log "WARNING: $SHIM is missing; this install cannot Secure Boot at all"
+    exit 0
+fi
+
+mkdir -p "$FB"
+
+# The fallback directory is case-insensitive on FAT, so EFI/boot and EFI/BOOT
+# are the same directory and bootx64.efi and BOOTX64.EFI the same file. Find
+# whichever name is actually present rather than assuming a spelling.
+TARGET=""
+for c in "$FB/BOOTX64.EFI" "$FB/bootx64.efi"; do
+    [ -f "$c" ] && { TARGET="$c"; break; }
+done
+[ -n "$TARGET" ] || TARGET="$FB/BOOTX64.EFI"
+
+if [ -f "$TARGET" ] && cmp -s "$TARGET" "$SHIM"; then
+    log "fallback path already carries shim, nothing to do"
+    exit 0
+fi
+
+log "repairing $TARGET: it is not shim (Secure Boot would refuse it)"
+
+# shim needs its companions on the same path it is loaded from: mmx64.efi is
+# MokManager, fbx64.efi is the fallback that rebuilds the NVRAM entry from
+# BOOTX64.CSV, and grubx64.efi is what shim chain-loads. Copying shim alone
+# produces a machine that starts shim and then cannot find anything to load.
+# if/then, not `[ -f x ] && cp || true`: in that form the `|| true` also
+# swallows a FAILED cp, not just an absent source, so a full or read-only ESP
+# would look like a clean skip. Here a missing companion is skipped silently and
+# a failed copy is reported.
+for f in grubx64.efi mmx64.efi fbx64.efi BOOTX64.CSV; do
+    if [ -f "$SRC/$f" ]; then
+        cp -f "$SRC/$f" "$FB/$f" || log "WARNING: could not copy $f to the fallback path"
+    fi
+done
+
+# Write to a temporary name and rename, so a power loss mid-copy cannot leave a
+# truncated BOOTX64.EFI — which would be a machine that boots neither path.
+cp -f "$SHIM" "$TARGET.new"
+sync
+mv -f "$TARGET.new" "$TARGET"
+sync
+
+if cmp -s "$TARGET" "$SHIM"; then
+    log "done: removable path now loads the signed shim"
+else
+    log "ERROR: copy did not verify; fallback path left as it was"
+    exit 1
+fi
