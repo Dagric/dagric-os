@@ -14,24 +14,23 @@ const ASSETS = "dagric-pro-assets.tar.gz";
 // SHA-256 of the machine's DMI product UUID salted with the session id, so
 // the value is meaningless outside this one purchase and never a raw serial.
 // Re-runs and reinstalls on the SAME machine hash to the same value and are
-// always free; a second machine gets a 409 with a support pointer.
+// always free; a second machine gets a 409 with a support pointer. The machine
+// entitlement is the ONLY thing here worth gating — see the block in fetch().
 //
-// The ISO link keeps the site's promise ("re-downloads anytime, resumes")
-// while dying as a public link: only download STARTS count (a request with no
-// Range header, or Range offset 0 — resumed chunks are free), capped at 25.
-// Twenty-five full downloads is years of reinstalls for one honest customer
-// and useless to a forum post.
+// The byte and fetch budgets are BANDWIDTH protection for a free-software
+// payload, not licensing. The ISO budget meters bytes delivered per session so
+// that Range tricks cannot pull unlimited copies; the legacy fetch budget
+// covers pre-fingerprint tools. Both are generous enough that no honest
+// customer meets them across years of reinstalls, and both are backstops to a
+// Cloudflare rate-limit rule (declared at deploy) — because a plain KV counter
+// cannot hard-stop a deliberate parallel burst on its own.
 //
-// Tools already in the field send no `m`. Their /assets fetches ride a legacy
-// counter instead — six lifetime fetches, enough for one machine's retry
-// loops, not enough to share. Remove that leg when the fielded ISOs are all
-// m-aware.
-//
-// EVERY KV FAILURE FAILS OPEN. The allowance is abuse control, not billing:
-// our storage having a bad minute must never lock out a paying customer.
+// EVERY KV FAILURE FAILS OPEN, including a missing binding. The allowance is
+// abuse control, not billing: our storage having a bad minute must never lock
+// out a paying customer.
 const MACHINE_CAP = 1;
-const ISO_START_CAP = 25;
-const LEGACY_ASSET_CAP = 6;
+const ISO_BYTE_BUDGET = 110 * 1024 * 1024 * 1024; // ~26 Pro ISOs / 50 free
+const LEGACY_ASSET_CAP = 15;                      // 5 full 3-attempt runs
 
 export default {
   async fetch(req, env) {
@@ -74,35 +73,43 @@ export default {
     if (refunded) {
       return msg(
         403,
-        "This purchase was refunded, so Pro downloads and updates have ended. " +
-          "The copy you already downloaded is yours to keep and run. " +
-          "You're welcome to re-purchase anytime."
+        "This purchase was refunded, so Pro downloads and support have ended. " +
+          "The copy you already downloaded is yours to keep and run, and it keeps " +
+          "receiving updates. You're welcome to re-purchase anytime."
       );
     }
 
-    // ── machine allowance ───────────────────────────────────────────────────
-    // The upgrade tool sends `m` on its validation call (HEAD) and its assets
-    // fetch. A browser following the download link never does — so `m` present
-    // means "the upgrade tool is asking", and its validation call is where the
-    // machine slot is reserved. 409 is deliberate and load-bearing: the tool
-    // maps it to its own "already in use on another machine" message, distinct
-    // from 403's "not recognised as paid".
+    // ── the machine entitlement ─────────────────────────────────────────────
+    // The upgrade tool sends `m`, an anonymous per-purchase fingerprint. A
+    // browser downloading the ISO never does — `m` present means the tool is
+    // asking.
+    //
+    // WHAT IS ACTUALLY WORTH GATING. Everything the upgrade installs is Debian
+    // main — free software anyone can already download — and the one Dagric
+    // asset it fetches is a ~190 KB tarball a buyer can trivially re-host. So
+    // neither the ISO stream nor the tarball is where a shared code costs a
+    // sale: the machine ENTITLEMENT is. One purchase upgrades one machine, and
+    // moving it is a Stripe-bound support action nobody can share. That is the
+    // control this block enforces; the byte budgets below are bandwidth
+    // protection, not licensing.
+    //
+    // THE SLOT COMMITS AT /assets, NOT HERE. The tool HEADs first (a dry
+    // validation — the point where `--check` or a declined consent stops), then
+    // GETs /assets only after the owner says yes. Reserving on HEAD would burn
+    // the single slot on an evaluation the owner walked away from, so HEAD only
+    // READS: it turns away a machine a DIFFERENT fingerprint already holds and
+    // reserves nothing.
     const m = url.searchParams.get("m") || "";
     const mValid = /^[a-f0-9]{64}$/.test(m);
     if (m && !mValid) {
       return msg(400, "Malformed request. Update Dagric and run the upgrade again.");
     }
-    if (mValid) {
-      const slot = await reserveMachine(sid, m, env);
-      if (slot === "over") {
-        return msg(
-          409,
-          "This purchase is already upgrading a different machine. One purchase " +
-            "covers one machine — dagric.com/support can move it to this one, " +
-            "or you can buy a second licence for a second machine."
-        );
-      }
-      // "ok" and "unknown" (KV trouble) both continue: fail open.
+    if (req.method === "HEAD" && mValid) {
+      const held = await machineState(sid, m, env);
+      if (held === "other") return machineTaken();
+      // "mine" | "free" | "unknown" all pass — the reservation is at /assets,
+      // and a dry HEAD must never be the thing that consumes the slot.
+      return new Response(null, { status: 200, headers: { "Cache-Control": "no-store" } });
     }
 
     // ---------------------------------------------------------------------
@@ -124,12 +131,21 @@ export default {
     // that a failed fetch is cheaper to repeat than to resume, and the upgrade
     // tool is safe to re-run.
     if (url.pathname.replace(/\/+$/, "") === "/assets") {
-      // Tools in the field predate the machine fingerprint. They get a legacy
-      // allowance: six lifetime fetches per session — one machine's worth of
-      // retry loops, not a forum's worth of sharing.
-      if (!mValid) {
-        const used = await bumpCounter(`legacy:${sid}`, env);
-        if (used !== null && used > LEGACY_ASSET_CAP) {
+      // Commit the machine slot HERE — the owner has committed to the upgrade.
+      if (mValid) {
+        const slot = await reserveMachine(sid, m, env);
+        if (slot === "other") return machineTaken();
+        // "ok" | "unknown" pass (fail open).
+      } else {
+        // Fielded tools predate the fingerprint. A generous per-session fetch
+        // budget stands in — fifteen SUCCESSFUL pulls is five full 3-attempt
+        // runs, enough for one machine's bad-network evenings and useless as a
+        // shared link for a 190 KB tarball. Read-only here; charged only after
+        // a real delivery below, because counting our own failures (a client
+        // retries three times a run) burned the whole allowance in two bad
+        // evenings. Remove when the fielded ISOs are all m-aware.
+        const used = await readNum(`legacy:${sid}`, env);
+        if (used !== null && used >= LEGACY_ASSET_CAP) {
           return msg(
             409,
             "This purchase has reached its upgrade allowance. One purchase " +
@@ -148,6 +164,7 @@ export default {
           { "Retry-After": "60", "Cache-Control": "no-store" }
         );
       }
+      if (!mValid) await bumpNum(`legacy:${sid}`, env); // charge on delivery only
       return new Response(a.body, {
         headers: {
           "Content-Type": "application/gzip",
@@ -157,31 +174,31 @@ export default {
       });
     }
 
-    // The tool's validation call: HEAD with the fingerprint. The slot was
-    // reserved above; there is no body to send. ONLY the fingerprinted form
-    // short-circuits — a download manager's plain HEAD must fall through to
-    // the ISO path below and get real headers (Content-Length is how it sizes
-    // the file), which Cloudflare serves bodyless for HEAD automatically.
-    if (req.method === "HEAD" && mValid) {
-      return new Response(null, { status: 200, headers: { "Cache-Control": "no-store" } });
-    }
+    // A plain HEAD (no fingerprint — a download manager sizing the file) falls
+    // through to here and gets real headers; Cloudflare serves it bodyless.
 
     // Paid — stream the ISO from the private bucket, honoring Range.
     const range = parseRange(req.headers.get("Range"));
 
-    // Only download STARTS count against the allowance: a GET with no Range
-    // header, or one that begins at byte zero. A HEAD probe is not a
-    // download, and every mid-file Range is a resumed chunk of a start
-    // already counted — the site's "resumes interrupted downloads" promise
-    // stays literal.
-    if (req.method === "GET" && (!range || range.offset === 0)) {
-      const starts = await bumpCounter(`dl:${sid}`, env);
-      if (starts !== null && starts > ISO_START_CAP) {
+    // BANDWIDTH BUDGET, not a licence check: the ISO is free software, so a cap
+    // on it protects egress, not a sale. Meter BYTES DELIVERED per session
+    // against a generous ceiling, so range gymnastics buy nothing — a resumed
+    // download totals about one ISO no matter how it is chunked or where it
+    // resumes. (The earlier "count starts" form let `Range: bytes=1-` stream an
+    // unlimited, uncounted near-complete tail — the whole cap was a mirage.)
+    // Checked here on the running tally; charged AFTER serving, so a client
+    // abort is never double-billed. KV read-modify-write is not atomic, so a
+    // deliberate parallel burst can overshoot this — the route's Cloudflare
+    // rate-limit rule (see wrangler.toml) is the real throttle; this is the
+    // backstop, and it protects a payload that is free anyway.
+    if (req.method === "GET") {
+      const usedBytes = await readNum(`bytes:${sid}`, env);
+      if (usedBytes !== null && usedBytes > ISO_BYTE_BUDGET) {
         return msg(
           409,
-          "This download link has been used more times than one customer " +
-            "plausibly needs, so it has been paused. If it's really you, " +
-            "dagric.com/support will sort it out quickly."
+          "This download link has moved far more data than one customer needs, " +
+            "so it has been paused. If it's really you, dagric.com/support will " +
+            "sort it out quickly."
         );
       }
     }
@@ -227,9 +244,11 @@ export default {
         : obj.size - off;
       headers["Content-Range"] = `bytes ${off}-${off + len - 1}/${obj.size}`;
       headers["Content-Length"] = String(len);
+      if (req.method === "GET") await addNum(`bytes:${sid}`, len, env);
       return new Response(obj.body, { status: 206, headers });
     }
     headers["Content-Length"] = String(obj.size);
+    if (req.method === "GET") await addNum(`bytes:${sid}`, obj.size, env);
     return new Response(obj.body, { status: 200, headers });
   },
 };
@@ -240,19 +259,38 @@ export default {
 // Returns { session } on success, { missing: true } only when Stripe positively
 // says the session does not exist, and { transient: true } for everything else.
 // ── the allowance store ─────────────────────────────────────────────────────
-// Cloudflare KV, bound as LICENSE. Both helpers FAIL OPEN: any storage error
-// returns the "no opinion" value (null / "unknown") and the request proceeds —
-// abuse control must never become the thing that locks out a paying customer.
-// KV is eventually consistent, so two simultaneous requests can each think
-// they are first; the allowance can overshoot by one in that race, which is
-// acceptable for abuse control and would not be for billing.
+// Cloudflare KV, bound as LICENSE. EVERY helper FAILS OPEN: any storage error
+// (including the binding being absent) returns the "no opinion" value —
+// "unknown" / null — and the request proceeds. Abuse control must never become
+// the thing that locks out a paying customer. KV is eventually consistent and
+// read-modify-write is not atomic, so a deliberate parallel burst can overshoot
+// any cap here; that is the Cloudflare rate-limit rule's job, and these are the
+// backstop for a payload (free-software ISO, re-hostable tarball) whose worst
+// case is wasted egress, not a lost sale.
+function readRec(raw) {
+  try { return raw ? JSON.parse(raw) : { machines: [] }; }
+  catch { return { machines: [] }; } // corrupt value → treat as empty, fail open
+}
 
-// Reserve (or confirm) this machine's slot. "ok" | "over" | "unknown".
+// Read-only: does a machine hold this purchase's slot? Used by HEAD so a dry
+// validation reserves nothing. "mine" | "other" | "free" | "unknown".
+async function machineState(sid, m, env) {
+  try {
+    const rec = readRec(await env.LICENSE.get(`act:${sid}`));
+    if (rec.machines.some((x) => x.h === m)) return "mine";
+    if (rec.machines.length >= MACHINE_CAP) return "other";
+    return "free";
+  } catch {
+    return "unknown";
+  }
+}
+
+// Commit this machine's slot. "ok" (mine or newly reserved) | "other" (a
+// different machine already holds the only slot) | "unknown" (KV trouble).
 async function reserveMachine(sid, m, env) {
   try {
     const key = `act:${sid}`;
-    const raw = await env.LICENSE.get(key);
-    const rec = raw ? JSON.parse(raw) : { machines: [] };
+    const rec = readRec(await env.LICENSE.get(key));
     const now = Date.now();
     const mine = rec.machines.find((x) => x.h === m);
     if (mine) {
@@ -260,7 +298,7 @@ async function reserveMachine(sid, m, env) {
       await env.LICENSE.put(key, JSON.stringify(rec));
       return "ok";
     }
-    if (rec.machines.length >= MACHINE_CAP) return "over";
+    if (rec.machines.length >= MACHINE_CAP) return "other";
     rec.machines.push({ h: m, first: now, last: now });
     await env.LICENSE.put(key, JSON.stringify(rec));
     return "ok";
@@ -269,13 +307,31 @@ async function reserveMachine(sid, m, env) {
   }
 }
 
-// Increment a counter; returns the new value, or null when storage is having
-// a bad minute (fail open).
-async function bumpCounter(key, env) {
+// The one 409 a machine over its entitlement gets, worded once. The tool maps
+// 409 to its own "already upgrading a different machine" message; a browser
+// never reaches this (it sends no `m`).
+function machineTaken() {
+  return msg(
+    409,
+    "This purchase is already upgrading a different machine. One purchase " +
+      "covers one machine — dagric.com/support can move it to this one " +
+      "(a machine that was replaced or a virtual machine that moved counts), " +
+      "or you can buy a second licence for a second machine."
+  );
+}
+
+// Numeric-counter helpers. readNum returns the value or null (fail open);
+// bumpNum adds one, addNum adds n. All swallow storage errors.
+async function readNum(key, env) {
+  try { return Number((await env.LICENSE.get(key)) || 0); }
+  catch { return null; }
+}
+async function bumpNum(key, env) { return addNum(key, 1, env); }
+async function addNum(key, n, env) {
   try {
-    const n = Number((await env.LICENSE.get(key)) || 0) + 1;
-    await env.LICENSE.put(key, String(n));
-    return n;
+    const v = Number((await env.LICENSE.get(key)) || 0) + n;
+    await env.LICENSE.put(key, String(v));
+    return v;
   } catch {
     return null;
   }

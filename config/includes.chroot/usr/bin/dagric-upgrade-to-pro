@@ -243,9 +243,16 @@ say "$(gettext "Checking the purchase...")"
 # dagric.com/support to move the licence, which the 409 message says).
 # Disclosed in the text below and on dagric.com/privacy.
 RAWID=$(cat /sys/class/dmi/id/product_uuid 2>/dev/null || true)
+FP_STABLE=yes
 case "$RAWID" in
     ""|03000200-0400-0500-0006-000700080009)
-        RAWID=$(cat /etc/machine-id 2>/dev/null || echo unknown) ;;
+        # No usable hardware id (some boards ship none, or the notorious
+        # duplicate). Fall back to /etc/machine-id — which REGENERATES on every
+        # reinstall, so on this hardware a future reinstall looks like a new
+        # machine to the licence check and needs one support message to move
+        # the licence. Say so plainly rather than let it surprise a reinstaller.
+        RAWID=$(cat /etc/machine-id 2>/dev/null || echo unknown)
+        FP_STABLE=no ;;
 esac
 MID=$(printf '%s:%s' "$SID" "$RAWID" | sha256sum | cut -c1-64)
 
@@ -253,6 +260,11 @@ say ""
 say "$(gettext "Your purchase covers one machine. This machine introduces itself to the
 licence check as an anonymous fingerprint (a one-way hash tied to this
 purchase) — never a serial number, never anything readable.")"
+if [ "$FP_STABLE" = no ]; then
+    say "$(gettext "(This machine has no stable hardware id, so the fingerprint is based on
+an installation id that changes if you reinstall. A reinstall will need a
+quick message to dagric.com/support to move the licence — at no cost.)")"
+fi
 
 HTTP=$(curl -sS -o /dev/null -w '%{http_code}' -I --max-time 30 \
        "$GATE/?session_id=$SID&m=$MID" 2>/dev/null) || HTTP=000

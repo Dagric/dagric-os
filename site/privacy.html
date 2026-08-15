@@ -157,7 +157,12 @@
     code. The fingerprint exists because one purchase covers one machine; it cannot be turned
     back into a serial number, and the same hardware produces a <em>different</em> value for
     every purchase, so it cannot track a machine across customers, sessions, or anything else.
-    If you never start the upgrade, this host is never contacted.</li>
+    If you never start the upgrade, this host is never contacted. We keep, against your purchase,
+    only what enforces "one purchase, one machine": that fingerprint, the dates it was first and
+    last seen, and a count of download starts. There is no name, no IP log kept for this, and no
+    profile; ask <a href="/support">support</a> with your purchase and we delete the record. The
+    download link itself keeps working for reinstalls — there is a generous cap, high enough that
+    no ordinary use meets it, to stop a shared link serving the whole internet.</li>
     <li><strong>Our update channel</strong> (<code>dagric-os.web.app</code>), which carries fixes
     to Dagric's own tools, wallpapers and settings. It is checked on the same schedule as any
     other software source, so we see the same thing a Debian mirror sees: an IP address asking

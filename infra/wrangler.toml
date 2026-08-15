@@ -62,6 +62,22 @@ bucket_name = "dagric-pro"
 binding = "LICENSE"
 id = "CREATE-WITH-wrangler-kv-namespace-create-LICENSE"
 
+# A KV counter cannot HARD-stop a deliberate parallel burst — read-modify-write
+# is not atomic and KV is eventually consistent, so a scripted fan-out on one
+# leaked session can overshoot every budget in the worker. The worker's budgets
+# are the backstop; the THROTTLE is a Cloudflare rate-limiting rule on this
+# route, which must be added in the dashboard once (it is not expressible here):
+#
+#   Security -> WAF -> Rate limiting rules, on dagric-gate.dagric.workers.dev:
+#     match:  URI Query contains "session_id="
+#     count:  by the session_id value if available, else client IP
+#     limit:  ~60 requests / 10s  ->  Block (or Managed Challenge)
+#
+# Sixty requests in ten seconds is far above a browser resuming a download or
+# the upgrade tool's handful of calls, and far below what a distribution script
+# needs. The gated payload is free software either way, so this protects egress,
+# not a sale — do not over-tune it into blocking a real customer on hotel Wi-Fi.
+
 # ── the contact-form backend ────────────────────────────────────────────────
 # Deployed separately:  wrangler deploy --config infra/wrangler.toml --env contact
 # It has no secrets. Its R2 bucket is where /contact messages land, read from
