@@ -106,7 +106,15 @@ ensure() {
 # Full-disk encryption: set the initramfs permissions snippet, then make sure
 # the LUKS tooling is there. The initramfs is regenerated later in the install,
 # so only the snippet is written here.
-if [ "$(mount | grep "$CHROOT" " " | cut -c -16)" = "/dev/mapper/luks" ]; then
+# `grep "$CHROOT" " "` passed TWO arguments — a pattern and a filename that was
+# a single space — so grep never searched the mount table at all, it tried to
+# open a file called " " and printed
+#     grep: : No such file or directory
+# into the installer's error dialog on every single install. The substitution
+# then yielded the empty string, the test never matched, and the encrypted-disk
+# branch below was DEAD CODE: an owner who ticked "Encrypt system" got no
+# UMASK=0077 initramfs snippet and no cryptsetup check.
+if [ "$(mount | grep " $CHROOT " | cut -c -16)" = "/dev/mapper/luks" ]; then
     echo "Configuring full-disk encryption..."
     echo "UMASK=0077" > "$CHROOT"/etc/initramfs-tools/conf.d/initramfs-permissions
     ensure cryptsetup cryptsetup-initramfs keyutils || exit 1
@@ -132,14 +140,49 @@ else
     ensure grub2-common grub-pc-bin || exit 1
 fi
 
-# Re-enable os-prober so an existing Windows install is offered at boot. This is
-# the dual-boot promise the homepage and the FAQ both make.
-sed -i "s/#GRUB_DISABLE_OS_PROBER=false/# OS_PROBER re-enabled by Dagric Calamares installation:\nGRUB_DISABLE_OS_PROBER=false/g" \
-    "$CHROOT"/etc/default/grub
-
-if ! chroot "$CHROOT" /usr/sbin/update-grub; then
-    echo "ERROR: update-grub failed in the target system." >&2
-    exit 1
-fi
+# ---------------------------------------------------------------------------
+# NOTHING BELOW TOUCHES GRUB'S CONFIG, AND THAT IS THE FIX.
+#
+# THIS SCRIPT USED TO END BY EDITING /etc/default/grub AND RUNNING update-grub,
+# AND THAT MADE EVERY INSTALL FAIL — on both firmware paths, so the product
+# could not be installed at all. Reproduced on a BIOS erase-disk install of the
+# freshly built free ISO:
+#
+#     sed: can't read /tmp/calamares-root-rd5lbeq4/etc/default/grub:
+#          No such file or directory
+#     /usr/sbin/grub-mkconfig: 274: cannot create /boot/grub/grub.cfg.new:
+#          Directory nonexistent
+#     ERROR: update-grub failed in the target system.
+#     Installation Failed
+#
+# The cause is the module order in calamares-settings-debian's settings.conf,
+# which this script does not get to choose:
+#
+#     - bootloader-config   <- THIS SCRIPT
+#     - grubcfg             <- the module that CREATES /etc/default/grub
+#     - bootloader          <- the module that runs grub-install, creating
+#                              /boot/grub, and then regenerates grub.cfg
+#
+# So both files this script needed were still two modules away from existing.
+# Measured in the shipped squashfs and not inferred: /etc/default/grub is absent
+# from the image (only /etc/default/grub.d/50-dagric.cfg is there) and /boot
+# holds just the kernel, initrd, config and System.map — no grub directory.
+#
+# Running update-grub here was never necessary either. The `bootloader` module
+# installs GRUB and regenerates the config itself, after both prerequisites
+# exist. Removing the call is not a workaround; it is deleting work that was
+# duplicated in the wrong order.
+#
+# THE os-prober SETTING MOVED RATHER THAN DISAPPEARED. Dual boot is a promise
+# the homepage and the FAQ both make, so it still has to be set — it now lives
+# in /etc/default/grub.d/50-dagric.cfg, which ships on the image, is copied to
+# the target by unpackfs long before any of these modules run, and is sourced by
+# grub-mkconfig after /etc/default/grub. No sed, no ordering assumption, and it
+# applies to the live system and every future update-grub as well.
+#
+# WHAT THIS SCRIPT IS STILL FOR: checking that the GRUB pieces are actually in
+# the target and only reaching for the network when one is genuinely missing.
+# That is the offline-install fix described at the top, and it stays.
+# ---------------------------------------------------------------------------
 
 echo "bootloader-config: done"

@@ -116,7 +116,93 @@ for _c in contrib non-free non-free-firmware; do
     }
 done
 
+# --- the package-removal config --------------------------------------------
+#
+# THIRD REPLACEMENT, AND THE ONE THAT ACTUALLY KILLED AN INSTALL. Debian's
+# packages.conf removes ten live-* packages with a plain `remove:` operation.
+# Five of them are not on this image — live-boot-doc, live-config-doc,
+# live-tools, live-task-localisation, live-task-recommended — because Dagric
+# installs only live-boot, live-config and live-config-systemd and auto/config
+# passes --apt-recommends false. apt exits 100 on a package it cannot locate,
+# `remove` treats that as fatal, and the install dies at the LAST module, after
+# the disk has been wiped and filled. Reproduced in a VM on the shipped ISO.
+#
+# The two helpers above were each guarded against a dpkg upgrade restoring the
+# packaged version. This file was not, which is precisely how it would come
+# back: calamares-settings-debian ships packages.conf as a conffile, so an
+# upgrade can put the ten-name `remove:` list over the top and the build would
+# say nothing. Same assertion, same reason, same fatality.
+PKGCFG=/etc/calamares/modules/packages.conf
+
+if [ ! -f "$PKGCFG" ]; then
+    echo "ERROR: $PKGCFG is missing." >&2
+    exit 1
+fi
+
+if ! grep -q '^[[:space:]]*-[[:space:]]*try_remove:' "$PKGCFG"; then
+    echo "ERROR: $PKGCFG is not the Dagric version — Debian's plain 'remove:'" >&2
+    echo "       list has been restored. Five of the packages it names are not" >&2
+    echo "       installed on this image, apt exits 100, and EVERY install would" >&2
+    echo "       fail at the last module with the target disk already wiped." >&2
+    exit 1
+fi
+
+# A plain `remove:` must not survive anywhere in the file, even further down —
+# one fatal operation is enough to lose the install.
+if grep -qE '^[[:space:]]*-[[:space:]]*remove:' "$PKGCFG"; then
+    echo "ERROR: $PKGCFG still contains a fatal 'remove:' operation." >&2
+    exit 1
+fi
+
+# partition.conf is shipped by this tree too and carries the encryption and
+# filesystem defaults the product argues for. Assert it is ours for the same
+# reason as the rest.
+PARTCFG=/etc/calamares/modules/partition.conf
+if [ ! -f "$PARTCFG" ]; then
+    echo "ERROR: $PARTCFG is missing." >&2
+    exit 1
+fi
+
+# --- the EFI removable-path repair ------------------------------------------
+#
+# Calamares copies grubx64.efi over EFI/BOOT/BOOTX64.EFI. MEASURED on a real
+# UEFI install: the fallback file is byte-identical to grubx64.efi, while the
+# NVRAM entry loads shimx64.efi. Under Secure Boot the firmware rejects that
+# GRUB, so any machine that loses or ignores its NVRAM entry stops booting.
+# dagric-efi-fallback repairs it at first boot — which also repairs the UEFI
+# machines already installed from earlier ISOs, once they take a dagric-tools
+# update.
+EFIFB=/usr/bin/dagric-efi-fallback
+
+if [ ! -f "$EFIFB" ]; then
+    echo "ERROR: $EFIFB is missing." >&2
+    exit 1
+fi
+chmod 0755 "$EFIFB"
+if ! sh -n "$EFIFB"; then
+    echo "ERROR: $EFIFB has a syntax error." >&2
+    exit 1
+fi
+
+# Same hand-made wants-symlink as 0800-snapshot-recovery, and for the reason
+# stated there: includes.chroot lands before hooks, so the unit is already in
+# place, and this is exactly what `systemctl enable` writes for a
+# WantedBy=multi-user.target unit.
+if [ -f /etc/systemd/system/dagric-efi-fallback.service ]; then
+    mkdir -p /etc/systemd/system/multi-user.target.wants
+    ln -sf /etc/systemd/system/dagric-efi-fallback.service \
+        /etc/systemd/system/multi-user.target.wants/dagric-efi-fallback.service
+else
+    echo "ERROR: dagric-efi-fallback.service is missing; the Secure Boot" >&2
+    echo "       removable path would keep loading unsigned GRUB." >&2
+    exit 1
+fi
+
+echo "calamares-helper: dagric-efi-fallback enabled — the EFI removable path"
+echo "                  will carry the signed shim, not GRUB"
 echo "calamares-helper: Dagric bootloader helper installed, executable, and all"
 echo "                  8 bootloader packages present — offline install is possible"
 echo "calamares-helper: sources-final writes contrib + non-free, matching live"
+echo "calamares-helper: packages.conf uses try_remove — the live-package strip"
+echo "                  cannot fail the install on a name that is not installed"
 unset _missing _p _c
