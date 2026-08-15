@@ -51,26 +51,33 @@ touch, and it is the fastest way to tell the two apart when debugging.
 
 ## Still open, ranked by what an owner would notice
 
-### 1. Bluetooth file transfer is broken — every boot logs it twice
-`obexd` starts and immediately fails:
+### 1. ~~Bluetooth file transfer is broken~~ — FIXED, and the first reading was wrong
+**Corrected:** obexd starts fine and successfully owns `org.bluez.obex`, so
+Bluetooth **file transfer works**. What failed is narrower — the phonebook
+plugins (pbap, irmc, mas, mns) reaching for evolution-data-server's registry to
+serve **contacts and messages**, twice on every login. Only the e-d-s libraries
+are present (hard Depends of bluez-obexd), not the daemon.
 
-    Unable to acquire registry: ... org.gnome.evolution.dataserver.Sources5:
-    Failed to execute program ... No such file or directory
+Fixed by declining those four plugins rather than installing e-d-s, which
+`apt-get --simulate` showed would add **32 packages including a full WebKit
+JavaScript engine** — a GNOME stack on a Plasma image, to enable a profile
+almost nobody uses, on a product that already ships KDE Connect for phone
+integration. Verified: 0 registry errors, `filesystem` plugin (OPP/FTP) still
+loaded, bus name still owned.
 
-`evolution-data-server` is not installed (checked with dpkg-query), and obexd
-wants it for the contacts/registry side. **Sending a file to a phone over
-Bluetooth is a thing Windows switchers try**, and the desktop advertises
-Bluetooth in System Settings. Either pull in what obexd needs, or stop obexd
-starting so the log stops lying about a service that cannot work.
-NOT yet checked: whether the transfer actually fails in the UI, or only the
-registry call does. Needs a real Bluetooth adapter to settle.
+### 2. ~~`brltty` costs 571 ms of every boot~~ — INVESTIGATED, NOT A BUG
+**Corrected.** `systemd-analyze blame` measures time *spent*, not time *added*.
+`systemd-analyze critical-chain` shows brltty is **not on the critical path** —
+its 589 ms runs in parallel and delays nothing. The real chain is journald →
+kmod-static-nodes → tmpfiles → local-fs → apparmor (202 ms) → dbus →
+NetworkManager → user-sessions, reaching multi-user at 2.4 s.
 
-### 2. `brltty` costs 571 ms of every boot on machines with no braille display
-Second-slowest unit measured (`systemd-analyze blame`), behind only cloud-init.
-brltty is right to ship — accessibility is a legal requirement for the
-institutional buyers named in the pitch — but it should start when a braille
-device appears, not unconditionally. Debian ships udev rules for exactly that.
-Worth ~half a second on every boot of every machine.
+Deliberately left alone. There is no measurable benefit, braille hardware cannot
+be tested here, and accessibility is a legal requirement for the institutional
+buyers in the pitch — a subtly broken braille display is far worse than a
+parallel service. The one true sub-observation: brltty is the only thing pulling
+in the deprecated `systemd-udev-settle.service`, which is Debian's packaging
+choice, not Dagric's.
 
 ### 3. `kdialog` helper processes leak
 Two `kdialog` processes were still alive long after their dialogs were
