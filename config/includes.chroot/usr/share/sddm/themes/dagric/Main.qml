@@ -655,6 +655,34 @@ Item {
         Accessible.ignored: true
     }
 
+    // ====================================================== edition badge ==
+    //
+    // One quiet line under the mark, and only on the edition that paid for
+    // it. The text comes from theme.conf ([General] editionBadge) — the same
+    // file-is-data pattern as showlogo and background above. The key ships
+    // EMPTY, and 0600-pro-edition sets it to "PRO EDITION" on the Pro image,
+    // so on free this element renders nothing and the login screen is exactly
+    // the layout it was before this block existed.
+    //
+    // (config.editionBadge || "") and not config.editionBadge alone: SDDM
+    // hands the theme undefined for a key theme.conf does not carry, and an
+    // undefined text is a QML warning on every login. The fallback keeps a
+    // missing key identical to an empty one.
+    Text {
+        id: editionBadge
+        visible: text !== "" && !root.compact
+        text: (config.editionBadge || "")
+        anchors.top: brand.bottom
+        anchors.topMargin: root.px(10)
+        anchors.horizontalCenter: parent.horizontalCenter
+        color: "#e8eef7"
+        opacity: 0.85
+        font.pixelSize: root.px(13)
+        font.bold: true
+        font.letterSpacing: root.px(3)
+        Accessible.ignored: true   // decoration, like the mark it sits under
+    }
+
     // ============================================================== clock ==
     //
     // Windows' shape: the time large, the date under it in full. Both come out

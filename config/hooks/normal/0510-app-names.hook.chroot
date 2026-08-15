@@ -182,6 +182,27 @@ while IFS='=' read -r _mime _entry; do
 done < /etc/xdg/mimeapps.list
 unset _mime _entry
 
+# On Pro, the two Dagric identity entries must carry the edition suffix, and
+# every translated Name must carry it too — a German Pro machine whose menu
+# says "Dagric einrichten" unsuffixed while English says "Set Up Dagric — Pro"
+# is the exact drift edition_suffix() exists to prevent.
+if [ "$EDITION" = "pro" ]; then
+    for id in dagric-firstrun dagric-hub; do
+        f="$DST/$id.desktop"
+        if [ ! -f "$f" ]; then
+            echo "ERROR: no Pro-suffixed override for $id — the launcher cannot" >&2
+            echo "       tell the owner which edition this is." >&2
+            fail=1
+            continue
+        fi
+        if grep -E '^Name(\[[^]]*\])?=' "$f" | grep -qv ' — Pro$'; then
+            echo "ERROR: $id.desktop has a Name line without the ' — Pro' suffix:" >&2
+            grep -E '^Name(\[[^]]*\])?=' "$f" | grep -v ' — Pro$' | sed 's/^/       /' >&2
+            fail=1
+        fi
+    done
+fi
+
 [ "$fail" = 0 ] || exit 1
 
 echo "app-names: renamed $(ls -1 "$DST"/*.desktop 2>/dev/null | wc -l) launcher entries ($EDITION edition)"

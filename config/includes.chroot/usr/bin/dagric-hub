@@ -205,7 +205,12 @@ fi
 GEOM=500x760
 [ "$EDITION" = "pro" ] && GEOM=500x805
 
-CHOICE=$(kdialog --title "Dagric Hub" --icon dagric-logo --geometry "$GEOM" \
+# The title says which edition this Hub belongs to. "Dagric Hub" is a product
+# name and untranslated either way; the Pro suffix follows the same rule.
+HUB_TITLE="Dagric Hub"
+[ "$EDITION" = "pro" ] && HUB_TITLE="Dagric Hub — Pro"
+
+CHOICE=$(kdialog --title "$HUB_TITLE" --icon dagric-logo --geometry "$GEOM" \
     --menu "$(gettext "What would you like to do?")" "$@" 2>/dev/null) || exit 0
 [ -n "$CHOICE" ] || exit 0
 

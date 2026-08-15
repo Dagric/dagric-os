@@ -621,6 +621,56 @@ associate() {
     ' "$_dst" > "$_dst.tmp" && mv -f "$_dst.tmp" "$_dst"
 }
 
+# ---------------------------------------------------------------------------
+# edition_suffix <desktop-id>
+#
+# On Pro, shadow one of Dagric's OWN launcher entries with a copy whose every
+# Name — the plain one and each translated Name[xx] — carries the " — Pro"
+# suffix, so the launcher itself says which edition this machine runs. On free
+# (or if the app is gone), remove the override again, under the same marker
+# discipline as rename().
+#
+# Why not sed the file under /usr/share/applications once at build time: these
+# entries ship in the dagric-tools package too, so the first `apt upgrade`
+# would unpack the unsuffixed copy straight back — the identical decay path
+# this file's header documents for the KDE renames. This script already
+# re-runs after every dpkg operation, which makes it the one place the suffix
+# stays true for the years after the ISO is burned.
+#
+# The suffix lands on Name[de], Name[fr] and the rest UNCHANGED and
+# deliberately untranslated: "Pro" is a product name, the same rule the
+# rename tables above follow ("no competitor product names, no translation of
+# our own").
+edition_suffix() {
+    _id=$1
+    _src="$SRC_DIR/$_id.desktop"
+    _dst="$DST_DIR/$_id.desktop"
+
+    if [ "$EDITION" != "pro" ] || [ ! -f "$_src" ]; then
+        if [ -f "$_dst" ] && head -n 1 "$_dst" | grep -qF "$MARK"; then
+            rm -f "$_dst"
+        fi
+        return 0
+    fi
+
+    printf '%s\n' "$MARK" > "$_dst.tmp"
+    # [Desktop Entry] only — a Desktop Action's own Name= must stay untouched,
+    # for the same reason rename() confines itself to that group.
+    awk '
+        /^\[/ { inentry = ($0 == "[Desktop Entry]") }
+        inentry && /^Name(\[[^]]*\])?=/ { print $0 " — Pro"; next }
+        { print }
+    ' "$_src" >> "$_dst.tmp"
+    mv -f "$_dst.tmp" "$_dst"
+}
+
+# The two identity surfaces: the wizard the owner meets first, and the Hub
+# they live in afterwards. Their window titles carry the same suffix (built
+# in dagric-firstrun and dagric-hub respectively), so the launcher entry, the
+# taskbar and the open window always agree.
+edition_suffix dagric-firstrun
+edition_suffix dagric-hub
+
 # Both ISO types, because the two mime databases on this image disagree about
 # the same file — xdg-mime calls one Dagric ISO application/x-iso9660-image and
 # kmimetypefinder calls it application/vnd.efi.iso. KIO uses the latter, so a

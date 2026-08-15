@@ -102,12 +102,25 @@ ApplicationWindow {
     // smallest thing that still reads.
     minimumWidth: 560
     minimumHeight: 420
-    title: app.t("Set Up Dagric")
+    title: app.windowTitle
     color: app.cBg
 
     // --- the catalogue -------------------------------------------------------
     property string edition: "free"
     property string editionName: "Dagric OS"
+    // The wizard's own name, used by the title bar (which is also what the
+    // taskbar shows) and by the header heading, so the two can never say
+    // different things. Free keeps the exact string every reference to this
+    // window uses — the launcher entry, the manual, the "run Set Up Dagric
+    // again" hint in the goodbye popup. Pro appends its mark as a plain
+    // suffix rather than through a second msgid, so the two editions can
+    // never drift apart in translation: "Pro" is a product name and stays
+    // untranslated by the same rule as "Dagric" itself, and the shell side
+    // (dagric-firstrun's TITLE, used by every kdialog fallback) builds the
+    // identical string the identical way.
+    readonly property string windowTitle: edition === "pro"
+                                          ? t("Set Up Dagric") + " — Pro"
+                                          : t("Set Up Dagric")
     property bool live: false
     property string scaleMode: "none"      // wayland | x11 | none
     property int currentScale: 0
@@ -1111,13 +1124,13 @@ ApplicationWindow {
                 Text {
                     Layout.fillWidth: true
                     Layout.minimumWidth: 0
-                    text: app.t("Set Up Dagric")
+                    text: app.windowTitle
                     color: app.cText
                     font.pixelSize: app.px(17)
                     font.bold: true
                     elide: Text.ElideRight
                     Accessible.role: Accessible.Heading
-                    Accessible.name: app.t("Set Up Dagric")
+                    Accessible.name: app.windowTitle
                 }
                 Text {
                     Layout.fillWidth: true

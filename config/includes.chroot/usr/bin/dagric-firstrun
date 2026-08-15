@@ -68,6 +68,11 @@ STAMP=$XDG_CONF/dagric/firstrun-done
 . /usr/bin/dagric-i18n.sh
 
 TITLE=$(gettext "Set Up Dagric")
+# The kdialog fallbacks must carry the same name the QML window does, Pro
+# suffix included — a fallback that identifies itself as a different program
+# reads as a different program. Same construction as windowTitle in main.qml:
+# translated base, untranslated product suffix.
+[ "$EDITION" = "pro" ] && TITLE="$TITLE — Pro"
 
 # Same delimiter reasoning as dagric-appearance: ASCII Unit Separator, not a
 # tab, because tab is IFS whitespace and `read` folds two of them into one.

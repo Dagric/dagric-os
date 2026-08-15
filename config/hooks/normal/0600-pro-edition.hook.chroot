@@ -14,6 +14,29 @@ echo "Applying Dagric Pro configuration..."
 sed -i 's/^PRETTY_NAME=.*/PRETTY_NAME="Dagric OS Pro 1.0 (Foundation)"/' /usr/lib/os-release
 printf 'VARIANT="Pro"\nVARIANT_ID=pro\n' >> /usr/lib/os-release
 
+# The login screen says so too. The dagric SDDM theme draws one quiet line
+# under the logo, fed from theme.conf's editionBadge key, which ships EMPTY —
+# free renders nothing there. This is the first thing an owner sees on every
+# boot, and on a household with one Pro and one free machine it is the
+# at-a-glance difference.
+#
+# GUARDED, because this is the silent-sed shape this tree keeps getting burned
+# by: if the key is ever renamed or dropped from theme.conf, the sed matches
+# nothing, exits 0, and Pro quietly ships a login screen identical to free's.
+SDDMCONF=/usr/share/sddm/themes/dagric/theme.conf
+if [ ! -f "$SDDMCONF" ]; then
+    echo "ERROR: $SDDMCONF missing — is the dagric SDDM theme still shipped?" >&2
+    exit 1
+fi
+sed -i 's/^editionBadge=.*/editionBadge=PRO EDITION/' "$SDDMCONF"
+if ! grep -q '^editionBadge=PRO EDITION$' "$SDDMCONF"; then
+    echo "ERROR: editionBadge did not take in $SDDMCONF — the key the sed" >&2
+    echo "       targets is gone, and the Pro login screen would be" >&2
+    echo "       indistinguishable from free's." >&2
+    exit 1
+fi
+echo "pro-edition: login screen badge set"
+
 # SSH server: installed but off until the owner turns it on. Ship a hardened
 # drop-in so that IF it's ever enabled, it starts locked down rather than at
 # stock Debian defaults. Root login is disabled (users have sudo) and retries
