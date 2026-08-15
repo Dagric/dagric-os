@@ -149,6 +149,15 @@
   <strong>Pro</strong> are on the paid edition only.</p>
   <ul>
     <li><strong>Debian's mirrors</strong>, for system updates and anything you install.</li>
+    <li><strong>Our licence check</strong> (<code>dagric-gate.dagric.workers.dev</code>) — contacted
+    <em>only</em> by the Hub's or setup wizard's <em>Upgrade to Pro</em> flow, only after you
+    paste the purchase code from your receipt, and never otherwise. It sends two things: that
+    code, so we can ask Stripe whether the purchase is real, and an <strong>anonymous machine
+    fingerprint</strong> — a one-way hash of a hardware identifier salted with your purchase
+    code. The fingerprint exists because one purchase covers one machine; it cannot be turned
+    back into a serial number, and the same hardware produces a <em>different</em> value for
+    every purchase, so it cannot track a machine across customers, sessions, or anything else.
+    If you never start the upgrade, this host is never contacted.</li>
     <li><strong>Our update channel</strong> (<code>dagric-os.web.app</code>), which carries fixes
     to Dagric's own tools, wallpapers and settings. It is checked on the same schedule as any
     other software source, so we see the same thing a Debian mirror sees: an IP address asking

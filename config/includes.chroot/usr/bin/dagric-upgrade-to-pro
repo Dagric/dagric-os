@@ -227,12 +227,44 @@ say "$(gettext "Checking the purchase...")"
 # nothing else, which is exactly the distinction this needs. The assets fetch
 # further down DOES keep -f, because there the desired behaviour is the
 # opposite: fail, and write no file, on any non-200.
+# ---------------------------------------------------------------- fingerprint
+# One purchase covers one machine, and this is how the licence check knows
+# which machine is asking WITHOUT ever seeing a serial number: a SHA-256 of
+# the machine's DMI product UUID, salted with the purchase session — so the
+# value is meaningless outside this one purchase, cannot be correlated across
+# customers or sessions, and stays STABLE across reinstalls of the same
+# machine (unlike /etc/machine-id, which every reinstall regenerates — with a
+# one-machine allowance, hashing machine-id would lock out a customer who
+# reinstalls the computer they paid to upgrade).
+#
+# The fallbacks, in honesty order: some boards ship the notorious duplicate
+# DMI UUID 03000200-0400-0500-0006-000700080009 or nothing at all — those fall
+# back to /etc/machine-id (reinstalls on such hardware may need
+# dagric.com/support to move the licence, which the 409 message says).
+# Disclosed in the text below and on dagric.com/privacy.
+RAWID=$(cat /sys/class/dmi/id/product_uuid 2>/dev/null || true)
+case "$RAWID" in
+    ""|03000200-0400-0500-0006-000700080009)
+        RAWID=$(cat /etc/machine-id 2>/dev/null || echo unknown) ;;
+esac
+MID=$(printf '%s:%s' "$SID" "$RAWID" | sha256sum | cut -c1-64)
+
+say ""
+say "$(gettext "Your purchase covers one machine. This machine introduces itself to the
+licence check as an anonymous fingerprint (a one-way hash tied to this
+purchase) — never a serial number, never anything readable.")"
+
 HTTP=$(curl -sS -o /dev/null -w '%{http_code}' -I --max-time 30 \
-       "$GATE/?session_id=$SID" 2>/dev/null) || HTTP=000
+       "$GATE/?session_id=$SID&m=$MID" 2>/dev/null) || HTTP=000
 
 case "$HTTP" in
     200)
         say "  $(gettext "Confirmed. Thank you.")" ;;
+    409)
+        die "$(gettext "this purchase is already upgrading a different machine. One purchase
+        covers one machine. dagric.com/support can move the licence to this
+        machine, or a second machine needs a second purchase. Nothing was
+        changed.")" ;;
     403)
         die "$(gettext "that purchase session was not recognised as paid. If you have just
         bought Pro, give it a minute and try again — and if it keeps failing,
@@ -406,7 +438,7 @@ ASSETS_OK=no
 n=1
 while [ "$n" -le 3 ]; do
     if curl -fsS --max-time 120 -o "$WORK/assets.tar.gz" \
-            "$GATE/assets?session_id=$SID" 2>/dev/null &&
+            "$GATE/assets?session_id=$SID&m=$MID" 2>/dev/null &&
        tar -tzf "$WORK/assets.tar.gz" >/dev/null 2>&1; then
         ASSETS_OK=yes
         say "  $(gettext "done.")"

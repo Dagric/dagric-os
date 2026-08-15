@@ -48,6 +48,20 @@ compatibility_date = "2026-01-01"
 binding = "PRO"
 bucket_name = "dagric-pro"
 
+# The licence-allowance store: one machine per purchase, ISO download starts,
+# and the legacy assets counter. The worker FAILS OPEN if this binding is
+# missing or KV errors — customers are never locked out by our storage — so a
+# careless deploy without it degrades to "no allowance enforcement", loudly
+# visible in `wrangler deployments list`, rather than to broken downloads.
+#
+# BEFORE THE FIRST DEPLOY: create the namespace and paste its id here —
+#     wrangler kv namespace create LICENSE
+# (Blocked until the Cloudflare token is rotated; the placeholder below makes
+# `wrangler deploy` fail rather than silently deploy without the binding.)
+[[kv_namespaces]]
+binding = "LICENSE"
+id = "CREATE-WITH-wrangler-kv-namespace-create-LICENSE"
+
 # ── the contact-form backend ────────────────────────────────────────────────
 # Deployed separately:  wrangler deploy --config infra/wrangler.toml --env contact
 # It has no secrets. Its R2 bucket is where /contact messages land, read from
