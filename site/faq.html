@@ -172,26 +172,32 @@ h2{margin-top:var(--s-7)}
   <h2>Dagric OS Pro</h2>
   <details><summary>Is Pro a subscription?</summary><p>No. $39, once. No license server, no
   activation, no expiry. Install it on the machines you own, keep it forever, updates included.</p></details>
-  <details><summary>How do I get Pro after paying?</summary><p>Checkout finishes on your personal
-  download page — bookmark it. The same link re-downloads anytime and resumes interrupted
-  downloads. It's also linked from your Stripe receipt.</p></details>
+  <details><summary>How do I get Pro after paying?</summary><p>Two ways, same result. If you're
+  installing fresh: checkout finishes on your personal download page — bookmark it; the same link
+  re-downloads anytime, resumes interrupted downloads, and is also linked from your Stripe receipt.
+  If you're already running the free edition: you don't need the ISO at all — open the
+  <strong>Dagric Hub</strong>, pick <em>Upgrade to Pro</em>, and paste the code from your receipt.</p></details>
   <details><summary>What if I buy Pro and don't like it?</summary><p>Reply to your Stripe receipt
   within <strong>14 days</strong> and we refund in full — no quiz, no hoops.
   Details in the <a href="/terms">terms</a>.</p></details>
-  <details><summary>Can I upgrade a free install to Pro?</summary><p>The current path is
-  installing the Pro ISO (keep your files on a separate partition or back them up).</p>
-  <!-- "An in-place upgrade tool is on the roadmap" used to close this answer. It
-       was a forward-looking promise with nothing behind it: docs/ROADMAP.md has
-       no free-to-Pro item, and the only thing named dagric-upgrade is the Debian
-       release upgrader (trixie to forky), which is not an edition change. On the
-       page a buyer reads before spending $39, an unbacked "coming soon" is worth
-       less than nothing — somebody buys free expecting the upgrade to arrive.
-       /download's wording is the honest one and is now used on all three pages:
-       there is no in-place upgrade YET, and starting on Pro saves doing it
-       twice. If the tool is ever built, this is the sentence to change back. -->
-  <p>So if you already know you want the creative, gaming or developer suites,
-  starting on the Pro ISO saves doing the install twice &mdash; and Pro refunds in
-  full for 14 days, so finding out costs nothing.</p></details>
+  <details><summary>Can I upgrade a free install to Pro?</summary>
+  <!-- The tool this answer used to say didn't exist was built, and its old
+       comment ended "If the tool is ever built, this is the sentence to change
+       back." It was, and this is that change. What backs the words now:
+       dagric-upgrade-to-pro ships on every free image, the Hub shows "Upgrade
+       to Pro — already bought it?" on installed free machines, the gate worker
+       validates the purchase against Stripe before anything is touched, and
+       the build refuses to produce an ISO whose Pro package set disagrees with
+       the upgrade tool's list — so an upgrader and a reinstaller end up with
+       the same machine, by machine-checked construction. -->
+  <p><strong>Yes — in place, without reinstalling.</strong> Buy Pro, then on your free machine open
+  the <strong>Dagric Hub</strong> and pick <em>Upgrade to Pro — already bought it?</em>. Paste the
+  purchase code from your receipt (it starts with <code>cs_</code>), and the tool checks your
+  purchase, downloads everything first, and installs the same suite the Pro ISO ships. Your files
+  and settings stay exactly as they are.</p>
+  <p>Two honest details: your existing settings are kept rather than replaced by Pro's defaults,
+  and your snapshot history starts fresh at the upgrade rather than at a clean install. The tool
+  won't run on battery power or from the live USB stick, on purpose.</p></details>
 
   <h2>The project</h2>
   <details><summary>Is the software open source?</summary><p>Yes — Dagric OS is built from

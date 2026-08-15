@@ -162,14 +162,20 @@ table.cmp td:nth-child(2),table.cmp td:nth-child(3),table.cmp th:nth-child(2),ta
        in the last line of the page: "Or start with the free edition". Nothing below is new — the
        live-USB behaviour is faq.html's "every ISO is also a live system", Check This PC is
        download.html's own section, "same system underneath" is download.html's "Pro is that same
-       system with...", and the no-in-place-upgrade sentence is faq.html verbatim in substance. It
-       ends pointing at Pro on purpose: removing the risk should not cost the sale. -->
+       system with...", and the upgrade sentence matches faq.html's answer. This note used to end
+       "there is no in-place upgrade yet, so free-then-Pro means installing twice" — true when
+       written, false the same week: the Hub's Upgrade to Pro row and dagric-upgrade-to-pro shipped,
+       and the build now refuses to produce an ISO whose package set disagrees with the upgrade
+       tool's. Trying free first is now genuinely risk-free, which is a BETTER close for this page,
+       not a worse one: removing the risk should not cost the sale. -->
   <p class="note" style="margin-top:var(--s-5)">Not sure it will even
   work on your machine? Find out before you spend anything: <a href="/download">the free edition</a>
   is the same system underneath, it runs live from a USB stick without touching your disk, and every
   stick carries <strong>Check This PC</strong> — a plain-language report on your Wi-Fi, graphics,
-  sound, Secure Boot and drives. If it comes back clear, this is the version to install: there is no
-  in-place upgrade yet, so free-then-Pro means installing twice.</p>
+  sound, Secure Boot and drives. And trying free first costs you nothing later: a free install
+  <strong>upgrades to Pro in place</strong> — open the Dagric Hub, pick <em>Upgrade to Pro</em>,
+  paste the code from your receipt, and the machine becomes Pro with your files and settings exactly
+  where you left them. No second install, no USB stick, no moving files.</p>
   <!-- Same 820px wallpaper removed here as on index.html — see the long note
        there for the measurement. Worse on this page, though: it was the SAME
        FILE, hero-shot.png, carrying alt="The Dagric OS Pro desktop". One image
@@ -509,8 +515,7 @@ table.cmp td:nth-child(2),table.cmp td:nth-child(3),table.cmp th:nth-child(2),ta
        deciding, and this is the last thing between them and the Buy button.
        Every line is a fact already established elsewhere in this repo or on this site;
        nothing here is new marketing. In order: the Hub's unconditional block (five
-       helpers, zero EDITION references between them); download.html's own "no in-place
-       upgrade" section and faq.html's answer; download.html's stated requirement
+       helpers, zero EDITION references between them); download.html's stated requirement
        "Storage: 25 GB free (Free) / 40 GB (Pro)"; the fact that every application in
        pro-apps.list.chroot is a Debian package under its own free licence, which
        /licenses already says in as many words; and the Resolve paragraph higher up this
@@ -519,7 +524,12 @@ table.cmp td:nth-child(2),table.cmp td:nth-child(3),table.cmp th:nth-child(2),ta
        once below and is not this section's job — a page that answers "don't buy" with
        "but you can always refund" has not actually said don't buy. -->
   <h2>Don't buy Pro <span class="grad">if…</span></h2>
-  <p class="lead">Five reasons to keep your $39. We would rather lose the sale than
+  <!-- This section said "Five reasons" and one of them was "…you have already installed the free
+       edition — there is no in-place upgrade yet". That card is gone because its premise is gone:
+       the Hub's Upgrade to Pro row does the move in place, files and settings kept. An installed
+       free user is now a perfectly good buyer, and telling them otherwise was costing sales to
+       protect them from an afternoon that no longer exists. -->
+  <p class="lead">Four reasons to keep your $39. We would rather lose the sale than
   take it from somebody who was going to want it back.</p>
   <div class="grid">
     <div class="card"><h3>…you only wanted Steam, Heroic, Bottles or Ollama</h3><p>All four are one
@@ -528,10 +538,6 @@ table.cmp td:nth-child(2),table.cmp td:nth-child(3),table.cmp th:nth-child(2),ta
     reason for buying, download the free ISO instead — you will get the same buttons. Pro's gaming
     value is the 32-bit Vulkan, GameMode and MangoHud underneath them, which matters if you play,
     and not otherwise.</p></div>
-    <div class="card"><h3>…you have already installed the free edition</h3><p>There is no in-place
-    upgrade yet. Buying Pro today means installing the machine a second time from the Pro ISO and
-    moving your files across. If you are settled in and don't fancy that afternoon, there is no
-    harm in waiting.</p></div>
     <div class="card"><h3>…the disk is nearly full</h3><p>Pro needs <strong>40 GB</strong> of free
     space against the free edition's 25 GB, because the creative suite, the Wine and gaming
     runtimes and the CJK fonts are all really there on the disk. On a small SSD or an older laptop
