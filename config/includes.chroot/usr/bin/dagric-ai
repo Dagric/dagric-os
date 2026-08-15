@@ -38,6 +38,14 @@ To remove it completely:
   sudo userdel ollama
 ")"
 dg_live_warn
+
+# Same guard as dagric-gaming: without it, `dagric-ai --help` prints the banner
+# and then blocks forever on the read below. The banner is the help text and is
+# already translated, so this adds no msgid and cannot drift.
+case "${1:-}" in
+    -h|--help) exit 0 ;;
+esac
+
 printf '%s ' "$(gettext "Install Ollama from https://ollama.com? [y/N]")"
 read -r answer
 if dg_is_yes "$answer"; then

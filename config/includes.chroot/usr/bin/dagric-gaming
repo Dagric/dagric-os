@@ -23,6 +23,19 @@ with one click from the Dagric Hub, or run:  dagric-get-steam
 This helper adds Proton-GE (GloriousEggroll's community Proton with
 extra media codecs and game-specific fixes) for a Steam you've installed.")"
 dg_live_warn
+
+# --help MUST NOT REACH THE PROMPT BELOW. This script takes no options and
+# never looked at $1, so `dagric-gaming --help` printed the banner and then sat
+# on `read -r answer` forever on a terminal - a tool that hangs when asked what
+# it does. Measured: rc=124 at a 12 s timeout.
+#
+# The banner above IS the help text, and it is already translated, so exiting
+# here costs no new msgid and cannot drift out of sync with the tool's real
+# behaviour. Anything that is not an option falls through to the normal
+# interactive run, so nothing that worked before changes.
+case "${1:-}" in
+    -h|--help) exit 0 ;;
+esac
 # THESE TWO USED TO BE `exit`, AND THAT PUT THE GAMEMODE OFFER OUT OF REACH.
 #
 # The only place in the entire product that offers to add the owner to the
