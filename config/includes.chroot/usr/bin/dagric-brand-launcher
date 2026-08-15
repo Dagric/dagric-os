@@ -235,6 +235,21 @@ logger -t dagric-brand-launcher \
 KACT_DB="$HOME/.local/share/kactivitymanagerd/resources/database"
 KACT=untouched
 
+# THE AGENT NAME, READ OUT OF A RUNNING SYSTEM RATHER THAN OFF THE QML.
+#
+# main.qml calls initForClient("org.kde.plasma.kickoff.favorites.instance-" +
+# Plasmoid.id), and an earlier version of this file therefore deleted rows
+# matching that string. It matched NOTHING. Dumped from the real database on an
+# installed machine, every favourite row looks like:
+#
+#   :global|org.kde.plasma.favorites.applications|applications:systemsettings.desktop
+#   :global|org.kde.plasma.favorites.applications|preferred://browser
+#
+# One shared agent, not a per-instance one. The clear reported success on zero
+# rows, the model was therefore never empty, and portOldFavorites never ran —
+# which is why five rebuilds all produced KDE's stock five.
+KACT_AGENT='org.kde.plasma.favorites.applications'
+
 # THE OWNER'S OWN PINS ARE INVISIBLE TO THE UNTOUCHED TEST ABOVE, and that test
 # is what authorises the DELETE below. Everything in this file up to here reads
 # the config key — but once Kickoff has ported, pinning an application through
@@ -258,7 +273,7 @@ STOCK_N=0
 KACT_ROWS=-1
 if [ -f "$KACT_DB" ] && command -v sqlite3 >/dev/null 2>&1; then
     KACT_ROWS=$(sqlite3 "$KACT_DB" \
-      "SELECT COUNT(*) FROM ResourceLink WHERE initiatingAgent LIKE 'org.kde.plasma.kickoff.favorites.instance-%';" \
+      "SELECT COUNT(*) FROM ResourceLink WHERE initiatingAgent='$KACT_AGENT';" \
       2>/dev/null) || KACT_ROWS=-1
     case "$KACT_ROWS" in ''|*[!0-9]*) KACT_ROWS=-1 ;; esac
 fi
@@ -271,52 +286,68 @@ if [ "$KACT_ROWS" -gt 0 ] && [ "$STOCK_N" -gt 0 ] && [ "$KACT_ROWS" -gt "$STOCK_
 fi
 
 if [ "$UNTOUCHED" = yes ]; then
-    kwriteconfig6 --file plasma-org.kde.plasma.desktop-appletsrc \
-      --group Containments --group "$N" --group Applets --group "$M" \
-      --group Configuration --group General --key favorites "$FAVS" 2>/dev/null
-    kwriteconfig6 --file plasma-org.kde.plasma.desktop-appletsrc \
-      --group Containments --group "$N" --group Applets --group "$M" \
-      --group Configuration --group General --key favoritesPortedToKAstats \
-      --type bool false 2>/dev/null
-
-    # Empty ONLY Kickoff's favourite links, not the whole store. The same
-    # database holds the owner's recently-used documents and application usage
-    # scores; deleting the file would take those with it. The agent name is the
-    # one initForClient registers above, so this cannot reach another applet's
-    # favourites, and the LIKE covers the instance id we cannot know here.
+    # WRITE THE ROWS OURSELVES INSTEAD OF ASKING KICKOFF TO IMPORT THEM.
     #
-    # kactivitymanagerd holds the database open and is D-Bus activated, so it
-    # is stopped first and left to come back on its own when something next
-    # asks for it — no restart call needed.
-    # sqlite3 missing is a FAILURE, not a neutral outcome. It was called
-    # "skipped" and allowed to retire, which meant an image that had lost the
-    # binary produced no favourites and no second attempt, silently.
+    # Every earlier attempt tried to make portOldFavorites do the work: set the
+    # config key, reset favoritesPortedToKAstats, empty the model, hope. That
+    # path has two independent failure modes and this file hit BOTH:
+    #
+    #   * the clear targeted the wrong agent, so the model was never empty and
+    #     the import was skipped outright;
+    #   * even when the import did run, it silently dropped
+    #     dagric-hub.desktop — the one entry that matters — while accepting the
+    #     four stock ones. Confirmed from the other side: the same id pins fine
+    #     through the launcher's own "Add to Favorites".
+    #
+    # Writing the rows directly removes the resolver and the one-shot flag from
+    # the problem entirely. The schema is three text columns and the format is
+    # visible in the rows Plasma writes itself:
+    #
+    #   CREATE TABLE ResourceLink (usedActivity, initiatingAgent, targettedResource)
+    #   :global | org.kde.plasma.favorites.applications | applications:foo.desktop
+    #   :global | org.kde.plasma.favorites.applications | preferred://browser
+    #
+    # Note the two resource shapes: a .desktop id is prefixed "applications:",
+    # while preferred:// URLs are stored bare. Getting that wrong yields a
+    # favourite that renders as a blank tile.
+    #
+    # There is no sort column — order follows insertion — so the rows go in in
+    # the order they should appear, after clearing the stock set in the same
+    # statement.
     KACT=no-sqlite3
     if [ -f "$KACT_DB" ] && command -v sqlite3 >/dev/null 2>&1; then
-        # No kquitapp6 call here. It is not on either image — a dropped
-        # Recommends — and the argument would have to be the D-Bus service
-        # org.kde.ActivityManager rather than the binary name, so the previous
-        # line was a no-op wearing a comment that claimed the daemon had been
-        # stopped. SQLite's WAL mode allows this DELETE while the daemon holds
-        # the file open, and plasmashell — the only reader that matters here —
-        # is already stopped above. A busy timeout closes the remaining race
-        # honestly, which is what the stop was pretending to do.
-        if sqlite3 -cmd ".timeout 5000" "$KACT_DB" "DELETE FROM ResourceLink WHERE initiatingAgent LIKE 'org.kde.plasma.kickoff.favorites.instance-%';" 2>/dev/null; then
-            KACT=cleared
+        _sql="DELETE FROM ResourceLink WHERE initiatingAgent='$KACT_AGENT';"
+        for _f in $(printf '%s' "$FAVS" | tr ',' ' '); do
+            case "$_f" in
+                *://*) _res="$_f" ;;
+                *)     _res="applications:$_f" ;;
+            esac
+            _sql="$_sql INSERT INTO ResourceLink VALUES(':global','$KACT_AGENT','$_res');"
+        done
+        # A busy timeout rather than stopping the daemon: kactivitymanagerd is
+        # D-Bus activated and holds the database open, and WAL mode permits this
+        # write alongside it. plasmashell, the only reader that matters, is
+        # already stopped above.
+        if sqlite3 -cmd ".timeout 5000" "$KACT_DB" "$_sql" 2>/dev/null; then
+            KACT=written
         else
-            # A future Plasma may rename that table. Failing here is survivable
-            # — the owner gets KDE's favourites, not a broken launcher — but it
-            # must be visible rather than silent, because "no visible change"
-            # is the one symptom this whole block exists to stop producing.
+            # Survivable — the owner keeps KDE's favourites rather than getting
+            # a broken launcher — but it must be visible, because "no visible
+            # change" is the exact symptom this block exists to stop producing.
             KACT=failed
         fi
+        unset _sql _f _res
     elif [ ! -f "$KACT_DB" ]; then
-        # Nothing imported yet: the model is already empty and the import will
-        # take our list unaided. This is the true first-login path.
+        # No store yet: this is a genuinely fresh profile. Seed the config key
+        # so Kickoff's own first-load import has our list to read, which is the
+        # one situation where that path does work.
+        kwriteconfig6 --file plasma-org.kde.plasma.desktop-appletsrc \
+          --group Containments --group "$N" --group Applets --group "$M" \
+          --group Configuration --group General --key favorites "$FAVS" 2>/dev/null
         KACT=absent
     fi
     logger -t dagric-brand-launcher \
-      "favourites: wrote=[$FAVS] port-flag=reset kastats=$KACT rows=$KACT_ROWS" \
+      "favourites: kastats=$KACT agent=$KACT_AGENT rows-before=$KACT_ROWS wanted=[$FAVS]" \
       2>/dev/null || true
 fi
 
@@ -325,7 +356,7 @@ fi
 # outcome there, and re-deciding it at every login would mean re-reading the
 # database forever to reach the same answer.
 case "$KACT" in
-    cleared|absent|owner-curated)
+    written|absent|owner-curated)
         mkdir -p "$STAMP_DIR" 2>/dev/null && : > "$STAMP" 2>/dev/null || true
         ;;
 esac
@@ -364,7 +395,7 @@ VFAV=$(kreadconfig6 --file plasma-org.kde.plasma.desktop-appletsrc \
 # Leaving the autostart in place costs one no-op script per login and buys
 # another attempt; retiring on a false positive costs the feature permanently.
 case "$KACT" in
-    cleared|absent|owner-curated) KACT_DONE=yes ;;
+    written|absent|owner-curated) KACT_DONE=yes ;;
     *)                            KACT_DONE=no  ;;
 esac
 logger -t dagric-brand-launcher \
