@@ -85,3 +85,59 @@ application/xhtml+xml=firefox-esr.desktop
 # ~/.config/mimeapps.list, which outranks this, and is never overridden back.
 application/x-iso9660-image=org.kde.isoimagewriter.desktop
 application/vnd.efi.iso=org.kde.isoimagewriter.desktop
+
+# A downloaded .deb opens the Package Installer, which is what we already claim.
+#
+# dagric-app-names renames gdebi to "Package Installer" and its comment says, in
+# as many words, "Double-clicking a downloaded .deb opens this." That was not
+# true. Upstream ships
+#     /usr/share/applications/kde-mimeapps.list
+#     application/vnd.debian.binary-package=org.kde.discover.desktop
+# so double-clicking a .deb opened the Software Store instead — the app whose
+# whole premise is a curated catalogue, handed a file from outside it. gdebi is
+# installed on both editions, claims the type itself, and already carries
+# Exec=gdebi-gtk %f; it was simply outranked.
+#
+# Measured, not assumed: gdebi-gtk was handed a real hello_2.10-5_amd64.deb in
+# the live session and opened it. This pin is the only thing that was missing.
+#
+# Discover stays in Open With and remains the right tool for the catalogue. This
+# only decides what a FILE does when you double-click it.
+application/vnd.debian.binary-package=gdebi.desktop
+
+# Text and source files open in the graphical editor this system ships.
+#
+# THE BUG: double-clicking a shell script opened vim. Not gvim — vim, from a
+# .desktop carrying Terminal=true, so Plasma opens a Konsole window running a
+# modal editor with no visible way out. For the audience this product is sold to
+# that is not a poor default, it is a trap: someone who downloaded install.sh,
+# double-clicked it expecting to read it, and cannot get their screen back.
+#
+# It was not one type. vim.desktop claims fifteen, and won every one of them
+# except text/plain (which Kate already held): C, C++, their headers, Java,
+# Pascal, Tcl, TeX, Makefiles, moc, text/english and shell scripts. So a .c file
+# and a .txt file next to each other behaved completely differently.
+#
+# Kate is installed on both editions, is renamed "Text Editor" in the launcher,
+# and is the editor every piece of Dagric documentation points at. It is a valid
+# handler for all of these: application/x-shellscript and the text/x-* types are
+# subclasses of text/plain in shared-mime-info, which Kate claims explicitly.
+#
+# vim is not removed and is not hidden — it stays installed, stays in the menu,
+# and anyone who wants it back sets it once in System Settings, which writes
+# ~/.config/mimeapps.list and outranks this file permanently. It is only no
+# longer what a double-click reaches for on a graphical desktop.
+application/x-shellscript=org.kde.kate.desktop
+text/english=org.kde.kate.desktop
+text/x-makefile=org.kde.kate.desktop
+text/x-c=org.kde.kate.desktop
+text/x-csrc=org.kde.kate.desktop
+text/x-chdr=org.kde.kate.desktop
+text/x-c++=org.kde.kate.desktop
+text/x-c++src=org.kde.kate.desktop
+text/x-c++hdr=org.kde.kate.desktop
+text/x-java=org.kde.kate.desktop
+text/x-moc=org.kde.kate.desktop
+text/x-pascal=org.kde.kate.desktop
+text/x-tcl=org.kde.kate.desktop
+text/x-tex=org.kde.kate.desktop

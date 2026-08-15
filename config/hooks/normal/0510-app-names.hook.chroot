@@ -151,14 +151,36 @@ if [ -f "$ISOW" ]; then
     fi
 fi
 
-# The pin itself. It lives in a file we ship whole, so a typo here is the kind
-# of thing only a running desktop would ever catch.
-for m in application/x-iso9660-image application/vnd.efi.iso; do
-    if ! grep -qx "$m=org.kde.isoimagewriter.desktop" /etc/xdg/mimeapps.list; then
-        echo "ERROR: /etc/xdg/mimeapps.list does not pin $m to the USB writer." >&2
+# The pins themselves. They live in a file we ship whole, so a typo is the kind
+# of thing only a running desktop would ever catch. These four each fix a defect
+# an owner meets by double-clicking an ordinary file, so they are named
+# explicitly rather than counted.
+for pin in \
+    "application/x-iso9660-image=org.kde.isoimagewriter.desktop" \
+    "application/vnd.efi.iso=org.kde.isoimagewriter.desktop" \
+    "application/vnd.debian.binary-package=gdebi.desktop" \
+    "application/x-shellscript=org.kde.kate.desktop"; do
+    if ! grep -qx "$pin" /etc/xdg/mimeapps.list; then
+        echo "ERROR: /etc/xdg/mimeapps.list is missing the pin $pin" >&2
         fail=1
     fi
 done
+
+# And every pin, including the ones not named above, must point at a launcher
+# that is actually installed. This is the failure mode worth catching: a default
+# naming a .desktop that is not there does not error, it just puts the type back
+# to having NO handler — which is precisely the bug half these lines were added
+# to fix, silently reintroduced by a rename or a dropped package.
+while IFS='=' read -r _mime _entry; do
+    case "$_mime" in ''|'#'*|'['*) continue ;; esac
+    [ -n "$_entry" ] || continue
+    if [ ! -f "$DST/$_entry" ] && [ ! -f "/usr/share/applications/$_entry" ]; then
+        echo "ERROR: /etc/xdg/mimeapps.list pins $_mime to $_entry," >&2
+        echo "       which is not installed — that type will have no handler." >&2
+        fail=1
+    fi
+done < /etc/xdg/mimeapps.list
+unset _mime _entry
 
 [ "$fail" = 0 ] || exit 1
 
