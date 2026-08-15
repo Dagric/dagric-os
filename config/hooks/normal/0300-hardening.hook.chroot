@@ -282,8 +282,23 @@ systemctl enable zramswap.service 2>/dev/null || true
 
 # Boot the kernel with AppArmor as the active LSM (Debian ships it available
 # but this makes it explicit and enforced from first boot).
+#
+# THE GUARD USED TO MATCH THE COMMENT THAT DOCUMENTS IT, so the append never
+# ran. It was a bare `grep -q "apparmor=1" 50-dagric.cfg`, and 50-dagric.cfg
+# carries a comment block explaining that this hook appends
+# "apparmor=1 security=apparmor" — that sentence contains the search string, so
+# the guard found it, concluded the work was already done, and skipped. Measured
+# in both shipped squashfs images: one comment line mentioning apparmor, zero
+# active lines. The hook exited 0 every time.
+#
+# That is this tree's false-success class in its purest form: the documentation
+# written to explain a mechanism is what switched the mechanism off.
+#
+# Anchoring on ^GRUB_CMDLINE_LINUX= makes the test ask the real question — is
+# there an ACTIVE assignment carrying the flag — which no comment can satisfy.
 if [ -f /etc/default/grub.d/50-dagric.cfg ]; then
-    if ! grep -q "apparmor=1" /etc/default/grub.d/50-dagric.cfg; then
+    if ! grep -q '^[[:space:]]*GRUB_CMDLINE_LINUX=.*apparmor=1' \
+         /etc/default/grub.d/50-dagric.cfg; then
         echo 'GRUB_CMDLINE_LINUX="$GRUB_CMDLINE_LINUX apparmor=1 security=apparmor"' \
             >> /etc/default/grub.d/50-dagric.cfg
     fi
