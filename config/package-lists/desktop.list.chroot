@@ -348,3 +348,32 @@ plasma-thunderbolt
 # audiocd:/ KIO worker that Dolphin and Elisa both rely on is a separate
 # package. Windows Media Player did this in 2001.
 kio-audiocd
+
+# AND THE ONE FORMAT THE CAR STEREO TAKES. With kio-audiocd alone, audiocd:/
+# offers Full CD (wav), Ogg Vorbis and FLAC, and no MP3. lame is a Recommends,
+# and this image is built with --apt-recommends false.
+#
+# The mechanism is worth writing down because the obvious guess is wrong, and
+# it was checked rather than assumed. libmp3lame0 and libopus0 ARE both already
+# on this image, arriving with the ffmpeg stack, and they are irrelevant:
+#   ldd libaudiocd_encoder_lame.so   -> links NO mp3lame library at all
+#   strings libaudiocd_encoder_lame.so -> "Lame stdout: ", "Lame stderr: ",
+#                                         "Lame Encoding process exited with: "
+# Those are a child process being run and reaped, not a library being called.
+# The encoder shells out to the lame BINARY, so the codec library being present
+# buys nothing. A missing binary un-registers the encoder rather than failing
+# when used, which is why the format silently is not offered instead of
+# erroring.
+#
+# 349 kB installed, 278 kB down, trixie/main. MP3's patents expired in 2017 and
+# lame has been in main since; nothing here touches the redistribution rule.
+lame
+
+# opus-tools for the identical reason, verified the same way: kio-audiocd also
+# ships libaudiocd_encoder_opus.so, and it carries "Opusenc stdout: " and
+# "Opusenc stderr: " — so it too runs a binary, opusenc, which is not here
+# either. 171 kB installed, trixie/main, and it brings libopusenc0 and
+# libopusfile0 with it — measured with apt-get install -s, five new packages for
+# this line and the lame one together. Fixing only MP3 would have left a second
+# silently-missing folder behind for the next audit to rediscover.
+opus-tools

@@ -159,5 +159,34 @@ if [ -n "$ff_missing" ]; then
 fi
 [ -z "$lo_missing$ff_missing" ] && echo "locales: LibreOffice and Firefox langpacks present for all five"
 
+# QT'S OWN STRINGS, which the two checks above do not cover and which were
+# missing entirely until this was asserted. Measured on a running installed
+# machine before the fix: /usr/share/qt6/translations contained
+# qtwebengine_locales and nothing else — zero qtbase_*.qm — so the right-click
+# Undo/Redo/Cut/Copy/Paste menu in every text field, and the buttons in plain
+# QMessageBox dialogs, stayed English on all five translated desktops.
+#
+# qt6-translations-l10n is a Recommends of libqt6core6t64 and this image builds
+# with --apt-recommends false, so it is one apt resolver decision away from
+# vanishing again without any other symptom. Hence an assertion rather than
+# trust.
+#
+# THE LANGUAGE CODES ARE NOT THE ONES ABOVE. Qt names its files qtbase_de.qm,
+# qtbase_fr.qm, qtbase_it.qm, qtbase_es.qm and qtbase_pt_BR.qm — plain "es"
+# where Firefox needs es-ES, and an UNDERSCORE in pt_BR where both Firefox and
+# LibreOffice use a hyphen. Reusing either loop's list verbatim would report
+# false failures, so this list is written out separately on purpose.
+qt_missing=
+for lang in de es fr it pt_BR; do
+    [ -e "/usr/share/qt6/translations/qtbase_$lang.qm" ] || qt_missing="$qt_missing $lang"
+done
+if [ -n "$qt_missing" ]; then
+    echo "WARNING: no Qt translation for:$qt_missing" >&2
+    echo "         Cut/Copy/Paste and message-box buttons will be English there." >&2
+    echo "         Check qt6-translations-l10n in config/package-lists/apps.list.chroot." >&2
+else
+    echo "locales: Qt's own translations present for all five"
+fi
+
 echo "locales: generated $DAGRIC_LOCALES"
 echo "locales: dagric.mo present for de fr es pt_BR it"

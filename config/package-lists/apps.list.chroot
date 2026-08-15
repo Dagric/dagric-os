@@ -51,6 +51,26 @@ libreoffice-l10n-fr
 libreoffice-l10n-it
 libreoffice-l10n-pt-br
 
+# AND QT'S OWN STRINGS, which none of the above covers. Measured on a running
+# installed machine: /usr/share/qt6/translations holds qtwebengine_locales and
+# NOTHING ELSE — zero qtbase_*.qm files. So on a German, French, Spanish,
+# Italian or Brazilian desktop, every string Qt itself supplies stays English:
+# the Undo / Redo / Cut / Copy / Paste / Select All menu you get on right-click
+# in ANY text field, and the buttons in plain QMessageBox dialogs.
+#
+# qt6-translations-l10n is a Recommends of libqt6core6t64 (confirmed with
+# apt-cache rdepends), and this image is built with --apt-recommends false —
+# the same dropped-Recommends class as wpasupplicant, alsa-ucm-conf and rtkit.
+# ki18n's startup hook reads that directory; nothing else populates it.
+#
+# 1.7 MB to download, 14.2 MB on disk, trixie/main. Debian does not split it per
+# language, so it is all-or-nothing, and the size argument against it is weaker
+# than it looks: it is .qm data and compresses roughly 8:1 into the squashfs.
+#
+# NOT covered by this and still English: nothing in KDE's own apps — KDE ships
+# its own catalogues and those are already installed. This is Qt's layer only.
+qt6-translations-l10n
+
 # SPELL CHECK IN THE LANGUAGES THIS OS ACTUALLY SPEAKS.
 #
 # THE CLAIM BELOW WAS TRUE ONCE AND IS NOT TRUE OF THE SHIPPED IMAGE.
