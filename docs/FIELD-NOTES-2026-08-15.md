@@ -17,8 +17,9 @@ that gives a false picture of the product.
 
 | Area | Result |
 |---|---|
-| Boot time | **6.1 s** total (3.6 kernel + 2.5 userspace) to multi-user |
-| Idle memory | **955 MB** on a 3 GB machine, full Plasma session |
+| Boot time | **6.0 s** total (3.4 kernel + 2.6 userspace); ~0.35 s of that is demo harness, so the product reaches multi-user at ~2.05 s |
+| Idle memory | **642 MB PSS** / 962 MB `free`-used, full Plasma session — see the measurement note below |
+| zram | **8.4× compression**: 433 MB of swapped pages held in **51 MB** of real RAM |
 | Install from Software Store | works end to end, including the polkit prompt |
 | Print stack | CUPS active, PDF queue present, HP + Brother + Epson filters all shipped |
 | Codecs | 269 GStreamer plugins incl. libav and vpx; mpv present |
@@ -29,6 +30,46 @@ that gives a false picture of the product.
 | Appearance gallery | live preview, "nothing is kept until you press Keep" — genuinely good UX |
 | Hardware check | plain-language report, correctly identified BIOS vs UEFI boot |
 | Snapshots | pre/post pair per apt run, GRUB submenu populated |
+
+### The memory number, measured properly
+
+The 955 MB figure originally recorded here is `free`'s "used" column, which is a
+fair thing to quote but is not what the desktop costs — and the per-process RSS
+list that seems to explain it is actively misleading, because RSS counts every
+shared Qt library once per process. Summing `Pss` from `/proc/*/smaps_rollup`
+instead, which counts shared pages once:
+
+| | PSS |
+|---|---|
+| plasmashell | 217 MB |
+| xdg-desktop-portal-kde | 203 MB |
+| kwin_x11 | 93 MB |
+| kded6 | 36 MB |
+| DiscoverNotifier | 18 MB |
+| **all processes** | **679 MB** |
+| less demo harness (Xtigervnc, websockify) | −37 MB |
+| **product idle footprint** | **≈642 MB** |
+
+`xdg-desktop-portal-kde` sitting at 203 MB — within striking distance of
+plasmashell — is the one number here worth a second look, but it is platform
+code required by every Flatpak the Software Store installs, so there is nothing
+to cut without breaking that.
+
+### zram is not a warning sign, it is the tuning working
+
+440 MB showing in `swapon` on a 3 GB machine reads like memory pressure and is
+not. `/sys/block/zram0/mm_stat` says 433 MB of pages are being held in **51 MB**
+of actual RAM — **8.4× compression** — and the algorithm really is zstd
+(`comp_algorithm` reports `[zstd]`, so `0250-performance`'s sed did reach the
+device rather than silently no-opping, which was worth confirming given how
+often that fails in this tree).
+
+The rest of the low-memory tuning is already in place and correct, shipped via
+`/etc/sysctl.d/99-dagric-desktop.conf`: `vm.swappiness=100` (right for zram,
+where swapping is cheap — Debian's default 60 is tuned for spinning disks),
+`vm.page-cluster=0` (right: zram wants single-page reads, not readahead), and
+`vm.vfs_cache_pressure=50`. Do not "optimise" these; they are already the
+recommended values for exactly this hardware profile.
 
 The first-run wizard adapting its own copy between live and installed
 ("you're running the live trial…" vs "nothing here is permanent…") is a nice
