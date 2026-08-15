@@ -251,6 +251,23 @@ printer-driver-gutenprint
 printer-driver-hpcups
 printer-driver-brlaser
 
+# EPSON IS THE THIRD BRAND AND IT HAD NO GAP-FILLER, while HP and Brother both
+# got one directly above.
+#
+# Gutenprint covers a great many Epson models, but the consumer inkjet line —
+# EcoTank above all, which is Epson's flagship home printer and exactly what
+# this product's buyer already owns — is the part it covers least well. The
+# failure is the bad kind: the job leaves the queue, CUPS reports it complete,
+# and no paper comes out. There is no error for the owner to search for.
+#
+# printer-driver-escpr is Epson's own Seiko-authored ESC/P-R driver, in Debian
+# main, well under a megabyte. Verified absent from BOTH shipped squashfs images
+# before adding it.
+#
+# BOTH EDITIONS. Printing is baseline correctness, not a premium feature — the
+# same reasoning that put hpcups and brlaser here rather than in a pro list.
+printer-driver-escpr
+
 # The scan half of the same HP all-in-one. sane-airscan only reaches a printer
 # new enough to speak eSCL over ipp-usb; a 2015 ENVY is not, so skanlite finds
 # nothing at all without this.
@@ -662,3 +679,22 @@ plocate
 # lspci — hardware detection (the dagric-drivers helper depends on it;
 # found by code review: it was never installed)
 pciutils
+
+# THE LAUNCHER'S FAVOURITES CANNOT BE SET WITHOUT THIS, which is not obvious
+# from the name and is the reason it is pinned here rather than assumed.
+#
+# Kickoff keeps its favourites in KActivitiesStats, not in its config file. The
+# config key is a one-shot import that Kickoff reads once and then marks as
+# consumed, so seeding it later does nothing at all — the write succeeds and is
+# ignored. dagric-brand-launcher now resets that marker and empties the imported
+# list so the import runs again with ours, and the list lives in the
+# kactivitymanagerd SQLite database.
+#
+# libsqlite3-0 is already on both images as a library dependency, so the store
+# is there and readable — but the sqlite3 COMMAND is a separate package and was
+# absent from both editions, measured in the built squashfs rather than assumed.
+# Without the binary the helper's guard declines and the owner silently keeps
+# KDE's five defaults, which is exactly the failure this is meant to end.
+#
+# Roughly 1.5 MB, and it is a diagnostic worth having on a support call anyway.
+sqlite3

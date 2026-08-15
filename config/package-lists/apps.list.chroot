@@ -53,8 +53,26 @@ libreoffice-l10n-pt-br
 
 # SPELL CHECK IN THE LANGUAGES THIS OS ACTUALLY SPEAKS.
 #
-# hunspell-en-us arrives already, as a dependency of LibreOffice — confirmed by
-# "Setting up hunspell-en-us" in the build logs. Nothing else does, and the
+# THE CLAIM BELOW WAS TRUE ONCE AND IS NOT TRUE OF THE SHIPPED IMAGE.
+#
+# It said hunspell-en-us arrives as a dependency of LibreOffice, citing
+# "Setting up hunspell-en-us" in a build log. Measured in both shipped squashfs
+# images: hunspell-en-us is ABSENT from free and from Pro, while hunspell-de-de,
+# -fr, -es, -it and -pt-br are all present. So the product spell-checks in five
+# languages and not in the one it is written in and primarily sold in.
+#
+# The relationship is a Recommends, not a Depends, which is why it was seen in
+# one log and is missing from the image: /etc/apt/apt.conf.d/01dagric-norecommends
+# and --apt-recommends false drop it, exactly as they drop the other five. A
+# build log line proves a package was installed during SOME stage; only the
+# squashfs proves it shipped.
+#
+# Pinned explicitly, like the other five, so the default language is not the one
+# language left broken. This is the file's own "reads as broken, not as leaner"
+# rule applied to English.
+hunspell-en-us
+
+# Nothing else does, and the
 # dictionaries for other languages are Recommends, which
 # /etc/apt/apt.conf.d/01dagric-norecommends drops on the image and on every
 # installed machine afterwards.

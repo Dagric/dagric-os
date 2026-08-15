@@ -204,6 +204,25 @@ isoimagewriter
 # grep for a string that never existed says nothing about the image.
 kimageformat6-plugins
 
+# WEBP AND TIFF OPEN ON PRO AND FAIL ON FREE, WHICH IS THE ONE ASYMMETRY THIS
+# PRODUCT IS NOT ALLOWED TO HAVE.
+#
+# Measured in the two shipped squashfs images: qt6-image-formats-plugins is
+# present on Pro and absent on free. It is named in NO package list — Pro gets
+# it only as a transitive dependency of one of its creative applications, so
+# free lacks it by accident rather than by any decision.
+#
+# It is a Recommends of gwenview, which --apt-recommends false drops. Same
+# family as wpasupplicant and alsa-ucm-conf, but the symptom is a file the owner
+# double-clicks: WebP is what a large share of the web now downloads as, and
+# TIFF is what their scanner produces. Gwenview, Dolphin's thumbnails and the
+# wallpaper picker all fail on both, and the identical file opens on Pro.
+#
+# "Free must never read as broken, only leaner" — an image format that works in
+# the paid edition and errors in the free one is the definition of broken, in
+# the edition whose whole job is to convert buyers. Roughly 400 kB.
+qt6-image-formats-plugins
+
 # A 2-in-1 with the keyboard folded back cannot log in without this.
 #
 # qt6-virtualkeyboard-plugin is the on-screen keyboard SDDM and kwin-wayland
