@@ -94,9 +94,39 @@ systemctl disable --now snapper-boot.timer 2>/dev/null || true
 # long here so the next reader does not mistake it for a duplicate of -c root.
 # The baseline at the bottom is deliberately left untagged — it is the permanent
 # floor to roll back to.
+# NO ESCAPED QUOTES IN HERE. apt.conf HAS NO BACKSLASH ESCAPE, and the version
+# of this file that used \" broke every apt run on every installed machine.
+#
+# What apt actually did with `--pre-number \"$(cat /run/dagric-snap-pre)\"`,
+# read back with `apt-config dump` on an installed system:
+#
+#   DPkg::Post-Invoke::if%20command%20-v%20snapper%20...%20--pre-number%20\$(cat
+#     "/run/dagric-snap-pre)\ >/dev/null 2>&1 || true; rm -f /run/dagric-snap-pre; fi";
+#
+# The parser ended the string at the quote inside \", turned everything before
+# it into a config KEY (hence the %20 for every space), and executed the
+# leftover tail as the command. So every apt operation ended with
+#
+#   sh: 1: Syntax error: ")" unexpected
+#   E: Problem executing scripts DPkg::Post-Invoke '/run/dagric-snap-pre)\ ...'
+#   E: Sub-process returned an error code
+#
+# and — quietly, which is worse — the POST snapshot was never taken at all. The
+# pre half of the pair worked, so the machine accumulated unpaired pre snapshots
+# while the feature this file exists to provide was half absent.
+#
+# The quotes were never needed: snapper writes a bare snapshot NUMBER to that
+# file, so there is no whitespace to protect. Debian's own /etc/apt/apt.conf.d/
+# 80snapper avoids the same trap by using backticks. Left unquoted here, which
+# needs no escape at all.
+#
+# FOUND BY RUNNING apt IN THE INSTALLED SYSTEM, not by reading this file — it
+# looks perfectly correct as shell, and it is; it is apt.conf that does not
+# accept it. Anything added to these two lines must be checked the same way:
+#   apt-config dump | grep -i post-invoke
 cat > /etc/apt/apt.conf.d/80dagric-snapshot << 'EOF'
 DPkg::Pre-Invoke  { "if command -v snapper >/dev/null 2>&1 && findmnt -no FSTYPE / | grep -q btrfs; then snapper -c root create -d 'apt (pre)' -t pre --cleanup-algorithm number -p > /run/dagric-snap-pre 2>/dev/null || true; fi"; };
-DPkg::Post-Invoke { "if command -v snapper >/dev/null 2>&1 && [ -s /run/dagric-snap-pre ]; then snapper -c root create -d 'apt (post)' -t post --cleanup-algorithm number --pre-number \"$(cat /run/dagric-snap-pre)\" >/dev/null 2>&1 || true; rm -f /run/dagric-snap-pre; fi"; };
+DPkg::Post-Invoke { "if command -v snapper >/dev/null 2>&1 && [ -s /run/dagric-snap-pre ]; then snapper -c root create -d 'apt (post)' -t post --cleanup-algorithm number --pre-number $(cat /run/dagric-snap-pre) >/dev/null 2>&1 || true; rm -f /run/dagric-snap-pre; fi"; };
 EOF
 
 # grub-btrfs daemon: auto-refresh the GRUB snapshot submenu when snapshots
