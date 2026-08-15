@@ -33,3 +33,55 @@ x-scheme-handler/about=firefox-esr.desktop
 x-scheme-handler/unknown=firefox-esr.desktop
 text/html=firefox-esr.desktop
 application/xhtml+xml=firefox-esr.desktop
+
+# Double-clicking an ISO writes it to a USB stick.
+#
+# THE BUG, measured on a running install: a real Dagric ISO is detected as
+# application/x-iso9660-image, and NOTHING on the image claimed that type —
+#     xdg-mime query default application/x-iso9660-image  ->  (nothing)
+# in a bare shell and in a full KDE session alike. Ark claims the neighbouring
+# application/vnd.efi.iso and application/x-iso9660-appimage, which are
+# different types; kde-mimeapps.list mentions only the appimage one. So an owner
+# who downloaded an ISO double-clicked it and got no window, no error and no
+# Open With prompt — on the one file type this product hands out.
+#
+# WHY THE USB WRITER AND NOT THE ARCHIVE MANAGER. Ark can list an ISO's contents
+# and is a reasonable answer for a developer, but it is the wrong first answer
+# here. The reason somebody on Dagric has an .iso on their disk is almost always
+# that they are about to put it on a stick: a second machine, a friend's laptop,
+# a lab of them. That is the job isoimagewriter does, it is why both editions
+# ship it, and it is why the launcher already calls it "USB Writer" with rufus
+# and balenaetcher in its keywords. Ark stays one right-click away in Open With,
+# because it claims both types itself and dagric-app-names now gives the writer
+# a MimeType= so both apps are listed.
+#
+# Opening the writer is not destructive. It shows the image path, a device
+# dropdown that starts empty and a Write button that warns before it erases —
+# the same shape as Rufus, which is the tool this audience last used.
+#
+# BOTH TYPES, AND THIS IS NOT BELT-AND-BRACES — IT IS LOAD-BEARING. The two
+# mime databases on this image disagree about the SAME FILE. Asked about one
+# Dagric ISO:
+#     xdg-mime query filetype   ->  application/x-iso9660-image
+#     kmimetypefinder           ->  application/vnd.efi.iso
+# xdg-utils and Qt's QMimeDatabase apply shared-mime-info's magic rules
+# differently, and QMimeDatabase is the one that matters, because KIO is what
+# actually opens the file when somebody double-clicks it in Dolphin. Pinning
+# only the type xdg-mime reports would have left the real double-click path
+# resolving to vnd.efi.iso and landing on Ark — a fix that tests green from a
+# shell and does nothing on the desktop. Measured, not reasoned: pinning one
+# type was tried first and the file did not open.
+#
+# It is also right on its own terms. A plain hybrid ISO and one carrying a
+# GPT/EFI partition are genuinely different types, an owner cannot be expected
+# to know which they downloaded, and two ISOs in one folder must not behave
+# differently. Ark held the vnd.efi.iso default by mimeinfo.cache order; this
+# takes it.
+#
+# /etc/xdg is XDG_CONFIG_DIRS, which outranks every mimeapps.list under
+# /usr/local/share and /usr/share INCLUDING the desktop-prefixed
+# kde-mimeapps.list — verified by measurement, not read off the spec. An owner
+# who sets a different default in System Settings writes
+# ~/.config/mimeapps.list, which outranks this, and is never overridden back.
+application/x-iso9660-image=org.kde.isoimagewriter.desktop
+application/vnd.efi.iso=org.kde.isoimagewriter.desktop

@@ -558,6 +558,83 @@ rename org.bleachbit.BleachBit "Disk Cleanup" "Free up space and clear traces (B
 rename bleachbit-root "Disk Cleanup (Administrator)" "Free up system-wide space (BleachBit)" \
     "bleachbit;clean;cleaner;cleanup;disk cleanup;free space;temp;temporary;cache;junk;privacy;traces;root;administrator;admin;"
 
+# ---------------------------------------------------------------------------
+# associate <desktop-id> <mimetypes>
+#
+# Add a MimeType= to a generated override, and make sure its Exec= actually
+# takes the file it is being handed.
+#
+# THE BUG THIS EXISTS FOR, measured on a running install rather than read off
+# the tree: a real Dagric ISO is detected as application/x-iso9660-image, and
+#
+#     xdg-mime query default application/x-iso9660-image   ->  (nothing)
+#
+# in both a bare shell AND a full KDE session. Nothing on the image claims the
+# type: not Ark (it claims application/vnd.efi.iso and x-iso9660-appimage, which
+# are different types), not kde-mimeapps.list, not us. So an owner who downloads
+# an ISO — this product's own, most likely, to make a stick for a second machine
+# or for a friend — double-clicks it and NOTHING HAPPENS. Not an error, not an
+# Open With prompt. Nothing. And isoimagewriter, which is installed on both
+# editions and which we rename to "USB Writer" fifty lines above precisely
+# because writing ISOs to sticks is the job, was unreachable from the file it
+# exists to consume: with no MimeType= it does not even appear in Open With, so
+# there was no manual route to it either.
+#
+# WHY THIS IS A FUNCTION AND NOT A HAND-WRITTEN FILE, same reason as rename():
+# the override shadows the whole upstream file, so it has to be re-derived from
+# whatever upstream currently ships every time apt runs. A hand-written
+# .desktop would freeze isoimagewriter's Exec, Icon and 45 translations at the
+# day it was written.
+#
+# Exec gets %f, not %u: isoimagewriter takes a local path ("[File]  ISO file to
+# open", from its own --help), and %f is the field code that makes KIO hand over
+# a local copy of a remote file rather than a URL the app cannot open. Without a
+# field code the spec says the file is not passed at all, so the pin alone would
+# have opened an empty USB Writer — which reads as broken more than doing
+# nothing did.
+associate() {
+    _id=$1 _mimes=$2
+    _dst="$DST_DIR/$_id.desktop"
+
+    # Not installed, or rename() removed the override: nothing to associate.
+    [ -f "$_dst" ] || return 0
+
+    # [Desktop Entry] only, for the same reason rename() is careful about it —
+    # a Desktop Action's Exec= must keep its own arguments.
+    awk -v m="$_mimes" '
+        function flush() { print "MimeType=" m; done = 1 }
+        /^\[/ {
+            if (inentry && !done) flush()
+            inentry = ($0 == "[Desktop Entry]")
+            print; next
+        }
+        # Ours replaces upstreams outright. Two MimeType= lines in one group is
+        # undefined by the spec and GLib and KConfig disagree about which wins,
+        # which is the same trap the Name[xx] handling above documents.
+        inentry && /^MimeType=/ { next }
+        inentry && /^Exec=/ {
+            if ($0 ~ /%[fFuU]/) print; else print $0 " %f"
+            next
+        }
+        { print }
+        END { if (inentry && !done) flush() }
+    ' "$_dst" > "$_dst.tmp" && mv -f "$_dst.tmp" "$_dst"
+}
+
+# Both ISO types, because the two mime databases on this image disagree about
+# the same file — xdg-mime calls one Dagric ISO application/x-iso9660-image and
+# kmimetypefinder calls it application/vnd.efi.iso. KIO uses the latter, so a
+# single-type association tests green from a shell and does nothing when the
+# file is double-clicked. The full measurement is in /etc/xdg/mimeapps.list,
+# which is also where the defaults are pinned; this only makes "USB Writer"
+# offerable for both types so it appears in Open With whoever holds the default.
+#
+# VERIFIED on a running desktop, because the shell test was not enough:
+# `xdg-open dagric-os-1.1-amd64.iso` in a full Plasma session starts
+# `/usr/bin/isoimagewriter /home/.../dagric-os-1.1-amd64.iso`, with the path
+# actually handed over.
+associate org.kde.isoimagewriter "application/x-iso9660-image;application/vnd.efi.iso;"
+
 # MIME associations for the shadowing directory. KDE reads desktop files through
 # KSycoca and does not need this, but the GTK apps Pro ships (GIMP, Inkscape)
 # resolve "Open With" through GIO, which does.

@@ -76,7 +76,8 @@ fail=0
 for id in org.kde.dolphin org.kde.konsole org.kde.gwenview org.kde.okular \
           org.kde.ark org.kde.kate org.kde.elisa org.kde.spectacle \
           org.kde.discover org.kde.kwalletmanager org.kde.kcalc \
-          org.kde.plasma-systemmonitor mpv org.kde.skanlite gdebi; do
+          org.kde.plasma-systemmonitor mpv org.kde.skanlite gdebi \
+          org.kde.isoimagewriter; do
     if [ ! -f "$DST/$id.desktop" ]; then
         echo "ERROR: no renamed launcher for $id — is it still in the package lists?" >&2
         fail=1
@@ -122,6 +123,39 @@ for id in org.kde.spectacle org.kde.konsole org.kde.discover; do
     if [ "$src_names" != "$dst_names" ]; then
         echo "ERROR: $id.desktop has $dst_names Name= lines, upstream has $src_names —" >&2
         echo "       the rewriter escaped [Desktop Entry] and ate its $src_actions Desktop Actions." >&2
+        fail=1
+    fi
+done
+
+# Double-clicking an ISO has to reach the USB writer. Before this was wired up,
+# application/x-iso9660-image had no handler anywhere on the image and the file
+# type this product hands out did nothing at all when opened — see the comments
+# in /etc/xdg/mimeapps.list and in dagric-app-names' associate().
+#
+# Asserted here rather than trusted because it is a silent failure in both
+# directions: a MimeType= that never got written leaves the type unhandled
+# again, and an Exec= without a field code opens an empty USB Writer, which
+# looks more broken than the original bug. Neither shows up until somebody
+# double-clicks an .iso on an installed machine.
+ISOW="$DST/org.kde.isoimagewriter.desktop"
+if [ -f "$ISOW" ]; then
+    if ! grep -q '^MimeType=.*application/x-iso9660-image' "$ISOW"; then
+        echo "ERROR: the USB writer has no MimeType= for ISOs — double-clicking" >&2
+        echo "       an .iso will do nothing, and it will not appear in Open With." >&2
+        fail=1
+    fi
+    if ! grep -q '^Exec=.*%[fFuU]' "$ISOW"; then
+        echo "ERROR: the USB writer's Exec= has no field code, so the ISO is never" >&2
+        echo "       passed to it — double-clicking one opens an empty window." >&2
+        fail=1
+    fi
+fi
+
+# The pin itself. It lives in a file we ship whole, so a typo here is the kind
+# of thing only a running desktop would ever catch.
+for m in application/x-iso9660-image application/vnd.efi.iso; do
+    if ! grep -qx "$m=org.kde.isoimagewriter.desktop" /etc/xdg/mimeapps.list; then
+        echo "ERROR: /etc/xdg/mimeapps.list does not pin $m to the USB writer." >&2
         fail=1
     fi
 done

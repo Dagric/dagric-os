@@ -46,6 +46,13 @@ touch, and it is the fastest way to tell the two apart when debugging.
 3. **`--help` hung** on `dagric-gaming` and `dagric-ai`.
 4. **Floppy probing** — a dozen I/O errors per boot, now zero.
 5. **Discover offline while the desktop is online** (cloud images only).
+6. **Double-clicking an ISO did nothing at all.** No window, no error, no "Open
+   With" prompt — on the one file type this product hands out. Nothing on the
+   image claimed the type: Ark claims the neighbouring `vnd.efi.iso` and
+   `x-iso9660-appimage`, and `isoimagewriter` — installed on both editions, and
+   already renamed to "USB Writer" with *rufus* and *balenaetcher* in its
+   keywords — had no `MimeType=` at all, so it was not even offered manually.
+   Now pinned, with `%f` so the path is actually handed over.
 
 ---
 
@@ -124,6 +131,19 @@ Recorded so nobody re-investigates them.
 - **ISO installs and the NetworkManager bug** — cloud-init is not installed on
   ISO installs and `/etc/network/interfaces.d` is empty, so they were never
   affected.
+- **"Every image type opens in Okular, not Gwenview"** — wrong, and wrong for a
+  reason worth writing down. `xdg-mime` only consults `kde-mimeapps.list` when
+  `XDG_CURRENT_DESKTOP` is set, and over SSH it is not. Upstream pins Gwenview
+  there, so in a real session images have always opened in Gwenview. The
+  "defect" existed only in the measuring harness.
+- **"`xdg-open` is broken system-wide, so the Hub's Support button is dead"** —
+  wrong, same cause. `open_kde()` calls the long-deleted `kfmclient` *only* when
+  `KDE_SESSION_VERSION` is unset; `startplasma-x11` sets it to 6, so the real
+  path is `kde-open`, which works. Verified by opening the Support URL in the
+  live session and watching the browser come up.
+- **Ark as the ISO handler** — considered and rejected, but note Ark never
+  claimed `x-iso9660-image` in the first place, so the pre-existing behaviour
+  was genuinely "nothing happens", not "opens the wrong app".
 
 ---
 
@@ -138,3 +158,27 @@ did nothing. In each case the code read correctly.
 The measurements that found them were cheap — run the installer, run apt, dump
 the table, ask NetworkManager, check `lsmod`. The expensive part was believing
 the file.
+
+## The second pattern, learned the hard way
+
+Three findings in a row turned out to be artefacts of **how** the system was
+being measured, not of the system. All three came from running a command over
+SSH and hand-picking which environment variables to carry across: images
+"opening in Okular" needed `XDG_CURRENT_DESKTOP`, `xdg-open` "being broken"
+needed `KDE_SESSION_VERSION`, and a mime pin that tested green needed the type
+*Qt* reports rather than the type `xdg-mime` reports.
+
+A desktop is a set of processes with an environment, and a shell over SSH is
+not that environment. The fix was to stop cherry-picking and run every check
+inside the session's real one:
+
+```sh
+PID=$(pgrep -u "$USER" -x plasmashell | head -1)
+while IFS= read -r -d "" v; do export "$v"; done < /proc/$PID/environ
+```
+
+The rule that follows: **an owner-experience claim measured outside a real
+session is a hypothesis, exactly like a claim read off a file.** Three of the
+four things "found" this round were the harness. The one real defect —
+double-clicking an ISO — was real in *both* environments, which is what
+distinguished it.
