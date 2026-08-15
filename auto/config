@@ -56,6 +56,22 @@ esac
 # that reads like a fix) and `nomodeset` (forces the frame-buffer renderer and
 # guarantees the mode change this whole round exists to remove).
 #
+# --bootappend-live-failsafe IS THE ENTRY WHERE nomodeset BELONGS, and it was
+# missing. 0950-boot-branding relabels live-build's fail-safe entry as
+# "(safe graphics mode)" — the wording Ubuntu and Mint use, where it means
+# nomodeset. Without this line the entry inherited live-build's stock append and
+# carried no nomodeset at all: measured in both shipped ISOs, the string appears
+# nowhere in boot/grub/grub.cfg or isolinux/live.cfg. Its graphics path was
+# identical to the normal entry, differing only by nosplash and a VESA console
+# mode, so the one owner who needs it — an older or quirky GPU that black-screens
+# on KMS, which is precisely the second-hand hardware this product is sold to
+# rescue — chose the rescue entry and got the same black screen.
+#
+# The reasoning above still holds and is why nomodeset is here and NOT in
+# --bootappend-live: it is wrong as a default and right as an escape hatch.
+# hostname/username are repeated because the stock failsafe append omits them,
+# so a safe-mode session came up as user "user" on host "debian".
+#
 # --apt-indices false: 169 MB of uncompressed APT index, gone.
 #
 # 0200-debloat.hook.chroot has always ended with `rm -rf /var/lib/apt/lists/*`
@@ -97,6 +113,7 @@ lb config noauto \
     --chroot-squashfs-compression-type zstd \
     --chroot-squashfs-compression-level 19 \
     --bootappend-live "boot=live components quiet splash hostname=dagric username=live loglevel=3 vt.global_cursor_default=0 plymouth.ignore-serial-consoles vsyscall=none" \
+    --bootappend-live-failsafe "boot=live components hostname=dagric username=live memtest noapic noapm nodma nomce nosmp nosplash nomodeset vga=788" \
     --iso-application "$FH_APP" \
     --iso-publisher "Dagric OS Project" \
     --iso-volume "$FH_VOLUME" \
