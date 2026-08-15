@@ -114,21 +114,30 @@ FAVS='dagric-hub.desktop,preferred://browser,systemsettings.desktop,org.kde.dolp
 
 # Already done (e.g. a prior login succeeded)? Then just retire and stop.
 #
-# BOTH keys are checked, not just the icon. An installed machine that branded
-# its launcher before this file learned about favourites would otherwise have
-# retired the autostart entry already, and would never get them — the upgrade
-# case is exactly the one an icon-only guard would silently skip.
+# "DONE" MUST NOT BE INFERRED FROM THE KEYS THIS SCRIPT ITSELF WROTE, and the
+# previous version of this test did exactly that. It asked whether icon was
+# dagric-logo AND favorites began with dagric-hub.desktop — both values written
+# by this file, minutes earlier, before the step that actually makes them take
+# effect. So on the login after a KAStats clear FAILED, both read back true, the
+# script retired here, and the retry that the veto at the very end of this file
+# advertises could never be reached. One failed clear was permanent, delayed by
+# exactly one no-op login. Deleting the early exit would not have helped either:
+# UNTOUCHED further down is computed from the same self-written key, so the
+# seeding block would have been skipped anyway.
+#
+# The stamp is written ONLY on a path that completed, so a half-finished run
+# cannot forge it. The icon half of the test stays as it was, because the icon
+# genuinely does live in this file — reading that back really is proof.
+STAMP_DIR="$HOME/.local/state/dagric"
+STAMP="$STAMP_DIR/launcher-favourites-done"
+
 CUR=$(kreadconfig6 --file plasma-org.kde.plasma.desktop-appletsrc \
   --group Containments --group "$N" --group Applets --group "$M" \
   --group Configuration --group General --key icon 2>/dev/null)
 CURFAV=$(kreadconfig6 --file plasma-org.kde.plasma.desktop-appletsrc \
   --group Containments --group "$N" --group Applets --group "$M" \
   --group Configuration --group General --key favorites 2>/dev/null)
-case "$CURFAV" in
-    dagric-hub.desktop*) FAVDONE=yes ;;
-    *)                   FAVDONE=no  ;;
-esac
-if [ "$CUR" = "dagric-logo" ] && [ "$FAVDONE" = yes ]; then
+if [ "$CUR" = "dagric-logo" ] && [ -f "$STAMP" ]; then
     rm -f "$AUTOSTART"
     exit 0
 fi
@@ -189,11 +198,137 @@ UNTOUCHED=no
 logger -t dagric-brand-launcher \
   "favourites: existing=[${CURFAV:-<absent>}] untouched=$UNTOUCHED" 2>/dev/null || true
 
+# WRITING `favorites` ALONE IS A NO-OP, AND THAT IS WHY FIVE ATTEMPTS FAILED.
+#
+# Kickoff does not keep its favourites in this file. It keeps them in
+# KActivitiesStats, so that they can differ per activity. The config key is a
+# ONE-SHOT IMPORT SOURCE, read exactly once and then never again. From the
+# applet's own main.qml, as shipped in our image:
+#
+#     favoritesModel.initForClient(
+#         "org.kde.plasma.kickoff.favorites.instance-" + Plasmoid.id)
+#     if (!Plasmoid.configuration.favoritesPortedToKAstats) {
+#         if (favoritesModel.count < 1) {
+#             favoritesModel.portOldFavorites(Plasmoid.configuration.favorites)
+#         }
+#         Plasmoid.configuration.favoritesPortedToKAstats = true
+#     }
+#
+# Three consequences, and all three had to be handled before this could work:
+#
+#   1. The import only happens while favoritesPortedToKAstats is false. Kickoff
+#      sets it true the first time it loads. This script deliberately runs LATE
+#      — it waits for the firstrun wizard and for plasmashell to settle — so by
+#      the time it writes, the flag has been true for minutes. The write lands
+#      in the file correctly and is simply never read. That is the exact
+#      symptom: a successful write, a verified value, no visible change.
+#
+#   2. The import is skipped when the model is not empty. Kickoff's first load
+#      already imported the SCHEMA DEFAULT — browser, Kontact, System Settings,
+#      Dolphin, Discover — which is precisely the five entries we kept seeing
+#      and misreading as "our write did not happen".
+#
+#   3. So the sequence must be: put our list in the key, put the flag BACK to
+#      false, and empty the model. Then the next plasmashell start re-runs the
+#      import and takes our list. plasmashell is already stopped above, which
+#      is the only safe moment to do all three.
+KACT_DB="$HOME/.local/share/kactivitymanagerd/resources/database"
+KACT=untouched
+
+# THE OWNER'S OWN PINS ARE INVISIBLE TO THE UNTOUCHED TEST ABOVE, and that test
+# is what authorises the DELETE below. Everything in this file up to here reads
+# the config key — but once Kickoff has ported, pinning an application through
+# the launcher's own right-click menu writes to KActivitiesStats and NEVER touches
+# that key again. So an owner who has curated their favourites still presents a
+# stock-looking config key, UNTOUCHED comes back yes, and the DELETE would throw
+# their pins away. That is data loss, caused by the fix, on a machine where
+# nothing was wrong.
+#
+# The store itself has to be asked. Row count is the honest question: the stock
+# import puts exactly as many rows in as the schema default has entries, so more
+# rows than that means somebody added something.
+#
+# Comparing the row VALUES against main.xml's <default> would look more precise
+# and would be wrong — portOldFavorites RESOLVES preferred://browser to a real
+# .desktop before storing it, so the stored rows never string-match the schema
+# and every machine would look customised. That test would disable the seed
+# permanently and reinstate the exact bug this whole block exists to fix.
+STOCK_N=0
+[ -n "$STOCK" ] && STOCK_N=$(printf '%s' "$STOCK" | tr ',' '\n' | grep -c .)
+KACT_ROWS=-1
+if [ -f "$KACT_DB" ] && command -v sqlite3 >/dev/null 2>&1; then
+    KACT_ROWS=$(sqlite3 "$KACT_DB" \
+      "SELECT COUNT(*) FROM ResourceLink WHERE initiatingAgent LIKE 'org.kde.plasma.kickoff.favorites.instance-%';" \
+      2>/dev/null) || KACT_ROWS=-1
+    case "$KACT_ROWS" in ''|*[!0-9]*) KACT_ROWS=-1 ;; esac
+fi
+if [ "$KACT_ROWS" -gt 0 ] && [ "$STOCK_N" -gt 0 ] && [ "$KACT_ROWS" -gt "$STOCK_N" ]; then
+    UNTOUCHED=no
+    KACT=owner-curated
+    logger -t dagric-brand-launcher \
+      "favourites: $KACT_ROWS pinned vs $STOCK_N stock — owner curated, leaving alone" \
+      2>/dev/null || true
+fi
+
 if [ "$UNTOUCHED" = yes ]; then
     kwriteconfig6 --file plasma-org.kde.plasma.desktop-appletsrc \
       --group Containments --group "$N" --group Applets --group "$M" \
       --group Configuration --group General --key favorites "$FAVS" 2>/dev/null
+    kwriteconfig6 --file plasma-org.kde.plasma.desktop-appletsrc \
+      --group Containments --group "$N" --group Applets --group "$M" \
+      --group Configuration --group General --key favoritesPortedToKAstats \
+      --type bool false 2>/dev/null
+
+    # Empty ONLY Kickoff's favourite links, not the whole store. The same
+    # database holds the owner's recently-used documents and application usage
+    # scores; deleting the file would take those with it. The agent name is the
+    # one initForClient registers above, so this cannot reach another applet's
+    # favourites, and the LIKE covers the instance id we cannot know here.
+    #
+    # kactivitymanagerd holds the database open and is D-Bus activated, so it
+    # is stopped first and left to come back on its own when something next
+    # asks for it — no restart call needed.
+    # sqlite3 missing is a FAILURE, not a neutral outcome. It was called
+    # "skipped" and allowed to retire, which meant an image that had lost the
+    # binary produced no favourites and no second attempt, silently.
+    KACT=no-sqlite3
+    if [ -f "$KACT_DB" ] && command -v sqlite3 >/dev/null 2>&1; then
+        # No kquitapp6 call here. It is not on either image — a dropped
+        # Recommends — and the argument would have to be the D-Bus service
+        # org.kde.ActivityManager rather than the binary name, so the previous
+        # line was a no-op wearing a comment that claimed the daemon had been
+        # stopped. SQLite's WAL mode allows this DELETE while the daemon holds
+        # the file open, and plasmashell — the only reader that matters here —
+        # is already stopped above. A busy timeout closes the remaining race
+        # honestly, which is what the stop was pretending to do.
+        if sqlite3 -cmd ".timeout 5000" "$KACT_DB" "DELETE FROM ResourceLink WHERE initiatingAgent LIKE 'org.kde.plasma.kickoff.favorites.instance-%';" 2>/dev/null; then
+            KACT=cleared
+        else
+            # A future Plasma may rename that table. Failing here is survivable
+            # — the owner gets KDE's favourites, not a broken launcher — but it
+            # must be visible rather than silent, because "no visible change"
+            # is the one symptom this whole block exists to stop producing.
+            KACT=failed
+        fi
+    elif [ ! -f "$KACT_DB" ]; then
+        # Nothing imported yet: the model is already empty and the import will
+        # take our list unaided. This is the true first-login path.
+        KACT=absent
+    fi
+    logger -t dagric-brand-launcher \
+      "favourites: wrote=[$FAVS] port-flag=reset kastats=$KACT rows=$KACT_ROWS" \
+      2>/dev/null || true
 fi
+
+# The stamp records that a path which can actually work has run to completion.
+# Written for owner-curated too: leaving their pins alone IS the finished
+# outcome there, and re-deciding it at every login would mean re-reading the
+# database forever to reach the same answer.
+case "$KACT" in
+    cleared|absent|owner-curated)
+        mkdir -p "$STAMP_DIR" 2>/dev/null && : > "$STAMP" 2>/dev/null || true
+        ;;
+esac
 
 # 3) Relaunch plasmashell — it reads the freshly branded config on start.
 if command -v kstart >/dev/null 2>&1; then
@@ -215,9 +350,24 @@ VFAV=$(kreadconfig6 --file plasma-org.kde.plasma.desktop-appletsrc \
 # own choice. Retiring on the icon alone would strand the favourites write on
 # any session where it did not take, which is the failure this file's whole
 # self-healing design exists to avoid.
-case "$VFAV" in
-    dagric-hub.desktop*) FAVOK=yes ;;
-    '')                  FAVOK=no  ;;
-    *)                   FAVOK=yes ;;
+# READING BACK THE KEY PROVES THE WRITE, NOT THE IMPORT — which is the trap
+# this file fell into five times, and VFAV is exactly such a read-back, so it is
+# deliberately NOT part of the decision below. It is logged and nothing more.
+#
+# AN ALLOW-LIST, NOT A DENY-LIST. The previous test was `KACT != failed`, which
+# retires on every state somebody adds later without thinking about this line —
+# and it already did: "sqlite3 is missing" was called `skipped`, passed the
+# test, and retired, so an image that lost the binary produced no favourites and
+# never tried again. Naming the three outcomes that are genuinely finished means
+# a new state has to be considered before it can retire anything.
+#
+# Leaving the autostart in place costs one no-op script per login and buys
+# another attempt; retiring on a false positive costs the feature permanently.
+case "$KACT" in
+    cleared|absent|owner-curated) KACT_DONE=yes ;;
+    *)                            KACT_DONE=no  ;;
 esac
-[ "$VERIFY" = "dagric-logo" ] && [ "$FAVOK" = yes ] && rm -f "$AUTOSTART"
+logger -t dagric-brand-launcher \
+  "retire check: icon=$VERIFY kastats=$KACT read-back=[${VFAV:-<absent>}]" \
+  2>/dev/null || true
+[ "$VERIFY" = "dagric-logo" ] && [ "$KACT_DONE" = yes ] && rm -f "$AUTOSTART"
