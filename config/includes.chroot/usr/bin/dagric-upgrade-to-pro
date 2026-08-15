@@ -145,8 +145,33 @@ fi
 
 # On battery, an interrupted apt transaction is a real risk and a plugged-in
 # machine is thirty seconds away.
-if [ -r /sys/class/power_supply/AC/online ] && \
-   [ "$(cat /sys/class/power_supply/AC/online 2>/dev/null)" = "0" ]; then
+#
+# THE MAINS ADAPTER IS NOT ALWAYS CALLED "AC". The kernel names the ACPI power
+# supply after the firmware's device id, so it is AC on many machines but ACAD
+# on Acer, ADP0/ADP1 on Dell and several others, and AC0 elsewhere. The old test
+# read /sys/class/power_supply/AC/online alone: on any of those laptops the path
+# does not exist, [ -r ... ] is false, and the guard passes silently — the one
+# outcome it exists to prevent, on the path an owner reaches minutes after
+# paying, where an interrupted 6 GB transaction leaves a half-configured dpkg
+# state.
+#
+# Scanned rather than enumerated, because the next vendor id is not knowable
+# from here. type=Mains is the kernel's own classification and is what
+# distinguishes an adapter from the battery itself, so this cannot be fooled by
+# a discharging battery's own `online` file. Only a supply that positively
+# reports Mains and 0 counts as "on battery"; a machine with no mains supply at
+# all is a desktop and is left alone, exactly as before.
+on_battery=no
+for ps in /sys/class/power_supply/*; do
+    [ -r "$ps/type" ] && [ -r "$ps/online" ] || continue
+    [ "$(cat "$ps/type" 2>/dev/null)" = "Mains" ] || continue
+    if [ "$(cat "$ps/online" 2>/dev/null)" = "1" ]; then
+        on_battery=no
+        break
+    fi
+    on_battery=yes
+done
+if [ "$on_battery" = yes ]; then
     say "$(gettext "ERROR: this machine is running on battery.")"
     say "       $(gettext "Plug it in first — this installs several gigabytes.")"
     fail=1
