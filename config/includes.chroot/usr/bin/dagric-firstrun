@@ -789,6 +789,58 @@ run_helper() {
     return 0
 }
 
+# ------------------------------------------------------------------ downloads
+# Run the "Add your apps" queue, at Finish and never earlier. The wizard is
+# fullscreen, so a konsole opened mid-wizard would be an invisible window doing
+# package work — the exact silent-failure shape this file refuses everywhere
+# else. By the time this runs the window has closed and the terminal lands in
+# front of the owner.
+#
+# The ticked card IS the consent: it carries the same name and the same
+# one-line description the Hub row shows. So each helper's own y/N prompt is
+# answered with a piped "y" — the helper still prints its full explanation
+# into a terminal the owner is watching, and a helper that needs more than
+# consent (the password for Steam's apt install) still asks through polkit as
+# always. The Pro upgrade is NOT pre-answered: it needs a pasted purchase code
+# and a human, so it runs fully interactive, last, in the same window.
+#
+# Every name is validated against the whitelist below even though the QML only
+# ever sends names from its own model — the window's list is data, not policy.
+run_downloads() {
+    [ -n "$APPS_QUEUE" ] || [ "$TOPRO" = 1 ] || return 0
+    command -v konsole >/dev/null 2>&1 || return 0
+    _r=$(mktemp /tmp/dagric-firstrun-apps.XXXXXX) || return 0
+    {
+        printf '#!/bin/sh\n'
+        _oldifs=$IFS; IFS=,
+        for _a in $APPS_QUEUE; do
+            case "$_a" in
+                steam|heroic|bottles|onlyoffice|joplin|localsend|cryptomator|upscayl)
+                    printf "printf 'y\\\\n' | /usr/bin/dagric-get-%s || true\n" "$_a"
+                    printf 'echo\n'
+                    ;;
+                ai)
+                    printf "printf 'y\\\\n' | /usr/bin/dagric-ai || true\n"
+                    printf 'echo\n'
+                    ;;
+            esac
+        done
+        IFS=$_oldifs
+        if [ "$TOPRO" = 1 ]; then
+            printf '/usr/bin/dagric-upgrade-to-pro || true\n'
+        fi
+        printf 'rm -f "%s"\n' "$_r"
+    } > "$_r"
+    chmod 0700 "$_r"
+    # Same positional-parameter idiom as the migrate launcher above, and for
+    # the same reason: the translated close prompt is data and must never be
+    # pasted into the quoted script text.
+    _close=$(gettext "Press Enter to close...")
+    konsole -e sh -c \
+'sh "$1" ; echo ; printf "%s" "$2" ; read x' sh "$_r" "$_close" &
+    return 0
+}
+
 # =============================================================== the plain path
 # kdialog wizard, used when qml6 or the window file is missing. It is the same
 # journey in the same order, just without the pictures — because a first run
@@ -1060,6 +1112,32 @@ You're running the live trial from the USB stick, so anything you set here lasts
 Nothing here is permanent. Skip anything you like, and change all of it later from the Dagric Hub.
 This is the live trial. To keep any of it, run Install Dagric OS from the desktop.
 Want to run through this again? It's called "Set Up Dagric" in your apps list.
+Add your apps
+Tick what you want and it installs itself right after you press Finish. All of it is free software, and none of it is required.
+Steam
+Your game library, from Valve.
+Heroic
+Epic, GOG and Amazon games in one place.
+Bottles
+Run Windows programs in tidy containers.
+ONLYOFFICE
+An office suite that looks like the one at work.
+Joplin
+Private notes that sync anywhere.
+LocalSend
+Share files between your devices, no cloud.
+Cryptomator
+Encrypt what you keep in the cloud.
+Upscayl
+Sharpen old photos with AI.
+Ollama
+A local AI that never leaves this machine.
+Already bought Pro?
+Paste the code from your receipt and this machine becomes Pro — your files and settings stay.
+Selected — starts when you press Finish.
+Selected
+This is the live trial, so anything you add now disappears at shutdown. Install Dagric first to keep it.
+Nothing here is a subscription, and everything can be removed later from the Software Store.
 STRINGS
 }
 
@@ -1121,6 +1199,11 @@ export QT_MESSAGE_PATTERN QT_LOGGING_RULES QT_QUICK_CONTROLS_STYLE QML_XHR_ALLOW
 export QT_LINUX_ACCESSIBILITY_ALWAYS_ON
 
 last_wall=
+# The downloads step's queue: a comma list of app names and a 0/1 for the Pro
+# upgrade, both re-validated here — the window's list is a wish, this file's
+# whitelist is the decision.
+APPS_QUEUE=
+TOPRO=0
 
 # Nothing is launched here to fix the title-bar icon any more, and that is the
 # point. Two rounds of work went into a python helper that rewrote the window's
@@ -1195,6 +1278,14 @@ rm -f "$QML_SPOKE"
         RUN)
             case "$arg" in migrate|display|hub|guide|manual|welcome|setup) run_helper "$arg" ;; esac
             ;;
+        APPS)
+            # Stored, not acted on. Validation happens in run_downloads at
+            # Finish; an unknown name is simply never emitted into the runner.
+            APPS_QUEUE=$arg
+            ;;
+        TOPRO)
+            case "$arg" in 1) TOPRO=1 ;; *) TOPRO=0 ;; esac
+            ;;
         UNDO)
             undo_all
             last_wall=
@@ -1210,6 +1301,9 @@ rm -f "$QML_SPOKE"
             # look like something went wrong.
             [ -n "$last_wall" ] && set_wall "$last_wall"
             notify "$(gettext "Dagric is set up. Everything else lives in the Dagric Hub.")"
+            # The queued downloads, now that the fullscreen window is gone and
+            # a terminal can actually be seen.
+            run_downloads
             ;;
         QUIT)
             : ;;

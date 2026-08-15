@@ -91,6 +91,19 @@ ApplicationWindow {
     id: app
 
     visible: true
+    // Fullscreen, frameless, like the out-of-box experience this audience just
+    // left. Two things follow and both are deliberate:
+    //   * there is no title bar and therefore no window close button. The exit
+    //     is the wizard's own "I'll do this later", which is the escape hatch
+    //     that must never be removed — a first run someone cannot leave is a
+    //     first run someone force-reboots out of.
+    //   * anything launched from INSIDE the wizard would open behind this
+    //     window and be invisible. That is why the downloads step queues its
+    //     installs and runs them at Finish, after this window is gone, and why
+    //     nothing else in here spawns a window before the end.
+    // width/height below are kept as the fallback geometry for a window
+    // manager that refuses fullscreen.
+    visibility: Window.FullScreen
     width: 1060
     height: 720
     // These used to be 760x560. That is bigger than the whole desktop once a
@@ -493,6 +506,11 @@ ApplicationWindow {
             s.push("taskbar");
         if (app.hasWindows && !app.live)
             s.push("files");
+        // Always offered, live included: on the live stick the step carries
+        // its own warning that additions vanish at shutdown, and hiding the
+        // step entirely would hide the one place the trial can show off the
+        // one-click apps.
+        s.push("downloads");
         s.push("finish");
         app.steps = s;
         app.stepIndex = 0;
@@ -510,6 +528,7 @@ ApplicationWindow {
         case "display":    return app.t("Text size");
         case "taskbar":    return app.t("The taskbar");
         case "files":      return app.t("Your files");
+        case "downloads":  return app.t("Add your apps");
         case "finish":     return app.t("You're ready");
         }
         return id;
@@ -545,6 +564,31 @@ ApplicationWindow {
         var t = app.touched;
         t[id] = true;
         app.touched = t;      // same reassign idiom; QML misses in-place edits
+    }
+
+    // --- the downloads step's queue ------------------------------------------
+    // Names only ever LEAVE this window as a comma list the shell re-validates
+    // against its own whitelist; ticking a card installs nothing here. The
+    // installs run at Finish, after this fullscreen window is gone — a konsole
+    // opened mid-wizard would be invisible behind it. markVisited, not
+    // markTouched: a queued download is not one of the four things "Undo my
+    // changes" can put back, so it must not arm that button.
+    property var appsPicked: []
+    property bool proPicked: false
+
+    function toggleApp(id) {
+        var a = app.appsPicked.slice();
+        var i = a.indexOf(id);
+        if (i >= 0) a.splice(i, 1); else a.push(id);
+        app.appsPicked = a;   // reassign; QML misses in-place edits
+        app.send("APPS|" + a.join(","));
+        app.markVisited("downloads");
+    }
+
+    function toggleProUpgrade() {
+        app.proPicked = !app.proPicked;
+        app.send("TOPRO|" + (app.proPicked ? "1" : "0"));
+        app.markVisited("downloads");
     }
 
     function goNext() {
@@ -939,6 +983,11 @@ ApplicationWindow {
         // links). Getting this wrong makes Orca promise a choice that is not
         // there, or hide one that is.
         property bool exclusive: true
+        // And checkbox when it is many-of-a-set (the downloads step): a toggle
+        // that is not one-of anything. Without this third role the apps cards
+        // would announce as plain buttons and Orca would never say whether one
+        // is ticked.
+        property bool checkbox: false
         // False inside a grid, where the grid owns the single tab stop and the
         // arrow keys move between cards. Twenty wallpapers must not be twenty
         // stops on the way to Next.
@@ -953,12 +1002,13 @@ ApplicationWindow {
 
         activeFocusOnTab: ch.tabbable
 
-        Accessible.role: ch.exclusive ? Accessible.RadioButton : Accessible.Button
+        Accessible.role: ch.checkbox ? Accessible.CheckBox
+                                     : (ch.exclusive ? Accessible.RadioButton : Accessible.Button)
         Accessible.name: ch.label
         Accessible.description: ch.hint
         Accessible.focusable: true
         Accessible.focused: ch.activeFocus
-        Accessible.checkable: ch.exclusive
+        Accessible.checkable: ch.exclusive || ch.checkbox
         Accessible.checked: ch.selected
         Accessible.selected: ch.selected
         // The screen reader's own "press this" route, and the toggle path for
@@ -1075,6 +1125,24 @@ ApplicationWindow {
     ColumnLayout {
         anchors.fill: parent
         spacing: 0
+
+    // A three-pixel gradient signature across the very top, Pro only. The
+    // sleeker edition announces itself in decoration, never in text colour:
+    // every contrast pair in this file was measured, and gloss that repaints
+    // measured text is gloss that fails WCAG for whichever accent the owner
+    // picks next. This strip carries no information a screen reader needs.
+    Rectangle {
+        Layout.fillWidth: true
+        Layout.preferredHeight: app.px(3)
+        visible: app.edition === "pro"
+        gradient: Gradient {
+            orientation: Gradient.Horizontal
+            GradientStop { position: 0.0;  color: app.cAccent }
+            GradientStop { position: 0.55; color: Qt.lighter(app.cAccent, 1.35) }
+            GradientStop { position: 1.0;  color: "transparent" }
+        }
+        Accessible.ignored: true
+    }
 
     // ================================================================= header
     Rectangle {
@@ -1358,6 +1426,17 @@ ApplicationWindow {
                     Layout.preferredHeight: app.px(app.shortWin ? 64 : 88)
                     radius: app.px(app.shortWin ? 18 : 24)
                     color: app.cAccent
+                    // Pro's gloss: the brand tile catches the light. A
+                    // top-lit vertical gradient on the tile only — the "D"
+                    // keeps cOnAccent, whose contrast was chosen against the
+                    // accent, and both gradient stops stay within a shade of
+                    // that same accent.
+                    gradient: app.edition === "pro" ? proTileGloss : null
+                    Gradient {
+                        id: proTileGloss
+                        GradientStop { position: 0.0; color: Qt.lighter(app.cAccent, 1.18) }
+                        GradientStop { position: 1.0; color: Qt.darker(app.cAccent, 1.10) }
+                    }
                     Accessible.ignored: true
                     Text {
                         anchors.centerIn: parent
@@ -2139,6 +2218,176 @@ ApplicationWindow {
                 Text {
                     Layout.fillWidth: true
                     text: app.t("Not now? It's in the Dagric Hub under \"Migrate from Windows\", any time.")
+                    color: app.cDim
+                    font.pixelSize: app.px(12)
+                    wrapMode: Text.WordWrap
+                    Accessible.role: Accessible.StaticText
+                    Accessible.name: text
+                }
+            }
+
+            // ----------------------------------------------------- downloads
+            //
+            // The one-click apps, offered where a Windows switcher expects
+            // them: during setup. Every card is a CONSENT, not an install —
+            // ticking one queues its name, and the queue runs in a terminal
+            // the owner can read only after Finish, because this window is
+            // fullscreen and anything launched now would open behind it.
+            // The card model reuses the finish page's exact { act, title,
+            // body } shape on purpose: tools/i18n-wizard.py extracts card
+            // strings by that shape, and a new shape would ship untranslated
+            // cards with the checker saying nothing.
+            Page {
+                label: app.t("Add your apps")
+                visible: app.step === "downloads" && app.loadError === ""
+
+                PageHead {
+                    heading: app.t("Add your apps")
+                    sub: app.t("Tick what you want and it installs itself right after you press Finish. All of it is free software, and none of it is required.")
+                }
+
+                Flow {
+                    id: dlFlow
+                    Layout.fillWidth: true
+                    spacing: app.px(10)
+                    // Same clamp idea as the finish cards: never let a card
+                    // grow past a comfortable reading width, never shrink one
+                    // below its label.
+                    readonly property real cardW: Math.max(app.px(170), Math.min(app.px(210), (width - spacing * 2) / 3))
+
+                    Repeater {
+                        id: dlRepeater
+                        model: [
+                            { act: "steam", title: "Steam",
+                              body: "Your game library, from Valve." },
+                            { act: "heroic", title: "Heroic",
+                              body: "Epic, GOG and Amazon games in one place." },
+                            { act: "bottles", title: "Bottles",
+                              body: "Run Windows programs in tidy containers." },
+                            { act: "onlyoffice", title: "ONLYOFFICE",
+                              body: "An office suite that looks like the one at work." },
+                            { act: "joplin", title: "Joplin",
+                              body: "Private notes that sync anywhere." },
+                            { act: "localsend", title: "LocalSend",
+                              body: "Share files between your devices, no cloud." },
+                            { act: "cryptomator", title: "Cryptomator",
+                              body: "Encrypt what you keep in the cloud." },
+                            { act: "upscayl", title: "Upscayl",
+                              body: "Sharpen old photos with AI." },
+                            { act: "ai", title: "Ollama",
+                              body: "A local AI that never leaves this machine." }
+                        ]
+                        delegate: Choice {
+                            id: dlCard
+                            required property var modelData
+                            required property int index
+                            width: dlFlow.cardW
+                            height: app.px(108)
+                            exclusive: false
+                            checkbox: true
+                            selected: app.appsPicked.indexOf(dlCard.modelData.act) >= 0
+                            label: app.t(dlCard.modelData.title)
+                            hint: app.t(dlCard.modelData.body)
+                                  + (dlCard.selected
+                                     ? " " + app.t("Selected — starts when you press Finish.")
+                                     : "")
+                            KeyNavigation.left: dlRepeater.itemAt(dlCard.index - 1)
+                            KeyNavigation.right: dlRepeater.itemAt(dlCard.index + 1)
+                            onClicked: app.toggleApp(dlCard.modelData.act)
+                            ColumnLayout {
+                                anchors.fill: parent
+                                anchors.margins: app.px(14)
+                                spacing: app.px(6)
+                                Text {
+                                    Layout.fillWidth: true
+                                    text: app.t(dlCard.modelData.title)
+                                    color: app.cText
+                                    font.pixelSize: app.px(14)
+                                    font.bold: true
+                                    wrapMode: Text.WordWrap
+                                    Accessible.ignored: true
+                                }
+                                Text {
+                                    Layout.fillWidth: true
+                                    Layout.fillHeight: true
+                                    text: app.t(dlCard.modelData.body)
+                                    color: app.cDim
+                                    font.pixelSize: app.px(11)
+                                    wrapMode: Text.WordWrap
+                                    verticalAlignment: Text.AlignTop
+                                    Accessible.ignored: true
+                                }
+                                Text {
+                                    text: dlCard.selected ? "✓ " + app.t("Selected") : ""
+                                    color: app.cInkPanel
+                                    font.pixelSize: app.px(11)
+                                    font.bold: true
+                                    Accessible.ignored: true
+                                }
+                            }
+                        }
+                    }
+                }
+
+                // The free→Pro pipeline, in the wizard itself. Installed free
+                // machines only: on the live stick the upgrade tool refuses to
+                // run (RAM-only, money for nothing), and on Pro there is
+                // nothing to sell.
+                Choice {
+                    Layout.fillWidth: true
+                    Layout.preferredHeight: app.px(84)
+                    visible: app.edition !== "pro" && !app.live
+                    exclusive: false
+                    checkbox: true
+                    selected: app.proPicked
+                    label: app.t("Already bought Pro?")
+                    hint: app.t("Paste the code from your receipt and this machine becomes Pro — your files and settings stay.")
+                          + (app.proPicked
+                             ? " " + app.t("Selected — starts when you press Finish.")
+                             : "")
+                    onClicked: app.toggleProUpgrade()
+                    RowLayout {
+                        anchors.fill: parent
+                        anchors.margins: app.px(14)
+                        spacing: app.px(12)
+                        ColumnLayout {
+                            Layout.fillWidth: true
+                            spacing: app.px(4)
+                            Text {
+                                Layout.fillWidth: true
+                                text: app.t("Already bought Pro?")
+                                color: app.cText
+                                font.pixelSize: app.px(14)
+                                font.bold: true
+                                wrapMode: Text.WordWrap
+                                Accessible.ignored: true
+                            }
+                            Text {
+                                Layout.fillWidth: true
+                                text: app.t("Paste the code from your receipt and this machine becomes Pro — your files and settings stay.")
+                                color: app.cDim
+                                font.pixelSize: app.px(11)
+                                wrapMode: Text.WordWrap
+                                Accessible.ignored: true
+                            }
+                        }
+                        Text {
+                            text: app.proPicked ? "✓ " + app.t("Selected") : ""
+                            color: app.cInkPanel
+                            font.pixelSize: app.px(11)
+                            font.bold: true
+                            Accessible.ignored: true
+                        }
+                    }
+                }
+
+                Item { Layout.fillHeight: true }
+
+                Text {
+                    Layout.fillWidth: true
+                    text: app.live
+                          ? app.t("This is the live trial, so anything you add now disappears at shutdown. Install Dagric first to keep it.")
+                          : app.t("Nothing here is a subscription, and everything can be removed later from the Software Store.")
                     color: app.cDim
                     font.pixelSize: app.px(12)
                     wrapMode: Text.WordWrap
