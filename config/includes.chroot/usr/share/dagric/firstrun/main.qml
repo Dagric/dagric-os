@@ -118,9 +118,13 @@ ApplicationWindow {
     // untranslated by the same rule as "Dagric" itself, and the shell side
     // (dagric-firstrun's TITLE, used by every kdialog fallback) builds the
     // identical string the identical way.
+    // app.t, not bare t: tools/i18n-wizard.py extracts what this file asks
+    // for with the pattern app\.(?:t|tf)\( — a bare t() call is invisible to
+    // it, the shell's matching STRINGS line then looks orphaned, and the
+    // build stops. Found by the gate doing exactly that.
     readonly property string windowTitle: edition === "pro"
-                                          ? t("Set Up Dagric") + " — Pro"
-                                          : t("Set Up Dagric")
+                                          ? app.t("Set Up Dagric") + " — Pro"
+                                          : app.t("Set Up Dagric")
     property bool live: false
     property string scaleMode: "none"      // wayland | x11 | none
     property int currentScale: 0
