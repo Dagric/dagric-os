@@ -485,9 +485,23 @@ say "$(gettext "Installing...")"
 #
 # So the policy is applied to whatever DID get installed, and only then is the
 # failure reported.
+# THE CONFFILE TRAP, found by the end-to-end test and not by any review:
+# DEBIAN_FRONTEND=noninteractive silences debconf and does NOT silence dpkg's
+# conffile prompt. The free image deliberately ships /etc/opensnitchd/ (the
+# tuned config with the pre-answer rules — it exists precisely so an upgraded
+# machine matches the Pro ISO), and that same path is a conffile of the
+# opensnitch package this install pulls in. dpkg sees a conffile it did not
+# create, and asks. Interactively that is a wall of Y/I/N/O/D/Z jargon in the
+# middle of a paid upgrade; non-interactively it is "end of file on stdin at
+# conffile prompt", a failed configure, and the tool's own honest-abort path.
+#
+# confdef+confold is the standard unattended answer, and here "keep the old
+# file" is not merely safe, it is THE POINT: the on-disk config IS Dagric's,
+# shipped so the upgrade would inherit it.
 # shellcheck disable=SC2086
 INSTALL_OK=yes
 DEBIAN_FRONTEND=noninteractive apt-get -y --no-install-recommends \
+    -o Dpkg::Options::=--force-confdef -o Dpkg::Options::=--force-confold \
     install $PRO_PACKAGES || INSTALL_OK=no
 
 # ------------------------------------------------------------------ 32-bit
@@ -506,6 +520,7 @@ if [ "$INSTALL_OK" = yes ]; then
     say "$(gettext "Adding 32-bit support for Windows applications and games...")"
     if dpkg --add-architecture i386 && apt-get update >/dev/null 2>&1; then
         if DEBIAN_FRONTEND=noninteractive apt-get -y --no-install-recommends \
+             -o Dpkg::Options::=--force-confdef -o Dpkg::Options::=--force-confold \
              install wine32:i386 mesa-vulkan-drivers:i386 >/dev/null 2>&1; then
             say "  $(gettext "done.")"
         else
