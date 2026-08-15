@@ -86,7 +86,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: dagric 1.0\n"
 "Report-Msgid-Bugs-To: repo@dagric.com\n"
-"POT-Creation-Date: 2026-08-15 13:38-0500\n"
+"POT-Creation-Date: 2026-08-15 13:59-0500\n"
 "PO-Revision-Date: 2026-08-04 01:00+0000\n"
 "Last-Translator: Machine translation, reviewed by a second model "
 "<repo@dagric.com>\n"
@@ -267,12 +267,12 @@ msgid "Theme"
 msgstr "Thème"
 
 #: po/dagric-data-strings.sh:49
-#: config/includes.chroot/usr/bin/dagric-firstrun:869
+#: config/includes.chroot/usr/bin/dagric-firstrun:909
 msgid "Light"
 msgstr "Clair"
 
 #: po/dagric-data-strings.sh:50
-#: config/includes.chroot/usr/bin/dagric-firstrun:869
+#: config/includes.chroot/usr/bin/dagric-firstrun:909
 msgid "Dark"
 msgstr "Sombre"
 
@@ -409,7 +409,7 @@ msgstr ""
 "Affichage et écran."
 
 #: po/dagric-data-strings.sh:79
-#: config/includes.chroot/usr/bin/dagric-firstrun:908
+#: config/includes.chroot/usr/bin/dagric-firstrun:948
 msgid "Where should the taskbar go?"
 msgstr "Où placer la barre des tâches ?"
 
@@ -684,11 +684,13 @@ msgstr "Sélectionné"
 
 #: po/dagric-data-strings.sh:134
 msgid ""
-"This is the live trial, so anything you add now disappears at shutdown. "
-"Install Dagric first to keep it."
+"This is the live trial: anything you add now lives in memory, disappears at "
+"shutdown, and can make a machine with little RAM unstable. Install Dagric "
+"first to keep it."
 msgstr ""
-"Ceci est l'essai live : tout ce que vous ajoutez maintenant disparaît à "
-"l'extinction. Installez d'abord Dagric pour le garder."
+"Ceci est l'essai live : tout ce que vous ajoutez maintenant vit en mémoire, "
+"disparaît à l'extinction et peut rendre instable une machine avec peu de "
+"RAM. Installez d'abord Dagric pour le garder."
 
 #: po/dagric-data-strings.sh:135
 msgid ""
@@ -1395,7 +1397,7 @@ msgstr "Autres écrans, résolution et taux de rafraîchissement"
 
 #: config/includes.chroot/usr/bin/dagric-driver-offer:51
 #: config/includes.chroot/usr/bin/dagric-firstrun:763
-#: config/includes.chroot/usr/bin/dagric-firstrun:838
+#: config/includes.chroot/usr/bin/dagric-firstrun:878
 #: config/includes.chroot/usr/bin/dagric-hub:25
 #: config/includes.chroot/usr/bin/dagric-setup:17
 msgid "Press Enter to close..."
@@ -1609,7 +1611,16 @@ msgstr ""
 "La taille du texte n'a pas pu être modifiée ici. Ouvrez Configuration du "
 "système ▸ Affichage et écran pour la régler."
 
-#: config/includes.chroot/usr/bin/dagric-firstrun:860
+#: config/includes.chroot/usr/bin/dagric-firstrun:820
+#: config/includes.chroot/usr/bin/dagric-firstrun:824
+msgid ""
+"Your chosen apps could not be started. Everything you ticked is still one "
+"click away in the Dagric Hub."
+msgstr ""
+"Vos applications choisies n'ont pas pu être lancées. Tout ce que vous avez "
+"coché reste à un clic dans le Dagric Hub."
+
+#: config/includes.chroot/usr/bin/dagric-firstrun:900
 #, sh-format
 msgid ""
 "Welcome to $EDITION_NAME.\n"
@@ -1626,34 +1637,34 @@ msgstr ""
 "définitif —\n"
 "vous pourrez tout modifier plus tard depuis le Dagric Hub."
 
-#: config/includes.chroot/usr/bin/dagric-firstrun:868
+#: config/includes.chroot/usr/bin/dagric-firstrun:908
 msgid "Light or dark?"
 msgstr "Clair ou sombre ?"
 
-#: config/includes.chroot/usr/bin/dagric-firstrun:870
-#: config/includes.chroot/usr/bin/dagric-firstrun:883
-#: config/includes.chroot/usr/bin/dagric-firstrun:894
-#: config/includes.chroot/usr/bin/dagric-firstrun:909
+#: config/includes.chroot/usr/bin/dagric-firstrun:910
+#: config/includes.chroot/usr/bin/dagric-firstrun:923
+#: config/includes.chroot/usr/bin/dagric-firstrun:934
+#: config/includes.chroot/usr/bin/dagric-firstrun:949
 msgid "Stop here — I'll finish later"
 msgstr "Arrêter ici — je terminerai plus tard"
 
-#: config/includes.chroot/usr/bin/dagric-firstrun:882
+#: config/includes.chroot/usr/bin/dagric-firstrun:922
 msgid "Pick a wallpaper:"
 msgstr "Choisissez un fond d'écran :"
 
-#: config/includes.chroot/usr/bin/dagric-firstrun:890
+#: config/includes.chroot/usr/bin/dagric-firstrun:930
 msgid "How big should everything be?"
 msgstr "Quelle taille pour l'ensemble ?"
 
-#: config/includes.chroot/usr/bin/dagric-firstrun:891
+#: config/includes.chroot/usr/bin/dagric-firstrun:931
 msgid "Normal (100%)"
 msgstr "Normal (100 %)"
 
-#: config/includes.chroot/usr/bin/dagric-firstrun:892
+#: config/includes.chroot/usr/bin/dagric-firstrun:932
 msgid "Bigger (125%)"
 msgstr "Plus grand (125 %)"
 
-#: config/includes.chroot/usr/bin/dagric-firstrun:893
+#: config/includes.chroot/usr/bin/dagric-firstrun:933
 msgid "Biggest (150%)"
 msgstr "Le plus grand (150 %)"
 
@@ -1661,7 +1672,7 @@ msgstr "Le plus grand (150 %)"
 #. is the product's central promise, said to somebody who is afraid of
 #. losing the Windows install they may still need. Keep the negation and
 #. keep the emphasis on READ.
-#: config/includes.chroot/usr/bin/dagric-firstrun:921
+#: config/includes.chroot/usr/bin/dagric-firstrun:961
 msgid ""
 "A Windows drive was found on this PC.\n"
 "\n"
@@ -1679,7 +1690,7 @@ msgstr ""
 #. they must match the Name= of dagric-hub.desktop, dagric-manual.desktop
 #. and dagric-firstrun.desktop in your language, exactly. "Dagric Hub" is
 #. not translated at all — it is a product name.
-#: config/includes.chroot/usr/bin/dagric-firstrun:935
+#: config/includes.chroot/usr/bin/dagric-firstrun:975
 msgid ""
 "You're set up.\n"
 "\n"
@@ -1701,9 +1712,17 @@ msgstr ""
 "\n"
 "Pour revoir ceci, ouvrez « Configurer Dagric » depuis le menu."
 
-#: config/includes.chroot/usr/bin/dagric-firstrun:1303
+#: config/includes.chroot/usr/bin/dagric-firstrun:1344
 msgid "Dagric is set up. Everything else lives in the Dagric Hub."
 msgstr "Dagric est configuré. Tout le reste se trouve dans le Dagric Hub."
+
+#: config/includes.chroot/usr/bin/dagric-firstrun:1362
+msgid ""
+"Setup closed before Finish, so nothing you ticked was installed. Everything "
+"is still one click away in the Dagric Hub."
+msgstr ""
+"La configuration a été fermée avant Terminer : rien de ce qui était coché "
+"n'a été installé. Tout reste à un clic dans le Dagric Hub."
 
 #. TRANSLATORS: "wine setup.exe" and "dagric-get-steam" are commands typed
 #. verbatim. Wine, winetricks, gamemode, mangohud, Vulkan, Proton, Proton-GE,
@@ -4112,99 +4131,3 @@ msgstr ""
 #: config/includes.chroot/usr/bin/dagric-welcome:31
 msgid "The Dagric welcome page is not installed."
 msgstr "La page de bienvenue Dagric n'est pas installée."
-
-#~ msgid ""
-#~ "Done! Your Windows files are now in your Dagric home folder.\n"
-#~ "\n"
-#~ "Windows itself was not modified — it was only ever read.\n"
-#~ "\n"
-#~ "To finish up, in Firefox:\n"
-#~ "• Bookmarks — Bookmarks ▸ Manage Bookmarks ▸ Import and Backup ▸\n"
-#~ "  Import Bookmarks from HTML ▸ Windows-bookmarks.html\n"
-#~ "• Open tabs — import Windows-open-tabs.html the same way; they arrive as "
-#~ "a\n"
-#~ "  bookmark folder you can 'Open All in Tabs'"
-#~ msgstr ""
-#~ "Terminé ! Vos fichiers Windows sont maintenant dans votre dossier "
-#~ "personnel Dagric.\n"
-#~ "\n"
-#~ "Windows lui-même n'a pas été modifié — il a uniquement été lu.\n"
-#~ "\n"
-#~ "Pour finir, dans Firefox :\n"
-#~ "• Marque-pages — Marque-pages ▸ Gérer les marque-pages ▸ Importation et "
-#~ "sauvegarde ▸\n"
-#~ "  Importer des marque-pages depuis un fichier HTML ▸ Windows-"
-#~ "bookmarks.html\n"
-#~ "• Onglets ouverts — importez Windows-open-tabs.html de la même façon ; "
-#~ "ils arrivent\n"
-#~ "  sous forme d'un dossier de marque-pages sur lequel vous pouvez utiliser "
-#~ "« Tout ouvrir dans des onglets »"
-
-#~ msgid ""
-#~ "Dagric guessed from your screen. Open Display Settings if it guessed "
-#~ "wrong."
-#~ msgstr ""
-#~ "Dagric a deviné d'après votre écran. Ouvrez les paramètres d'affichage "
-#~ "s'il s'est trompé."
-
-#~ msgid "Open Display Settings"
-#~ msgstr "Ouvrir les paramètres d'affichage"
-
-#~ msgid "Opens the full display and text size settings in a separate window"
-#~ msgstr ""
-#~ "Ouvre l'ensemble des paramètres d'affichage et de taille du texte dans "
-#~ "une fenêtre séparée"
-
-#~ msgid "a side dock for living in your apps"
-#~ msgstr "un dock latéral pour rester dans vos applications"
-
-#~ msgid ""
-#~ "Dagric local AI setup\n"
-#~ "=======================\n"
-#~ "This installs Ollama, a local large-language-model runner:\n"
-#~ "  * models run entirely on this computer (GPU-accelerated when "
-#~ "available)\n"
-#~ "  * works offline; nothing is sent anywhere\n"
-#~ "  * remove anytime:  sudo rm -f /usr/local/bin/ollama\n"
-#~ msgstr ""
-#~ "Configuration de l'IA locale Dagric\n"
-#~ "=======================\n"
-#~ "Ceci installe Ollama, un moteur local de grands modèles de langage :\n"
-#~ "  * les modèles tournent entièrement sur cet ordinateur (accélérés par le "
-#~ "GPU si possible)\n"
-#~ "  * fonctionne hors ligne ; rien n'est envoyé nulle part\n"
-#~ "  * suppression à tout moment :  sudo rm -f /usr/local/bin/ollama\n"
-
-#~ msgid "App manual"
-#~ msgstr "Manuel des applications"
-
-#~ msgid "Make everything bigger."
-#~ msgstr "Tout agrandir."
-
-#, fuzzy
-#~ msgid ""
-#~ "Pick the shape that feels familiar. You can switch again from the Dagric "
-#~ "Hub."
-#~ msgstr "Vous pouvez réessayer depuis le Dagric Hub."
-
-#~ msgid "You're ready."
-#~ msgstr "Tout est prêt."
-
-#~ msgid "Open the Dagric Hub"
-#~ msgstr "Ouvrir le Hub Dagric"
-
-#~ msgid "Read the guide"
-#~ msgstr "Lire le guide"
-
-#~ msgid "Open the manual"
-#~ msgstr "Ouvrir le manuel"
-
-#~ msgid ""
-#~ "USB protection is currently ON — unknown USB devices are blocked.\n"
-#~ "\n"
-#~ "Turn it OFF and allow all USB devices again?"
-#~ msgstr ""
-#~ "La protection USB est actuellement ACTIVÉE — les périphériques USB "
-#~ "inconnus sont bloqués.\n"
-#~ "\n"
-#~ "La désactiver et autoriser à nouveau tous les périphériques USB ?"

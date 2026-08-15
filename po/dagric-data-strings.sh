@@ -131,7 +131,7 @@ gettext "Already bought Pro?"
 gettext "Paste the code from your receipt and this machine becomes Pro — your files and settings stay."
 gettext "Selected — starts when you press Finish."
 gettext "Selected"
-gettext "This is the live trial, so anything you add now disappears at shutdown. Install Dagric first to keep it."
+gettext "This is the live trial: anything you add now lives in memory, disappears at shutdown, and can make a machine with little RAM unstable. Install Dagric first to keep it."
 gettext "Nothing here is a subscription, and everything can be removed later from the Software Store."
 
 # TRANSLATORS: name of the "classic" taskbar layout in Dagric Looks and the

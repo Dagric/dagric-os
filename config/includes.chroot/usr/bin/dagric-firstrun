@@ -808,26 +808,66 @@ run_helper() {
 # ever sends names from its own model — the window's list is data, not policy.
 run_downloads() {
     [ -n "$APPS_QUEUE" ] || [ "$TOPRO" = 1 ] || return 0
-    command -v konsole >/dev/null 2>&1 || return 0
-    _r=$(mktemp /tmp/dagric-firstrun-apps.XXXXXX) || return 0
+
+    # The owner ticked something, so from here every failure must SAY SO — a
+    # bare return on this path is a consent evaporating with no witness, which
+    # the first review of this function shipped twice.
+    _term=
+    if command -v konsole >/dev/null 2>&1; then _term=konsole
+    elif command -v x-terminal-emulator >/dev/null 2>&1; then _term=x-terminal-emulator
+    fi
+    if [ -z "$_term" ]; then
+        notify "$(gettext "Your chosen apps could not be started. Everything you ticked is still one click away in the Dagric Hub.")"
+        return 0
+    fi
+    _r=$(mktemp /tmp/dagric-firstrun-apps.XXXXXX) || {
+        notify "$(gettext "Your chosen apps could not be started. Everything you ticked is still one click away in the Dagric Hub.")"
+        return 0
+    }
+
+    # TWO PASSES OVER THE SAME WHITELIST, then the two interactive tools, in
+    # an order chosen so nothing waits on a prompt it does not need to:
+    #   1. the flatpak helpers — no password, no interaction, piped consent;
+    #   2. steam — its polkit prompt would stall everything queued behind it,
+    #      so it runs after the unattended set;
+    #   3. dagric-ai, fully INTERACTIVE. Its own y/N is the consent for things
+    #      the wizard card does not carry: an installer fetched from
+    #      ollama.com, an administrator password, and a boot-time service. A
+    #      piped "y" there would consent past its own disclosure — the first
+    #      review shipped exactly that;
+    #   4. the Pro upgrade, interactive and via sudo — the tool refuses
+    #      non-root by design (its caller in dagric-hub uses the same sudo
+    #      form), and the konsole gives the password prompt its tty.
     {
         printf '#!/bin/sh\n'
         _oldifs=$IFS; IFS=,
         for _a in $APPS_QUEUE; do
             case "$_a" in
-                steam|heroic|bottles|onlyoffice|joplin|localsend|cryptomator|upscayl)
+                heroic|bottles|onlyoffice|joplin|localsend|cryptomator|upscayl)
                     printf "printf 'y\\\\n' | /usr/bin/dagric-get-%s || true\n" "$_a"
                     printf 'echo\n'
                     ;;
+            esac
+        done
+        for _a in $APPS_QUEUE; do
+            case "$_a" in
+                steam)
+                    printf "printf 'y\\\\n' | /usr/bin/dagric-get-steam || true\n"
+                    printf 'echo\n'
+                    ;;
+            esac
+        done
+        for _a in $APPS_QUEUE; do
+            case "$_a" in
                 ai)
-                    printf "printf 'y\\\\n' | /usr/bin/dagric-ai || true\n"
+                    printf '/usr/bin/dagric-ai || true\n'
                     printf 'echo\n'
                     ;;
             esac
         done
         IFS=$_oldifs
         if [ "$TOPRO" = 1 ]; then
-            printf '/usr/bin/dagric-upgrade-to-pro || true\n'
+            printf 'sudo /usr/bin/dagric-upgrade-to-pro || true\n'
         fi
         printf 'rm -f "%s"\n' "$_r"
     } > "$_r"
@@ -836,7 +876,7 @@ run_downloads() {
     # the same reason: the translated close prompt is data and must never be
     # pasted into the quoted script text.
     _close=$(gettext "Press Enter to close...")
-    konsole -e sh -c \
+    "$_term" -e sh -c \
 'sh "$1" ; echo ; printf "%s" "$2" ; read x' sh "$_r" "$_close" &
     return 0
 }
@@ -1136,7 +1176,7 @@ Already bought Pro?
 Paste the code from your receipt and this machine becomes Pro — your files and settings stay.
 Selected — starts when you press Finish.
 Selected
-This is the live trial, so anything you add now disappears at shutdown. Install Dagric first to keep it.
+This is the live trial: anything you add now lives in memory, disappears at shutdown, and can make a machine with little RAM unstable. Install Dagric first to keep it.
 Nothing here is a subscription, and everything can be removed later from the Software Store.
 STRINGS
 }
@@ -1204,6 +1244,7 @@ last_wall=
 # whitelist is the decision.
 APPS_QUEUE=
 TOPRO=0
+DOWNLOADS_RAN=0
 
 # Nothing is launched here to fix the title-bar icon any more, and that is the
 # point. Two rounds of work went into a python helper that rewrote the window's
@@ -1304,11 +1345,22 @@ rm -f "$QML_SPOKE"
             # The queued downloads, now that the fullscreen window is gone and
             # a terminal can actually be seen.
             run_downloads
+            DOWNLOADS_RAN=1
             ;;
         QUIT)
             : ;;
     esac
 done
+
+# A ticked queue that never ran must not vanish without a witness. This fires
+# on every exit that skipped DONE — "I'll do this later", Esc, Alt+F4, a
+# crash — because the UI names Finish as the trigger and running installs on
+# an exit the owner chose would be worse than dropping them. The notification
+# is the honest middle: nothing happened, and here is where the same buttons
+# live.
+if [ "$DOWNLOADS_RAN" != 1 ] && { [ -n "$APPS_QUEUE" ] || [ "$TOPRO" = 1 ]; }; then
+    notify "$(gettext "Setup closed before Finish, so nothing you ticked was installed. Everything is still one click away in the Dagric Hub.")"
+fi
 
 if [ ! -e "$QML_SPOKE" ]; then
     # The window never said a word, so it never opened. Give the owner the

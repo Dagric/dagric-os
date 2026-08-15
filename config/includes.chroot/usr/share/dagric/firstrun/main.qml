@@ -98,9 +98,12 @@ ApplicationWindow {
     //     that must never be removed — a first run someone cannot leave is a
     //     first run someone force-reboots out of.
     //   * anything launched from INSIDE the wizard would open behind this
-    //     window and be invisible. That is why the downloads step queues its
-    //     installs and runs them at Finish, after this window is gone, and why
-    //     nothing else in here spawns a window before the end.
+    //     window and be invisible. Two answers, for two kinds of launch: the
+    //     downloads step QUEUES its installs and runs them at Finish, after
+    //     this window is gone — and every run() helper (text size, migration,
+    //     the finish links) DROPS THE WIZARD TO WINDOWED first, because those
+    //     are interactive mid-wizard by design and cannot be deferred. See
+    //     run() for why the drop is one-way.
     // width/height below are kept as the fallback geometry for a window
     // manager that refuses fullscreen.
     visibility: Window.FullScreen
@@ -657,6 +660,23 @@ ApplicationWindow {
     }
 
     function run(what) {
+        // Leaving fullscreen is part of running a helper, not an option. Three
+        // pre-existing sites spawn windows mid-wizard — the text-size tool
+        // (whose try-a-size dialog AUTO-REVERTS in twenty seconds if its Keep
+        // button is not pressed), the migration konsole (whose page says
+        // "carry on here while it works"), and the four finish links — and a
+        // fullscreen, frameless wizard would sit exactly on top of every one
+        // of them. The first review of this change shipped that bug with a
+        // comment claiming it could not happen.
+        //
+        // Windowed, not Minimized, and deliberately NOT restored afterwards:
+        // the migration page promises the owner can keep using the wizard
+        // beside the helper, and snapping back to fullscreen on refocus would
+        // re-hide a helper window that is still open. The immersive first run
+        // lasts until the owner opens a tool; from then on the wizard behaves
+        // like an ordinary window, which is what sharing a screen requires.
+        if (app.visibility === Window.FullScreen)
+            app.visibility = Window.Windowed;
         app.send("RUN|" + what);
     }
 
@@ -2386,7 +2406,7 @@ ApplicationWindow {
                 Text {
                     Layout.fillWidth: true
                     text: app.live
-                          ? app.t("This is the live trial, so anything you add now disappears at shutdown. Install Dagric first to keep it.")
+                          ? app.t("This is the live trial: anything you add now lives in memory, disappears at shutdown, and can make a machine with little RAM unstable. Install Dagric first to keep it.")
                           : app.t("Nothing here is a subscription, and everything can be removed later from the Software Store.")
                     color: app.cDim
                     font.pixelSize: app.px(12)
