@@ -55,9 +55,19 @@ application/xhtml+xml=firefox-esr.desktop
 # because it claims both types itself and dagric-app-names now gives the writer
 # a MimeType= so both apps are listed.
 #
-# Opening the writer is not destructive. It shows the image path, a device
-# dropdown that starts empty and a Write button that warns before it erases —
-# the same shape as Rufus, which is the tool this audience last used.
+# OPENING THE WRITER IS NOT DESTRUCTIVE, and this was checked by looking at it
+# rather than by reasoning about it, because "the default double-click for .iso
+# is now a drive-erasing tool" is the obvious objection and it deserved a real
+# answer. Screenshot of the window a double-click produces, on this image, with
+# a Dagric ISO loaded:
+#   * "Write this ISO image:" — the path, already filled in, with its size.
+#   * "To this USB drive:" — a dropdown that is DISABLED and reads "Please plug
+#     in a USB drive".
+#   * "Create" — GREYED OUT.
+# There is no reachable destructive action at all until a stick is physically
+# plugged in and picked. It is the same shape as Rufus, which is the tool this
+# audience last used, and it is strictly safer than the previous behaviour only
+# in the sense that the previous behaviour was nothing happening.
 #
 # BOTH TYPES, AND THIS IS NOT BELT-AND-BRACES — IT IS LOAD-BEARING. The two
 # mime databases on this image disagree about the SAME FILE. Asked about one
