@@ -94,6 +94,38 @@ systemctl disable --now snapper-boot.timer 2>/dev/null || true
 # long here so the next reader does not mistake it for a duplicate of -c root.
 # The baseline at the bottom is deliberately left untagged — it is the permanent
 # floor to roll back to.
+# STAND DEBIAN'S OWN apt HOOK DOWN FIRST, OR EVERY apt RUN SNAPSHOTS TWICE.
+#
+# The snapper package ships /etc/apt/apt.conf.d/80snapper, which takes its own
+# pre/post pair gated on /etc/snapper/configs/root existing — the config this
+# script creates a few lines above. So from the moment setup runs, both hooks
+# fire and one apt operation produces FOUR snapshots.
+#
+# MEASURED on an installed machine after a single Discover install:
+#   26 pre  "apt (pre)"   <- Dagric        28 post 26 "apt (post)"
+#   27 pre  "apt"         <- Debian        29 post 27 "apt"
+#
+# That is double the disk cost of the advertised recovery feature, on a machine
+# whose whole retention block above exists to stop snapshots eating the disk.
+#
+# WHY DAGRIC'S HOOK IS THE ONE THAT SURVIVES, rather than deleting ours and
+# configuring Debian's: ours guards on the root actually being btrfs, and passes
+# --cleanup-algorithm number on BOTH creates. Debian's tags only via its own
+# cleanup path and takes a pre snapshot even where btrfs is not in use. The
+# long note below explains why an untagged snapshot is a slow way to fill a
+# disk.
+#
+# DISABLE_APT_SNAPSHOT is 80snapper's own documented off switch — it tests
+# [ ! x$DISABLE_APT_SNAPSHOT = 'xyes' ] — so this is the supported way to yield,
+# not a hack, and it survives snapper being upgraded.
+if [ -f /etc/default/snapper ]; then
+    if grep -q '^DISABLE_APT_SNAPSHOT=' /etc/default/snapper; then
+        sed -i 's/^DISABLE_APT_SNAPSHOT=.*/DISABLE_APT_SNAPSHOT="yes"/' /etc/default/snapper
+    else
+        echo 'DISABLE_APT_SNAPSHOT="yes"' >> /etc/default/snapper
+    fi
+fi
+
 # NO ESCAPED QUOTES IN HERE. apt.conf HAS NO BACKSLASH ESCAPE, and the version
 # of this file that used \" broke every apt run on every installed machine.
 #
