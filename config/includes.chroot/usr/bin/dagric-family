@@ -104,10 +104,27 @@ trap cleanup EXIT INT TERM
             hrs=$(awk -F= '/^ALLOWED_HOURS_1/{print $2; exit}' "$conf" 2>/dev/null | tr -d ' ')
             n_hrs=$(printf '%s' "$hrs" | tr ';' '\n' | grep -c '[0-9]' || true)
             if [ "${n_hrs:-24}" -lt 24 ]; then
-                # First hour NOT present, walking forward from 0, is bedtime's
-                # start; the first hour present after a gap is its end.
-                bedfrom=$(awk -v h="$hrs" 'BEGIN{n=split(h,a,";"); for(i=0;i<24;i++){f=0; for(j=1;j<=n;j++) if(a[j]+0==i) f=1; if(!f){print i; exit}}}')
-                bedto=$(awk -v h="$hrs" -v s="$bedfrom" 'BEGIN{n=split(h,a,";"); for(k=1;k<=24;k++){i=(s+k)%24; f=0; for(j=1;j<=n;j++) if(a[j]+0==i) f=1; if(f){print i; exit}}}')
+                # A BEDTIME WRAPS MIDNIGHT, WHICH IS WHY THIS IS NOT "the first
+                # missing hour". The first version scanned upward from 0 and took
+                # the first hour that was not allowed. For the normal setting —
+                # 21:00 to 07:00 — the blocked hours are 21,22,23,0,1,...,6, so
+                # that scan answered 0, and the window reopened showing "locks
+                # from 00:00 to 07:00". A parent who then pressed Save would have
+                # had their real 21:00 bedtime silently rewritten to midnight.
+                # Caught by saving 21-to-7 and reading it back, not by reading
+                # the code.
+                #
+                # The boundaries are what matter, not the first gap: bedtime
+                # STARTS at the blocked hour whose previous hour is allowed, and
+                # ENDS at the allowed hour whose previous hour is blocked. That
+                # is correct whether or not the run crosses midnight, and this
+                # tool only ever writes one contiguous run.
+                bedfrom=$(awk -v h="$hrs" 'BEGIN{
+                    n=split(h,a,";"); for(j=1;j<=n;j++) al[a[j]+0]=1
+                    for(i=0;i<24;i++){ p=(i+23)%24; if(!al[i] && al[p]){ print i; exit } } }')
+                bedto=$(awk -v h="$hrs" 'BEGIN{
+                    n=split(h,a,";"); for(j=1;j<=n;j++) al[a[j]+0]=1
+                    for(i=0;i<24;i++){ p=(i+23)%24; if(al[i] && !al[p]){ print i; exit } } }')
                 : "${bedfrom:=0}" "${bedto:=0}"
             fi
             lock=$(awk -F= '/^LOCKOUT_TYPE/{gsub(/ /,"",$2); print $2; exit}' "$conf" 2>/dev/null)
@@ -150,6 +167,24 @@ fi
 RUNNER=/usr/lib/dagric/wm/dagric-family
 [ -x "$RUNNER" ] || RUNNER=$(command -v qml6)
 
+# THE WINDOW CANNOT READ ITS OWN CATALOGUE WITHOUT THIS.
+#
+# main.qml loads the catalogue with XMLHttpRequest against a file:// URL, and
+# Qt 6 refuses local-file reads unless this is set:
+#
+#   XMLHttpRequest: Using GET on a local file is disabled by default.
+#   Set QML_XHR_ALLOW_FILE_READ to 1 to enable this feature.
+#
+# It is a WARNING on stderr, not an error, and the window opens perfectly —
+# with an empty person list and every control disabled. So the failure looks
+# exactly like "this computer has no other accounts", which is a real state
+# this tool reports on purpose, and the two are indistinguishable on screen.
+# Found by rendering the panel under Xvfb and reading Qt's output; no amount of
+# looking at the QML would have shown it.
+#
+# Scoped to this one exec rather than exported globally: it relaxes a sandbox
+# rule, and it should apply to the process that needs it and nothing else.
+QML_XHR_ALLOW_FILE_READ=1 \
 "$RUNNER" "$QMLFILE" -- "--catalog=$CATALOG" 2>&1 | while IFS= read -r line; do
     case "$line" in
         "@DAGRIC@"*) ;;
