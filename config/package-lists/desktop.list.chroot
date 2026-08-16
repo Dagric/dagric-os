@@ -441,3 +441,15 @@ lame
 # this line and the lame one together. Fixing only MP3 would have left a second
 # silently-missing folder behind for the next audit to rediscover.
 opus-tools
+
+# KDE Connect: the phone integration a Windows switcher knows as Phone Link.
+# Notifications on the desktop, shared clipboard, the phone as a trackpad and
+# remote, find-my-phone, and file transfer both ways. This is FREE because the
+# nearest competitor gives it away free - Zorin OS Core ships it as Zorin
+# Connect and puts it at the top of its switcher pitch - and free must read as
+# leaner, never as broken.
+#
+# It needs ports 1714-1764 open, which 0300-hardening does, bound to the HOME
+# zone and deliberately not to public: a phone-pairing surface has no business
+# being reachable on cafe or airport Wi-Fi.
+kdeconnect

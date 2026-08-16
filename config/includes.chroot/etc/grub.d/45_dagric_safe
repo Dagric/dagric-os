@@ -1,0 +1,111 @@
+#!/bin/sh
+# SPDX-FileCopyrightText: 2026 DGR Operations <repo@dagric.com>
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+# Dagric OS — "safe graphics" entry in the INSTALLED machine's boot menu.
+#
+# WHY. auto/config argues at length that the owner who needs nomodeset is
+# "precisely the second-hand hardware this product is sold to rescue" — and then
+# offers it on the live stick only, via --bootappend-live-failsafe. Nothing in
+# this tree emitted a single entry into the installed system's menu. So the
+# failure mode is: a Mesa or kernel update regresses KMS on an eight-year-old
+# GPU, and a working machine becomes a black screen whose only exit is a text
+# recovery shell — from the same product whose 50-dagric.cfg sets GRUB_TIMEOUT=5
+# precisely because the boot menu is the one moment that rescues an owner whose
+# update broke their desktop. MX Linux and Q4OS put a failsafe entry in the
+# installed menu; Ubuntu and Mint ship text recovery only.
+#
+# NUMBERED 45. After 10_linux, so it can never become the default entry, and
+# after 30_os-prober so a dual-boot Windows entry keeps its position.
+#
+# ONLY nomodeset. The live failsafe append also carries noapic nodma nosmp
+# vga=788, which is right for a diagnostic boot off a stick and wrong for a
+# machine somebody then uses all evening — nosmp alone drops it to one core.
+# nomodeset is the whole fix for the "GPU driver broke" case, and this entry has
+# to remain usable, not merely bootable.
+#
+# quiet splash is dropped on purpose. An owner booting this has already seen one
+# black screen; a second silent one with a Plymouth logo tells them nothing.
+# Kernel messages scrolling past is the feedback they need.
+#
+# THE MODE BIT IS LOAD-BEARING. grub-mkconfig runs /etc/grub.d/* through a
+# `test -x` and SILENTLY SKIPS anything non-executable — no warning, no entry,
+# nothing in any log. 0995-file-modes.hook.chroot cannot help: it does the
+# opposite job (it REMOVES the executable bit from config files that arrived
+# 0755 through drvfs) and /etc/grub.d is not in its directory list anyway. The
+# 0810 hook chmods this file explicitly and then asserts it, the same way
+# 0330-calamares-helper and 0500/0510/0520 already do for their own scripts.
+set -e
+
+# grub-mkconfig exports GRUB_DEVICE, GRUB_DEVICE_UUID, GRUB_FS and friends, and
+# grub-mkconfig_lib is where prepare_grub_to_access_device and
+# make_system_path_relative_to_its_root live — the same helpers 10_linux uses to
+# emit a working root preamble. Hand-rolling that is how you ship an entry that
+# looks right and cannot find /boot.
+if [ -r /usr/share/grub/grub-mkconfig_lib ]; then
+    . /usr/share/grub/grub-mkconfig_lib
+else
+    # No library, no reliable way to address the boot device. Emitting a guess
+    # would be worse than emitting nothing.
+    echo "45_dagric_safe: grub-mkconfig_lib not found, no safe-graphics entry" >&2
+    exit 0
+fi
+
+# Newest kernel only. A safe-graphics entry per kernel would double the length
+# of the menu this product deliberately keeps short, and the owner who needs it
+# needs it for the kernel that just broke.
+LINUX=""
+for k in /boot/vmlinuz-*; do
+    [ -f "$k" ] || continue
+    case "$k" in *.dpkg-*|*.old) continue ;; esac
+    if [ -z "$LINUX" ] || version_test_gt "${k#/boot/vmlinuz-}" "${LINUX#/boot/vmlinuz-}"; then
+        LINUX=$k
+    fi
+done
+[ -n "$LINUX" ] || exit 0
+
+VERSION=${LINUX#/boot/vmlinuz-}
+INITRD="/boot/initrd.img-$VERSION"
+[ -f "$INITRD" ] || INITRD=""
+
+# Paths must be relative to the filesystem GRUB will mount, which is not the
+# same as the running system's path when /boot is its own partition.
+REL_LINUX=$(make_system_path_relative_to_its_root "$LINUX")
+[ -n "$INITRD" ] && REL_INITRD=$(make_system_path_relative_to_its_root "$INITRD") || REL_INITRD=""
+
+# btrfs: the root subvolume has to be on the kernel command line or the initramfs
+# mounts the top level and the boot fails. Dagric installs to subvol=@ by
+# default, so this is the normal case here, not an edge one. 10_linux computes
+# it the same way.
+SUBVOL_ARG=""
+if [ "x${GRUB_FS}" = "xbtrfs" ]; then
+    rootsubvol=$(make_system_path_relative_to_its_root /)
+    rootsubvol=${rootsubvol#/}
+    [ -n "$rootsubvol" ] && SUBVOL_ARG="rootflags=subvol=${rootsubvol}"
+fi
+
+if [ -n "${GRUB_DEVICE_UUID}" ]; then
+    ROOT_SPEC="root=UUID=${GRUB_DEVICE_UUID}"
+else
+    ROOT_SPEC="root=${GRUB_DEVICE}"
+fi
+
+# GRUB_CMDLINE_LINUX (not _DEFAULT) is the half that is meant to apply to every
+# entry including recovery — resume=, crypto, etc. _DEFAULT is where 50-dagric.cfg
+# puts quiet splash, which is exactly what this entry must not inherit.
+cat << EOF
+menuentry 'Dagric OS (safe graphics)' --class dagric --class gnu-linux --class os \$menuentry_id_option 'dagric-safe-graphics' {
+EOF
+prepare_grub_to_access_device "${GRUB_DEVICE_BOOT}" | sed 's/^/\t/'
+cat << EOF
+	echo 'Starting Dagric OS with basic graphics drivers...'
+	linux	${REL_LINUX} ${ROOT_SPEC} ro ${SUBVOL_ARG} ${GRUB_CMDLINE_LINUX} nomodeset
+EOF
+if [ -n "$REL_INITRD" ]; then
+cat << EOF
+	initrd	${REL_INITRD}
+EOF
+fi
+cat << EOF
+}
+EOF

@@ -50,3 +50,30 @@ goverlay
 # beyond Steam. (Epic/GOG via Heroic is a future consent-helper — not in
 # Debian.) Found by test review: Steam-only felt half-finished for the tier.
 lutris
+
+# THE HALVES --apt-recommends false DROPPED, AND WHY EACH ONE MATTERS.
+#
+# lutris Recommends python3-evdev and fluidsynth and neither arrived. evdev is
+# how Lutris enumerates controllers at all, so the joypad list in its settings
+# was empty on a machine sold on gaming. fluidsynth is MIDI playback, which a
+# surprising number of the 1990s Windows titles Wine exists to run depend on for
+# their soundtrack.
+python3-evdev
+fluidsynth
+
+# DXVK translates Direct3D 9/10/11 to Vulkan. dagric-gaming teaches
+# "wine setup.exe" as the headline Pro capability and docs/EDITIONS.md sells
+# running classic .exe software; a bare Wine prefix on Debian uses WineD3D,
+# which renders D3D through OpenGL and is routinely several times slower and
+# buggier. Debian packages DXVK in trixie main, so unlike Proton it is
+# redistributable and can be bundled outright.
+#
+# BOTH HALVES ARE NAMED ON PURPOSE. dxvk Depends is
+# "dxvk-wine64 | dxvk-wine32" and Recommends is "dxvk-wine32, dxvk-wine64", so
+# with Recommends off, listing dxvk alone silently satisfies the alternative
+# with the 64-bit half only. The classic .exe games this is for are 32-bit, so
+# that would install the feature and miss the case. dxvk-wine32 is architecture
+# i386 and therefore CANNOT come through this file at all; it is on the 0600
+# hook's multiarch line, after dpkg --add-architecture i386.
+dxvk
+dxvk-wine64

@@ -385,7 +385,7 @@ crippled, Pro is a clear step up.
 | 3D | Blender |
 | Video | OBS Studio (recording/streaming) + Kdenlive (editing) |
 | Backup | Borg + Vorta GUI (local/encrypted) + rclone (70+ cloud providers) |
-| Mobile | KDE Connect — Android/iOS notifications, files, clipboard, remote input (firewall ports preconfigured) |
+| Mobile | (moved to the free edition — see the free table. Zorin gives the same software away as Zorin Connect, so charging for it cost more than it earned.) |
 | Look | Papirus icon theme, Pro identity |
 
 **Gaming & Windows apps**

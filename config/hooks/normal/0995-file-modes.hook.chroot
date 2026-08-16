@@ -70,6 +70,31 @@ for d in /etc/systemd /usr/lib/systemd/system /usr/lib/systemd/user \
     done
 done
 
+# THE OPPOSITE PROBLEM, IN THE ONE PLACE IT IS SILENT.
+#
+# Everything above REMOVES an executable bit that drvfs invented. /etc/grub.d is
+# the inverse case and is deliberately not in the list above: grub-mkconfig runs
+# every file in that directory through a `test -x` and SKIPS anything that is not
+# executable — no warning, no error, no line in any log, just a boot menu with one
+# fewer entry than the tree says it has. 45_dagric_safe is the owner's way back in
+# when a driver update leaves them at a black screen, so it losing its bit is
+# exactly the failure nobody would notice until the day it was needed. Proven, not
+# assumed: chmod 0644 on it and re-running grub-mkconfig produces no entry and
+# exits 0.
+if [ -f /etc/grub.d/45_dagric_safe ]; then
+    chmod 0755 /etc/grub.d/45_dagric_safe
+    if [ -x /etc/grub.d/45_dagric_safe ]; then
+        echo "file-modes: 0755 /etc/grub.d/45_dagric_safe (safe-graphics boot entry)"
+    else
+        echo "ERROR: /etc/grub.d/45_dagric_safe is not executable, so grub-mkconfig" >&2
+        echo "       will silently emit no safe-graphics entry." >&2
+        exit 1
+    fi
+else
+    echo "ERROR: /etc/grub.d/45_dagric_safe is missing from the image." >&2
+    exit 1
+fi
+
 if [ "$FIXED" -eq 0 ]; then
     # Not a failure. It is what a Linux checkout looks like, and it is what this
     # image should look like once the build host stops handing us 0755.

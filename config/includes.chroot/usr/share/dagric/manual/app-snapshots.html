@@ -75,10 +75,27 @@
         <li><span class="t">Take one yourself before you do something risky</span><p><code>sudo snapper -c root create -d "before I edit the grub
          config"</code>. It costs almost no disk space and takes about a second. Do it
          before hand-editing anything in <code>/etc</code>.</p></li>
-        <li><span class="t">Make the rollback permanent</span><p>Booting a snapshot is a look, not a commitment. To keep it, run
-         <code>sudo snapper -c root rollback</code> from inside the booted snapshot
-         and restart. Do nothing and the next normal boot returns you to the current
-         system.</p></li>
+        <!-- This step used to say: boot the snapshot, then run
+             `sudo snapper -c root rollback` from inside it. That was wrong, and
+             wrong in the worst way — the command reports success and changes
+             nothing. snapper's rollback works by setting the btrfs DEFAULT
+             SUBVOLUME, and on the layout Calamares installs, nothing ever reads
+             it: /etc/fstab pins subvol=/@ and the GRUB entry pins
+             rootflags=subvol=@, so the next boot returns to the same system the
+             owner was trying to escape. Verified on an installed disk, not
+             reasoned about. Do not restore the old text. -->
+        <li><span class="t">Make the rollback permanent</span><p>Booting a snapshot is a look, not a commitment &mdash; do nothing and the
+         next normal start returns you to the current system. To <em>keep</em> one,
+         restart into your normal system first, then open
+         <strong>Btrfs Assistant</strong>, choose the snapshot by date and press
+         <em>Restore</em>. It restarts into the restored system.</p>
+         <p>It has to be done from the normal system rather than from inside the
+         booted snapshot, because a snapshot is mounted read-only &mdash; there is
+         nothing there that can write the change down. That is also why the
+         terminal command you may find in older notes elsewhere,
+         <code>snapper rollback</code>, does not work on Dagric: it moves a marker
+         that this machine's boot menu and disk table both ignore, so it prints
+         success and leaves you exactly where you were.</p></li>
         <li><span class="t">Recover one file rather than the whole system</span><p>Snapshots are mounted under <code>/.snapshots/</code>. Browse to the
          one you want and copy the file straight out of it with Dolphin. Far less
          drastic than rolling the machine back.</p></li>

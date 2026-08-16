@@ -202,6 +202,36 @@
     <code>detectportal.firefox.com</code> so Firefox can tell a hotel Wi-Fi login page from a
     broken connection, and Firefox periodically fetches its own settings and blocklists from
     Mozilla. All three are in <em>☰ → Settings</em>.</li>
+<!-- ADDED WITH THE DoH POLICY. This page's rule is that a new outbound host is
+     named here in the SAME commit that creates it, and that rule has been broken
+     three times. Firefox's DNSOverHTTPS policy ships with no ProviderURL, which
+     means Firefox uses its own default endpoint — Cloudflare's — so the honest
+     entry names Cloudflare rather than saying "a DoH resolver", which is not a
+     hostname. Chromium's policy is deliberately NOT template-pinned, so it has
+     no new host to declare; that difference is stated rather than smoothed over. -->
+    <li><strong>Encrypted DNS.</strong> Both browsers are set to look names up over an
+    encrypted connection rather than in plaintext, so the café, hotel or campus network
+    you are on can no longer read a list of every site you visit. In Firefox this means
+    the lookups go to <code>mozilla.cloudflare-dns.com</code> &mdash; Firefox's own default
+    endpoint, which we have not overridden. In Chromium on Pro it means your existing
+    resolver is used over an encrypted connection <em>when that resolver supports one</em>,
+    and plain DNS otherwise; no fixed provider is pinned. Both are deliberately left
+    unlocked, so you can point them somewhere else or switch them off entirely
+    (Firefox: <em>☰ → Settings → Privacy &amp; Security → DNS over HTTPS</em>). Be
+    clear-eyed about the trade: this moves who can watch your lookups from the network
+    operator to the resolver. On public Wi-Fi that is a plain win; on your own home
+    connection it is closer to a lateral move.</li>
+    <li><strong>Your Wi-Fi hardware address is now different on every network.</strong>
+    This is not an outbound connection, but it is the kind of thing this page exists to
+    disclose. Every wireless card has a permanent, globally unique serial number that it
+    announces to every access point in range, and it is the single most effective way a
+    person is followed between physical places. Dagric sets a <em>stable per-network</em>
+    address instead: constant for your home Wi-Fi, so your router still recognises the
+    laptop and your DHCP reservation still works, and different for the café, so the two
+    cannot be joined up. Wired connections are deliberately left alone, because there is
+    no walking-past problem on a cable and school and office networks authenticate by
+    that address. If a network filters by hardware address and refuses you, the override
+    is per-connection, in <em>Wi-Fi settings → Advanced → Restrict to device</em>.</li>
     <li><strong>Google's Widevine module</strong>, the first time you play something that needs
     it. Netflix, Spotify, Disney+ and Amazon all require DRM, so Firefox is configured to allow
     it — and the module itself is proprietary and is <em>not</em> on the disc image, so Firefox

@@ -1,0 +1,41 @@
+Dagric OS — why 10-dagric-privacy.json exists, and why the reasoning is here
+and not inside it.
+
+Chromium reads every *.json in this directory and merges them. It also lists
+every key it does not recognise in chrome://policy as "Unknown policy", in red.
+A "_comment" array would therefore turn the one page a careful buyer opens to
+CHECK our claims into a page with a red row on it. The policy file stays pure
+JSON; the explanation lives in this file, which Chromium ignores.
+
+THE GAP THIS CLOSED. Before this, there was no Chromium policy anywhere in the
+Dagric tree, on an image that ships Chromium. site/privacy.html describes how
+this machine resolves names, and that page's own comment block records that a
+claim was once made about Chromium which only ever held for Firefox — and calls
+it "the version of this mistake that does the most damage, because the reader
+who checks is the procurement officer". Shipping the Firefox DoH policy alone
+would have reproduced that mistake exactly, and on the PAID tier.
+
+DnsOverHttpsMode "automatic", not "secure".
+  automatic  upgrades to DNS-over-HTTPS when the resolver the network handed us
+             is one with a known DoH endpoint, and stays on plaintext when it is
+             not.
+  secure     refuses to resolve at all without DoH. That breaks school and
+             corporate split-horizon DNS, and it breaks every captive portal,
+             because a portal works by hijacking DNS until you sign in. A
+             browser that cannot resolve anything is not a privacy win.
+This is the same trade as Fallback:true in the Firefox policy.
+
+No DnsOverHttpsTemplates on purpose. Pinning a template would route every name
+this machine looks up through one company that we picked, on a product sold on
+not making that kind of choice for the owner. "automatic" keeps the resolver the
+owner's own network chose and encrypts the transport to it.
+
+PasswordLeakDetectionEnabled is deliberately NOT set. Turning it off would look
+like a privacy win and is a security loss: the check is k-anonymous — a hashed
+prefix, not the password — and it warns people whose credentials are already in
+a breach corpus. Dagric does not trade a real protection for the appearance of
+one.
+
+The Firefox equivalent is usr/lib/firefox-esr/distribution/policies.json, where
+DNSOverHTTPS is set Enabled with Fallback true and Locked false. Both browsers
+are left UNLOCKED: an owner who wants their own resolver, or none, can say so.

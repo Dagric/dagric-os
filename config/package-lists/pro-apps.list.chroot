@@ -112,7 +112,6 @@ timeshift
 
 # Mobile integration — notifications, file transfer, remote input,
 # clipboard sync with Android/iOS via the KDE Connect app
-kdeconnect
 
 # A more colorful, modern icon set for the Pro look
 papirus-icon-theme
@@ -175,3 +174,16 @@ filelight
 # 3 MB on a 3.8 GB image, and the difference between the application the site
 # promised and a stripped one.
 obs-plugins
+
+# swh-plugins sits one token away from frei0r-plugins in the SAME kdenlive
+# Recommends string. frei0r was caught when Recommends were audited; this one
+# was missed, so Kdenlive shipped with its audio effect list nearly empty. It
+# also Provides ladspa-plugin, which is exactly what audacity Suggests, so one
+# 2.3 MB package fills the effects menu in two of the headline creative apps.
+swh-plugins
+
+# Krita Recommends this for audio in animation playback. It is the Qt5 module,
+# not the Qt6 one: Krita 5.2.9 in trixie links libqt5core5t64 and friends.
+# qml6-module-qtmultimedia is already on the image for QtWebEngine and is the
+# wrong package here - do not "fix" this by deduplicating them.
+qml-module-qtmultimedia
