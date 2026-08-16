@@ -45,7 +45,7 @@ systemctl enable firewalld.service 2>/dev/null || true
 #
 # THIS USED TO CLOSE public AND NOTHING ELSE, which closed the front door and
 # left the side door open — because Dagric itself steers owners out of public.
-# 0600-pro-edition runs `--zone=home --add-service=kdeconnect`, and the guide and
+# This hook runs `--zone=home --add-service=kdeconnect` at its end, and the guide and
 # manual both tell owners to set their home network's zone to `home` so KDE
 # Connect works. The setup wizard does NOT — dagric-setup's whole checklist is
 # the NVIDIA driver, HP printers and Flathub — and this comment used to say it
@@ -311,4 +311,30 @@ fi
 if [ -f /etc/login.defs ]; then
     sed -i '/^#*[[:space:]]*HOME_MODE/d' /etc/login.defs
     printf 'HOME_MODE\t0750\n' >> /etc/login.defs
+fi
+
+# KDE CONNECT'S PORTS, ON BOTH EDITIONS NOW.
+#
+# This used to live in 0600-pro-edition.hook.chroot, because KDE Connect used to
+# be a Pro package. It is on the free edition now, and a port-opening left
+# behind in the Pro-only hook is the quietest kind of broken: the app is
+# installed, its icon is in the launcher, the manual explains pairing, and the
+# phone simply never finds the computer because 1714-1764 are shut. Nothing logs
+# it and no manifest diff shows it.
+#
+# HOME, NOT PUBLIC, deliberately and unchanged. A phone-pairing surface has no
+# business being reachable on cafe or airport Wi-Fi, and free machines sit on
+# those far more often than Pro workstations do. Pairing works once the owner
+# sets their own network's zone to home, which is what the guide and
+# manual/app-kdeconnect.html tell them to do.
+#
+# firewall-offline-cmd rather than firewall-cmd, because firewalld is not
+# running during a build. The equivalent on an already-installed machine is
+# `firewall-cmd --permanent --zone=home --add-service=kdeconnect` plus a reload,
+# which is what dagric-upgrade-to-pro does.
+if command -v firewall-offline-cmd >/dev/null 2>&1; then
+    firewall-offline-cmd --zone=home --add-service=kdeconnect >/dev/null 2>&1 || \
+        echo "WARNING: could not preopen the KDE Connect ports — phone pairing" >&2
+else
+    echo "WARNING: firewall-offline-cmd not found — KDE Connect ports NOT opened" >&2
 fi

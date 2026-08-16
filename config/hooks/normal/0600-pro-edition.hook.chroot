@@ -105,8 +105,12 @@ fi
 # /usr/bin/dagric-setup) — so guide/index.html and manual/app-kdeconnect.html
 # are the only places that tell an owner to do it. This line used to credit the
 # wizard with a step it never had.
-firewall-offline-cmd --zone=home --add-service=kdeconnect 2>/dev/null || \
-    echo "WARNING: could not preopen KDE Connect ports"
+# KDE Connect's ports are opened in 0300-hardening.hook.chroot now, not here.
+# The package moved to the free edition and this line did not move with it,
+# which would have shipped a free image with KDE Connect installed and ports
+# 1714-1764 shut — presenting to the owner as "pairing spins forever" and to us
+# as nothing whatsoever, on the edition whose own package-list comment promises
+# it reads as leaner and never as broken.
 
 # Security Suite (Pro): OpenSnitch runs in monitor mode (permissive default
 # config shipped in includes.chroot) so it never breaks connectivity out of

@@ -509,7 +509,13 @@ table.cmp td:nth-child(2),table.cmp td:nth-child(3),table.cmp th:nth-child(2),ta
     <tr><th scope="row">Steam, Heroic, Bottles</th><td>One-click</td><td class="y">One-click</td></tr>
     <tr><th scope="row">Local AI (Ollama)</th><td>One-click</td><td class="y">One-click</td></tr>
     <tr><th scope="row">Developer toolchain (Docker, Podman, Distrobox, Git, SSH)</th><td class="n">—</td><td class="y">✓</td></tr>
-    <tr><th scope="row">Phone integration, cloud backup, Drive in Dolphin</th><td class="n">—</td><td class="y">✓</td></tr>
+    <!-- Split when KDE Connect moved to the free edition. Leaving it as one row
+         reading "—" for free would have gone on claiming a free feature is
+         paid, on the comparison table, which is the single place on this site a
+         buyer reads adversarially. Cloud backup and Drive in Dolphin really are
+         Pro, so they keep their own row. -->
+    <tr><th scope="row">Phone integration (KDE Connect)</th><td class="y">✓</td><td class="y">✓</td></tr>
+    <tr><th scope="row">Cloud backup, Drive in Dolphin</th><td class="n">—</td><td class="y">✓</td></tr>
     <tr><th scope="row">Opt-in security suite</th><td class="n">—</td><td class="y">✓</td></tr>
     </tbody>
   </table>
