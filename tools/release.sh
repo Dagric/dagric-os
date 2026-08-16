@@ -258,13 +258,77 @@ check_r2_manifest() {
     return 1
 }
 
+# THE SIGNATURE THIS SCRIPT SHIPS WAS NEVER CHECKED BEFORE IT SHIPPED IT.
+#
+# do_sign verifies the detached signature it has just made, which proves the key
+# works and proves nothing about the pair `publish` copies into site/ minutes or
+# days later. Between the two, the ordinary thing happens: someone rebuilds. The
+# build even says so —
+#
+#   NOTE: out/SHA256SUMS has changed. Before deploying the site, copy it to
+#         site/ and RE-SIGN it — site/SHA256SUMS.sig covers the previous
+#         contents and will fail gpg --verify until it is regenerated.
+#
+# — and that note is the only thing standing between a rebuild and a site whose
+# published signature covers a manifest that no longer exists. Every other
+# failure this script guards is loud: a hash mismatch prints FAILED. A stale
+# signature is quieter and worse, because `sha256sum -c SHA256SUMS` still passes
+# and only the customers who follow the security advice — the ones who most
+# need to trust the answer — see BAD signature. On a distribution that asks
+# people to verify before booting, that is the one check that must not be a note
+# in a build log.
+#
+# The fingerprint is compared, not just the exit status. `gpg --verify` returns 0
+# for a good signature from ANY key in the keyring, so on a machine that has ever
+# imported someone else's key it answers a question nobody asked.
+check_signature() {
+    _sums=$1
+    _sig=$_sums.sig
+    if [ ! -f "$_sig" ]; then
+        echo "  NO SIGNATURE at $_sig — /download tells buyers to run" >&2
+        echo "  'gpg --verify SHA256SUMS.sig SHA256SUMS'. Run 'sign' first." >&2
+        return 1
+    fi
+    # `find -newer` and not `test -ot`: -ot is a widely-implemented extension,
+    # not POSIX, and this tree is /bin/sh throughout.
+    if [ -n "$(find "$_sums" -newer "$_sig" 2>/dev/null)" ]; then
+        echo "  THE SIGNATURE IS OLDER THAN THE MANIFEST — something rebuilt or" >&2
+        echo "  regenerated $_sums after it was signed. Re-run 'sign'." >&2
+        return 1
+    fi
+    _st=$(mktemp) || return 1
+    if ! gpg --batch --status-fd 3 --verify "$_sig" "$_sums" 3>"$_st" >/dev/null 2>&1; then
+        rm -f "$_st"
+        echo "  THE SIGNATURE DOES NOT VERIFY against $_sums." >&2
+        echo "  Every buyer who follows the verification instructions on" >&2
+        echo "  /download would see BAD signature. Re-run 'sign'." >&2
+        return 1
+    fi
+    _fpr=$(awk '$2=="VALIDSIG"{print $3}' "$_st"); rm -f "$_st"
+    case "$_fpr" in
+        *"$KEYID") echo "  signature verifies, made by $KEYID" ;;
+        "")  echo "  gpg reported no VALIDSIG — refusing to treat that as a pass." >&2
+             return 1 ;;
+        *)   echo "  SIGNED BY THE WRONG KEY." >&2
+             echo "    expected a fingerprint ending $KEYID" >&2
+             echo "    got $_fpr" >&2
+             echo "  The published key on /download is $KEYID; a manifest signed" >&2
+             echo "  by anything else cannot be verified by a customer." >&2
+             return 1 ;;
+    esac
+    return 0
+}
+
 do_check() {
     _src=$OUT/SHA256SUMS
     [ -f "$_src" ] || { echo "release: no $_src — run 'sign' first" >&2; exit 1; }
     require_all_editions "$_src" || exit 1
+    echo "Checking the signature on the manifest about to be published."
+    _ok=0
+    check_signature "$_src" || _ok=1
+    echo
     echo "Comparing the manifest against the bytes R2 is serving right now."
     echo
-    _ok=0
     check_live "$_src" || _ok=1
     echo
     # Both checks always run. Reporting only the first failure would hide the
@@ -274,7 +338,8 @@ do_check() {
     check_r2_manifest "$_src" "$_url_base" || _ok=1
     echo
     if [ "$_ok" -eq 0 ]; then
-        echo "  every publicly served ISO matches the manifest, and both published"
+        echo "  the signature is current and made by the published key, every"
+        echo "  publicly served ISO matches the manifest, and both published"
         echo "  copies of the manifest agree"
         return 0
     fi
