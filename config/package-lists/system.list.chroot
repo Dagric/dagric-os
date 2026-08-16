@@ -698,3 +698,28 @@ pciutils
 #
 # Roughly 1.5 MB, and it is a diagnostic worth having on a support call anyway.
 sqlite3
+
+# FAMILY LIMITS: screen time and bedtime for a child's account, on the FREE
+# edition. Manjaro made this its headline in 26.1 to satisfy a new Brazilian
+# law, and pt_BR is one of Dagric's six languages -- gating legal compliance
+# behind $39 in the market that legislated it does not meet the requirement it
+# would be justified by. It is also a straight regression from Windows 10, which
+# had Family Safety built in, and "free reads as leaner, never as broken" is the
+# rule this product is held to.
+#
+# timekpr-next rather than malcontent: its daemon tracks sessions through
+# logind, so it is correct on Wayland, which the GNOME stack's approach is not
+# on Plasma. Its own GTK admin window is NOT put in front of owners -- it ships
+# translations for Italian and Latvian only, so four of six languages would get
+# an English dialog for the feature most likely to be got wrong. dagric-family
+# is the Dagric-translated face; this is only the engine.
+timekpr-next
+
+# NAMED EXPLICITLY BECAUSE IT IS A RECOMMENDS AND 01dagric-norecommends DROPS
+# THEM. Without it, timekpr's tray client has no way to publish an indicator, so
+# a child gets limits with no countdown and no "20 minutes left" warning -- the
+# session simply ends mid-homework, which is the exact experience that turns
+# this feature into a support call. Plasma 6 implements StatusNotifierItem
+# natively, which is what libayatana publishes to, so the icon appears without
+# any GNOME shell extension.
+gir1.2-ayatanaappindicator3-0.1

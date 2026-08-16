@@ -1,0 +1,169 @@
+#!/bin/sh
+# SPDX-FileCopyrightText: 2026 DGR Operations <repo@dagric.com>
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+# Dagric OS — write one person's screen-time limits. THE PRIVILEGED HALF.
+#
+# This runs as root through pkexec, called by /usr/bin/dagric-family. Everything
+# it receives comes from an unprivileged process, so nothing here trusts an
+# argument: the username is resolved through getent and rejected if it is not a
+# real, ordinary, human account on this machine, and every number is range
+# checked before it reaches a config file that a root daemon acts on.
+#
+# WHY NOT JUST SHIP timekpr's OWN ADMIN GUI. Because timekpr-next ships
+# translations for Italian and Latvian only. Dagric ships six languages, so four
+# of six owners would open a Parental Controls window in English — which is the
+# exact defect 465dc7b was written to fix for Qt's own strings. The engine is
+# excellent and is used as-is; only the face is ours.
+#
+# THE FILE FORMAT IS timekpr's, NOT OURS. /var/lib/timekpr/config/timekpr.<user>.conf
+# is an INI the daemon owns and rewrites. This script edits the handful of keys
+# it needs IN PLACE and leaves everything else — PlayTime, wakeup intervals,
+# tracking — exactly as it found it, so an owner who has used timekpr's own tools
+# does not lose their work by opening ours.
+set -eu
+
+export TEXTDOMAIN=dagric
+export TEXTDOMAINDIR=/usr/share/locale
+. gettext.sh 2>/dev/null || gettext() { printf '%s' "$1"; }
+
+CONFDIR=/var/lib/timekpr/config
+die() { printf '%s\n' "$*" >&2; exit 1; }
+
+[ "$(id -u)" = 0 ] || die "$(gettext "This must run as an administrator.")"
+
+ACTION=${1:-}
+USERNAME=${2:-}
+
+# ---------------------------------------------------------------- the account
+# getent, not /etc/passwd parsing: it is the only answer that is also correct on
+# a machine joined to a directory, and it fails closed on a name that does not
+# resolve.
+ENT=$(getent passwd "$USERNAME" 2>/dev/null) || die "$(gettext "No such account.")"
+UID_=$(printf '%s' "$ENT" | cut -d: -f3)
+SHELL_=$(printf '%s' "$ENT" | cut -d: -f7)
+case "$UID_" in ''|*[!0-9]*) die "$(gettext "No such account.")" ;; esac
+[ "$UID_" -ge 1000 ] && [ "$UID_" -lt 60000 ] \
+    || die "$(gettext "That is a system account, not a person.")"
+case "$SHELL_" in
+    */nologin|*/false) die "$(gettext "That account cannot log in, so it has no screen time.")" ;;
+esac
+
+# THE GUARD THAT KEEPS THIS FROM BECOMING A SUPPORT CALL. A parental-controls
+# feature that locks out the machine's only administrator is not a bug report,
+# it is a refund — the owner cannot even undo it, because undoing it needs the
+# administrator they just locked out. Count the admins; refuse if this is the
+# last one. dagric-family greys the same accounts out, but the check has to live
+# HERE too: the GUI is a convenience and this is the boundary.
+if id -nG "$USERNAME" 2>/dev/null | tr ' ' '\n' | grep -qx sudo; then
+    _admins=0
+    for _a in $(getent group sudo | cut -d: -f4 | tr ',' ' '); do
+        getent passwd "$_a" >/dev/null 2>&1 && _admins=$((_admins + 1))
+    done
+    if [ "$_admins" -le 1 ]; then
+        die "$(gettext "This is the only administrator account on this computer.
+Limiting it could lock everyone out, with no way back in. Create a second
+administrator first, or set limits on a different account.")"
+    fi
+fi
+
+CONF="$CONFDIR/timekpr.$USERNAME.conf"
+
+# ------------------------------------------------------------------- the write
+# One awk pass, key by key, preserving every line this script does not own —
+# including timekpr's own explanatory comments, which the daemon rewrites and an
+# owner may have read.
+set_key() {  # set_key <KEY> <VALUE>
+    [ -f "$CONF" ] || die "$(gettext "This computer has no time-limit settings for that account yet.")"
+    awk -v k="$1" -v v="$2" '
+        BEGIN { done = 0 }
+        $0 ~ "^" k "[ \t]*=" { print k " = " v; done = 1; next }
+        { print }
+        END { if (!done) exit 3 }
+    ' "$CONF" > "$CONF.dagric-tmp" || {
+        rm -f "$CONF.dagric-tmp"
+        die "$(gettext "The time-limit settings file is not in the expected format.")"
+    }
+    # Same owner and mode as the file we replace: the daemon reads this as root
+    # but the file is not ours to re-permission.
+    chown --reference="$CONF" "$CONF.dagric-tmp" 2>/dev/null || true
+    chmod --reference="$CONF" "$CONF.dagric-tmp" 2>/dev/null || true
+    mv -f "$CONF.dagric-tmp" "$CONF"
+}
+
+num() {  # num <value> <min> <max> — echo it, or die
+    case "$1" in ''|*[!0-9]*) die "$(gettext "Invalid value.")" ;; esac
+    [ "$1" -ge "$2" ] && [ "$1" -le "$3" ] || die "$(gettext "Invalid value.")"
+    printf '%s' "$1"
+}
+
+# timekpr has no "off" switch per user, so "no limits" is expressed the way the
+# format allows: every day allowed, every hour allowed, and a daily allowance of
+# a full day. That is what its own shipped template contains.
+FULL_HOURS="0;1;2;3;4;5;6;7;8;9;10;11;12;13;14;15;16;17;18;19;20;21;22;23"
+
+case "$ACTION" in
+  remove)
+        for d in 1 2 3 4 5 6 7; do set_key "ALLOWED_HOURS_$d" "$FULL_HOURS"; done
+        set_key ALLOWED_WEEKDAYS "1;2;3;4;5;6;7"
+        set_key LIMITS_PER_WEEKDAYS "86400;86400;86400;86400;86400;86400;86400"
+        set_key LIMIT_PER_WEEK 604800
+        set_key LIMIT_PER_MONTH 2678400
+        printf 'OK removed\n'
+        ;;
+  set)
+        # set <user> <daily-minutes> <bed-from-hour> <bed-to-hour> <lockout>
+        MINUTES=$(num "${3:-}" 15 1440)
+        BEDFROM=$(num "${4:-}" 0 23)
+        BEDTO=$(num "${5:-}" 0 23)
+        LOCKOUT=${6:-lock}
+        case "$LOCKOUT" in lock|terminate) ;; *) die "$(gettext "Invalid value.")" ;; esac
+
+        # Hours the computer may be used: everything OUTSIDE the bedtime window.
+        # Equal from and to means no bedtime at all, which is the honest reading
+        # of "from 9 to 9" and avoids a config with zero usable hours — a
+        # silently unusable account is the worst outcome this tool can produce.
+        HOURS=""
+        h=0
+        while [ $h -le 23 ]; do
+            blocked=0
+            if [ "$BEDFROM" -ne "$BEDTO" ]; then
+                if [ "$BEDFROM" -lt "$BEDTO" ]; then
+                    [ "$h" -ge "$BEDFROM" ] && [ "$h" -lt "$BEDTO" ] && blocked=1
+                else
+                    # A window that crosses midnight, which is the normal case
+                    # for a bedtime: 21:00 to 07:00.
+                    { [ "$h" -ge "$BEDFROM" ] || [ "$h" -lt "$BEDTO" ]; } && blocked=1
+                fi
+            fi
+            [ "$blocked" = 0 ] && HOURS="$HOURS${HOURS:+;}$h"
+            h=$((h + 1))
+        done
+        [ -n "$HOURS" ] || die "$(gettext "Those bedtime hours would leave no time at all to use the computer.")"
+
+        SECONDS_=$((MINUTES * 60))
+        for d in 1 2 3 4 5 6 7; do set_key "ALLOWED_HOURS_$d" "$HOURS"; done
+        set_key ALLOWED_WEEKDAYS "1;2;3;4;5;6;7"
+        set_key LIMITS_PER_WEEKDAYS \
+            "$SECONDS_;$SECONDS_;$SECONDS_;$SECONDS_;$SECONDS_;$SECONDS_;$SECONDS_"
+        # The weekly and monthly ceilings are raised out of the way rather than
+        # left at the template's defaults, which are a full week and a full
+        # month: with a daily allowance set, a second lower ceiling underneath it
+        # would cut the week short on Friday for reasons nobody chose.
+        set_key LIMIT_PER_WEEK $((SECONDS_ * 7))
+        set_key LIMIT_PER_MONTH $((SECONDS_ * 31))
+        # lock, not terminate. timekpr's own default is terminate, which kills
+        # the session — a child loses unsaved homework and a parent gets the
+        # blame. Locking the screen stops the use and keeps the work.
+        set_key LOCKOUT_TYPE "$LOCKOUT"
+        printf 'OK set\n'
+        ;;
+  *)
+        die "usage: family-apply set <user> <minutes> <bedfrom> <bedto> <lock|terminate>
+       family-apply remove <user>"
+        ;;
+esac
+
+# The daemon polls its config, but a restart is the only thing that is certain
+# across versions, and this runs once when a parent presses Save.
+systemctl try-restart timekpr.service >/dev/null 2>&1 || true

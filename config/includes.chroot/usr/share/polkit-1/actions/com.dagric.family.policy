@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE policyconfig PUBLIC
+ "-//freedesktop//DTD PolicyKit Policy Configuration 1.0//EN"
+ "http://www.freedesktop.org/software/polkit/policyconfig-1.dtd">
+<!--
+  Dagric OS - authorisation for setting a family member's screen-time limits.
+
+  WHY ITS OWN ACTION RATHER THAN REUSING timekpr's. timekpr ships
+  com.ubuntu.timekpr.pkexec, which authorises running /usr/bin/timekpra - the
+  whole GTK admin application, which can do anything to anyone's limits. Dagric
+  does not put that window in front of owners (it is translated into Italian and
+  Latvian only), and authorising it here would grant more than this feature
+  needs. This action authorises exactly one small script that validates its
+  arguments and edits a fixed set of keys.
+
+  auth_admin, and auth_admin_keep is deliberately NOT used. Keeping the
+  authorisation alive for five minutes is the right trade for something like a
+  package manager, where a person performs a run of related actions. It is the
+  wrong trade here: the whole point of the feature is that the person being
+  limited must not be able to change their own limits, and a child who sits down
+  at a parent's unlocked session inside that window could remove them without
+  being asked for anything. Ask every time.
+
+  allow_inactive is "no" so this cannot be answered from a switched-away
+  session, and allow_any is "no" so it cannot be answered remotely.
+-->
+<policyconfig>
+  <vendor>Dagric OS</vendor>
+  <vendor_url>https://dagric.com/</vendor_url>
+
+  <action id="com.dagric.family.apply">
+    <description>Change screen-time limits for an account on this computer</description>
+    <description xml:lang="de">Bildschirmzeit-Grenzen für ein Konto auf diesem Computer ändern</description>
+    <description xml:lang="es">Cambiar los límites de tiempo de pantalla de una cuenta de este equipo</description>
+    <description xml:lang="fr">Modifier les limites de temps d'écran d'un compte de cet ordinateur</description>
+    <description xml:lang="it">Modificare i limiti di tempo di utilizzo per un account di questo computer</description>
+    <description xml:lang="pt_BR">Alterar os limites de tempo de tela de uma conta deste computador</description>
+
+    <message>Authentication is required to change screen-time limits.</message>
+    <message xml:lang="de">Zum Ändern der Bildschirmzeit-Grenzen ist eine Authentifizierung erforderlich.</message>
+    <message xml:lang="es">Se requiere autenticación para cambiar los límites de tiempo de pantalla.</message>
+    <message xml:lang="fr">Une authentification est requise pour modifier les limites de temps d'écran.</message>
+    <message xml:lang="it">È richiesta l'autenticazione per modificare i limiti di tempo di utilizzo.</message>
+    <message xml:lang="pt_BR">É necessária autenticação para alterar os limites de tempo de tela.</message>
+
+    <defaults>
+      <allow_any>no</allow_any>
+      <allow_inactive>no</allow_inactive>
+      <allow_active>auth_admin</allow_active>
+    </defaults>
+    <annotate key="org.freedesktop.policykit.exec.path">/usr/lib/dagric/family-apply</annotate>
+  </action>
+</policyconfig>

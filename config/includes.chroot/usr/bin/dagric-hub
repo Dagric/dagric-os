@@ -94,6 +94,7 @@ set -- \
     _system  "$H_SYSTEM" \
     drivers  "      $(gettext "NVIDIA driver")" \
     security "      $(gettext "Security Checkup")" \
+    family   "      $(gettext "Family limits — screen time and bedtime")" \
     access   "      $(gettext "Accessibility — screen reader, keyboard and mouse help")"
 
 # THE UPGRADE ROW IS FOR INSTALLED MACHINES ONLY.
@@ -242,6 +243,7 @@ case "$CHOICE" in
     looks)    dagric-looks & ;;
     style)    dagric-style & ;;
     security) dagric-security-checkup & ;;
+    family)   dagric-family & ;;
     # --check only, and in a terminal on purpose. It reports whether this
     # machine could take the next Debian and what would stop it, without
     # changing anything — the actual upgrade is typed deliberately with sudo,

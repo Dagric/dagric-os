@@ -102,12 +102,12 @@ if [ -z "$QML" ]; then
 fi
 
 mkdir -p /usr/lib/dagric/wm
-for app in dagric-firstrun dagric-appearance; do
+for app in dagric-firstrun dagric-appearance dagric-family; do
     ln -sf "$QML" "/usr/lib/dagric/wm/$app"
 done
 
 # Verify, because a silently-missing symlink puts the wrong taskbar icon back.
-for app in dagric-firstrun dagric-appearance; do
+for app in dagric-firstrun dagric-appearance dagric-family; do
     if [ ! -x "/usr/lib/dagric/wm/$app" ]; then
         echo "WARNING: /usr/lib/dagric/wm/$app is not executable" >&2
     fi

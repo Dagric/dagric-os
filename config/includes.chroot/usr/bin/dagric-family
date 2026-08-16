@@ -1,0 +1,188 @@
+#!/bin/sh
+# SPDX-FileCopyrightText: 2026 DGR Operations <repo@dagric.com>
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+# Dagric OS — "Family Limits": screen time and bedtime for a child's account.
+#
+# WHY DAGRIC WRITES ITS OWN FACE FOR THIS. The engine is timekpr-next, which is
+# good: its daemon tracks sessions through logind, so it is correct on Wayland,
+# which most of the alternatives are not. What it cannot do is speak to this
+# product's owners — it ships translations for Italian and Latvian ONLY, and
+# Dagric ships six languages. Putting its GTK3 admin window in front of a German,
+# French, Spanish or Brazilian parent would hand them an English dialog for the
+# one feature they are most likely to get wrong, which is exactly the defect
+# 465dc7b was written to fix for Qt's own strings. So: their daemon, our window.
+#
+# THE SPLIT, and it is the same one the first-run wizard uses. This script is the
+# only thing that decides anything; /usr/share/dagric/family/main.qml is the view
+# and cannot execute a program. The privileged write is a third piece,
+# /usr/lib/dagric/family-apply, reached through pkexec — so the thing that edits
+# a root daemon's config is a small script that validates every argument, not a
+# QML file and not this one.
+#
+#   this script   writes a catalogue (JSON) and passes it as --catalog=PATH
+#   the window    prints  @DAGRIC@<COMMAND>|<argument>  as the parent clicks
+#   this script   validates, then calls pkexec family-apply
+#
+# WHY IT IS ON THE FREE EDITION. A Brazilian school or family on the free edition
+# has to be able to comply with the law that made this feature urgent, and pt_BR
+# is one of the six languages Dagric already ships. Gating legal compliance
+# behind $39 in the market that legislated it does not meet the requirement it
+# was justified by. The Family Pack sells Pro on several machines; it does not
+# sell this.
+set -eu
+
+. /usr/bin/dagric-i18n.sh
+
+QMLDIR=/usr/share/dagric/family
+QMLFILE=$QMLDIR/main.qml
+APPLY=/usr/lib/dagric/family-apply
+CONFDIR=/var/lib/timekpr/config
+TITLE=$(gettext "Family Limits")
+
+note() { kdialog --title "$TITLE" --passivepopup "$1" 7 >/dev/null 2>&1 & }
+fail() { kdialog --title "$TITLE" --sorry "$1" >/dev/null 2>&1 || printf '%s\n' "$1" >&2; exit 1; }
+
+# ---------------------------------------------------------------- can we run?
+# The engine is a package, not a promise. Say so plainly rather than opening a
+# window whose Save button cannot work.
+[ -x /usr/bin/timekprd ] || fail "$(gettext "The screen-time service is not installed on this computer.")"
+[ -d "$CONFDIR" ] || fail "$(gettext "The screen-time service has not finished setting itself up yet.
+Restart the computer and try again.")"
+[ -r "$QMLFILE" ] || fail "$(gettext "Part of this program is missing from the computer.")"
+
+# timekpr writes a per-user config the first time its daemon sees an account. On
+# a machine where a child has never logged in there is nothing to edit yet, and
+# that is worth saying in words rather than showing an empty list.
+command -v qml6 >/dev/null 2>&1 || fail "$(gettext "The window system component this needs is missing.")"
+
+# ------------------------------------------------------------- who is on here
+# Ordinary human accounts only. uid >= 1000 and < 60000 is the Debian range for
+# people; anything else is a service account and has no screen time.
+#
+# THE ADMIN COUNT IS THE SAFETY PROPERTY. A parental-controls feature that locks
+# out the last administrator is not a bug report, it is a refund — the owner
+# cannot undo it, because undoing it needs the account they just locked. The
+# window greys those rows out and family-apply refuses them again on the
+# privileged side, because a GUI is a convenience and the boundary is where the
+# check has to be.
+ADMINS=$(getent group sudo 2>/dev/null | cut -d: -f4 | tr ',' ' ')
+n_admins=0
+for a in $ADMINS; do getent passwd "$a" >/dev/null 2>&1 && n_admins=$((n_admins + 1)); done
+
+json_escape() { printf '%s' "$1" | sed -e 's/\\/\\\\/g' -e 's/"/\\"/g'; }
+
+CATALOG=$(mktemp -t dagric-family.XXXXXX) || fail "$(gettext "Could not start.")"
+# The catalogue can name every account on the machine, so it is readable only by
+# the person who opened the window.
+chmod 0600 "$CATALOG"
+cleanup() { rm -f "$CATALOG"; }
+trap cleanup EXIT INT TERM
+
+{
+    printf '{\n  "people": [\n'
+    first=1
+    getent passwd | while IFS=: read -r u _x uid _gid gecos home shell; do
+        case "$uid" in ''|*[!0-9]*) continue ;; esac
+        [ "$uid" -ge 1000 ] && [ "$uid" -lt 60000 ] || continue
+        [ -d "$home" ] || continue
+        case "$shell" in */nologin|*/false) continue ;; esac
+
+        conf="$CONFDIR/timekpr.$u.conf"
+        # No config yet means timekpr's daemon has not seen this account log in.
+        [ -f "$conf" ] && known=true || known=false
+
+        # Read the current state back so the window opens showing what is
+        # actually set, not a blank form. LIMITS_PER_WEEKDAYS is seven values;
+        # the first is representative because this tool writes them all alike.
+        mins=0; bedfrom=0; bedto=0; lock=lock
+        if [ "$known" = true ]; then
+            secs=$(awk -F= '/^LIMITS_PER_WEEKDAYS/{split($2,a,";"); gsub(/ /,"",a[1]); print a[1]; exit}' "$conf" 2>/dev/null)
+            case "$secs" in ''|*[!0-9]*) secs=86400 ;; esac
+            mins=$((secs / 60))
+            # Bedtime is the gap in ALLOWED_HOURS_1. A full 24 means none set.
+            hrs=$(awk -F= '/^ALLOWED_HOURS_1/{print $2; exit}' "$conf" 2>/dev/null | tr -d ' ')
+            n_hrs=$(printf '%s' "$hrs" | tr ';' '\n' | grep -c '[0-9]' || true)
+            if [ "${n_hrs:-24}" -lt 24 ]; then
+                # First hour NOT present, walking forward from 0, is bedtime's
+                # start; the first hour present after a gap is its end.
+                bedfrom=$(awk -v h="$hrs" 'BEGIN{n=split(h,a,";"); for(i=0;i<24;i++){f=0; for(j=1;j<=n;j++) if(a[j]+0==i) f=1; if(!f){print i; exit}}}')
+                bedto=$(awk -v h="$hrs" -v s="$bedfrom" 'BEGIN{n=split(h,a,";"); for(k=1;k<=24;k++){i=(s+k)%24; f=0; for(j=1;j<=n;j++) if(a[j]+0==i) f=1; if(f){print i; exit}}}')
+                : "${bedfrom:=0}" "${bedto:=0}"
+            fi
+            lock=$(awk -F= '/^LOCKOUT_TYPE/{gsub(/ /,"",$2); print $2; exit}' "$conf" 2>/dev/null)
+            case "$lock" in lock|terminate) ;; *) lock=lock ;; esac
+        fi
+
+        # Is this person an administrator, and are they the only one?
+        isadmin=false; protected=false
+        if id -nG "$u" 2>/dev/null | tr ' ' '\n' | grep -qx sudo; then
+            isadmin=true
+            [ "$n_admins" -le 1 ] && protected=true
+        fi
+
+        real=$(printf '%s' "$gecos" | cut -d, -f1)
+        [ -n "$real" ] || real=$u
+
+        [ "$first" = 1 ] || printf ',\n'
+        first=0
+        printf '    {"user":"%s","name":"%s","admin":%s,"protected":%s,' \
+            "$(json_escape "$u")" "$(json_escape "$real")" "$isadmin" "$protected"
+        printf '"known":%s,"minutes":%s,"bedFrom":%s,"bedTo":%s,"lockout":"%s"}' \
+            "$known" "$mins" "${bedfrom:-0}" "${bedto:-0}" "$lock"
+    done
+    printf '\n  ]\n}\n'
+} > "$CATALOG"
+
+# A machine with no ordinary accounts other than a lone administrator has
+# nothing this window can usefully offer.
+if ! grep -q '"user"' "$CATALOG"; then
+    fail "$(gettext "There are no other accounts on this computer yet.
+
+Create an account for the person you want to set limits for first, in
+System Settings, then come back.")"
+fi
+
+# ---------------------------------------------------------------- the window
+# Same argv[0] trick as the wizard: Qt takes WM_CLASS from basename(argv[0]), so
+# launched as plain qml6 this window matches no .desktop file and gets a generic
+# icon and title in the task switcher.
+RUNNER=/usr/lib/dagric/wm/dagric-family
+[ -x "$RUNNER" ] || RUNNER=$(command -v qml6)
+
+"$RUNNER" "$QMLFILE" -- "--catalog=$CATALOG" 2>&1 | while IFS= read -r line; do
+    case "$line" in
+        "@DAGRIC@"*) ;;
+        *) continue ;;                       # ordinary Qt chatter, not an order
+    esac
+    payload=${line#@DAGRIC@}
+    cmd=${payload%%|*}
+    arg=${payload#*|}
+
+    case "$cmd" in
+        SET)
+            # user;minutes;bedfrom;bedto;lockout — every field re-checked here
+            # and AGAIN inside family-apply, which is the actual boundary.
+            u=$(printf '%s' "$arg" | cut -d';' -f1)
+            m=$(printf '%s' "$arg" | cut -d';' -f2)
+            bf=$(printf '%s' "$arg" | cut -d';' -f3)
+            bt=$(printf '%s' "$arg" | cut -d';' -f4)
+            lk=$(printf '%s' "$arg" | cut -d';' -f5)
+            case "$m$bf$bt" in *[!0-9]*) continue ;; esac
+            case "$lk" in lock|terminate) ;; *) continue ;; esac
+            if pkexec "$APPLY" set "$u" "$m" "$bf" "$bt" "$lk" >/dev/null 2>&1; then
+                note "$(eval_gettext 'Limits saved for $u.')"
+            else
+                note "$(gettext "Those limits were not saved. Nothing on this computer has changed.")"
+            fi
+            ;;
+        REMOVE)
+            u=$arg
+            if pkexec "$APPLY" remove "$u" >/dev/null 2>&1; then
+                note "$(eval_gettext 'Limits removed for $u.')"
+            else
+                note "$(gettext "The limits were not removed. Nothing on this computer has changed.")"
+            fi
+            ;;
+    esac
+done
