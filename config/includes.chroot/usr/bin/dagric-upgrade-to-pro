@@ -654,6 +654,30 @@ fi
 # protects nobody. This matches the Pro ISO.
 systemctl enable opensnitch.service >/dev/null 2>&1 || true
 
+# The OpenSnitch connection prompt DENIES when nobody answers it. Its UI seeds
+# an absent global/default_action with ACTION_DENY_IDX, so a fresh profile gets
+# a dialog that counts down and blocks — the "Deny (9)" that appeared over a
+# real Calamares window. /etc/skel carries the corrected value, but skel only
+# seeds accounts created AFTER it is written: this owner's home already exists,
+# and on a machine installed from a pre-fix free ISO it has no settings.conf at
+# all. Without this loop the Pro ISO and an upgraded machine behave differently
+# in the one place where the difference is invisible until something breaks.
+#
+# Only ever CREATE the file. An existing one is the owner's own preference —
+# including a deliberate deny-by-default, which the manual tells them how to
+# set — and silently rewriting it would undo a choice they made on purpose.
+getent passwd | while IFS=: read -r _u _x _uid _gid _gecos _home _shell; do
+    case "$_uid" in ''|*[!0-9]*) continue ;; esac
+    [ "$_uid" -ge 1000 ] || continue
+    [ "$_uid" -lt 60000 ] || continue
+    [ -d "$_home" ] || continue
+    [ -e "$_home/.config/opensnitch/settings.conf" ] && continue
+    mkdir -p "$_home/.config/opensnitch" || continue
+    printf '[global]\ndefault_action=1\n' \
+        > "$_home/.config/opensnitch/settings.conf" || continue
+    chown -R "$_uid:$_gid" "$_home/.config/opensnitch" 2>/dev/null || true
+done
+
 say "  $(gettext "done.")"
 
 # NOW the failure may be reported — after the machine has been put into the

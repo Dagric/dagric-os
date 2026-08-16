@@ -144,6 +144,36 @@ else
     echo "i18n: python3 not installed — skipping the .desktop drift check"
 fi
 
+# THE ONE WORD THAT KEEPS AN INSTALL FROM BEING INTERRUPTED.
+#
+# config/includes.chroot/etc/systemd/system/opensnitch.service.d/
+# 10-dagric-not-in-live.conf carries ConditionKernelCommandLine=!boot=live, and
+# that is the whole mechanism keeping the OpenSnitch daemon out of the live
+# session — where Calamares runs apt out of /tmp and a real Pro install stopped
+# at 42% on a prompt whose Deny button was counting down.
+#
+# A condition that names a kernel argument the image does not pass is not an
+# error anywhere. systemd evaluates it, finds boot=live absent, starts the
+# daemon, and the install-time prompt comes back with nothing in any log to
+# say why. Editing --bootappend-live is a completely reasonable thing for
+# someone to do; losing this along with it must not be silent.
+# Both flags carry their whole command line in one double-quoted argument on one
+# line, and matching the trailing `"` is what keeps --bootappend-live from also
+# matching --bootappend-live-failsafe.
+for _ba in '--bootappend-live "' '--bootappend-live-failsafe "'; do
+    if ! grep -F -- "$_ba" auto/config | grep -q 'boot=live'; then
+        echo "ERROR: auto/config's $_ba no longer passes boot=live." >&2
+        echo "       The opensnitch drop-in keys off exactly that word, so the" >&2
+        echo "       daemon would run during the install and can interrupt it" >&2
+        echo "       with a prompt that denies on timeout. Either restore" >&2
+        echo "       boot=live or change the Condition in" >&2
+        echo "       config/includes.chroot/etc/systemd/system/" >&2
+        echo "       opensnitch.service.d/10-dagric-not-in-live.conf to match." >&2
+        exit 1
+    fi
+done
+echo "live gate: boot=live present on both boot entries"
+
 lb clean
 lb config
 

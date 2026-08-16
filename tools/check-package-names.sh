@@ -105,6 +105,32 @@ if [ -r "$UPG" ]; then
         echo "" >&2
         exit 1
     fi
+
+    # SAME TWO PATHS, SAME PROBLEM, ONE SETTING.
+    #
+    # OpenSnitch's connection prompt denies when nobody answers it, because its
+    # UI seeds an absent global/default_action with ACTION_DENY_IDX. Dagric ships
+    # ACTION_ALLOW_IDX instead, and has to ship it TWICE: /etc/skel for accounts
+    # the Pro ISO creates, and a loop in the upgrade tool for the home directory
+    # a free machine already has. Change one and the other keeps the old value —
+    # and the symptom is not a build failure, it is a program on somebody's
+    # machine being blocked by a dialog they never saw.
+    _skel_os=config/includes.chroot/etc/skel/.config/opensnitch/settings.conf
+    if [ -r "$_skel_os" ]; then
+        _da_skel=$(sed -n 's/^default_action=\([0-9][0-9]*\)$/\1/p' "$_skel_os" | head -1)
+        _da_upg=$(grep -o 'default_action=[0-9][0-9]*' "$UPG" | head -1 | cut -d= -f2)
+        if [ -z "$_da_skel" ] || [ -z "$_da_upg" ] || [ "$_da_skel" != "$_da_upg" ]; then
+            echo "" >&2
+            echo "pkgcheck: the OpenSnitch prompt default disagrees between the two" >&2
+            echo "  paths onto a Pro machine." >&2
+            echo "    /etc/skel (the Pro ISO):        ${_da_skel:-MISSING}" >&2
+            echo "    dagric-upgrade-to-pro (upgrade): ${_da_upg:-MISSING}" >&2
+            echo "  1 is ACTION_ALLOW_IDX and is what Dagric ships; 0 is upstream's" >&2
+            echo "  deny-on-timeout. Both paths must write the same number." >&2
+            echo "" >&2
+            exit 1
+        fi
+    fi
 fi
 
 # THE CHECK BELOW USED TO BE  [ -n "$(apt-cache policy "$p")" ]  AND IT HAD A

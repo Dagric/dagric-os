@@ -139,6 +139,62 @@ systemctl --global disable usbguard-notifier.service 2>/dev/null || true
 # costs a paying customer their firewall. Do not "tidy" this line without one.
 systemctl enable opensnitch.service 2>/dev/null || true
 
+# THE INSTALL-TIME PROMPT. Enabling the service above also starts it in the LIVE
+# session, which is where Calamares runs — and a real Pro install stopped at 42%
+# on a modal OpenSnitch dialog about /usr/lib/apt/methods/http running from
+# /tmp/calamares-root-fax7dcdx, with the Deny button counting down. Two shipped
+# files stop that, and each is silent when it breaks, so both are asserted here
+# rather than trusted:
+#
+#   * the drop-in skips the daemon when boot=live is on the kernel command line
+#   * /etc/skel seeds global/default_action=1, so a prompt that nobody answers
+#     ALLOWS instead of denying — matching default-config.json's DefaultAction
+#     and what app-opensnitch.html has always told the owner
+#
+# Neither can be checked by booting quickly (the failure is a dialog that only
+# appears mid-install), so the build checks the artefacts instead.
+osfail=0
+OSDROPIN=/etc/systemd/system/opensnitch.service.d/10-dagric-not-in-live.conf
+if ! grep -q '^ConditionKernelCommandLine=!boot=live$' "$OSDROPIN" 2>/dev/null; then
+    echo "ERROR: $OSDROPIN does not carry ConditionKernelCommandLine=!boot=live." >&2
+    echo "       Without it opensnitchd runs in the live session and can" >&2
+    echo "       interrupt an install with a prompt that defaults to Deny." >&2
+    osfail=1
+fi
+OSSKEL=/etc/skel/.config/opensnitch/settings.conf
+if ! grep -q '^default_action=1$' "$OSSKEL" 2>/dev/null; then
+    echo "ERROR: $OSSKEL does not set default_action=1 (ACTION_ALLOW_IDX)." >&2
+    echo "       Unset, the OpenSnitch UI seeds ACTION_DENY_IDX and every" >&2
+    echo "       unanswered prompt blocks the program it asked about." >&2
+    osfail=1
+fi
+if ! grep -q '^\[global\]$' "$OSSKEL" 2>/dev/null; then
+    echo "ERROR: $OSSKEL has no [global] group, so QSettings will never read" >&2
+    echo "       default_action out of it." >&2
+    osfail=1
+fi
+# The tray UI is hidden in the live session to match the daemon being off.
+OSLIVE=/usr/lib/live/config/2020-dagric-opensnitch-live
+if [ ! -x "$OSLIVE" ]; then
+    echo "ERROR: $OSLIVE is missing or not executable — live-config runs it by" >&2
+    echo "       exec, so a lost mode bit leaves a disconnected firewall panel" >&2
+    echo "       in the live session's tray." >&2
+    osfail=1
+fi
+# A pre-answer naming a binary this image does not have is a rule that can never
+# match. Every one of them has to point at something real.
+for _r in /etc/opensnitchd/rules/*.json; do
+    [ -f "$_r" ] || continue
+    _p=$(sed -n 's/.*"data"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/p' "$_r" | head -1)
+    case "$_p" in
+        /*) [ -e "$_p" ] || {
+                echo "ERROR: ${_r##*/} pre-answers $_p, which is not in this image." >&2
+                osfail=1
+            } ;;
+    esac
+done
+[ "$osfail" = 0 ] || exit 1
+
 # Virtual machines: installed, but OFF until the owner asks for them.
 # libvirt-daemon-system's postinst enables libvirtd (plus virtlogd and
 # libvirt-guests) at boot — so without this, every Pro owner who never touches

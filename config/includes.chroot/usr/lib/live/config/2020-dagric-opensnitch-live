@@ -1,0 +1,40 @@
+#!/bin/sh
+# Dagric OS live session: hide the OpenSnitch tray UI.
+#
+# 10-dagric-not-in-live.conf stops opensnitchd from running in the live session
+# so it cannot interrupt an install. Without this script the UI still autostarts
+# there and puts a firewall panel in the tray with no daemon behind it - a
+# trial user's first impression of Pro's headline security feature would be a
+# disconnected one. Nothing is lost: the daemon it would talk to is off on
+# purpose, and both come back the moment the machine boots from disk.
+#
+# (Live-only - live-config never runs on installed systems, so an installed
+# machine keeps the packaged autostart untouched.)
+#
+# WHY A USER-LEVEL Hidden=true AND NOT AN OVERRIDE OF THE PACKAGED FILE.
+# /etc/xdg/autostart/opensnitch_ui.desktop is a conffile of
+# python3-opensnitch-ui. Shipping our own copy of it in includes.chroot would
+# make dpkg prompt "keep the local version?" during the free-to-Pro upgrade,
+# which is exactly the bug f6b2057 fixed for /etc/opensnitchd. A ~/.config
+# entry of the same basename takes precedence over the system one by the XDG
+# autostart spec and touches no packaged file.
+Dagric_opensnitch_live ()
+{
+    # Nothing to hide on the free edition, where opensnitch is not installed.
+    [ -f /etc/xdg/autostart/opensnitch_ui.desktop ] || return 0
+
+    for H in /home/*; do
+        [ -d "$H" ] || continue
+        U=$(basename "$H")
+        mkdir -p "$H/.config/autostart"
+        cat > "$H/.config/autostart/opensnitch_ui.desktop" << EOF
+[Desktop Entry]
+Type=Application
+Name=OpenSnitch
+Exec=/usr/bin/opensnitch-ui
+Hidden=true
+EOF
+        chown -R "$U:$U" "$H/.config" 2>/dev/null || true
+    done
+}
+Dagric_opensnitch_live
