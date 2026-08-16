@@ -59,9 +59,35 @@ EOF
 # NEVER bundled — it's a one-click, user-consented install via `dagric-get-steam`
 # (surfaced in the Dagric Hub). We only preinstall the open-source 32-bit deps
 # so that when the owner does opt into Steam, everything it needs is ready.
+#
+# TWO apt CALLS, NOT ONE, AND THE SPLIT IS THE POINT. wine32 and the 32-bit
+# Vulkan driver are what make a classic .exe installer run at all; the overlay
+# and profiler halves below are quality-of-life. A single combined call fails as
+# a unit, so one unavailable overlay package would take 32-bit Wine down with
+# it — and the `|| echo WARNING` would let the build carry on and ship a Pro ISO
+# that cannot run the software its own sales page leads with. Keep the first
+# call load-bearing and let only the second be tolerant.
 if dpkg --add-architecture i386 && apt-get update -qq; then
     apt-get install -y wine32:i386 mesa-vulkan-drivers:i386 || \
         echo "WARNING: wine32/vulkan32 install failed — 64-bit Wine only"
+
+    # THE HALVES --apt-recommends false DROPPED. gamemode's Recommends line is
+    # ENTIRELY "libgamemode0:i386, libgamemodeauto0:i386" — so with Recommends
+    # off, `gamemoderun` did nothing whatsoever on a 32-bit title, which is most
+    # of the classic games this edition exists to run, and precisely the command
+    # manual/app-gameperf.html teaches by name. mangohud:i386 is the overlay's
+    # matching half. dxvk-wine32 is architecture i386 only and therefore cannot
+    # come through a package list at all, which is why it is here: without it,
+    # `dxvk-setup install` gives a 32-bit prefix the slow WineD3D path while
+    # reporting success.
+    #
+    # mangohud:i386 pulls libspdlog1.15:i386. Note for anyone auditing this
+    # later: libspdlog1.15-fmt10 is NOT a package name in the i386 index, which
+    # looks like a missing dependency and is not — libspdlog1.15 PROVIDES it.
+    # Do not "fix" this by removing mangohud:i386.
+    apt-get install -y libgamemode0:i386 libgamemodeauto0:i386 mangohud:i386 \
+                       dxvk-wine32:i386 || \
+        echo "WARNING: 32-bit overlay/profiler install failed — 64-bit only"
 else
     echo "WARNING: could not enable i386 multiarch"
 fi

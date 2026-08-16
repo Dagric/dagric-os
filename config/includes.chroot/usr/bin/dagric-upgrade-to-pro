@@ -477,21 +477,22 @@ fi
 # The list is embedded rather than fetched. It is not secret — every name is in
 # Debian main — and a machine that cannot reach a list server is exactly the
 # machine that should still be able to finish an upgrade it has paid for.
-PRO_PACKAGES="audacity bat bleachbit blender borgbackup build-essential chromium
-darktable default-jre-headless distrobox dnsmasq-base docker-cli docker-compose
-docker.io fcitx5-chinese-addons filelight flatseal fonts-noto-cjk frei0r-plugins gamemode gimp git
-goverlay gvfs-backends handbrake inkscape kaccounts-providers kdeconnect kdenlive
-keepassxc kio-gdrive krita krita-l10n libreoffice libreoffice-java-common
-libvirt-clients libvirt-daemon-system lutris mangohud mesa-vulkan-drivers nala
-obs-plugins obs-studio opensnitch opensnitch-ebpf-modules openssh-client
-openssh-server ovmf
-papirus-icon-theme passt podman python3-lxml python3-numpy python3-opensnitch-ui
-python3-pip python3-scour python3-venv qbittorrent qemu-system-x86 qemu-utils
-qml6-module-qtwebengine rclone signon-ui-qt signon-ui-service slirp4netns swtpm
+PRO_PACKAGES="audacity bat bleachbit blender borgbackup build-essential chromium darktable
+default-jre-headless distrobox dnsmasq-base docker-cli docker-compose
+docker.io dxvk dxvk-wine64 fcitx5-chinese-addons filelight flatseal fluidsynth
+fonts-noto-cjk frei0r-plugins gamemode gimp git goverlay gvfs-backends
+handbrake inkscape kaccounts-providers kdenlive keepassxc kio-gdrive krita
+krita-l10n libreoffice libreoffice-java-common libvirt-clients
+libvirt-daemon-system lutris mangohud mesa-vulkan-drivers nala obs-plugins
+obs-studio opensnitch opensnitch-ebpf-modules openssh-client openssh-server
+ovmf papirus-icon-theme passt podman python3-evdev python3-lxml python3-numpy
+python3-opensnitch-ui python3-pip python3-scour python3-venv qbittorrent
+qemu-system-x86 qemu-utils qml-module-qtmultimedia qml6-module-qtwebengine
+rclone signon-ui-qt signon-ui-service slirp4netns swh-plugins swtpm
 swtpm-tools syncthing thunderbird thunderbird-l10n-de thunderbird-l10n-es-es
-thunderbird-l10n-fr thunderbird-l10n-it thunderbird-l10n-pt-br timeshift usbguard
-usbguard-notifier virt-manager virt-viewer vorta vulkan-tools wine wine-binfmt
-winetricks zoxide"
+thunderbird-l10n-fr thunderbird-l10n-it thunderbird-l10n-pt-br timeshift
+usbguard usbguard-notifier virt-manager virt-viewer vorta vulkan-tools wine
+wine-binfmt winetricks zoxide"
 
 say ""
 say "$(gettext "Reading package lists...")"
@@ -566,6 +567,23 @@ if [ "$INSTALL_OK" = yes ]; then
         if DEBIAN_FRONTEND=noninteractive apt-get -y --no-install-recommends \
              -o Dpkg::Options::=--force-confdef -o Dpkg::Options::=--force-confold \
              install wine32:i386 mesa-vulkan-drivers:i386 >/dev/null 2>&1; then
+            # SECOND CALL, TOLERANT, mirroring the split in
+            # 0600-pro-edition.hook.chroot. wine32 above is load-bearing; these
+            # are the halves --apt-recommends false drops. gamemode's Recommends
+            # line is ENTIRELY its two i386 libraries, so without them
+            # `gamemoderun` does nothing at all on a 32-bit title. mangohud:i386
+            # is the overlay's matching half, and dxvk-wine32 is architecture
+            # i386 only, so it cannot come through PRO_PACKAGES and has to be
+            # named here or an upgraded machine gets the slow WineD3D path on
+            # exactly the 32-bit games DXVK was added for.
+            #
+            # || true, not a message: this is a quality-of-life layer and a
+            # machine that cannot reach the i386 archive should still finish the
+            # upgrade it was paid for.
+            DEBIAN_FRONTEND=noninteractive apt-get -y --no-install-recommends \
+                 -o Dpkg::Options::=--force-confdef -o Dpkg::Options::=--force-confold \
+                 install libgamemode0:i386 libgamemodeauto0:i386 \
+                         mangohud:i386 dxvk-wine32:i386 >/dev/null 2>&1 || true
             say "  $(gettext "done.")"
         else
             say "  $(gettext "note: 32-bit Wine and Vulkan did not install. Wine still works
