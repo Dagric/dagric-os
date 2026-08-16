@@ -1,21 +1,116 @@
 // Dagric OS — Pro download gate.
-// Verifies a Stripe Checkout session is PAID and bought the Dagric Pro price,
-// then streams the ISO from a PRIVATE R2 bucket. Supports HTTP Range so the
-// 3.3 GB download is resumable. Without a valid paid session: no file.
-const PRICE_ID = "price_1TwRxY6lZx4VOIr30Zvozvhb";
+// Verifies a Stripe Checkout session is PAID and bought one of the Dagric Pro
+// prices, then streams the ISO from a PRIVATE R2 bucket. Supports HTTP Range so
+// the 3.3 GB download is resumable. Without a valid paid session: no file.
 const FILE = "dagric-os-pro-1.0-amd64.iso";
 // The layouts and styles the free image does not carry, for in-place upgrades.
 // Same private bucket, same licence check, ~100 KB instead of 3.8 GB.
 const ASSETS = "dagric-pro-assets.tar.gz";
 
+// ── what was bought, and how many machines it covers ───────────────────────
+// The allowance used to be the constant MACHINE_CAP = 1, which was true for as
+// long as there was one thing to buy. There are now two: single Pro, and the
+// Family Pack, which is the same Pro on several computers in one household.
+// So the number has to come from WHAT WAS BOUGHT. The Stripe lookup below
+// already expands line_items, so the price id of the purchased item is sitting
+// in the answer we are already fetching; this table is the only place that
+// turns it into a number of machines.
+//
+// ONE TABLE ANSWERS BOTH QUESTIONS, ON PURPOSE:
+//   1. Is this a Dagric Pro purchase at all?  -> is the price id a key here
+//   2. How many machines does it cover?       -> the value
+// They were about to become two lists — one deciding who gets in, one deciding
+// how many — and two lists that must agree are two lists that eventually will
+// not. A price present in the gate but missing from the caps table would take
+// the fallback and quietly sell a Family Pack as a single; a price in the caps
+// table but missing from the gate would be a paid customer told their purchase
+// does not exist. Neither can happen while there is one table.
+//
+// ── PRICE IDS ARE THE OWNER'S TO CREATE. NOTHING HERE MAY BE GUESSED. ──
+// PRICE_PRO_SINGLE below is NOT a new value: it is the live id carried over
+// verbatim from the constant this block replaces, and it is what every $39
+// checkout on the site resolves to today. It is left intact deliberately —
+// blanking a working production id during a refactor would reject every real
+// purchase until somebody noticed. Confirm it against the Stripe dashboard
+// before deploying anyway.
+//
+// PRICE_FAMILY_PACK IS A PLACEHOLDER AND CANNOT WORK UNTIL IT IS REPLACED.
+// It is not a Stripe id, it is not shaped like one, and no live session will
+// ever match it. The owner creates the Family Pack price in Stripe and pastes
+// its id here.
+//
+// CREATE THE FAMILY PACK LINK WITH ADJUSTABLE QUANTITY *OFF*. Quantity is
+// ignored here on purpose -- the cap is a max over the prices bought, never a
+// sum -- so with adjustable quantity on, a buyer who sets 2 pays twice and
+// still gets one household's worth, and someone who buys five of the SINGLE
+// price in one checkout pays five times and gets ONE machine. Both are refunds.
+// Stripe remembers this setting when you clone a payment link, so it is easy to
+// inherit without noticing.
+//
+// ORDER OF OPERATIONS, AND IT MATTERS: create the price in Stripe -> paste the
+// id here -> deploy this worker -> and only THEN publish the Family Pack link
+// on the site. Publish first and a family buyer matches no known price and
+// gets the ordinary "no completed Dagric OS Pro purchase" 403: loud, on the
+// very first buyer, which is the right direction for a mistake to fail, but it
+// is still somebody who paid and cannot download.
+const PRICE_PRO_SINGLE = "price_1TwRxY6lZx4VOIr30Zvozvhb";
+const PRICE_FAMILY_PACK = "REPLACE_ME_family_pack_price_id_from_stripe";
+
+// The machines each price covers. FAMILY_MACHINES is also the number the page
+// promises, so the two move together or the page is lying — grep the site for
+// it before changing it here.
+// SET ME. This is a placeholder exactly like the price id above, and for the
+// same reason: the comment above says "grep the site for it before changing it",
+// and grepping the site today finds FAMILY_MACHINES_PLACEHOLDER, not a number.
+// A constant that has silently committed to 5 while the page has committed to
+// nothing cannot be kept in sync by any procedure. Left at 0 it throws below, so
+// a half-finished wiring-up fails at deploy instead of quietly selling five
+// machines for the price of one.
+const FAMILY_MACHINES = 0;
+const MACHINE_CAPS = {
+  [PRICE_PRO_SINGLE]: 1,
+  [PRICE_FAMILY_PACK]: FAMILY_MACHINES,
+};
+
+// THE PASTE ERROR THIS CATCHES IS THE MOST LIKELY ONE THERE IS. MACHINE_CAPS is
+// an object literal with computed keys: paste the same Stripe id into both
+// constants and the second key silently overwrites the first, so every single
+// -licence $39 buyer is handed the family allowance. No error, no log, nothing
+// in any test. A module-scope throw fails the DEPLOY, which is the only party
+// that should ever be inconvenienced by a configuration mistake.
+if (
+  PRICE_FAMILY_PACK === PRICE_PRO_SINGLE ||
+  Object.keys(MACHINE_CAPS).length !== 2 ||
+  !Number.isInteger(FAMILY_MACHINES) ||
+  FAMILY_MACHINES < 2
+) {
+  throw new Error(
+    "MACHINE_CAPS misconfigured: two DISTINCT Stripe price ids are required, " +
+      "and FAMILY_MACHINES must be an integer of at least 2 and must equal the " +
+      "number printed on site/family.html."
+  );
+}
+
+// A LOOKUP MISS FALLS BACK TO ONE MACHINE, NEVER TO THE FAMILY NUMBER. Missing
+// line_items, an unrecognised price id, a shape Stripe changed under us, a
+// typo'd table value — every one of them resolves to 1, the smallest allowance
+// anybody could have paid for. The asymmetry is the whole point: a cap that
+// comes out too small is a support email that takes a minute to fix, and a cap
+// that comes out too big is a $39 licence quietly behaving like the household
+// one, on machines we will never hear about and cannot take back. This is the
+// one number in this file where being generous costs the sale instead of
+// protecting the customer, so it is the one number that fails small.
+const MACHINE_CAP_FALLBACK = 1;
+
 // ── the licence allowance ──────────────────────────────────────────────────
-// One purchase upgrades ONE machine — the owner's explicit policy. Machines
-// are identified by an anonymous fingerprint the upgrade tool sends as `m`: a
+// A purchase upgrades the machines it paid for and no more. Machines are
+// identified by an anonymous fingerprint the upgrade tool sends as `m`: a
 // SHA-256 of the machine's DMI product UUID salted with the session id, so
 // the value is meaningless outside this one purchase and never a raw serial.
 // Re-runs and reinstalls on the SAME machine hash to the same value and are
-// always free; a second machine gets a 409 with a support pointer. The machine
-// entitlement is the ONLY thing here worth gating — see the block in fetch().
+// always free; a machine beyond the allowance gets a 409 with a support
+// pointer. The machine entitlement is the ONLY thing here worth gating — see
+// the block in fetch().
 //
 // The byte and fetch budgets are BANDWIDTH protection for a free-software
 // payload, not licensing. The ISO budget meters bytes delivered per session so
@@ -23,14 +118,31 @@ const ASSETS = "dagric-pro-assets.tar.gz";
 // covers pre-fingerprint tools. Both are generous enough that no honest
 // customer meets them across years of reinstalls, and both are backstops to a
 // Cloudflare rate-limit rule (declared at deploy) — because a plain KV counter
-// cannot hard-stop a deliberate parallel burst on its own.
+// cannot hard-stop a deliberate parallel burst on its own. The ISO budget is
+// per session and stays flat: a five-machine household pulling five 3.3 GB
+// copies is 16.5 GB against a 110 GB ceiling, nowhere near it.
 //
 // EVERY KV FAILURE FAILS OPEN, including a missing binding. The allowance is
 // abuse control, not billing: our storage having a bad minute must never lock
 // out a paying customer.
-const MACHINE_CAP = 1;
+//
+// FAILING OPEN ON STORAGE IS NOT FAILING OPEN ON ENTITLEMENT, and the two get
+// confused precisely because they live in the same functions. Storage failing
+// open means: KV cannot tell us which machines are already using this purchase,
+// so let this machine through rather than accuse a customer of something our
+// database cannot actually establish. Entitlement failing open would mean:
+// we could not tell what was bought, so assume the bigger purchase. The first
+// is the posture of this whole file and is preserved below unchanged. The
+// second has never been the posture and must not become it. The cap is not
+// read from KV at all — it comes from Stripe's answer about the line item, and
+// when that answer is unusable the cap is 1, not FAMILY_MACHINES.
 const ISO_BYTE_BUDGET = 110 * 1024 * 1024 * 1024; // ~26 Pro ISOs / 50 free
-const LEGACY_ASSET_CAP = 15;                      // 5 full 3-attempt runs
+// Per MACHINE, not per purchase: fifteen successful pulls is five full
+// 3-attempt runs, which was one machine's worth of bad-network evenings when
+// one machine was all a purchase could have. A household with five machines on
+// pre-fingerprint tools would otherwise share one machine's budget between
+// five and hit a licence-shaped 409 for what is only a bandwidth backstop.
+const LEGACY_ASSET_CAP_PER_MACHINE = 15;
 
 export default {
   async fetch(req, env) {
@@ -60,10 +172,13 @@ export default {
 
     const paid = s.payment_status === "paid";
     const items = (s.line_items && s.line_items.data) || [];
-    const boughtPro = items.some((li) => li.price && li.price.id === PRICE_ID);
-    if (!paid || !boughtPro) {
+    // What was bought decides both whether this is Pro and how many machines it
+    // covers. See MACHINE_CAPS: an unknown or missing price id yields cap 1.
+    const bought = machinesAllowed(items);
+    if (!paid || !bought.isPro) {
       return msg(403, "This session has no completed Dagric OS Pro purchase.");
     }
+    const cap = bought.cap;
 
     // Refund check — FAIL-OPEN: only block on POSITIVE evidence of a refund, so
     // a paying customer is never wrongly locked out if Stripe's shape shifts.
@@ -88,25 +203,32 @@ export default {
     // main — free software anyone can already download — and the one Dagric
     // asset it fetches is a ~190 KB tarball a buyer can trivially re-host. So
     // neither the ISO stream nor the tarball is where a shared code costs a
-    // sale: the machine ENTITLEMENT is. One purchase upgrades one machine, and
-    // moving it is a Stripe-bound support action nobody can share. That is the
-    // control this block enforces; the byte budgets below are bandwidth
+    // sale: the machine ENTITLEMENT is. A purchase upgrades the number of
+    // machines it paid for — one, or the household number for a Family Pack —
+    // and moving a slot is a Stripe-bound support action nobody can share. That
+    // is the control this block enforces; the byte budgets below are bandwidth
     // protection, not licensing.
+    //
+    // `cap` is threaded into every one of these calls rather than read from a
+    // constant inside them. The functions below have no other way to know what
+    // was bought — they see a session id and a hash, not a line item — so a
+    // helper that quietly defaulted would be a helper that quietly decided the
+    // licence.
     //
     // THE SLOT COMMITS AT /assets, NOT HERE. The tool HEADs first (a dry
     // validation — the point where `--check` or a declined consent stops), then
     // GETs /assets only after the owner says yes. Reserving on HEAD would burn
-    // the single slot on an evaluation the owner walked away from, so HEAD only
-    // READS: it turns away a machine a DIFFERENT fingerprint already holds and
-    // reserves nothing.
+    // a slot on an evaluation the owner walked away from — the whole licence
+    // when the purchase covers one — so HEAD only READS: it turns away a machine
+    // the purchase has no room for and reserves nothing.
     const m = url.searchParams.get("m") || "";
     const mValid = /^[a-f0-9]{64}$/.test(m);
     if (m && !mValid) {
       return msg(400, "Malformed request. Update Dagric and run the upgrade again.");
     }
     if (req.method === "HEAD" && mValid) {
-      const held = await machineState(sid, m, env);
-      if (held === "other") return machineTaken();
+      const held = await machineState(sid, m, cap, env);
+      if (held === "other") return machineTaken(cap);
       // "mine" | "free" | "unknown" all pass — the reservation is at /assets,
       // and a dry HEAD must never be the thing that consumes the slot.
       return new Response(null, { status: 200, headers: { "Cache-Control": "no-store" } });
@@ -133,8 +255,8 @@ export default {
     if (url.pathname.replace(/\/+$/, "") === "/assets") {
       // Commit the machine slot HERE — the owner has committed to the upgrade.
       if (mValid) {
-        const slot = await reserveMachine(sid, m, env);
-        if (slot === "other") return machineTaken();
+        const slot = await reserveMachine(sid, m, cap, env);
+        if (slot === "other") return machineTaken(cap);
         // "ok" | "unknown" pass (fail open).
       } else {
         // Fielded tools predate the fingerprint. A generous per-session fetch
@@ -144,13 +266,30 @@ export default {
         // a real delivery below, because counting our own failures (a client
         // retries three times a run) burned the whole allowance in two bad
         // evenings. Remove when the fielded ISOs are all m-aware.
+        //
+        // SCALED BY THE CAP, because without a fingerprint this counter is the
+        // only thing standing between a five-machine household and a 409 that
+        // reads like a licence problem. It is not one: this budget is bandwidth
+        // protection for a 190 KB tarball, and five machines legitimately need
+        // five machines' worth of retries.
         const used = await readNum(`legacy:${sid}`, env);
-        if (used !== null && used >= LEGACY_ASSET_CAP) {
+        // BOUNDED, because this branch counts nothing per machine. There is no
+        // fingerprint here, so nothing is reserved and nothing is attributed:
+        // scaling a shared counter by the cap means a leaked Family Pack code
+        // upgrades cap x 15 machines, not 15. The scaling is still right --
+        // five machines legitimately need five machines' worth of retries --
+        // but it is capped at three machines' worth so the widening is bounded
+        // rather than proportional. This whole branch exists only for ISOs
+        // already in the field that do not send a fingerprint, and it should be
+        // DELETED once those are gone; that is the real fix.
+        const legacyBudget = LEGACY_ASSET_CAP_PER_MACHINE * Math.min(cap, 3);
+        if (used !== null && used >= legacyBudget) {
           return msg(
             409,
-            "This purchase has reached its upgrade allowance. One purchase " +
-              "covers one machine — dagric.com/support can help if this is " +
-              "your machine and something kept retrying."
+            "This purchase has reached its upgrade allowance. It covers " +
+              coversPhrase(cap) +
+              " — dagric.com/support can help if these are your machines and " +
+              "something kept retrying."
           );
         }
       }
@@ -272,22 +411,82 @@ function readRec(raw) {
   catch { return { machines: [] }; } // corrupt value → treat as empty, fail open
 }
 
-// Read-only: does a machine hold this purchase's slot? Used by HEAD so a dry
-// validation reserves nothing. "mine" | "other" | "free" | "unknown".
-async function machineState(sid, m, env) {
+// How many machines did this checkout buy? Returns { isPro, cap }.
+//
+// isPro is the same question the gate has always asked — does a line item carry
+// a price id we sell Pro under — so nothing gets looser here: a session that
+// bought something else, or nothing we recognise, is still not a Pro purchase.
+// cap is the new part, and it is deliberately conservative in every direction:
+//
+//   * No known price id in the session -> isPro false, and cap is the fallback
+//     rather than 0 or undefined, so a caller that ignores isPro (a future one;
+//     there is none today) still cannot be handed a number bigger than one.
+//   * A table value that is not a sane count — a typo, a string, a zero — is
+//     skipped rather than trusted. A malformed entry must not become a licence.
+//   * hasOwnProperty, not `in` or a bare lookup: price ids arrive from Stripe
+//     as strings and a bare `MACHINE_CAPS[id]` would happily find "constructor"
+//     on the prototype chain and treat a function as a machine count.
+//   * QUANTITY IS IGNORED ON PURPOSE. Two Family Packs in one checkout grant
+//     the household number, not twice it. Reading quantity would be the more
+//     literal answer, but it is the one place where a shape we misread hands
+//     out more than was paid for, and buying two packs at once is a support
+//     conversation that happens roughly never. Under-granting is fixable by a
+//     human in a minute; over-granting is not fixable at all.
+//   * Several known prices in one session -> the largest, not the sum. Somebody
+//     who bought a single and a family in one go has a family's worth of
+//     machines, which is what they would get if they had checked out twice.
+function machinesAllowed(items) {
+  let isPro = false;
+  let cap = MACHINE_CAP_FALLBACK;
+  for (const li of items || []) {
+    const id = li && li.price && li.price.id;
+    if (typeof id !== "string") continue;
+    if (!Object.prototype.hasOwnProperty.call(MACHINE_CAPS, id)) continue;
+    const n = MACHINE_CAPS[id];
+    if (typeof n !== "number" || !Number.isFinite(n) || n < 1) continue;
+    const seats = Math.floor(n);
+    if (!isPro) {
+      isPro = true;
+      cap = seats;
+    } else if (seats > cap) {
+      cap = seats;
+    }
+  }
+  return { isPro, cap };
+}
+
+// "one machine" / "5 machines". One helper because this phrase is user-facing
+// in two places and they were about to disagree with each other.
+function coversPhrase(cap) {
+  return cap === 1 ? "one machine" : `${cap} machines`;
+}
+
+// Read-only: does a machine hold one of this purchase's slots? Used by HEAD so
+// a dry validation reserves nothing. "mine" | "other" | "free" | "unknown".
+//
+// `cap` is a parameter, not a constant read from module scope, because this
+// function cannot see the purchase — it has a session id and a hash. The old
+// version closed over MACHINE_CAP = 1 and was correct only for as long as there
+// was one thing to buy; a Family Pack would have been told its second machine
+// belonged to somebody else. Callers pass what Stripe said was bought.
+async function machineState(sid, m, cap, env) {
   try {
     const rec = readRec(await env.LICENSE.get(`act:${sid}`));
     if (rec.machines.some((x) => x.h === m)) return "mine";
-    if (rec.machines.length >= MACHINE_CAP) return "other";
+    if (rec.machines.length >= cap) return "other";
     return "free";
   } catch {
+    // STORAGE failing open, not entitlement: we could not find out which
+    // machines are in use, which is never grounds to accuse a paying customer.
+    // The cap itself is not stored here and is unaffected by this catch.
     return "unknown";
   }
 }
 
-// Commit this machine's slot. "ok" (mine or newly reserved) | "other" (a
-// different machine already holds the only slot) | "unknown" (KV trouble).
-async function reserveMachine(sid, m, env) {
+// Commit this machine's slot. "ok" (mine or newly reserved) | "other" (the
+// purchase's slots are all held by other machines) | "unknown" (KV trouble).
+// `cap` comes from the purchase — see machineState above.
+async function reserveMachine(sid, m, cap, env) {
   try {
     const key = `act:${sid}`;
     const rec = readRec(await env.LICENSE.get(key));
@@ -298,7 +497,7 @@ async function reserveMachine(sid, m, env) {
       await env.LICENSE.put(key, JSON.stringify(rec));
       return "ok";
     }
-    if (rec.machines.length >= MACHINE_CAP) return "other";
+    if (rec.machines.length >= cap) return "other";
     rec.machines.push({ h: m, first: now, last: now });
     await env.LICENSE.put(key, JSON.stringify(rec));
     return "ok";
@@ -310,13 +509,29 @@ async function reserveMachine(sid, m, env) {
 // The one 409 a machine over its entitlement gets, worded once. The tool maps
 // 409 to its own "already upgrading a different machine" message; a browser
 // never reaches this (it sends no `m`).
-function machineTaken() {
+//
+// IT MUST STATE THE REAL NUMBER. This text used to assert "One purchase covers
+// one machine" from a constant, which stops being true the moment a Family Pack
+// exists — and the customer reading it is by definition the one who just hit
+// the limit, so telling a household of five that they bought one machine is
+// both wrong and the worst possible moment to be wrong. The number here is the
+// number Stripe says they paid for.
+function machineTaken(cap) {
+  if (cap === 1) {
+    return msg(
+      409,
+      "This purchase is already upgrading a different machine. One purchase " +
+        "covers one machine — dagric.com/support can move it to this one " +
+        "(a machine that was replaced or a virtual machine that moved counts), " +
+        "or you can buy a second licence for a second machine."
+    );
+  }
   return msg(
     409,
-    "This purchase is already upgrading a different machine. One purchase " +
-      "covers one machine — dagric.com/support can move it to this one " +
-      "(a machine that was replaced or a virtual machine that moved counts), " +
-      "or you can buy a second licence for a second machine."
+    `This purchase already covers ${cap} machines, and all ${cap} slots are ` +
+      "in use by other computers. dagric.com/support can move a slot to this " +
+      "machine (a machine that was replaced or a virtual machine that moved " +
+      "counts), or you can buy another licence for more machines."
   );
 }
 

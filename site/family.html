@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<!--
+  ============================================================================
+  THIS PAGE IS NOT PUBLISHABLE YET, AND THE LIST BELOW IS WHY.
+  ============================================================================
+
+  It is committed so the work is not lost and so the wording can be reviewed,
+  but it is NOT in the nav, NOT in sitemap.xml and NOT in firebase.json's cache
+  rules -- all three deliberately, because a page whose price is a placeholder
+  should be reachable only by someone who types its URL.
+
+  WHAT THE OWNER MUST DO, IN THIS ORDER. The order is not cosmetic: publish the
+  link before the worker knows the price id and the first family buyer matches
+  no known price, gets the ordinary "no completed Dagric OS Pro purchase" 403,
+  and has paid for something they cannot download.
+
+   1. Create the Family Pack price in Stripe. ADJUSTABLE QUANTITY MUST BE OFF --
+      the worker takes a max over prices bought, never a sum, so with it on a
+      buyer who sets quantity 2 pays twice for one household's worth, and
+      someone buying five of the SINGLE price in one checkout pays $195 and gets
+      one machine. Stripe carries this setting over when you clone a link.
+   2. Paste the price id into PRICE_FAMILY_PACK in infra/gate-worker.js, and set
+      FAMILY_MACHINES to the number of machines. Both are placeholders today and
+      the worker THROWS AT MODULE SCOPE until they are real and distinct -- so a
+      half-finished wiring-up fails the deploy rather than quietly handing every
+      $39 buyer the family allowance.
+   3. Deploy the worker. (Blocked until the Cloudflare API token is rotated.)
+   4. Replace every PLACEHOLDER in this file. There are 23. FAMILY_MACHINES_
+      PLACEHOLDER must equal FAMILY_MACHINES in the worker, and the row count in
+      the value table must match it too.
+   5. THEN add /family to: the nav on all 16 site pages, site/sitemap.xml, and
+      the cache-header alternation in firebase.json.
+   6. Add the schema.org Product block. It is deliberately absent while the price
+      is a placeholder -- structured data is the part a machine quotes back
+      literally, and a placeholder in a price field is worse than no schema.
+
+  AND THESE FOUR SAY "ONE MACHINE" AND ARE TRUE TODAY. They stop being true the
+  moment the Family Pack is live, and they must change in the SAME commit that
+  publishes it -- not before, or the site contradicts what is actually on sale:
+      site/faq.html         the FAQPage JSON-LD answer (machine-readable; worst)
+      site/privacy.html     the fingerprint explanation, twice
+      site/index.html       two places
+      config/includes.chroot/usr/bin/dagric-upgrade-to-pro
+                            prints "Your purchase covers one machine" and a 409
+                            handler saying a second machine needs a second
+                            purchase. It reads the gate with curl -I -o /dev/null
+                            so it cannot even see a different answer -- the fix is
+                            a response HEADER carrying the count. Those strings
+                            are gettext msgids present in five .po catalogues, so
+                            the English cannot change without regenerating them.
+  ============================================================================
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dagric OS Family Pack — Pro on every computer in one home.</title>
+<meta name="description" content="Dagric OS Family Pack: the complete Pro edition licensed for every computer in one household, in a single purchase. Parental controls are free on every edition and are not part of this.">
+<link rel="icon" type="image/png" href="/assets/dagric-logo.png">
+<link rel="stylesheet" href="/assets/site.css">
+<style>
+/* THREE COMPONENTS, COPIED FROM pro.html, AND NOTHING ELSE.
+   site.css owns .phero, .grid, .card, .badge, .btn, .refund, .note, .lead,
+   .tablewrap, .cmp, .grad, .foot — this page uses all of those unchanged and
+   must not re-declare them. What site.css does NOT own is the value table, the
+   CTA band and the .big headline: pro.html declares those locally, and this is
+   the second page that needs the same three objects.
+
+   Copied rather than promoted into site.css on purpose, and the reason is the
+   same one pro.html gives for copying the Looks template instead of sharing it:
+   the moment a rule moves into the shared sheet it becomes a contract with 15
+   other pages, and nobody has a browser here to check the other 14. When a
+   THIRD page needs a value table, promote all three then, in one commit, with
+   the other pages open. Until then two copies that are byte-identical are
+   cheaper to reason about than one shared rule nobody can verify.
+
+   pro.html's .looks-strip block is deliberately NOT copied. This page shows no
+   Looks strip, and a (0,1,0) rule matching nothing in a stylesheet that loads
+   after site.css is exactly the hazard pro.html's own comment describes for the
+   .shot fork it deleted. Do not paste it in "for later". */
+.grid{margin:var(--s-5) 0}
+
+.value{max-width:var(--w-col);margin:var(--s-5) 0 0}
+.value .row{display:grid;grid-template-columns:1fr auto;gap:2px 16px;align-items:center;
+  border-top:1px solid var(--rule);padding:var(--s-3) 0}
+.value .row b{color:var(--on);grid-column:1;grid-row:1;font-family:var(--ff-display);font-weight:600}
+.value .row span:not(.price){color:var(--on-3);font-size:var(--t-ui);grid-column:1;grid-row:2}
+.value .row .price{color:var(--good);font-weight:700;white-space:nowrap;grid-column:2;grid-row:1/3;align-self:center}
+.value .total{border-top:2px solid var(--pro);border-bottom:1px solid var(--rule)}
+.value .total .price{color:var(--pro)}
+
+.cta-band{border-top:1px solid var(--rule);border-bottom:1px solid var(--rule);
+  padding:var(--s-6) 0;margin:var(--s-7) 0}
+.big{font-family:var(--ff-display);font-size:clamp(1.6875rem,1.05rem + 1.6vw,2.125rem);
+  font-weight:500;line-height:1.16;letter-spacing:-.012em;color:var(--on)}
+
+table.cmp td:nth-child(2),table.cmp td:nth-child(3),table.cmp th:nth-child(2),table.cmp th:nth-child(3){text-align:center}
+@media(max-width:640px){
+  .grid{margin:var(--s-4) 0}
+  .cta-band{padding:var(--s-5) 0;margin:var(--s-6) 0}
+}
+</style>
+<link rel="canonical" href="https://dagric.com/family">
+<meta name="theme-color" content="#0C0F14">
+<script src="/assets/theme.js"></script>
+<link rel="icon" href="/favicon.ico" sizes="32x32">
+<link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
+<link rel="manifest" href="/site.webmanifest">
+<meta property="og:type" content="product">
+<meta property="og:site_name" content="Dagric OS">
+<meta property="og:title" content="Dagric OS Family Pack — Pro on every computer in one home.">
+<meta property="og:description" content="The complete Pro edition licensed for every computer in one household, in a single purchase. Parental controls are free on every edition.">
+<meta property="og:url" content="https://dagric.com/family">
+<meta property="og:image" content="https://dagric.com/assets/hero-desktop.png">
+<meta property="og:image:width" content="1920">
+<meta property="og:image:height" content="1080">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Dagric OS Family Pack — Pro on every computer in one home.">
+<meta name="twitter:description" content="The complete Pro edition licensed for every computer in one household, in a single purchase. Parental controls are free on every edition.">
+<meta name="twitter:image" content="https://dagric.com/assets/hero-desktop.png">
+<!-- NO Product JSON-LD ON THIS PAGE YET, AND ITS ABSENCE IS DELIBERATE.
+     pro.html carries a schema.org Product block with "price":"39.00" — that block
+     is the machine-readable definition Google rich results, social cards and AI
+     assistants quote back, and pro.html's own footer comment records what happens
+     when it drifts from the page. This page has no price yet: the number below is
+     a placeholder the owner sets. A schema carrying a placeholder string in the
+     price field is strictly worse than no schema at all, because it is the one
+     part of the page a machine reads literally and republishes.
+     WHEN THE PRICE IS SET: copy pro.html's block, change name, description, url
+     and price, and keep it in sync with the value table and the CTA band the
+     same way pro.html keeps its own in sync with its hero lead. -->
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<nav><div class="nav-in">
+  <a class="brand" href="/"><img src="/assets/dagric-logo.png" alt="" width="30" height="30">Dagric&nbsp;OS</a>
+  <div class="nav-links">
+    <a href="/features">Features</a><a href="/pro">Pro</a><a href="/about">About</a>
+    <a href="/guide">Guide</a><a href="/support">Support</a>
+    <a class="cta" href="/download">Download</a>
+  </div>
+</div></nav>
+<!-- THE NAV ABOVE IS BYTE-IDENTICAL TO THE OTHER 15 PAGES AND HAS NO "Family"
+     LINK IN IT. That is not an oversight, it is a scope boundary: the nav and
+     footer blocks are uniform across the whole site, and adding a link to this
+     one copy would fork the header on the single page that takes a new kind of
+     money. Adding /family to the nav is a 16-file edit plus sitemap.xml plus the
+     firebase.json header rule, and it belongs in its own commit — see the notes
+     that shipped with this file. Until that commit lands this page is reachable
+     only by its URL, which is the correct state for a page whose price is still
+     a placeholder. -->
+
+<!-- id="main" is on the hero, NOT on <main>, for exactly the reason recorded at
+     the same place in pro.html: <main> opens after the whole hero, so a skip-link
+     user would be dropped past the headline, past the per-machine maths, past the
+     Buy button and past the refund line — on a page that takes money. href="#main"
+     stays byte-identical across every page, and the hero's full-bleed gradient
+     stays outside main.wide's 1120px cap. Do not move it. -->
+<header class="phero" id="main">
+  <h1>One house. <span class="grad">Every computer.</span></h1>
+
+  <!-- WHAT THIS PAGE SELLS, IN ONE SENTENCE, AND WHAT IT MUST NEVER APPEAR TO SELL.
+       The Family Pack is Dagric OS Pro — the same edition, the same package set, the
+       same $39 product — licensed for more than one machine. It is a LICENCE change
+       and nothing else. There is no "Family edition" ISO, no family-only feature, no
+       extra software: a household that buys this installs the same Pro image on each
+       computer and claims it with the same code.
+       Every capability named on this page is one pro.html already establishes against
+       the two BUILT manifests (out/manifest/free.packages, out/manifest/pro.packages).
+       Nothing new is claimed here. If you are tempted to add a capability to this
+       page, it belongs on pro.html first, verified there, and then it is true here by
+       construction — because the two pages are selling the same software. -->
+  <p class="lead">The Family Pack is Dagric OS Pro, licensed for every computer in one home instead
+  of one. Same edition, same software, same free updates — one purchase covers the whole house.
+  There is no separate family download and no family-only feature: it is the Pro licence, on more
+  machines.</p>
+
+  <!-- THE PARENTAL-CONTROL LINE SITS ABOVE THE PRICE, DELIBERATELY, AND IT IS THE
+       MOST IMPORTANT BLOCK ON THE PAGE.
+       A parent who searched "linux parental controls" and landed on a page called
+       Family Pack will assume, in about one second, that the controls are the thing
+       being sold and that they cost money. They are not and they do not. The owner's
+       decision is that screen time and bedtime are FREE on every edition, permanently,
+       because Brazil legislated this and pt_BR is one of six shipped languages — and
+       gating legal compliance behind a purchase in the market that legislated it does
+       not meet the requirement. That reasoning does not survive being explained in a
+       footnote below the fold, so it is stated here, in the first thing after the
+       lead, before any number appears.
+       Do not move this below the price block. Do not soften it into "included with
+       every edition" — "included" is what paid features say. -->
+  <p class="note"><strong>Parental controls are not what this sells.</strong> Screen time and
+  bedtime limits are free on every edition of Dagric OS, including the free one, and always will be
+  — they are not part of this purchase, not part of Pro, and not something we will ever put behind a
+  price. If parental controls are what brought you here, you do not need the Family Pack and you do
+  not need Pro. <a href="#parental">The honest state of that work is further down this page.</a></p>
+
+  <!-- The price framing has to arrive WITH the price — pro.html's hero comment records
+       what happened when it did not: a visitor carried away the cost, unopposed, and
+       the anchoring line sat below a full screen of screenshot. Same rule here, and the
+       anchor for this page is not Adobe, it is our own single licence. A household
+       buying Pro four times pays four times $39; the Family Pack is one number instead.
+       That comparison is the whole proposition and it is honest, because $39 is a real
+       price we really charge today.
+
+       BOTH TOKENS BELOW ARE PLACEHOLDERS AND MUST BE REPLACED. See the enormous
+       comment on the value table for the full list of places the number appears. -->
+  <p style="max-width:var(--w-text);margin:0 0 var(--s-5)">Pro is <strong>$39 for one machine</strong>.
+  A house with FAMILY_MACHINES_PLACEHOLDER computers buying it one at a time pays that
+  FAMILY_MACHINES_PLACEHOLDER times. The Family Pack is
+  <strong>$FAMILY_PRICE_PLACEHOLDER, once</strong>, for all of them — and then it is yours, the same
+  way a single licence is.</p>
+
+  <!-- ############################################################################
+       ##  STOP. THIS href IS NOT A LINK. IT IS A PLACEHOLDER.                    ##
+       ##                                                                          ##
+       ##  STRIPE_FAMILY_LINK_PLACEHOLDER must be replaced with the real Stripe    ##
+       ##  Checkout payment link for the Family Pack, which THE OWNER CREATES IN   ##
+       ##  THE STRIPE DASHBOARD. It has not been created. Nobody may invent one,   ##
+       ##  guess one, copy the single-licence link, or derive one from a price id. ##
+       ##                                                                          ##
+       ##  It is left as a bare token rather than a plausible-looking URL on       ##
+       ##  purpose: as written it resolves to https://dagric.com/STRIPE_FAMILY_    ##
+       ##  LINK_PLACEHOLDER and lands on our own 404 page. That is a loud, safe,   ##
+       ##  obvious failure. A wrong-but-well-formed buy.stripe.com URL would take  ##
+       ##  a customer's money into the wrong product and look fine doing it.       ##
+       ##                                                                          ##
+       ##  There are THREE of these on the page (hero, mid-page band, closing      ##
+       ##  band). Replace all three. Grep for the token before deploying.          ##
+       ############################################################################ -->
+  <a class="btn primary lg" href="STRIPE_FAMILY_LINK_PLACEHOLDER">Get the Family Pack — $FAMILY_PRICE_PLACEHOLDER</a>
+  <p class="refund">14-day, no-questions refund · free updates · one household per purchase · nothing phones home after install</p>
+
+  <!-- The two objections that stop this click are not the two that stop the $39 one.
+       A single buyer asks "will it work on my machine"; a household asks "will it work
+       on ALL of them", and the honest answer is that we cannot promise that and they
+       can find out for free before spending anything. Everything below is established
+       elsewhere on the site: the live-USB behaviour is faq.html's "every ISO is also a
+       live system", Check This PC is download.html's own section, and the in-place
+       upgrade is faq.html's answer plus the Hub's Upgrade to Pro row.
+       This is a genuinely stronger close for a household than for one buyer, because
+       one USB stick tests every computer in the house in an afternoon at no cost. -->
+  <p class="note" style="margin-top:var(--s-5)">Several computers means several chances for
+  something not to work. Find out before you spend anything: <a href="/download">the free edition</a>
+  is the same system underneath, one USB stick will boot every machine in the house without touching
+  a disk, and every stick carries <strong>Check This PC</strong> — a plain-language report on that
+  machine's Wi-Fi, graphics, sound, Secure Boot and drives. Run it on each computer first. And
+  trying free costs you nothing later: a free install <strong>upgrades to Pro in place</strong> —
+  open the Dagric Hub, pick <em>Upgrade to Pro</em>, paste the code from your receipt, and that
+  machine becomes Pro with its files and settings exactly where they were.</p>
+</header>
+
+<main class="wide">
+
+  <h2>What a household <span class="grad">actually gets</span></h2>
+  <!-- THE REAL ARGUMENT FOR A HOUSEHOLD LICENCE, AND IT IS NOT "A DISCOUNT".
+       Different people in one house want different halves of Pro. The teenager wants
+       the gaming runtime, the parent wants the office suite and the photo tools,
+       somebody wants the developer stack, and none of them wants to be the person who
+       decides which machine is worth $39. One purchase removes that conversation.
+       Every card below is a claim pro.html has already checked against the two built
+       manifests, restated here per-machine. Do not add a card without adding it to
+       pro.html first — see the hero comment. In particular:
+         * Steam, Heroic, Bottles, Ollama, ONLYOFFICE, Joplin, LocalSend, Cryptomator
+           and Upscayl are ONE CLICK ON THE FREE EDITION and are NOT in this grid.
+           Selling them here would be selling the free edition back to a buyer who is
+           spending more than a single licence, which is the biggest refund driver
+           pro.html identifies.
+         * DaVinci Resolve is not here and cannot be: Blackmagic's licence forbids
+           redistribution, on both editions equally.
+         * Snapshot rollback before every update is on BOTH editions; only Timeshift's
+           scheduled restore points are Pro. -->
+  <p class="lead">The same Pro edition on each computer — not a shared pool, not a cut-down build.
+  Every machine gets all of it.</p>
+  <div class="grid">
+    <div class="card"><h3>The creative suite, on each machine</h3><p>GIMP with PhotoGIMP's
+    Photoshop-style layout, Krita, Inkscape, Kdenlive, Blender, OBS Studio, darktable for RAW
+    photos, Audacity and HandBrake — preinstalled and working on first boot, on every computer the
+    licence covers.</p></div>
+    <div class="card"><h3>Windows software</h3><p><strong>Wine 10.0 and winetricks preinstalled</strong>,
+    including 32-bit Wine for classic <code>.exe</code> installers. The free edition ships no Wine at
+    all, so this is a real difference on each machine — the household's one stubborn Windows
+    program has somewhere to run whichever computer it lands on.</p></div>
+    <div class="card"><h3>The gaming runtime</h3><p>The <strong>Mesa Vulkan drivers in both 64- and
+    32-bit</strong>, where the free edition ships the Vulkan loader with no Mesa driver behind it,
+    plus GameMode, MangoHud with goverlay, and Lutris. The launchers themselves — Steam, Heroic,
+    Bottles — are one click on the free edition too; what Pro puts underneath them is the part that
+    shows up as frames.</p></div>
+    <div class="card"><h3>Windows in a window</h3><p>A full KVM virtual-machine stack with UEFI and
+    TPM 2.0, so even Windows 11 installs inside Dagric. Genuinely Pro-only: the hypervisor,
+    virt-manager and the TPM emulator are not on the free edition. You bring the Windows ISO; we
+    never bundle it.</p></div>
+    <div class="card"><h3>The developer stack</h3><p>Docker and Compose, Podman, Distrobox,
+    build-essential, Git, Python and SSH on whichever machine in the house needs them. Podman runs
+    rootless immediately; the Docker daemon and the SSH server ship <strong>switched off</strong>
+    until someone turns them on — one command each — so nothing in the house listens uninvited.</p></div>
+    <div class="card"><h3>The security suite</h3><p>The opt-in OpenSnitch application firewall, and
+    USB Protection that allow-lists your own devices before it blocks anything. Armed when you
+    choose, on each machine, never at the cost of somebody's keyboard.</p></div>
+    <div class="card"><h3>Full office and CJK fonts</h3><p>The complete LibreOffice suite, where the
+    free edition ships Writer, Calc, Impress and Draw — plus <strong>Noto CJK</strong> — the 89 MB set
+    that adds proper Japanese and Chinese typographic forms and Serif CJK. The free edition
+    already renders Chinese, Japanese and Korean without boxes; this is the typography on top. Ordinary accented and symbol text
+    renders correctly on both editions.</p></div>
+    <div class="card"><h3>All seven Looks and Styles</h3><p>Seven desktop layouts against the free
+    edition's three, and seven colour Styles against four — so the computer in the study and the
+    computer in the kitchen do not have to look like the same computer.</p></div>
+    <div class="card"><h3>Scheduled restore points</h3><p>Timeshift restore points that you
+    schedule, on top of the automatic snapshot-before-every-update that both editions already take.
+    Worth more across several machines than one: it is the difference between fixing a household's
+    computer and rebuilding it.</p></div>
+    <div class="card"><h3>The privacy toolkit</h3><p>KeePassXC for a local password vault only you
+    hold, Syncthing to sync files directly between the household's own machines with no cloud and no
+    account, Flatseal to see what each app is allowed to touch, qBittorrent and Filelight.</p></div>
+  </div>
+  <!-- KDE Connect is not in the grid above, and that is correct: it is on the
+     FREE edition now, so selling it here would be selling the free edition
+     back to a household. -->
+
+  <div class="cta-band">
+    <!-- THE PER-MACHINE MATHS. pro.html anchors $39 against "$1,000 a year" of
+         subscriptions; this page anchors against our own single licence, which is a
+         better anchor because it is a price we actually charge rather than a
+         competitor's. The shape is deliberately the same object — same .value table,
+         same rule under the total — so a reader who came from /pro recognises it.
+
+         ##  EVERY TOKEN IN THIS BLOCK IS A PLACEHOLDER.  ##
+
+         The owner sets TWO numbers and they are load-bearing on each other:
+           1. FAMILY_MACHINES_PLACEHOLDER — how many machines one purchase covers.
+              This number must equal MACHINE_CAP in infra/gate-worker.js. See the
+              licence section below; the worker enforces 1 today.
+           2. FAMILY_PRICE_PLACEHOLDER — the price.
+
+         When you set them, EVERY ONE OF THESE MUST MOVE TOGETHER, and the rows in the
+         table below must be expanded or trimmed so that there are exactly as many
+         "one machine" rows as machines covered:
+           * the hero paragraph and the hero button          (2 tokens, above)
+           * this headline, these rows, the subtotal row and the total row
+           * the mid-page and closing CTA buttons            (2 tokens)
+           * the "fewer computers than that" objection card, whose break-even
+             sentence is only true if the arithmetic is recomputed
+           * the comparison table's Price and Machines rows
+           * the Product JSON-LD, which does not exist yet — see the head comment
+         Grep for FAMILY_ before deploying. If the page still contains the string
+         FAMILY_ anywhere, it is not ready to be seen by anyone. -->
+    <div class="big">One purchase. <span class="grad">Every computer in the house.</span></div>
+    <div class="value">
+      <div class="row"><b>The first computer</b><span>→ Dagric OS Pro, single licence</span><span class="price">$39</span></div>
+      <div class="row"><b>The second computer</b><span>→ Dagric OS Pro, single licence</span><span class="price">$39</span></div>
+      <div class="row"><b>The third computer</b><span>→ Dagric OS Pro, single licence</span><span class="price">$39</span></div>
+      <!-- ADD OR REMOVE ROWS TO MATCH FAMILY_MACHINES_PLACEHOLDER EXACTLY. Three rows
+           here is a layout skeleton, not a claim about how many machines the pack
+           covers. A table showing three rows above a total that covers five is the
+           kind of quiet inconsistency a customer notices after paying. -->
+      <div class="row"><b>Bought one at a time</b><span>FAMILY_MACHINES_PLACEHOLDER machines × $39</span><span class="price">$FAMILY_SEPARATE_TOTAL_PLACEHOLDER</span></div>
+      <div class="row total"><b>Dagric OS Family Pack</b><span>the same Pro edition, all FAMILY_MACHINES_PLACEHOLDER machines, one purchase</span><span class="price">$FAMILY_PRICE_PLACEHOLDER, once</span></div>
+    </div>
+    <!-- The honest caveat, in the same slot and the same role as pro.html's "Honest
+         math" note. Two things a household could reasonably misread are corrected
+         here: that this is a volume deal on software they could not otherwise get
+         (it is not — every application in Pro is free software from Debian's own
+         archive, which /licenses says in as many words), and that the machines must
+         be bought or set up at the same time (they do not). -->
+    <p style="color:var(--on-3);font-size:var(--t-ui);margin-top:var(--s-4);max-width:var(--w-col)">Honest math: the
+    Family Pack is not a bundle of extra software, it is the same Pro edition with the machine count
+    changed. Every application in it is free software from Debian's own archive, under its own
+    licence, and you could install all of it yourself on the free edition for nothing. What the
+    price buys is that somebody already did it, wired the pieces together and tested that the result
+    works on first boot — bought once instead of once per computer. You do not have to claim the
+    machines at the same time, or even in the same year.</p>
+    <p style="margin-top:var(--s-5)">
+      <a class="btn primary lg" href="STRIPE_FAMILY_LINK_PLACEHOLDER">Get the Family Pack — $FAMILY_PRICE_PLACEHOLDER, once</a></p>
+    <p class="refund">14-day, no-questions refund</p>
+  </div>
+
+  <h2 id="parental">Parental controls are <span class="grad">free. Always.</span></h2>
+  <!-- ##########################################################################
+       ##  READ THIS BEFORE EDITING THE SECTION BELOW.                         ##
+       ##                                                                       ##
+       ##  THE PARENTAL CONTROLS DO NOT EXIST IN THIS REPOSITORY YET, so this   ##
+       ##  section describes a commitment and NOT a capability. That is the     ##
+       ##  only form it can honestly take today.                                ##
+       ##                                                                       ##
+       ##  What was checked, on the whole tree:                                 ##
+       ##    * no match for parental / screen time / bedtime / timekpr /        ##
+       ##      malcontent / curfew anywhere in config/, site/, docs/ or po/     ##
+       ##      (the only hits in the tree are unrelated: a seeding-time limit   ##
+       ##      in the qBittorrent manual page, and vendored Chrome locale       ##
+       ##      blobs under promo/node_modules)                                  ##
+       ##    * no such package in any of the ten config/package-lists/ files    ##
+       ##    * no such tool in config/includes.chroot/usr/bin/ — the 40 dagric-*##
+       ##      helpers there are appearance, drivers, gaming, hub, looks,       ##
+       ##      migrate, security-checkup, usb-protect and friends; there is no  ##
+       ##      dagric-parental, dagric-screentime or equivalent                 ##
+       ##    * nothing in the shipped manual or in any of the six translated    ##
+       ##      guides mentions it, in any language, including pt_BR             ##
+       ##                                                                       ##
+       ##  So the page MUST NOT describe screen time or bedtime as something a  ##
+       ##  parent can go and use. The hard rule for this site is that we do not ##
+       ##  claim a feature the OS does not have, and the fact that the FEATURE  ##
+       ##  is unbuilt does not conflict with the owner's PRICING decision — the ##
+       ##  decision that it will be free on every edition stands on its own and ##
+       ##  can be stated now.                                                   ##
+       ##                                                                       ##
+       ##  Saying nothing was the other option and it is worse. A page called   ##
+       ##  Family Pack that is silent about parental controls lets a parent     ##
+       ##  assume they are the thing being sold — which is the exact outcome    ##
+       ##  the brief exists to prevent — and a parent who buys for them and     ##
+       ##  finds nothing is a refund and a bad review. Telling them plainly not ##
+       ##  to buy yet costs a sale and keeps the customer.                      ##
+       ##                                                                       ##
+       ##  WHEN THE TOOL SHIPS: replace the second paragraph with what it       ##
+       ##  actually does, drop the "not built yet" sentence, point the link at  ##
+       ##  the real manual page instead of PARENTAL_DOCS_URL_PLACEHOLDER, and   ##
+       ##  keep the free-on-every-edition statement exactly as it is worded —   ##
+       ##  it is the commitment, not the description, and it does not change.   ##
+       ##  Do NOT move this section behind the price block when that happens.   ##
+       ##########################################################################  -->
+  <p class="lead">Not part of this purchase. Not part of Pro. Free on every edition, forever, and
+  that is a decision rather than an introductory offer.</p>
+  <p style="max-width:var(--w-text)">Brazil legislated screen-time and bedtime controls, and
+  Brazilian Portuguese is one of the six languages Dagric OS ships in. Putting legal compliance
+  behind a $39 paywall in the country that wrote the law is not compliance, so screen time and
+  bedtime limits are free on the free edition, free on Pro, and free on the Family Pack. There is no
+  version of Dagric OS in which a parent has to pay to limit a child's computer, and there will not
+  be one.</p>
+  <!-- The sentence below is the one that must not be softened into marketing.
+       "Being built" with no date is the truthful shape: there is no branch, no
+       package and no tool, so any date here would be invented. If the owner wants a
+       date on the page, the date has to come from a plan, not from this file. -->
+  <p style="max-width:var(--w-text)"><strong>Being honest about where that stands:</strong>
+  <em>Family&nbsp;Limits</em> is built and tested and arrives in the next release — daily screen
+  time, a bedtime the computer keeps for you, and a choice between locking the screen and
+  signing out when the time is up. It is free, on every edition, and you will not be asked for
+  anything to get it. If parental controls are the only reason you are on this page,
+  <strong>you do not need to buy anything</strong>.
+  Download the <a href="/download">free edition</a>, or write to <a href="/contact">us</a> and we
+  will tell you when they land. Buying the Family Pack today does not get you parental controls
+  sooner, and we would rather say so than take the money.</p>
+  <!-- PARENTAL_DOCS_URL_PLACEHOLDER — no page to point at yet. The link is left as a
+       bare token for the same reason the Stripe href is: it lands on our own 404
+       instead of quietly pointing somewhere plausible and wrong. Point it at the
+       manual page for the tool when the tool exists, and delete this comment. -->
+
+  <h2>How the licence <span class="grad">works</span></h2>
+  <!-- THE ONLY DIFFERENCE FROM A SINGLE LICENCE IS THE NUMBER, and this section says
+       so in as few words as possible because that is genuinely the whole mechanism.
+       Everything described here is what infra/gate-worker.js already does for a
+       single purchase: the fingerprint is a SHA-256 of the machine's DMI product UUID
+       salted with the checkout session id (so it is meaningless outside that one
+       purchase and is never a raw serial), the slot is committed at /assets rather
+       than on the tool's dry HEAD so an evaluation somebody walked away from does not
+       burn an entitlement, re-runs on the same machine hash to the same value and are
+       free, and every KV failure fails open so our storage having a bad minute never
+       locks out a customer.
+
+       ############################################################################
+       ##  THE WORKER CANNOT HONOUR THIS PAGE YET, AND IT IS THE ONE BLOCKER     ##
+       ##  THAT MAKES SHIPPING THIS PAGE A BROKEN PURCHASE RATHER THAN A TYPO.   ##
+       ##                                                                         ##
+       ##  infra/gate-worker.js line 31: `const MACHINE_CAP = 1;` — a module      ##
+       ##  constant, not a per-purchase value. machineState() (~277) and          ##
+       ##  reserveMachine() (~290) both compare rec.machines.length against that  ##
+       ##  one constant, so EVERY purchase gets exactly one machine no matter     ##
+       ##  what was bought. Line 5: `const PRICE_ID = "price_..."` is a single    ##
+       ##  price, and the check at ~63 is `items.some(li => li.price.id ===       ##
+       ##  PRICE_ID)` — a Family Pack purchase carrying a DIFFERENT price id      ##
+       ##  fails that test and is turned away at line 65 with "This session has   ##
+       ##  no completed Dagric OS Pro purchase." So today a family customer would ##
+       ##  pay and then be told their purchase does not exist.                    ##
+       ##                                                                         ##
+       ##  The worker already fetches the session with expand[]=line_items (~346) ##
+       ##  and therefore ALREADY HAS the bought price id in hand — so the change  ##
+       ##  is to map price id -> allowed machine count and thread that count into ##
+       ##  machineState/reserveMachine instead of reading the constant, and to    ##
+       ##  widen the paid-product check to accept either price. machineTaken()    ##
+       ##  (~313) also hard-codes "One purchase covers one machine" in customer-  ##
+       ##  facing prose and must be parameterised with it.                        ##
+       ##                                                                         ##
+       ##  DO NOT PUBLISH THIS PAGE OR CREATE THE STRIPE LINK BEFORE THAT LANDS.  ##
+       ############################################################################ -->
+  <p class="lead">Exactly like a single licence, with one number changed. There is nothing new to
+  learn and nothing new to install.</p>
+  <div class="grid">
+    <div class="card"><h3>One purchase, one receipt</h3><p>You buy once and get one purchase code,
+    starting with <code>cs_</code>. That same code claims every machine the pack covers — there are
+    no per-computer keys to keep track of, and nothing to hand out or lose.</p></div>
+    <div class="card"><h3>Claimed the same way</h3><p>On each computer: install Dagric OS, open the
+    <strong>Dagric Hub</strong>, pick <em>Upgrade to Pro — already bought it?</em>, and paste the
+    code. That machine becomes Pro with its files and settings untouched. It is the same tool, the
+    same steps and the same screens as a single licence — it just does not stop after the first
+    computer.</p></div>
+    <div class="card"><h3>Counted, not tracked</h3><p>Each claimed machine is recognised by an
+    anonymous fingerprint, never a serial number: a one-way hash of a hardware id, salted with your
+    purchase, so the value means nothing outside that one receipt. We learn that a machine claimed
+    the licence. We do not learn which machine, or whose. The <a href="/privacy">privacy page</a>
+    has the detail.</p></div>
+    <div class="card"><h3>Reinstalling is free</h3><p>Wiping and reinstalling a computer you already
+    claimed does not use up another slot — the same machine produces the same fingerprint and is
+    recognised. Reinstall the household's computers as often as you like.</p></div>
+    <div class="card"><h3>Verified once, then never again</h3><p>Each machine checks the purchase
+    the one time it is claimed, and after that nothing phones home: no recurring activation, no
+    expiry, no server any of your computers needs permission from to keep working. Unplug the house
+    from the internet and every one of them still boots.</p></div>
+    <div class="card"><h3>When a computer is replaced</h3><p>A machine that died, a laptop that was
+    replaced, a virtual machine that moved — <a href="/support">write to support</a> and the slot
+    moves over at no cost. It is a message, not a process. The same is true for the small number of
+    machines with no stable hardware id, where the fingerprint changes on reinstall; the upgrade
+    tool tells you if yours is one.</p></div>
+  </div>
+  <!-- The boundary sentence. "Household" is doing legal work in this page's title and
+       it needs a definition somewhere the buyer will actually read, before checkout
+       rather than in the terms. Kept to the shape terms.html already uses for the
+       single licence ("one computer you own or manage") so the two cannot drift.
+       terms.html and faq.html both currently say one purchase covers ONE machine, in
+       so many words, and BOTH must be updated in the same commit that publishes this
+       page — see the notes that shipped with this file. -->
+  <p class="note">What "one household" means, plainly: the computers in one home, owned or managed
+  by the people who live there. It is not a site licence for an office, a school or a club, and it
+  is not something to split with friends at other addresses — if that is what you need, write to
+  <a href="/contact">us</a> and we will work something out honestly rather than pretend a family
+  licence covers it.</p>
+
+  <h2 id="tbl-compare-licences">Single licence <span class="grad">or Family Pack</span></h2>
+  <!-- The wrapper carries tabindex="0", role="region" and aria-labelledby pointing at
+       the h2 immediately above, for the reason recorded on pro.html's copy and on the
+       four on accessibility.html: a div with overflow:auto is NOT focusable in Chrome
+       without tabindex, so the moment this table starts scrolling a keyboard-only
+       reader cannot scroll it at all — WCAG 2.1.1, on a page that takes money. The
+       name is the id of its own heading so the two cannot drift apart.
+       This table compares the two LICENCES, not the two editions. pro.html's edition
+       table is the right one for "what is in Pro" and this page does not duplicate it;
+       a household reading this page has already decided about Pro. -->
+  <div class="tablewrap" tabindex="0" role="region" aria-labelledby="tbl-compare-licences">
+  <!-- First column is <th scope="row">, not <td>: these cells are row LABELS, and as
+       <td> the row-header relationship is not programmatically determinable — WCAG
+       1.3.1, Level A. Same reasoning as the copies on index.html and pro.html. -->
+  <table class="cmp">
+    <thead><tr><th>What you get</th><th>Single licence</th><th>Family Pack</th></tr></thead>
+    <tbody>
+    <tr><th scope="row">Price</th><td>$39, once</td><td class="y">$FAMILY_PRICE_PLACEHOLDER, once</td></tr>
+    <tr><th scope="row">Computers covered</th><td>1</td><td class="y">FAMILY_MACHINES_PLACEHOLDER</td></tr>
+    <tr><th scope="row">Everything in Dagric OS Pro</th><td class="y">✓</td><td class="y">✓ on every machine</td></tr>
+    <!-- Deliberately NOT class="y" on both cells. A skimmer reads this table and
+         nothing else, and two green ticks for something that is the SAME on both
+         sides implies it is part of what the money buys. It is not: it is free. -->
+    <tr><th scope="row">Parental controls (Family Limits)</th><td>Free — not part of this</td><td>Free — not part of this</td></tr>
+    <tr><th scope="row">How you claim it</th><td>Hub → Upgrade to Pro</td><td class="y">Hub → Upgrade to Pro, per machine</td></tr>
+    <tr><th scope="row">Purchase codes to manage</th><td>1</td><td class="y">1</td></tr>
+    <tr><th scope="row">Reinstalling a claimed machine</th><td class="y">Free</td><td class="y">Free</td></tr>
+    <tr><th scope="row">Moving to a replacement computer</th><td>Support, no cost</td><td class="y">Support, no cost</td></tr>
+    <tr><th scope="row">Checks in after activation</th><td>Never</td><td class="y">Never</td></tr>
+    <tr><th scope="row">Updates</th><td class="y">Included, free, no version cut-off</td><td class="y">Included, free, no version cut-off</td></tr>
+    <tr><th scope="row">Refund window</th><td>14 days, no questions</td><td class="y">14 days, no questions</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <!-- HONEST DISQUALIFICATION, immediately after the comparison table, for the reason
+       pro.html gives in the same slot: the reader who has just studied two columns is
+       the reader deciding, and this is the last thing between them and the button.
+       This page needs it MORE than pro.html does, because the Family Pack is the more
+       expensive product and the one whose value depends entirely on a fact about the
+       buyer's house that we cannot see. Every card is a real reason not to buy.
+       It does not mention the refund policy. The 14-day line is stated three times
+       elsewhere and is not this section's job: a page that answers "don't buy" with
+       "but you can always refund" has not actually said don't buy. -->
+  <h2>Don't buy the Family Pack <span class="grad">if…</span></h2>
+  <p class="lead">Six reasons to keep your money. We would rather lose the sale than take it from
+  somebody who was going to want it back.</p>
+  <div class="grid">
+    <div class="card"><h3>…you came here for the parental controls</h3><p>They are free on every
+    edition, they are not in this purchase, and they are not built yet. Buying this does not get
+    them sooner. <a href="#parental">The full state of that is above</a> — and the honest answer for
+    a parent today is the <a href="/download">free edition</a>, at no cost.</p></div>
+    <div class="card"><h3>…you have one computer</h3><p>Then this is strictly worse than the
+    <a href="/pro">single licence at $39</a>, which is the same software. The Family Pack only makes
+    sense once there is a second machine, and it will still be there when there is.</p></div>
+    <!-- The break-even sentence below is ARITHMETIC and it is currently a placeholder.
+         Recompute it when the price is set: the pack is worth buying at the point where
+         FAMILY_PRICE_PLACEHOLDER is less than 39 × the number of machines you will
+         actually claim. If the pack covers 4 machines, a 2-machine house is very
+         likely better off with two single licences, and this card must say so with the
+         real number in it. Do not delete this card to make the maths look better. -->
+    <div class="card"><h3>…you have fewer computers than the pack covers</h3><p>The pack covers
+    FAMILY_MACHINES_PLACEHOLDER machines. If your house has two and will keep having two, do the
+    sum: two single licences cost $78, and if that is less than the pack, buy the two. We are not
+    going to pretend otherwise to move the bigger number.</p></div>
+    <div class="card"><h3>…those computers are nearly full</h3><p>Pro needs <strong>40 GB</strong>
+    free on each machine against the free edition's 25 GB, because the creative suite, the Wine and
+    gaming runtimes and the CJK fonts are really on the disk. Across a house of older laptops that
+    is a constraint that repeats, and it will not get better after you have paid. Check every
+    machine before you buy, not after.</p></div>
+    <div class="card"><h3>…you only wanted Steam, Bottles, Heroic or Ollama</h3><p>All four are one
+    click from the Hub on the <a href="/download">free edition</a>, on every computer in the house,
+    for nothing — and so are ProtonUp-Qt, ONLYOFFICE, Joplin, LocalSend, Cryptomator and Upscayl. If
+    that list is the whole reason, install free everywhere and keep your money. Pro's gaming value is
+    the 32-bit Vulkan, GameMode and MangoHud underneath them.</p></div>
+    <div class="card"><h3>…it is not really one household</h3><p>This licenses the computers in one
+    home. It is not an office, school, club or reseller licence, and splitting it across addresses is
+    not what it is for. If you need to cover an organisation, <a href="/contact">ask us</a> — there is
+    an honest answer and this page is not it.</p></div>
+  </div>
+  <p class="note">Still here? Then none of that applies to you, and the rest is simple: one
+  purchase, every computer in the house, the same Pro edition on each.</p>
+
+  <div class="cta-band" style="margin-bottom:0">
+    <div class="big">Ready to cover <span class="grad">the whole house?</span></div>
+    <p style="color:var(--on-2);max-width:var(--w-text);margin:var(--s-3) 0 var(--s-5)">Instant
+    download after checkout. One purchase, one household, claimed one computer at a time whenever you
+    get to them. If it is not for you, 14 days, full refund.</p>
+    <!-- Third and final STRIPE_FAMILY_LINK_PLACEHOLDER. See the block comment in the
+         hero. Grep the file for the token before deploying — there are three. -->
+    <a class="btn primary" href="STRIPE_FAMILY_LINK_PLACEHOLDER">Get the Family Pack — $FAMILY_PRICE_PLACEHOLDER</a>
+    <p style="margin-top:var(--s-4)"><a href="/pro">Only need one computer? Pro is $39 →</a>
+    &nbsp;·&nbsp; <a href="/download">Or start with the free edition →</a></p>
+  </div>
+</main>
+
+<footer><div class="foot">
+  <span>© 2026 DGR Operations · Built on Debian. Not affiliated with the Debian Project or the trademark owners named above.</span>
+  <span class="links"><a href="/features">Features</a><a href="/pro">Pro</a><a href="/download">Download</a><a href="/news">News</a><a href="/guide">Guide</a><a href="/support">Support</a><a href="/faq">FAQ</a><a href="/accessibility">Accessibility</a><a href="/bugs">Report a bug</a><a href="/contact">Contact</a><a href="/about">About</a><a href="/licenses">Licenses</a><a href="/privacy">Privacy</a><a href="/terms">Terms</a></span>
+</div></footer>
+</body>
+</html>
