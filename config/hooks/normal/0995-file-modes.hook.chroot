@@ -136,5 +136,12 @@ for _d in /usr/share/sddm/themes/dagric/translations \
     fi
     echo "file-modes: $_d — $_n compiled catalogues kept"
 done
-[ "$TSGONE" -gt 0 ] && echo "file-modes: removed $TSGONE .ts translation sources from the image"
+# Written as an `if`, not as `[ ... ] && echo`. This hook has no `set -e` today
+# so the short-circuit form is harmless — but it is the last statement in the
+# file, and the day somebody adds `set -e` at the top (every other hook here has
+# it) a build with nothing to remove would abort on a false condition and fail
+# for reporting "there was nothing to do".
+if [ "$TSGONE" -gt 0 ]; then
+    echo "file-modes: removed $TSGONE .ts translation sources from the image"
+fi
 exit 0
