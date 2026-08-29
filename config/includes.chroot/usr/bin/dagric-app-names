@@ -208,6 +208,7 @@ de	org.kde.kcalc	Taschenrechner	Wissenschaftlicher Taschenrechner (KCalc)
 de	org.kde.plasma-systemmonitor	Task-Manager	Laufende Programme und Systemauslastung
 de	mpv	Videos	Videowiedergabe (mpv)
 de	org.kde.skanlite	Scanner	Fotos und Dokumente einscannen (Skanlite)
+de	guvcview	Kamera	Webcam prüfen und Fotos aufnehmen (guvcview)
 de	gdebi	Paketinstallation	Eine heruntergeladene .deb-Datei installieren (GDebi)
 de	org.kde.filelight	Speicherplatz	Sehen, was die Festplatte füllt (Filelight)
 de	org.kde.kdeconnect.app	Telefon verbinden	Dateien und Nachrichten mit dem Telefon teilen (KDE Connect)
@@ -230,6 +231,7 @@ fr	org.kde.kcalc	Calculatrice	Calculatrice scientifique (KCalc)
 fr	org.kde.plasma-systemmonitor	Gestionnaire des tâches	Applications en cours et ressources système
 fr	mpv	Vidéos	Lecteur vidéo (mpv)
 fr	org.kde.skanlite	Scanner	Numériser photos et documents (Skanlite)
+fr	guvcview	Caméra	Vérifier la webcam et prendre des photos (guvcview)
 fr	gdebi	Installateur de paquets	Installer un fichier .deb téléchargé (GDebi)
 fr	org.kde.filelight	Espace disque	Voir ce qui remplit votre disque (Filelight)
 fr	org.kde.kdeconnect.app	Connecter votre téléphone	Partager fichiers et SMS avec votre téléphone (KDE Connect)
@@ -252,6 +254,7 @@ es	org.kde.kcalc	Calculadora	Calculadora científica (KCalc)
 es	org.kde.plasma-systemmonitor	Administrador de tareas	Aplicaciones en ejecución y recursos del sistema
 es	mpv	Vídeos	Reproductor de vídeo (mpv)
 es	org.kde.skanlite	Escáner	Escanear fotos y documentos (Skanlite)
+es	guvcview	Cámara	Comprobar la cámara web y hacer fotos (guvcview)
 es	gdebi	Instalador de paquetes	Instalar un archivo .deb descargado (GDebi)
 es	org.kde.filelight	Espacio en disco	Ver qué está llenando tu disco (Filelight)
 es	org.kde.kdeconnect.app	Conectar tu teléfono	Compartir archivos y mensajes con tu móvil (KDE Connect)
@@ -274,6 +277,7 @@ pt_BR	org.kde.kcalc	Calculadora	Calculadora científica (KCalc)
 pt_BR	org.kde.plasma-systemmonitor	Gerenciador de tarefas	Aplicativos em execução e recursos do sistema
 pt_BR	mpv	Vídeos	Reprodutor de vídeo (mpv)
 pt_BR	org.kde.skanlite	Scanner	Digitalizar fotos e documentos (Skanlite)
+pt_BR	guvcview	Câmera	Verificar a webcam e tirar fotos (guvcview)
 pt_BR	gdebi	Instalador de pacotes	Instalar um arquivo .deb baixado (GDebi)
 pt_BR	org.kde.filelight	Espaço em disco	Ver o que está enchendo o seu disco (Filelight)
 pt_BR	org.kde.kdeconnect.app	Conectar seu celular	Compartilhar arquivos e mensagens com o celular (KDE Connect)
@@ -296,6 +300,7 @@ it	org.kde.kcalc	Calcolatrice	Calcolatrice scientifica (KCalc)
 it	org.kde.plasma-systemmonitor	Gestione attività	Applicazioni in esecuzione e risorse di sistema
 it	mpv	Video	Riproduttore video (mpv)
 it	org.kde.skanlite	Scanner	Acquisisci foto e documenti (Skanlite)
+it	guvcview	Fotocamera	Controllare la webcam e scattare foto (guvcview)
 it	gdebi	Installazione pacchetti	Installa un file .deb scaricato (GDebi)
 it	org.kde.filelight	Spazio su disco	Vedi che cosa riempie il disco (Filelight)
 it	org.kde.kdeconnect.app	Collega il telefono	Condividi file e messaggi con il telefono (KDE Connect)
@@ -510,6 +515,15 @@ rename mpv "Videos" "Video player (mpv)" \
 
 rename org.kde.skanlite "Scanner" "Scan photos and documents (Skanlite)" \
     "skanlite;scan;scanner;scanning;sane;document;photo;copy;flatbed;all-in-one;printer;"
+
+# guvcview ships as "guvcview" with the generic name "GTK+ UVC Viewer", which is
+# four pieces of jargon for a switcher looking for the thing Windows calls
+# Camera. The keywords carry "camera" and "webcam" because that is what gets
+# typed, and "video call" because checking the camera before a meeting is the
+# entire reason this app is on the image. Named the job, not the product, and no
+# competitor's product name — the same rules as every other entry here.
+rename guvcview "Camera" "Check your webcam and take photos (guvcview)" \
+    "guvcview;camera;webcam;web cam;video;selfie;photo;picture;snapshot;record;video call;uvc;v4l2;"
 
 # Double-clicking a downloaded .deb opens this. "GDebi" tells the owner nothing;
 # a .deb is the .exe installer of their new world.

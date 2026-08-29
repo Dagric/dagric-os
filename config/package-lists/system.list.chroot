@@ -402,8 +402,28 @@ skanlite
 # share — and Check This PC reports on the camera, while neither edition
 # carried any application that could display a webcam or take a picture
 # (verified: no kamoso, cheese, guvcview or webcamoid in either manifest). The
-# camera worked; the machine simply read as having none. KDE-native and small.
-kamoso
+# camera worked; the machine simply read as having none.
+#
+# guvcview AND NOT kamoso, WHICH IS NOT THE OBVIOUS CHOICE ON A KDE DESKTOP.
+#
+# kamoso is the KDE-native answer and was tried first. Measured against the
+# built image, it cost EIGHTY packages: kamoso 25.04 in trixie is still Qt5/KF5,
+# so it drags libkf5* (about sixty of them), libqt5*, kio, kded5 and a pile of
+# Qt5 qml-modules onto a Plasma 6 / Qt6 desktop that had exactly eight Qt5
+# packages before it. A whole second toolkit and its update surface, for one
+# small app, on the edition whose entire pitch is being lean.
+#
+# guvcview is GTK, which sounds worse and is not: its dependencies are libc6,
+# glib, libgtk-3-0t64 and libguvcview — and GTK 3 is ALREADY in the image
+# because Firefox needs it (verified in the manifest). So it costs two new
+# packages instead of eighty, and introduces no framework the image did not
+# already carry.
+#
+# The trade is UI polish for leanness: guvcview shows more V4L2 controls than a
+# switcher wants. dagric-app-names renames it to "Camera" with webcam keywords
+# so the owner finds it by the word Windows taught them, and the job it has to
+# do — show my face before the meeting — it does on the first screen.
+guvcview
 # Driverless NETWORK print/scan (AirPrint/Mopria/eSCL): avahi discovers the
 # devices, sane-airscan talks to network scanners without vendor drivers.
 avahi-daemon
