@@ -624,15 +624,17 @@ main{max-width:none;margin:0;padding:0}
            asked to compare two things and pick one; it is not worth it on a
            six-item feature list. -->
       <div class="grid c2" style="max-width:var(--w-col)">
-        <!-- Measured, not rounded: the live free object in R2 is 2,126,544,896 bytes (1.98 GiB) and
-             the Pro image from the latest CI build is 3,931,095,040 (3.66 GiB). download.html and
-             thanks-pro.html were corrected to 2.0 / 3.7 GB; this card was missed, so the homepage
-             understated the free download by ~200 MB and disagreed with the download page one click
-             away. Keep all three in step — it is the number someone on a metered or slow connection
-             plans around, and a site that contradicts itself on a fact this checkable is not trusted
-             on the ones that aren't. -->
-        <div class="card boxed"><h3>Dagric OS — Free</h3><p style="margin:var(--s-2) 0 var(--s-4)">The lean, private daily driver. 2.0&nbsp;GB.</p><a class="btn primary" href="/download">Download ISO</a></div>
-        <div class="card boxed"><h3>Dagric OS — Pro</h3><p style="margin:var(--s-2) 0 var(--s-4)">The complete suite. 3.7&nbsp;GB. $39, delivered after purchase.</p><a class="btn ghost" href="/pro">See what's inside →</a></div>
+        <!-- Measured from the ISOs in out/, not rounded and not guessed: the free
+             image is 2,251,653,120 bytes (2.10 GiB) and Pro is 4,152,623,104
+             (3.87 GiB), both built 2026-08-29. These cards, /download and
+             /thanks-pro must stay in step — it is the number someone on a metered
+             or slow connection plans around, and a site that contradicts itself on
+             a fact this checkable is not trusted on the ones that aren't.
+             This card was missed the last two times the figures moved, both times
+             because it writes the number with &nbsp; and a plain search for
+             "2.0 GB" does not match it. Search for "GB" when you update these. -->
+        <div class="card boxed"><h3>Dagric OS — Free</h3><p style="margin:var(--s-2) 0 var(--s-4)">The lean, private daily driver. 2.1&nbsp;GB.</p><a class="btn primary" href="/download">Download ISO</a></div>
+        <div class="card boxed"><h3>Dagric OS — Pro</h3><p style="margin:var(--s-2) 0 var(--s-4)">The complete suite. 3.9&nbsp;GB. $39, delivered after purchase.</p><a class="btn ghost" href="/pro">See what's inside →</a></div>
       </div>
       <h3 style="margin-top:var(--s-6)">Verify your download</h3>
       <!-- The checksums were printed here too, and drifted from the signed SHA256SUMS
