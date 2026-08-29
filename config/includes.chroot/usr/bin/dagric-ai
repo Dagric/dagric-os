@@ -98,8 +98,27 @@ network filter answered instead. Try again on a different connection.")"
 
     OLLAMA_SUM=$(sha256sum "$TMP" 2>/dev/null | cut -d' ' -f1)
     [ -n "$OLLAMA_SUM" ] || OLLAMA_SUM="(sha256sum unavailable)"
-    # TRANSLATORS: %s is a long hexadecimal checksum. Single quotes around the
-    # msgid are MANDATORY — with double quotes the shell expands the variable
+
+    # THE LOG GOES SOMEWHERE THIS PROCESS CAN ACTUALLY WRITE.
+    #
+    # It was /var/lib/dagric/ollama-install.log, which is root:root 0755 —
+    # created by root-run systemd units — while this script runs as the ordinary
+    # desktop user (it is launched through konsole with no pkexec; Ollama's own
+    # installer calls sudo for its part). So both the mkdir and the append
+    # failed with EACCES, silenced by `2>/dev/null || true`, and the owner was
+    # told in five languages that a record existed which was never written.
+    # A promise in a translated string is still a promise.
+    #
+    # XDG_STATE_HOME is the right home for this: it is per-user, it is writable
+    # without privilege, and it is where a record of "what this account did"
+    # belongs. The owner can read it without sudo, which is the entire point of
+    # offering it to them.
+    OLLAMA_LOGDIR="${XDG_STATE_HOME:-$HOME/.local/state}/dagric"
+    OLLAMA_LOG="$OLLAMA_LOGDIR/ollama-install.log"
+
+    # TRANSLATORS: $OLLAMA_SUM is a long hexadecimal checksum and $OLLAMA_LOG is
+    # a file path — leave both exactly as they are. Single quotes around the
+    # msgid are MANDATORY — with double quotes the shell expands the variables
     # before gettext looks the string up, the lookup misses, and the message
     # comes out in English with no warning.
     dg_say "$(eval_gettext 'About to run Ollama'"'"'s installer, downloaded just now from
@@ -107,16 +126,23 @@ ollama.com. Its checksum is:
 
   $OLLAMA_SUM
 
-That is recorded in /var/lib/dagric/ollama-install.log so you can check
-later exactly what this computer ran.')"
+It will be recorded in $OLLAMA_LOG so you can check later exactly what this
+computer ran.')"
 
     if sh "$TMP"; then
         # Recorded AFTER success, with the date, so the log is a list of what
-        # actually ran rather than of what was attempted.
-        mkdir -p /var/lib/dagric 2>/dev/null || true
-        printf '%s  ollama.com/install.sh  sha256=%s\n' \
-            "$(date -u '+%Y-%m-%dT%H:%M:%SZ')" "$OLLAMA_SUM" \
-            >> /var/lib/dagric/ollama-install.log 2>/dev/null || true
+        # actually ran rather than of what was attempted. Failure to write is
+        # reported rather than swallowed — the owner was just promised this file
+        # exists, and a promise that quietly does not hold is the defect this
+        # block was rewritten to remove.
+        if mkdir -p "$OLLAMA_LOGDIR" 2>/dev/null &&
+           printf '%s  ollama.com/install.sh  sha256=%s\n' \
+               "$(date -u '+%Y-%m-%dT%H:%M:%SZ')" "$OLLAMA_SUM" \
+               >> "$OLLAMA_LOG" 2>/dev/null; then
+            :
+        else
+            printf 'dagric-ai: could not write %s\n' "$OLLAMA_LOG" >&2
+        fi
         rm -f "$TMP"
         echo ""
         # TRANSLATORS: "ollama run llama3.2" is a command typed verbatim.

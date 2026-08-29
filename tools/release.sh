@@ -398,9 +398,21 @@ do_publish() {
         echo "           /licenses offers source 'matching the versions we ship'." >&2
     fi
 
-    echo "  now: firebase deploy --only hosting"
-    echo "  then: sh packages/build-repo.sh   (the update channel is half the release)"
-    echo "  then: sh tools/verify-published.sh   (checks the LIVE site end to end)"
+    # THE CHANNEL IS BUILT BEFORE THE DEPLOY, NOT AFTER.
+    #
+    # These two lines were printed the other way round, and following them in
+    # the printed order guarantees the failure this whole script exists to stop:
+    # build-repo.sh writes INTO site/repo, and `firebase deploy --only hosting`
+    # uploads site/. Deploy first and you publish the OLD channel and leave the
+    # freshly built one sitting on disk — half a release, which is exactly what
+    # verify-published.sh was written to catch after it happened.
+    #
+    # docs/REPOSITORY.md has had the right order all along (build-repo at step 4,
+    # deploy at step 6). Three procedures in one repo disagreeing about the order
+    # is how the wrong one gets followed.
+    echo "  now:  sh packages/build-repo.sh    (writes site/repo — MUST precede the deploy)"
+    echo "  then: firebase deploy --only hosting"
+    echo "  then: sh tools/verify-published.sh (proves the LIVE end state, site AND channel)"
 }
 
 case "$MODE" in

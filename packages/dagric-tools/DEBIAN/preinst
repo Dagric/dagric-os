@@ -40,16 +40,33 @@ THUMBS=/usr/share/dagric/appearance/thumbs
 
 case "$1" in
 upgrade)
-    rm -rf "$STASH"
+    # NEVER DESTROY THE OLD STASH BEFORE THE NEW ONE EXISTS.
+    #
+    # This used to open with `rm -rf "$STASH"`, and there is a window in which
+    # that stash is the ONLY copy of the customer's paid files: between
+    # `dpkg --unpack` and `dpkg --configure`, the layouts have already been
+    # removed from /usr/share (dpkg deletes what the new version no longer owns)
+    # and postinst has not yet put them back. A second preinst in that window —
+    # an interrupted apt run, then another upgrade — deleted the stash, found
+    # nothing left in /usr/share to re-stash, and the four paid layouts, three
+    # styles and seven thumbnails were gone for good.
+    #
+    # So: build the new stash beside the old one, and only replace the old one
+    # if the new one actually caught something. An upgrade that finds nothing to
+    # stash now leaves the previous rescue intact instead of erasing it.
+    STASH_FINAL=$STASH
+    NEW=$STASH.new
+    rm -rf "$NEW"
     # Not `|| exit 0`. That silently abandoned the stash on ANY failure — and a
     # stash that does not happen is a Pro machine that loses its paid layouts,
     # which is the one outcome this script exists to prevent. If it cannot be
     # written, say so on stderr where the upgrade log will keep it.
-    if ! mkdir -p "$STASH/looks" "$STASH/styles" "$STASH/thumbs"; then
-        echo "dagric-tools: cannot write $STASH — the Pro appearance set may be" >&2
+    if ! mkdir -p "$NEW/looks" "$NEW/styles" "$NEW/thumbs"; then
+        echo "dagric-tools: cannot write $NEW — the Pro appearance set may be" >&2
         echo "  removed by this upgrade. Re-run dagric-upgrade-to-pro to restore it." >&2
         exit 0
     fi
+    STASH=$NEW
     n=0
     for f in $(grep -rlx 'EDITION=pro' "$LOOKS" "$STYLES" 2>/dev/null); do
         base=${f##*/}
@@ -64,6 +81,19 @@ upgrade)
     # normal case) apart from "the stash failed" — only the second is worth a
     # word in the log.
     printf '%s\n' "$n" > "$STASH/count" 2>/dev/null || true
+
+    # THE SWAP, and the reason the whole dance exists. Promote the new stash
+    # only if it actually caught something; otherwise keep whatever the last run
+    # rescued. On a free machine n is 0 every time and there is nothing to keep,
+    # so this is a no-op there. On a Pro machine mid-way through an interrupted
+    # upgrade, this is what stops the second preinst from erasing the only
+    # surviving copy of the paid set.
+    if [ "$n" -gt 0 ]; then
+        rm -rf "$STASH_FINAL"
+        mv "$NEW" "$STASH_FINAL" 2>/dev/null || true
+    else
+        rm -rf "$NEW"
+    fi
     ;;
 esac
 

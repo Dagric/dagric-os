@@ -222,6 +222,24 @@ cp -r "$INC/usr/share/dagric/logo"        "$P/usr/share/dagric/"
 [ -d "$INC/usr/share/dagric/sddm" ]   && cp -r "$INC/usr/share/dagric/sddm"   "$P/usr/share/dagric/"
 [ -d "$INC/usr/share/dagric/splash" ] && cp -r "$INC/usr/share/dagric/splash" "$P/usr/share/dagric/"
 [ -d "$INC/usr/share/sddm/themes" ]   && cp -r "$INC/usr/share/sddm/themes/." "$P/usr/share/sddm/themes/"
+# THE .ts SOURCES MUST NOT BE PACKED. 0995-file-modes deletes them from the
+# image (they are Qt translation SOURCES; only the compiled .qm is read at
+# runtime), so packing them makes dpkg own five paths that are not on disk and
+# `dpkg -V dagric-branding` reports them modified on every machine. That is the
+# same defect as the Windows __pycache__ junk removed from dagric-tools in this
+# same release, arriving through the same wholesale directory copy.
+find "$P/usr/share/sddm/themes" -name '*.ts' -delete 2>/dev/null || true
+if find "$P/usr/share/sddm/themes" -name '*.ts' | grep -q .; then
+    echo "dagric-branding: .ts translation sources survived the strip" >&2
+    exit 1
+fi
+# ...and the .qm must NOT have been caught by that. They are the runtime
+# catalogues; without them the login screen is English in five languages.
+_qm=$(find "$P/usr/share/sddm/themes" -name '*.qm' | wc -l)
+[ "$_qm" -ge 5 ] || {
+    echo "dagric-branding: only $_qm compiled login-screen catalogues packed (want 5)" >&2
+    exit 1
+}
 # The Plasma startup screen (ksplash look-and-feel package). Branding, so it
 # travels with the wallpapers and the SDDM theme: a splash fix must be able to
 # reach sold machines the same way a wallpaper fix can.
@@ -297,8 +315,20 @@ build_pkg dagric-security-policy
 # branding and are excluded from this list rather than being copied twice.
 P=$STAGE/dagric-tools
 mkdir -p "$P/usr/bin" "$P/usr/lib/dagric" "$P/usr/share/dagric" \
-         "$P/usr/share/applications" "$P/usr/share/icons/hicolor"
+         "$P/usr/share/applications" "$P/usr/share/icons/hicolor" \
+         "$P/etc/xdg/autostart"
 cp -r "$REPO/packages/dagric-tools/DEBIAN" "$P/"
+# THE AUTOSTART ENTRY TRAVELS WITH THE PROGRAM IT STARTS.
+#
+# dagric-restart-check — the one quiet notice that a security update needs a
+# restart — was packed as a program with nothing to invoke it: its .desktop went
+# into no package at all, so the channel delivered a script that never ran. The
+# feature then existed only on machines installed from a new ISO, which is the
+# exact opposite of the installed base its own header says it exists for ("a
+# Dagric machine could run a kernel with a known, already-patched hole for
+# months"). Same rule as the Konsole profile and the family window: never ship
+# the pointer without its target, or the target without its pointer.
+cp "$INC/etc/xdg/autostart/dagric-restart-check.desktop" "$P/etc/xdg/autostart/"
 for f in "$INC/usr/bin/"dagric-*; do
     [ -f "$f" ] && cp "$f" "$P/usr/bin/"
 done

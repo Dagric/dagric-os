@@ -25,11 +25,36 @@
 # that step, this file goes back to being decoration.
 #
 # WHAT ARRIVES SILENTLY AND WHAT DOES NOT. Debian's own security updates land on
-# their own through unattended-upgrades. Dagric's do NOT, deliberately: the
-# Origins-Pattern in 0300-hardening.hook.chroot names Debian origins only, and
-# nothing there matches Origin: Dagric. So a new dagric-tools appears in Discover
-# as an update the owner clicks, exactly like any other application. That is the
-# intended split — "security fixes land without you having to think about it" is
-# a promise worth keeping automatic; replacing the owner's own desktop tools
-# behind their back is a different promise, and not one this product makes.
+# their own through unattended-upgrades. Of Dagric's four packages, exactly ONE
+# does the same, and the other three wait to be asked.
+#
+#   dagric-security-policy   INSTALLS ITSELF. It carries the kernel hardening
+#                            sysctls and the APT policy — the security baseline,
+#                            and nothing an owner looks at. Its own description
+#                            says it is "versioned so the baseline can evolve via
+#                            updates", and that was untrue for as long as nothing
+#                            in the origins matched it: a hardening regression
+#                            fixed through this channel sat in Discover until
+#                            somebody happened to look. Silence is defensible for
+#                            exactly this class of update and no other.
+#
+#   dagric-tools             WAIT TO BE ASKED. These change what the machine
+#   dagric-branding          LOOKS like and how it BEHAVES — the wizard, the Hub,
+#   dagric-desktop-defaults  the manual, the wallpapers, the desktop defaults.
+#                            Replacing the owner's own tools behind their back is
+#                            a different promise from "security fixes land
+#                            without you having to think about it", and not one
+#                            this product makes. They appear in Discover as
+#                            updates the owner clicks, like any other app.
+#
+# The mechanism is in /etc/apt/apt.conf.d/52dagric-unattended, NOT in a build
+# hook: Origins-Pattern admits origin=Dagric, and a Package-Blacklist holds those
+# three back by name. That file is a conffile of dagric-security-policy, so this
+# split can itself be corrected by an update — which is the whole reason it
+# stopped being written by 0300-hardening.hook.chroot.
+#
+# This paragraph used to say that nothing from Origin: Dagric ever installs
+# itself. That stopped being true the day the baseline was allowed through, and
+# it is the sentence an owner reads to learn what this channel does — so if the
+# policy changes again, change it here in the same commit.
 deb [signed-by=/usr/share/keyrings/dagric.gpg] https://dagric-os.web.app/repo trixie main

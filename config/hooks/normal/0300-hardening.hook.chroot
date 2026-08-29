@@ -36,20 +36,60 @@ UUCONF=/etc/apt/apt.conf.d/52dagric-unattended
 # this tree has shipped that exact bug before, where a quoted backslash turned a
 # command into a URL-encoded config KEY. apt-config is the only witness that
 # counts.
-_uu_origins=$(apt-config -c "$UUCONF" dump 2>/dev/null | grep -c 'Origins-Pattern::')
-_uu_deny=$(apt-config -c "$UUCONF" dump 2>/dev/null | grep -c 'Package-Blacklist::')
-if [ "$_uu_origins" -lt 5 ] || [ "$_uu_deny" -lt 3 ]; then
-    echo "0300: $UUCONF does not parse as expected." >&2
-    echo "      apt sees $_uu_origins origin patterns (want 5) and" >&2
-    echo "      $_uu_deny blacklist entries (want 3)." >&2
-    exit 1
-fi
-apt-config -c "$UUCONF" dump 2>/dev/null | grep -q 'origin=Dagric' || {
-    echo "0300: the Dagric origin is missing from Origins-Pattern — the" >&2
-    echo "      security baseline would never install itself." >&2
+#
+# EACH VALUE IS NAMED, BECAUSE COUNTING DOES NOT WORK HERE. The first version of
+# this assertion counted `Origins-Pattern::` lines and required at least five.
+# That was measurably wrong in two compounding ways: `apt-config -c FILE` reads
+# /etc/apt/apt.conf.d FIRST and then the named file again, so this file is
+# counted TWICE, and stock 50unattended-upgrades contributes its own patterns on
+# top. Measured in a trixie container: a file declaring 5 origins reported 12.
+#
+# The consequence was the exact failure the file's own "CRITICAL — do not
+# remove" comment is about. Deleting all four Debian security origins — a
+# machine that installs NO security updates — left a file declaring one origin,
+# which still measured 8 and sailed past a >= 5 threshold. The guard certified
+# the one thing it existed to prevent.
+#
+# Naming the values is immune to both problems: extra entries from anywhere else
+# cannot satisfy a specific string, and removing any single one is caught. It
+# also still catches the parse-not-read class, because a mangled key does not
+# appear under Unattended-Upgrade::Origins-Pattern:: at all.
+#
+# Pointing Dir::Etc::parts at an empty directory does NOT isolate the read —
+# measured, still 12 — so do not "simplify" this back to counting.
+_uu_dump=$(apt-config -c "$UUCONF" dump 2>/dev/null) || {
+    echo "0300: apt cannot parse $UUCONF at all." >&2
     exit 1
 }
-echo "unattended-upgrades: $_uu_origins origins, $_uu_deny held back, Dagric origin present"
+_uu_missing=""
+for _want in \
+    'origin=Debian,codename=trixie,label=Debian' \
+    'origin=Debian,codename=trixie,label=Debian-Security' \
+    'origin=Debian,codename=trixie-security,label=Debian-Security' \
+    'origin=Debian,codename=trixie-updates,label=Debian' \
+    'origin=Dagric,codename=trixie,label=Dagric OS'
+do
+    printf '%s\n' "$_uu_dump" \
+      | grep -qF "Unattended-Upgrade::Origins-Pattern:: \"$_want\"" \
+      || _uu_missing="$_uu_missing
+    $_want"
+done
+for _want in '^dagric-tools$' '^dagric-branding$' '^dagric-desktop-defaults$'; do
+    printf '%s\n' "$_uu_dump" \
+      | grep -qF "Unattended-Upgrade::Package-Blacklist:: \"$_want\"" \
+      || _uu_missing="$_uu_missing
+    (held back) $_want"
+done
+if [ -n "$_uu_missing" ]; then
+    echo "0300: apt does not see these entries from $UUCONF:$_uu_missing" >&2
+    echo "" >&2
+    echo "  A missing Debian origin means this machine installs no security" >&2
+    echo "  updates. A missing Dagric origin means the security baseline never" >&2
+    echo "  updates itself. A missing held-back entry means a package that" >&2
+    echo "  changes how the desktop looks installs itself without being asked." >&2
+    exit 1
+fi
+echo "unattended-upgrades: all 5 origins and all 3 held-back entries verified by name"
 
 # Firewall on by default
 systemctl enable firewalld.service 2>/dev/null || true

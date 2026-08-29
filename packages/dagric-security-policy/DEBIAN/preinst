@@ -1,0 +1,73 @@
+#!/bin/sh
+# Dagric OS — take over two apt policy files that already exist, unowned, on
+# every machine in the field, WITHOUT hitting dpkg's conffile prompt.
+#
+# WHY THIS IS NEEDED. 52dagric-unattended and 99dagric-app-names used to be
+# written into the image by config/hooks/normal/0300-hardening.hook.chroot and
+# by includes.chroot, so on every machine ever sold they sit in
+# /etc/apt/apt.conf.d owned by NO package. This version claims both as conffiles
+# so a mistake in the update policy can itself be corrected by an update.
+#
+# dpkg does not treat that as a quiet handover. When a package introduces a
+# conffile at a path where an unowned file already exists with different
+# content, dpkg asks:
+#
+#     Configuration file '/etc/apt/apt.conf.d/52dagric-unattended'
+#      ==> File on system created by you or by a script.
+#      ==> File also in package provided by package maintainer.
+#     *** 52dagric-unattended (Y/I/N/O/D/Z) [default=N] ?
+#
+# and under unattended-upgrades, Discover, or any other noninteractive apt there
+# is no stdin to answer it, so dpkg fails the package outright:
+#
+#     dpkg: error processing package dagric-security-policy (--install):
+#      end of file on stdin at conffile prompt
+#
+# Reproduced with real dpkg against a root prepared to look like a sold machine.
+# That is the SAME defect this same release fixes for Pro's
+# /etc/skel/.config/kdeglobals, and it would have arrived through the one channel
+# that exists to fix things — on the package whose whole purpose is to carry the
+# security baseline.
+#
+# THE FIX, and why it is a move rather than a delete. The packaged copy is the
+# authoritative one: it is byte-identical to what includes.chroot ships, and the
+# hook that used to write these no longer does. So the on-disk copy is
+# superseded, and removing it lets dpkg install the conffile with no prompt and
+# no question. But it is still the owner's file — an administrator may have
+# edited it — so it is MOVED to .dpkg-old rather than deleted, which is the same
+# name and the same promise dpkg itself uses.
+#
+# Only ever touches a file dpkg does not already know about. If a previous
+# version of this package already owns the path, dpkg-query finds it and this
+# does nothing, so the normal conffile rules apply from then on and an owner's
+# edits are protected exactly as they should be.
+set -e
+
+TAKEOVER='/etc/apt/apt.conf.d/52dagric-unattended /etc/apt/apt.conf.d/99dagric-app-names'
+
+case "$1" in
+install|upgrade)
+    for f in $TAKEOVER; do
+        [ -e "$f" ] || continue
+        # Owned by something already? Then dpkg is managing it and we must not
+        # interfere. dpkg-query exits non-zero when no package owns the path.
+        if dpkg-query -S "$f" >/dev/null 2>&1; then
+            continue
+        fi
+        # Unowned. Move it aside so the conffile installs cleanly.
+        if mv "$f" "$f.dpkg-old" 2>/dev/null; then
+            echo "dagric-security-policy: $f was not owned by any package;" >&2
+            echo "  saved your copy as $f.dpkg-old and installing the packaged one." >&2
+        else
+            # Could not move it. Say so loudly rather than letting the install
+            # hit a conffile prompt with no stdin and fail with a message that
+            # explains nothing.
+            echo "dagric-security-policy: could not move $f aside." >&2
+            echo "  The install is about to hit a conffile prompt. Move or delete" >&2
+            echo "  that file by hand, then re-run the upgrade." >&2
+        fi
+    done
+    ;;
+esac
+
+exit 0

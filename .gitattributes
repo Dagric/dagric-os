@@ -218,3 +218,19 @@ site/dagric-signing-key.asc -text
 # The dearmored repo keyring apt verifies against. Binary; the text filter
 # would rewrite its bytes and apt would reject every signature it makes.
 *.gpg binary
+
+# COMPILED TRANSLATION CATALOGUES. Exactly the same trap as the .jpg above, and
+# it was already armed: the eleven Qt catalogues added for the login screen and
+# the installer slideshow sit under directory rules that declare them
+# `text eol=lf`, so `git check-attr` reported text:set on every one. A .qm is a
+# binary blob with a magic header and byte offsets — collapse one CRLF pair
+# inside it and QTranslator::load() refuses the file, which reverts the login
+# screen and the installer to English in five languages with nothing in any log.
+#
+# Not corrupt today only because no current .qm happens to contain a 0x0D 0x0A
+# pair. That is luck, and it expires the next time anyone regenerates them.
+#
+# The gettext .mo files already have their own rule further up (line ~207) and
+# were never at risk. The .qm had nothing, which is the whole point: relying on
+# a directory rule to protect a binary format is what left them exposed.
+*.qm binary

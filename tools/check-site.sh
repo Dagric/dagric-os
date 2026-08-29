@@ -93,29 +93,59 @@ if command -v git >/dev/null 2>&1 && [ -d .git ]; then
 fi
 
 # ------------------------------------------------------------- internal links
-# Every href="/..." must resolve to something that will exist on the deployed
+# Every href="/..." must resolve to something that will exist on the DEPLOYED
 # site. cleanUrls is on, so /foo is served by foo.html.
-for f in $DEPLOYED; do
-    grep -o 'href="/[^"#?]*"' "$f" 2>/dev/null | sed 's/href="//; s/"$//' | sort -u |
-    while IFS= read -r href; do
-        [ -n "$href" ] || continue
-        case "$href" in
-            /) continue ;;
-            */) continue ;;
-        esac
-        _t="site$href"
-        [ -e "$_t" ] && continue
-        [ -e "$_t.html" ] && continue
-        # A path that is ignored from the deploy is a broken link even though the
-        # file exists locally — that is exactly the family.html case.
-        if [ -e "site$href.html" ] || [ -e "$_t" ]; then continue; fi
-        echo "check-site: $f links to $href, which will not exist on the deployed site" >&2
-        echo "BROKEN" >> /tmp/check-site-broken
-    done
-done
-if [ -f /tmp/check-site-broken ]; then
+#
+# "EXISTS ON DISK" IS THE WRONG TEST, AND THIS FILE MADE IT ANYWAY. The first
+# version resolved each link against the local filesystem and never consulted
+# is_ignored — the very function twenty lines above that decides what actually
+# gets uploaded. So a deployed page linking to /family passed, because
+# site/family.html exists here, even though firebase.json excludes it from the
+# upload and the link would 404 for every visitor. That is precisely the case
+# this gate was written for, and the comment at this spot used to claim it was
+# handled. Proven with a replica tree: one page whose only link was /family,
+# exit 0, "no placeholders, no tunnels, links and sitemap agree."
+#
+# The sentinel also moved out of /tmp. A fixed world-writable path is not a
+# safe place to signal failure from — a stale file from an interrupted run
+# failed the next one for no reason, and anyone on the machine could create it.
+# The count comes back through the subshell's stdout instead, which needs no
+# file at all.
+_broken=$(
+    for f in $DEPLOYED; do
+        grep -o 'href="/[^"#?]*"' "$f" 2>/dev/null | sed 's/href="//; s/"$//' | sort -u |
+        while IFS= read -r href; do
+            [ -n "$href" ] || continue
+            case "$href" in
+                /) continue ;;
+                */) continue ;;
+            esac
+            # Does a local file back this link at all?
+            _target=""
+            [ -e "site$href" ]      && _target="site$href"
+            [ -e "site$href.html" ] && _target="site$href.html"
+            if [ -z "$_target" ]; then
+                echo "check-site: $f links to $href — nothing backs it" >&2
+                echo x
+                continue
+            fi
+            # It exists here. Will it be UPLOADED? A file firebase.json ignores
+            # is a broken link on the deployed site however present it is locally.
+            if is_ignored "$_target"; then
+                echo "check-site: $f links to $href, but $_target is in firebase.json's" >&2
+                echo "  ignore list, so that link will 404 on the deployed site" >&2
+                echo x
+            fi
+        done
+    done | grep -c x || true
+)
+# `|| true` is load-bearing: grep -c exits 1 when the count is ZERO, this file
+# runs under set -e, and a command substitution that exits non-zero aborts the
+# script. Without it the gate died silently on a CLEAN site — exit 1, no output,
+# no explanation — which is the worst possible behaviour for a release gate and
+# is the same grep -c trap this repo has now hit three times.
+if [ "${_broken:-0}" -gt 0 ]; then
     FAIL=1
-    rm -f /tmp/check-site-broken
 fi
 
 # ------------------------------------------------------------------- sitemap

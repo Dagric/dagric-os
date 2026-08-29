@@ -45,12 +45,34 @@ DEFAULT_PRIORITY = '0.5'
 GUIDE_MARK = re.compile(r'guide', re.I)
 
 
+class GitUnavailable(Exception):
+    """git itself could not be run — as distinct from git returning nothing."""
+
+
 def sh(args):
+    """Run a git command. Raises GitUnavailable if git cannot run at all.
+
+    THE DISTINCTION MATTERS AND THIS USED TO SWALLOW IT. The old version caught
+    every exception and returned '', so git_date() returned None, so main()
+    skipped the entry -- and `--check` printed "all lastmod values match git"
+    having compared nothing. Proven with a `git` stub returning 127 on PATH:
+    exit 0, 23 entries, zero comparisons. A tree exported without .git, or a
+    machine without git installed, got a green report from a check that had not
+    run. That is this repo's own false-success bug class, in the tool written to
+    replace a manual step precisely because manual steps drift.
+
+    A command that runs and legitimately produces no output (a file with no
+    commits yet) still returns '' -- that case is real and is handled by the
+    caller. Only an inability to run git at all raises.
+    """
     try:
         return subprocess.check_output(args, cwd=ROOT,
                                        stderr=subprocess.DEVNULL).decode().strip()
-    except Exception:
+    except subprocess.CalledProcessError:
+        # git ran and said no. Legitimate: an uncommitted file has no date.
         return ''
+    except (OSError, FileNotFoundError) as e:
+        raise GitUnavailable(str(e))
 
 
 def git_date(relpath):
@@ -106,6 +128,19 @@ URL_RE = re.compile(
 
 def main():
     check = '--check' in sys.argv
+
+    # Prove git works BEFORE reporting on anything it was supposed to tell us.
+    # Without this the tool cannot distinguish "everything matches" from "I
+    # could not look", and it reported the former for the latter.
+    try:
+        if not sh(['git', 'rev-parse', '--git-dir']):
+            raise GitUnavailable('not a git repository')
+    except GitUnavailable as e:
+        print('sitemap: cannot run git (%s).' % e, file=sys.stderr)
+        print('  lastmod values come from git and cannot be checked without it.',
+              file=sys.stderr)
+        return 2
+
     s = io.open(SITEMAP, encoding='utf-8', newline='').read()
 
     existing = {}

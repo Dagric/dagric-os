@@ -133,20 +133,50 @@ Verify enrollment worked:
 apt-cache policy dagric-tools     # should show the dagric-os.web.app origin
 ```
 
-## A published fix is not a silent fix
+## One published fix is silent; the other three are not
 
-`0300-hardening.hook.chroot` allows unattended-upgrades to install from four
-Debian origins. **`Origin: Dagric` is not among them**, and that is the current
-behaviour whether or not it was intended: publishing a new `dagric-tools` does
-not silently push it to machines. Owners see it in Discover (the PackageKit
-backend and the packagekit daemon both ship, so APT updates do surface) and
-install it with a click.
+**This section said the opposite until 2026-08-29.** It stated that
+`Origin: Dagric` was in no origin pattern and that no Dagric package ever
+installed itself. That is no longer true, and this is the runbook an operator
+reads before changing the policy — so it is worth being exact.
 
-If the intent is that a shipped bug can be fixed without the owner noticing,
-add `"origin=Dagric,label=Dagric OS";` to that hook's `Origins-Pattern`. If the
-intent is that changes to the owner's own tools are always consented to, leave
-it — but do not assume "security updates land silently" covers Dagric's own
-packages, because it does not.
+The policy lives in **`config/includes.chroot/etc/apt/apt.conf.d/52dagric-unattended`**,
+which is a **conffile of `dagric-security-policy`**. It is no longer written by
+`0300-hardening.hook.chroot`; that hook now only asserts it (by name, entry by
+entry — see below). Editing the hook to change the policy does nothing.
+
+| Package | Behaviour | Why |
+|---|---|---|
+| `dagric-security-policy` | **installs itself** | Kernel hardening sysctls and the APT policy. Its own description promises the baseline "can evolve via updates", which was untrue while nothing matched it. |
+| `dagric-tools` | waits for a click | The wizard, Hub, manual, helpers — the owner's own tools. |
+| `dagric-branding` | waits for a click | Wallpapers, login theme, splash. |
+| `dagric-desktop-defaults` | waits for a click | Desktop and browser defaults. |
+
+`Origins-Pattern` admits `origin=Dagric,codename=trixie,label=Dagric OS`; a
+`Package-Blacklist` holds the other three back **by name**. The blacklist is the
+only thing keeping them click-to-install — remove an entry and that package
+starts installing itself silently.
+
+**The origin string must match the published `Release` byte for byte.** Verified
+2026-08-29 against the live channel: `Origin: Dagric`, `Label: Dagric OS`,
+`Codename: trixie`. A mismatch does not error anywhere — the pattern simply
+never matches and the baseline silently stops updating itself.
+
+`0300-hardening.hook.chroot` asserts every one of the five origins and all three
+held-back entries **by exact value**. It used to count them instead, and that
+was measurably useless: `apt-config -c FILE` re-reads `/etc/apt/apt.conf.d`, so
+the file was counted twice, and stock `50unattended-upgrades` added more on top —
+a file with all four Debian security origins deleted still measured 8 and passed
+a `>= 5` threshold. Do not turn it back into a count.
+
+**Taking over a file that already exists.** `52dagric-unattended` and
+`99dagric-app-names` shipped for months via `includes.chroot`, unowned by any
+package, so every machine in the field has them on disk. A package that newly
+claims such a path as a conffile makes dpkg prompt — and under
+unattended-upgrades there is no stdin, so the upgrade **fails** with
+`end of file on stdin at conffile prompt`. `dagric-security-policy`'s `preinst`
+moves any unowned copy to `.dpkg-old` first. If you ever promote another
+hook-written file to a conffile, add it to that list in the same commit.
 
 ## Release checklist
 

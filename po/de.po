@@ -84,7 +84,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: dagric 1.0\n"
 "Report-Msgid-Bugs-To: repo@dagric.com\n"
-"POT-Creation-Date: 2026-08-29 13:02-0500\n"
+"POT-Creation-Date: 2026-08-29 15:29-0500\n"
 "PO-Revision-Date: 2026-08-04 01:00+0000\n"
 "Last-Translator: Machine translation, reviewed by a second model "
 "<repo@dagric.com>\n"
@@ -1373,11 +1373,12 @@ msgstr ""
 "Anmeldeseite des Netzwerks oder ein Netzwerkfilter geantwortet.\n"
 "Versuchen Sie es über eine andere Verbindung erneut."
 
-#. TRANSLATORS: %s is a long hexadecimal checksum. Single quotes around the
-#. msgid are MANDATORY — with double quotes the shell expands the variable
+#. TRANSLATORS: $OLLAMA_SUM is a long hexadecimal checksum and $OLLAMA_LOG is
+#. a file path — leave both exactly as they are. Single quotes around the
+#. msgid are MANDATORY — with double quotes the shell expands the variables
 #. before gettext looks the string up, the lookup misses, and the message
 #. comes out in English with no warning.
-#: config/includes.chroot/usr/bin/dagric-ai:105
+#: config/includes.chroot/usr/bin/dagric-ai:124
 #, sh-format
 msgid ""
 "About to run Ollama's installer, downloaded just now from\n"
@@ -1385,23 +1386,23 @@ msgid ""
 "\n"
 "  $OLLAMA_SUM\n"
 "\n"
-"That is recorded in /var/lib/dagric/ollama-install.log so you can check\n"
-"later exactly what this computer ran."
+"It will be recorded in $OLLAMA_LOG so you can check later exactly what this\n"
+"computer ran."
 msgstr ""
 "Ollamas Installationsprogramm wird jetzt ausgeführt, soeben von\n"
 "ollama.com heruntergeladen. Seine Prüfsumme lautet:\n"
 "\n"
 "  $OLLAMA_SUM\n"
 "\n"
-"Sie ist in /var/lib/dagric/ollama-install.log festgehalten, damit Sie\n"
-"später genau nachsehen können, was dieser Computer ausgeführt hat."
+"Sie wird in $OLLAMA_LOG festgehalten, damit Sie später genau nachsehen\n"
+"können, was dieser Computer ausgeführt hat."
 
 #. TRANSLATORS: "ollama run llama3.2" is a command typed verbatim.
-#: config/includes.chroot/usr/bin/dagric-ai:123
+#: config/includes.chroot/usr/bin/dagric-ai:149
 msgid "Done. Try:  ollama run llama3.2"
 msgstr "Fertig. Probieren Sie:  ollama run llama3.2"
 
-#: config/includes.chroot/usr/bin/dagric-ai:127
+#: config/includes.chroot/usr/bin/dagric-ai:153
 msgid ""
 "The Ollama installer did not finish. It may be partly installed — the "
 "removal commands shown above will clear whatever landed."
@@ -1410,7 +1411,7 @@ msgstr ""
 "möglicherweise teilweise installiert — die oben gezeigten Befehle zum "
 "Entfernen entfernen alles, was installiert wurde."
 
-#: config/includes.chroot/usr/bin/dagric-ai:131
+#: config/includes.chroot/usr/bin/dagric-ai:157
 #: config/includes.chroot/usr/bin/dagric-drivers:270
 #: config/includes.chroot/usr/bin/dagric-gaming:62
 #: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:383
