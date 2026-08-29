@@ -42,6 +42,16 @@ if [ -w /etc/apt/sources.list.d ]; then
     cat > /etc/apt/sources.list.d/dagric-pkgcheck.list <<'EOF'
 deb http://deb.debian.org/debian trixie main contrib non-free non-free-firmware
 EOF
+    # REMOVED ON EVERY EXIT PATH, NOT JUST THE HAPPY ONE.
+    #
+    # The cleanup used to live near the end of the script, which is fine in the
+    # disposable builder container this was written for — and wrong on the WSL
+    # host, where `sudo ./build.sh` runs it against the developer's real apt
+    # config. Both Pro-drift failures below exit 1 before reaching it, so a
+    # single failed pre-flight check left a Dagric-written trixie source
+    # permanently enabled on the machine that runs the builds.
+    trap 'rm -f /etc/apt/sources.list.d/dagric-pkgcheck.list' EXIT
+    trap 'rm -f /etc/apt/sources.list.d/dagric-pkgcheck.list; exit 130' INT TERM HUP
 else
     echo "pkgcheck: cannot add archive areas (not root?) — contrib/non-free may look missing"
 fi
@@ -58,6 +68,24 @@ fi
 # Full-line comments only: an inline "# foo" would make the whole line a bogus
 # package name, which is the rule the list files are written to and the reason
 # they carry their comments ABOVE each entry.
+#
+# AND THE RULE IS NOW ENFORCED, NOT JUST DOCUMENTED. apps.list.chroot says
+# "check-package-names.sh now rejects both" (percent signs and inline comments),
+# but the sed below STRIPS inline comments instead of rejecting them — so
+# `gawk  # GNU awk` sailed through this five-second gate and then killed the
+# real build twenty minutes later, which is precisely the failure this tool
+# exists to convert into a fast error. Matches a # that has content before it,
+# so the leading-# comment lines the files are full of are untouched.
+_inline=$(grep -Hn '^[^#]*[^[:space:]#][[:space:]]*#' "$LISTS"/*.list.chroot || true)
+if [ -n "$_inline" ]; then
+    echo "pkgcheck: inline comments in a package list." >&2
+    printf '%s\n' "$_inline" | sed 's/^/    /' >&2
+    echo "  live-build reads the whole line as a package name. Put the comment" >&2
+    echo "  on its own line above the entry, as every other entry does." >&2
+    exit 1
+fi
+unset _inline
+
 NAMES=$(cat "$LISTS"/*.list.chroot | sed -e 's/#.*//' -e 's/[[:space:]]*$//' \
         | grep -v '^$' | sort -u)
 

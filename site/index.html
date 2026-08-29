@@ -44,6 +44,16 @@ main{max-width:none;margin:0;padding:0}
    left and square, it reads as a masthead device instead of a splash. */
 .hero .logo{width:44px;height:44px;margin:0 0 var(--s-5);border-radius:2px}
 
+/* THE CAPTURE NOW SITS ABOVE THE BUTTON ROW, so a reader sees the desktop
+   before being asked to download it. site.css's `.shot,.strip` carries a top
+   margin and no bottom one — correct while this was the last element in the
+   header, and 0px of gap the moment a flex button row follows it. This puts
+   the same --s-6 back underneath. (0,2,0) beats `.shot,.strip` at (0,1,0), so
+   it wins without !important and without touching the shared component.
+   Above it, the lead's --s-5 bottom and the frame's --s-6 top collapse to
+   --s-6, so the frame sits in equal air on both sides. */
+.hero .shot{margin-bottom:var(--s-6)}
+
 /* The five verified one-line claims were a grey inline row that read as
    decoration. Five ruled cells read as a standfirst — five separate things,
    each of which somebody checked. No new copy: these are the strings that were
@@ -177,12 +187,19 @@ main{max-width:none;margin:0;padding:0}
   <p class="lead">The PC Windows 10 left behind, fast again — and quiet. No telemetry, no ads,
   no accounts, no nagging, and it never restarts itself. Your files come with you, your Word and
   Excel documents still open, and you own it outright.</p>
-  <div class="btns">
-    <a class="btn primary lg" href="/download">Download Dagric OS — free</a>
-    <a class="btn ghost lg" href="/pro">Get Dagric Pro · $39</a>
-  </div>
-  <p class="refund">Pro is a one-time $39 · 14-day, no-questions refund</p>
-  <p class="tiny">Built on Debian 13 · KDE Plasma · GPG-signed releases · free updates · <em>dagr</em> (day) + <em>ric</em> (ruler)</p>
+  <!-- PROOF BEFORE THE ASK. The button row and the price used to stand here,
+       between the lead and the screenshot, so the order of the hero was:
+       claim, ask for money, then show the product. A visitor who has never
+       heard of this project was being asked to commit to a 2 GB download
+       before being shown one frame of what it looks like — and the single
+       question they arrived with, "will this feel familiar?", was answered
+       below the fold on a phone.
+       The frame moves ahead of the buttons rather than the buttons moving
+       down: the capture is the evidence for the sentence directly above it,
+       and evidence belongs beside its claim. Nothing is removed — the same
+       three elements follow the picture in the same order, so anyone who has
+       already decided still reaches the button in one scroll.
+       The comment block below is kept with the screenshot it explains. -->
   <!-- THE 820px OF WALLPAPER THAT USED TO SIT HERE IS GONE, AND THIS IS THE
        ONE CHANGE ON THIS PAGE THAT WAS MEASURED RATHER THAN ARGUED.
 
@@ -242,6 +259,16 @@ main{max-width:none;margin:0;padding:0}
            width="1280" height="800" loading="lazy" decoding="async">
     </picture>
   </div>
+  <div class="btns">
+    <a class="btn primary lg" href="/download">Download Dagric OS — free</a>
+    <a class="btn ghost lg" href="/pro">Get Dagric Pro · $39</a>
+  </div>
+  <p class="refund">Pro is a one-time $39 · 14-day, no-questions refund</p>
+  <!-- "GPG-signed releases" was a claim with nowhere to go and check it. The
+       link is set beside that claim rather than at the end of the line, where
+       the word-origin note would have sat between the assertion and its
+       evidence. -->
+  <p class="tiny">Built on Debian 13 · KDE Plasma · GPG-signed releases · <a href="/security">how we sign releases</a> · free updates · <em>dagr</em> (day) + <em>ric</em> (ruler)</p>
 
 </header>
 
@@ -353,7 +380,21 @@ main{max-width:none;margin:0;padding:0}
         <div class="call"><div><h3>Undo anything</h3><p>Automatic snapshots before every update. If anything goes sideways, roll the whole system back from the boot menu.</p></div></div>
         <div class="call"><div><h3>Updates, your way</h3><p>Security patches install silently. The computer <em>never</em> restarts itself — you reboot when it suits you.</p></div></div>
         <div class="call"><div><h3>The Dagric Hub</h3><p>Drivers, security checkup, the layout switcher, the guide, and every owner tool — gathered in one friendly window.</p></div></div>
-        <div class="call"><div><h3>Everything just works</h3><p>Printers, scanners, Wi-Fi, Bluetooth, NTFS drives, Print-to-PDF, media codecs, streaming — working from the first minute.</p></div></div>
+        <!-- "Everything just works" promised universal hardware coverage that
+             no distribution can honour, and this site already says so in its
+             own words one page over: /download opens that section with "A spec
+             list can't tell you whether your Wi-Fi card has a driver." A
+             homepage claiming everything works and a download page explaining
+             why it might not is a contradiction the reader finds at the worst
+             moment — after the download, on their own machine.
+             The list of things is unchanged, because that part is true: those
+             are configured in the image. What changed is the scope. The claim
+             is now about the image, which we control, and the question about
+             any particular machine is handed to the tool that actually answers
+             it. Check This PC ships on the live USB beside the installer for
+             exactly this reason and is the strongest risk-reversal this
+             product has. -->
+        <div class="call"><div><h3>Set up before you get there</h3><p>Printers, scanners, Wi-Fi, Bluetooth, NTFS drives, Print-to-PDF, media codecs and streaming are configured in the image, not left for you to wire up. Whether they work on <em>your</em> particular machine is a different question — <strong>Check This PC</strong> on the live USB <a href="/download">answers it before you install</a>.</p></div></div>
         <div class="call"><div><h3>For everyone</h3><p>A talking screen reader you can boot straight from the USB stick, a measured high-contrast theme, and fingerprint login. The <a href="/accessibility">conformance report</a> states the gaps as plainly as the features.</p></div></div>
       </div>
     </div>
@@ -636,7 +677,7 @@ main{max-width:none;margin:0;padding:0}
 
 <footer><div class="foot">
   <span>© 2026 DGR Operations · Dagric OS™ · Built on Debian. Not affiliated with the Debian Project.</span>
-  <span class="links"><a href="/features">Features</a><a href="/pro">Pro</a><a href="/download">Download</a><a href="/news">News</a><a href="/guide">Guide</a><a href="/support">Support</a><a href="/faq">FAQ</a><a href="/accessibility">Accessibility</a><a href="/bugs">Report a bug</a><a href="/contact">Contact</a><a href="/about">About</a><a href="/licenses">Licenses</a><a href="/privacy">Privacy</a><a href="/terms">Terms</a></span>
+  <span class="links"><a href="/features">Features</a><a href="/pro">Pro</a><a href="/download">Download</a><a href="/news">News</a><a href="/guide">Guide</a><a href="/support">Support</a><a href="/faq">FAQ</a><a href="/accessibility">Accessibility</a><a href="/security">Security</a><a href="/bugs">Report a bug</a><a href="/contact">Contact</a><a href="/about">About</a><a href="/review">Reviewers</a><a href="/licenses">Licenses</a><a href="/privacy">Privacy</a><a href="/terms">Terms</a></span>
 </div></footer>
 
 <script type="application/ld+json">

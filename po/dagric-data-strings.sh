@@ -8,9 +8,10 @@
 #
 # Regenerate with:  sh tools/i18n-extract.sh
 
-# TRANSLATORS: the setup wizard's own buttons, headings and step names.
-# This is the first screen a new owner sees. Keep button labels short;
-# they sit in fixed-width buttons beside each other.
+# TRANSLATORS: the setup wizard's own buttons, headings and labels.
+# Keep button labels short; they sit in fixed-width buttons beside
+# each other. %1 and %2 are values substituted at runtime and may be
+# reordered to suit the language.
 gettext "Set Up Dagric"
 gettext "Every step can be skipped, and you can change all of it later."
 gettext "I'll do this later"
@@ -133,6 +134,39 @@ gettext "Selected — starts when you press Finish."
 gettext "Selected"
 gettext "This is the live trial: anything you add now lives in memory, disappears at shutdown, and can make a machine with little RAM unstable. Install Dagric first to keep it."
 gettext "Nothing here is a subscription, and everything can be removed later from the Software Store."
+
+# TRANSLATORS: the Family Limits window's own buttons, headings and labels.
+# Keep button labels short; they sit in fixed-width buttons beside
+# each other. %1 and %2 are values substituted at runtime and may be
+# reordered to suit the language.
+gettext "Family Limits"
+gettext "Set how long someone can use this computer each day, and the hours when it locks itself. Their files and their account are not touched."
+gettext "Person:"
+gettext "Person to set limits for"
+gettext "This is the only administrator account on this computer. Limits cannot be set on it, because there would be no way back in. Create a second administrator account first."
+gettext "This person has not signed in yet, so there is nothing to change. Ask them to sign in once, then come back."
+gettext "Limit this person's screen time"
+gettext "Time allowed each day"
+gettext "Time allowed each day: %1"
+gettext "Bedtime: none — the computer never locks by the clock"
+gettext "The computer locks from %1 to %2"
+gettext "From"
+gettext "until"
+gettext "Bedtime starts at"
+gettext "Bedtime ends at"
+gettext "Set both to the same hour for no bedtime at all."
+gettext "When the time is up:"
+gettext "Lock the screen — nothing is closed, nothing is lost"
+gettext "Sign out — closes everything that is open"
+gettext "Remove all limits"
+gettext "Lets this person use the computer at any time, for as long as they like"
+gettext "Close"
+gettext "Save"
+gettext "Save these limits for %1"
+gettext "%1 minutes"
+gettext "1 hour"
+gettext "%1 hours"
+gettext "%1 h %2 min"
 
 # TRANSLATORS: name of the "classic" taskbar layout in Dagric Looks and the
 # setup wizard. One or two words, shown as the title of a picture tile.

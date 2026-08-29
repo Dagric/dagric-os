@@ -1,0 +1,69 @@
+// Dagric OS — which updates install themselves, and which wait to be asked.
+//
+// THIS FILE IS A CONFFILE OF dagric-security-policy, and that is the point of
+// it living here rather than being written by 0300-hardening.hook.chroot as it
+// used to be. A hook-written file is owned by no package, so the one file that
+// decides whether a Dagric machine installs its own security updates could
+// never be corrected on a machine that was already sold — on the channel whose
+// entire purpose is correcting things. Now a fix to this policy ships like any
+// other fix.
+//
+// 0300-hardening.hook.chroot still ASSERTS it at build time (present, parsed by
+// apt, and carrying the Dagric origin), because a conffile that silently failed
+// to arrive would void the product's central promise just as quietly as the
+// os-release trap described below.
+Unattended-Upgrade::Automatic-Reboot "false";
+Unattended-Upgrade::Remove-Unused-Dependencies "true";
+
+// CRITICAL — do not remove. Stock 50unattended-upgrades matches origins with
+// ${distro_codename}, which unattended-upgrade resolves via lsb_release, i.e.
+// from VERSION_CODENAME in os-release. Hook 0100 rebrands that to "foundation"
+// (and ID to "dagric"), so EVERY stock pattern misses and nothing is ever
+// upgraded — silently voiding the product's central "silent security updates"
+// promise. Origins-Pattern is an apt LIST option, so these entries are
+// APPENDED to the stock ones; the real Debian codename is hardcoded on
+// purpose. Bump these when rebasing onto a newer Debian release.
+Unattended-Upgrade::Origins-Pattern {
+    "origin=Debian,codename=trixie,label=Debian";
+    "origin=Debian,codename=trixie,label=Debian-Security";
+    "origin=Debian,codename=trixie-security,label=Debian-Security";
+    "origin=Debian,codename=trixie-updates,label=Debian";
+    // Dagric's OWN security baseline, and only that package — see the
+    // Package-Blacklist below, which is what keeps this line from turning
+    // the whole Dagric channel into an automatic one.
+    "origin=Dagric,codename=trixie,label=Dagric OS";
+};
+
+// THE DAGRIC ORIGIN IS AUTOMATIC FOR ONE PACKAGE AND CLICK-TO-INSTALL FOR THE
+// REST, WHICH IS WHY THIS LIST EXISTS.
+//
+// Origins-Pattern is the only granularity unattended-upgrades offers, and it
+// matches a whole archive. But the four Dagric packages are not alike:
+//
+//   dagric-security-policy   the kernel hardening sysctls and the APT policy.
+//                            Its own description says it is "versioned so the
+//                            baseline can evolve via updates" — and until now
+//                            nothing in the Dagric origin was ever installed
+//                            automatically, so a hardening regression fixed
+//                            through the channel sat in Discover until the
+//                            owner happened to look. Silence is defensible for
+//                            exactly this class of update, and only this one.
+//
+//   dagric-tools             the wizard, the Hub, the manual, the helpers.
+//   dagric-branding          wallpapers, the login theme, the splash.
+//   dagric-desktop-defaults  the owner's desktop and browser defaults.
+//                            These change what the machine LOOKS LIKE and how
+//                            it BEHAVES. dagric.list's own comment argues the
+//                            owner should consent to those, and that argument
+//                            still holds; it was simply being applied to the
+//                            security baseline as well, by accident of there
+//                            being one origin for all four.
+//
+// So: allow the origin, then blacklist the three. Blacklist entries are
+// regular expressions matched against the package name, anchored here so
+// "dagric-tools" cannot be matched by a future "dagric-toolsomething".
+Unattended-Upgrade::Package-Blacklist {
+    "^dagric-tools$";
+    "^dagric-branding$";
+    "^dagric-desktop-defaults$";
+};

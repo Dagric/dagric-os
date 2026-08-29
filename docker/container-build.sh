@@ -57,6 +57,18 @@ if [ "$EDITION" != "pro" ]; then
         rm -f "$drop" \
             "config/includes.chroot/usr/share/dagric/appearance/thumbs/${base%.*}.png"
     done
+    # OpenSnitch's configuration must not ship on an edition that has no
+    # OpenSnitch. The free image carried /etc/opensnitchd/default-config.json,
+    # fourteen Dagric rule files and the /etc/skel UI preference — while free
+    # installs no opensnitch package and has no opensnitchd binary at all.
+    # Nothing malfunctioned; it is dead weight in an image whose whole pitch is
+    # being leaner, and it misleads in the one direction that matters: somebody
+    # auditing the free edition finds a firewall's config and its rules and
+    # reasonably concludes the firewall is there.
+    rm -rf config/includes.chroot/etc/opensnitchd \
+           config/includes.chroot/etc/skel/.config/opensnitch \
+           config/includes.chroot/etc/systemd/system/opensnitch.service.d \
+           config/includes.chroot/usr/lib/live/config/2020-dagric-opensnitch-live
 fi
 mkdir -p config/includes.chroot/etc
 printf '%s\n' "$EDITION" > config/includes.chroot/etc/dagric-edition
@@ -114,6 +126,33 @@ if command -v python3 >/dev/null 2>&1; then
 else
     echo "i18n: python3 not installed — skipping the .desktop drift check"
 fi
+
+# THE boot=live GATE, WHICH LIVED ONLY IN build.sh.
+#
+# tools/check-package-names.sh's header already warns that these two drivers
+# have drifted before and that a check living in only one of them "silently does
+# not apply to half the builds" — and this is exactly that: build.sh calls the
+# loss of this one word something that "must not be silent", while every Docker
+# and CI build was never checked at all. Losing boot=live puts opensnitchd into
+# the live session, where it can stop a real install at 42% behind a modal
+# prompt whose Deny button counts down.
+#
+# Both flags carry their whole command line in one double-quoted argument on one
+# line, and matching the trailing `"` is what keeps --bootappend-live from also
+# matching --bootappend-live-failsafe.
+for _ba in '--bootappend-live "' '--bootappend-live-failsafe "'; do
+    if ! grep -F -- "$_ba" auto/config | grep -q 'boot=live'; then
+        echo "ERROR: auto/config's $_ba no longer passes boot=live." >&2
+        echo "       The opensnitch drop-in keys off exactly that word, so the" >&2
+        echo "       daemon would run during the install and can interrupt it" >&2
+        echo "       with a prompt that denies on timeout. Either restore" >&2
+        echo "       boot=live or change the Condition in" >&2
+        echo "       config/includes.chroot/etc/systemd/system/" >&2
+        echo "       opensnitch.service.d/10-dagric-not-in-live.conf to match." >&2
+        exit 1
+    fi
+done
+echo "live gate: boot=live present on both boot entries"
 
 lb clean
 lb config
@@ -212,6 +251,28 @@ if [ "$WANT" != "$GOT" ]; then
     exit 1
 fi
 echo "copied $NAME ($GOT bytes, verified)"
+
+# RECORD THE CHECKSUM, which build.sh does and this driver did not.
+#
+# The consequence of the gap is a customer-visible one: a Docker- or CI-built
+# ISO left out/SHA256SUMS describing the PREVIOUS image, so a buyer following
+# download.html's verify steps gets a MISMATCH — which, as build.sh puts it,
+# "reads as a corrupted or tampered download". Same block, same reasoning,
+# /out paths.
+#
+# Deliberately NOT signed here: signing is a release step that needs the key,
+# and a build must never quietly emit something that looks signed.
+SUMS=/out/SHA256SUMS
+[ -f "$SUMS" ] || : > "$SUMS"
+grep -v "  ${NAME}\$" "$SUMS" > "$SUMS.tmp" 2>/dev/null || :
+( cd /out && sha256sum "$NAME" ) >> "$SUMS.tmp"
+LC_ALL=C sort -k2,2 "$SUMS.tmp" -o "$SUMS"
+rm -f "$SUMS.tmp"
+echo "recorded sha256 for $NAME in out/SHA256SUMS"
+echo "NOTE: out/SHA256SUMS has changed. Before deploying the site, copy it to"
+echo "      site/ and RE-SIGN it — site/SHA256SUMS.sig covers the previous"
+echo "      contents and will fail gpg --verify until it is regenerated."
+
 cp -v build.log /out/ 2>/dev/null || true
 echo ""
 echo "=========================================="

@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Security — Dagric OS</title>
+<meta name="description" content="How Dagric OS signs its releases, how to report a vulnerability, and an honest list of what is not yet proven.">
+<link rel="icon" type="image/png" href="/assets/dagric-logo.png">
+<link rel="stylesheet" href="/assets/site.css">
+<link rel="canonical" href="https://dagric.com/security">
+<meta name="theme-color" content="#0C0F14">
+<script src="/assets/theme.js"></script>
+<link rel="icon" href="/favicon.ico" sizes="32x32">
+<link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
+<link rel="manifest" href="/site.webmanifest">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Dagric OS">
+<meta property="og:title" content="Security — Dagric OS">
+<meta property="og:description" content="How Dagric OS signs its releases, how to report a vulnerability, and an honest list of what is not yet proven.">
+<meta property="og:url" content="https://dagric.com/security">
+<meta property="og:image" content="https://dagric.com/assets/hero-desktop.png">
+<meta property="og:image:width" content="1920">
+<meta property="og:image:height" content="1080">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Security — Dagric OS">
+<meta name="twitter:description" content="How Dagric OS signs its releases, how to report a vulnerability, and an honest list of what is not yet proven.">
+<meta name="twitter:image" content="https://dagric.com/assets/hero-desktop.png">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<nav><div class="nav-in">
+  <a class="brand" href="/"><img src="/assets/dagric-logo.png" alt="" width="30" height="30">Dagric&nbsp;OS</a>
+  <div class="nav-links">
+    <a href="/features">Features</a><a href="/pro">Pro</a><a href="/about">About</a>
+    <a href="/guide">Guide</a><a href="/support">Support</a>
+    <a class="cta" href="/download">Download</a>
+  </div>
+</div></nav>
+
+<main id="main">
+  <h1>Security, <span class="grad">stated plainly.</span></h1>
+  <p class="lead">How releases are signed, how to report a problem, and — the part most
+  pages leave out — what we have not yet proved. If you are evaluating Dagric for a
+  machine that matters, read the last section first.</p>
+
+  <h2 id="report">Reporting a vulnerability</h2>
+  <p>Send it through the <a href="/contact">contact form</a> and choose
+  <em>Security</em> as the topic. It reaches a person, not a queue. Please include what
+  you found, how to reproduce it, and the edition and version you were running
+  (<code>cat /etc/os-release</code> on the machine).</p>
+  <p>We will confirm we have it, tell you whether we can reproduce it, and tell you what
+  we intend to do and roughly when. If a fix ships, it goes out through the update
+  channel and is described in the release notes on <a href="/news">News</a>. If you would
+  like credit, say so and you will get it; if you would rather not be named, that is
+  fine too.</p>
+  <p class="note">Please give us a reasonable chance to fix an issue before publishing
+  it. We will not threaten anyone for reporting a problem in good faith, and we will not
+  ask you to sign anything to tell us about one.</p>
+
+  <h2 id="verify">Verifying a release</h2>
+  <p>Every release is signed with the same OpenPGP key. Its fingerprint is:</p>
+  <p class="sums" tabindex="0" role="region" aria-labelledby="verify">3A07 9F85 DE74 375D D655&nbsp;&nbsp;5709 6CE3 7402 BA0A 0EF8</p>
+  <p>Check that fingerprint against this page before you trust an imported key — a
+  signature is only worth as much as your confidence that the key is ours. The same key
+  signs the checksums for the disc images and the
+  <a href="/repo/dagric-repo.gpg.asc">update channel</a>.</p>
+  <pre tabindex="0" role="region" aria-labelledby="verify"><code>gpg --import dagric-signing-key.asc
+gpg --fingerprint 3A079F85DE74375DD65557096CE37402BA0A0EF8
+gpg --verify SHA256SUMS.sig SHA256SUMS
+sha256sum -c SHA256SUMS</code></pre>
+  <p>Files: <a href="/SHA256SUMS">SHA256SUMS</a> ·
+  <a href="/SHA256SUMS.sig">SHA256SUMS.sig</a> ·
+  <a href="/dagric-signing-key.asc">signing key</a>. The full instructions, including the
+  Windows path, are on the <a href="/download">download page</a>.</p>
+
+  <h2 id="updates">How security updates reach your machine</h2>
+  <p>Debian's security updates are downloaded and installed automatically, in the
+  background, on a daily timer. Nothing restarts your computer to do it. If an update
+  needs a restart to take effect — in practice that means a kernel update — you get one
+  quiet message the next time you sign in, and nothing more.</p>
+  <p>Dagric's own security baseline updates itself the same way. Everything else we
+  publish — the tools, the wallpapers, the desktop defaults — waits for you to click
+  Update in Discover, because those change how your machine looks and behaves and you
+  should be the one to decide when that happens.</p>
+  <p>The update channel is served over HTTPS and every package in it is signed with the
+  key above. Your machine is configured to trust that key for that one repository only,
+  not for anything else it might download.</p>
+
+  <h2 id="limits">What we have not proved</h2>
+  <p>This is a young product. The list below is what we know is unproven or imperfect
+  today. We would rather you read it here than discover it yourself.</p>
+
+  <h3>Not yet tested on real hardware</h3>
+  <p>These ship and are expected to work; they have been exercised in virtual machines,
+  not on physical machines with enforcing firmware:</p>
+  <ul>
+    <li><strong>Secure Boot with enforcing firmware.</strong> The signed shim chain is on
+    the media and boots correctly in UEFI virtual machines. It has not been booted on a
+    retail machine with Secure Boot enforced.</li>
+    <li><strong>Full-disk encryption.</strong> The installer offers it and the components
+    are present. The install-and-reboot path has not been walked end to end, including
+    with a non-US keyboard layout at the passphrase prompt.</li>
+    <li><strong>The screen reader.</strong> Orca is installed and reachable from the live
+    session, and our <a href="/accessibility">accessibility report</a> is a self-assessment.
+    No pass has been made with the mouse unplugged against a live accessibility bus.</li>
+    <li><strong>Wi-Fi and graphics breadth.</strong> There is no published hardware
+    compatibility matrix. <em>Check This PC</em>, on the live USB, is the honest answer
+    for your particular machine — run it before you install.</li>
+  </ul>
+
+  <h3>Known weaknesses</h3>
+  <ul>
+    <li><strong>The application firewall's control socket (Pro).</strong> OpenSnitch, on
+    the Pro edition, uses its upstream default socket location in <code>/tmp</code>. On a
+    computer with more than one ordinary user account, a second local user could occupy
+    that socket before the real interface does, and would then see connection events and
+    answer the prompts the firewall acts on. On a single-owner machine there is no second
+    unprivileged user and this does not arise. We have not changed it yet because both
+    real fixes need per-machine key material or a per-user path, and an unverified change
+    here fails silently in the direction that leaves you with no firewall at all — which
+    is worse. It is on the list, and it needs a test on a booted machine before it moves.</li>
+    <li><strong>Some AppArmor profiles only log.</strong> Dagric installs Debian's
+    <code>apparmor-profiles</code> sets. Most of those profiles enforce; around forty ship
+    from Debian in complain mode, which records a violation rather than blocking it. Most
+    of them cover software this image does not install, so they are inert either way. This
+    is Debian's own packaging default, not a Dagric setting, but "AppArmor is enabled" is
+    worth this footnote.</li>
+    <li><strong>The source repository is not currently public.</strong> Dagric is built on
+    Debian, and the corresponding source for every GPL-licensed package it ships is
+    available — see <a href="/licenses">Licenses</a>, which also explains how to request
+    the source for our own packages. But you cannot currently read our build tree, which
+    means you are taking our description of it on trust. That is a real limitation for
+    anyone doing an independent review.</li>
+    <li><strong>No third-party audit.</strong> Nothing here has been reviewed by an
+    outside security firm. The <a href="/accessibility">accessibility report</a> is a
+    self-assessment and says so, and this page is the same kind of document.</li>
+  </ul>
+
+  <h3>&ldquo;No telemetry&rdquo; does not mean &ldquo;no network&rdquo;</h3>
+  <p>Dagric collects nothing about you and sends nothing about you anywhere. That is a
+  real commitment and we hold to it. It is not the same claim as "this machine never
+  talks to anyone": it checks for updates, it fetches firmware metadata, your browser
+  contacts its own services, and phone pairing announces the computer on your local
+  network so your phone can find it. The
+  <a href="/privacy">privacy page</a> lists every outbound connection the system makes on
+  its own, what each is for, and how to switch it off.</p>
+
+  <h3>What an antivirus scan of the disc image proves</h3>
+  <p>Less than people expect, and it is worth saying so. A Windows antivirus scan of an
+  ISO will read the archive and find no Windows malware, which is a true result and a
+  narrow one: it is not an audit of several thousand Linux packages, and a clean scan is
+  not evidence that every script and binary inside behaves. What actually protects you
+  here is that the contents come from Debian's signed archive, that the image you
+  download is the one we built (verify it, above), and that you can inspect the running
+  system yourself.</p>
+
+  <h2 id="whatelse">If you are evaluating Dagric</h2>
+  <p>Test it in a virtual machine or from the live USB first, on a machine you can afford
+  to reinstall. That is not modesty about this product in particular — it is what anyone
+  should do with any operating system they have not run before, and it is what we would
+  do. The <a href="/review">reviewer's guide</a> sets out how to test it properly and what
+  to look at.</p>
+  <p style="margin-top:32px">
+    <a class="btn primary" href="/download">Download Dagric OS</a>
+    <a class="btn ghost" href="/contact">Report something</a>
+  </p>
+</main>
+
+<footer><div class="foot">
+  <span>© 2026 DGR Operations · Built on Debian. Not affiliated with the Debian Project.</span>
+  <span class="links"><a href="/features">Features</a><a href="/pro">Pro</a><a href="/download">Download</a><a href="/news">News</a><a href="/guide">Guide</a><a href="/support">Support</a><a href="/faq">FAQ</a><a href="/accessibility">Accessibility</a><a href="/security">Security</a><a href="/bugs">Report a bug</a><a href="/contact">Contact</a><a href="/about">About</a><a href="/review">Reviewers</a><a href="/licenses">Licenses</a><a href="/privacy">Privacy</a><a href="/terms">Terms</a></span>
+</div></footer>
+</body>
+</html>

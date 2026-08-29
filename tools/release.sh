@@ -351,10 +351,55 @@ do_publish() {
     [ -f "$OUT/SHA256SUMS" ] && [ -f "$OUT/SHA256SUMS.sig" ] \
         || { echo "release: run 'sign' first" >&2; exit 1; }
     do_check || exit 1
+
+    # THE SITE ITSELF IS PART OF THE RELEASE, and until now nothing looked at it.
+    # This gate refuses a deploy that would publish an unfinished page, a
+    # redirect to somebody's debug tunnel, a broken internal link or a sitemap
+    # that disagrees with what is being uploaded — three of which have actually
+    # reached production or come within one command of it.
+    echo
+    sh tools/check-site.sh || {
+        echo "release: the site is not ready to deploy (see above)." >&2
+        exit 1
+    }
+
     cp "$OUT/SHA256SUMS" "$OUT/SHA256SUMS.sig" "$SITE/"
     echo
     echo "  copied SHA256SUMS and SHA256SUMS.sig into $SITE/"
+
+    # PUBLISH WHAT IS ACTUALLY IN THE IMAGE, so the GPL source offer and the
+    # reviewer's kit both have something concrete to point at.
+    #
+    # site/licenses.html offers corresponding source for every GPL package "matching
+    # the versions we ship", and /review tells a reviewer they can see the package
+    # list — but the only record of which versions those ARE lived in out/manifest,
+    # which is generated per build, gitignored, and published nowhere. Debian's pool
+    # drops superseded versions at every point release, so within months the offer
+    # could not be honoured from the archive alone and nothing had captured the set.
+    #
+    # The ISO already carries the exact list at /live/filesystem.packages. Lifting it
+    # out at publish time costs nothing and makes the offer mechanically honourable
+    # for the GPL's three-year window.
+    if command -v xorriso >/dev/null 2>&1; then
+        mkdir -p "$SITE/manifest"
+        for _e in "" "-pro"; do
+            _iso="$OUT/dagric-os${_e}-1.0-amd64.iso"
+            _dst="$SITE/manifest/dagric-os${_e}-1.0.packages"
+            [ -f "$_iso" ] || continue
+            if xorriso -osirrox on -indev "$_iso" \
+                 -extract /live/filesystem.packages "$_dst" >/dev/null 2>&1; then
+                echo "  manifest: $(wc -l < "$_dst") packages -> $_dst"
+            else
+                echo "  WARNING: could not extract the package manifest from $_iso" >&2
+            fi
+        done
+    else
+        echo "  WARNING: xorriso missing — package manifests NOT refreshed." >&2
+        echo "           /licenses offers source 'matching the versions we ship'." >&2
+    fi
+
     echo "  now: firebase deploy --only hosting"
+    echo "  then: sh packages/build-repo.sh   (the update channel is half the release)"
     echo "  then: sh tools/verify-published.sh   (checks the LIVE site end to end)"
 }
 

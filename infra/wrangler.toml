@@ -89,3 +89,24 @@ main = "contact-worker.js"
 [[env.contact.r2_buckets]]
 binding = "MAIL"
 bucket_name = "dagric-contact"
+
+# RATE LIMITING FOR THE CONTACT ENDPOINT, IN THE REPO RATHER THAN THE DASHBOARD.
+#
+# The rate-limit note further up scopes its WAF rule to dagric-gate only, so this
+# endpoint had no throttle of any kind: no limit, no challenge, and only a
+# honeypot field that anything other than a browser skips. Unlike the gate's
+# rule, this one is declared here — which means it is reviewable, it deploys with
+# the worker, and it cannot be silently absent because somebody forgot a manual
+# step in a console.
+#
+# Five posts per minute per IP. A person filling in a support form sends one; the
+# limit exists to stop a script, not to ration honest use, so it is set well
+# above any real usage rather than tightly. The worker degrades safely if this
+# binding is missing — see the comment at the check itself.
+#
+# namespace_id is a per-account identifier for the limiter, not a secret.
+[[env.contact.unsafe.bindings]]
+name = "RATE_LIMIT"
+type = "ratelimit"
+namespace_id = "1001"
+simple = { limit = 5, period = 60 }

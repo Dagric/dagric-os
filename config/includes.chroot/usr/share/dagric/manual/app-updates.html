@@ -72,11 +72,15 @@
          <code>flatpak update</code> for sandboxed apps. On Pro,
          <code>sudo nala upgrade</code> is the same thing with a much more readable
          display.</p></li>
-        <li><span class="t">Find out whether a restart is worth doing</span><p>Only a kernel update really needs one. Compare what you are running
-         with what is installed: <code>uname -r</code> against
+        <li><span class="t">Find out whether a restart is worth doing</span><p>Only a kernel update really needs one, and Dagric tells you when that
+         happens: if a security update has been installed that takes effect on the
+         next restart, you get <em>one</em> quiet message when you next sign in. It
+         closes on its own, it never counts down, and nothing restarts without you.
+         Ignore it and it simply mentions it again next time you sign in.</p>
+        <p>To check for yourself at any point, compare what you are running with
+         what is installed: <code>uname -r</code> against
          <code>ls /boot/vmlinuz-*</code>. If the newest installed kernel is not the
-         one running, a restart will pick it up whenever suits you. There is no
-         nagging bubble &mdash; you have to ask.</p></li>
+         one running, a restart will pick it up whenever suits you.</p></li>
         <li><span class="t">Update the laptop&#x27;s firmware</span><p>BIOS and device firmware from the manufacturer appear in Discover's
          Updates list alongside software. From a terminal:
          <code>fwupdmgr refresh</code> then <code>fwupdmgr update</code>.</p></li>

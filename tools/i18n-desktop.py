@@ -126,6 +126,31 @@ D['dagric-hub'] = {
         "Un unico posto per driver, configurazione, sicurezza, la guida e gli strumenti creativi Pro",
         "strumenti;configurazione;driver;sicurezza;guida;"),
 }
+# Family Limits. The launcher name must match what the WINDOW calls itself --
+# po/*.po translate the title "Family Limits" and a parent who opens
+# "Familienzeiten" from the menu and lands in a window headed "Familienlimits"
+# has been handed two names for one thing. These are the catalogue's terms:
+# screen time = Bildschirmzeit / tiempo de pantalla / temps d'ecran /
+# tempo di utilizzo / tempo de tela, and bedtime = Schlafenszeit /
+# hora de dormir / heure du coucher / orario di riposo / horario de dormir.
+D['dagric-family'] = {
+ 'de': ("Familienlimits", "Bildschirmzeit und Schlafenszeit",
+        "Tägliche Bildschirmzeit und Schlafenszeit für ein Familienmitglied festlegen",
+        "kindersicherung;kinder;bildschirmzeit;schlafenszeit;familie;limits;"),
+ 'fr': ("Limites familiales", "Temps d'écran et heure du coucher",
+        "Définir le temps d'écran quotidien et l'heure du coucher d'un proche",
+        "contrôle parental;enfants;temps d'écran;heure du coucher;famille;limites;"),
+ 'es': ("Límites familiares", "Tiempo de pantalla y hora de dormir",
+        "Establece el tiempo de pantalla diario y la hora de dormir de un familiar",
+        "control parental;niños;tiempo de pantalla;hora de dormir;familia;límites;"),
+ 'pt_BR': ("Limites da família", "Tempo de tela e horário de dormir",
+        "Defina o tempo de tela diário e o horário de dormir de um familiar",
+        "controle dos pais;crianças;tempo de tela;horário de dormir;família;limites;"),
+ 'it': ("Limiti famiglia", "Tempo di utilizzo e orario di riposo",
+        "Imposta il tempo di utilizzo giornaliero e l'orario di riposo di un familiare",
+        "controllo genitori;bambini;tempo di utilizzo;orario di riposo;famiglia;limiti;"),
+}
+
 D['dagric-firstrun'] = {
  'de': ("Dagric einrichten", "Willkommens- und Einrichtungsassistent",
         "Wählen Sie Farben, Hintergrundbild, Schriftgröße und Taskleiste, und holen Sie Ihre Dateien von Windows herüber",

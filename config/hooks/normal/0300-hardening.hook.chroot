@@ -13,25 +13,43 @@ APT::Periodic::Unattended-Upgrade "1";
 APT::Periodic::AutocleanInterval "7";
 EOF
 
-cat > /etc/apt/apt.conf.d/52dagric-unattended << 'EOF'
-Unattended-Upgrade::Automatic-Reboot "false";
-Unattended-Upgrade::Remove-Unused-Dependencies "true";
-
-// CRITICAL — do not remove. Stock 50unattended-upgrades matches origins with
-// ${distro_codename}, which unattended-upgrade resolves via lsb_release, i.e.
-// from VERSION_CODENAME in os-release. Hook 0100 rebrands that to "foundation"
-// (and ID to "dagric"), so EVERY stock pattern misses and nothing is ever
-// upgraded — silently voiding the product's central "silent security updates"
-// promise. Origins-Pattern is an apt LIST option, so these entries are
-// APPENDED to the stock ones; the real Debian codename is hardcoded on
-// purpose. Bump these when rebasing onto a newer Debian release.
-Unattended-Upgrade::Origins-Pattern {
-    "origin=Debian,codename=trixie,label=Debian";
-    "origin=Debian,codename=trixie,label=Debian-Security";
-    "origin=Debian,codename=trixie-security,label=Debian-Security";
-    "origin=Debian,codename=trixie-updates,label=Debian";
-};
-EOF
+# THE UNATTENDED-UPGRADES POLICY IS A CONFFILE NOW, NOT A HERE-DOC.
+#
+# It used to be written here, which meant the single file deciding whether a
+# Dagric machine installs its own security updates was owned by no package and
+# could never be corrected on a machine already sold. It lives in
+# config/includes.chroot/etc/apt/apt.conf.d/52dagric-unattended and ships inside
+# dagric-security-policy, so a fix to it now travels the update channel like any
+# other fix. Read that file for what the policy is and why.
+#
+# ASSERTED HERE, because a promise this central must not be able to go missing
+# quietly. includes.chroot is copied in before hooks run, so by now it is either
+# there or the image is broken.
+UUCONF=/etc/apt/apt.conf.d/52dagric-unattended
+[ -f "$UUCONF" ] || {
+    echo "0300: $UUCONF is missing from the image." >&2
+    echo "      Silent security updates are this product's central promise and" >&2
+    echo "      nothing would be applying them. Refusing to build." >&2
+    exit 1
+}
+# apt.conf is NOT shell and a file that reads fine can still parse to nothing —
+# this tree has shipped that exact bug before, where a quoted backslash turned a
+# command into a URL-encoded config KEY. apt-config is the only witness that
+# counts.
+_uu_origins=$(apt-config -c "$UUCONF" dump 2>/dev/null | grep -c 'Origins-Pattern::')
+_uu_deny=$(apt-config -c "$UUCONF" dump 2>/dev/null | grep -c 'Package-Blacklist::')
+if [ "$_uu_origins" -lt 5 ] || [ "$_uu_deny" -lt 3 ]; then
+    echo "0300: $UUCONF does not parse as expected." >&2
+    echo "      apt sees $_uu_origins origin patterns (want 5) and" >&2
+    echo "      $_uu_deny blacklist entries (want 3)." >&2
+    exit 1
+fi
+apt-config -c "$UUCONF" dump 2>/dev/null | grep -q 'origin=Dagric' || {
+    echo "0300: the Dagric origin is missing from Origins-Pattern — the" >&2
+    echo "      security baseline would never install itself." >&2
+    exit 1
+}
+echo "unattended-upgrades: $_uu_origins origins, $_uu_deny held back, Dagric origin present"
 
 # Firewall on by default
 systemctl enable firewalld.service 2>/dev/null || true
@@ -337,4 +355,20 @@ if command -v firewall-offline-cmd >/dev/null 2>&1; then
         echo "WARNING: could not preopen the KDE Connect ports — phone pairing" >&2
 else
     echo "WARNING: firewall-offline-cmd not found — KDE Connect ports NOT opened" >&2
+fi
+
+# firewall-offline-cmd writes a .old beside any zone it rewrites, and the free
+# ISO shipped /etc/firewalld/zones/home.xml.old — the pre-kdeconnect copy of the
+# zone the ssh-removal loop above had just written. firewalld ignores anything
+# not ending in .xml so nothing malfunctioned, but an editor-style backup left
+# in the one directory this product's hardening claims are audited against
+# invites the reader to ask which file is live. Removed, then the directory is
+# printed, because a hardening step nobody can see the result of is a hardening
+# step nobody can check.
+rm -f /etc/firewalld/zones/*.xml.old
+echo "firewalld zones as shipped:"
+ls -1 /etc/firewalld/zones/ | sed 's/^/  /'
+if ls /etc/firewalld/zones/*.xml.old >/dev/null 2>&1; then
+    echo "0300: a .old backup survived in /etc/firewalld/zones" >&2
+    exit 1
 fi

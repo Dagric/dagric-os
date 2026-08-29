@@ -1,0 +1,46 @@
+[Desktop Entry]
+# Dagric OS — hide Debian's lynis launcher, which cannot work on this image.
+#
+# THE ENTRY DEBIAN SHIPS IS DEAD HERE. /usr/share/applications/lynis.desktop
+# carries
+#
+#     Exec=su-to-root -c '/usr/sbin/lynis audit system --no-colors'
+#     Terminal=true
+#
+# and su-to-root belongs to Debian's `menu` package, which is a Recommends of
+# lynis. auto/config builds with --apt-recommends false, so `menu` is not
+# installed and su-to-root is on neither edition — verified against both built
+# squashfs images, along with lynis itself being present and pkexec being
+# available. The entry carries no TryExec, so KDE has no grounds to hide it:
+# clicking it opens a terminal that dies on "su-to-root: command not found".
+#
+# Same dropped-Recommends family as wpasupplicant, alsa-ucm-conf, rtkit and
+# qt6-virtualkeyboard-plugin — but this one does not go missing quietly, it
+# leaves a visible menu entry that does nothing.
+#
+# WHY HIDE RATHER THAN REPAIR IT. Repairing is one line (pkexec instead of
+# su-to-root) and would give this audience a full-screen wall of lynis output
+# with no explanation. Dagric already ships the curated version of exactly this:
+# dagric-security-checkup runs the same audit under pkexec and reports a
+# hardening index, a warnings count and where the log is. Its own .desktop
+# already lists "lynis" in Keywords, so an owner who searches the word the
+# website uses — features.html sells "One click runs a Lynis audit" — still
+# lands on the tool that works. Two doors marked the same thing, one of which
+# is dead, is worse than one door.
+#
+# This file must be a COMPLETE entry, not a fragment: a desktop-file ID in a
+# higher-priority XDG directory replaces the lower one outright rather than
+# merging with it. /usr/local/share/applications is searched before
+# /usr/share/applications, and dagric-app-names only ever deletes files
+# carrying its own generated-by marker, so this hand-written one survives.
+#
+# A terminal user still has `sudo lynis audit system`, which is the interface
+# that tool was designed for.
+Type=Application
+Name=Lynis auditing tool
+Comment=Security auditing tool
+Exec=/usr/sbin/lynis audit system --no-colors
+Terminal=true
+Icon=lynis
+Categories=System;
+NoDisplay=true

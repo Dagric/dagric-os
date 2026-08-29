@@ -60,7 +60,63 @@ if dg_is_yes "$answer"; then
         dg_say "$(gettext "Could not download the installer — nothing was changed. Check your internet connection and try again.")"
         exit 1
     fi
+
+    # WHY THERE IS NO PINNED HASH HERE, since every other vendored thing in this
+    # product has one (grub-btrfs in 0800, the video wallpaper in 0900, PhotoGIMP
+    # in 0600 — all pinned tag + sha256).
+    #
+    # Those are ARCHIVES of a released artefact: upstream publishes a tag, the
+    # bytes never change again, and a mismatch means something is wrong. This is
+    # a LIVE INSTALLER SCRIPT that Ollama rewrites whenever they ship — so a
+    # pinned hash would not detect tampering, it would detect Tuesday. The first
+    # upstream edit would turn this helper off for every owner, silently, which
+    # is precisely the failure mode this tree keeps writing down: a checksum that
+    # makes a feature never install is a bug that hides instead of failing.
+    #
+    # Pinning OLLAMA_VERSION instead was considered and rejected for a different
+    # reason: it freezes what the owner installs to whatever was current when
+    # this line was last edited, and an AI runner that is a year behind on an
+    # RDNA/ROCm machine is a worse outcome than an unpinned fetch.
+    #
+    # So the honest posture is: verify it is what it claims to be, show the owner
+    # exactly what is about to run, and record it so the machine can answer "what
+    # did I execute" afterwards. site/security.html says the same thing in public
+    # rather than leaving a reviewer to find it.
+    #
+    # The shape gate is not security theatre: an HTTP 200 carrying an error page,
+    # a captive-portal login, or a truncated body all reach `sh` otherwise, and
+    # sh runs HTML as a series of failing commands. Checking for the installer's
+    # own markers costs nothing and refuses all three.
+    if ! head -c 4096 "$TMP" | grep -q '^#!/bin/sh' ||
+       ! grep -q 'ollama' "$TMP"; then
+        rm -f "$TMP"
+        dg_say "$(gettext "What came back from ollama.com is not the installer — nothing was
+changed and nothing was run. This usually means a captive portal or a
+network filter answered instead. Try again on a different connection.")"
+        exit 1
+    fi
+
+    OLLAMA_SUM=$(sha256sum "$TMP" 2>/dev/null | cut -d' ' -f1)
+    [ -n "$OLLAMA_SUM" ] || OLLAMA_SUM="(sha256sum unavailable)"
+    # TRANSLATORS: %s is a long hexadecimal checksum. Single quotes around the
+    # msgid are MANDATORY — with double quotes the shell expands the variable
+    # before gettext looks the string up, the lookup misses, and the message
+    # comes out in English with no warning.
+    dg_say "$(eval_gettext 'About to run Ollama'"'"'s installer, downloaded just now from
+ollama.com. Its checksum is:
+
+  $OLLAMA_SUM
+
+That is recorded in /var/lib/dagric/ollama-install.log so you can check
+later exactly what this computer ran.')"
+
     if sh "$TMP"; then
+        # Recorded AFTER success, with the date, so the log is a list of what
+        # actually ran rather than of what was attempted.
+        mkdir -p /var/lib/dagric 2>/dev/null || true
+        printf '%s  ollama.com/install.sh  sha256=%s\n' \
+            "$(date -u '+%Y-%m-%dT%H:%M:%SZ')" "$OLLAMA_SUM" \
+            >> /var/lib/dagric/ollama-install.log 2>/dev/null || true
         rm -f "$TMP"
         echo ""
         # TRANSLATORS: "ollama run llama3.2" is a command typed verbatim.

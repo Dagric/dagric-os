@@ -167,7 +167,48 @@ systemctl --global disable usbguard-notifier.service 2>/dev/null || true
 # cannot express, or upstream's UI authentication. Both need a booted Pro image
 # to verify, and an unverified change here fails silently in the direction that
 # costs a paying customer their firewall. Do not "tidy" this line without one.
+#
+# 2026-08-29, narrowing it for whoever does the booted test: the shipped daemon
+# is opensnitch 1.6.9-3 and its binary carries both "Authentication" and
+# "AuthType", so Server.Authentication IS expressible in this static config —
+# which is the half of "upstream's UI authentication" that was unknown when the
+# paragraph above was written. What is still missing is the certificate story:
+# the useful modes are TLS, and per-machine key material has to be generated
+# somewhere that is neither the ISO (identical keys on every machine, the exact
+# defect a shipped ssh_host_key would be) nor first boot without a verified
+# generator. So the shape of the fix is now: generate on first boot beside
+# dagric-ssh-hostkeys.service, point both ends at it, and PROVE in a booted Pro
+# VM that a prompt still appears — not "it looks right in the config".
+#
+# Disclosed rather than hidden while it stands: site/security.html lists it, so
+# a buyer evaluating a shared machine reads it from us instead of finding it.
 systemctl enable opensnitch.service 2>/dev/null || true
+
+# CONTAINERD DOES NOT RUN ON A DESKTOP NOBODY ASKED TO RUN CONTAINERS ON.
+#
+# docker.io's postinst enables containerd.service, and nothing here turned it
+# off — so every Pro machine booted with a root daemon holding a full container
+# runtime API on /run/containerd/containerd.sock, with modprobe overlay,
+# TasksMax=infinity, LimitNOFILE=infinity and OOMScoreAdjust=-999, whether or
+# not the owner has ever touched a container. Verified in the shipped Pro
+# squashfs: multi-user.target.wants/containerd.service was present.
+#
+# That contradicts the position stated forty lines above and in the manual: the
+# heavy daemons ship OFF and start when the owner opts in. docker.service is
+# correctly not enabled, so the intent was already right — containerd was simply
+# missed, because it is enabled by a different package's postinst.
+#
+# Nothing breaks. docker.service declares Wants=containerd.service and
+# After=containerd.service (verified in the shipped unit), so the first
+# `systemctl start docker` pulls containerd up with it. podman does not use it
+# at all. Not masked, only disabled — masking would make Docker fail to start
+# instead of starting cleanly.
+systemctl disable containerd.service 2>/dev/null || true
+if [ -e /etc/systemd/system/multi-user.target.wants/containerd.service ]; then
+    echo "0600: containerd.service is still enabled after disable — a Pro" >&2
+    echo "      machine would run a root container runtime at every boot." >&2
+    exit 1
+fi
 
 # THE INSTALL-TIME PROMPT. Enabling the service above also starts it in the LIVE
 # session, which is where Calamares runs — and a real Pro install stopped at 42%
@@ -306,8 +347,57 @@ if [ ! -d /usr/share/icons/Papirus-Light ]; then
     # it falls back to hicolor and the Pro desktop quietly looks unbranded.
     echo "WARNING: /usr/share/icons/Papirus-Light missing — Pro icon default will not apply." >&2
 fi
-if ! grep -q '^\[Icons\]' /etc/skel/.config/kdeglobals 2>/dev/null; then
-    printf '\n[Icons]\nTheme=Papirus-Light\n' >> /etc/skel/.config/kdeglobals
+# WRITTEN TO /etc/xdg, NOT APPENDED TO THE SKEL CONFFILE. This used to be
+#
+#     printf '\n[Icons]\nTheme=Papirus-Light\n' >> /etc/skel/.config/kdeglobals
+#
+# and that file is a CONFFILE of dagric-desktop-defaults. Hooks run after the
+# packages are installed, so the append happened after dpkg had already recorded
+# the file's md5 — leaving every Pro machine with a conffile dpkg considers
+# locally modified before the owner has touched anything. Verified in the
+# shipped Pro ISO: dpkg records c25df7e92d6908a6b63f0b9a2c77c9e1 while the file
+# on disk hashes 60ac08cfcbcc05677f51691e093a7241. The free image's copy matches
+# its record exactly, so this was Pro-only.
+#
+# The bill comes due on the first channel update that changes kdeglobals: dpkg
+# raises the conffile prompt on every Pro machine at once. Under Discover, or
+# any noninteractive apt, that is "EOF on stdin at conffile prompt" and a failed
+# upgrade — the same trap dagric-upgrade-to-pro's own comments document. Answer
+# "keep the old one" and Pro machines silently stop receiving kdeglobals fixes
+# that free machines get.
+#
+# /etc/xdg/kdeglobals is read by every KDE application as the system-wide
+# fallback beneath ~/.config/kdeglobals, it is owned by no package (so it can
+# never prompt), and it is strictly better than skel besides: skel only reaches
+# accounts created AFTER it is written, while this applies to the account the
+# installer just made and to every account added later. Verified absent from
+# both shipped images, so nothing is being overwritten.
+#
+# dagric-upgrade-to-pro writes the same file for the same reason — a machine
+# upgraded from free and a machine installed from the Pro ISO must not look
+# different.
+mkdir -p /etc/xdg
+if ! grep -q '^Theme=Papirus-Light' /etc/xdg/kdeglobals 2>/dev/null; then
+    printf '[Icons]\nTheme=Papirus-Light\n' >> /etc/xdg/kdeglobals
+fi
+grep -q '^Theme=Papirus-Light' /etc/xdg/kdeglobals || {
+    echo "0600: failed to set the Pro icon default in /etc/xdg/kdeglobals" >&2
+    exit 1
+}
+# And undo the old append if a previous build of this tree left it behind, so
+# the conffile goes back to matching the md5 dpkg recorded for it. includes.chroot
+# is copied in before hooks run, so on a clean build there is nothing to undo;
+# this is for a rebuild over a cached chroot. The trailing-blank-line trim is
+# what actually restores the recorded md5 — deleting the section alone leaves
+# the separator line the append had added, and the hash still would not match.
+if grep -q '^\[Icons\]' /etc/skel/.config/kdeglobals 2>/dev/null; then
+    sed -i '/^\[Icons\]$/,/^Theme=Papirus-Light$/d' /etc/skel/.config/kdeglobals
+    awk '{ l[NR] = $0 }
+         END { last = NR
+               while (last > 0 && l[last] ~ /^[ \t]*$/) last--
+               for (i = 1; i <= last; i++) print l[i] }' \
+        /etc/skel/.config/kdeglobals > /tmp/kdeglobals.trim &&
+        mv /tmp/kdeglobals.trim /etc/skel/.config/kdeglobals
 fi
 
 # NOTE — the launcher entries used to be written here, and that was a bug.
@@ -353,21 +443,42 @@ fi
 # succeeded in the same container in the same run. The build has network. The
 # excuse was wrong and it is deleted.
 #
-# It is still unpinned only because a real pin needs a real upstream release tag
-# and its real sha256, and inventing one here would be worse than the status quo:
-# a wrong checksum makes the feature silently never install, which is a bug that
-# hides instead of failing loudly.
-# TODO: pin PG_VER to a PhotoGIMP release tag with its sha256, the way
-# 0900-video-wallpaper already does, then delete these two paragraphs.
+# NOW PINNED. PG_VER is an upstream RELEASE TAG and PG_SHA256 is that tag
+# archive's real hash, both taken from GitHub on 2026-08-29:
 #
-# Until then the blast radius is bounded twice over: the allow-list copies only
+#     https://api.github.com/repos/Diolinux/PhotoGIMP/releases/latest -> "3.1"
+#     tags/3.1.zip = 3662002 bytes, sha256 05ca5693...cadebbb
+#
+# so two Pro ISOs carrying the same version number now carry the same third-party
+# payload, and "which PhotoGIMP is in this image" is answerable from the image.
+#
+# THE MISMATCH PATH IS A WARNING, NOT A BUILD FAILURE, matching the policy
+# 0900-video-wallpaper states for the same class of vendored extra: a Pro extra
+# that cannot be verified is skipped, not shipped unverified, and the build goes
+# on. That is the opposite of silent — it prints both hashes. The paragraph this
+# replaces worried that a wrong checksum would make the feature "silently never
+# install"; the fix for that is to be loud, not to stay unpinned.
+#
+# The blast radius stays bounded twice over besides: the allow-list copies only
 # the GIMP profile directory — never a blanket `cp -r *`, which stops an injected
 # .config/autostart/*.desktop from auto-executing at first login — AND every
 # executable surface inside that profile is stripped after the copy, below.
+PG_VER=3.1
+PG_SHA256=05ca56937dbe9aa5ea6b6a18b4cb530f4e508e61ce69afd58caba0414cadebbb
+PG_URL="https://github.com/Diolinux/PhotoGIMP/archive/refs/tags/${PG_VER}.zip"
 PG_TMP=/tmp/photogimp
 mkdir -p "$PG_TMP"
-if curl -fsSL -o "$PG_TMP/pg.zip" \
-    "https://github.com/Diolinux/PhotoGIMP/archive/refs/heads/master.zip" 2>/dev/null; then
+if curl -fsSL -o "$PG_TMP/pg.zip" "$PG_URL" 2>/dev/null; then
+    PG_GOT=$(sha256sum "$PG_TMP/pg.zip" | cut -d' ' -f1)
+    if [ "$PG_GOT" != "$PG_SHA256" ]; then
+        echo "WARNING: PhotoGIMP $PG_VER CHECKSUM MISMATCH — refusing to install"
+        echo "  expected $PG_SHA256"
+        echo "  got      $PG_GOT"
+        rm -rf "$PG_TMP"
+        PG_TMP=""
+    fi
+fi
+if [ -n "$PG_TMP" ] && [ -f "$PG_TMP/pg.zip" ]; then
     if command -v unzip >/dev/null 2>&1 || apt-get install -y -qq unzip >/dev/null 2>&1; then
         unzip -q "$PG_TMP/pg.zip" -d "$PG_TMP"
         SRC=$(find "$PG_TMP" -maxdepth 2 -type d -name ".config" | head -1)
@@ -417,15 +528,44 @@ if curl -fsSL -o "$PG_TMP/pg.zip" \
             fi
             chmod 0644 /usr/share/doc/dagric-photogimp/LICENSE
 
-            echo "PhotoGIMP layout installed for new users (profile only, no executables)"
+            # PROVENANCE, so a shipped image can be audited without the build
+            # host. Until this existed, /usr/share/doc/dagric-photogimp held one
+            # file — the verbatim GPLv3 text, which identifies nothing — and
+            # there was no way, from an ISO in a customer's hands, to say which
+            # PhotoGIMP tree had seeded every new user's home. That is the half
+            # of the supply-chain problem a pin alone does not solve: the pin
+            # makes the build reproducible, this makes it auditable.
+            cat > /usr/share/doc/dagric-photogimp/PROVENANCE <<PROV
+PhotoGIMP, as vendored into Dagric OS Pro.
+
+Upstream:  https://github.com/Diolinux/PhotoGIMP
+Release:   $PG_VER
+Archive:   $PG_URL
+sha256:    $PG_SHA256
+Verified:  yes — the build refuses to install this layout on a hash mismatch.
+Installed: /etc/skel/.config/GIMP (profile only)
+
+Scripts, plug-ins, modules and interpreters are removed from the profile
+before it ships: GIMP executes those from the user profile at startup, and
+nothing in a layout needs them. What remains is configuration and artwork.
+PROV
+            chmod 0644 /usr/share/doc/dagric-photogimp/PROVENANCE
+
+            echo "PhotoGIMP $PG_VER installed for new users (profile only, no executables, sha256 verified)"
         else
             echo "WARNING: PhotoGIMP archive missing a GIMP profile — skipped"
         fi
+    else
+        # This branch did not exist, and its absence was the one silent path
+        # left in the hook: with unzip missing and unable to be installed, the
+        # inner `if` simply fell through and PhotoGIMP was skipped with no
+        # output at all, unlike every other failure here.
+        echo "WARNING: unzip unavailable — PhotoGIMP skipped, GIMP ships stock"
     fi
 else
-    echo "WARNING: PhotoGIMP download failed — GIMP ships with stock layout"
+    echo "WARNING: PhotoGIMP $PG_VER not installed (download failed or hash mismatch)"
 fi
-rm -rf "$PG_TMP"
+[ -n "$PG_TMP" ] && rm -rf "$PG_TMP"
 
 # --- DID THE OPT-IN POLICY ACTUALLY TAKE? -----------------------------------
 #

@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+Name=Dagric restart check
+Comment=Says once, at login, if an installed security update needs a restart
+Exec=/usr/bin/dagric-restart-check
+Terminal=false
+NoDisplay=true
+X-KDE-autostart-after=panel
+X-KDE-StartupNotify=false
+OnlyShowIn=KDE;
+X-GNOME-Autostart-Delay=20

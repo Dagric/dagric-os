@@ -3,11 +3,23 @@ out/
 build.log
 
 # live-build working artifacts (never commit; regenerated every build)
-.build/
-cache/
-chroot/
-binary/
-local/
+#
+# ANCHORED WITH A LEADING SLASH, AND THAT MATTERS. These are live-build's own
+# working directories, which it creates at the root of the config tree — which
+# here is the repo root. Unanchored, `local/` matches a directory of that name
+# at ANY depth, and it did: config/includes.chroot/usr/local/ is a real part of
+# the shipped image (it is the XDG directory that takes priority over
+# /usr/share/applications, which is how lynis.desktop hides Debian's dead
+# launcher), so both files in it were untracked. build.sh rsyncs the working
+# tree, so they reached the ISO from this checkout and nobody noticed — but a
+# fresh clone would have built an image with no Family Limits launcher and
+# Debian's broken Lynis entry back in the menu. Keep every pattern here
+# anchored.
+/.build/
+/cache/
+/chroot/
+/binary/
+/local/
 
 # Test harness output
 test/screen.png

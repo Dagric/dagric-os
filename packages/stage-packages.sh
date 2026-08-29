@@ -271,6 +271,23 @@ mkdir -p "$P/etc/apt/apt.conf.d" "$P/etc/sysctl.d"
 cp -r "$REPO/packages/dagric-security-policy/DEBIAN" "$P/"
 cp "$INC/etc/apt/apt.conf.d/01dagric-norecommends" "$P/etc/apt/apt.conf.d/"
 cp "$INC/etc/sysctl.d/99-dagric-hardening.conf"    "$P/etc/sysctl.d/"
+# THE TWO APT POLICIES THAT WERE OWNED BY NOTHING.
+#
+# 52dagric-unattended decides whether the machine installs its own security
+# updates, and 99dagric-app-names is the hook that re-applies the free/Pro gate
+# after every dpkg operation — the only thing keeping Pro launcher entries off a
+# free machine once the channel starts delivering. Both reached the image
+# through includes.chroot alone, so neither could ever be corrected on a machine
+# already sold: a mistake in the update policy was unfixable BY an update, and
+# if the gate hook was ever lost the Pro entries would quietly return on the
+# next dagric-tools upgrade.
+#
+# They belong in the security package rather than dagric-tools because they are
+# policy, and because dagric-tools is deliberately NOT in the automatic-install
+# origin — a fix to the enforcement of the edition gate should not wait for
+# somebody to click Update.
+cp "$INC/etc/apt/apt.conf.d/52dagric-unattended"   "$P/etc/apt/apt.conf.d/"
+cp "$INC/etc/apt/apt.conf.d/99dagric-app-names"    "$P/etc/apt/apt.conf.d/"
 normalise_modes "$P"
 build_pkg dagric-security-policy
 
@@ -286,9 +303,78 @@ for f in "$INC/usr/bin/"dagric-*; do
     [ -f "$f" ] && cp "$f" "$P/usr/bin/"
 done
 [ -d "$INC/usr/lib/dagric" ] && cp -r "$INC/usr/lib/dagric/." "$P/usr/lib/dagric/"
-for d in firstrun appearance manual guide welcome styles looks hwcheck boot; do
+# Untracked checkout junk must not become dpkg-owned. The Windows checkout this
+# tree is edited on compiles boot-find-splash-rule to __pycache__/*.pyc (for two
+# CPython versions, with drvfs-mangled names), .gitignore hides them, and the
+# wholesale copy above packed them: the shipped ISOs have dpkg owning two .pyc
+# paths that nothing put on disk, so `dpkg -V dagric-tools` reports missing
+# files on every sold machine, and the next upgrade would install Windows-built
+# bytecode onto customers' machines. Bytecode is regenerated on demand anyway.
+rm -rf "$P/usr/lib/dagric/__pycache__"
+find "$P/usr/lib/dagric" -name '*.pyc' -delete 2>/dev/null || true
+# 'family' was missing from this list, which is the whole reason Family Limits
+# could not be delivered or repaired through the channel: /usr/bin/dagric-family
+# and the Hub row that launches it were packed by the loops above, while
+# /usr/share/dagric/family/main.qml — the window itself — was not. The rule this
+# broke is the one stated for the Konsole profile above: never ship the pointer
+# without its target.
+for d in firstrun appearance manual guide welcome styles looks hwcheck boot family; do
     [ -e "$INC/usr/share/dagric/$d" ] && cp -r "$INC/usr/share/dagric/$d" "$P/usr/share/dagric/"
 done
+# Fail rather than ship a dagric-family with no window, the same way the
+# wallpaper count above refuses a one-pack branding package.
+[ -f "$P/usr/bin/dagric-family" ] && [ ! -f "$P/usr/share/dagric/family/main.qml" ] && {
+    echo "dagric-tools: packs /usr/bin/dagric-family but not its window" >&2
+    echo "  (usr/share/dagric/family/main.qml). Every machine that took this" >&2
+    echo "  update would get a menu entry that cannot open." >&2
+    exit 1
+}
+
+# THE PAID APPEARANCE DROP-INS DO NOT TRAVEL IN THIS PACKAGE.
+#
+# The loop above copies share/dagric/looks and share/dagric/styles wholesale,
+# and four of those layouts and three of those styles carry EDITION=pro. That
+# put them in the deb on the PUBLIC update channel, where anyone could fetch
+# dagric-tools with plain curl and unpack the entire paid appearance set without
+# buying anything — the exact payload infra/gate-worker.js exists to sell, given
+# away by the channel. build.sh states the principle this violated: the Pro
+# drop-ins are DELETED from a free image rather than flagged, "otherwise a free
+# user could unlock the Pro layouts and styles by deleting one line of text".
+# A package published to the world is a stronger version of that same hole.
+#
+# Selected by the same grep build.sh and tools/build-pro-assets.sh use, so this
+# cannot drift from the edition split when a Pro layout is added.
+#
+# The thumbnails go too. They live under appearance/thumbs, which the loop packs
+# as a whole, and a preview of a layout the package no longer carries is both a
+# leak of the artwork and a gallery tile for something that cannot be applied.
+#
+# WHAT KEEPS A PAYING CUSTOMER'S LAYOUTS: dpkg deletes the files a new version
+# no longer owns, so this change alone would strip the paid set from a Pro
+# machine on its first upgrade. packages/dagric-tools/DEBIAN/preinst stashes
+# them and postinst puts them back, using the machine's own copy — no network,
+# no payload in the package. On free machines the stash is empty because the
+# files are not there to begin with, so nothing is restored and the gate holds.
+for _pro in $(grep -rlx 'EDITION=pro' "$P/usr/share/dagric/looks" \
+    "$P/usr/share/dagric/styles" 2>/dev/null); do
+    _base=${_pro##*/}
+    rm -f "$_pro" "$P/usr/share/dagric/appearance/thumbs/${_base%.*}.png"
+done
+unset _pro _base
+# The free edition's own drop-ins must survive this, or the package ships an
+# empty gallery to everyone.
+_free_looks=$(ls -1 "$P/usr/share/dagric/looks/"*.look 2>/dev/null | wc -l)
+[ "$_free_looks" -ge 3 ] || {
+    echo "dagric-tools: only $_free_looks layouts left after the Pro strip." >&2
+    echo "  Expected the free set (classic, eleven, focus). Either the strip" >&2
+    echo "  is matching too much or the tree was already stripped." >&2
+    exit 1
+}
+unset _free_looks
+grep -rlx 'EDITION=pro' "$P/usr/share/dagric" >/dev/null 2>&1 && {
+    echo "dagric-tools: an EDITION=pro drop-in survived the strip." >&2
+    exit 1
+}
 for f in "$INC/usr/share/dagric/"*.py "$INC/usr/share/dagric/README"; do
     [ -f "$f" ] && cp "$f" "$P/usr/share/dagric/"
 done

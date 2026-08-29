@@ -103,6 +103,46 @@ article:last-of-type{padding-bottom:0}
   <h1>News from <span class="grad">Dagric.</span></h1>
   <p class="lead">Release notes, milestones, and what's coming next.</p>
 
+  <article id="maintenance-release">
+    <div class="date">August 29, 2026 · Update</div>
+    <h2>Family Limits in six languages, and updates that finish the job</h2>
+    <p>A maintenance release. Most of it is work that finishes things which were
+    already half-shipped — the kind of update that adds no line to the feature
+    list and makes the machine noticeably less annoying.</p>
+    <ul>
+      <li><strong>Family Limits, in every language we ship</strong> (free) —
+      screen time and bedtime for a child's account are now translated into all
+      six: English, German, Spanish, French, Italian and Brazilian Portuguese.
+      They also now reach you the ordinary way, through the update channel,
+      rather than only on a fresh install.</li>
+      <li><strong>The login screen and the installer slideshow speak your
+      language too.</strong> Both were English-only, which meant the first two
+      things a new owner saw were the two things that had not been translated.</li>
+      <li><strong>Steam brings its graphics drivers with it.</strong> The
+      one-click install now pulls the 32-bit graphics libraries Proton needs, so
+      Proton games run on the free edition instead of failing to start.</li>
+      <li><strong>Kup's versioned backups work.</strong> The backup tool offered
+      a versioned mode whose engine was not installed, so choosing it got you
+      nothing. The engine ships now.</li>
+      <li><strong>A camera app.</strong> There was no way to check your webcam
+      before a call except by joining the call. Now there is one.</li>
+      <li><strong>Phone pairing is not a Pro feature, and the guide finally
+      agrees.</strong> KDE Connect moved to the free edition in the previous
+      release; the guide had gone on marking it Pro ever since.</li>
+    </ul>
+    <p>The update channel itself got the most careful attention. Security
+    updates from Debian install silently, as they always have, and Dagric's own
+    security baseline now updates automatically alongside them — previously it
+    only ever arrived with a new release. Anything that changes how the machine
+    looks or behaves still waits for you to click, which is the line we do not
+    intend to move.</p>
+    <p>One addition to that: when a kernel update needs a restart before it
+    takes effect, you now get a single quiet message at sign-in saying so. The
+    computer still does not restart itself, and it will not ask twice. Before
+    this, it said nothing at all — so a machine could sit for weeks running the
+    old kernel with the new one already on disk, and no way to know.</p>
+  </article>
+
   <article id="migration">
     <div class="date">July 25, 2026 · Update</div>
     <h2>Your files follow you: the Migration Assistant</h2>
@@ -235,7 +275,7 @@ article:last-of-type{padding-bottom:0}
 
 <footer><div class="foot">
   <span>© 2026 DGR Operations · Built on Debian. Not affiliated with the Debian Project.</span>
-  <span class="links"><a href="/features">Features</a><a href="/pro">Pro</a><a href="/download">Download</a><a href="/news">News</a><a href="/guide">Guide</a><a href="/support">Support</a><a href="/faq">FAQ</a><a href="/accessibility">Accessibility</a><a href="/bugs">Report a bug</a><a href="/contact">Contact</a><a href="/about">About</a><a href="/licenses">Licenses</a><a href="/privacy">Privacy</a><a href="/terms">Terms</a></span>
+  <span class="links"><a href="/features">Features</a><a href="/pro">Pro</a><a href="/download">Download</a><a href="/news">News</a><a href="/guide">Guide</a><a href="/support">Support</a><a href="/faq">FAQ</a><a href="/accessibility">Accessibility</a><a href="/security">Security</a><a href="/bugs">Report a bug</a><a href="/contact">Contact</a><a href="/about">About</a><a href="/review">Reviewers</a><a href="/licenses">Licenses</a><a href="/privacy">Privacy</a><a href="/terms">Terms</a></span>
 </div></footer>
 </body>
 </html>

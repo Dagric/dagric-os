@@ -29,9 +29,42 @@ Theme-Id=dagric
 Theme-API=2.0
 QtVersion=6
 
-# Deliberately NOT set: TranslationsDirectory. SDDM will happily load .qm files
-# from a theme, but this theme ships none, and declaring a directory that does
-# not exist advertises a translation mechanism that is not there. Every visible
-# string in Main.qml is English; the clock and the date are the exception and
-# are already locale-driven, because they come out of Qt's locale rather than a
-# format string. Wiring the rest into the repo's po/ tree is a separate job.
+# The separate job named in the note that used to sit here is now done, so the
+# note is replaced by the thing it was waiting for.
+#
+# Every visible string in Main.qml is wrapped in qsTr(), and translations/ holds
+# a compiled catalogue per language. This key is what points SDDM at them.
+#
+# HOW SDDM READS THIS, from the 0.21 source rather than from documentation:
+#
+#   ThemeMetadata.cpp reads SddmGreeterTheme/TranslationsDirectory and DEFAULTS
+#   IT TO "." — so leaving this key out does not disable translation, it points
+#   the greeter at the theme's own root. Naming the subdirectory is therefore
+#   not optional decoration; it is the difference between the catalogues being
+#   found and being ignored.
+#
+#   GreeterApp.cpp::setThemePath() then does, verbatim:
+#       m_theme_translator->load(QLocale::system(), QString(), QString(),
+#                                "<themePath>/<TranslationsDirectory>/")
+#   An empty filename and empty prefix mean QTranslator looks for the locale's
+#   own name plus ".qm" in that directory — de.qm, es.qm, fr.qm, it.qm and
+#   pt_BR.qm. Verified by compiling that exact call against Qt 6.8 and printing
+#   QTranslator::filePath() under each of the six locales, rather than trusting
+#   the documented search order: de_DE picks de.qm, pt_BR picks pt_BR.qm, and
+#   en_US and C match nothing and fall through to the English in Main.qml.
+#
+#   setThemePath() runs before the StartupEvent that builds the QQuickView, so
+#   the translator is installed BEFORE Main.qml is parsed. No retranslate() call
+#   is needed and none is available here.
+#
+#   QLocale::system() is the greeter's own locale, and the greeter runs as the
+#   unprivileged `sddm` user, not as the owner. It gets a language because
+#   /etc/pam.d/sddm-greeter ends with
+#       session required pam_env.so envfile=/etc/default/locale
+#   which is the file Calamares' locale module writes at install time. A machine
+#   whose /etc/default/locale is empty gets the English above, which is correct.
+#
+# Breeze declares this same key and ships no such directory: it translates
+# through ki18n instead, which needs org.kde.* QML imports this theme refuses to
+# take on (see the top of Main.qml). That is why the mechanism here is Qt's own.
+TranslationsDirectory=translations

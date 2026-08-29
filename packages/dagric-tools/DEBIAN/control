@@ -1,10 +1,12 @@
 Package: dagric-tools
-Version: 1.1.4
+Version: 1.1.5
 Architecture: all
 Maintainer: Dagric OS Project <repo@dagric.com>
 Section: misc
 Priority: optional
-Depends: kdialog, python3, qml-qt6, gettext-base, sqlite3
+Depends: kdialog, python3, qml-qt6, gettext-base, sqlite3,
+ curl, flatpak, gawk, konsole,
+ timekpr-next, gir1.2-ayatanaappindicator3-0.1
 Description: Dagric OS tools, wizard, manual and appearance drop-ins
  The Dagric layer itself: the first-run setup wizard, the Dagric Hub, the
  appearance gallery, Styles and Looks, the Migration Assistant, Check This PC,

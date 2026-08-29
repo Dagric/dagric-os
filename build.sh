@@ -71,6 +71,18 @@ if [ "$EDITION" != "pro" ]; then
         rm -f "$drop" \
             "config/includes.chroot/usr/share/dagric/appearance/thumbs/${base%.*}.png"
     done
+    # OpenSnitch's configuration must not ship on an edition that has no
+    # OpenSnitch. The free image carried /etc/opensnitchd/default-config.json,
+    # fourteen Dagric rule files and the /etc/skel UI preference — while free
+    # installs no opensnitch package and has no opensnitchd binary at all.
+    # Nothing malfunctioned; it is dead weight in an image whose whole pitch is
+    # being leaner, and it misleads in the one direction that matters: somebody
+    # auditing the free edition finds a firewall's config and its rules and
+    # reasonably concludes the firewall is there.
+    rm -rf config/includes.chroot/etc/opensnitchd \
+           config/includes.chroot/etc/skel/.config/opensnitch \
+           config/includes.chroot/etc/systemd/system/opensnitch.service.d \
+           config/includes.chroot/usr/lib/live/config/2020-dagric-opensnitch-live
 fi
 mkdir -p config/includes.chroot/etc
 printf '%s\n' "$EDITION" > config/includes.chroot/etc/dagric-edition

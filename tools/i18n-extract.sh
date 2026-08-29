@@ -69,30 +69,44 @@ command -v xgettext >/dev/null 2>&1 || {
     printf '%s\n' '# Regenerate with:  sh tools/i18n-extract.sh'
     printf '%s\n' ''
 
-    # The first-run wizard's own chrome.
+    # EVERY QML WINDOW'S OWN CHROME, not just the wizard's.
     #
-    # Same reason as the drop-in files below: dagric-firstrun's emit_strings
-    # reads its sentences from a here-doc and passes each through gettext "$_s",
-    # and xgettext cannot follow a variable. Without this block the wizard — the
-    # first screen a customer sees — is the one part of Dagric that stays in
-    # English no matter how many catalogues exist.
+    # Same reason as the drop-in files below: these windows' emit_strings read
+    # their sentences from a here-doc and pass each through gettext "$_s", and
+    # xgettext cannot follow a variable. Without this block a window is the one
+    # part of Dagric that stays in English no matter how many catalogues exist.
     #
-    # The list is read straight out of the shell script, between its STRINGS
+    # The list is read straight out of each shell script, between its STRINGS
     # markers, so the two can never drift: adding a sentence there is all that
     # is needed for it to appear here on the next extraction.
-    FIRSTRUN=$BIN/dagric-firstrun
-    if [ -f "$FIRSTRUN" ]; then
-        printf '# TRANSLATORS: the setup wizard'"'"'s own buttons, headings and step names.\n'
-        printf '# This is the first screen a new owner sees. Keep button labels short;\n'
-        printf '# they sit in fixed-width buttons beside each other.\n'
-        sed -n "/<<'STRINGS'/,/^STRINGS$/p" "$FIRSTRUN" \
+    #
+    # THE LOOP IS THE FIX. This block named dagric-firstrun and only
+    # dagric-firstrun, so when the Family Limits window was written to the same
+    # design its 28 sentences reached no catalogue — and every check passed,
+    # because a string nobody extracts has no missing translation. Any window
+    # added here is covered from its first build. tools/i18n-wizard.py holds the
+    # matching list and fails the build if a window's two halves disagree.
+    for _win in "$BIN/dagric-firstrun:the setup wizard" \
+                "$BIN/dagric-family:the Family Limits window"; do
+        _wf=${_win%%:*}
+        _wd=${_win#*:}
+        [ -f "$_wf" ] || continue
+        grep -q "<<'STRINGS'" "$_wf" || {
+            echo "extract: $_wf has no STRINGS here-doc — window words not extracted" >&2
+            continue
+        }
+        printf '# TRANSLATORS: %s'"'"'s own buttons, headings and labels.\n' "$_wd"
+        printf '# Keep button labels short; they sit in fixed-width buttons beside\n'
+        printf '# each other. %%1 and %%2 are values substituted at runtime and may be\n'
+        printf '# reordered to suit the language.\n'
+        sed -n "/<<'STRINGS'/,/^STRINGS$/p" "$_wf" \
           | sed -e "1d" -e "\$d" \
           | while IFS= read -r line; do
                 [ -n "$line" ] || continue
                 printf 'gettext "%s"\n' "$(printf '%s' "$line" | sed 's/"/\\"/g')"
             done
         printf '\n'
-    fi
+    done
 
     for f in "$SHARE"/dagric/looks/*.look; do
         [ -f "$f" ] || continue
@@ -167,12 +181,34 @@ command -v xgettext >/dev/null 2>&1 || {
 #
 # `sort` keeps the "#:" source references stable between runs, so a diff of the
 # .pot still means something.
-set -- "$GEN" "$LIB"/display-common.sh "$LIB"/display-autoscale
+# $LIB IS DERIVED TOO NOW, for the reason the paragraph above gives about $BIN.
+#
+# It was a hand-typed pair — display-common.sh and display-autoscale — and
+# /usr/lib/dagric/family-apply was added with twelve gettext calls and correct
+# TEXTDOMAIN wiring that this list never picked up. Every check in the repo
+# reported success, because a file nobody extracts from has no missing strings.
+# The header two paragraphs up already says it: "AND IT IS NOT ONLY /usr/bin ...
+# Anything that speaks to the owner belongs here, wherever it lives." That was
+# true of the prose and not of the code.
+#
+# __pycache__ is a directory and is skipped by the -f test; .pyc files would be
+# skipped anyway as unparseable, but they should never be in the tree at all
+# (packages/stage-packages.sh now strips them).
+set -- "$GEN"
+_nlib=0
+for _f in $(ls "$LIB" | sort); do
+    [ -f "$LIB/$_f" ] || continue
+    case "$_f" in *.pyc) continue ;; esac
+    set -- "$@" "$LIB/$_f"
+    _nlib=$((_nlib + 1))
+done
+_nbin=0
 for _f in $(ls "$BIN" | sort); do
     [ -f "$BIN/$_f" ] || continue
     set -- "$@" "$BIN/$_f"
+    _nbin=$((_nbin + 1))
 done
-echo "extract: $(($# - 3)) files from $BIN, plus 2 from $LIB and the generated data strings"
+echo "extract: $_nbin files from $BIN, plus $_nlib from $LIB and the generated data strings"
 
 # --add-comments=TRANSLATORS: carries the notes above each call into the .pot.
 # Without it a translator sees "y yes" and "Documents" with no context at all,

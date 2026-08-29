@@ -43,8 +43,72 @@ cd "$(dirname "$0")/.."
 ISO_URL=$(grep -oE 'https://[^"]*dagric-os-1\.0-amd64\.iso' site/download.html | head -1)
 SUMS_URL="https://dagric.com/SHA256SUMS"
 SIG_URL="https://dagric.com/SHA256SUMS.sig"
+PKGS_URL="https://dagric.com/repo/dists/trixie/main/binary-amd64/Packages"
 KEY=site/dagric-signing-key.asc
 QUICK=${1:-}
+
+# THE UPDATE CHANNEL, WHICH NOTHING HAS EVER CHECKED.
+#
+# Everything above this line is about the ISO a new customer downloads. The
+# channel is the half that serves the customers who ALREADY bought — and it was
+# the one release artefact with no end-state check of any kind: not here, not in
+# release.sh, not in build.sh (whose version gate only refuses a COLLISION, so a
+# channel arbitrarily far behind passes it).
+#
+# It bit exactly as you would expect. On 2026-08-29 the live channel was still
+# publishing 1.1.1, dated 29 Jul, while the shipped ISOs installed 1.1.3/1.1.4:
+# a month of fixes — the Dagric startup screen, the Kickoff favourites fix, the
+# corrected wizard, Family Limits — had reached no sold machine, and the
+# release that built them had run the ISO half and skipped the channel half.
+# docs/REPOSITORY.md's checklist said to do both. A checklist is a reminder;
+# this is a mechanism, which is the same lesson release.sh's own header records
+# about SHA256SUMS.
+#
+# Compares the live channel against packages/*/DEBIAN/control, which is the
+# version the tree would publish, so "did this release include a channel
+# publish" is answerable rather than assumed.
+check_channel() {
+    echo ""
+    echo "update channel:"
+    _p=$(curl -fsS "$PKGS_URL" 2>/dev/null) || {
+        echo "  ERROR: could not fetch $PKGS_URL" >&2
+        echo "  The channel is how a fix reaches a machine that is already sold." >&2
+        return 1
+    }
+    _bad=0
+    for _c in packages/*/DEBIAN/control; do
+        _name=$(sed -n 's/^Package: //p' "$_c" | head -1)
+        _want=$(sed -n 's/^Version: //p' "$_c" | head -1)
+        [ -n "$_name" ] && [ -n "$_want" ] || continue
+        _live=$(printf '%s\n' "$_p" \
+                | awk -v n="$_name" '$1=="Package:" && $2==n {f=1;next} f && $1=="Version:" {print $2; exit}')
+        if [ -z "$_live" ]; then
+            echo "  $_name: NOT PUBLISHED (tree has $_want)" >&2
+            _bad=1
+        elif [ "$_live" != "$_want" ]; then
+            echo "  $_name: live $_live, tree $_want  <-- BEHIND" >&2
+            _bad=1
+        else
+            echo "  $_name: $_live"
+        fi
+    done
+    if [ "$_bad" = 1 ]; then
+        echo "" >&2
+        echo "THE UPDATE CHANNEL IS BEHIND THE TREE." >&2
+        echo "" >&2
+        echo "Machines already sold are not receiving these fixes, and Discover" >&2
+        echo "on those machines correctly reports that there is nothing to" >&2
+        echo "install. Publishing the ISO without publishing the channel is" >&2
+        echo "half a release." >&2
+        echo "" >&2
+        echo "Fix:  sh packages/build-repo.sh" >&2
+        echo "      firebase deploy --only hosting" >&2
+        echo "      sh tools/verify-published.sh --quick" >&2
+        return 1
+    fi
+    echo "  channel matches the tree."
+    return 0
+}
 
 [ -n "$ISO_URL" ] || { echo "ERROR: no ISO URL in site/download.html" >&2; exit 1; }
 [ -f "$KEY" ]     || { echo "ERROR: $KEY missing" >&2; exit 1; }
@@ -81,7 +145,11 @@ if [ "$QUICK" = "--quick" ]; then
     echo "  --quick: skipping the download. Signature is valid; the hash is NOT checked."
     echo "  This does NOT tell you whether the live ISO matches. Run without --quick"
     echo "  before announcing a release."
-    exit 0
+    # The channel check still runs: it is four small HTTP fetches, and the
+    # failure it catches (a release that shipped an ISO and forgot the channel)
+    # is exactly the one somebody in a hurry with --quick is likeliest to have.
+    check_channel
+    exit $?
 fi
 
 echo "  downloading (~2.1 GB, this is the point of the check)..."
@@ -92,7 +160,8 @@ echo "  actual hash: $ACTUAL"
 if [ "$ACTUAL" = "$EXPECT" ]; then
     echo ""
     echo "MATCH — a customer following the download page's instructions gets 'OK'."
-    exit 0
+    check_channel
+    exit $?
 fi
 
 echo "" >&2

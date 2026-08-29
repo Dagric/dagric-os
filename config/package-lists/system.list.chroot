@@ -395,6 +395,15 @@ printer-driver-cups-pdf
 # with an all-in-one. SANE backend + a simple KDE scan app.
 sane-utils
 skanlite
+# Camera, for exactly the same reason one line up. Windows ships a Camera app,
+# and "open it and check my face appears" is the ritual every switcher performs
+# before their first video call. This image ships the whole call stack —
+# PipeWire, the portals, xwaylandvideobridge for Zoom/Teams/Discord screen
+# share — and Check This PC reports on the camera, while neither edition
+# carried any application that could display a webcam or take a picture
+# (verified: no kamoso, cheese, guvcview or webcamoid in either manifest). The
+# camera worked; the machine simply read as having none. KDE-native and small.
+kamoso
 # Driverless NETWORK print/scan (AirPrint/Mopria/eSCL): avahi discovers the
 # devices, sane-airscan talks to network scanners without vendor drivers.
 avahi-daemon
@@ -521,6 +530,15 @@ lynis
 # Kup — KDE-native, no-config scheduled backup in System Settings, for
 # non-technical users. (Pro keeps Vorta/Borg for encrypted/deduplicated repos.)
 kup-backup
+# bup is Kup's VERSIONED backup engine, and it is a Recommends — which
+# auto/config drops. Kup offers exactly two plan types, and the versioned one
+# (the mode that keeps history, and the reason to choose Kup over a copy job)
+# shells out to bup: without it the plan is offered in System Settings, accepted
+# without complaint, and fails when it runs. Verified absent from both shipped
+# images. features.html sells "Backups included" on the free edition, so this is
+# free-edition correctness, not a Pro item — and it is the one dropped-Recommends
+# in this tree whose silent failure costs the owner their data.
+bup
 
 # App distribution
 flatpak

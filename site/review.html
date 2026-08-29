@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Reviewer kit — Dagric OS</title>
+<meta name="description" content="How to test Dagric OS properly: get the ISO, verify the signature, and see plainly what we have proven and what we have not.">
+<link rel="icon" type="image/png" href="/assets/dagric-logo.png">
+<link rel="stylesheet" href="/assets/site.css">
+<style>
+/* dl.meta is lifted verbatim from accessibility.html, where the same component
+   already carries the same job: a short block of stated facts a reader checks
+   rather than reads. It is a page-local rule in both places because it is used
+   on two pages and site.css is not the right home for a two-page component.
+   If it ever reaches a third page, move it there and delete both copies. */
+dl.meta{display:grid;grid-template-columns:auto 1fr;gap:var(--s-2) var(--s-4);margin:var(--s-4) 0;
+  border-top:1px solid var(--rule);border-bottom:1px solid var(--rule);padding:var(--s-4) 0}
+dl.meta dt{font-weight:600;color:var(--on-3);font-size:var(--t-ui)}
+dl.meta dd{margin:0;color:var(--on-2)}
+@media(max-width:640px){dl.meta{grid-template-columns:1fr;gap:2px}dl.meta dd{margin-bottom:10px}}
+/* The verdict column carries its verdict in words, never in colour — the same
+   rule accessibility.html states about its own Supports / Does Not Support
+   cells. Nothing here is tinted; "Tested" and "Not yet verified" are the value.
+   The column is held off wrapping mid-verdict at desktop widths only, so the
+   two states line up down the page and the split is visible at a glance. */
+@media(min-width:641px){.proof td b{white-space:nowrap}}
+</style>
+<link rel="canonical" href="https://dagric.com/review">
+<meta name="theme-color" content="#0C0F14">
+<script src="/assets/theme.js"></script>
+<link rel="icon" href="/favicon.ico" sizes="32x32">
+<link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
+<link rel="manifest" href="/site.webmanifest">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Dagric OS">
+<meta property="og:title" content="Reviewer kit — Dagric OS">
+<meta property="og:description" content="How to test Dagric OS properly: get the ISO, verify the signature, and see plainly what we have proven and what we have not.">
+<meta property="og:url" content="https://dagric.com/review">
+<meta property="og:image" content="https://dagric.com/assets/hero-desktop.png">
+<meta property="og:image:width" content="1920">
+<meta property="og:image:height" content="1080">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Reviewer kit — Dagric OS">
+<meta name="twitter:description" content="How to test Dagric OS properly: get the ISO, verify the signature, and see plainly what we have proven and what we have not.">
+<meta name="twitter:image" content="https://dagric.com/assets/hero-desktop.png">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<nav><div class="nav-in">
+  <a class="brand" href="/"><img src="/assets/dagric-logo.png" alt="" width="30" height="30">Dagric&nbsp;OS</a>
+  <div class="nav-links">
+    <a href="/features">Features</a><a href="/pro">Pro</a><a href="/about">About</a>
+    <a href="/guide">Guide</a><a href="/support">Support</a>
+    <a class="cta" href="/download">Download</a>
+  </div>
+</div></nav>
+
+<main id="main" class="wide">
+  <header class="phero">
+    <div class="eyebrow">For reviewers and press</div>
+    <h1>Test it, and <span class="grad">tell people.</span></h1>
+    <p class="lead">Dagric OS is a Debian 13 desktop with KDE Plasma, built for the person leaving
+    Windows 10 rather than for someone who already runs Linux. There is a free edition and a Pro
+    edition at a one-time $39. It is made by DGR Operations, an independent company in the United
+    States.</p>
+    <p>This page is not a pitch. It exists so a hands-on test is easy to run and hard to get
+    wrong: where the ISO is, how to check it is ours, what to click in what order, and — the part
+    most of these pages leave out — a list of the things we ship that we have not yet proven. If
+    you find a limitation on this page after you find it on the machine, we have wasted your
+    time and earned none of your trust.</p>
+    <div class="btns">
+      <a class="btn primary" href="/download">Get the free ISO</a>
+      <a class="btn ghost" href="/contact">Contact — Business / press</a>
+    </div>
+    <p class="tiny">Version 1.0 “Foundation” · GPG-signed releases · no independent review has been
+    published yet, which is the whole reason this page is here</p>
+  </header>
+
+  <h2>Current release</h2>
+  <dl class="meta">
+    <dt>Version</dt><dd>1.0 “Foundation”</dd>
+    <dt>Free edition</dt><dd>Dagric OS — <code>dagric-os-1.0-amd64.iso</code></dd>
+    <dt>Pro edition</dt><dd>Dagric OS Pro — <code>dagric-os-pro-1.0-amd64.iso</code></dd>
+    <dt>Base</dt><dd>Debian 13 “Trixie”, KDE Plasma 6.3, Wayland session</dd>
+    <dt>Architecture</dt><dd>64-bit Intel and AMD (amd64). There is no 32-bit and no ARM build.</dd>
+    <dt>Release date</dt><dd>
+<!-- RELEASE-DATE-PLACEHOLDER -->
+    </dd>
+    <dt>ISO sizes</dt><dd>
+<!-- ISO-SIZES-PLACEHOLDER -->
+    </dd>
+    <dt>Made by</dt><dd>DGR Operations, an independent company in the United States</dd>
+  </dl>
+  <p>The two editions are one system, not two. Pro is the same base with the creative, gaming,
+  developer and Windows-app suites already installed, and all seven desktop layouts rather than
+  three. Anything you find wrong in one edition is almost certainly wrong in the other, so a
+  review of the free edition is a review of the product.</p>
+
+  <h2 id="h-download-and-verify">Download and verify</h2>
+  <p>Both editions are on the <a href="/download">download page</a>. The free ISO is a direct
+  link — no form, no email address, no account. The Pro ISO is delivered after checkout; if you
+  need it for a review, say so through the <a href="/contact">contact form</a>.</p>
+  <p>Please verify before you write about it — a corrupted download is indistinguishable from a
+  bad product until you check. Put <a href="/SHA256SUMS">SHA256SUMS</a>,
+  <a href="/SHA256SUMS.sig">SHA256SUMS.sig</a> and the
+  <a href="/dagric-signing-key.asc">signing key</a> in the folder holding the ISO, then run the
+  three commands the download page gives:</p>
+  <!-- tabindex+role+aria-labelledby, matching the identical block on
+       /download and the .tablewrap wrappers on / and /accessibility.
+       site.css gives every <pre> overflow-x:auto, and an overflow container is
+       not keyboard-focusable in Chrome without tabindex — WCAG 2.1.1 — while
+       without role+name a screen reader announces the scroll region as
+       nothing (1.3.1, 4.1.2). The name is the id of the h2 above, so the two
+       cannot drift apart. Same reasoning, same commands, same page furniture:
+       if the commands change on /download they change here too. -->
+  <pre tabindex="0" role="region" aria-labelledby="h-download-and-verify"><code>gpg --import dagric-signing-key.asc
+gpg --verify SHA256SUMS.sig SHA256SUMS
+sha256sum -c SHA256SUMS</code></pre>
+  <p>On Windows, without installing anything:
+  <code>Get-FileHash .\dagric-os-1.0-amd64.iso</code> in PowerShell, then compare the hash it
+  prints against the matching line in <a href="/SHA256SUMS">SHA256SUMS</a>. That checks the file
+  arrived intact; it does not check who signed it, so use the GPG route if the provenance is part
+  of what you are testing.</p>
+  <p>The signing key's fingerprint is published on the <a href="/security">security page</a>.
+  Check it there rather than trusting the copy you just imported — a key that vouches for itself
+  vouches for nothing.</p>
+
+  <h2>How to test it properly</h2>
+  <p>In this order. Steps two and three are the ones most reviews skip, and they are the two that
+  decide whether the rest of the test means anything.</p>
+  <ol class="steps">
+    <li><strong>Write the ISO to a USB stick.</strong> 8&nbsp;GB or larger. Rufus or balenaEtcher
+    on Windows; the Disks utility or <code>dd</code> on Linux. Write the image as-is — it is a
+    hybrid ISO and needs no special mode.</li>
+    <li><strong>Boot the live session.</strong> Both UEFI and legacy BIOS machines boot from the
+    same stick. The whole desktop runs from the stick with nothing written to your disk, so this
+    step is reversible by pulling the stick out.</li>
+    <li><strong>Run “Check This PC” before you install anything.</strong> It is an icon on the
+    live desktop, sitting right beside the installer. It reports in plain language on Wi-Fi and
+    network, graphics and screen, sound, camera and printer, whether Secure Boot is on, the
+    battery if it is a laptop, and whether your drives have room. It mounts nothing and unlocks
+    nothing. This is the tool that answers “will it work on <em>this</em> machine”, and a spec
+    list cannot — so run it on every machine you test, including the ones you expect to fail.</li>
+    <li><strong>Run the installer.</strong> The other icon on the live desktop. It names all of
+    its steps up front and writes nothing to the disk until you confirm at the
+    <strong>Summary</strong> step, so every screen before that one can be backed out of. Worth
+    testing both <em>Erase disk</em> and <em>Install alongside</em> if you have a machine to
+    spare.</li>
+    <li><strong>Let the first-run wizard run.</strong> It opens by itself at the first sign-in
+    after install — six steps: Welcome, How it looks, Text size, The taskbar, Add your apps,
+    You're ready. Every step can be skipped and everything it sets can be changed later.</li>
+    <li><strong>Open the Dagric Hub.</strong> Press <kbd>Meta</kbd>, type <em>Hub</em>. This is
+    the one window gathering the owner tools: graphics drivers, Finish Setup for printers, the
+    Security Checkup, the layout switcher, and the one-click installers for Steam, Bottles,
+    Heroic and Ollama. Nothing proprietary is bundled — those install only when you click
+    them, which is a claim worth checking rather than repeating.</li>
+    <li><strong>Switch layouts in Dagric Looks.</strong> In the Hub under <em>Appearance</em>, or
+    press <kbd>Meta</kbd> and type <em>Looks</em>. Three layouts on the free edition, all seven
+    on Pro. Switching keeps your apps, files and settings, and switching back is one click —
+    which is the claim to try to break.</li>
+    <li><strong>Break something, then roll it back.</strong> Reboot, and in the boot menu open
+    <strong>Dagric snapshots</strong>, then pick the snapshot from before the change. This works
+    on the default btrfs install only: choose ext4 at the Partitions step and there is no
+    rollback at all, which is a caveat we would rather you printed than discovered.</li>
+  </ol>
+
+  <h2 id="tbl-tested-and-not">What we have tested, and what we have not</h2>
+  <p>This is the section we would most like you to read. The left column is what the product
+  does; the right column is how far it has actually been taken, which is not the same thing.</p>
+  <div class="tablewrap" tabindex="0" role="region" aria-labelledby="tbl-tested-and-not">
+    <table class="proof">
+      <thead><tr><th>What</th><th>How far it has been taken</th></tr></thead>
+      <tbody>
+        <tr><th scope="row">UEFI and BIOS install</th><td><b>Tested</b> — both firmware modes, end to end, in the virtual-machine harness.</td></tr>
+        <tr><th scope="row">The installer</th><td><b>Tested</b> — run through every step to a booting system, in a virtual machine.</td></tr>
+        <tr><th scope="row">First-run wizard</th><td><b>Tested</b> — run end to end after a fresh install.</td></tr>
+        <tr><th scope="row">Dagric Looks layouts</th><td><b>Tested</b> — applied and switched between, in a virtual machine.</td></tr>
+        <tr><th scope="row">Snapshot rollback</th><td><b>Tested</b> — rolled back from the boot menu on a default btrfs install, in a virtual machine.</td></tr>
+        <tr><th scope="row">Six-language coverage</th><td><b>Tested</b> — the desktop and the guide in English, German, Spanish, French, Italian and Brazilian Portuguese.</td></tr>
+        <tr><th scope="row">Accessibility</th><td><b>Tested</b> — a vendor self-assessment checked against the built image, published in full with its gaps as the <a href="/accessibility">conformance report</a>. It is not an independent audit and does not claim to be.</td></tr>
+        <tr><th scope="row">Secure Boot with enforcing firmware</th><td><b>Not yet verified</b> — it ships, and it has only ever been exercised in virtual machines. It has never booted on a physical machine with Secure Boot actually enforcing.</td></tr>
+        <tr><th scope="row">Full-disk-encryption install</th><td><b>Not yet verified</b> — the encrypted install path ships and has not been run end to end on real hardware.</td></tr>
+        <tr><th scope="row">A live screen-reader pass</th><td><b>Not yet verified</b> — Orca ships with its speech engine, and the build refuses to produce an image if the speech chain is broken. Nobody who depends on a screen reader has sat down with it and told us what it is like.</td></tr>
+        <tr><th scope="row">Wi-Fi and GPU compatibility</th><td><b>Not yet verified</b> — there is no broad hardware matrix. What we know is what Debian 13 supports; we have not measured it across a range of real machines.</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <!-- The four "not yet verified" rows are the reason this page exists, so the
+       note under them states the consequence in the plainest words available
+       rather than softening it into a roadmap sentence. A reviewer who reads
+       "shipped, not proven" and then finds it broken has been told the truth;
+       a reviewer who reads "fully supported" and then finds it broken stops
+       believing the other seven rows too, and there is no way to earn those
+       back. -->
+  <div class="note">
+    <p style="margin:0">The four rows marked <strong>not yet verified</strong> are shipped, not
+    proven. They work in a virtual machine, and a virtual machine is not a laptop. We would far
+    rather a reviewer found the gap than a customer did — so if one of them breaks on your
+    hardware, that is a real finding, it belongs in your piece, and we will not write to argue
+    with it. The full list of what we know is unfinished is on the
+    <a href="/security">security page</a>.</p>
+  </div>
+
+  <h2>Known limitations</h2>
+  <p>Not of the software — of the project around it. These are the fair things to hold against
+  us, stated before you have to find them.</p>
+  <ul>
+    <li><strong>Nobody independent has reviewed it.</strong> The project is new, the domain was
+    registered in July 2026, and there is not one third-party test of Dagric OS in existence. Any
+    confidence in it currently rests on our own word, which is exactly the wrong thing for it to
+    rest on.</li>
+    <li><strong>The source repository is not currently public.</strong> Dagric is assembled from
+    Debian packages, and the GPL source for every one of those is available from Debian itself.
+    The sources for the in-house packages — the Hub, Looks, the first-run wizard, the hardware
+    check — are supplied on request through the <a href="/contact">contact form</a>. That is a
+    weaker answer than a public repository and we are not going to pretend otherwise.</li>
+    <li><strong>There is no public issue tracker.</strong> Bug reports go through
+    <a href="/bugs">the bug page</a> and reach a person rather than a queue. The cost is that you
+    cannot read a list of what else is currently broken, and you have only our summary of it.</li>
+  </ul>
+
+  <h2>Press assets</h2>
+  <p>These are the files this site uses. You may use them in coverage of Dagric OS — no
+  permission to ask for, no approval step, and no conditions attached to what the coverage says.
+  Every screenshot below is a real capture from a booted system, not a mockup or a render; where
+  a frame shows something worth knowing, it is described rather than tidied.</p>
+  <ul>
+    <li><a href="/assets/hero-desktop.png">hero-desktop.png</a> — the desktop at 1920&times;1080;
+    the image this site uses for link previews.</li>
+    <li><a href="/assets/shot-desktop.png">shot-desktop.png</a> — the desktop as it lands:
+    branded wallpaper, two icons, an empty taskbar.</li>
+    <li><a href="/assets/shot-launcher.png">shot-launcher.png</a> — the application launcher
+    open. Captured in a live session, so the user shows as “Debian Live user”; on an installed
+    machine that is the owner's own name.</li>
+    <li><a href="/assets/shot-hub.png">shot-hub.png</a> — the Dagric Hub, with the owner tools
+    grouped.</li>
+    <li><a href="/assets/shot-appearance.png">shot-appearance.png</a> — the first-run wizard on
+    its “How it looks” step. This one is captured from the Pro edition, which is why it carries a
+    PRO EDITION badge.</li>
+    <li><a href="/assets/shot-installer.png">shot-installer.png</a> — the installer, with its
+    steps listed down the side.</li>
+    <li><a href="/assets/dagric-logo.png">dagric-logo.png</a> — the logo, 256&times;256.</li>
+    <li>Video: <a href="/assets/dagric-promo.mp4">dagric-promo.mp4</a> and
+    <a href="/assets/dagric-looks.mp4">dagric-looks.mp4</a>, the second being a tour of all seven
+    desktop layouts.</li>
+  </ul>
+
+  <div class="shot">
+    <picture>
+      <source type="image/webp" srcset="/assets/shot-hub.webp">
+      <img src="/assets/shot-hub.png"
+           alt="The Dagric Hub window, listing owner tools grouped as Get started, Appearance, System, and Add more apps"
+           width="1280" height="800" loading="lazy" decoding="async">
+    </picture>
+  </div>
+  <div class="shot">
+    <picture>
+      <source type="image/webp" srcset="/assets/shot-appearance.webp">
+      <img src="/assets/shot-appearance.png"
+           alt="The Dagric OS first-run wizard on its How it looks step, offering Light and Dark, a row of highlight colours and a grid of wallpapers, with its six steps listed down the left: Welcome, How it looks, Text size, The taskbar, Add your apps, You're ready"
+           width="1280" height="800" loading="lazy" decoding="async">
+    </picture>
+  </div>
+  <div class="shot">
+    <picture>
+      <source type="image/webp" srcset="/assets/shot-installer.webp">
+      <img src="/assets/shot-installer.png"
+           alt="The Dagric OS installer, showing its seven steps: Welcome, Location, Keyboard, Partitions, Users, Summary, Install and Finish"
+           width="1280" height="800" loading="lazy" decoding="async">
+    </picture>
+  </div>
+
+  <h2>Contact</h2>
+  <p>Use the <a href="/contact">contact form</a> and pick <strong>Business / press</strong> from
+  the topic list. A human reads every message. We have not published a reply time, so we are not
+  going to quote you one — but if you are working to a deadline, put it in the message and it
+  will be treated as one.</p>
+  <p>If what you want is a correction rather than a comment: send it the same way. A factual
+  error on this site is a bug, and it is fixed the same day it is pointed out.</p>
+</main>
+
+<footer><div class="foot">
+  <span>© 2026 DGR Operations · Built on Debian. Not affiliated with the Debian Project.</span>
+  <span class="links"><a href="/features">Features</a><a href="/pro">Pro</a><a href="/download">Download</a><a href="/news">News</a><a href="/guide">Guide</a><a href="/support">Support</a><a href="/faq">FAQ</a><a href="/accessibility">Accessibility</a><a href="/security">Security</a><a href="/bugs">Report a bug</a><a href="/contact">Contact</a><a href="/about">About</a><a href="/review">Reviewers</a><a href="/licenses">Licenses</a><a href="/privacy">Privacy</a><a href="/terms">Terms</a></span>
+</div></footer>
+</body>
+</html>

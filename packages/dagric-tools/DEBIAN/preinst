@@ -1,0 +1,62 @@
+#!/bin/sh
+# Dagric OS — preserve a paying customer's paid appearance set across the
+# upgrade that stops shipping it.
+#
+# WHY THIS EXISTS. Until 1.1.4, dagric-tools packed the whole of
+# share/dagric/looks and share/dagric/styles, including the four layouts and
+# three colour styles marked EDITION=pro. That put the paid appearance set on
+# the public update channel, where it could be fetched and unpacked by anyone
+# without buying it. 1.1.5 strips them (packages/stage-packages.sh).
+#
+# But dpkg deletes the files a new version no longer owns. On a machine
+# installed from a Pro ISO those seven files ARE owned by dagric-tools 1.1.4, so
+# the upgrade that closes the leak would also delete the layouts the owner paid
+# for — the update channel taking a feature away, which is worse than the
+# channel not existing.
+#
+# So: stash them here, put them back in postinst. The machine's own copy, no
+# network, no payload in the package. Afterwards they are unowned files under
+# /usr/share, which is exactly the state a free-to-Pro upgraded machine is
+# already in (dagric-upgrade-to-pro cp's them out of the licence-gated bundle),
+# so both kinds of Pro machine end up alike.
+#
+# ON A FREE MACHINE THIS DOES NOTHING, and that is the point. The files are not
+# on disk — build.sh deletes them from the free image and dagric-app-names
+# deletes them again after every dpkg run — so the stash is empty and postinst
+# restores nothing. The gate cannot be widened by this script; it can only give
+# back what the machine already had.
+#
+# Not conditional on /etc/dagric-edition. Reading the edition here would mean a
+# machine with an unreadable or missing edition file loses its layouts with no
+# way back; stashing unconditionally costs a few kilobytes and postinst is where
+# the edition decides. Never fails the upgrade: a stash that cannot be written
+# is a lost customisation, not a broken package manager.
+set -e
+
+STASH=/var/lib/dagric/pro-appearance
+LOOKS=/usr/share/dagric/looks
+STYLES=/usr/share/dagric/styles
+THUMBS=/usr/share/dagric/appearance/thumbs
+
+case "$1" in
+upgrade)
+    rm -rf "$STASH"
+    mkdir -p "$STASH/looks" "$STASH/styles" "$STASH/thumbs" 2>/dev/null || exit 0
+    n=0
+    for f in $(grep -rlx 'EDITION=pro' "$LOOKS" "$STYLES" 2>/dev/null); do
+        base=${f##*/}
+        case "$f" in
+            "$LOOKS"/*)  cp -p "$f" "$STASH/looks/"  2>/dev/null && n=$((n + 1)) ;;
+            "$STYLES"/*) cp -p "$f" "$STASH/styles/" 2>/dev/null && n=$((n + 1)) ;;
+        esac
+        [ -f "$THUMBS/${base%.*}.png" ] && \
+            cp -p "$THUMBS/${base%.*}.png" "$STASH/thumbs/" 2>/dev/null || true
+    done
+    # A marker so postinst can tell "nothing was there" (a free machine, the
+    # normal case) apart from "the stash failed" — only the second is worth a
+    # word in the log.
+    printf '%s\n' "$n" > "$STASH/count" 2>/dev/null || true
+    ;;
+esac
+
+exit 0

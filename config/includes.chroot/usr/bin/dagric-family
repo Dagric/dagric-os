@@ -72,6 +72,67 @@ for a in $ADMINS; do getent passwd "$a" >/dev/null 2>&1 && n_admins=$((n_admins 
 
 json_escape() { printf '%s' "$1" | sed -e 's/\\/\\\\/g' -e 's/"/\\"/g'; }
 
+# ============================================================ the window's words
+#
+# THE WINDOW'S VOCABULARY, TRANSLATED HERE RATHER THAN IN QML — the same
+# arrangement dagric-firstrun uses, and for the same reason it wrote down: the
+# Qt-native answer (qsTr plus lupdate/lrelease and a .qm per language) would put
+# a second translation system beside the gettext one that already works, and
+# translators would then maintain .po AND .ts.
+#
+# main.qml shipped using qsTr() with none of that machinery behind it: no .qm
+# anywhere in the image, no QTranslator, no lrelease in the build. So the whole
+# window rendered in English for the five translated languages — in the one
+# feature whose own header says it exists BECAUSE timekpr's GUI is not
+# translated into them. Declared here, xgettext finds these with no new tooling
+# and they ride to the window inside the catalogue it already reads.
+#
+# THIS LIST IS THE WINDOW'S VOCABULARY AND MUST MATCH IT EXACTLY. A line here
+# that main.qml never asks for is a translation nobody reads; a string in
+# main.qml missing from here appears in English inside an otherwise translated
+# window. tools/i18n-family.py checks the pairing in both directions.
+#
+# The KEY is the English sentence, so the fallback for anything missing is
+# correct English rather than an identifier.
+emit_strings() {
+    _first=1
+    while IFS= read -r _s; do
+        [ -n "$_s" ] || continue
+        [ "$_first" = 1 ] || printf ',\n'
+        _first=0
+        printf '    "%s": "%s"' "$(json_escape "$_s")" "$(json_escape "$(gettext "$_s")")"
+    done <<'STRINGS'
+Family Limits
+Set how long someone can use this computer each day, and the hours when it locks itself. Their files and their account are not touched.
+Person:
+Person to set limits for
+This is the only administrator account on this computer. Limits cannot be set on it, because there would be no way back in. Create a second administrator account first.
+This person has not signed in yet, so there is nothing to change. Ask them to sign in once, then come back.
+Limit this person's screen time
+Time allowed each day
+Time allowed each day: %1
+Bedtime: none — the computer never locks by the clock
+The computer locks from %1 to %2
+From
+until
+Bedtime starts at
+Bedtime ends at
+Set both to the same hour for no bedtime at all.
+When the time is up:
+Lock the screen — nothing is closed, nothing is lost
+Sign out — closes everything that is open
+Remove all limits
+Lets this person use the computer at any time, for as long as they like
+Close
+Save
+Save these limits for %1
+%1 minutes
+1 hour
+%1 hours
+%1 h %2 min
+STRINGS
+}
+
 CATALOG=$(mktemp -t dagric-family.XXXXXX) || fail "$(gettext "Could not start.")"
 # The catalogue can name every account on the machine, so it is readable only by
 # the person who opened the window.
@@ -148,7 +209,10 @@ trap cleanup EXIT INT TERM
         printf '"known":%s,"minutes":%s,"bedFrom":%s,"bedTo":%s,"lockout":"%s"}' \
             "$known" "$mins" "${bedfrom:-0}" "${bedto:-0}" "$lock"
     done
-    printf '\n  ]\n}\n'
+    printf '\n  ],\n'
+    printf '  "strings": {\n'
+    emit_strings
+    printf '\n  }\n}\n'
 } > "$CATALOG"
 
 # A machine with no ordinary accounts other than a lone administrator has

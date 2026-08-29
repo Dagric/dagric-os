@@ -115,6 +115,55 @@
 // keyboard-layout pickers are present but small, quiet and bottom-left, and
 // they hide entirely when there is only one thing to pick — a chooser with one
 // entry teaches the owner that their choices do not matter.
+//
+// ============================================================= TRANSLATION
+//
+// Every visible string below is inside qsTr(). Until that was true this screen
+// was English in all six languages — the one screen an owner cannot avoid, seen
+// on every boot, and a REGRESSION, because the Breeze theme this one replaced
+// is translated upstream into all six.
+//
+// qsTr(), not the gettext road every other Dagric string travels. The wizard's
+// long note in usr/bin/dagric-firstrun rejects qsTr for good reasons; none of
+// them hold here. That note's argument rests on the wizard being launched by
+// our own shell script, which can look strings up in the gettext catalogue and
+// hand them to the QML as data. NOTHING OF OURS LAUNCHES THIS FILE. SDDM reads
+// metadata.desktop and loads it into its own engine, as the `sddm` user, before
+// any Dagric code runs. There is no seam to pass strings through, so the only
+// mechanism available is the one SDDM implements — and it does implement one.
+//
+// It is also not a second translation system in the sense that note meant: it
+// adds no runtime dependency and nothing to the image but five small files.
+// qsTr() is a QML built-in and needs NO import, so the rule at the top of this
+// file — QtQuick and nothing else — still holds exactly as written.
+//
+// The catalogues are translations/<locale>.qm, and metadata.desktop's
+// TranslationsDirectory key is what points SDDM at them; the full read of the
+// SDDM source, and the Qt 6.8 experiment that confirmed which filename each
+// locale resolves to, are written out there rather than repeated here.
+//
+// Two things that are deliberately NOT translated, so nobody adds them later:
+//   - the clock and the date (they already follow the locale, because they go
+//     through Qt.locale() and Locale.LongFormat rather than a format string);
+//   - the edition badge, the user's name, session names and keyboard layout
+//     names. Those are data — from theme.conf, from the user database and from
+//     SDDM's own models — not sentences of ours, and translating a value that
+//     came out of a database is how you get a session called "Bureau".
+//
+// If you add a string, wrap it in qsTr() and then, from this directory:
+//
+//     lupdate Main.qml -ts translations/de.ts translations/es.ts \
+//                          translations/fr.ts translations/it.ts \
+//                          translations/pt_BR.ts
+//     # fill in the new <translation> elements, then:
+//     lrelease translations/*.ts
+//
+// On Debian those two live in /usr/lib/qt6/bin and come from qt6-l10n-tools,
+// which is a BUILD-HOST package: nothing in the image depends on it, because
+// only the compiled .qm ships. Leaving a <translation type="unfinished"> in a
+// .ts is not an error and not a build failure — lrelease drops the message and
+// that one string silently reverts to English. Check the counts lrelease prints
+// against the number of qsTr() calls in this file.
 
 import QtQuick
 
@@ -244,8 +293,8 @@ Item {
             root.busy = false;
             root.messageIsWarning = true;
             root.message = root.userNeedsPassword
-                           ? "That password wasn't right. Try again."
-                           : "Sign-in was refused.";
+                           ? qsTr("That password wasn't right. Try again.")
+                           : qsTr("Sign-in was refused.");
             pw.selectAll();
             pw.forceActiveFocus();
         }
@@ -872,7 +921,7 @@ Item {
                 inputMethodHints: Qt.ImhNoAutoUppercase | Qt.ImhNoPredictiveText
 
                 Accessible.role: Accessible.EditableText
-                Accessible.name: "User name"
+                Accessible.name: qsTr("User name")
 
                 onAccepted: pw.forceActiveFocus()
 
@@ -880,7 +929,7 @@ Item {
                     anchors.fill: parent
                     verticalAlignment: Text.AlignVCenter
                     visible: nameField.text.length === 0
-                    text: "User name"
+                    text: qsTr("User name")
                     color: root.cMuted
                     font.pixelSize: root.px(20)
                     Accessible.ignored: true
@@ -926,8 +975,8 @@ Item {
                                   | Qt.ImhNoPredictiveText
 
                 Accessible.role: Accessible.EditableText
-                Accessible.name: "Password"
-                Accessible.description: "Type your password and press Enter"
+                Accessible.name: qsTr("Password")
+                Accessible.description: qsTr("Type your password and press Enter")
 
                 onAccepted: root.signIn()
 
@@ -935,7 +984,7 @@ Item {
                     anchors.fill: parent
                     verticalAlignment: Text.AlignVCenter
                     visible: pw.text.length === 0
-                    text: root.busy ? "Signing in…" : "Password"
+                    text: root.busy ? qsTr("Signing in…") : qsTr("Password")
                     color: root.cMuted
                     font.pixelSize: root.px(20)
                     Accessible.ignored: true
@@ -950,8 +999,8 @@ Item {
                 quiet: true
                 ink: root.cMuted
                 visible: pw.text.length > 0
-                label: root.showPassword ? "Hide" : "Show"
-                hint: "Show or hide the password you have typed"
+                label: root.showPassword ? qsTr("Hide") : qsTr("Show")
+                hint: qsTr("Show or hide the password you have typed")
                 onActivated: root.showPassword = !root.showPassword
             }
 
@@ -974,7 +1023,7 @@ Item {
                 opacity: root.busy ? 0.5 : 1.0
 
                 Accessible.role: Accessible.Button
-                Accessible.name: "Sign in"
+                Accessible.name: qsTr("Sign in")
                 Accessible.focusable: true
                 Accessible.focused: goBtn.activeFocus
                 Accessible.onPressAction: root.signIn()
@@ -1026,8 +1075,8 @@ Item {
         TextButton {
             visible: !root.userNeedsPassword
             anchors.horizontalCenter: parent.horizontalCenter
-            label: "Sign in"
-            hint: "This account has no password"
+            label: qsTr("Sign in")
+            hint: qsTr("This account has no password")
             onActivated: root.signIn()
         }
 
@@ -1043,7 +1092,7 @@ Item {
             horizontalAlignment: Text.AlignHCenter
             wrapMode: Text.WordWrap
             height: root.px(24)
-            text: keyboard.capsLock ? "Caps Lock is on" : root.message
+            text: keyboard.capsLock ? qsTr("Caps Lock is on") : root.message
             color: (keyboard.capsLock || root.messageIsWarning) ? root.cWarm : root.cSoft
             font.pixelSize: root.px(15)
             Accessible.role: Accessible.StaticText
@@ -1056,8 +1105,8 @@ Item {
             anchors.horizontalCenter: parent.horizontalCenter
             quiet: true
             ink: root.cSoft
-            label: "Other user"
-            hint: "Sign in as somebody else on this computer"
+            label: qsTr("Other user")
+            hint: qsTr("Sign in as somebody else on this computer")
             onActivated: {
                 userSheet.visible = true;
                 userList.forceActiveFocus();
@@ -1080,9 +1129,13 @@ Item {
             visible: root.haveSessionChoice
             quiet: true
             ink: root.cMuted
-            label: "Desktop: " + (sessions.count > root.sessionIndex && root.sessionIndex >= 0
+            // %1 is the session name. A placeholder rather than a "+" join for
+            // the same reason the first-run wizard uses one: a sentence glued
+            // together in QML cannot be reordered by a translator, and not
+            // every language puts the label before the value.
+            label: qsTr("Desktop: %1").arg(sessions.count > root.sessionIndex && root.sessionIndex >= 0
                                   ? sessions.itemAt(root.sessionIndex).name : "")
-            hint: "Choose which desktop to start"
+            hint: qsTr("Choose which desktop to start")
             onActivated: {
                 sessionSheet.visible = true;
                 sessionList.forceActiveFocus();
@@ -1093,9 +1146,10 @@ Item {
             visible: root.haveLayoutChoice
             quiet: true
             ink: root.cMuted
-            label: "Keyboard: " + (keyboard.layouts[keyboard.currentLayout]
+            // %1 is the layout's short name, e.g. "de". See the note above.
+            label: qsTr("Keyboard: %1").arg(keyboard.layouts[keyboard.currentLayout]
                                    ? keyboard.layouts[keyboard.currentLayout].shortName : "")
-            hint: "Choose the keyboard layout used to type your password"
+            hint: qsTr("Choose the keyboard layout used to type your password")
             onActivated: {
                 layoutSheet.visible = true;
                 layoutList.forceActiveFocus();
@@ -1115,15 +1169,15 @@ Item {
 
         TextButton {
             visible: sddm.canReboot
-            label: "Restart"
-            hint: "Shut down and start the computer again"
+            label: qsTr("Restart")
+            hint: qsTr("Shut down and start the computer again")
             onActivated: sddm.reboot()
         }
 
         TextButton {
             visible: sddm.canPowerOff
-            label: "Shut down"
-            hint: "Turn the computer off"
+            label: qsTr("Shut down")
+            hint: qsTr("Turn the computer off")
             onActivated: sddm.powerOff()
         }
     }
@@ -1132,7 +1186,7 @@ Item {
 
     Sheet {
         id: userSheet
-        title: "Who is signing in?"
+        title: qsTr("Who is signing in?")
 
         ListView {
             id: userList
@@ -1158,7 +1212,7 @@ Item {
 
     Sheet {
         id: sessionSheet
-        title: "Which desktop should start?"
+        title: qsTr("Which desktop should start?")
 
         ListView {
             id: sessionList
@@ -1186,7 +1240,7 @@ Item {
 
     Sheet {
         id: layoutSheet
-        title: "Keyboard layout"
+        title: qsTr("Keyboard layout")
 
         ListView {
             id: layoutList

@@ -46,7 +46,7 @@ ApplicationWindow {
     height: 620
     minimumWidth: 560
     minimumHeight: 520
-    title: qsTr("Family Limits")
+    title: app.t("Family Limits")
 
     // ---------------------------------------------------------------- state
     property var people: []
@@ -64,13 +64,49 @@ ApplicationWindow {
 
     function send(cmd, arg) { console.log("@DAGRIC@" + cmd + "|" + arg) }
 
+    // ---------------------------------------------------------------- words
+    //
+    // THE SAME ROAD EVERY OTHER DAGRIC STRING TRAVELS, and this window was not
+    // on it. It shipped using qsTr(), which is Qt's mechanism and needs a
+    // compiled .qm catalogue loaded by a QTranslator — and there is no .qm for
+    // this window anywhere in the image, no QTranslator in dagric-family, and no
+    // lupdate/lrelease step in the build. So every one of these sentences
+    // rendered in English for German, Spanish, French, Italian and Brazilian
+    // parents, in the one feature whose own header says it exists BECAUSE
+    // timekpr's GUI is not translated into their languages. The commit that
+    // added it said "in all six languages"; it was one.
+    //
+    // dagric-firstrun solved this exact problem and wrote down why qsTr was
+    // rejected: it would put a second translation system beside the gettext one
+    // that already works, and translators would maintain .po AND .ts. So the
+    // strings are declared as ordinary gettext calls in dagric-family, where
+    // xgettext already looks, and arrive here as data in the catalogue this
+    // window already reads.
+    //
+    // The KEY is the English text, so a missing translation, a string added
+    // since the last extraction, or a catalogue that failed to load all fall
+    // back to a correct English sentence rather than to an identifier.
+    property var strings: ({})
+    function t(s) {
+        var v = app.strings[s];
+        return (v === undefined || v === "") ? s : v;
+    }
+    // Lookup then substitute. %1/%2 rather than "+" concatenation, because a
+    // sentence built by concatenation freezes English word order into the code
+    // and gives a translator nowhere to move the number to.
+    function tf(s, a, b) {
+        var v = app.t(s);
+        v = v.replace("%1", a === undefined ? "" : a);
+        return b === undefined ? v : v.replace("%2", b);
+    }
+
     // Minutes as a person says them. Used for the visible label AND for
     // Accessible.name, so a screen reader and the screen always agree.
     function spoken(m) {
         var h = Math.floor(m / 60), r = m % 60
-        if (h === 0) return qsTr("%1 minutes").arg(r)
-        if (r === 0) return h === 1 ? qsTr("1 hour") : qsTr("%1 hours").arg(h)
-        return qsTr("%1 h %2 min").arg(h).arg(r)
+        if (h === 0) return app.tf("%1 minutes", r)
+        if (r === 0) return h === 1 ? app.t("1 hour") : app.tf("%1 hours", h)
+        return app.tf("%1 h %2 min", h, r)
     }
     function hh(h) { return (h < 10 ? "0" + h : "" + h) + ":00" }
 
@@ -94,7 +130,12 @@ ApplicationWindow {
         xhr.open("GET", "file://" + path, false)
         xhr.send(null)
         try {
-            people = JSON.parse(xhr.responseText).people
+            var d = JSON.parse(xhr.responseText)
+            people = d.people
+            // Already through gettext in the owner's language on the shell
+            // side. Assigning it re-evaluates every binding that called t(),
+            // including the window title.
+            strings = d.strings ? d.strings : ({})
         } catch (e) {
             people = []
         }
@@ -116,7 +157,7 @@ ApplicationWindow {
             anchors.leftMargin: 16
             anchors.rightMargin: 16
             Label {
-                text: qsTr("Family Limits")
+                text: app.t("Family Limits")
                 font.pixelSize: 17
                 font.weight: Font.DemiBold
                 Accessible.role: Accessible.StaticText
@@ -134,7 +175,7 @@ ApplicationWindow {
         Label {
             Layout.fillWidth: true
             wrapMode: Text.WordWrap
-            text: qsTr("Set how long someone can use this computer each day, and the hours when it locks itself. Their files and their account are not touched.")
+            text: app.t("Set how long someone can use this computer each day, and the hours when it locks itself. Their files and their account are not touched.")
             Accessible.role: Accessible.StaticText
             Accessible.name: text
         }
@@ -144,7 +185,7 @@ ApplicationWindow {
             Layout.fillWidth: true
             spacing: 10
             Label {
-                text: qsTr("Person:")
+                text: app.t("Person:")
                 Accessible.role: Accessible.StaticText
                 Accessible.name: text
             }
@@ -157,7 +198,7 @@ ApplicationWindow {
                 enabled: app.people.length > 0
                 onActivated: { app.idx = currentIndex; app.loadPerson(app.who) }
                 Accessible.role: Accessible.ComboBox
-                Accessible.name: qsTr("Person to set limits for")
+                Accessible.name: app.t("Person to set limits for")
                 Accessible.description: app.who ? app.who.name : ""
             }
         }
@@ -170,7 +211,7 @@ ApplicationWindow {
             visible: app.who !== null && app.who.protected
             wrapMode: Text.WordWrap
             color: "#c8502d"
-            text: qsTr("This is the only administrator account on this computer. Limits cannot be set on it, because there would be no way back in. Create a second administrator account first.")
+            text: app.t("This is the only administrator account on this computer. Limits cannot be set on it, because there would be no way back in. Create a second administrator account first.")
             Accessible.role: Accessible.StaticText
             Accessible.name: text
         }
@@ -178,7 +219,7 @@ ApplicationWindow {
             Layout.fillWidth: true
             visible: app.who !== null && !app.who.protected && !app.who.known
             wrapMode: Text.WordWrap
-            text: qsTr("This person has not signed in yet, so there is nothing to change. Ask them to sign in once, then come back.")
+            text: app.t("This person has not signed in yet, so there is nothing to change. Ask them to sign in once, then come back.")
             Accessible.role: Accessible.StaticText
             Accessible.name: text
         }
@@ -193,7 +234,7 @@ ApplicationWindow {
         // --------------------------------------------------------- the switch
         Switch {
             id: onSwitch
-            text: qsTr("Limit this person's screen time")
+            text: app.t("Limit this person's screen time")
             checked: app.limitsOn
             enabled: app.who !== null && !app.who.protected && app.who.known
             onToggled: app.limitsOn = checked
@@ -213,7 +254,7 @@ ApplicationWindow {
                 Layout.fillWidth: true
                 spacing: 4
                 Label {
-                    text: qsTr("Time allowed each day: %1").arg(app.spoken(app.minutes))
+                    text: app.tf("Time allowed each day: %1", app.spoken(app.minutes))
                     Accessible.role: Accessible.StaticText
                     Accessible.name: text
                 }
@@ -226,7 +267,7 @@ ApplicationWindow {
                     // The announced value is the sentence, not the raw number:
                     // "one hundred and fifty" tells a parent nothing useful.
                     Accessible.role: Accessible.Slider
-                    Accessible.name: qsTr("Time allowed each day")
+                    Accessible.name: app.t("Time allowed each day")
                     Accessible.description: app.spoken(app.minutes)
                 }
             }
@@ -236,15 +277,15 @@ ApplicationWindow {
                 spacing: 4
                 Label {
                     text: app.bedFrom === app.bedTo
-                          ? qsTr("Bedtime: none — the computer never locks by the clock")
-                          : qsTr("The computer locks from %1 to %2").arg(app.hh(app.bedFrom)).arg(app.hh(app.bedTo))
+                          ? app.t("Bedtime: none — the computer never locks by the clock")
+                          : app.tf("The computer locks from %1 to %2", app.hh(app.bedFrom), app.hh(app.bedTo))
                     Accessible.role: Accessible.StaticText
                     Accessible.name: text
                 }
                 RowLayout {
                     spacing: 10
                     Label {
-                        text: qsTr("From")
+                        text: app.t("From")
                         Accessible.role: Accessible.StaticText
                         Accessible.name: text
                     }
@@ -254,11 +295,11 @@ ApplicationWindow {
                         onValueModified: app.bedFrom = value
                         textFromValue: function(v) { return app.hh(v) }
                         Accessible.role: Accessible.SpinBox
-                        Accessible.name: qsTr("Bedtime starts at")
+                        Accessible.name: app.t("Bedtime starts at")
                         Accessible.description: app.hh(app.bedFrom)
                     }
                     Label {
-                        text: qsTr("until")
+                        text: app.t("until")
                         Accessible.role: Accessible.StaticText
                         Accessible.name: text
                     }
@@ -268,7 +309,7 @@ ApplicationWindow {
                         onValueModified: app.bedTo = value
                         textFromValue: function(v) { return app.hh(v) }
                         Accessible.role: Accessible.SpinBox
-                        Accessible.name: qsTr("Bedtime ends at")
+                        Accessible.name: app.t("Bedtime ends at")
                         Accessible.description: app.hh(app.bedTo)
                     }
                     Item { Layout.fillWidth: true }
@@ -278,7 +319,7 @@ ApplicationWindow {
                     wrapMode: Text.WordWrap
                     font.pixelSize: 12
                     opacity: 0.75
-                    text: qsTr("Set both to the same hour for no bedtime at all.")
+                    text: app.t("Set both to the same hour for no bedtime at all.")
                     Accessible.role: Accessible.StaticText
                     Accessible.name: text
                 }
@@ -288,7 +329,7 @@ ApplicationWindow {
                 Layout.fillWidth: true
                 spacing: 4
                 Label {
-                    text: qsTr("When the time is up:")
+                    text: app.t("When the time is up:")
                     Accessible.role: Accessible.StaticText
                     Accessible.name: text
                 }
@@ -298,7 +339,7 @@ ApplicationWindow {
                 // about this feature would be lost homework — and the blame
                 // lands on the parent who switched it on.
                 RadioButton {
-                    text: qsTr("Lock the screen — nothing is closed, nothing is lost")
+                    text: app.t("Lock the screen — nothing is closed, nothing is lost")
                     checked: app.lockout === "lock"
                     onToggled: if (checked) app.lockout = "lock"
                     Accessible.role: Accessible.RadioButton
@@ -306,7 +347,7 @@ ApplicationWindow {
                     Accessible.checked: checked
                 }
                 RadioButton {
-                    text: qsTr("Sign out — closes everything that is open")
+                    text: app.t("Sign out — closes everything that is open")
                     checked: app.lockout === "terminate"
                     onToggled: if (checked) app.lockout = "terminate"
                     Accessible.role: Accessible.RadioButton
@@ -329,7 +370,7 @@ ApplicationWindow {
             Layout.fillWidth: true
             spacing: 10
             Button {
-                text: qsTr("Remove all limits")
+                text: app.t("Remove all limits")
                 enabled: app.who !== null && !app.who.protected && app.who.known
                 onClicked: {
                     app.send("REMOVE", app.who.user)
@@ -337,17 +378,17 @@ ApplicationWindow {
                 }
                 Accessible.role: Accessible.Button
                 Accessible.name: text
-                Accessible.description: qsTr("Lets this person use the computer at any time, for as long as they like")
+                Accessible.description: app.t("Lets this person use the computer at any time, for as long as they like")
             }
             Item { Layout.fillWidth: true }
             Button {
-                text: qsTr("Close")
+                text: app.t("Close")
                 onClicked: Qt.quit()
                 Accessible.role: Accessible.Button
                 Accessible.name: text
             }
             Button {
-                text: qsTr("Save")
+                text: app.t("Save")
                 highlighted: true
                 enabled: app.who !== null && !app.who.protected && app.who.known && onSwitch.checked
                 onClicked: app.send("SET", app.who.user + ";" + app.minutes + ";"
@@ -355,7 +396,7 @@ ApplicationWindow {
                 Accessible.role: Accessible.Button
                 Accessible.name: text
                 Accessible.description: app.who
-                    ? qsTr("Save these limits for %1").arg(app.who.name) : text
+                    ? app.tf("Save these limits for %1", app.who.name) : text
             }
         }
     }

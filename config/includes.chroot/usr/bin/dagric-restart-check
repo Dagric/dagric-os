@@ -1,0 +1,80 @@
+#!/bin/sh
+# SPDX-FileCopyrightText: 2026 DGR Operations <repo@dagric.com>
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+# Dagric OS — say, once, when a security update is waiting on a restart.
+#
+# THE GAP THIS CLOSES. unattended-upgrades installs Debian's security updates
+# silently and never reboots the machine, which is deliberate and right: an
+# operating system that restarts itself while you are working is the specific
+# behaviour this product is sold against. But a kernel update that has been
+# installed is not RUNNING until the machine restarts, and nothing anywhere told
+# the owner that. Discover's notifier does not, because the update did not go
+# through Discover. Debian's update-notifier-common, which is what normally
+# writes /run/reboot-required, is not installed on either edition. The manual's
+# answer was to have the owner compare `uname -r` against `ls /boot/vmlinuz-*`
+# by hand.
+#
+# So a Dagric machine could run a kernel with a known, already-patched hole for
+# months while its owner had been told, truthfully, that security updates are
+# handled. That is the one place the "updates, done properly" promise was
+# materially weaker than the operating system it is sold against — Windows does
+# surface a pending restart.
+#
+# WHAT IT IS NOT. Not a countdown, not a nag, not a modal, and not a thing that
+# can restart anything. One passive notification, once per login, that closes on
+# its own. The owner remains the only one who decides when this machine
+# restarts. If they ignore it, it says nothing more until the next login.
+#
+# WHY uname -r AND NOT /run/reboot-required. That file is written by
+# update-notifier-common, which Debian ships as a Recommends of nothing this
+# tree installs — depending on it would be this project's own dropped-Recommends
+# bug class, and the check would silently never fire. Comparing the running
+# release against the newest installed one needs no package at all and cannot go
+# stale.
+set -eu
+
+# Live session: the "installed" kernel and the running one are the same file and
+# there is nothing to restart into. Also, an install-time popup over Calamares is
+# exactly the class of interruption 0600 spent a paragraph removing.
+grep -qw boot=live /proc/cmdline 2>/dev/null && exit 0
+
+[ -d /boot ] || exit 0
+
+RUNNING=$(uname -r)
+
+# The newest kernel on disk, by version, not by mtime — a reinstall of an older
+# kernel would otherwise look newer. dpkg --compare-versions is the authority on
+# Debian version ordering; sort -V agrees with it closely enough for "is there
+# something different from what is running", and needs no dpkg query.
+NEWEST=$(ls -1 /boot/vmlinuz-* 2>/dev/null |
+         sed 's|.*/vmlinuz-||' |
+         sort -V |
+         tail -1)
+
+[ -n "$NEWEST" ] || exit 0
+[ "$NEWEST" = "$RUNNING" ] && exit 0
+
+# Only speak when the newer kernel is genuinely newer, so a machine deliberately
+# booted into an older kernel from the boot menu is not nagged about the newer
+# one it chose not to use... which is the same comparison, so this is really the
+# guard against a malformed version string producing a backwards result.
+if command -v dpkg >/dev/null 2>&1; then
+    dpkg --compare-versions "$NEWEST" gt "$RUNNING" 2>/dev/null || exit 0
+fi
+
+. /usr/bin/dagric-i18n.sh 2>/dev/null || true
+
+TITLE=$(gettext "A security update is ready")
+BODY=$(gettext "An update has been installed and takes effect the next time you restart. There is no hurry, and nothing will restart on its own.")
+
+# kdialog is a hard dependency of dagric-tools and is the notification route
+# every other Dagric helper uses; notify-send is the fallback for a session
+# where it is somehow absent. Both are passive: they cannot block anything.
+if command -v kdialog >/dev/null 2>&1; then
+    kdialog --title "$TITLE" --passivepopup "$BODY" 12 >/dev/null 2>&1 || true
+elif command -v notify-send >/dev/null 2>&1; then
+    notify-send --app-name=Dagric --urgency=low "$TITLE" "$BODY" >/dev/null 2>&1 || true
+fi
+
+exit 0

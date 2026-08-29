@@ -30,9 +30,32 @@ if ! dg_is_yes "$ans"; then
     exit 0
 fi
 
-# steam-installer pulls the rest of its i386 deps; multiarch was enabled at
-# build time on Pro. Run under pkexec so this works when launched from the GUI.
-pkexec sh -c 'dpkg --add-architecture i386 && apt-get update && apt-get install -y steam-installer'
+# THE VULKAN DRIVERS ARE NAMED HERE, and that is not belt-and-braces.
+#
+# steam-installer's chain reaches mesa-vulkan-drivers only through steam-libs'
+# RECOMMENDS, and /etc/apt/apt.conf.d/01dagric-norecommends turns Recommends off
+# permanently on every installed Dagric machine. So this command used to finish
+# "successfully" on a free machine that had libvulkan1 (the loader) and not one
+# single Vulkan ICD — verified in the shipped free image, where /usr/share/vulkan
+# does not exist at all.
+#
+# Proton and DXVK are Vulkan-only. Without an ICD the games do not run slower,
+# they do not start: the Steam client opens, looks perfectly healthy, and every
+# Windows title fails at launch — which reads as the operating system being
+# broken, on the one button index.html tells Steam-only buyers is all they need
+# ("Steam with Proton ... install in one click on any edition") and that pro.html
+# points them at the free edition to press. This is the project's own
+# dropped-Recommends bug class landing on its most-tested feature.
+#
+# Naming them costs a free machine nothing it was not already promised, and Pro
+# keeps its real step-up: everything preinstalled and tuned offline, with
+# GameMode, MangoHud, Lutris and 32-bit Wine already there. The :i386 half is
+# what DXVK actually loads for 32-bit titles, and it can only be resolved after
+# --add-architecture, so it stays in the same shell as the multiarch enable.
+#
+# Both are also already on the Pro image, where apt will simply report them
+# installed and move on.
+pkexec sh -c 'dpkg --add-architecture i386 && apt-get update && apt-get install -y steam-installer mesa-vulkan-drivers mesa-vulkan-drivers:i386'
 RC=$?
 if [ "$RC" -eq 0 ]; then
     echo

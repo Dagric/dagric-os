@@ -102,3 +102,39 @@ if [ "$FIXED" -eq 0 ]; then
 else
     echo "file-modes: cleared the executable bit on $FIXED config files"
 fi
+
+# TRANSLATION SOURCES ARE BUILD INPUTS, NOT RUNTIME FILES.
+#
+# The login theme and the installer slideshow are translated with Qt catalogues,
+# and both the .ts sources and the compiled .qm live beside the QML in
+# includes.chroot — the .ts because a committed, reviewable source is how this
+# project treats every other catalogue (po/*.po sits beside the .mo it builds).
+# But only the .qm is read at runtime: SDDM loads translations/<locale>.qm and
+# Calamares loads lang/calamares-dagric_<locale>.qm. The XML sources are ~33 KB
+# of build input that no installed machine has any use for.
+#
+# Removed here rather than excluded at the copy, because includes.chroot is the
+# single source of truth for what the image contains and a second exclusion list
+# in build.sh is one more thing to drift. The .qm are asserted afterwards: a
+# cleanup that removed the compiled catalogue instead of the source would put
+# the login screen back into English in five languages, silently.
+TSGONE=0
+for _d in /usr/share/sddm/themes/dagric/translations \
+          /etc/calamares/branding/dagric/lang; do
+    [ -d "$_d" ] || continue
+    for _t in "$_d"/*.ts; do
+        [ -f "$_t" ] || continue
+        rm -f "$_t"
+        TSGONE=$((TSGONE + 1))
+    done
+    _n=$(ls -1 "$_d"/*.qm 2>/dev/null | wc -l)
+    if [ "$_n" -lt 5 ]; then
+        echo "ERROR: only $_n compiled catalogues left in $_d (want 5 or more)." >&2
+        echo "       The login screen or installer would be English in every" >&2
+        echo "       language but one, and nothing else would report it." >&2
+        exit 1
+    fi
+    echo "file-modes: $_d — $_n compiled catalogues kept"
+done
+[ "$TSGONE" -gt 0 ] && echo "file-modes: removed $TSGONE .ts translation sources from the image"
+exit 0

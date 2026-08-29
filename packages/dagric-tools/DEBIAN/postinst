@@ -1,0 +1,39 @@
+#!/bin/sh
+# Dagric OS — put a paying customer's paid appearance set back after the upgrade
+# that stopped shipping it. See DEBIAN/preinst for why the stash exists.
+#
+# THE EDITION IS READ HERE AND NOWHERE ELSE, and it fails closed: anything other
+# than exactly "pro" restores nothing and drops the stash. An unreadable edition
+# file must never hand out the paid layouts, which is the same rule
+# dagric-app-names applies when it deletes them.
+#
+# Restoring only what was stashed means this cannot invent a layout the machine
+# did not already have: on a free machine preinst found nothing, so there is
+# nothing here to put back, whatever the edition file says.
+set -e
+
+STASH=/var/lib/dagric/pro-appearance
+LOOKS=/usr/share/dagric/looks
+STYLES=/usr/share/dagric/styles
+THUMBS=/usr/share/dagric/appearance/thumbs
+
+case "$1" in
+configure)
+    if [ -d "$STASH" ]; then
+        EDITION=$(cat /etc/dagric-edition 2>/dev/null || echo free)
+        if [ "$EDITION" = "pro" ]; then
+            mkdir -p "$LOOKS" "$STYLES" "$THUMBS" 2>/dev/null || true
+            for f in "$STASH"/looks/*.look;   do [ -e "$f" ] && cp -p "$f" "$LOOKS/"   || true; done
+            for f in "$STASH"/styles/*.style; do [ -e "$f" ] && cp -p "$f" "$STYLES/"  || true; done
+            for f in "$STASH"/thumbs/*.png;   do [ -e "$f" ] && cp -p "$f" "$THUMBS/"  || true; done
+        fi
+        # Dropped either way. Keeping it on a free machine would leave the paid
+        # drop-ins sitting in /var/lib where the next edition-file edit could
+        # restore them — the "one line of text" unlock the build refuses to
+        # rely on. The stash is rebuilt by preinst on the next upgrade.
+        rm -rf "$STASH"
+    fi
+    ;;
+esac
+
+exit 0

@@ -727,6 +727,19 @@ if [ "$ASSETS_OK" = yes ]; then
         for f in "$WORK"/x/styles/*.style; do [ -e "$f" ] && cp -f "$f" "$STYLES/"; done
         for f in "$WORK"/x/thumbs/*.png;   do [ -e "$f" ] && cp -f "$f" "$THUMBS/"; done
         for f in "$WORK"/x/applications/*.desktop; do [ -e "$f" ] && cp -f "$f" "$APPS/"; done
+        # The Pro icon default, so an upgraded machine and one installed from
+        # the Pro ISO look the same. 0600-pro-edition.hook.chroot writes this
+        # exact file at build time and explains the choice of /etc/xdg over the
+        # skel conffile; this path was missing it entirely, so every machine
+        # upgraded from free kept the free edition's icons while the ISO-Pro
+        # machines got Papirus-Light — two machines both sold as Pro, looking
+        # different, which is the thing this whole tool exists to prevent.
+        # System-wide rather than per-user: it must apply to the account
+        # running this and to every account added afterwards.
+        mkdir -p /etc/xdg
+        if ! grep -q '^Theme=Papirus-Light' /etc/xdg/kdeglobals 2>/dev/null; then
+            printf '[Icons]\nTheme=Papirus-Light\n' >> /etc/xdg/kdeglobals
+        fi
         say "  $(gettext "done.")"
     else
         # NOT a warning. An unpack that fails here is past apt, so continuing
