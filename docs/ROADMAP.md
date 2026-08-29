@@ -122,6 +122,36 @@
 - [ ] Full-disk-encryption install path verified
 - [ ] Secure Boot with enforcing firmware (shim-signed chain ships; test on
       real Secure Boot hardware)
+- [ ] **OpenSnitch's control socket, on a booted Pro machine.** The daemon
+      dials the UI at `unix:///tmp/osui.sock` — upstream's default, in a
+      world-writable directory — so on a shared machine a second local user can
+      bind that path first and then both see every connection event and answer
+      the prompts a ROOT daemon enforces. The long note in
+      `0600-pro-edition.hook.chroot` explains why it has not simply been moved:
+      shift one end and the daemon reaches no UI at all, and with
+      `DefaultAction "allow"` that failure is SILENT — Pro's headline security
+      feature becomes a no-op that still looks installed and running, which is
+      worse than the weakness.
+      Narrowed 2026-08-29: the shipped daemon is opensnitch 1.6.9-3 and its
+      binary carries `Authentication` and `AuthType`, so `Server.Authentication`
+      IS expressible in the static config. What is missing is the certificate
+      story — the useful modes are TLS, and per-machine key material must be
+      generated on first boot (beside `dagric-ssh-hostkeys.service`), never
+      baked into the ISO, which would be the identical-keys-on-every-machine
+      defect. Definition of done: generate on first boot, point both ends at it,
+      and SEE a connection prompt appear on a booted Pro VM. Not "the config
+      looks right".
+      Disclosed on site/security.html while it stands, so a buyer evaluating a
+      shared machine reads it from us rather than finding it.
+- [ ] **Flip the complain-mode AppArmor profiles that cover installed
+      software.** 41 of the ~135 profiles ship in complain mode; that is
+      Debian's own packaging default, and most of the 41 cover software this
+      image does not install, so they are inert. The handful that are not —
+      `Xorg`, `plasmashell` (and its nested `QtWebEngineProcess`),
+      `usr.sbin.avahi-daemon`, `bin.ping` — are the ones worth auditing and
+      enforcing. AppArmor itself IS enabled: the shipped kernel sets
+      `CONFIG_DEFAULT_SECURITY_APPARMOR=y` and `apparmor.service` is enabled, so
+      no kernel command line change is needed. Footnoted on site/security.html.
 - [x] Live session idle screen-lock disabled (live-config script; installed
       systems keep normal lock behavior)
 - [x] Installer menu label renamed to "Install Dagric OS"

@@ -41,7 +41,15 @@ THUMBS=/usr/share/dagric/appearance/thumbs
 case "$1" in
 upgrade)
     rm -rf "$STASH"
-    mkdir -p "$STASH/looks" "$STASH/styles" "$STASH/thumbs" 2>/dev/null || exit 0
+    # Not `|| exit 0`. That silently abandoned the stash on ANY failure — and a
+    # stash that does not happen is a Pro machine that loses its paid layouts,
+    # which is the one outcome this script exists to prevent. If it cannot be
+    # written, say so on stderr where the upgrade log will keep it.
+    if ! mkdir -p "$STASH/looks" "$STASH/styles" "$STASH/thumbs"; then
+        echo "dagric-tools: cannot write $STASH — the Pro appearance set may be" >&2
+        echo "  removed by this upgrade. Re-run dagric-upgrade-to-pro to restore it." >&2
+        exit 0
+    fi
     n=0
     for f in $(grep -rlx 'EDITION=pro' "$LOOKS" "$STYLES" 2>/dev/null); do
         base=${f##*/}
