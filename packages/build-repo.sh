@@ -185,6 +185,55 @@ if grep -qE '^ [0-9a-f]+ +[0-9]+ Release$' Release; then
     exit 1
 fi
 
+# PARSE THE apt.conf FILES BEFORE PUBLISHING THEM. THE BLAST RADIUS IS THE FLEET.
+#
+# dagric-security-policy owns three files in /etc/apt/apt.conf.d and, as of
+# 2026-08-29, installs itself with no human in the loop. A single syntax error
+# in any of them makes EVERY apt invocation on the machine exit 100 — apt
+# update, apt install, Discover, and unattended-upgrades itself. The remedy for
+# a broken fleet is the update channel, which runs through apt, so the failure
+# locks out its own repair: recovery needs a person at each keyboard with dpkg.
+#
+# The only thing that has ever parsed these files is
+# 0300-hardening.hook.chroot, which runs during an ISO BUILD. The channel is a
+# separate path — build-repo.sh assembles the same .debs and publishes them
+# without ever building an image — so a policy change published on its own has
+# never been parsed by anything before reaching machines. This closes that.
+#
+# apt.conf is not shell and a file that reads fine can parse to nothing; only a
+# parser is evidence. Checked from the STAGED package, which is the exact bytes
+# about to be signed.
+echo "=== parsing the apt policy files about to be published ==="
+_aptbad=0
+_seen=0
+for _c in "${DAGRIC_PKG_STAGE:-$STAGE}"/dagric-security-policy/etc/apt/apt.conf.d/*; do
+    [ -f "$_c" ] || continue
+    _seen=$((_seen + 1))
+    if apt-config -c "$_c" dump >/dev/null 2>&1; then
+        echo "  ok   ${_c##*/}"
+    else
+        echo "  FAIL ${_c##*/} does not parse" >&2
+        apt-config -c "$_c" dump 2>&1 | head -3 | sed 's/^/       /' >&2
+        _aptbad=1
+    fi
+done
+if [ "$_aptbad" = 1 ]; then
+    echo "" >&2
+    echo "build-repo: refusing to publish. These files install themselves on" >&2
+    echo "  every machine, and a syntax error in one breaks apt everywhere at" >&2
+    echo "  once — including the channel that would carry the fix." >&2
+    exit 1
+fi
+# "Nothing to check" must not read as "everything checked" — the same
+# distinction this tree keeps getting wrong.
+if [ "$_seen" -eq 0 ]; then
+    echo "build-repo: found no apt.conf files in the staged security package." >&2
+    echo "  They are supposed to be there; publishing without parsing them is" >&2
+    echo "  exactly the risk this check exists for." >&2
+    exit 1
+fi
+echo "  $_seen apt policy file(s) parsed"
+
 echo "=== signing with the release key ==="
 KEY=6CE37402BA0A0EF8
 gpg --list-secret-keys "$KEY" >/dev/null 2>&1 || {

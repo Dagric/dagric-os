@@ -177,8 +177,36 @@ def main():
                      % (BASE, slug, newdate, DEFAULT_PRIORITY))
             out = out.replace('</urlset>', entry + '</urlset>', 1)
 
+    # REMOVE ENTRIES THAT WILL 404, which this file's own docstring promised and
+    # no code did. main() only ever updated what it found and appended what was
+    # missing, so a page deleted from the tree -- or one firebase.json stops
+    # uploading, which is exactly /family's situation -- stayed in the sitemap
+    # advertising a URL that returns 404 to every crawler, while --check printed
+    # "all lastmod values match git" and exited 0.
+    #
+    # A sitemap is a set of promises about what exists. Keeping a promise the
+    # deploy no longer honours is worse than omitting it, because a 404 from a
+    # sitemap URL is a quality signal search engines act on.
+    live = set()
+    for slug, _ in deployed_slugs():
+        live.add(slug)
+    for m in URL_RE.finditer(s):
+        slug = m.group('slug').rstrip('/')
+        if slug.startswith('guide') or slug == '':
+            continue                      # generated block / the home page
+        if slug in live:
+            continue
+        changes.append('/%-18s REMOVED (not deployed)' % slug)
+        entry = m.group(0)
+        # Take the whole line, including its indentation and newline.
+        i = out.find(entry)
+        if i >= 0:
+            start = out.rfind('\n', 0, i) + 1
+            end = out.find('\n', i) + 1
+            out = out[:start] + out[end:]
+
     if not changes:
-        print('sitemap: %d entries, all lastmod values match git' % len(existing))
+        print('sitemap: %d entries, all lastmod values match git, none stale' % len(existing))
         return 0
 
     for c in changes:

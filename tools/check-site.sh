@@ -54,7 +54,28 @@ for f in site/*.html site/guide/index.html site/guide/*/index.html; do
     [ -f "$f" ] || continue
     is_ignored "$f" && continue
     DEPLOYED="$DEPLOYED $f"
+    NDEPLOYED=$((${NDEPLOYED:-0} + 1))
 done
+
+# A GATE THAT CHECKED NOTHING USED TO REPORT SUCCESS.
+#
+# Every loop below iterates over $DEPLOYED, so an empty list means each one runs
+# zero times, the link subshell's grep sees no input, and the script printed a
+# green line and exited 0. Measured by renaming site/ away: it printed
+# "check-site: 1 pages, ... links and sitemap agree." and exited 0 — a release
+# gate certifying a site that was not there. (The count was wrong too: for an
+# empty variable `printf '%s\n' $DEPLOYED` emits one blank line, so zero pages
+# reported as one. $NDEPLOYED is counted in the loop instead of inferred.)
+#
+# This is the same shape as every other false pass in this tree: the check did
+# not distinguish "nothing wrong" from "nothing looked at".
+if [ "${NDEPLOYED:-0}" -eq 0 ]; then
+    echo "check-site: found NO pages to check." >&2
+    echo "  Expected HTML under site/. Either the working directory is wrong or" >&2
+    echo "  firebase.json's ignore list now excludes everything. Refusing to" >&2
+    echo "  report a clean site that was never examined." >&2
+    exit 1
+fi
 
 # ---------------------------------------------------------------- placeholders
 # Anything still carrying a fill-in-later token is unfinished by definition, and
@@ -173,5 +194,5 @@ if [ "$FAIL" = 1 ]; then
     echo "check-site: FAILED — do not deploy." >&2
     exit 1
 fi
-echo "check-site: $(printf '%s\n' $DEPLOYED | wc -l) pages, no placeholders, no tunnels, links and sitemap agree."
+echo "check-site: $NDEPLOYED pages, no placeholders, no tunnels, links and sitemap agree."
 exit 0

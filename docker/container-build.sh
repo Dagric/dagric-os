@@ -57,18 +57,32 @@ if [ "$EDITION" != "pro" ]; then
         rm -f "$drop" \
             "config/includes.chroot/usr/share/dagric/appearance/thumbs/${base%.*}.png"
     done
-    # OpenSnitch's configuration must not ship on an edition that has no
-    # OpenSnitch. The free image carried /etc/opensnitchd/default-config.json,
-    # fourteen Dagric rule files and the /etc/skel UI preference — while free
-    # installs no opensnitch package and has no opensnitchd binary at all.
-    # Nothing malfunctioned; it is dead weight in an image whose whole pitch is
-    # being leaner, and it misleads in the one direction that matters: somebody
-    # auditing the free edition finds a firewall's config and its rules and
-    # reasonably concludes the firewall is there.
-    rm -rf config/includes.chroot/etc/opensnitchd \
-           config/includes.chroot/etc/skel/.config/opensnitch \
-           config/includes.chroot/etc/systemd/system/opensnitch.service.d \
-           config/includes.chroot/usr/lib/live/config/2020-dagric-opensnitch-live
+    # THE OPENSNITCH CONFIG STAYS ON FREE, AND THIS COMMENT IS THE REASON.
+    #
+    # It was pruned here on 2026-08-29 as "dead weight": free installs no
+    # opensnitch package, so its config looked like clutter that might mislead
+    # anyone auditing the image. That argument was made from inside this file
+    # without opening the one file in the tree that depends on those paths, and
+    # it was wrong.
+    #
+    # /usr/bin/dagric-upgrade-to-pro — the $39 in-place upgrade, which ships ON
+    # THE FREE IMAGE — says so in as many words: "The free image deliberately
+    # ships /etc/opensnitchd/ (the tuned config with the pre-answer rules — it
+    # exists precisely so an upgraded machine matches the Pro ISO)". That
+    # upgrade installs opensnitch with --force-confdef --force-confold, and
+    # keeping the old file is not a safety default there, it is THE MECHANISM:
+    # the on-disk config is Dagric's, and dpkg keeping it is what gives an
+    # upgraded machine the same fourteen pre-answer rules a Pro ISO install has.
+    #
+    # Delete them and a customer who pays for the upgrade gets upstream's stock
+    # config instead — no pre-answer rules, so OpenSnitch begins asking about
+    # apt, flatpak, fwupd and the update checker. That is precisely the wall of
+    # prompts that once stopped a real install at 42%, and it is documented
+    # three files away. A free machine carrying an unused config is not a defect
+    # worth paying that for.
+    #
+    # If this is ever revisited: read dagric-upgrade-to-pro first.
+    :
 fi
 mkdir -p config/includes.chroot/etc
 printf '%s\n' "$EDITION" > config/includes.chroot/etc/dagric-edition

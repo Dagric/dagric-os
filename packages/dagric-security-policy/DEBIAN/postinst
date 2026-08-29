@@ -1,0 +1,37 @@
+#!/bin/sh
+# Dagric OS — make the security baseline actually take effect.
+#
+# WHY THIS EXISTS. This package's whole justification for being the one Dagric
+# package allowed to install itself, with no human in the loop, is that a
+# hardening regression can be corrected through the update channel. Half of the
+# baseline is /etc/sysctl.d/99-dagric-hardening.conf — and until now the package
+# had no postinst, nothing in the tree ran sysctl, and no dpkg trigger fires for
+# /etc/sysctl.d. So an automatic upgrade wrote the corrected values to disk and
+# the RUNNING kernel kept the regressed ones until the machine happened to
+# reboot, with nothing telling the owner. A silent update that does not apply
+# is worse than one the owner clicks, because nobody is waiting to notice.
+#
+# `sysctl --system` re-reads every file in the standard directories rather than
+# only ours. That is deliberate: it is what a reboot would do, so it cannot
+# leave the machine in a state a reboot would not produce.
+#
+# Never fails the install. A sysctl that a container or an unusual kernel
+# refuses is not a reason to leave the package half-configured — the values are
+# on disk and the next boot applies them. It reports, so the failure is in the
+# upgrade log rather than nowhere.
+set -e
+
+case "$1" in
+configure)
+    if [ -d /run/systemd/system ] && command -v sysctl >/dev/null 2>&1; then
+        if sysctl --system >/dev/null 2>&1; then
+            echo "dagric-security-policy: kernel hardening values applied."
+        else
+            echo "dagric-security-policy: some sysctl values could not be applied" >&2
+            echo "  now; they are on disk and take effect at the next restart." >&2
+        fi
+    fi
+    ;;
+esac
+
+exit 0
