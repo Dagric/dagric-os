@@ -1,3 +1,55 @@
 #!/bin/sh
+# THE EXIT STATUS OF `lb build` MUST SURVIVE THE PIPE.
+#
+# This was:
+#
+#     lb build noauto "${@}" 2>&1 | tee build.log
+#
+# and a pipeline's status is the status of its LAST command, which is tee, which
+# succeeds whenever it can write the file. So a failed `lb build` reported 0,
+# `set -e` never fired, and both build.sh and docker/container-build.sh carried
+# on as though the build had worked. dash has no `pipefail`, so the option every
+# other shell would use is not available here.
+#
+# The only backstop was the "no ISO produced" check, and it does not cover a
+# failure DURING or AFTER ISO creation — xorriso dying part-way through a write
+# leaves a file with a plausible name and a fresh timestamp, the dd copy then
+# verifies that truncated ISO against itself, and the build prints
+# "copied ... verified". That is precisely the failure build.sh's own comments
+# were written to prevent, arriving through the one place nobody was checking.
+#
+# Writing the status to a file inside the pipeline and reading it afterwards is
+# the portable way to get it back.
+#
+# `set -e` HAS TO BE OFF ACROSS THE PIPELINE, and finding that out is the reason
+# this is written down. The first version of this fix was
+#
+#     { lb build noauto "${@}" 2>&1; echo $? > "$STATUS"; } | tee build.log
+#
+# under `set -e`, and it FAILED for exactly the case it exists to catch: dash
+# aborts the whole { } group the moment lb build returns non-zero, so the
+# `echo $?` never runs, the status file is never written, and the fallback reads
+# a failure as 1 — a different wrong answer, in the same direction. Measured
+# under /bin/sh -> dash: exit 0 recovered correctly, exit 7 came back as 1.
 set -e
-lb build noauto "${@}" 2>&1 | tee build.log
+
+STATUS=.lb-build-status
+rm -f "$STATUS"
+
+set +e
+{ lb build noauto "${@}" 2>&1; echo $? > "$STATUS"; } | tee build.log
+set -e
+
+# A missing status file means the subshell died before it could write one —
+# treat that as a failure rather than as a pass.
+rc=$(cat "$STATUS" 2>/dev/null || echo 1)
+rm -f "$STATUS"
+
+if [ "$rc" != 0 ]; then
+    echo "" >&2
+    echo "auto/build: lb build FAILED with status $rc." >&2
+    echo "  The end of build.log is the place to look; a build that gets far" >&2
+    echo "  enough to write an ISO and then fails still leaves a plausible" >&2
+    echo "  file behind, which is why this status is now checked." >&2
+fi
+exit "$rc"

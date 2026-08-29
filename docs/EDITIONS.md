@@ -175,8 +175,17 @@ own.
   sales page. The front page has a one-click filter that hides them (94 → 57).
   Install-on-request apps (Joplin, ONLYOFFICE, Bottles, LocalSend, Cryptomator,
   Heroic, ProtonUp-Qt, Upscayl, Steam, Resolve, Ollama, Variety) carry an
-  ADD-ON badge and **no** PRO badge, because they install from Flathub on any
-  edition.
+  ADD-ON badge and **no** PRO badge, because they install on demand on **any**
+  edition rather than being part of what Pro adds.
+  They do not all come from the same place, and saying "from Flathub" was wrong
+  in a way that hid a real bug for weeks: **Steam** apt-installs Valve's
+  `steam-installer` from Debian's non-free section, **Resolve** and **Ollama**
+  run a vendor installer, and the rest are Flathub. Because Steam comes through
+  apt rather than a Flatpak runtime, it inherits this image's no-recommends
+  policy — which is how the free edition ended up installing Steam with no
+  Vulkan driver at all, so Proton games could not start. `dagric-get-steam`
+  names `mesa-vulkan-drivers` explicitly now. Keep this sentence accurate: doc
+  drift here is what made that defect invisible.
 - **Text Size** (`dagric-display`) — make everything on screen bigger, 100% to
   200%, with a night light that warms the screen from 8pm to 7am. Two safety
   properties worth naming: sizes that would not leave 800×600 logical pixels

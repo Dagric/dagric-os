@@ -153,6 +153,19 @@ gzip -kf "$DIST/$COMP/binary-amd64/Packages"
 # one-week window costs nothing and this reasoning inverts. Until then, do not
 # add it because a checklist said to: the failure lands on customers.
 cd "$DIST"
+# WRITTEN OUTSIDE THE SCANNED DIRECTORY, THEN MOVED IN.
+#
+# This was `apt-ftparchive release . > Release`, and the shell creates the empty
+# Release in "." BEFORE apt-ftparchive starts reading it — so the partially
+# written file got hashed into its own index. The published Release listed
+# itself at 177 bytes while the file actually served was 1487, and the four
+# digests for it matched nothing on the server.
+#
+# apt never verifies that self-entry, so no customer was affected. Any strict
+# mirroring tool that fetches every listed file — debmirror, aptly, apt-mirror —
+# reports a hash-sum mismatch on a perfectly good repository, which is a bad
+# first impression to give somebody who mirrors us.
+rm -f Release Release.new
 apt-ftparchive \
     -o APT::FTPArchive::Release::Origin=Dagric \
     -o APT::FTPArchive::Release::Label="Dagric OS" \
@@ -161,7 +174,16 @@ apt-ftparchive \
     -o APT::FTPArchive::Release::Architectures=amd64 \
     -o APT::FTPArchive::Release::Components="$COMP" \
     -o APT::FTPArchive::Release::Description="Dagric OS update channel" \
-    release . > Release
+    release . > "$OUT/Release.new"
+mv "$OUT/Release.new" Release
+# And prove it: a Release that still describes itself would mean the redirect
+# has crept back.
+if grep -qE '^ [0-9a-f]+ +[0-9]+ Release$' Release; then
+    echo "build-repo: Release contains an entry for itself — the index was" >&2
+    echo "  generated into the directory being scanned. Mirroring tools will" >&2
+    echo "  report a hash mismatch on a good repository." >&2
+    exit 1
+fi
 
 echo "=== signing with the release key ==="
 KEY=6CE37402BA0A0EF8
@@ -170,7 +192,20 @@ gpg --list-secret-keys "$KEY" >/dev/null 2>&1 || {
 rm -f Release.gpg InRelease
 gpg --batch --yes --default-key "$KEY" -abs -o Release.gpg Release
 gpg --batch --yes --default-key "$KEY" --clearsign -o InRelease Release
-gpg --armor --export "$KEY" > "$OUT/dagric-repo.gpg.asc"
+# export-clean, export-minimal: strip revoked user IDs and third-party
+# signatures from the PUBLISHED key. A plain `--armor --export` carries the
+# key's whole history, and this key's history includes a revoked placeholder uid
+# reading "Dagric OS Repository <repo@example.org>" — visible to anyone who runs
+# `gpg --show-keys` on the trust anchor of a product sold on verifiability. It
+# is cryptographically harmless (the binary keyring shipped in the image has
+# only the clean uid) and it is exactly the artefact a security-conscious buyer
+# inspects first.
+gpg --armor --export-options export-clean,export-minimal \
+    --export "$KEY" > "$OUT/dagric-repo.gpg.asc"
+if gpg --show-keys "$OUT/dagric-repo.gpg.asc" 2>/dev/null | grep -qi 'example\.org'; then
+    echo "build-repo: the exported key still carries the example.org placeholder uid." >&2
+    exit 1
+fi
 
 # Verify our own signature before it is served to anybody — as a PLAIN command
 # whose exit status is checked, not as

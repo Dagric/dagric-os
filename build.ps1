@@ -32,7 +32,15 @@ docker run --rm --privileged `
     dagric-builder `
     sh /src/docker/container-build.sh
 
-if ($?) {
-    Write-Host "Done. ISO is in: $repo\out" -ForegroundColor Green
-    Write-Host "Test it: .\test\boot-test.ps1 or .\test\install-test.ps1"
+# CHECKED, because it was not. A failed `docker run` merely skipped the "Done."
+# line and this script still exited 0 — so any wrapper, scheduled task or CI
+# step calling it saw a successful build. The docker BUILD step above is
+# checked; the step that actually makes the ISO was not.
+if ($LASTEXITCODE -ne 0) {
+    Write-Host "Build FAILED (exit $LASTEXITCODE). No ISO was produced." -ForegroundColor Red
+    Write-Host "The end of $repo\out\build.log is the place to look."
+    exit $LASTEXITCODE
 }
+
+Write-Host "Done. ISO is in: $repo\out" -ForegroundColor Green
+Write-Host "Test it: .\test\boot-test.ps1 or .\test\install-test.ps1"

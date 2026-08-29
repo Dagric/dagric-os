@@ -115,10 +115,22 @@
   <code>/usr/share/doc/&lt;package&gt;/copyright</code>.</p>
 
   <h2>Source code</h2>
-  <p>Source for every Debian package in Dagric OS is available from
-  <a href="https://www.debian.org/distrib/packages">Debian's package archive</a> (matching the
-  versions we ship). Per the GPL, we'll also supply the corresponding source for any GPL-licensed
-  component we distribute — request it via the <a href="/contact">contact page</a>.</p>
+  <p>Every release publishes the exact package list it was built from — the free edition's
+  <a href="/manifest/dagric-os-1.0.packages">package manifest</a> and Pro's
+  <a href="/manifest/dagric-os-pro-1.0.packages">package manifest</a> — naming every component
+  and its precise version.</p>
+  <p>Source for each of those is available from
+  <a href="https://snapshot.debian.org/">snapshot.debian.org</a>, Debian's permanent archive,
+  which keeps every version ever published. (Debian's
+  <a href="https://www.debian.org/distrib/packages">current package archive</a> is easier to
+  browse but drops superseded versions at each point release, so the snapshot archive is the one
+  that will still answer for the versions we ship once they are no longer current.)</p>
+  <p>Per the GPL, we will also supply the corresponding source for any GPL-licensed component we
+  distribute, for at least three years — request it via the <a href="/contact">contact page</a>.
+  That includes the Dagric packages themselves (<code>dagric-tools</code>,
+  <code>dagric-branding</code>, <code>dagric-desktop-defaults</code> and
+  <code>dagric-security-policy</code>), which are GPL-3.0-or-later; each carries its licence at
+  <code>/usr/share/doc/&lt;package&gt;/copyright</code> on any installed machine.</p>
 
   <h2>Verifying releases</h2>
   <p>Every release publishes <a href="SHA256SUMS">SHA256SUMS</a>, a GPG

@@ -285,11 +285,27 @@
     <li><strong>KDE's crash handler</strong> is installed, so a crashed application offers you a
     report. It never sends anything unless you read that dialog and choose to send it, and we
     receive none of it — it goes to KDE, not to us.</li>
+    <li><strong>Phone pairing (KDE&nbsp;Connect)</strong> starts with your desktop session on both
+    editions and announces this computer on your <em>local network</em> — a small broadcast
+    carrying the computer's name and a stable device identifier, so your phone can find it in the
+    pairing list. It goes no further than your own network: nothing is sent to us or to any
+    third party, and no pairing happens without you accepting it on both devices. This is the one
+    thing in this list that starts by itself and carries an identifier, which is exactly why it is
+    named here. To stop it, untick <em>KDE Connect</em> in
+    <em>System Settings → Startup and Shutdown → Autostart</em>, or remove the
+    <code>kdeconnect</code> package.</li>
   </ul>
   <p>All of these reveal your IP address to the server being asked, the same as any Linux
   distribution. None of them carries an account, and none carries anything about what you do on
-  the machine. One carries a device identifier — Syncthing's discovery, and only once you have
-  started it — and it is named as such above rather than left out of the list.</p>
+  the machine. Two carry a device identifier: KDE&nbsp;Connect's local announcement, which starts
+  with your session, and Syncthing's discovery, only once you have started it. Both are named
+  above rather than left out of the list.</p>
+  <p class="note">To be precise about a phrase that is easy to over-read: &ldquo;no telemetry&rdquo;
+  means nothing about you or your use of this computer is collected or sent anywhere. It does not
+  mean the machine never talks to anyone — it checks for updates, fetches firmware metadata, and
+  your browser contacts its own services. Everything it does on its own is in the list above.
+  <a href="/security">Security</a> says the same thing beside the rest of what we know is
+  imperfect.</p>
 
   <h2>This website</h2>
   <ul>
