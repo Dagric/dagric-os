@@ -135,11 +135,12 @@ form button:disabled{opacity:.6;cursor:wait}
 <main id="main">
   <h1>Talk to <span class="grad">a human.</span></h1>
   <p class="lead">Support question, Pro order, business inquiry, or just a thought — write it below
-  and it lands directly with us. We read everything.</p>
+  and it lands directly with us. We read everything. If the form is unavailable, email
+  <a href="mailto:support@dagric.com">support@dagric.com</a>.</p>
 
   <div class="note"><strong>Bought Pro?</strong> Replying to your Stripe receipt also reaches us
   and attaches your purchase details automatically — that's the fastest route for order and
-  order and billing questions.</div>
+  billing questions.</div>
 
   <!-- method="post" IS A PRIVACY FIX, NOT A FORMALITY. This form has no action,
        and assets/contact.js submits it with fetch() after preventDefault(). With
@@ -160,8 +161,8 @@ form button:disabled{opacity:.6;cursor:wait}
   <noscript>
     <div class="note"><strong>This form needs JavaScript.</strong> It is switched
     off in your browser, so the send button will not work. Reply to your Stripe
-    receipt if you bought Pro, or use the routes on the
-    <a href="/support">support page</a> — both reach the same people.</div>
+    receipt if you bought Pro, or email
+    <a href="mailto:support@dagric.com">support@dagric.com</a> — both reach the same people.</div>
   </noscript>
   <form id="cform" method="post" novalidate>
     <label for="topic">What's it about?</label>

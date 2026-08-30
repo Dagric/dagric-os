@@ -343,8 +343,7 @@
     first/last-use dates described above. Dagric does not put a raw hardware identifier or IP
     address in those KV records, although Firebase, Cloudflare and Stripe may process request logs
     under their policies.</li>
-    <!-- The contact form is the site's only published support route (there is no
-         email address anywhere on it), and infra/contact-worker.js writes every
+    <!-- infra/contact-worker.js writes every
          submission — message, name, email, and the CF-IPCountry code the sender
          never typed — to the private Cloudflare R2 bucket dagric-contact. This
          section listed only hosting, Stripe and "support email", so the one thing
@@ -357,8 +356,11 @@
     stored with the message. The worker uses the IP address transiently for rate limiting but does
     not write it into the message. We use the submission to reply and handle support, refunds,
     security or legal requests; we do not add it to a marketing list.</li>
-    <li><strong>Support email.</strong> If you write to us instead, we have your email, under the
-    same rule: we use it to reply, and nothing more.</li>
+    <li><strong>Support email.</strong> If you write to
+    <a href="mailto:support@dagric.com">support@dagric.com</a> instead, Microsoft 365 processes
+    and stores the message for DGR Operations. We use it to reply and handle the request, and
+    nothing more. See <a href="https://www.microsoft.com/privacy/privacystatement">Microsoft's
+    privacy statement</a>.</li>
   </ul>
 
   <h2>Purpose, retention and security</h2>
@@ -372,10 +374,10 @@
   or a refund requires a separate record, we retain only the record needed for that purpose.</p>
   <p>Pages and forms use HTTPS. Contact messages and Pro files are in private Cloudflare buckets,
   access is restricted to the operator accounts that need it, and the site uses a restrictive
-  Content Security Policy. No internet service can promise perfect security; if we learn of a
-  breach that requires notice, we will provide it as required by applicable law. Firebase,
-  Cloudflare and Stripe operate globally, so their processing may occur outside your country,
-  including in the United States.</p>
+  Content Security Policy. Support email is protected by Microsoft 365 access controls. No internet
+  service can promise perfect security; if we learn of a breach that requires notice, we will
+  provide it as required by applicable law. Firebase, Cloudflare, Microsoft and Stripe operate
+  globally, so their processing may occur outside your country, including in the United States.</p>
 
   <h2>What we never do</h2>
   <ul>
