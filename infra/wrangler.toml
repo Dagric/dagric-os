@@ -49,7 +49,7 @@ binding = "PRO"
 bucket_name = "dagric-pro"
 
 # ── disposable Stripe sandbox gate ─────────────────────────────────────────
-# Deploy only while running the checkout/refund drill, then delete the Worker:
+# Deploy only while running the paid-checkout delivery drill, then delete the Worker:
 #
 #   wrangler secret put STRIPE_KEY --config infra/wrangler.toml --env staging
 #   wrangler deploy --config infra/wrangler.toml --env staging

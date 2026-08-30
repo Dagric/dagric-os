@@ -261,8 +261,8 @@ const VShot: React.FC<{
  * and a short that shows only the free one never sells anything.
  *
  * Every figure here is the website's, verbatim: /download says "Free forever ·
- * 2.0 GB ISO" and "$39 one-time · 3.7 GB ISO", and the refund line is "14-day,
- * no-questions refund". If those change, they change here in the same commit —
+ * 2.0 GB ISO" and "$39 one-time · 3.7 GB ISO", and the purchase-policy line says
+ * sales are final once downloading begins. If those change, they change here in the same commit —
  * a video is the hardest place on earth to fix a stale number, because it is
  * already on somebody's feed.
  */
@@ -344,7 +344,7 @@ const Price: React.FC = () => {
             hi
             name="Dagric Pro"
             price="$39"
-            note="3.7 GB · creative, gaming, dev and Windows apps — one purchase, 14-day refund"
+            note="3.7 GB · creative, gaming, dev and Windows apps — final once download begins"
           />
         </div>
       </AbsoluteFill>

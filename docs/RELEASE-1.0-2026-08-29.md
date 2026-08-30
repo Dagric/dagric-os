@@ -48,7 +48,7 @@ Still open, and not represented as passed:
 - Secure Boot across varied physical firmware
 - Broad Wi-Fi, GPU, suspend, camera, printer, and battery coverage
 - A screen-reader review by someone who relies on one
-- A non-zero card charge and refund through the live Stripe account
+- A non-zero Stripe test-mode checkout through the disposable staging gate (no live charge or refund)
 
 See the [public matrix](https://dagric.com/testing) for the evidence and exact
 scope behind each line.

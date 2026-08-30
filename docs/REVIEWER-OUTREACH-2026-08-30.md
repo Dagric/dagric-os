@@ -69,7 +69,7 @@ Ask for an independent review of these customer-critical journeys:
 2. Locate the SHA-256 checksum and verification instructions.
 3. Compare Free and Pro without relying on color alone.
 4. Complete and recover from errors in the contact form.
-5. Read the proof, accessibility, privacy and refund terms.
+5. Read the proof, accessibility, privacy and digital-download terms.
 6. Use keyboard-only navigation at 200% zoom and with reduced motion.
 7. Test with NVDA/JAWS on Windows and VoiceOver on iOS or macOS, including headings, landmarks, focus order, skip link, form labels, status messages and checkout handoff.
 
