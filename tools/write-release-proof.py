@@ -11,7 +11,10 @@ from __future__ import annotations
 import datetime as dt
 import hashlib
 import json
+import os
 import pathlib
+import re
+import shutil
 import subprocess
 import sys
 
@@ -26,10 +29,40 @@ EXPECTED = (
 )
 
 
-def git(*args: str) -> str:
-    return subprocess.check_output(
-        ["git", *args], cwd=ROOT, stderr=subprocess.DEVNULL, text=True
-    ).strip()
+def source_commit() -> str:
+    """Return the commit captured when the ISO build began.
+
+    An explicit environment value supports detached build workers. The file in
+    out/ is the normal path and deliberately survives later release-only
+    commits. Git (including Windows git.exe under WSL) is only a development
+    fallback for older build outputs.
+    """
+    candidates: list[str] = []
+    if value := os.environ.get("DAGRIC_SOURCE_COMMIT"):
+        candidates.append(value)
+    marker = OUT / "SOURCE_COMMIT"
+    if marker.is_file():
+        candidates.append(marker.read_text(encoding="ascii", errors="ignore").strip())
+    git_command = shutil.which("git") or shutil.which("git.exe")
+    if git_command:
+        try:
+            candidates.append(
+                subprocess.check_output(
+                    [git_command, "rev-parse", "HEAD"],
+                    cwd=ROOT,
+                    stderr=subprocess.DEVNULL,
+                    text=True,
+                ).strip()
+            )
+        except (OSError, subprocess.CalledProcessError):
+            pass
+    for candidate in candidates:
+        if re.fullmatch(r"[0-9a-fA-F]{40}", candidate):
+            return candidate.lower()
+    raise RuntimeError(
+        "source commit unavailable; preserve out/SOURCE_COMMIT from the build "
+        "or set DAGRIC_SOURCE_COMMIT"
+    )
 
 
 def read_signed_hashes() -> dict[str, str]:
@@ -76,7 +109,7 @@ def main() -> int:
         "base": "Debian 13 (Trixie)",
         "source": {
             "repository": "https://github.com/Dagric/dagric-os",
-            "commit": git("rev-parse", "HEAD"),
+            "commit": source_commit(),
         },
         "generated_utc": dt.datetime.now(dt.timezone.utc).replace(microsecond=0).isoformat(),
         "signature": {

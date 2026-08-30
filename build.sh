@@ -20,6 +20,26 @@ SRC=$(pwd)
 EDITION="${1:-free}"
 BUILD="${DAGRIC_BUILD_DIR:-$SRC/../dagric-build-$EDITION}"
 
+# Record the source identity at build time, not later at publish time. Release
+# metadata may be prepared after documentation or tooling has been committed;
+# asking Git for HEAD at that point would claim those later bytes built the ISO.
+# WSL installations often expose Windows Git as git.exe without a Linux git.
+SOURCE_COMMIT=${DAGRIC_SOURCE_COMMIT:-}
+if [ -z "$SOURCE_COMMIT" ]; then
+    if command -v git >/dev/null 2>&1; then
+        SOURCE_COMMIT=$(git -C "$SRC" rev-parse HEAD 2>/dev/null || true)
+    elif command -v git.exe >/dev/null 2>&1; then
+        SOURCE_COMMIT=$(cd "$SRC" && git.exe rev-parse HEAD 2>/dev/null | tr -d '\r' || true)
+    fi
+fi
+if printf '%s\n' "$SOURCE_COMMIT" | grep -Eq '^[0-9a-fA-F]{40}$'; then
+    mkdir -p "$SRC/out"
+    printf '%s\n' "$SOURCE_COMMIT" > "$SRC/out/SOURCE_COMMIT"
+    echo "Source revision: $SOURCE_COMMIT"
+else
+    echo "WARNING: could not record the source commit; set DAGRIC_SOURCE_COMMIT for release builds." >&2
+fi
+
 command -v rsync >/dev/null 2>&1 || { echo "rsync is required: apt install rsync"; exit 1; }
 
 echo "Building $EDITION edition in: $BUILD"
@@ -306,33 +326,59 @@ case "$EDITION" in
     pro) NAME=dagric-os-pro-1.0-amd64.iso ;;
     *)   NAME=dagric-os-1.0-amd64.iso ;;
 esac
-# dd, not cp, and then check the size — because the destination is usually a
-# Windows drive seen through WSL's 9p bridge, and cp fails there on a file this
-# large:
+# Copy to a TEMPORARY name, then check the size and rename. The destination is
+# commonly a Windows drive seen through WSL's filesystem bridge, where Linux
+# cp and even dd have both failed on the Pro image with:
 #     cp: error writing '.../dagric-os-pro-1.0-amd64.iso': Cannot allocate memory
-# It failed at 1.1 GB of a 3.8 GB image and still exited before the verify, so
-# out/ was left holding a TRUNCATED ISO with a plausible name and a fresh
-# timestamp. That is the worst possible failure mode for a build: the artefact
-# looks finished, and the only way to find out otherwise is for somebody to
-# flash it and watch it not boot.
+# dd later failed at 2.8 GB and, because this script is set -e, exited BEFORE
+# the size comparison below. In both cases out/ was left holding a TRUNCATED ISO
+# with a plausible release name. A temporary name means no copy failure can
+# replace the previous known-good image or masquerade as a completed release.
 #
-# dd with an explicit block size writes in bounded chunks instead of letting cp
-# choose a mapping strategy 9p cannot satisfy. The size comparison afterwards is
-# the part that actually matters — any copy method can be interrupted, and a
-# build must not report success over a short file.
+# Under WSL, ask Windows to read through the \\wsl.localhost share; that path
+# copied the same 4.1 GB image successfully after both Linux-side methods hit
+# the bridge failure. Native Debian keeps the bounded dd fallback. The byte
+# comparison remains authoritative because either method can be interrupted.
 SRCISO=$(ls -1 ./*.iso 2>/dev/null | head -1)
 [ -n "$SRCISO" ] || { echo "no ISO produced" >&2; exit 1; }
 mkdir -p "$SRC/out"
-dd if="$SRCISO" of="$SRC/out/$NAME" bs=4M status=none
+TMP="$SRC/out/.${NAME}.copying"
+rm -f "$TMP"
+
+copied=0
+case "$SRC/out" in
+    /mnt/*)
+        if command -v powershell.exe >/dev/null 2>&1 && command -v wslpath >/dev/null 2>&1; then
+            WIN_SRC=$(wslpath -w "$SRCISO")
+            WIN_TMP=$(wslpath -w "$TMP")
+            if WSLENV="${WSLENV:+$WSLENV:}DAGRIC_COPY_SOURCE:DAGRIC_COPY_DESTINATION" \
+                DAGRIC_COPY_SOURCE="$WIN_SRC" DAGRIC_COPY_DESTINATION="$WIN_TMP" \
+                powershell.exe -NoProfile -NonInteractive -Command \
+                '[System.IO.File]::Copy($env:DAGRIC_COPY_SOURCE, $env:DAGRIC_COPY_DESTINATION, $true)'; then
+                copied=1
+            fi
+        fi
+        ;;
+esac
+if [ "$copied" -ne 1 ] && dd if="$SRCISO" of="$TMP" bs=4M status=none; then
+    copied=1
+fi
+if [ "$copied" -ne 1 ]; then
+    rm -f "$TMP"
+    echo "ERROR: could not copy the completed ISO out of $BUILD." >&2
+    echo "The ISO itself is intact at $BUILD/$SRCISO." >&2
+    exit 1
+fi
 
 WANT=$(stat -c%s "$SRCISO")
-GOT=$(stat -c%s "$SRC/out/$NAME" 2>/dev/null || echo 0)
+GOT=$(stat -c%s "$TMP" 2>/dev/null || echo 0)
 if [ "$WANT" != "$GOT" ]; then
     echo "ERROR: copy is short — $GOT of $WANT bytes." >&2
     echo "The ISO itself is fine at $SRCISO; only the copy failed." >&2
-    rm -f "$SRC/out/$NAME"
+    rm -f "$TMP"
     exit 1
 fi
+mv -f "$TMP" "$SRC/out/$NAME"
 echo "copied $NAME ($GOT bytes, verified)"
 
 # Record the checksum beside the ISO, on every single build.

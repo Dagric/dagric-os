@@ -174,9 +174,17 @@ for t in shots:
     if d > 0: time.sleep(d)
     p = os.path.join(out, "t%03d.ppm" % t)
     try:
-        s.send(("screendump %s\n" % p).encode())
+        # HMP tokenises an unquoted path at spaces. The repository commonly
+        # lives under a Windows folder such as "Dagric Os", so every command
+        # used to be accepted but every frame silently went missing. Quote and
+        # escape the monitor argument just as a shell path would be quoted.
+        qp = p.replace("\\", "\\\\").replace('"', '\\"')
+        s.send(('screendump "%s"\n' % qp).encode())
         time.sleep(1.2)
-        try: s.recv(65536)
+        try:
+            reply = s.recv(65536).decode(errors="replace")
+            if "Error:" in reply:
+                print("  monitor rejected t=%ds: %s" % (t, reply.strip()))
         except Exception: pass
         print("  shot t=%ds %s" % (t, "ok" if os.path.exists(p) else "MISSING"))
     except Exception as e:

@@ -72,8 +72,8 @@ dl.meta dd{margin:0;color:var(--on-2)}
     <dt>Version</dt><dd>1.0 “Foundation”</dd>
     <dt>Architecture</dt><dd>64-bit Intel and AMD (amd64)</dd>
     <dt>Base</dt><dd>Debian 13 “Trixie” · KDE Plasma 6.3 · Wayland</dd>
-    <dt>Source revision</dt><dd><code>release build in progress</code></dd>
-    <dt>Release date</dt><dd>Pending completion of the checks below</dd>
+    <dt>Source revision</dt><dd><code>3f19b305464b82478ce83db8d970a2abbf326cf9</code></dd>
+    <dt>Release date</dt><dd>29 August 2026</dd>
   </dl>
 
   <h2 id="release-matrix">Release verification matrix</h2>
@@ -83,16 +83,16 @@ dl.meta dd{margin:0;color:var(--on-2)}
     <table class="proof">
       <thead><tr><th scope="col">Gate</th><th scope="col">Status</th><th scope="col">Evidence and scope</th></tr></thead>
       <tbody>
-        <tr><th scope="row">Site and source checks</th><td class="status">Pending</td><td>Internal links, sitemap, unfinished tokens, package names, translations and shell syntax are rerun before release.</td></tr>
-        <tr><th scope="row">Fresh Free ISO build</th><td class="status">Pending</td><td>Built from the source revision above with Debian live-build.</td></tr>
-        <tr><th scope="row">Fresh Pro ISO build</th><td class="status">Pending</td><td>Built separately so Pro cannot overwrite or masquerade as Free.</td></tr>
-        <tr><th scope="row">Signed release manifest</th><td class="status">Pending</td><td>Both named ISOs must hash locally, appear in one SHA256SUMS file, and verify against GPG key fingerprint <code>3A079F85DE74375DD65557096CE37402BA0A0EF8</code>.</td></tr>
-        <tr><th scope="row">ISO structure and package manifests</th><td class="status">Pending</td><td>Boot files and each image's own <code>/live/filesystem.packages</code> inventory are extracted from the finished images.</td></tr>
-        <tr><th scope="row">Legacy BIOS live boot</th><td class="status">Pending</td><td>Boot to the live desktop in the QEMU harness.</td></tr>
-        <tr><th scope="row">UEFI live boot</th><td class="status">Pending</td><td>Boot through OVMF to the live desktop in the QEMU harness.</td></tr>
-        <tr><th scope="row">Install and installed-system boot</th><td class="status">Pending</td><td>Run Calamares against a blank virtual disk and boot the installed system.</td></tr>
-        <tr><th scope="row">Public Free download</th><td class="status">Pending</td><td>After upload, download the customer-facing object and compare its byte count and SHA-256 with the signed manifest.</td></tr>
-        <tr><th scope="row">Private Pro delivery gate</th><td class="status">Pending</td><td>Unauthenticated access must fail; a paid Stripe Checkout session must stream the private object with Range support.</td></tr>
+        <tr><th scope="row">Site and source checks</th><td class="status">Pass</td><td>All 26 public pages passed the internal-link, sitemap, placeholder and tunnel gate; all 317 package names resolve; edited shell, Python and Worker sources passed syntax checks.</td></tr>
+        <tr><th scope="row">Fresh Free ISO build</th><td class="status">Pass</td><td>Built from the source revision above with Debian live-build: 2,251,653,120 bytes, SHA-256 <code>68380d47e6eb6f98bb5c6de0fe93e4feaaed4e849317f7faefaa7a502ba117d0</code>.</td></tr>
+        <tr><th scope="row">Fresh Pro ISO build</th><td class="status">Pass</td><td>Built separately so Pro cannot overwrite or masquerade as Free: 4,152,623,104 bytes, SHA-256 <code>e373edfea1cba30cade6f3fe6ad13fb6f836e68edafcb300be2cb49fc9858c5e</code>.</td></tr>
+        <tr><th scope="row">Signed release manifest</th><td class="status">Pass</td><td>Both named ISOs hash locally, appear in one SHA256SUMS file, and the detached signature verifies against GPG key fingerprint <code>3A079F85DE74375DD65557096CE37402BA0A0EF8</code>.</td></tr>
+        <tr><th scope="row">ISO structure and package manifests</th><td class="status">Pass</td><td>BIOS and UEFI boot files were inspected. The finished images contain 1,810 Free and 2,537 Pro package records, published directly from each ISO's <code>/live/filesystem.packages</code>.</td></tr>
+        <tr><th scope="row">Legacy BIOS live boot</th><td class="status">Pass</td><td>The Free image reached the branded live desktop and first-run setup in the QEMU harness.</td></tr>
+        <tr><th scope="row">UEFI and Secure Boot live boot</th><td class="status">Pass</td><td>Free and Pro reached their branded live desktops through OVMF. Free also booted with Microsoft-enrolled virtual Secure Boot firmware; shim and GRUB signatures were inspected in both images.</td></tr>
+        <tr><th scope="row">Install and installed-system boot</th><td class="status">Pass</td><td>Calamares installed Free to a blank 40 GB UEFI/GPT virtual disk. With the ISO detached, that disk reached the Dagric login, accepted the new local account and opened the Plasma desktop.</td></tr>
+        <tr><th scope="row">Public Free download</th><td class="status">Pass</td><td>The customer-facing R2 URL was downloaded after promotion and hashed to <code>68380d47e6eb6f98bb5c6de0fe93e4feaaed4e849317f7faefaa7a502ba117d0</code>, matching the signed local image.</td></tr>
+        <tr><th scope="row">Private Pro delivery gate</th><td class="status">Partial</td><td>The promoted private R2 object matches the signed local Pro ISO byte-for-byte, and the live gate rejects requests without a valid session. A real paid Stripe Checkout session and resumed Range stream were not exercised in this run.</td></tr>
       </tbody>
     </table>
   </div>
