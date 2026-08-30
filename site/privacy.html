@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Privacy — Dagric OS</title>
-<meta name="description" content="The Dagric OS privacy policy — short, because we collect almost nothing.">
+<meta name="description" content="How Dagric OS, dagric.com, Stripe checkout, Cloudflare delivery, and support messages handle data.">
 <link rel="icon" type="image/png" href="/assets/dagric-logo.png">
 <link rel="stylesheet" href="/assets/site.css">
 <link rel="canonical" href="https://dagric.com/privacy">
@@ -32,14 +32,14 @@
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Dagric OS">
 <meta property="og:title" content="Privacy — Dagric OS">
-<meta property="og:description" content="The Dagric OS privacy policy — short, because we collect almost nothing.">
+<meta property="og:description" content="How Dagric OS, dagric.com, Stripe checkout, Cloudflare delivery, and support messages handle data.">
 <meta property="og:url" content="https://dagric.com/privacy">
 <meta property="og:image" content="https://dagric.com/assets/hero-desktop.png">
 <meta property="og:image:width" content="1920">
 <meta property="og:image:height" content="1080">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Privacy — Dagric OS">
-<meta name="twitter:description" content="The Dagric OS privacy policy — short, because we collect almost nothing.">
+<meta name="twitter:description" content="How Dagric OS, dagric.com, Stripe checkout, Cloudflare delivery, and support messages handle data.">
 <meta name="twitter:image" content="https://dagric.com/assets/hero-desktop.png">
 </head>
 <body>
@@ -55,12 +55,16 @@
 
 <main id="main">
   <h1>Privacy, <span class="grad">in plain words.</span></h1>
-  <p class="lead">Short policy, because there's little to disclose. Last updated August&nbsp;2026.</p>
+  <p class="lead">The operating system, website, checkout and support form do different things,
+  so this policy keeps them separate. Effective 30&nbsp;August&nbsp;2026.</p>
 
   <h2>The operating system</h2>
-  <p><strong>Dagric OS collects nothing.</strong> The OS contains no telemetry, no analytics, no
-  accounts, and no advertising identifiers. There is no "usage data" setting because no usage
-  data exists. Your files, your habits, and your hardware details stay on your machine.</p>
+  <p><strong>The installed operating system sends no product telemetry or analytics to
+  Dagric.</strong> It has no required Dagric account and no Dagric advertising identifier. Your
+  files and application history stay on your machine unless you deliberately send, sync or upload
+  them with an application you choose. Network requests needed for updates, browsing and optional
+  services are listed below. Website visits, purchases, downloads and support messages are covered
+  separately later on this page.</p>
 
   <!-- This list replaces one sentence that said updates come from "standard Debian
        and Flathub mirrors" and stopped there. It read as an exhaustive account of
@@ -158,11 +162,11 @@
     back into a serial number, and the same hardware produces a <em>different</em> value for
     every purchase, so it cannot track a machine across customers, sessions, or anything else.
     If you never start the upgrade, this host is never contacted. We keep, against your purchase,
-    only what enforces "one purchase, one machine": that fingerprint, the dates it was first and
-    last seen, and a count of download starts. There is no name, no IP log kept for this, and no
-    profile; ask <a href="/support">support</a> with your purchase and we delete the record. The
-    download link itself keeps working for reinstalls — there is a generous cap, high enough that
-    no ordinary use meets it, to stop a shared link serving the whole internet.</li>
+    only what enforces "one purchase, one machine": that fingerprint and the dates it was first
+    and last seen. There is no raw serial number or IP address in that activation record. Ask
+    <a href="/support">support</a> with your purchase if a replacement machine needs the slot moved,
+    or if you want the activation record deleted. Browser-download records are described under
+    <em>This website and checkout</em> below.</li>
     <li><strong>Our update channel</strong> (<code>dagric-os.web.app</code>), which carries fixes
     to Dagric's own tools, wallpapers and settings. It is checked on the same schedule as any
     other software source, so we see the same thing a Debian mirror sees: an IP address asking
@@ -295,28 +299,50 @@
     <em>System Settings → Startup and Shutdown → Autostart</em>, or remove the
     <code>kdeconnect</code> package.</li>
   </ul>
-  <p>All of these reveal your IP address to the server being asked, the same as any Linux
-  distribution. None of them carries an account, and none carries anything about what you do on
-  the machine. Two carry a device identifier: KDE&nbsp;Connect's local announcement, which starts
-  with your session, and Syncthing's discovery, only once you have started it. Both are named
-  above rather than left out of the list.</p>
+  <p>Internet requests reveal your IP address to the server being asked, as they do on any Linux
+  distribution. Dagric adds no product-usage report to those requests. Some third-party programs
+  process additional information when you turn on their services or sign in; their own privacy
+  terms apply. Two device identifiers are specifically worth calling out: KDE&nbsp;Connect's local
+  announcement, which starts with your session, and Syncthing's discovery, only once you have
+  started it. Both are named above rather than left out of the list.</p>
   <p class="note">To be precise about a phrase that is easy to over-read: &ldquo;no telemetry&rdquo;
-  means nothing about you or your use of this computer is collected or sent anywhere. It does not
+  means Dagric does not add a system that reports how you use the installed OS to us. It does not
   mean the machine never talks to anyone — it checks for updates, fetches firmware metadata, and
-  your browser contacts its own services. Everything it does on its own is in the list above.
+  your browser contacts its own services. It also does not describe data you provide on this
+  website, at Stripe checkout, or in a support message; those are disclosed below.
   <a href="/security">Security</a> says the same thing beside the rest of what we know is
   imperfect.</p>
 
-  <h2>This website</h2>
+  <h2>This website and checkout</h2>
   <ul>
-    <li><strong>Hosting.</strong> The site is served by Google Firebase Hosting and downloads by
-    Cloudflare R2. Like all web servers, they keep standard access logs (IP address, time,
-    requested file). We do not add analytics, trackers, or advertising scripts, and we set no
-    cookies.</li>
-    <li><strong>Purchases.</strong> Payments are processed entirely by
-    <a href="https://stripe.com/privacy">Stripe</a>. Your card number goes to Stripe, never to us.
-    We receive what a receipt shows: your name, email, and the purchase, which we keep for order
-    support, refunds, and tax law.</li>
+    <li><strong>Local theme preference.</strong> If you switch this site between light and dark,
+    your browser stores one value named <code>dagric-theme</code> in local storage. It stays in
+    your browser, is not an advertising identifier, and can be removed by clearing site data.
+    Dagric.com itself sets no cookies.</li>
+    <li><strong>Hosting and delivery.</strong> Google Firebase Hosting serves the pages.
+    Cloudflare Workers and R2 serve the contact form and ISO downloads. Those providers process
+    ordinary request data such as IP address, time, user agent, requested URL, routing and security
+    signals to deliver and protect the services. We do not add Google Analytics, advertising
+    scripts, pixels or cross-site trackers. See
+    <a href="https://firebase.google.com/support/privacy">Firebase privacy and security</a> and
+    <a href="https://www.cloudflare.com/privacypolicy/">Cloudflare's privacy policy</a>.</li>
+    <li><strong>Checkout and receipts.</strong> Stripe receives the email and payment details you
+    enter, plus transaction, fraud-prevention and device/network data described in
+    <a href="https://stripe.com/privacy">Stripe's privacy policy</a>. Stripe may offer its optional
+    Link service under its own terms. We receive the order details needed to deliver and support
+    Pro: the checkout-session identifier, email and name if supplied, item, amount, payment status
+    and later refund or dispute status. Your full card number and security code never come to us.
+    Stripe can retain transaction data for payment, tax, accounting, fraud and legal duties under
+    its own policy.</li>
+    <li><strong>Pro delivery.</strong> After checkout, Stripe places a checkout-session identifier
+    in the private download URL. Treat that URL like a receipt: anyone you give it to may attempt
+    to use your download allowance. Our Cloudflare gate asks Stripe whether the session completed,
+    bought Dagric Pro and was later refunded. Cloudflare KV keeps the cumulative number of bytes
+    served for that session to stop a shared link becoming a public mirror. If you use the in-place
+    upgrade instead of downloading the ISO, it also keeps the salted machine fingerprint and
+    first/last-use dates described above. Dagric does not put a raw hardware identifier or IP
+    address in those KV records, although Firebase, Cloudflare and Stripe may process request logs
+    under their policies.</li>
     <!-- The contact form is the site's only published support route (there is no
          email address anywhere on it), and infra/contact-worker.js writes every
          submission — message, name, email, and the CF-IPCountry code the sender
@@ -325,14 +351,31 @@
          we actually collect from most visitors was the one thing undisclosed, and
          a processor was missing from our own data inventory. Keep this bullet in
          step with the worker: if it ever stores another field, it is named here. -->
-    <li><strong>The contact form.</strong> Sending it saves what you typed — your message, plus the
-    name and email you chose to give — as a private file in Cloudflare storage that only we can
-    read. Cloudflare also tells us the two-letter country the request came from; we keep that and
-    nothing else about your connection, and there is no cookie or identifier involved. We use it to
-    reply, we don't add you to lists, we don't share it, and you can ask us to delete it.</li>
+    <li><strong>The contact form.</strong> Sending it saves what you typed — topic, message, and the
+    name and email you choose to give — as a private file in Cloudflare R2 that only authorized
+    Dagric operators can read. Cloudflare supplies the two-letter request-country code, which is
+    stored with the message. The worker uses the IP address transiently for rate limiting but does
+    not write it into the message. We use the submission to reply and handle support, refunds,
+    security or legal requests; we do not add it to a marketing list.</li>
     <li><strong>Support email.</strong> If you write to us instead, we have your email, under the
     same rule: we use it to reply, and nothing more.</li>
   </ul>
+
+  <h2>Purpose, retention and security</h2>
+  <p>We use order information to deliver Pro, enforce the machine allowance, provide support,
+  handle refunds and disputes, prevent abuse, and meet tax and accounting duties. Purchase and
+  financial records are retained for as long as those duties and legitimate support needs require.
+  Delivery and activation records remain while the related entitlement and re-download support are
+  active, unless support deletes or resets them. Contact messages are kept while useful to answer
+  or document the request; the contact bucket does not currently apply an automatic expiry. You can
+  ask us to delete a message at any time, subject to records we must keep for law, fraud prevention,
+  a dispute or a refund.</p>
+  <p>Pages and forms use HTTPS. Contact messages and Pro files are in private Cloudflare buckets,
+  access is restricted to the operator accounts that need it, and the site uses a restrictive
+  Content Security Policy. No internet service can promise perfect security; if we learn of a
+  breach that requires notice, we will provide it as required by applicable law. Firebase,
+  Cloudflare and Stripe operate globally, so their processing may occur outside your country,
+  including in the United States.</p>
 
   <h2>What we never do</h2>
   <ul>
@@ -341,14 +384,26 @@
     <li>Require an account to use, update, or keep the software you bought.</li>
   </ul>
 
-  <h2>Your rights</h2>
+  <h2>Your choices and rights</h2>
   <!-- "typically: a Stripe receipt" was wrong for most people who read this page:
        someone who has never bought Pro but has used the contact form is held as a
        stored message, not a receipt. A subject-access answer that understates the
        inventory is worse than no answer. -->
-  <p>Use the <a href="/contact">contact page</a> to ask what we hold about you — in practice a
-  Stripe receipt if you bought Pro, and any message you have already sent us — or to have it
-  deleted, subject to legal record-keeping requirements.</p>
+  <p>Use the <a href="/contact">contact page</a> to ask what Dagric holds about you, correct it,
+  request a portable copy, object to or restrict a use, or ask for deletion. In practice that can
+  include a Stripe order, delivery/activation records and messages you sent us. We may need proof
+  that you control the purchase email or session before disclosing or changing an order record,
+  and some financial or dispute records must be retained. Rights over data Stripe controls can
+  also be exercised through <a href="https://privacy.stripe.com/">Stripe's Privacy Center</a>.
+  Depending on where you live, you may also complain to your local privacy regulator.</p>
+
+  <h2>Children and changes</h2>
+  <p>The website and paid checkout are directed to people able to make a purchase or to a parent
+  or guardian acting for a household. Dagric OS can be used by children without creating a Dagric
+  account, but children should not send personal information through the contact form without a
+  parent or guardian.</p>
+  <p>We will update the effective date when this policy changes. Material changes apply
+  prospectively and will be stated plainly on this page.</p>
 </main>
 
 <footer><div class="foot">

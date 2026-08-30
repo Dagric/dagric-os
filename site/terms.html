@@ -55,14 +55,13 @@
 
 <main id="main">
   <h1>Terms &amp; <span class="grad">refunds.</span></h1>
-  <p class="lead">The fair-and-square version, then the fine print. Last updated August&nbsp;2026.</p>
+  <p class="lead">The fair-and-square version, then the fine print. Effective
+  30&nbsp;August&nbsp;2026.</p>
 
   <h2>The deal, plainly</h2>
   <ul>
     <li><strong>Free edition:</strong> free forever, for anyone, for any lawful use.</li>
-    <li><strong>Pro ($39, one-time):</strong> one purchase licenses Pro on
-    <strong>one computer</strong> you own or manage. A second machine is a second purchase; if a
-    machine is replaced, support moves the licence over.
+    <li><strong>Pro ($39, one-time):</strong>
     <!-- This line used to read "Updates to Pro 1.x are included" — the only version
          limit anywhere on the site, against six unqualified promises on the pages
          that take the money: pro.html "One purchase. Yours forever." and "free
@@ -72,14 +71,15 @@
          regulator flags, and it turns Pro 2.0 into a chargeback argument. The terms
          were the one line, so the terms moved. If the business ever does want a paid
          major upgrade, the marketing changes first, not this. -->
-    One purchase licenses <strong>one machine</strong>; the purchase is verified once, when you
+    one purchase licenses <strong>one machine</strong> you own or manage. A second machine is a
+    second purchase. The purchase is verified once, when you
     claim it (details on the <a href="/privacy">privacy page</a>), and never again — no recurring
     activation, no expiry, no server your machine needs permission from to keep working. Support
     moves a licence to a replacement machine on request.
     <strong>Updates are included and free</strong> for
     as long as we publish them, with no version cut-off — the same promise the rest of this site
     makes on the pages that take the money. There is no paid upgrade waiting at the end of it, and
-    if we ever stopped publishing, the copy you bought keeps working and keeps receiving its
+    if we ever stop publishing, the copy you bought keeps working and keeps receiving its
     security updates from Debian.</li>
     <li><strong>What you're buying:</strong> Dagric OS is assembled from open-source software; the
     purchase pays for curation, integration, testing, and support — not exclusivity over free
@@ -88,44 +88,75 @@
     product. The <strong>Dagric</strong> name and logo are trademarks of DGR Operations.</li>
   </ul>
 
+  <h2>Checkout, promotions and delivery</h2>
+  <ul>
+    <li><strong>Checkout.</strong> Stripe hosts checkout. The order is complete when Stripe marks
+    the Checkout Session complete and paid, including a legitimate promotion that reduces the
+    total to zero. Do not close the confirmation page until you have saved the download or receipt
+    link.</li>
+    <li><strong>Promotion codes.</strong> A promotion can be limited by product, customer, first
+    order, redemption count or expiry. Codes have no cash value, cannot be combined unless checkout
+    expressly allows it, and may be changed or withdrawn before redemption. A completed order will
+    be honored. A discount does not change the one-machine Pro licence; a zero-dollar order has no
+    payment amount to refund.</li>
+    <li><strong>Digital delivery.</strong> Pro is delivered through the private link on the
+    post-checkout page. The link contains a Stripe session identifier and should be kept private.
+    It supports reinstalls and resumed downloads, subject to a generous bandwidth-abuse limit. If
+    an honest reinstall reaches that limit, <a href="/support">support</a> can review it.</li>
+    <li><strong>Compatibility.</strong> The Free live image is the evaluation copy for your actual
+    hardware. Run <em>Check This PC</em> and test the live session before installing or buying Pro.
+    The public <a href="/testing">test record</a> distinguishes virtual tests and component
+    preflights from physical-machine evidence; neither is a guarantee for a particular PC or
+    Windows application.</li>
+  </ul>
+
   <h2>14-day refund promise</h2>
   <p>Not for you? Reply to your Stripe receipt, or use the <a href="/contact">contact page</a>
-  with your purchase email, within <strong>14 days</strong> of purchase and we refund in full — no
-  quiz, no hoops. Refunds return via Stripe to your original payment method.</p>
+  with your purchase email, within <strong>14 calendar days</strong> of purchase and we refund the
+  amount paid in full — no quiz, no hoops. Refunds return through Stripe to the original payment
+  method. Bank processing time is outside our control.</p>
   <p>A note on how refunds work for software you download: because Dagric OS Pro is open-source
   software you install and run, a refund <strong>ends your access to Pro downloads and
   support</strong>. The copy already on your machine is yours to keep and run, and it keeps
   receiving updates — those flow from Debian and our public channel with no licence check, so a
   refund cannot and does not switch them off. (We can't and
   wouldn't reach into your computer to remove it — that's simply how software you own works.) We
-  may decline refunds where there is clear evidence of abuse, such as repeat buy-and-refund
-  activity. Since the free edition lets you evaluate Dagric OS fully before paying, we hope you'll
-  rarely need this.</p>
+  may refuse only fraud or a clear repeated buy-download-refund pattern; that exception does not
+  limit rights that consumer law gives you. Since the free edition lets you evaluate Dagric OS
+  before paying, we hope you'll rarely need this.</p>
 
   <h2>Fine print</h2>
   <ul>
+    <li><strong>Eligibility.</strong> You must be legally able to enter this agreement, or a parent
+    or guardian must purchase for the household.</li>
+    <li><strong>Open-source terms.</strong> Each open-source component remains governed by its own
+    licence. If these sale terms conflict with a component's licence, that component's licence
+    controls. See <a href="/licenses">Licenses</a>.</li>
     <li><strong>Warranty.</strong> Dagric OS is provided <em>"as is"</em>, without warranty of any
-    kind, to the maximum extent permitted by law — the same terms as the open-source licenses it
-    is built from (GPL and others). Always back up your data before installing any operating
-    system.</li>
+    kind, to the maximum extent permitted by law. Nothing here excludes a warranty or remedy that
+    applicable consumer law does not allow us to exclude. Always back up your data before
+    installing any operating system.</li>
     <li><strong>Liability.</strong> To the extent permitted by law, DGR Operations' total
     liability for any claim related to the software or this site is limited to the amount you paid
-    us.</li>
+    us. This limit does not apply where applicable law does not permit it.</li>
     <li><strong>Third parties.</strong> Optional installs you trigger (Steam, NVIDIA driver,
     DaVinci Resolve, Flathub apps) come from their own vendors under their own licenses and terms.
     Payments are handled by Stripe under <a href="https://stripe.com/legal/consumer">Stripe's
     terms</a>. We never see or store your card details.</li>
-    <li><strong>Who you are paying.</strong> Dagric OS is a product of
-    <strong>DGR&nbsp;Operations</strong>. Depending on how your bank labels it, the
-    Stripe checkout page and your card statement may show a different trading name for
-    the same business rather than &ldquo;Dagric&rdquo;. That is us, it is not an error,
-    and if a charge you do not recognise appears, ask us through the
-    <a href="/contact">contact form</a> before disputing it &mdash; we will tell you
-    exactly what it was.</li>
+    <li><strong>Who you are paying.</strong> Dagric OS is sold by
+    <strong>DGR&nbsp;Operations</strong>. Stripe checkout identifies the seller-facing brand as
+    <strong>Dagric OS</strong>; a bank statement can still show the account's statement descriptor,
+    <strong>IMPRESSIONDIRECT360</strong>. Both refer to this seller. If you do not recognise a
+    charge, the <a href="/contact">contact form</a> can identify it quickly; contacting us does
+    not limit any right to dispute an unauthorized charge with your bank.</li>
     <li><strong>Affiliation.</strong> Built on Debian; not affiliated with or endorsed by the
     Debian Project, KDE e.V., Valve, NVIDIA, or Blackmagic Design.</li>
-    <li><strong>Governing law.</strong> Missouri, United States. If any clause is unenforceable,
-    the rest still applies.</li>
+    <li><strong>Changes.</strong> Changes to these terms apply prospectively from the effective
+    date shown above. The price, licence scope and refund promise shown when an order completes
+    govern that order.</li>
+    <li><strong>Governing law and severability.</strong> Missouri, United States, without taking
+    away mandatory consumer rights that apply where you live. If any clause is unenforceable, the
+    rest still applies.</li>
   </ul>
 
   <!-- Every other document page hands the reader somewhere: /about and /faq end on a

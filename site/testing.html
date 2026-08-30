@@ -74,6 +74,7 @@ dl.meta dd{margin:0;color:var(--on-2)}
     <dt>Base</dt><dd>Debian 13 “Trixie” · KDE Plasma 6.3 · Wayland</dd>
     <dt>Source revision</dt><dd><code>3f19b305464b82478ce83db8d970a2abbf326cf9</code></dd>
     <dt>Release date</dt><dd>29 August 2026</dd>
+    <dt>Delivery and hardware follow-up</dt><dd>30 August 2026</dd>
   </dl>
 
   <h2 id="release-matrix">Release verification matrix</h2>
@@ -88,18 +89,19 @@ dl.meta dd{margin:0;color:var(--on-2)}
         <tr><th scope="row">Fresh Pro ISO build</th><td class="status">Pass</td><td>Built separately so Pro cannot overwrite or masquerade as Free: 4,152,623,104 bytes, SHA-256 <code>e373edfea1cba30cade6f3fe6ad13fb6f836e68edafcb300be2cb49fc9858c5e</code>.</td></tr>
         <tr><th scope="row">Signed release manifest</th><td class="status">Pass</td><td>Both named ISOs hash locally, appear in one SHA256SUMS file, and the detached signature verifies against GPG key fingerprint <code>3A079F85DE74375DD65557096CE37402BA0A0EF8</code>.</td></tr>
         <tr><th scope="row">ISO structure and package manifests</th><td class="status">Pass</td><td>BIOS and UEFI boot files were inspected. The finished images contain 1,810 Free and 2,537 Pro package records, published directly from each ISO's <code>/live/filesystem.packages</code>.</td></tr>
+        <tr><th scope="row">Current-host hardware preflight</th><td class="status">Partial</td><td>A read-only Windows inventory of an MSI desktop found a Ryzen 7 7700X, Radeon RX 9070 XT, Realtek 8126 Ethernet and MediaTek RZ616 Wi-Fi. The released image contains matching kernel driver entries and firmware packages. No removable USB disk was attached, so Dagric was not booted on this hardware and graphics, networking, audio, camera, suspend and installation remain unproven. <a href="https://github.com/Dagric/dagric-os/blob/main/docs/HARDWARE-PREFLIGHT-2026-08-30.md">Full preflight record</a>.</td></tr>
         <tr><th scope="row">Legacy BIOS live boot</th><td class="status">Pass</td><td>The Free image reached the branded live desktop and first-run setup in the QEMU harness.</td></tr>
         <tr><th scope="row">UEFI and Secure Boot live boot</th><td class="status">Pass</td><td>Free and Pro reached their branded live desktops through OVMF. Free also booted with Microsoft-enrolled virtual Secure Boot firmware; shim and GRUB signatures were inspected in both images.</td></tr>
         <tr><th scope="row">Install and installed-system boot</th><td class="status">Pass</td><td>Calamares installed Free to a blank 40 GB UEFI/GPT virtual disk. With the ISO detached, that disk reached the Dagric login, accepted the new local account and opened the Plasma desktop.</td></tr>
         <tr><th scope="row">Public Free download</th><td class="status">Pass</td><td>The customer-facing R2 URL was downloaded after promotion and hashed to <code>68380d47e6eb6f98bb5c6de0fe93e4feaaed4e849317f7faefaa7a502ba117d0</code>, matching the signed local image.</td></tr>
-        <tr><th scope="row">Private Pro delivery gate</th><td class="status">Partial</td><td>The promoted private R2 object matches the signed local Pro ISO byte-for-byte, and the live gate rejects requests without a valid session. A real paid Stripe Checkout session and resumed Range stream were not exercised in this run.</td></tr>
+        <tr><th scope="row">Private Pro delivery gate</th><td class="status">Pass</td><td>A live, one-use 100%-discount Stripe Checkout completed in production and Stripe marked the session complete and paid. Its private gate delivered the full 4,152,623,104-byte Pro ISO, whose SHA-256 matched the signed release, and returned a correct HTTP 206 Range response whose first 1 MiB matched the downloaded file. No non-zero card charge or refund was exercised.</td></tr>
       </tbody>
     </table>
   </div>
 
   <h2 id="limitations">Still not proven by this release process</h2>
   <ul>
-    <li><strong>Physical USB media and a range of real PCs.</strong> The VM harness cannot prove a particular USB controller, firmware, Wi-Fi adapter, GPU, camera, printer, suspend path or battery works.</li>
+    <li><strong>Physical USB media and a range of real PCs.</strong> A driver-and-firmware preflight now exists for one current desktop, but the ISO has not booted on it. The VM harness and a Windows inventory cannot prove a particular USB controller, firmware, Wi-Fi adapter, GPU, camera, printer, suspend path or battery works.</li>
     <li><strong>Secure Boot on varied retail firmware.</strong> The chain is checked in the image and exercised in virtual firmware; broad physical-machine coverage does not exist yet.</li>
     <li><strong>A screen-reader review by someone who relies on one.</strong> The speech stack is present and statically checked, but that is not a lived accessibility test.</li>
     <li><strong>Every Windows application.</strong> Wine, Bottles and Proton compatibility is application-specific. The site never promises universal Windows-software compatibility.</li>

@@ -144,9 +144,10 @@ h2{margin-top:var(--s-7)}
   boxed inside Dagric, using Microsoft's own ISO.</p></details>
   <details><summary>Does streaming work — Netflix, Spotify, YouTube?</summary><p>Yes, out of the
   box in Firefox, DRM included. Media codecs for local files are preinstalled too.</p></details>
-  <details><summary>Will my printer and scanner work?</summary><p>Almost certainly — modern
-  driverless printing and scanning work out of the box, plus a huge driver library and
-  Print-to-PDF. HP all-in-ones get one-click setup in the Hub.</p></details>
+  <details><summary>Will my printer and scanner work?</summary><p>Many modern driverless printers
+  and scanners work without a vendor installer, and Dagric includes a broad driver library plus
+  Print-to-PDF. HP all-in-ones get one-click setup in the Hub. Test your exact device from the live
+  USB before installing; no OS can guarantee every model.</p></details>
 
   <h2>Privacy &amp; security</h2>
   <!-- "Nothing phones home — there's nothing to turn off" was the overreach. No
@@ -156,11 +157,11 @@ h2{margin-top:var(--s-7)}
        turn off was both wrong and unnecessary: asking a server for a package
        list is not collecting anything, and the accurate version reads better.
        The privacy page now lists all of them with the off switch for each. -->
-  <details><summary>What data does Dagric OS collect?</summary><p>None. There is no telemetry,
-  no analytics, no crash reporting to us, no accounts, and no advertising ID — nothing is ever
-  sent about you or your machine. It does <em>fetch</em>: updates from Debian and from our own
-  channel, and a firmware catalogue. The <a href="/privacy">privacy policy</a> lists every one
-  of those, and how to switch each off.</p></details>
+  <details><summary>What data does Dagric OS collect?</summary><p>The installed OS sends no product
+  telemetry, analytics or crash reports to Dagric, requires no Dagric account, and has no Dagric
+  advertising ID. It does make documented requests for Debian and Dagric updates, firmware
+  metadata and optional services. The <a href="/privacy">privacy policy</a> separates those
+  requests from website visits, checkout, downloads and support messages.</p></details>
   <details><summary>How is it secure out of the box?</summary><p>AppArmor confinement active, a
   hardened kernel configuration, a firewall that's on, silently-installing security updates, and
   GPG-signed releases. Run the built-in <strong>Security Checkup</strong> to see your hardening
@@ -235,9 +236,9 @@ h2{margin-top:var(--s-7)}
 {"@type":"Question","name":"Is Dagric OS really free?","acceptedAnswer":{"@type":"Answer","text":"Yes. The free edition is a complete, private, hardened desktop — free forever, no account. Pro adds the creative, gaming, developer, and Windows-app suites for a one-time $39."}},
 {"@type":"Question","name":"Why pay $39 when Mint, Ubuntu or Zorin are free?","acceptedAnswer":{"@type":"Answer","text":"You don't have to — the free edition is a real, complete distro. Pro is one curated, tested, supported product (the Hub, Looks, snapshot-rollback, signed releases, Windows-app support, human support) for people who'd rather not assemble and harden a general distro themselves. The tools are open source; the $39 buys the craftsmanship."}},
 {"@type":"Question","name":"Will it run on my computer?","acceptedAnswer":{"@type":"Answer","text":"Any 64-bit PC from roughly 2012 onward with 4 GB of RAM (8 GB recommended) and 25-40 GB of disk. UEFI with Secure Boot and older BIOS machines both work. But a spec list cannot tell you whether your Wi-Fi card has a driver, so every Dagric USB stick puts Check This PC on the live desktop beside the installer. It reports in plain language on Wi-Fi and network, graphics and screen, Secure Boot, sound, camera and printer, the battery if it is a laptop, and whether your drives have room. Nothing is installed and nothing is changed while you look."}},
-{"@type":"Question","name":"Is Pro a subscription?","acceptedAnswer":{"@type":"Answer","text":"No. Pro is a one-time purchase for one machine, verified once when you claim it — nothing phones home afterwards. You own your copy outright, with free updates."}},
+{"@type":"Question","name":"Is Pro a subscription?","acceptedAnswer":{"@type":"Answer","text":"No. Pro is a one-time purchase for one machine, verified once when you claim it, with no recurring licence check or expiry. You own your copy outright, with free updates."}},
 {"@type":"Question","name":"What if I buy Pro and don't like it?","acceptedAnswer":{"@type":"Answer","text":"Reply to your receipt within 14 days and we refund in full — no quiz, no hoops."}},
-{"@type":"Question","name":"What data does Dagric OS collect?","acceptedAnswer":{"@type":"Answer","text":"None. There is no telemetry, no analytics, no accounts, and no advertising ID — nothing is ever sent about you or your machine. It does fetch updates from Debian and from Dagric's own channel, and a firmware catalogue; the privacy policy lists every one and how to switch each off."}}
+{"@type":"Question","name":"What data does Dagric OS collect?","acceptedAnswer":{"@type":"Answer","text":"The installed OS sends no product telemetry, analytics or crash reports to Dagric, requires no Dagric account, and has no Dagric advertising ID. It makes documented requests for updates, firmware metadata and optional services; the privacy policy also covers website, checkout, download and support data."}}
 ]}
 </script>
 </body>

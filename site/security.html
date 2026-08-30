@@ -125,25 +125,20 @@ sha256sum -c SHA256SUMS</code></pre>
     of them cover software this image does not install, so they are inert either way. This
     is Debian's own packaging default, not a Dagric setting, but "AppArmor is enabled" is
     worth this footnote.</li>
-    <li><strong>The source repository is not currently public.</strong> Dagric is built on
-    Debian, and the corresponding source for every GPL-licensed package it ships is
-    available — see <a href="/licenses">Licenses</a>, which also explains how to request
-    the source for our own packages. But you cannot currently read our build tree, which
-    means you are taking our description of it on trust. That is a real limitation for
-    anyone doing an independent review.</li>
     <li><strong>No third-party audit.</strong> Nothing here has been reviewed by an
     outside security firm. The <a href="/accessibility">accessibility report</a> is a
     self-assessment and says so, and this page is the same kind of document.</li>
   </ul>
 
   <h3>&ldquo;No telemetry&rdquo; does not mean &ldquo;no network&rdquo;</h3>
-  <p>Dagric collects nothing about you and sends nothing about you anywhere. That is a
-  real commitment and we hold to it. It is not the same claim as "this machine never
-  talks to anyone": it checks for updates, it fetches firmware metadata, your browser
-  contacts its own services, and phone pairing announces the computer on your local
-  network so your phone can find it. The
-  <a href="/privacy">privacy page</a> lists every outbound connection the system makes on
-  its own, what each is for, and how to switch it off.</p>
+  <p>Dagric adds no operating-system telemetry, analytics or crash reporting to us. That
+  commitment is narrower than "this machine never talks to anyone": it checks for
+  updates, fetches firmware metadata, your browser contacts its own services, and phone
+  pairing announces the computer on your local network so your phone can find it. Website
+  visits, checkout, downloads and support messages are separate from installed-system
+  telemetry and are disclosed on the <a href="/privacy">privacy page</a>. That page also
+  lists every outbound connection the system makes on its own, what each is for, and how
+  to switch it off.</p>
 
   <h3>What an antivirus scan of the disc image proves</h3>
   <p>Less than people expect, and it is worth saying so. A Windows antivirus scan of an

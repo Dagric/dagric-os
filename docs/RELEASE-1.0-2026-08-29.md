@@ -39,6 +39,8 @@ Passed in the release harness:
 - Snapshot rollback in a VM
 - Public Free download re-download and hash verification
 - Private Pro object/hash verification and unauthenticated-request rejection
+- Live zero-total Stripe checkout, private Pro delivery, full-download hash, and
+  resumed HTTP Range verification
 
 Still open, and not represented as passed:
 
@@ -46,8 +48,7 @@ Still open, and not represented as passed:
 - Secure Boot across varied physical firmware
 - Broad Wi-Fi, GPU, suspend, camera, printer, and battery coverage
 - A screen-reader review by someone who relies on one
-- A complete Pro purchase and resumed Range download using a real paid Stripe
-  Checkout session
+- A non-zero card charge and refund through the live Stripe account
 
 See the [public matrix](https://dagric.com/testing) for the evidence and exact
 scope behind each line.
