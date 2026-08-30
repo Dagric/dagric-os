@@ -1,0 +1,40 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://dagric.com/manifest/release.schema.json",
+  "title": "Dagric OS public release record",
+  "type": "object",
+  "required": [
+    "product",
+    "version",
+    "architecture",
+    "source",
+    "signature",
+    "artifacts",
+    "package_manifests",
+    "test_record"
+  ],
+  "properties": {
+    "product": { "const": "Dagric OS" },
+    "version": { "type": "string" },
+    "codename": { "type": "string" },
+    "architecture": { "const": "amd64" },
+    "source": {
+      "type": "object",
+      "required": ["repository", "commit"]
+    },
+    "signature": {
+      "type": "object",
+      "required": ["manifest", "detached_signature", "public_key", "fingerprint"]
+    },
+    "artifacts": {
+      "type": "array",
+      "minItems": 2,
+      "items": {
+        "type": "object",
+        "required": ["edition", "filename", "bytes", "sha256"]
+      }
+    },
+    "package_manifests": { "type": "object" },
+    "test_record": { "type": "string", "format": "uri" }
+  }
+}

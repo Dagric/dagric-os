@@ -250,6 +250,7 @@ gpg --batch --yes --default-key "$KEY" --clearsign -o InRelease Release
 # only the clean uid) and it is exactly the artefact a security-conscious buyer
 # inspects first.
 gpg --armor --export-options export-clean,export-minimal \
+    --export-filter 'keep-uid=mbox = repo@dagric.com' \
     --export "$KEY" > "$OUT/dagric-repo.gpg.asc"
 if gpg --show-keys "$OUT/dagric-repo.gpg.asc" 2>/dev/null | grep -qi 'example\.org'; then
     echo "build-repo: the exported key still carries the example.org placeholder uid." >&2

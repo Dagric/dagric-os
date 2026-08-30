@@ -31,7 +31,7 @@
         ]
       },
       {
-        "source": "/@(about|accessibility|bugs|contact|download|faq|family|features|getting-started|guide|licenses|news|privacy|pro|review|security|support|terms|thanks-pro)",
+        "source": "/@(about|accessibility|bugs|contact|download|faq|family|features|getting-started|guide|licenses|news|privacy|pro|review|security|support|testing|terms|thanks-pro)",
         "headers": [
           { "key": "Cache-Control", "value": "no-cache, max-age=0" }
         ]
@@ -80,6 +80,13 @@
         "source": "/manifest/*.packages",
         "headers": [
           { "key": "Content-Type", "value": "text/plain; charset=utf-8" },
+          { "key": "Cache-Control", "value": "no-cache, max-age=0" }
+        ]
+      },
+      {
+        "source": "/manifest/*.json",
+        "headers": [
+          { "key": "Content-Type", "value": "application/json; charset=utf-8" },
           { "key": "Cache-Control", "value": "no-cache, max-age=0" }
         ]
       },

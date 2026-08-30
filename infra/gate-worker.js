@@ -63,32 +63,32 @@ const PRICE_FAMILY_PACK = "REPLACE_ME_family_pack_price_id_from_stripe";
 // same reason: the comment above says "grep the site for it before changing it",
 // and grepping the site today finds FAMILY_MACHINES_PLACEHOLDER, not a number.
 // A constant that has silently committed to 5 while the page has committed to
-// nothing cannot be kept in sync by any procedure. Left at 0 it throws below, so
-// a half-finished wiring-up fails at deploy instead of quietly selling five
-// machines for the price of one.
+// nothing cannot be kept in sync by any procedure. Zero means the unpublished
+// Family Pack is disabled; the live single-machine product must keep working
+// while that separate offer is unfinished.
 const FAMILY_MACHINES = 0;
 const MACHINE_CAPS = {
   [PRICE_PRO_SINGLE]: 1,
-  [PRICE_FAMILY_PACK]: FAMILY_MACHINES,
 };
 
-// THE PASTE ERROR THIS CATCHES IS THE MOST LIKELY ONE THERE IS. MACHINE_CAPS is
-// an object literal with computed keys: paste the same Stripe id into both
-// constants and the second key silently overwrites the first, so every single
-// -licence $39 buyer is handed the family allowance. No error, no log, nothing
-// in any test. A module-scope throw fails the DEPLOY, which is the only party
-// that should ever be inconvenienced by a configuration mistake.
-if (
-  PRICE_FAMILY_PACK === PRICE_PRO_SINGLE ||
-  Object.keys(MACHINE_CAPS).length !== 2 ||
-  !Number.isInteger(FAMILY_MACHINES) ||
-  FAMILY_MACHINES < 2
-) {
+// A completely untouched Family Pack configuration is an intentional disabled
+// state. A PARTLY configured one is an error: deploying only a price or only a
+// machine count would sell an entitlement the worker cannot honour. Once both
+// values exist, the duplicate-id guard below prevents the computed object key
+// from silently turning every $39 single purchase into a family licence.
+const FAMILY_PRICE_CONFIGURED = /^price_[A-Za-z0-9]+$/.test(PRICE_FAMILY_PACK);
+const FAMILY_COUNT_CONFIGURED = Number.isInteger(FAMILY_MACHINES) && FAMILY_MACHINES >= 2;
+if (FAMILY_PRICE_CONFIGURED !== FAMILY_COUNT_CONFIGURED) {
   throw new Error(
-    "MACHINE_CAPS misconfigured: two DISTINCT Stripe price ids are required, " +
-      "and FAMILY_MACHINES must be an integer of at least 2 and must equal the " +
-      "number printed on site/family.html."
+    "Family Pack is only partly configured: set both PRICE_FAMILY_PACK and " +
+      "FAMILY_MACHINES, or leave both disabled."
   );
+}
+if (FAMILY_PRICE_CONFIGURED) {
+  if (PRICE_FAMILY_PACK === PRICE_PRO_SINGLE) {
+    throw new Error("The single and Family Pack Stripe price ids must be distinct.");
+  }
+  MACHINE_CAPS[PRICE_FAMILY_PACK] = FAMILY_MACHINES;
 }
 
 // A LOOKUP MISS FALLS BACK TO ONE MACHINE, NEVER TO THE FAMILY NUMBER. Missing

@@ -50,7 +50,7 @@ dl.meta dd{margin:0;color:var(--on-2)}
   <a class="brand" href="/"><img src="/assets/dagric-logo.png" alt="" width="30" height="30">Dagric&nbsp;OS</a>
   <div class="nav-links">
     <a href="/features">Features</a><a href="/pro">Pro</a><a href="/about">About</a>
-    <a href="/guide">Guide</a><a href="/support">Support</a>
+    <a href="/review" aria-current="page">Reviewers</a><a href="/testing">Proof</a>
     <a class="cta" href="/download">Download</a>
   </div>
 </div></nav>
@@ -70,7 +70,7 @@ dl.meta dd{margin:0;color:var(--on-2)}
     time and earned none of your trust.</p>
     <div class="btns">
       <a class="btn primary" href="/download">Get the free ISO</a>
-      <a class="btn ghost" href="/contact">Contact — Business / press</a>
+      <a class="btn ghost" href="/testing">See the build and test record</a>
     </div>
     <p class="tiny">Version 1.0 “Foundation” · GPG-signed releases · no independent review has been
     published yet, which is the whole reason this page is here</p>
@@ -95,6 +95,10 @@ Free 2.1 GB (2,251,653,120 bytes) &middot; Pro 3.9 GB (4,152,623,104 bytes)
   developer and Windows-app suites already installed, and all seven desktop layouts rather than
   three. Anything you find wrong in one edition is almost certainly wrong in the other, so a
   review of the free edition is a review of the product.</p>
+  <p><a href="https://github.com/Dagric/dagric-os">Source repository</a> ·
+  <a href="https://github.com/Dagric/dagric-os/issues">public issue tracker</a> ·
+  <a href="/manifest/release.json">machine-readable release record</a> ·
+  <a href="/testing">test matrix and known gaps</a></p>
 
   <h2 id="h-download-and-verify">Download and verify</h2>
   <p>Both editions are on the <a href="/download">download page</a>. The free ISO is a direct
@@ -124,6 +128,10 @@ sha256sum -c SHA256SUMS</code></pre>
   <p>The signing key's fingerprint is published on the <a href="/security">security page</a>.
   Check it there rather than trusting the copy you just imported — a key that vouches for itself
   vouches for nothing.</p>
+  <p>The finished images publish their own package inventories: the
+  <a href="/manifest/dagric-os-1.0.packages">Free manifest</a> and
+  <a href="/manifest/dagric-os-pro-1.0.packages">Pro manifest</a>. They are extracted from the
+  ISOs during the gated release, rather than copied from a stale build folder.</p>
 
   <h2>How to test it properly</h2>
   <p>In this order. Steps two and three are the ones most reviews skip, and they are the two that
@@ -209,14 +217,13 @@ sha256sum -c SHA256SUMS</code></pre>
     registered in July 2026, and there is not one third-party test of Dagric OS in existence. Any
     confidence in it currently rests on our own word, which is exactly the wrong thing for it to
     rest on.</li>
-    <li><strong>The source repository is not currently public.</strong> Dagric is assembled from
-    Debian packages, and the GPL source for every one of those is available from Debian itself.
-    The sources for the in-house packages — the Hub, Looks, the first-run wizard, the hardware
-    check — are supplied on request through the <a href="/contact">contact form</a>. That is a
-    weaker answer than a public repository and we are not going to pretend otherwise.</li>
-    <li><strong>There is no public issue tracker.</strong> Bug reports go through
-    <a href="/bugs">the bug page</a> and reach a person rather than a queue. The cost is that you
-    cannot read a list of what else is currently broken, and you have only our summary of it.</li>
+    <li><strong>The source and issue history are young.</strong> The
+    <a href="https://github.com/Dagric/dagric-os">public repository</a> and
+    <a href="https://github.com/Dagric/dagric-os/issues">issue tracker</a> are the proof path,
+    not proof of maturity. A new public project can still have gaps nobody has reported yet.</li>
+    <li><strong>Hardware coverage is narrow.</strong> The public
+    <a href="/testing">test record</a> distinguishes VM checks from physical-machine evidence;
+    there is not yet a broad compatibility matrix across retail PCs.</li>
   </ul>
 
   <h2>Press assets</h2>
@@ -281,7 +288,7 @@ sha256sum -c SHA256SUMS</code></pre>
 
 <footer><div class="foot">
   <span>© 2026 DGR Operations · Built on Debian. Not affiliated with the Debian Project.</span>
-  <span class="links"><a href="/features">Features</a><a href="/pro">Pro</a><a href="/download">Download</a><a href="/news">News</a><a href="/guide">Guide</a><a href="/support">Support</a><a href="/faq">FAQ</a><a href="/accessibility">Accessibility</a><a href="/security">Security</a><a href="/bugs">Report a bug</a><a href="/contact">Contact</a><a href="/about">About</a><a href="/review">Reviewers</a><a href="/licenses">Licenses</a><a href="/privacy">Privacy</a><a href="/terms">Terms</a></span>
+  <span class="links"><a href="/features">Features</a><a href="/pro">Pro</a><a href="/download">Download</a><a href="/news">News</a><a href="/guide">Guide</a><a href="/support">Support</a><a href="/faq">FAQ</a><a href="/accessibility">Accessibility</a><a href="/security">Security</a><a href="/bugs">Report a bug</a><a href="/contact">Contact</a><a href="/about">About</a><a href="/review">Reviewers</a><a href="/testing">Proof</a><a href="/licenses">Licenses</a><a href="/privacy">Privacy</a><a href="/terms">Terms</a></span>
 </div></footer>
 </body>
 </html>

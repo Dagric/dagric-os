@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Build and test proof — Dagric OS</title>
+<meta name="description" content="The public Dagric OS release record: source, signed manifests, package inventory, automated checks, boot and install tests, and known gaps.">
+<link rel="icon" type="image/png" href="/assets/dagric-logo.png">
+<link rel="stylesheet" href="/assets/site.css">
+<style>
+dl.meta{display:grid;grid-template-columns:auto 1fr;gap:var(--s-2) var(--s-4);margin:var(--s-4) 0;
+  border-top:1px solid var(--rule);border-bottom:1px solid var(--rule);padding:var(--s-4) 0}
+dl.meta dt{font-weight:600;color:var(--on-3);font-size:var(--t-ui)}
+dl.meta dd{margin:0;color:var(--on-2)}
+.status{font-weight:700;white-space:nowrap}
+.proof-links{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(16rem,100%),1fr));gap:var(--s-4);margin:var(--s-5) 0}
+.proof-links .card{height:100%}
+@media(max-width:640px){dl.meta{grid-template-columns:1fr;gap:2px}dl.meta dd{margin-bottom:10px}}
+</style>
+<link rel="canonical" href="https://dagric.com/testing">
+<meta name="theme-color" content="#0C0F14">
+<script src="/assets/theme.js"></script>
+<link rel="icon" href="/favicon.ico" sizes="32x32">
+<link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
+<link rel="manifest" href="/site.webmanifest">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Dagric OS">
+<meta property="og:title" content="Build and test proof — Dagric OS">
+<meta property="og:description" content="Source, signed manifests, package inventory, automated checks, boot and install tests, and the gaps still open.">
+<meta property="og:url" content="https://dagric.com/testing">
+<meta property="og:image" content="https://dagric.com/assets/hero-desktop.png">
+<meta property="og:image:width" content="1920">
+<meta property="og:image:height" content="1080">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Build and test proof — Dagric OS">
+<meta name="twitter:description" content="Source, signed manifests, package inventory, automated checks, boot and install tests, and the gaps still open.">
+<meta name="twitter:image" content="https://dagric.com/assets/hero-desktop.png">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<nav><div class="nav-in">
+  <a class="brand" href="/"><img src="/assets/dagric-logo.png" alt="" width="30" height="30">Dagric&nbsp;OS</a>
+  <div class="nav-links">
+    <a href="/features">Features</a><a href="/pro">Pro</a><a href="/about">About</a>
+    <a href="/review">Reviewers</a><a href="/testing" aria-current="page">Proof</a>
+    <a class="cta" href="/download">Download</a>
+  </div>
+</div></nav>
+
+<main id="main" class="wide">
+  <header class="phero">
+    <div class="eyebrow">Evidence, not promises</div>
+    <h1>Build and <span class="grad">test proof.</span></h1>
+    <p class="lead">This is the public record behind the download: the exact source revision,
+    signed hashes, package inventory, release gates, boot and install checks, and the things that
+    have not been proven on physical hardware.</p>
+    <p>A green build is useful, but it is not a hardware test. A signed checksum proves who
+    published bytes, but it does not prove those bytes boot. Each question has its own row below
+    so one passing check cannot stand in for another.</p>
+  </header>
+
+  <h2>Public proof paths</h2>
+  <div class="proof-links">
+    <div class="card"><h3>Source and issues</h3><p><a href="https://github.com/Dagric/dagric-os">Browse the source</a> or <a href="https://github.com/Dagric/dagric-os/issues">report and track an issue publicly</a>.</p></div>
+    <div class="card"><h3>Release record</h3><p>The <a href="/manifest/release.json">machine-readable release manifest</a> ties filenames, byte counts, hashes, source revision and package inventories together.</p></div>
+    <div class="card"><h3>Signed hashes</h3><p>Download <a href="/SHA256SUMS">SHA256SUMS</a>, its <a href="/SHA256SUMS.sig">detached signature</a>, and the <a href="/dagric-signing-key.asc">public signing key</a>.</p></div>
+    <div class="card"><h3>Software inventory</h3><p>Exact package manifests for the <a href="/manifest/dagric-os-1.0.packages">Free</a> and <a href="/manifest/dagric-os-pro-1.0.packages">Pro</a> images are published from the ISOs themselves.</p></div>
+  </div>
+
+  <h2>Release under test</h2>
+  <dl class="meta">
+    <dt>Version</dt><dd>1.0 “Foundation”</dd>
+    <dt>Architecture</dt><dd>64-bit Intel and AMD (amd64)</dd>
+    <dt>Base</dt><dd>Debian 13 “Trixie” · KDE Plasma 6.3 · Wayland</dd>
+    <dt>Source revision</dt><dd><code>release build in progress</code></dd>
+    <dt>Release date</dt><dd>Pending completion of the checks below</dd>
+  </dl>
+
+  <h2 id="release-matrix">Release verification matrix</h2>
+  <p>The status describes the current public candidate. “Pending” is not a pass and is never
+  hidden behind a successful check in another row.</p>
+  <div class="tablewrap" tabindex="0" role="region" aria-labelledby="release-matrix">
+    <table class="proof">
+      <thead><tr><th scope="col">Gate</th><th scope="col">Status</th><th scope="col">Evidence and scope</th></tr></thead>
+      <tbody>
+        <tr><th scope="row">Site and source checks</th><td class="status">Pending</td><td>Internal links, sitemap, unfinished tokens, package names, translations and shell syntax are rerun before release.</td></tr>
+        <tr><th scope="row">Fresh Free ISO build</th><td class="status">Pending</td><td>Built from the source revision above with Debian live-build.</td></tr>
+        <tr><th scope="row">Fresh Pro ISO build</th><td class="status">Pending</td><td>Built separately so Pro cannot overwrite or masquerade as Free.</td></tr>
+        <tr><th scope="row">Signed release manifest</th><td class="status">Pending</td><td>Both named ISOs must hash locally, appear in one SHA256SUMS file, and verify against GPG key fingerprint <code>3A079F85DE74375DD65557096CE37402BA0A0EF8</code>.</td></tr>
+        <tr><th scope="row">ISO structure and package manifests</th><td class="status">Pending</td><td>Boot files and each image's own <code>/live/filesystem.packages</code> inventory are extracted from the finished images.</td></tr>
+        <tr><th scope="row">Legacy BIOS live boot</th><td class="status">Pending</td><td>Boot to the live desktop in the QEMU harness.</td></tr>
+        <tr><th scope="row">UEFI live boot</th><td class="status">Pending</td><td>Boot through OVMF to the live desktop in the QEMU harness.</td></tr>
+        <tr><th scope="row">Install and installed-system boot</th><td class="status">Pending</td><td>Run Calamares against a blank virtual disk and boot the installed system.</td></tr>
+        <tr><th scope="row">Public Free download</th><td class="status">Pending</td><td>After upload, download the customer-facing object and compare its byte count and SHA-256 with the signed manifest.</td></tr>
+        <tr><th scope="row">Private Pro delivery gate</th><td class="status">Pending</td><td>Unauthenticated access must fail; a paid Stripe Checkout session must stream the private object with Range support.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h2 id="limitations">Still not proven by this release process</h2>
+  <ul>
+    <li><strong>Physical USB media and a range of real PCs.</strong> The VM harness cannot prove a particular USB controller, firmware, Wi-Fi adapter, GPU, camera, printer, suspend path or battery works.</li>
+    <li><strong>Secure Boot on varied retail firmware.</strong> The chain is checked in the image and exercised in virtual firmware; broad physical-machine coverage does not exist yet.</li>
+    <li><strong>A screen-reader review by someone who relies on one.</strong> The speech stack is present and statically checked, but that is not a lived accessibility test.</li>
+    <li><strong>Every Windows application.</strong> Wine, Bottles and Proton compatibility is application-specific. The site never promises universal Windows-software compatibility.</li>
+  </ul>
+  <div class="note"><p style="margin:0">Before installing, boot the live USB and run <strong>Check This PC</strong>. It reports on the hardware in front of you without writing to the disk. A compatibility result from someone else's computer is not a result for yours.</p></div>
+
+  <h2>How to reproduce the public checks</h2>
+  <pre tabindex="0" role="region" aria-label="Release verification commands"><code>gpg --import dagric-signing-key.asc
+gpg --verify SHA256SUMS.sig SHA256SUMS
+sha256sum -c SHA256SUMS</code></pre>
+  <p>The build and release tooling is in the <a href="https://github.com/Dagric/dagric-os/tree/main/tools">public tools directory</a>. The <a href="/review">reviewer kit</a> gives the hands-on test order and press assets.</p>
+</main>
+
+<footer><div class="foot">
+  <span>© 2026 DGR Operations · Built on Debian. Not affiliated with the Debian Project.</span>
+  <span class="links"><a href="/features">Features</a><a href="/pro">Pro</a><a href="/download">Download</a><a href="/news">News</a><a href="/guide">Guide</a><a href="/support">Support</a><a href="/faq">FAQ</a><a href="/accessibility">Accessibility</a><a href="/security">Security</a><a href="/bugs">Report a bug</a><a href="/contact">Contact</a><a href="/about">About</a><a href="/review">Reviewers</a><a href="/testing">Proof</a><a href="/licenses">Licenses</a><a href="/privacy">Privacy</a><a href="/terms">Terms</a></span>
+</div></footer>
+</body>
+</html>

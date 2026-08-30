@@ -1,0 +1,47 @@
+{
+  "schema": "https://dagric.com/manifest/release.schema.json",
+  "product": "Dagric OS",
+  "version": "1.0",
+  "codename": "Foundation",
+  "architecture": "amd64",
+  "base": "Debian 13 (Trixie)",
+  "source": {
+    "repository": "https://github.com/Dagric/dagric-os",
+    "commit": "3d1fcdbdf8a71d4169fc74456c8008fd1326e99d"
+  },
+  "generated_utc": "2026-08-30T00:52:50+00:00",
+  "signature": {
+    "manifest": "https://dagric.com/SHA256SUMS",
+    "detached_signature": "https://dagric.com/SHA256SUMS.sig",
+    "public_key": "https://dagric.com/dagric-signing-key.asc",
+    "fingerprint": "3A079F85DE74375DD65557096CE37402BA0A0EF8"
+  },
+  "artifacts": [
+    {
+      "edition": "free",
+      "filename": "dagric-os-1.0-amd64.iso",
+      "bytes": 2251653120,
+      "sha256": "4a629e7d3b28f3f437bb4ef664d43c840ed97cbe973c288e50c5f66a18addcf7"
+    },
+    {
+      "edition": "pro",
+      "filename": "dagric-os-pro-1.0-amd64.iso",
+      "bytes": 4152623104,
+      "sha256": "0e29910200d9c9e56a7e4624fcc15633a9093ac6f8bff6fb36c7239a1ed78305"
+    }
+  ],
+  "package_manifests": {
+    "free": {
+      "url": "https://dagric.com/manifest/dagric-os-1.0.packages",
+      "packages": 1810,
+      "sha256": "ff7c9caefe82d94d9960bcaf42f1d1b75acb9c9a43d02271cc75a4b894451a4b"
+    },
+    "pro": {
+      "url": "https://dagric.com/manifest/dagric-os-pro-1.0.packages",
+      "packages": 2537,
+      "sha256": "016b474f4a43662e1d4ec32a19945442c927a48e7c77c8fc33a3f44a373a7acf"
+    }
+  },
+  "test_record": "https://dagric.com/testing",
+  "known_limitations": "https://dagric.com/testing#limitations"
+}

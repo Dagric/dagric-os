@@ -352,17 +352,6 @@ do_publish() {
         || { echo "release: run 'sign' first" >&2; exit 1; }
     do_check || exit 1
 
-    # THE SITE ITSELF IS PART OF THE RELEASE, and until now nothing looked at it.
-    # This gate refuses a deploy that would publish an unfinished page, a
-    # redirect to somebody's debug tunnel, a broken internal link or a sitemap
-    # that disagrees with what is being uploaded — three of which have actually
-    # reached production or come within one command of it.
-    echo
-    sh tools/check-site.sh || {
-        echo "release: the site is not ready to deploy (see above)." >&2
-        exit 1
-    }
-
     cp "$OUT/SHA256SUMS" "$OUT/SHA256SUMS.sig" "$SITE/"
     echo
     echo "  copied SHA256SUMS and SHA256SUMS.sig into $SITE/"
@@ -396,9 +385,10 @@ do_publish() {
     else
         echo "  WARNING: xorriso missing — package manifests NOT refreshed." >&2
         echo "           /licenses offers source 'matching the versions we ship'." >&2
+        exit 1
     fi
 
-    # THE CHANNEL IS BUILT BEFORE THE DEPLOY, NOT AFTER.
+    # THE CHANNEL IS BUILT BEFORE THE SITE GATE AND THE DEPLOY, NOT AFTER.
     #
     # These two lines were printed the other way round, and following them in
     # the printed order guarantees the failure this whole script exists to stop:
@@ -410,8 +400,30 @@ do_publish() {
     # docs/REPOSITORY.md has had the right order all along (build-repo at step 4,
     # deploy at step 6). Three procedures in one repo disagreeing about the order
     # is how the wrong one gets followed.
-    echo "  now:  sh packages/build-repo.sh    (writes site/repo — MUST precede the deploy)"
-    echo "  then: firebase deploy --only hosting"
+    echo
+    echo "  building the signed APT update channel before checking the site"
+    sh packages/build-repo.sh || {
+        echo "release: the APT update channel could not be built." >&2
+        exit 1
+    }
+
+    python3 tools/write-release-proof.py || {
+        echo "release: the public release record could not be generated." >&2
+        exit 1
+    }
+
+    # THE SITE ITSELF IS PART OF THE RELEASE. This gate must run only after
+    # every generated thing it links to exists: signed sums, package manifests,
+    # the APT repository, and the machine-readable release record. Running it
+    # earlier made a clean checkout impossible to release because /security
+    # correctly linked to /repo/dagric-repo.gpg.asc before that file was built.
+    echo
+    sh tools/check-site.sh || {
+        echo "release: the site is not ready to deploy (see above)." >&2
+        exit 1
+    }
+
+    echo "  now:  firebase deploy --only hosting"
     echo "  then: sh tools/verify-published.sh (proves the LIVE end state, site AND channel)"
 }
 
