@@ -25,7 +25,7 @@ Ask U.S./Missouri counsel with software, consumer, privacy and open-source exper
 - The installed system does not perform recurring license checks. A one-time claim creates an anonymous machine fingerprint tied to purchase-delivery records.
 - The policy revised on August 30, 2026 allows cancellation of a paid order before the Pro download begins. Once downloading begins, there are no discretionary change-of-mind or compatibility refunds. Mandatory consumer remedies remain available, and older orders retain the promise displayed when they completed.
 - If a refund is nevertheless required by law or granted for a legacy order, it ends Pro download/support access but cannot remotely disable an installed copy.
-- The live Stripe public business name is Dagric OS. As of this packet date, the bank statement descriptor still reads **IMPRESSIONDIRECT360**, and the terms disclose that mismatch. Counsel should advise whether the descriptor and seller disclosures should instead be aligned.
+- The live Stripe public business name and bank statement descriptor are both **Dagric OS**. Stripe's public website, support, privacy and terms URLs point to dagric.com, and the live $39 Payment Link requires acceptance of the Dagric terms.
 - Contact-form submissions are private R2 objects. Cloudflare now enforces automatic deletion under `inbox/` after 365 days; messages may be deleted earlier.
 - Hosting: Firebase Hosting. Checkout: Stripe. Edge delivery/contact storage: Cloudflare Workers, R2 and KV.
 - Operator location and governing-law choice shown publicly: Missouri, United States.
@@ -49,7 +49,7 @@ Provide counsel a clean repository snapshot and screenshots of the actual Stripe
 
 1. What exact legal name, assumed-name registration and postal/contact information must appear at checkout, on receipts and in the site footer?
 2. May the brand be Dagric OS while the underlying seller is DGR Operations, and what explanatory wording is needed?
-3. Should the Stripe statement descriptor be changed to `DAGRIC OS` or another permitted form?
+3. Is the aligned `DAGRIC OS` checkout/statement branding and the explanation of DGR Operations as seller adequate?
 4. Is affirmative assent (for example, a checkout checkbox or adjacent linked terms) required for the license, refund and liability clauses?
 5. Does the final-after-download policy require an express pre-download consent/acknowledgement, checkout checkbox, receipt language or geographic sales restriction in any market the site serves?
 6. Are the purchase policy, perpetual-use and free-updates promises internally consistent and operationally sustainable?
