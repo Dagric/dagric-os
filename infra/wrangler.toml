@@ -54,13 +54,12 @@ bucket_name = "dagric-pro"
 # careless deploy without it degrades to "no allowance enforcement", loudly
 # visible in `wrangler deployments list`, rather than to broken downloads.
 #
-# BEFORE THE FIRST DEPLOY: create the namespace and paste its id here —
-#     wrangler kv namespace create LICENSE
-# (Blocked until the Cloudflare token is rotated; the placeholder below makes
-# `wrangler deploy` fail rather than silently deploy without the binding.)
+# Created in the Dagric Cloudflare account on 2026-08-29. Namespace IDs are
+# public binding identifiers, not credentials; values stored in the namespace
+# remain private to the Worker and account.
 [[kv_namespaces]]
 binding = "LICENSE"
-id = "CREATE-WITH-wrangler-kv-namespace-create-LICENSE"
+id = "689804cc1ed64a8686c55eae693aed47"
 
 # A KV counter cannot HARD-stop a deliberate parallel burst — read-modify-write
 # is not atomic and KV is eventually consistent, so a scripted fan-out on one
