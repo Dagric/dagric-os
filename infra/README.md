@@ -20,6 +20,12 @@ READ MESSAGES: Cloudflare dashboard -> R2 -> dagric-contact -> inbox/.
 Binding: `MAIL` (r2_bucket -> dagric-contact). No secrets. No email address
 is published anywhere on the site.
 
+The bucket lifecycle rule `delete-contact-messages-after-365-days` is enabled
+for prefix `inbox/` and expires each contact object after 365 days. The default
+multipart-upload abort rule remains enabled at 7 days. If the public retention
+promise changes, update both the R2 lifecycle rule and `site/privacy.html` in
+the same release.
+
 ## firebase.json — why the Cache-Control block looks like that
 firebase.json is validated against firebase-tools' schema, whose header entries
 declare `additionalProperties: false` — an unknown `_comment` key makes the

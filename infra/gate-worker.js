@@ -174,7 +174,7 @@ export default {
     const items = (s.line_items && s.line_items.data) || [];
     // What was bought decides both whether this is Pro and how many machines it
     // covers. See MACHINE_CAPS: an unknown or missing price id yields cap 1.
-    const bought = machinesAllowed(items);
+    const bought = machinesAllowed(items, env);
     if (!paid || !bought.isPro) {
       return msg(403, "This session has no completed Dagric OS Pro purchase.");
     }
@@ -435,14 +435,27 @@ function readRec(raw) {
 //   * Several known prices in one session -> the largest, not the sum. Somebody
 //     who bought a single and a family in one go has a family's worth of
 //     machines, which is what they would get if they had checked out twice.
-function machinesAllowed(items) {
+function machinesAllowed(items, env) {
   let isPro = false;
   let cap = MACHINE_CAP_FALLBACK;
+  // A short-lived staging Worker can validate a real Stripe sandbox checkout
+  // without teaching the live Worker to accept test sessions. The test price
+  // is a non-secret environment value and exists only on `env.staging`; the
+  // production environment leaves it unset. This keeps the same source and
+  // entitlement logic under test instead of maintaining a weaker copy.
+  const stagingPrice =
+    env && typeof env.STAGING_PRICE_PRO === "string" &&
+    /^price_[A-Za-z0-9]+$/.test(env.STAGING_PRICE_PRO)
+      ? env.STAGING_PRICE_PRO
+      : "";
   for (const li of items || []) {
     const id = li && li.price && li.price.id;
     if (typeof id !== "string") continue;
-    if (!Object.prototype.hasOwnProperty.call(MACHINE_CAPS, id)) continue;
-    const n = MACHINE_CAPS[id];
+    const n = id === stagingPrice
+      ? 1
+      : Object.prototype.hasOwnProperty.call(MACHINE_CAPS, id)
+        ? MACHINE_CAPS[id]
+        : 0;
     if (typeof n !== "number" || !Number.isFinite(n) || n < 1) continue;
     const seats = Math.floor(n);
     if (!isPro) {

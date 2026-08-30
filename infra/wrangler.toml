@@ -48,6 +48,31 @@ compatibility_date = "2026-01-01"
 binding = "PRO"
 bucket_name = "dagric-pro"
 
+# ── disposable Stripe sandbox gate ─────────────────────────────────────────
+# Deploy only while running the checkout/refund drill, then delete the Worker:
+#
+#   wrangler secret put STRIPE_KEY --config infra/wrangler.toml --env staging
+#   wrangler deploy --config infra/wrangler.toml --env staging
+#   wrangler delete --config infra/wrangler.toml --env staging
+#
+# The price id is not a credential. It names the $1.00 sandbox-only Dagric Pro
+# item. The staging Worker uses Stripe's test key, the same gate source and the
+# private Pro object; it is removed after the drill so a public test-card number
+# cannot become a permanent free-download route.
+[env.staging]
+name = "dagric-gate-staging"
+
+[env.staging.vars]
+STAGING_PRICE_PRO = "price_1UA1yR6lZx4VOIr3kR4YQCJ0"
+
+[[env.staging.r2_buckets]]
+binding = "PRO"
+bucket_name = "dagric-pro"
+
+[[env.staging.kv_namespaces]]
+binding = "LICENSE"
+id = "a6a999aa328c4f46883508ddeee45ef2"
+
 # The licence-allowance store: one machine per purchase, ISO download starts,
 # and the legacy assets counter. The worker FAILS OPEN if this binding is
 # missing or KV errors — customers are never locked out by our storage — so a
