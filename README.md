@@ -24,6 +24,16 @@ and policy lives here, and the ISO is rebuilt from it with one command.
   KDE Connect mobile integration, Docker/Podman, and owner-consent helpers
   for NVIDIA drivers, DaVinci Resolve, and local AI. See [docs/EDITIONS.md](docs/EDITIONS.md).
 
+## Current verified release
+
+Dagric OS 1.0 “Foundation” was rebuilt and published on 29 August 2026. The
+[download page](https://dagric.com/download) links the Free image and Pro
+checkout. Before installing, check the
+[machine-readable release record](https://dagric.com/manifest/release.json),
+[signed SHA-256 hashes](https://dagric.com/SHA256SUMS), and public
+[build and test record](https://dagric.com/testing). The test record separates
+virtual-machine results from the physical-hardware checks that are still open.
+
 ## Build it
 
 On this Windows machine (Docker Desktop must be running):
@@ -89,8 +99,7 @@ out/                      finished ISOs land here
 Debian's software is free to modify and redistribute; this project follows
 [Debian's derivative guidelines](https://wiki.debian.org/Derivatives/Guidelines):
 its own name and branding, `ID_LIKE=debian` honesty in `os-release`, and no use
-of Debian's restricted marks. If the ISO is ever distributed outside your own
-machines, GPL source-availability obligations apply. This repository is private,
-so it is not the mechanism: recipients are pointed at Debian's source archives
-for the unmodified packages, and at the written offer on
-https://dagric.com/licenses for anything Dagric modifies.
+of Debian's restricted marks. The public source in this repository covers
+Dagric's own build configuration and modifications. Recipients are also pointed
+to Debian's source archives for unmodified packages and to the written source
+offer at https://dagric.com/licenses.
