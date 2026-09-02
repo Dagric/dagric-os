@@ -1,0 +1,3 @@
+#!/bin/sh
+# Dagric OS — normal, same-release updates with an explicit recovery point.
+exec python3 /usr/lib/dagric/update_core.py "$@"

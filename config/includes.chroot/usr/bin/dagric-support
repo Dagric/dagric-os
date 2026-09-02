@@ -1,0 +1,4 @@
+#!/bin/sh
+# Support Mode is explicit-only: no timer, upload endpoint, or background data
+# collection exists.  Preview is the default so the owner sees the allow-list.
+exec /usr/bin/python3 /usr/lib/dagric/trust.py "$@"

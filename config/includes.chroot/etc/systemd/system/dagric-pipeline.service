@@ -1,0 +1,18 @@
+[Unit]
+Description=Dagric Adaptive Pipeline machine policy compiler
+After=systemd-remount-fs.service local-fs.target
+ConditionPathExists=/proc/pressure/cpu
+
+[Service]
+Type=oneshot
+ExecStart=/usr/sbin/dagric-pipeline scan --quiet
+NoNewPrivileges=yes
+PrivateTmp=yes
+ProtectHome=yes
+ProtectSystem=strict
+ReadWritePaths=/var/lib/dagric/pipeline
+MemoryMax=96M
+CPUQuota=10%
+Nice=19
+IOSchedulingClass=idle
+UMask=0077

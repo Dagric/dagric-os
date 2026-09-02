@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dagric Rewind &mdash; Dagric OS Manual</title>
+<link rel="stylesheet" href="manual.css">
+<script src="manual.js"></script>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<div class="shell">
+  <aside class="side">
+    <div class="sidebox">
+      <a class="brand" href="index.html">
+        <div class="mark">D</div>
+        <div class="brand-name">Dagric OS<small>Manual</small></div>
+      </a>
+      <nav class="toc" aria-label="Dagric&#x27;s own tools">
+        <a class="back" href="index.html">&larr; All applications</a>
+        <div class="navgroup">Dagric&#x27;s own tools</div>
+        <a href="tool-dagric-hub.html">Dagric Hub</a>
+        <a href="tool-dagric-setup.html">Finish Setup</a>
+        <a href="tool-dagric-firstrun.html">Set Up Dagric</a>
+        <a href="tool-dagric-migrate.html">Migration Assistant</a>
+        <a href="tool-dagric-rewind.html" class="active">Dagric Rewind</a>
+        <a href="tool-dagric-appearance.html">Dagric Appearance</a>
+        <a href="tool-dagric-hardware-check.html">Check This PC</a>
+        <a href="tool-dagric-security-checkup.html">Security Checkup</a>
+        <a href="tool-dagric-manual.html">This manual</a>
+        <a href="tool-dagric-commands.html">Every dagric command</a>
+      </nav>
+    </div>
+  </aside>
+
+  <main class="content" id="main" tabindex="-1">
+    <header class="hero">
+      <div class="eyebrow">Dagric&#x27;s own tools</div>
+      <h1>Dagric Rewind</h1>
+      <p class="sub">Your computer has an Undo button &mdash; without recording your screen.</p>
+    </header>
+
+    <div class="swap"><span>On Windows this was</span><strong>restore points, Recall, and a separate Sandbox</strong></div>
+
+    <section>
+      <h2>What it is</h2>
+      <p><strong>Dagric Rewind</strong> puts real system checkpoints on a timeline
+      you can understand. Start a session before installing software, changing a
+      setting, updating a driver, or trying an experiment. Finish it afterwards
+      and Rewind shows which system paths were added, changed, or removed.</p>
+      <p>It records <strong>system changes only</strong>. It does not take
+      screenshots, read your documents, capture typing, contact a cloud service,
+      or require an account.</p>
+      <p>Package installs and updates that use APT or Discover already create a
+      before-and-after pair in Dagric. Rewind recognizes those exact pairs and
+      lists them as <em>Software update (automatic)</em>, so you get a receipt
+      even when you did not remember to start a session first.</p>
+    </section>
+
+    <section>
+      <h2>Four things you will actually do</h2>
+      <ol class="tasks">
+        <li><span class="t">Start before a risky change</span><p>Open Rewind and choose the kind of change. Approve the administrator prompt. The first checkpoint is created before you touch anything.</p></li>
+        <li><span class="t">Finish and read the receipt</span><p>Return to Rewind and press <em>Finish &amp; review</em>. Click the finished session in the timeline to see Software, Settings, Boot, and other changed paths.</p></li>
+        <li><span class="t">Mark a known-good moment</span><p>Use <em>Create checkpoint</em> before travel, a deadline, or a large upgrade. It joins Dagric&#x27;s normal snapshot retention system.</p></li>
+        <li><span class="t">Recover safely</span><p>Press <em>Open safe recovery</em> for Btrfs Assistant. If the machine cannot boot normally, use Dagric&#x27;s snapshot submenu at startup. Rewind deliberately does not rewrite the running root filesystem behind your back.</p></li>
+      </ol>
+    </section>
+
+    <section>
+      <h2>What it does not protect</h2>
+      <p>A root snapshot is not a backup of a failed drive, and the default
+      Dagric layout keeps personal files separate from system snapshots. Keep a
+      real backup of documents and photos. Rewind protects the operating system
+      from a bad change; it does not claim to replace backup.</p>
+      <p>On the live USB, or on an installation that is not using Btrfs, Rewind
+      explains why it is unavailable instead of showing a false Undo button.</p>
+    </section>
+
+    <section>
+      <h2>Where to find it</h2>
+      <p>Dagric Hub &rarr; <em>Dagric Rewind</em>, launcher &rarr;
+      <em>Dagric Rewind</em>, or <code>dagric-rewind</code>.</p>
+    </section>
+
+    <section>
+      <h2>See also</h2>
+      <div class="related"><a href="tool-dagric-hub.html">Dagric Hub</a><a href="tool-dagric-security-checkup.html">Security Checkup</a><a href="tool-dagric-commands.html">Every Dagric command</a></div>
+    </section>
+
+    <footer class="colophon">Dagric OS Manual &middot; stored on this computer, no internet needed &middot; <a href="index.html">every application</a></footer>
+  </main>
+</div>
+</body>
+</html>

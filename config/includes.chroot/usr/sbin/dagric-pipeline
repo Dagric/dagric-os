@@ -1,0 +1,4 @@
+#!/bin/sh
+# Dagric Adaptive Pipeline system entry point.  It has no desktop launcher and
+# emits no notifications; the owner can inspect it explicitly with `status`.
+exec /usr/bin/python3 /usr/lib/dagric/pipeline.py "$@"

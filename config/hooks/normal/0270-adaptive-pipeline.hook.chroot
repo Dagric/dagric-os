@@ -1,0 +1,18 @@
+#!/bin/sh
+# SPDX-FileCopyrightText: 2026 DGR Operations <repo@dagric.com>
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Keep the adaptive pipeline invisible during ordinary use: it compiles a
+# private local capability profile after boot and every six hours, without a
+# panel icon, network request, benchmark, persistent tracing session or prompt.
+set -e
+
+# Protect the local hardware profile from other unprivileged accounts.  The
+# profile deliberately has no serials, MACs or DMI fields, but it still records
+# the shape of this particular machine and belongs to its administrator.
+install -d -m 0700 /var/lib/dagric/pipeline
+
+if systemctl enable dagric-pipeline.timer >/dev/null 2>&1; then
+    echo "adaptive-pipeline: refresh timer enabled"
+else
+    echo "WARNING: adaptive-pipeline timer was not enabled" >&2
+fi

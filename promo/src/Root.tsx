@@ -3,6 +3,8 @@ import { DagricPromo } from "./DagricPromo";
 import { DagricShort } from "./DagricShort";
 import { InstallWalkthrough } from "./InstallWalkthrough";
 import { DagricLooks, DAGRIC_LOOKS_FRAMES } from "./DagricLooks";
+import {BatchSocial, BatchSocialProps} from "./BatchSocial";
+import {EditorialSocial} from "./EditorialSocial";
 
 /**
  * Four pieces, four jobs. Kept separate rather than cutting one master down:
@@ -65,6 +67,65 @@ export const RemotionRoot: React.FC = () => {
         fps={30}
         width={1080}
         height={1920}
+      />
+      <Composition
+        id="DagricSocialBatch"
+        component={BatchSocial}
+        durationInFrames={360}
+        fps={30}
+        width={1280}
+        height={720}
+        defaultProps={{
+          slug: "dagric-review",
+          category: "Dagric OS",
+          kicker: "Review cut",
+          headline: "A private desktop for a computer that still works.",
+          body: "Built on Debian and KDE Plasma, with no Dagric account required.",
+          cta: "Learn more",
+          image: "dagric-hero-desktop.png",
+          durationSeconds: 12,
+          style: "statement",
+          accent: "blue",
+          format: "landscape",
+          reviewCut: true,
+        } satisfies BatchSocialProps}
+        calculateMetadata={({props}) => {
+          const size = props.format === "vertical"
+            ? {width: 720, height: 1280}
+            : props.format === "portrait"
+              ? {width: 720, height: 900}
+              : props.format === "square"
+                ? {width: 720, height: 720}
+                : {width: 1280, height: 720};
+          return {...size, durationInFrames: Math.round(props.durationSeconds * 30)};
+        }}
+      />
+      <Composition
+        id="DagricEditorialBatch"
+        component={EditorialSocial}
+        durationInFrames={360}
+        fps={30}
+        width={720}
+        height={1280}
+        defaultProps={{
+          slug: "dagric-editorial-review",
+          category: "Dagric OS",
+          kicker: "A closer look",
+          headline: "A desktop for a computer that still works.",
+          body: "Built on Debian and KDE Plasma, with the proof and limitations kept visible.",
+          cta: "Try the live desktop first",
+          image: "dagric-hero-desktop.png",
+          durationSeconds: 12,
+          style: "statement",
+          accent: "blue",
+          format: "vertical",
+          reviewCut: false,
+        } satisfies BatchSocialProps}
+        calculateMetadata={({props}) => ({
+          width: 720,
+          height: 1280,
+          durationInFrames: Math.round(props.durationSeconds * 30),
+        })}
       />
     </>
   );

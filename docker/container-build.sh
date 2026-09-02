@@ -12,12 +12,17 @@ set -e
 
 EDITION="${EDITION:-free}"
 
+# Run repository-level checks before copying the source without .git. The
+# action-pin and tracked-secret checks intentionally need the original checkout.
+python3 /src/tools/check-source.py
+
 # site/repo/ is excluded for the same reason build.sh excludes it: the published
 # APT repository is regenerated in place, so rsync can be reading a file that is
 # being rewritten underneath it and dies with "file has vanished", killing the
 # build before it starts. build.sh gained this exclusion and this script did not,
 # so the Docker path kept the bug after the documented fix.
-rsync -a --exclude 'out/' --exclude '.git/' --exclude 'site/repo/' /src/ /build/
+rsync -a --exclude 'out/' --exclude '.git/' --exclude 'site/repo/' \
+    --exclude '%SystemDrive%/' /src/ /build/
 cd /build
 # *.hook.* and not *.hook.chroot: the boot-menu branding is a .hook.BINARY, so
 # it was outside this line and depended on the executable bit surviving a
@@ -25,7 +30,8 @@ cd /build
 # in silence — the ISO just comes out with Debian's generic boot menu and no
 # accessible ("with screen reader") entry.
 chmod +x auto/* config/hooks/normal/*.hook.* 2>/dev/null || true
-chmod +x config/includes.chroot/usr/bin/* config/includes.chroot/usr/lib/live/config/* \
+chmod +x config/includes.chroot/usr/bin/* config/includes.chroot/usr/sbin/* \
+         config/includes.chroot/usr/lib/live/config/* \
          config/includes.chroot/usr/lib/dagric/* 2>/dev/null || true
 
 # Resolve every package name BEFORE the edition pruning below deletes the Pro
@@ -42,6 +48,8 @@ chmod +x config/includes.chroot/usr/bin/* config/includes.chroot/usr/lib/live/co
 # fails the free build too, which is correct: it means the tree is broken, and
 # the cheapest place to learn that is the build that runs on every push.
 sh tools/check-package-names.sh
+sh tools/check-rewind.sh
+sh tools/check-pipeline.sh
 
 if [ "$EDITION" != "pro" ]; then
     rm -f config/package-lists/pro-*.list.chroot

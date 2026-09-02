@@ -14,6 +14,55 @@ echo "Applying Dagric Pro configuration..."
 sed -i 's/^PRETTY_NAME=.*/PRETTY_NAME="Dagric OS Pro 1.0 (Foundation)"/' /usr/lib/os-release
 printf 'VARIANT="Pro"\nVARIANT_ID=pro\n' >> /usr/lib/os-release
 
+# Match the installer gate to the Pro storage requirement published by the
+# hardware checker and website.  The base file enforces Free's 25 GiB floor;
+# Pro carries substantially more software and needs 40 GiB.  A guarded edit is
+# intentional: sed exits successfully even when a future Calamares update or
+# refactor removes the key.
+WELCOME=/etc/calamares/modules/welcome.conf
+if [ ! -f "$WELCOME" ]; then
+    echo "ERROR: $WELCOME missing — cannot enforce Pro's 40 GiB install floor" >&2
+    exit 1
+fi
+sed -i 's/^\([[:space:]]*requiredStorage:[[:space:]]*\).*/\140/' "$WELCOME"
+if ! grep -q '^[[:space:]]*requiredStorage:[[:space:]]*40[[:space:]]*$' "$WELCOME"; then
+    echo "ERROR: Pro Calamares storage requirement is not 40 GiB" >&2
+    exit 1
+fi
+echo "pro-edition: installer storage floor set to 40 GiB"
+
+# Calamares does not read /etc/os-release for its window title, welcome text,
+# summary, or completion page.  It reads branding.desc instead, so changing
+# PRETTY_NAME above still left Pro saying "Dagric OS 1.0 (Foundation)" all the
+# way through installation.  Keep every user-visible edition name together and
+# guard the edits: an unguarded sed would silently bring the mismatch back if a
+# future Calamares branding file renamed one of these keys.
+BRANDING=/etc/calamares/branding/dagric/branding.desc
+if [ ! -f "$BRANDING" ]; then
+    echo "ERROR: $BRANDING missing — cannot apply Pro installer identity" >&2
+    exit 1
+fi
+sed -i \
+    -e 's/^[[:space:]]*productName:.*/    productName:         "Dagric OS Pro"/' \
+    -e 's/^[[:space:]]*shortProductName:.*/    shortProductName:    "Dagric Pro"/' \
+    -e 's/^[[:space:]]*versionedName:.*/    versionedName:       "Dagric OS Pro 1.0 (Foundation)"/' \
+    -e 's/^[[:space:]]*shortVersionedName:.*/    shortVersionedName:  "Dagric Pro 1.0"/' \
+    -e 's/^[[:space:]]*bootloaderEntryName:.*/    bootloaderEntryName: "Dagric Pro"/' \
+    "$BRANDING"
+for expected in \
+    '    productName:         "Dagric OS Pro"' \
+    '    shortProductName:    "Dagric Pro"' \
+    '    versionedName:       "Dagric OS Pro 1.0 (Foundation)"' \
+    '    shortVersionedName:  "Dagric Pro 1.0"' \
+    '    bootloaderEntryName: "Dagric Pro"'
+do
+    if ! grep -Fqx "$expected" "$BRANDING"; then
+        echo "ERROR: Pro Calamares identity did not apply: $expected" >&2
+        exit 1
+    fi
+done
+echo "pro-edition: installer identity set to Dagric OS Pro"
+
 # The login screen says so too. The dagric SDDM theme draws one quiet line
 # under the logo, fed from theme.conf's editionBadge key, which ships EMPTY —
 # free renders nothing there. This is the first thing an owner sees on every
@@ -325,27 +374,22 @@ systemctl disable docker.service docker.socket 2>/dev/null || true
 
 # Pro look: Papirus icons by default for new users.
 #
-# Papirus-LIGHT, and the variant is the entire point of these lines. Upstream
+# Papirus-Dark, and the variant is the entire point of these lines. Upstream
 # ships three and they differ only in the colour of the panel/status icons:
 #   Papirus-Dark   for a dark panel and dark scheme  — all icons LIGHT
 #   Papirus        for a dark panel, light scheme    — panel icons LIGHT
 #   Papirus-Light  for a light panel and light scheme — all icons DARK
 #
-# This wrote Papirus-Dark. Nothing on either edition selects a dark scheme:
-# 0500-desktop-defaults keys the Breeze look-and-feel defaults to DagricLight,
-# a LIGHT scheme, so Plasma paints a light panel — and the first icons a Windows
-# switcher looks for, the tray's volume, network, battery, Bluetooth and
-# clipboard, were the pale-grey set drawn on top of it. Low contrast on the
-# edition somebody paid for, and the opposite of the 7:1 floor
-# 0530-accessibility.hook.chroot fails the build over.
+# Flow defaults to Dagric Obsidian, a dark scheme. Papirus-Dark keeps tray and
+# panel icons light, so volume, network, battery, Bluetooth and clipboard stay
+# legible on that dark surface.
 #
 # Plain "Papirus" is NOT the neutral choice it looks like — its panel icons are
-# the light ones too. If the shipped default scheme ever becomes dark, this line
-# has to move to Papirus-Dark with it.
-if [ ! -d /usr/share/icons/Papirus-Light ]; then
+# light too. The Obsidian default deliberately needs Papirus-Dark.
+if [ ! -d /usr/share/icons/Papirus-Dark ]; then
     # Loud rather than silent: an icon theme that is not there does not fail,
     # it falls back to hicolor and the Pro desktop quietly looks unbranded.
-    echo "WARNING: /usr/share/icons/Papirus-Light missing — Pro icon default will not apply." >&2
+    echo "WARNING: /usr/share/icons/Papirus-Dark missing — Pro icon default will not apply." >&2
 fi
 # WRITTEN TO /etc/xdg, NOT APPENDED TO THE SKEL CONFFILE. This used to be
 #
@@ -377,10 +421,10 @@ fi
 # upgraded from free and a machine installed from the Pro ISO must not look
 # different.
 mkdir -p /etc/xdg
-if ! grep -q '^Theme=Papirus-Light' /etc/xdg/kdeglobals 2>/dev/null; then
-    printf '[Icons]\nTheme=Papirus-Light\n' >> /etc/xdg/kdeglobals
+if ! grep -q '^Theme=Papirus-Dark' /etc/xdg/kdeglobals 2>/dev/null; then
+    printf '[Icons]\nTheme=Papirus-Dark\n' >> /etc/xdg/kdeglobals
 fi
-grep -q '^Theme=Papirus-Light' /etc/xdg/kdeglobals || {
+grep -q '^Theme=Papirus-Dark' /etc/xdg/kdeglobals || {
     echo "0600: failed to set the Pro icon default in /etc/xdg/kdeglobals" >&2
     exit 1
 }

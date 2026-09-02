@@ -1,0 +1,11 @@
+#!/bin/sh
+# Short-lived, local-only pressure summaries. The five-minute rate and systemd
+# ceilings are declared in the resource-budget contract and release-checked.
+set -e
+
+install -d -m 0700 /var/lib/dagric/blackbox
+if systemctl enable dagric-blackbox.timer >/dev/null 2>&1; then
+    echo "blackbox: bounded local sampler enabled"
+else
+    echo "WARNING: blackbox timer was not enabled" >&2
+fi

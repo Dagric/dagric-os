@@ -1,5 +1,27 @@
 # Roadmap
 
+## Flagship direction — Reversible computing
+
+Dagric's main attraction is **Dagric Rewind: “Your computer has an Undo
+button.”** The first implementation—paired system-change sessions, a local
+timeline, path-only reviews, known-good checkpoints, and safe recovery handoff—
+is now in the source tree for both editions and has passed its first installed
+Btrfs/Polkit VM test. The design, research, threat model, remaining recovery and
+physical-hardware proof, and longer Reversible Computing API direction are
+maintained in [DAGRIC-REWIND.md](DAGRIC-REWIND.md).
+
+- [x] View-only QML timeline and reduced-motion support
+- [x] Narrow Polkit helper with fixed actions and preset labels
+- [x] Paired Snapper checkpoints and path-only change classification
+- [x] Turn the existing APT/Discover snapshot pairs into automatic receipts
+- [x] No live root restore/delete operation; recovery stays in the proven path
+- [x] Free/Pro packaging, launcher, Hub row, update version, and build gate
+- [x] Installed Btrfs/Polkit add-and-remove lifecycle with automatic receipts
+- [ ] Complete the reboot/recovery/low-disk/accessibility and physical-PC matrix
+- [ ] Extend automatic receipts to Flatpak, driver, and Dagric setup helpers
+- [ ] Design personal-file history as a separate opt-in backup system
+- [ ] Specify and prototype the Reversible Computing API
+
 ## Phase 1 — Proof of concept  ← YOU ARE HERE
 - [x] live-build source tree, reproducible from Git
 - [x] Debloated KDE Plasma package set (no metapackage bloat, no recommends)
@@ -256,9 +278,10 @@ free-edition features. Everything below ships on both editions.
       model and checked by blind back-translation, which is not the same thing
       as read by a native speaker, and is why this item is still open. No language may be advertised
       until at least the tier-one strings are cleared — see EDITIONS.md.
-- [ ] **Repaint the two default colour schemes.** `DagricLight` and
-      `DagricDark` inherit Breeze accents that fail 4.5:1 in several places
-      (WCAG 1.4.3). A deliberate brand decision, not a bug fix to slip in.
+- [x] **Repaint the two default colour schemes.** `DagricLight` and
+      `DagricDark` now keep the blue identity while using surface-aware dark
+      and light variants. Foregrounds clear 4.5:1, interactive decoration clears
+      3:1, and 0530-accessibility fails the build if either palette regresses.
 - [ ] **A manual page for Check This PC.** The manual has a page per app and
       this tool has none — the one tool a prospective buyer runs first.
 - [ ] **Publish a minimum specification.** `dagric-hardware-check` asserts one

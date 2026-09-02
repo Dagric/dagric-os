@@ -223,7 +223,13 @@ automatic snapshot before and after every apt transaction, and grub-btrfs
 exposes them as a submenu in the boot menu — so a bad update is undone from
 GRUB instead of reinstalled. `dagric-snapshot-setup` configures it on first
 boot of the installed system. This is what the Welcome page's rollback
-promise rests on; Pro adds Timeshift's scheduled GUI on top of it.
+promise rests on. **Dagric Rewind** makes the same foundation understandable:
+an owner can start a change session, finish it, see a path-only receipt, browse
+a chronological checkpoint timeline, and open the safe recovery route without
+screen recording, cloud storage, or an account. It is packaged in the
+next-release source tree for both editions; recoverability is a safety feature,
+not a Pro gate. Pro adds Timeshift's scheduled GUI on top of it. See
+[DAGRIC-REWIND.md](DAGRIC-REWIND.md).
 
 ### Accessibility (free, and never gated)
 
@@ -302,11 +308,12 @@ worse than no VPAT:
   slow keys via `XkbSetControls`, which only reaches XWayland. Any VPAT/ACR
   must say **Does Not Support** for Section 508 502.4(B) — do not let this get
   rounded up because `kaccess` still contains the string.
-- **`DagricLight` and `DagricDark` fail 4.5:1 in several places** — they
-  inherit Breeze's own accent colours (`ForegroundActive` 2.43:1 on Button,
-  `ForegroundNeutral` 2.14:1 on Header). This is a real WCAG 1.4.3 exposure and
-  it is a deliberate open decision, not an oversight: repainting the brand from
-  an accessibility hook would have been the wrong call to make by ambush.
+- **The default palettes are now measured, not assumed.** `DagricLight` and
+  `DagricDark` use a darker Dagric blue on light surfaces, a lighter blue on
+  dark surfaces, and darker selection fills. Every foreground clears 4.5:1 and
+  every focus/hover decoration clears 3:1 against both backgrounds in its KDE
+  colour group; the build now refuses a regression. The measured foreground
+  floors are 4.64:1 (Light) and 4.62:1 (Dark).
 - **None of this has been heard.** Everything above is verified by declared
   properties, measured pixels, real key injection and build-time assertions.
   The live AT-SPI tree has *not* been exercised — WSL has no accessibility

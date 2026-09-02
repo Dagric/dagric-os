@@ -1,0 +1,12 @@
+[Unit]
+Description=Sample Dagric's private bounded diagnostic ring
+
+[Timer]
+OnBootSec=5m
+OnUnitActiveSec=5m
+RandomizedDelaySec=30s
+Persistent=false
+Unit=dagric-blackbox.service
+
+[Install]
+WantedBy=timers.target

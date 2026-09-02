@@ -113,6 +113,24 @@ stamp() {
 LIVE=false
 [ -d /run/live/medium ] && LIVE=true
 
+# Match Plasma's reduced-motion preference. The wizard already follows the
+# desktop's colours, contrast and text size; page movement must not be the one
+# preference it ignores. DAGRIC_REDUCED_MOTION is also useful for assistive
+# setups and for the automated visual test, without changing the whole desktop.
+REDUCED_MOTION=false
+case "${DAGRIC_REDUCED_MOTION:-}" in
+    1|true|TRUE|yes|YES|on|ON) REDUCED_MOTION=true ;;
+esac
+if [ "$REDUCED_MOTION" = false ] && command -v kreadconfig6 >/dev/null 2>&1; then
+    _motion_factor=$(kreadconfig6 --file kdeglobals --group KDE \
+                     --key AnimationDurationFactor 2>/dev/null || true)
+    case "$_motion_factor" in
+        ''|*[!0-9.]*) : ;;
+        *) awk -v f="$_motion_factor" 'BEGIN { exit !(f <= 0) }' \
+               && REDUCED_MOTION=true ;;
+    esac
+fi
+
 session_type() {
     _t=$XDG_SESSION_TYPE
     if [ -z "$_t" ] && [ -n "$XDG_SESSION_ID" ]; then
@@ -896,12 +914,16 @@ fallback_wizard() {
     stamp
     # $EDITION_NAME is "Dagric OS" or "Dagric OS Pro" — a product name, so it
     # interpolates untranslated.
+    _fallback_note=$(gettext "Every step can be skipped, and you can change all of it later.")
+    if [ "$LIVE" = true ]; then
+        _fallback_note=$(gettext "You're running the live trial from the USB stick, so anything you set here lasts until you shut down. Install Dagric first if you want it to stick.")
+    fi
     kdialog --title "$TITLE" --icon dagric-logo --msgbox \
-"$(eval_gettext 'Welcome to $EDITION_NAME.
+"$(eval_gettext 'Welcome to $EDITION_NAME.')
 
-The setup window could not be opened on this machine, so here is the
-short version. Every question can be skipped, and nothing here is
-permanent — you can change all of it later from the Dagric Hub.')" 2>/dev/null
+$(gettext "The setup window could not be opened on this machine, so here is the short version.")
+
+$_fallback_note" 2>/dev/null
 
     # light/dark/quit are tags the code below matches on — never translated.
     _m=$(kdialog --title "$TITLE" --icon dagric-logo --menu \
@@ -1149,7 +1171,6 @@ Open %1
 Your desktop is back the way it was.
 
 You're running the live trial from the USB stick, so anything you set here lasts until you shut down. Install Dagric first if you want it to stick.
-Nothing here is permanent. Skip anything you like, and change all of it later from the Dagric Hub.
 This is the live trial. To keep any of it, run Install Dagric OS from the desktop.
 Want to run through this again? It's called "Set Up Dagric" in your apps list.
 Add your apps
@@ -1187,6 +1208,7 @@ STRINGS
     printf '  "edition": "%s",\n'     "$(jesc "$EDITION")"
     printf '  "editionName": "%s",\n' "$(jesc "$EDITION_NAME")"
     printf '  "live": %s,\n'          "$LIVE"
+    printf '  "reducedMotion": %s,\n' "$REDUCED_MOTION"
     printf '  "scaleMode": "%s",\n'   "$(jesc "$SCALE_MODE")"
     printf '  "currentScale": %s,\n'  "$(current_scale)"
     printf '  "currentMode": "%s",\n' "$(current_mode)"

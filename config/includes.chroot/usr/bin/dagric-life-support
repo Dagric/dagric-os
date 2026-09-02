@@ -1,0 +1,3 @@
+#!/bin/sh
+# Read-only assessor. It recommends recovery action and never mutates hardware.
+exec /usr/bin/python3 /usr/lib/dagric/foundations.py life-support "$@"

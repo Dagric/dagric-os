@@ -1,0 +1,39 @@
+name: source-quality
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: source-quality-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  fast-gates:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - name: Source and privilege-boundary sanity
+        run: python3 tools/check-source.py
+      - name: Product concept contracts and negative-path tests
+        run: |
+          python3 tools/check-concepts.py
+          python3 test/test-source-check.py
+      - name: JavaScript syntax
+        run: sh tools/check-javascript.sh
+      - name: Dockerfile sanity
+        run: sh tools/check-dockerfile.sh
+      - name: Site release sanity
+        run: sh tools/check-site.sh
+      - name: Rewind unit and privilege-boundary checks
+        run: sh tools/check-rewind.sh
+      - name: Install source verifiers
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq gettext shellcheck
+      - name: Shell syntax and error-level analysis
+        run: sh tools/check-shell.sh
+      - name: Translation catalogues match their sources
+        run: sh tools/i18n-build.sh --check

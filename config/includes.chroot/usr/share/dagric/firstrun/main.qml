@@ -142,6 +142,7 @@ ApplicationWindow {
                                           ? app.t("Set Up Dagric") + " — Pro"
                                           : app.t("Set Up Dagric")
     property bool live: false
+    property bool reducedMotion: false
     property string scaleMode: "none"      // wayland | x11 | none
     property int currentScale: 0
     property bool hasDisplayTool: false
@@ -215,6 +216,7 @@ ApplicationWindow {
     FontMetrics { id: sysFont }
     property real ui: Math.max(1.0, Math.min(1.9, sysFont.height / 15.0))
     function px(n) { return Math.round(n * app.ui); }
+    function motionMs(n) { return app.reducedMotion ? 0 : n; }
 
     // Short window: shrink the decoration, not the words.
     //
@@ -334,13 +336,13 @@ ApplicationWindow {
     readonly property color cEdge: app.readable(app.readable(app.cLine, app.cPanel, 3.0),
                                                 app.cBg, 3.0)
 
-    Behavior on cBg     { ColorAnimation { duration: 200 } }
-    Behavior on cPanel  { ColorAnimation { duration: 200 } }
-    Behavior on cPanel2 { ColorAnimation { duration: 200 } }
-    Behavior on cLine   { ColorAnimation { duration: 200 } }
-    Behavior on cText   { ColorAnimation { duration: 200 } }
-    Behavior on cDim    { ColorAnimation { duration: 200 } }
-    Behavior on cAccent { ColorAnimation { duration: 200 } }
+    Behavior on cBg     { ColorAnimation { duration: app.motionMs(200) } }
+    Behavior on cPanel  { ColorAnimation { duration: app.motionMs(200) } }
+    Behavior on cPanel2 { ColorAnimation { duration: app.motionMs(200) } }
+    Behavior on cLine   { ColorAnimation { duration: app.motionMs(200) } }
+    Behavior on cText   { ColorAnimation { duration: app.motionMs(200) } }
+    Behavior on cDim    { ColorAnimation { duration: app.motionMs(200) } }
+    Behavior on cAccent { ColorAnimation { duration: app.motionMs(200) } }
 
     function send(msg) {
         console.log("@DAGRIC@" + msg);
@@ -390,6 +392,7 @@ ApplicationWindow {
                 app.edition = d.edition ? d.edition : "free";
                 app.editionName = d.editionName ? d.editionName : "Dagric OS";
                 app.live = d.live === true;
+                app.reducedMotion = d.reducedMotion === true;
                 app.scaleMode = d.scaleMode ? d.scaleMode : "none";
                 app.currentScale = d.currentScale ? d.currentScale : 0;
                 app.hasDisplayTool = d.hasDisplayTool === true;
@@ -781,6 +784,10 @@ ApplicationWindow {
         implicitWidth: Math.max(app.px(120), pbText.implicitWidth + app.px(44))
         Keys.onReturnPressed: function(event) { pb.clicked(); event.accepted = true; }
         Keys.onEnterPressed:  function(event) { pb.clicked(); event.accepted = true; }
+        scale: pb.down ? 0.98 : (pb.hovered ? 1.01 : 1.0)
+        Behavior on scale {
+            NumberAnimation { duration: app.motionMs(90); easing.type: Easing.OutCubic }
+        }
         // Controls give a Button its role and name from `text` for free, which
         // is why Back/Skip/Next were the only things Orca could ever see here.
         // The description is the part `text` cannot carry: "Next" alone does
@@ -796,6 +803,7 @@ ApplicationWindow {
             radius: app.px(9)
             color: pb.down ? Qt.darker(app.cAccent, 1.25)
                            : (pb.hovered ? Qt.lighter(app.cAccent, 1.08) : app.cAccent)
+            Behavior on color { ColorAnimation { duration: app.motionMs(100) } }
             // Overriding `background` throws away the style's own focus visual.
             // That is easy to miss because the button still works — it is only
             // the person who cannot use a mouse who ever finds out.
@@ -819,11 +827,16 @@ ApplicationWindow {
         implicitWidth: Math.max(app.px(110), gbText.implicitWidth + app.px(40))
         Keys.onReturnPressed: function(event) { gb.clicked(); event.accepted = true; }
         Keys.onEnterPressed:  function(event) { gb.clicked(); event.accepted = true; }
+        scale: gb.down ? 0.98 : (gb.hovered ? 1.01 : 1.0)
+        Behavior on scale {
+            NumberAnimation { duration: app.motionMs(90); easing.type: Easing.OutCubic }
+        }
         Accessible.description: gb.text === app.t("Back")
                                 ? app.t("Go back to the previous step") : ""
         background: Rectangle {
             radius: app.px(9)
-            color: gb.down ? app.cPanel2 : "transparent"
+            color: (gb.down || gb.hovered) ? app.cPanel2 : "transparent"
+            Behavior on color { ColorAnimation { duration: app.motionMs(100) } }
             border.width: 1
             border.color: app.cEdge
             FocusRing { ringRadius: app.px(9); on: gb.activeFocus }
@@ -916,6 +929,7 @@ ApplicationWindow {
     component Page: Flickable {
         id: pg
         property string label: ""
+        property bool active: false
         // 24 rather than 34 on a short window, top and bottom, so a page that
         // overflows by a hair does not earn a scrollbar. Padding is the right
         // knob because it costs no information at all, and it fixes every page
@@ -933,6 +947,17 @@ ApplicationWindow {
         default property alias body: pgCol.data
 
         anchors.fill: parent
+        visible: pg.active || pg.opacity > 0.01
+        enabled: pg.active
+        opacity: pg.active ? 1.0 : 0.0
+        scale: pg.active ? 1.0 : 0.985
+        transformOrigin: Item.Center
+        Behavior on opacity {
+            NumberAnimation { duration: app.motionMs(170); easing.type: Easing.OutCubic }
+        }
+        Behavior on scale {
+            NumberAnimation { duration: app.motionMs(190); easing.type: Easing.OutCubic }
+        }
         clip: true
         contentWidth: pg.width
         contentHeight: Math.max(pg.height, pgCol.implicitHeight + pg.pad * 2)
@@ -945,6 +970,7 @@ ApplicationWindow {
 
         Accessible.role: Accessible.Grouping
         Accessible.name: pg.label
+        Accessible.ignored: !pg.active
 
         // AlwaysOff, not AsNeeded, and this line is the actual bug everyone
         // was looking at.
@@ -1016,9 +1042,13 @@ ApplicationWindow {
 
         radius: app.px(12)
         color: chMouse.containsMouse ? app.cPanel2 : app.cPanel
+        scale: chMouse.pressed ? 0.99 : (chMouse.containsMouse ? 1.01 : 1.0)
         border.width: ch.selected ? 2 : 1
         border.color: ch.selected ? app.cSelect : app.cEdge
-        Behavior on color { ColorAnimation { duration: 120 } }
+        Behavior on color { ColorAnimation { duration: app.motionMs(120) } }
+        Behavior on scale {
+            NumberAnimation { duration: app.motionMs(110); easing.type: Easing.OutCubic }
+        }
 
         activeFocusOnTab: ch.tabbable
 
@@ -1367,6 +1397,7 @@ ApplicationWindow {
                             radius: width / 2
                             color: railRow.index === app.stepIndex ? app.cAccent
                                  : (railRow.index < app.stepIndex ? app.cPanel2 : "transparent")
+                            Behavior on color { ColorAnimation { duration: app.motionMs(150) } }
                             border.width: railRow.index > app.stepIndex ? 1 : 0
                             border.color: app.cEdge
                             Accessible.ignored: true
@@ -1437,7 +1468,7 @@ ApplicationWindow {
             Page {
                 label: app.t("Welcome")
                 padWide: 40
-                visible: app.step === "welcome" && app.loadError === ""
+                active: app.step === "welcome" && app.loadError === ""
 
                 Item { Layout.fillHeight: true }
 
@@ -1507,7 +1538,7 @@ ApplicationWindow {
                     Layout.maximumWidth: app.px(560)
                     text: app.live
                           ? app.t("You're running the live trial from the USB stick, so anything you set here lasts until you shut down. Install Dagric first if you want it to stick.")
-                          : app.t("Nothing here is permanent. Skip anything you like, and change all of it later from the Dagric Hub.")
+                          : app.t("Every step can be skipped, and you can change all of it later.")
                     color: app.cDim
                     font.pixelSize: app.px(13)
                     wrapMode: Text.WordWrap
@@ -1521,7 +1552,7 @@ ApplicationWindow {
             // ---------------------------------------------------- appearance
             Page {
                 label: app.t("How it looks")
-                visible: app.step === "appearance" && app.loadError === ""
+                active: app.step === "appearance" && app.loadError === ""
 
                 PageHead {
                     heading: app.t("Pick a look.")
@@ -1916,7 +1947,7 @@ ApplicationWindow {
             Page {
                 label: app.t("Text size")
                 padWide: 40
-                visible: app.step === "display" && app.loadError === ""
+                active: app.step === "display" && app.loadError === ""
 
                 PageHead {
                     heading: app.t("Is the text the right size?")
@@ -2033,7 +2064,7 @@ ApplicationWindow {
             // ------------------------------------------------------- taskbar
             Page {
                 label: app.t("The taskbar")
-                visible: app.step === "taskbar" && app.loadError === ""
+                active: app.step === "taskbar" && app.loadError === ""
 
                 PageHead {
                     heading: app.t("Where should the taskbar go?")
@@ -2163,7 +2194,7 @@ ApplicationWindow {
             Page {
                 label: app.t("Your files")
                 padWide: 40
-                visible: app.step === "files" && app.loadError === ""
+                active: app.step === "files" && app.loadError === ""
 
                 PageHead {
                     heading: app.t("Bring your files across.")
@@ -2259,7 +2290,7 @@ ApplicationWindow {
             // cards with the checker saying nothing.
             Page {
                 label: app.t("Add your apps")
-                visible: app.step === "downloads" && app.loadError === ""
+                active: app.step === "downloads" && app.loadError === ""
 
                 PageHead {
                     heading: app.t("Add your apps")
@@ -2425,7 +2456,7 @@ ApplicationWindow {
                 // 1060x720 — a scrollbar on the last screen of the wizard, at
                 // the window's own default size, to buy six pixels of margin
                 // around a grid that already has margins of its own.
-                visible: app.step === "finish" && app.loadError === ""
+                active: app.step === "finish" && app.loadError === ""
 
                 PageHead {
                     heading: app.tf("That's it — %1 is yours.", app.editionName)

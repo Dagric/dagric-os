@@ -23,6 +23,12 @@ machines two ways:
 The channel is live. `https://dagric-os.web.app/repo/dists/trixie/Release`
 returns `Origin: Dagric`, `Label: Dagric OS`, `Suite`/`Codename: trixie`.
 
+Owners use **Dagric Update** (or `sudo dagric-update`) to install the newest
+signed packages without reinstalling or touching their home files. Its routine
+update path cannot remove packages or switch Debian releases; see
+[DAGRIC-UPDATES.md](DAGRIC-UPDATES.md) for the exact preservation and recovery
+contract.
+
 The packages — do not trust a version number written into this document, read the
 current one from `packages/*/DEBIAN/control` and what the channel already serves
 from `site/repo/dists/trixie/main/binary-amd64/Packages`, because step 2 of the

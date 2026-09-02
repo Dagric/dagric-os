@@ -4,11 +4,11 @@
 #
 # Dagric OS — turn on hardware acceleration for the QEMU test harness.
 #
-#     sh test/enable-kvm.sh
+#     .\test\enable-kvm.ps1       # Windows/PowerShell (called automatically)
+#     sh test/enable-kvm.sh        # Linux shell fallback
 #
-# Run it once per Windows/WSL restart, BEFORE test/boot-test.ps1 or
-# test/install-test.ps1. Then pass --device /dev/kvm to the container (the
-# harness scripts do this when the device exists).
+# The PowerShell harnesses call their helper automatically. Run this shell
+# version only when invoking QEMU/container tests outside those entry points.
 #
 # WHY THIS EXISTS
 # ---------------

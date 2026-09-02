@@ -44,7 +44,7 @@
 . /usr/bin/dagric-i18n.sh
 
 EDITION=$(cat /etc/dagric-edition 2>/dev/null || echo free)
-BRAND='#3fa9f5'
+BRAND='#ff3b5c'
 WALLS=/usr/share/wallpapers
 QMLFILE=/usr/share/dagric/appearance/main.qml
 XDG_DATA=${XDG_DATA_HOME:-$HOME/.local/share}
@@ -57,6 +57,23 @@ THUMB_DIRS="/usr/share/dagric/appearance/thumbs /etc/dagric/appearance/thumbs $X
 # folds two tabs in a row into one, and an entry with no thumbnail would take
 # the next field as its picture. A control character cannot occur in a name.
 SEP=$(printf '\037')
+
+# Keep the catalogue's motion preference in step with Plasma.  The explicit
+# environment switch also gives automated tests and accessibility launchers a
+# dependable way to suppress every decorative transition in the QML window.
+REDUCED_MOTION=false
+case $(printf '%s' "${DAGRIC_REDUCED_MOTION:-}" | tr '[:upper:]' '[:lower:]') in
+    1|true|yes|on) REDUCED_MOTION=true ;;
+esac
+if [ "$REDUCED_MOTION" = false ] && command -v kreadconfig6 >/dev/null 2>&1; then
+    animation_factor=$(kreadconfig6 --file kdeglobals --group KDE \
+        --key AnimationDurationFactor 2>/dev/null || true)
+    case $animation_factor in
+        ''|*[!0-9.-]*) ;;
+        *) awk -v factor="$animation_factor" 'BEGIN { exit !(factor <= 0) }' \
+               && REDUCED_MOTION=true ;;
+    esac
+fi
 
 TITLE=$(gettext "Dagric Appearance")
 
@@ -203,6 +220,7 @@ fi
 {
     printf '{\n'
     printf '  "edition": "%s",\n' "$(jesc "$EDITION")"
+    printf '  "reducedMotion": %s,\n' "$REDUCED_MOTION"
     printf '  "styles": [\n'
     emit_entries "$WORK/style.tsv" style
     printf '\n  ],\n'
@@ -279,7 +297,7 @@ SERIALIZE='try{var ps=panels(); var o=""; for(var i=0;i<ps.length;i++){var p=ps[
 # steps are guarded on a non-empty value, so they are skipped, the previewed
 # scheme and wallpaper stay on screen, and the popup claims the desktop was put
 # back. Reading the defaults file gives the honest answer, and it is not a
-# guess: 0500-desktop-defaults.hook.chroot is what writes Image=Dagric into it.
+# guess: 0500-desktop-defaults.hook.chroot is what writes Image=DagricObsidianPulse into it.
 LNF=/usr/share/plasma/look-and-feel/org.kde.breeze.desktop/contents/defaults
 lnf_key() {   # <exact group line> <key>
     [ -f "$LNF" ] || return 0

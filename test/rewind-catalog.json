@@ -1,0 +1,44 @@
+{
+  "schema": 1,
+  "ready": true,
+  "reason": "ready",
+  "filesystem": "btrfs",
+  "privacy": {"screenRecording": false, "cloud": false, "account": false},
+  "presets": [
+    {"id": "software", "label": "Software install", "prompt": "Install or remove an application, then finish the session to review it."},
+    {"id": "settings", "label": "Settings change", "prompt": "Change system settings, then finish the session to review them."},
+    {"id": "driver", "label": "Driver update", "prompt": "Update a driver, then finish the session before restarting."},
+    {"id": "experiment", "label": "Try something", "prompt": "Experiment freely, then finish the session to see what changed."}
+  ],
+  "active": null,
+  "sessions": [
+    {"preset": "software", "label": "Software install", "startedAt": "2026-09-01T13:20:00Z", "finishedAt": "2026-09-01T13:24:00Z", "pre": 41, "post": 42},
+    {"preset": "driver", "label": "Driver update", "startedAt": "2026-08-31T18:10:00Z", "finishedAt": "2026-08-31T18:18:00Z", "pre": 37, "post": 38}
+  ],
+  "snapshots": [
+    {"number": 42, "type": "post", "preNumber": 41, "date": "2026-09-01T13:24:00Z", "description": "Dagric Rewind — Software install (after)", "readOnly": true},
+    {"number": 41, "type": "pre", "preNumber": 0, "date": "2026-09-01T13:20:00Z", "description": "Dagric Rewind — Software install (before)", "readOnly": true},
+    {"number": 39, "type": "single", "preNumber": 0, "date": "2026-09-01T08:00:00Z", "description": "apt", "readOnly": true}
+  ],
+  "review": {
+    "pre": 41,
+    "post": 42,
+    "total": 14,
+    "added": 8,
+    "modified": 5,
+    "deleted": 1,
+    "ignoredNoise": 23,
+    "truncated": false,
+    "categories": [
+      {"name": "Software", "count": 11},
+      {"name": "Settings", "count": 2},
+      {"name": "System state", "count": 1}
+    ],
+    "paths": [
+      {"path": "/usr/bin/example", "kind": "added", "category": "Software"},
+      {"path": "/usr/share/applications/example.desktop", "kind": "added", "category": "Software"},
+      {"path": "/etc/example/settings.conf", "kind": "modified", "category": "Settings"},
+      {"path": "/var/lib/dpkg/status", "kind": "modified", "category": "Software"}
+    ]
+  }
+}

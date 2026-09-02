@@ -4,7 +4,7 @@
 # Dagric OS — desktop and installer defaults.
 set -e
 
-# Default wallpaper: point the Breeze look-and-feel at the Dagric wallpaper.
+# Default wallpaper: point the Breeze look-and-feel at Dagric Obsidian Pulse.
 #
 # THIS FILE BELONGS TO plasma-workspace, AND THAT IS NO LONGER "FINE".
 #
@@ -31,7 +31,7 @@ set -e
 # boot the result, rather than half-done tonight.
 #
 # NOT worth trying: seeding /etc/skel/.config/kdeglobals with just
-# ColorScheme=DagricLight. The name is not the colours — every tool in this tree
+# ColorScheme=DagricDark. The name is not the colours — every tool in this tree
 # applies a scheme with plasma-apply-colorscheme, which EXPANDS the .colors file
 # into kdeglobals. Writing the name alone would label the desktop DagricLight
 # while it painted Breeze, which is worse than the bug it was meant to fix.
@@ -41,19 +41,17 @@ if [ -f "$LNF" ]; then
     # wallpaper per release (it happened to be "Next"), and an exact
     # `Image=Next` match would silently no-op on drift, shipping the stock
     # wallpaper with no build warning. Rewrite whatever the value is.
-    sed -i -E 's/^(Image=).*/\1Dagric/; s/^(defaultWallpaperTheme=).*/\1Dagric/' "$LNF"
-    if ! grep -q '^Image=Dagric' "$LNF"; then
+    sed -i -E 's/^(Image=).*/\1DagricObsidianPulse/; s/^(defaultWallpaperTheme=).*/\1DagricObsidianPulse/' "$LNF"
+    if ! grep -q '^Image=DagricObsidianPulse' "$LNF"; then
         echo "WARNING: Breeze defaults had no Image= key — wallpaper branding may not apply" >&2
     fi
 
-    # ...and the colour scheme with it. Dagric ships DagricLight/DagricDark
-    # (Breeze derivatives repainted with the brand blue), but the desktop was
-    # still starting on stock BreezeLight — so the schemes existed and nothing
-    # used them, and a first boot looked like plain Breeze with a Dagric
-    # wallpaper. Key it to DagricLight, which is exactly what the Daybreak
-    # style applies, so the shipped default and "Reset" now agree.
-    sed -i -E 's/^(ColorScheme=).*/\1DagricLight/' "$LNF"
-    if ! grep -q '^ColorScheme=DagricLight' "$LNF"; then
+    # ...and the colour scheme with it. Dagric Dark is the Obsidian Flow
+    # palette: a near-black neutral field with red reserved for decisions,
+    # focus and progress. Key the shipped default to it so first boot and
+    # "Reset" agree.
+    sed -i -E 's/^(ColorScheme=).*/\1DagricDark/' "$LNF"
+    if ! grep -q '^ColorScheme=DagricDark' "$LNF"; then
         echo "WARNING: Breeze defaults had no ColorScheme= key — brand colours may not apply" >&2
     fi
 fi

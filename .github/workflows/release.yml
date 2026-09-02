@@ -9,12 +9,43 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write   # needed to create the Release
+  contents: read
 
 jobs:
+  # Tags bypass build-iso.yml's main-branch trigger. Re-run every cheap gate
+  # here so a tag cannot publish source that would have failed the normal
+  # preflight. The expensive package-resolution gate still runs inside each
+  # edition's container build against the same Debian archive used by the ISO.
+  preflight:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - name: Source and privilege-boundary sanity
+        run: python3 tools/check-source.py
+      - name: JavaScript syntax
+        run: sh tools/check-javascript.sh
+      - name: Dockerfile sanity
+        run: sh tools/check-dockerfile.sh
+      - name: Site release sanity
+        run: sh tools/check-site.sh
+      - name: Rewind unit and privilege-boundary checks
+        run: sh tools/check-rewind.sh
+      - name: Install source verifiers
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq gettext shellcheck
+      - name: Shell syntax and error-level analysis
+        run: sh tools/check-shell.sh
+      - name: Translation catalogues match their sources
+        run: sh tools/i18n-build.sh --check
+
   build:
+    needs: preflight
     runs-on: ubuntu-latest
     timeout-minutes: 180
+    permissions:
+      contents: read
     strategy:
       # The two editions are independent, so one failing must not cancel the
       # other. It already did: a run where free's UPLOAD hit the artifact quota
@@ -25,7 +56,7 @@ jobs:
       matrix:
         edition: [free, pro]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       # THE PRO BUILD RAN OUT OF DISK, AND ONLY THE PRO BUILD.
       #
@@ -162,6 +193,8 @@ jobs:
   publish:
     needs: build
     runs-on: ubuntu-latest
+    permissions:
+      contents: write   # softprops/action-gh-release creates the GitHub Release
     steps:
       # ASSEMBLE SHA256SUMS FROM THE SIDECARS THE BUILD JOBS ALREADY WROTE.
       #
@@ -240,7 +273,7 @@ jobs:
       # reason the upload is automated and the signature is not.
 
       - name: Publish GitHub Release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@72f2c25fcb47643c292f7107632f7a47c1df5cd8 # v2.3.2
         with:
           files: rel/*
           body: |

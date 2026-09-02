@@ -1,0 +1,205 @@
+#!/bin/sh
+# SPDX-FileCopyrightText: 2026 DGR Operations <repo@dagric.com>
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Dagric Rewind — a friendly, local-only view over Snapper's system snapshots.
+#
+# The QML window is intentionally powerless.  It prints a tiny allow-listed
+# protocol and this wrapper asks the narrow root helper to do the corresponding
+# operation.  No path, command, description, or shell fragment comes from QML.
+set -eu
+
+. /usr/bin/dagric-i18n.sh
+
+TITLE="Dagric Rewind"
+HELPER=/usr/lib/dagric/rewind-ctl
+QMLFILE=/usr/share/dagric/rewind/main.qml
+
+QML=
+for cand in /usr/lib/dagric/wm/dagric-rewind qml6 \
+            /usr/lib/qt6/bin/qml /usr/lib/x86_64-linux-gnu/qt6/bin/qml; do
+    if command -v "$cand" >/dev/null 2>&1; then QML=$cand; break; fi
+done
+if [ -z "$QML" ] || [ ! -r "$QMLFILE" ] || [ ! -x "$HELPER" ]; then
+    kdialog --title "$TITLE" --sorry \
+        "$(gettext "Dagric Rewind is incomplete. Reinstall or update the dagric-tools package, then try again.")" 2>/dev/null
+    exit 1
+fi
+
+WORK=$(mktemp -d) || exit 1
+trap 'rm -rf "$WORK"' EXIT
+trap 'exit 130' INT TERM HUP
+CATALOG=$WORK/catalog.json
+QML_RC=$WORK/qml.rc
+
+REDUCED_MOTION=false
+case $(printf '%s' "${DAGRIC_REDUCED_MOTION:-}" | tr '[:upper:]' '[:lower:]') in
+    1|true|yes|on) REDUCED_MOTION=true ;;
+esac
+if [ "$REDUCED_MOTION" = false ] && command -v kreadconfig6 >/dev/null 2>&1; then
+    animation_factor=$(kreadconfig6 --file kdeglobals --group KDE \
+        --key AnimationDurationFactor 2>/dev/null || true)
+    case $animation_factor in
+        ''|*[!0-9.-]*) ;;
+        *) awk -v factor="$animation_factor" 'BEGIN { exit !(factor <= 0) }' \
+               && REDUCED_MOTION=true ;;
+    esac
+fi
+
+needs_admin() {
+    [ ! -d /run/live/medium ] \
+        && [ "$(findmnt -n -o FSTYPE / 2>/dev/null || true)" = btrfs ] \
+        && [ -f /etc/snapper/configs/root ] \
+        && [ -x /usr/bin/snapper ]
+}
+
+refresh() {
+    _tmp=$WORK/catalog.new
+    if needs_admin; then
+        if [ "$#" -eq 2 ]; then
+            pkexec "$HELPER" export "$1" "$2" > "$_tmp"
+        else
+            pkexec "$HELPER" export > "$_tmp"
+        fi
+    else
+        "$HELPER" export > "$_tmp"
+    fi
+
+    # refresh_capture deliberately disables `set -e` so it can preserve the
+    # helper's status and stderr.  That also means this function must not fall
+    # through to mv after a failed/cancelled helper: an empty temporary file
+    # would otherwise become a seemingly corrupt catalogue and the GUI would
+    # open with a false damage warning.
+    _refresh_status=$?
+    if [ "$_refresh_status" -ne 0 ]; then
+        rm -f "$_tmp"
+        return "$_refresh_status"
+    fi
+    mv -f "$_tmp" "$CATALOG"
+}
+
+# pkexec returns 126 when the user closes or cancels its authentication dialog.
+# That is a normal no-op, not an incident and not an application error. Keep the
+# status separate from stderr so genuine helper failures still reach the user.
+refresh_capture() {
+    set +e
+    _error=$(refresh "$@" 2>&1)
+    _status=$?
+    set -e
+    return "$_status"
+}
+
+authorization_cancelled() {
+    [ "${_status:-1}" -eq 126 ]
+}
+
+# A mutation and the catalog read that follows it travel through one pkexec
+# invocation.  Besides being faster, this prevents one click from producing two
+# identical password dialogs.  The helper's *-export commands are fixed,
+# allow-listed operations and print only the same bounded catalog JSON as
+# `export`.
+mutate_and_refresh() {
+    _tmp=$WORK/catalog.new
+    _err=$WORK/action.error
+    set +e
+    pkexec "$HELPER" "$@" > "$_tmp" 2> "$_err"
+    _status=$?
+    set -e
+    if [ "$_status" -eq 0 ]; then
+        mv -f "$_tmp" "$CATALOG"
+        rm -f "$_err"
+        return 0
+    fi
+    _error=$(cat "$_err" 2>/dev/null || true)
+    rm -f "$_tmp" "$_err"
+    return "$_status"
+}
+
+show_error() {
+    _message=$1
+    [ -n "$_message" ] || _message=$(gettext "The action could not be completed.")
+    kdialog --title "$TITLE" --error "$_message" 2>/dev/null || true
+}
+
+# On a supported installation the first read needs administrator approval
+# because the snapshot list belongs to root.  Cancellation changes nothing and
+# exits cleanly; there is no half-open privileged process behind the window.
+if ! refresh_capture; then
+    authorization_cancelled && exit 0
+    show_error "$_error"
+    exit 1
+fi
+
+QT_MESSAGE_PATTERN='%{message}'
+QT_LOGGING_RULES='qml.debug=true'
+QT_QUICK_CONTROLS_STYLE=Basic
+QML_XHR_ALLOW_FILE_READ=1
+QT_LINUX_ACCESSIBILITY_ALWAYS_ON=1
+export QT_MESSAGE_PATTERN QT_LOGGING_RULES QT_QUICK_CONTROLS_STYLE
+export QML_XHR_ALLOW_FILE_READ QT_LINUX_ACCESSIBILITY_ALWAYS_ON
+
+{ "$QML" "$QMLFILE" -- "--catalog=$CATALOG" \
+      "--reduced-motion=$REDUCED_MOTION" 2>&1; echo $? > "$QML_RC"; } \
+  | while IFS= read -r line; do
+    case "$line" in
+        *@DAGRIC@*) msg=${line#*@DAGRIC@} ;;
+        *) continue ;;
+    esac
+    command=${msg%%|*}
+    rest=${msg#*|}
+    _error=
+    case "$command" in
+        START)
+            case "$rest" in software|settings|driver|experiment) : ;; *) continue ;; esac
+            if ! mutate_and_refresh start-export "$rest"; then
+                authorization_cancelled || show_error "$_error"
+            fi
+            ;;
+        FINISH)
+            if ! mutate_and_refresh finish-export; then
+                authorization_cancelled || show_error "$_error"
+            fi
+            ;;
+        CHECKPOINT)
+            if ! mutate_and_refresh checkpoint-export known-good; then
+                authorization_cancelled || show_error "$_error"
+            fi
+            ;;
+        REVIEW)
+            pre=${rest%%|*}
+            post=${rest#*|}
+            case "$pre:$post" in *[!0-9:]*) continue ;; esac
+            [ -n "$pre" ] && [ -n "$post" ] || continue
+            if ! refresh_capture "$pre" "$post"; then
+                authorization_cancelled || show_error "$_error"
+            fi
+            ;;
+        REFRESH)
+            if ! refresh_capture; then
+                authorization_cancelled || show_error "$_error"
+            fi
+            ;;
+        RECOVERY)
+            # Debian's desktop entry deliberately starts the launcher, not the
+            # GUI binary.  The launcher obtains root through polkit and then
+            # starts Btrfs Assistant in the desktop session.  Calling
+            # btrfs-assistant directly opens a modal saying it must run as
+            # root, which made Rewind's advertised recovery handoff a dead end.
+            if command -v btrfs-assistant-launcher >/dev/null 2>&1; then
+                btrfs-assistant-launcher >/dev/null 2>&1 &
+            elif command -v btrfs-assistant >/dev/null 2>&1; then
+                # Compatibility fallback for distributions that package the
+                # GUI but not the upstream launcher.
+                pkexec btrfs-assistant >/dev/null 2>&1 &
+            else
+                show_error "$(gettext "Btrfs Assistant is not installed. Update Dagric, then try again.")"
+            fi
+            ;;
+        QUIT) : ;;
+    esac
+done
+
+if [ "$(cat "$QML_RC" 2>/dev/null || echo 1)" -ne 0 ]; then
+    kdialog --title "$TITLE" --sorry \
+        "$(gettext "Dagric Rewind could not open. The snapshots themselves were not changed.")" 2>/dev/null || true
+    exit 1
+fi

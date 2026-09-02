@@ -80,6 +80,8 @@ ApplicationWindow {
     FontMetrics { id: sysFont }
     property real ui: Math.max(1.0, Math.min(1.9, sysFont.height / 15.0))
     function px(n) { return Math.round(n * app.ui); }
+    property bool reducedMotion: false
+    function motionMs(n) { return app.reducedMotion ? 0 : n; }
 
     // --- brand ---------------------------------------------------------------
     readonly property color cBg: "#0a111c"
@@ -211,6 +213,7 @@ ApplicationWindow {
             try {
                 var data = JSON.parse(txt);
                 app.edition = data.edition ? data.edition : "free";
+                app.reducedMotion = data.reducedMotion === true;
                 app.styles = data.styles ? data.styles : [];
                 app.layouts = data.layouts ? data.layouts : [];
                 app.loaded = true;
@@ -440,11 +443,18 @@ ApplicationWindow {
                 anchors.margins: app.px(8)
                 radius: app.px(12)
                 color: mouse.containsMouse ? app.cSurfaceHi : app.cSurface
+                scale: mouse.pressed ? 0.985 : (mouse.containsMouse ? 1.01 : 1.0)
                 border.width: cell.showing ? 2 : 1
                 border.color: cell.showing ? app.cBrand : app.cEdge
 
                 Behavior on color {
-                    ColorAnimation { duration: 120 }
+                    ColorAnimation { duration: app.motionMs(120) }
+                }
+                Behavior on scale {
+                    NumberAnimation {
+                        duration: app.motionMs(120)
+                        easing.type: Easing.OutCubic
+                    }
                 }
 
                 FocusRing { ringRadius: app.px(12); on: cell.activeFocus }
@@ -962,7 +972,10 @@ ApplicationWindow {
                             color: app.cBrand
                             width: parent.width * Math.max(0, Math.min(1, app.secondsLeft / app.previewSeconds))
                             Behavior on width {
-                                NumberAnimation { duration: 280 }
+                                NumberAnimation {
+                                    duration: app.motionMs(280)
+                                    easing.type: Easing.OutCubic
+                                }
                             }
                         }
                     }

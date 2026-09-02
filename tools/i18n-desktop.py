@@ -589,6 +589,23 @@ D['dagric-gaming'] = {
         "Aggiunge a Steam la build della community Proton-GE, per una migliore compatibilità dei giochi",
         "giochi;proton;compatibilità;prestazioni;"),
 }
+D['dagric-update'] = {
+ 'de': ("Dagric-Aktualisierung", "Dagric aktuell halten",
+        "Signierte Dagric- und Systemaktualisierungen sicher installieren, ohne neu zu installieren",
+        "aktualisierung;upgrade;neueste version;system;sicherheit;pakete;"),
+ 'fr': ("Mise à jour Dagric", "Garder Dagric à jour",
+        "Installer en toute sécurité les mises à jour signées de Dagric et du système sans réinstaller",
+        "mise à jour;mise a niveau;dernière version;système;sécurité;paquets;"),
+ 'es': ("Actualización de Dagric", "Mantener Dagric actualizado",
+        "Instala de forma segura actualizaciones firmadas de Dagric y del sistema sin reinstalar",
+        "actualización;actualizar;última versión;sistema;seguridad;paquetes;"),
+ 'pt_BR': ("Atualização do Dagric", "Manter o Dagric atualizado",
+        "Instala com segurança atualizações assinadas do Dagric e do sistema sem reinstalar",
+        "atualização;atualizar;versão mais recente;sistema;segurança;pacotes;"),
+ 'it': ("Aggiornamento Dagric", "Mantieni Dagric aggiornato",
+        "Installa in sicurezza gli aggiornamenti firmati di Dagric e del sistema senza reinstallare",
+        "aggiornamento;aggiornare;ultima versione;sistema;sicurezza;pacchetti;"),
+}
 D['dagric-get-variety'] = {
  'de': ("Rotierende Hintergrundbilder (Variety)", "Automatischer Hintergrundbildwechsel",
         "Installiert Variety, um Ihr Hintergrundbild nach Zeitplan zu wechseln (optional, nicht vorinstalliert)",
@@ -605,6 +622,78 @@ D['dagric-get-variety'] = {
  'it': ("Sfondi a rotazione (Variety)", "Cambio automatico dello sfondo",
         "Installa Variety per cambiare lo sfondo a intervalli regolari (facoltativo, non preinstallato)",
         "sfondo;presentazione;cambio;"),
+}
+
+D['dagric-rewind'] = {
+ 'de': ("Dagric Rewind", "Systemänderungen rückgängig machen",
+        "Systemänderungen ansehen und rückgängig machen, ohne den Bildschirm aufzuzeichnen",
+        "rückgängig;wiederherstellen;schnappschuss;prüfpunkt;verlauf;rettung;"),
+ 'fr': ("Dagric Rewind", "Annulation du système",
+        "Voir et inverser les changements du système sans enregistrer votre écran",
+        "annuler;restaurer;instantané;point de contrôle;historique;récupération;"),
+ 'es': ("Dagric Rewind", "Deshacer cambios del sistema",
+        "Ver y revertir cambios del sistema sin grabar la pantalla",
+        "deshacer;restaurar;instantánea;punto de control;historial;recuperación;"),
+ 'pt_BR': ("Dagric Rewind", "Desfazer alterações do sistema",
+        "Veja e reverta alterações do sistema sem gravar a sua tela",
+        "desfazer;restaurar;instantâneo;ponto de restauração;histórico;recuperação;"),
+ 'it': ("Dagric Rewind", "Annullamento delle modifiche di sistema",
+        "Visualizza e annulla le modifiche di sistema senza registrare lo schermo",
+        "annullare;ripristinare;istantanea;punto di controllo;cronologia;recupero;"),
+}
+
+D['dagric-blueprint'] = {
+ 'de': ("Dagric Blueprint", "Reproduzierbare Systemkonfiguration",
+        "Anwendungen und sichere Einstellungen für den Wiederaufbau dieses Computers ansehen",
+        "bauplan;neuinstallation;wiederaufbau;anwendungen;einstellungen;wiederherstellung;export;"),
+ 'fr': ("Dagric Blueprint", "Configuration système reproductible",
+        "Prévisualiser les applications et les réglages sûrs nécessaires pour reconstruire cet ordinateur",
+        "plan;réinstallation;reconstruction;applications;réglages;récupération;exportation;"),
+ 'es': ("Dagric Blueprint", "Configuración reproducible del sistema",
+        "Previsualiza las aplicaciones y los ajustes seguros necesarios para reconstruir este ordenador",
+        "plano;reinstalar;reconstruir;aplicaciones;ajustes;recuperación;exportar;"),
+ 'pt_BR': ("Dagric Blueprint", "Configuração reproduzível do sistema",
+        "Veja os aplicativos e as configurações seguras necessários para reconstruir este computador",
+        "plano;reinstalar;reconstruir;aplicativos;configurações;recuperação;exportar;"),
+ 'it': ("Dagric Blueprint", "Configurazione di sistema riproducibile",
+        "Visualizza le applicazioni e le impostazioni sicure necessarie per ricostruire questo computer",
+        "progetto;reinstallare;ricostruire;applicazioni;impostazioni;recupero;esportare;"),
+}
+
+D['dagric-life-support'] = {
+ 'de': ("Dagric Notfallhilfe", "Notfallprüfung des Systems",
+        "Prüfen, ob Speicherplatz- oder Ressourcenengpässe eine Wiederherstellung erfordern",
+        "wiederherstellung;notfall;speicherplatz;auslastung;zustand;datensicherung;abgesicherter modus;"),
+ 'fr': ("Assistance vitale Dagric", "Évaluation d'urgence du système",
+        "Vérifier si le stockage ou la pression sur les ressources nécessite une récupération",
+        "récupération;urgence;stockage;pression;santé;sauvegarde;mode sans échec;"),
+ 'es': ("Soporte vital de Dagric", "Evaluación de emergencia del sistema",
+        "Comprueba si el almacenamiento o la presión de recursos requiere una acción de recuperación",
+        "recuperación;emergencia;almacenamiento;presión;salud;copia de seguridad;modo seguro;"),
+ 'pt_BR': ("Suporte de emergência Dagric", "Avaliação de emergência do sistema",
+        "Verifique se o armazenamento ou a pressão de recursos exige uma ação de recuperação",
+        "recuperação;emergência;armazenamento;pressão;saúde;backup;modo de segurança;"),
+ 'it': ("Supporto vitale Dagric", "Valutazione di emergenza del sistema",
+        "Controlla se lo spazio o la pressione sulle risorse richiede un'azione di recupero",
+        "recupero;emergenza;spazio;pressione;salute;backup;modalità provvisoria;"),
+}
+
+D['dagric-support'] = {
+ 'de': ("Dagric-Supportmodus", "Datenschutzfreundlicher Systembericht",
+        "Hardware-, Wiederherstellungs- und Dagric-Änderungsbericht ohne persönliche Daten ansehen",
+        "support;diagnose;hardware;systempass;verlauf;wiederherstellung;datenschutz;bericht;"),
+ 'fr': ("Mode d'assistance Dagric", "Rapport système respectueux de la vie privée",
+        "Prévisualiser un rapport sur le matériel, la récupération et les changements Dagric sans données personnelles",
+        "assistance;diagnostic;matériel;passeport;historique;récupération;confidentialité;rapport;"),
+ 'es': ("Modo de soporte de Dagric", "Informe del sistema respetuoso con la privacidad",
+        "Previsualiza un informe de hardware, recuperación y cambios de Dagric sin datos personales",
+        "soporte;diagnóstico;hardware;pasaporte;historial;recuperación;privacidad;informe;"),
+ 'pt_BR': ("Modo de suporte Dagric", "Relatório do sistema com privacidade",
+        "Veja um relatório de hardware, recuperação e alterações do Dagric sem dados pessoais",
+        "suporte;diagnóstico;hardware;passaporte;histórico;recuperação;privacidade;relatório;"),
+ 'it': ("Modalità assistenza Dagric", "Rapporto di sistema rispettoso della privacy",
+        "Visualizza un rapporto su hardware, recupero e modifiche Dagric senza dati personali",
+        "assistenza;diagnostica;hardware;passaporto;cronologia;recupero;privacy;rapporto;"),
 }
 
 D['dagric-hardware-check'] = {

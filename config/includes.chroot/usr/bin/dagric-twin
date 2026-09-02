@@ -1,0 +1,4 @@
+#!/bin/sh
+# Advanced, explicit-only Dagric Twin entry point.  There is deliberately no
+# launcher, timer, service, telemetry endpoint or background experiment.
+exec /usr/bin/python3 /usr/lib/dagric/twin.py "$@"

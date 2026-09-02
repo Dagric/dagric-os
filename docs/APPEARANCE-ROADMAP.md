@@ -129,10 +129,11 @@ engine.
 
 ---
 
-## 2. Shipping in this round — IN PROGRESS
+## 2. Implemented in the 1.1.6 candidate
 
-**Status: in progress. Not yet in a released ISO.** Do not describe this on
-the website until it has been through a VM boot test.
+**Status: implemented and VM-tested in the 1.1.6 Free and Pro candidates;
+not yet published.** Keep the website language tied to the currently signed
+release until these candidate ISOs have also completed the physical-PC drill.
 
 - **A preview gallery** replacing the flat `kdialog --menu` for Styles: a
   grid of tiles, each with a **thumbnail**, name and description, rendered
@@ -150,15 +151,13 @@ the website until it has been through a VM boot test.
   thumbnails reads as eight different pictures instead of one picture in
   eight colours. Two of them ship a no-branding variant.
 
-### The missing piece, and why this took until now
+### The runtime piece that unlocked it
 
-The shipped image already contains everything needed to *describe* a native
-UI — QtQuick (651 files), QtQuick.Controls (474) and Kirigami (246) are all
-present — but **not `/usr/bin/qml6`, the runtime that executes it.** That is
-why the tools have been `kdialog` menus: there was no way to run a QML file.
-Debian's **`qml-qt6`** package provides that binary. Adding one small package
-to `config/package-lists/desktop.list.chroot` turns a pile of already-shipped
-QML modules into a usable native gallery.
+Earlier images already contained everything needed to *describe* a native
+UI — QtQuick, QtQuick.Controls and Kirigami — but not `/usr/bin/qml6`, the
+runtime that executes it. Debian's **`qml-qt6`** package now supplies that
+binary in both editions, and the gallery is part of the built images rather
+than a design-only roadmap item.
 
 That is a genuinely cheap unlock and it is worth understanding why: we are
 not adding a toolkit, we are adding the loader for a toolkit we were already
@@ -180,23 +179,15 @@ live session — a flash of redraw, and any app that caches colours at startup
 may look briefly wrong. Rendering a mock instead is §3.1, and it is
 deliberately not in this round because it is a different and larger job.
 
-### Prerequisite refactor — do this first, it is the highest-leverage hour
+### State-capture prerequisite — completed in the gallery wrapper
 
-`dagric-style` currently fuses "show a menu" and "apply a style" into one
-script with no way to invoke either separately. Splitting out a
-non-interactive interface:
-
-```
-dagric-style --list              # machine-readable: id, name, description, file
-dagric-style --apply <id>        # apply, no UI
-dagric-style --capture <file>    # write current desktop out as a .style
-```
-
-…is a couple of hours of work and it unblocks the gallery (which needs to
-call the applier), auto-revert (§2), Create-your-own (§3.3), and the
-time-of-day switch (§3.6). Every one of those is harder without it and
-trivial with it. If only one thing from this document gets done, make it
-this.
+The native `dagric-appearance` wrapper owns catalogue generation, captures
+the previous style and panel state, previews a choice, offers Keep/Revert,
+and auto-reverts on timeout. The older `dagric-style` menu remains a separate
+compatibility entry point; it does **not** claim a machine-readable command
+line interface that it does not implement. The wrapper's state-capture path
+is the foundation for Create-your-own (§3.3) and the time-of-day switch
+(§3.6).
 
 ---
 
@@ -204,7 +195,8 @@ this.
 
 Estimates are focused working time for someone fluent in this tree. **They
 exclude the iteration tax, which dominates:** a full ISO rebuild is 30–60
-minutes (`docs/BUILDING.md`), the free image is 2.06 GB and Pro is 3.75 GB,
+minutes (`docs/BUILDING.md`), and the current candidates are about 2.10 GiB
+(Free) and 3.87 GiB (Pro),
 and anything touching the live session has to be verified by booting the ISO
 in the QEMU harness. Budget roughly *double* these numbers in wall-clock time
 unless several items are batched into one build.

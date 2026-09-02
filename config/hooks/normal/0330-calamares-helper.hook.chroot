@@ -163,6 +163,26 @@ if [ ! -f "$PARTCFG" ]; then
     exit 1
 fi
 
+# Debian's welcome module defaults to 15 GiB of storage and 1 GiB of RAM.
+# Those values contradicted every public Dagric requirement and let the user
+# begin an unsupported install.  At this point the Pro overlay has not run yet,
+# so validate the shared Free floor; 0600-pro-edition raises and re-checks the
+# storage value for Pro.
+WELCFG=/etc/calamares/modules/welcome.conf
+if [ ! -f "$WELCFG" ]; then
+    echo "ERROR: $WELCFG is missing — Calamares would fall back to Debian's" >&2
+    echo "       unsupported 15 GiB / 1 GiB requirements." >&2
+    exit 1
+fi
+if ! grep -q '^[[:space:]]*requiredStorage:[[:space:]]*25[[:space:]]*$' "$WELCFG"; then
+    echo "ERROR: Calamares must enforce the Free 25 GiB storage floor." >&2
+    exit 1
+fi
+if ! grep -q '^[[:space:]]*requiredRam:[[:space:]]*3\.5[[:space:]]*$' "$WELCFG"; then
+    echo "ERROR: Calamares must enforce the 3.5 GiB addressable-RAM floor." >&2
+    exit 1
+fi
+
 # --- the EFI removable-path repair ------------------------------------------
 #
 # Calamares copies grubx64.efi over EFI/BOOT/BOOTX64.EFI. MEASURED on a real
@@ -205,4 +225,5 @@ echo "                  8 bootloader packages present — offline install is pos
 echo "calamares-helper: sources-final writes contrib + non-free, matching live"
 echo "calamares-helper: packages.conf uses try_remove — the live-package strip"
 echo "                  cannot fail the install on a name that is not installed"
+echo "calamares-helper: installer floor matches the 25 GiB / 4 GB public minimum"
 unset _missing _p _c

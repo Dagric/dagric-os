@@ -1,15 +1,16 @@
 Package: dagric-tools
-Version: 1.1.5
+Version: 1.1.15
 Architecture: all
 Maintainer: Dagric OS Project <repo@dagric.com>
 Section: misc
 Priority: optional
 Depends: kdialog, python3, qml-qt6, gettext-base, sqlite3,
- curl, flatpak, gawk, konsole,
+ curl, flatpak, gawk, konsole, snapper, btrfs-assistant, pkexec,
  timekpr-next, gir1.2-ayatanaappindicator3-0.1
-Description: Dagric OS tools, wizard, manual and appearance drop-ins
+Description: Dagric OS tools, Rewind, wizard, manual and appearance drop-ins
  The Dagric layer itself: the first-run setup wizard, the Dagric Hub, the
- appearance gallery, Styles and Looks, the Migration Assistant, Check This PC,
+ Rewind system-change sessions, the appearance gallery, Styles and Looks,
+ the Migration Assistant, Check This PC,
  the offline manual and guide, and the consent-install helpers.
  .
  This is the package that carries fixes to the product to machines that are

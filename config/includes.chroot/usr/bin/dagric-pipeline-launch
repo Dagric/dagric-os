@@ -1,0 +1,5 @@
+#!/bin/sh
+# Per-launch companion to the background-only system profiler.  It learns only
+# executable and shared-library mappings, never documents, browser data, paths
+# below /home, DMI values, MAC addresses, or any other personal identifier.
+exec /usr/bin/python3 /usr/lib/dagric/pipeline.py launch "$@"

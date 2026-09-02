@@ -1,4 +1,4 @@
-# Dagric OS - boot the ISO with a blank 20 GB virtual disk attached,
+# Dagric OS - boot the ISO with a blank 50 GB sparse virtual disk attached,
 # so the Calamares installer can be exercised end to end.
 #   .\test\install-test.ps1           # BIOS mode, then open http://localhost:6080/vnc.html
 #   .\test\install-test.ps1 -Uefi     # UEFI firmware (OVMF) - modern-PC simulation
@@ -22,18 +22,33 @@ Copy-Item $iso $testIso -Force
 $iso = $testIso
 
 docker build -t dagric-boottest "$repo\test"
+$kvmReady = & "$PSScriptRoot\enable-kvm.ps1"
+if (-not $kvmReady) {
+    Write-Warning "KVM is unavailable; install remains valid but will be much slower."
+}
 
-if ($Fresh) { docker volume rm -f dagric-disk 2>$null | Out-Null }
-docker volume create dagric-disk | Out-Null
-docker run --rm -v dagric-disk:/disk dagric-boottest sh -c "[ -f /disk/disk.qcow2 ] || qemu-img create -f qcow2 /disk/disk.qcow2 20G"
-
-$uefiEnv = "0"; if ($Uefi) { $uefiEnv = "1" }
+# Stop the previous VM before trying to remove its disk.  The old order asked
+# Docker to delete dagric-disk while dagric-boottest still had the volume open;
+# Docker correctly kept the volume, but the error was hidden and -Fresh then
+# reused a partially installed disk.  That can turn an install test into a
+# convincing false pass, so freshness is now verified rather than assumed.
 $existing = docker ps -aq --filter "name=dagric-boottest"
 if ($existing) { docker rm -f dagric-boottest | Out-Null }
+
+if ($Fresh) {
+    docker volume rm -f dagric-disk 2>$null | Out-Null
+    if (docker volume ls -q --filter "name=^dagric-disk$") {
+        throw "Could not remove the previous dagric-disk volume; refusing a non-fresh install test."
+    }
+}
+docker volume create dagric-disk | Out-Null
+docker run --rm -v dagric-disk:/disk dagric-boottest sh -c "[ -f /disk/disk.qcow2 ] || qemu-img create -f qcow2 /disk/disk.qcow2 50G"
+
+$uefiEnv = "0"; if ($Uefi) { $uefiEnv = "1" }
 docker run -d --name dagric-boottest --privileged `
     -e UEFI=$uefiEnv `
     -p 6080:6080 `
     -v "${iso}:/iso/dagric.iso:ro" `
     -v dagric-disk:/disk `
     dagric-boottest
-Write-Host "Install-test VM starting ($(if ($Uefi) {'UEFI'} else {'BIOS'})) with 20 GB disk. Watch: http://localhost:6080/vnc.html" -ForegroundColor Green
+Write-Host "Install-test VM starting ($(if ($Uefi) {'UEFI'} else {'BIOS'})) with 50 GB sparse disk. Watch: http://localhost:6080/vnc.html" -ForegroundColor Green

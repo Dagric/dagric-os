@@ -104,9 +104,8 @@
 //
 // Palette, type and spacing come from usr/share/dagric/firstrun/main.qml and
 // usr/share/dagric/manual/manual.css so the chain — boot splash, login, first
-// run, manual — reads as one product rather than four. #3fa9f5 is the brand
-// blue, #f0a658 the warning amber, 12px the corner radius, and the navy is the
-// same #0a111c the wizard and the manual use.
+// run, manual — reads as one product rather than four. Flow uses #ff3b5c for
+// focus and action, #f6b84a for warnings, and #0b0d12 as its Obsidian base.
 //
 // The shape is Windows', on purpose. Everyone buying this is leaving Windows
 // 10, and the login screen is not the place to teach them something new: a big
@@ -193,14 +192,14 @@ Item {
     readonly property bool compact: root.height < root.px(640)
 
     // ------------------------------------------------------------- palette
-    readonly property color cInk:    "#f2f7fd"
-    readonly property color cSoft:   "#c9d6e6"
-    readonly property color cMuted:  "#9fb0c6"
-    readonly property color cAccent: "#3fa9f5"
-    readonly property color cWarm:   "#f0a658"
-    readonly property color cField:  Qt.rgba(0.024, 0.043, 0.078, 0.66)
-    readonly property color cEdge:   Qt.rgba(0.58, 0.70, 0.84, 0.38)
-    readonly property color cEdgeHi: Qt.rgba(0.75, 0.85, 0.96, 0.62)
+    readonly property color cInk:    "#f5f7fa"
+    readonly property color cSoft:   "#cfd5de"
+    readonly property color cMuted:  "#aeb6c2"
+    readonly property color cAccent: "#ff3b5c"
+    readonly property color cWarm:   "#f6b84a"
+    readonly property color cField:  Qt.rgba(0.043, 0.051, 0.071, 0.72)
+    readonly property color cEdge:   Qt.rgba(0.68, 0.71, 0.76, 0.34)
+    readonly property color cEdgeHi: Qt.rgba(0.96, 0.97, 0.98, 0.58)
 
     // ---------------------------------------------------------------- state
     property int  userIndex: 0
@@ -315,6 +314,20 @@ Item {
         running: true
         repeat: true
         onTriggered: root.now = new Date()
+    }
+
+    // SDDM's qtvirtualkeyboard input method is kept available for tablets and
+    // convertibles, but focusing the password field during startup otherwise
+    // makes it cover half of every desktop login screen.  Keep the field
+    // focused so a hardware keyboard can type immediately, then dismiss only
+    // the initial input panel.  Touching the field still asks Qt to show it
+    // again, which preserves the touchscreen route without treating every PC
+    // as a tablet.
+    Timer {
+        interval: 350
+        running: true
+        repeat: false
+        onTriggered: Qt.inputMethod.hide()
     }
 
     Component.onCompleted: {
@@ -648,7 +661,7 @@ Item {
     // permission can turn into a black rectangle.
     Rectangle {
         anchors.fill: parent
-        color: config.color !== "" ? config.color : "#0a111c"
+        color: config.color !== "" ? config.color : "#0b0d12"
     }
 
     Image {
@@ -674,10 +687,10 @@ Item {
     Rectangle {
         anchors.fill: parent
         gradient: Gradient {
-            GradientStop { position: 0.00; color: Qt.rgba(0.016, 0.027, 0.051, 0.10) }
-            GradientStop { position: 0.45; color: Qt.rgba(0.016, 0.027, 0.051, 0.06) }
-            GradientStop { position: 0.78; color: Qt.rgba(0.016, 0.027, 0.051, 0.14) }
-            GradientStop { position: 1.00; color: Qt.rgba(0.016, 0.027, 0.051, 0.38) }
+            GradientStop { position: 0.00; color: Qt.rgba(0.043, 0.051, 0.071, 0.10) }
+            GradientStop { position: 0.45; color: Qt.rgba(0.043, 0.051, 0.071, 0.06) }
+            GradientStop { position: 0.78; color: Qt.rgba(0.043, 0.051, 0.071, 0.14) }
+            GradientStop { position: 1.00; color: Qt.rgba(0.043, 0.051, 0.071, 0.40) }
         }
     }
 
@@ -812,7 +825,7 @@ Item {
             Rectangle {
                 anchors.fill: parent
                 radius: width / 2
-                color: "#1b3f63"
+                color: "#20242e"
                 border.width: root.px(2)
                 border.color: Qt.rgba(0.58, 0.70, 0.84, 0.30)
                 Text {
@@ -1016,7 +1029,7 @@ Item {
                 height: root.px(44)
                 radius: width / 2
                 color: goArea.containsMouse || goBtn.activeFocus
-                       ? root.cAccent : Qt.rgba(0.25, 0.66, 0.96, 0.22)
+                       ? root.cAccent : Qt.rgba(1.0, 0.23, 0.36, 0.22)
                 border.width: 1
                 border.color: root.cAccent
                 activeFocusOnTab: true

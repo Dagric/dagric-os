@@ -1,0 +1,3 @@
+#!/bin/sh
+# Blueprint reconstructs configuration; Backup protects personal data.
+exec /usr/bin/python3 /usr/lib/dagric/foundations.py blueprint "$@"

@@ -73,6 +73,10 @@
         it is an icon on the desktop beside <em>Install Dagric OS</em>; on an installed
         system it stays in the launcher and the Hub, and its report is what to send
         when you ask for help.</li>
+        <li><code>dagric-rewind</code> &mdash; <a href="tool-dagric-rewind.html">the
+        private system timeline</a>: create paired before-and-after checkpoints,
+        inspect a path-only change receipt, and open the safe Btrfs recovery route.
+        It never records the screen or reads document contents.</li>
         <li><code>dagric-firstrun</code> &mdash;
         <a href="tool-dagric-firstrun.html">Set Up Dagric</a>, the wizard at your
         first login: colours, wallpaper, text size, taskbar, and your files.</li>
@@ -211,9 +215,9 @@
          <a href="tool-dagric-hub.html">Dagric Hub</a>, which lists them all.</p></li>
         <li><span class="t">Terminal helpers hold their window open</span><p>When one finishes it waits for you to press Enter before closing, so you
          can read what happened. That is on purpose.</p></li>
-        <li><span class="t">Nothing runs on a schedule</span><p>None of these has a timer and none checks in with anything. One of them,
-         <code>dagric-snapshot-setup</code>, is also run by a one-time service on the
-         first boot; two more one-time services that are not commands at all create the
+        <li><span class="t">No consumer helper checks in</span><p>None of the visible helpers checks in with anything. One of them,
+        <code>dagric-snapshot-setup</code>, is also run by a one-time service on the
+        first boot. Two more one-time services that are not commands at all create the
          Print-to-PDF queue and this machine&#x27;s own SSH host keys. Each does its
          work once and stands down. The only other Dagric code that runs without you
          starting it is the helpers described in

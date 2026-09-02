@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Test Dagric OS — Dagric OS</title>
+<meta name="description" content="Try Dagric OS from USB, test the hardware in front of you, and send feedback that helps fix real problems.">
+<link rel="icon" type="image/png" href="/assets/dagric-logo.png">
+<link rel="stylesheet" href="/assets/site.css">
+<link rel="canonical" href="https://dagric.com/testers">
+<meta name="theme-color" content="#0C0F14">
+<script src="/assets/theme.js"></script>
+<link rel="icon" href="/favicon.ico" sizes="32x32">
+<link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
+<link rel="manifest" href="/site.webmanifest">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Dagric OS">
+<meta property="og:title" content="Test Dagric OS">
+<meta property="og:description" content="Boot the signed Dagric OS image from USB, test your real hardware, and tell us exactly what you find.">
+<meta property="og:url" content="https://dagric.com/testers">
+<meta property="og:image" content="https://dagric.com/assets/hero-desktop.png">
+<meta property="og:image:width" content="1920">
+<meta property="og:image:height" content="1080">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Test Dagric OS">
+<meta name="twitter:description" content="Boot the signed Dagric OS image from USB, test your real hardware, and tell us exactly what you find.">
+<meta name="twitter:image" content="https://dagric.com/assets/hero-desktop.png">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<nav><div class="nav-in">
+  <a class="brand" href="/"><img src="/assets/dagric-logo.png" alt="" width="30" height="30">Dagric&nbsp;OS</a>
+  <div class="nav-links">
+    <a href="/features">Features</a><a href="/pro">Pro</a><a href="/about">About</a>
+    <a href="/testing">Proof</a><a href="/support">Support</a>
+    <a class="cta" href="/download">Download</a>
+  </div>
+</div></nav>
+
+<main id="main">
+  <div class="eyebrow">Community hardware testing</div>
+  <h1>Put Dagric on <span class="grad">your PC.</span></h1>
+  <p class="lead">A virtual machine can prove that an image boots. It cannot prove your Wi-Fi,
+  graphics, audio, Bluetooth, suspend, printer, game controller, display, or firmware. Boot the
+  current signed Dagric OS 1.0 “Foundation” image from a USB stick and tell us what happens.</p>
+
+  <div class="note"><strong>Safest first step:</strong> use the live USB before installing.
+  It lets you test Dagric without writing to your internal drive. If you later install, back up
+  anything you cannot replace first — an operating-system install changes disks by design.</div>
+
+  <h2>Three steps</h2>
+  <ol>
+    <li><strong>Download and verify.</strong> Get the Free image from the <a href="/download">download
+    page</a>. The same page has the signed SHA-256 verification instructions.</li>
+    <li><strong>Write a USB, then boot it.</strong> Pick the USB device from your firmware boot menu;
+    do not install until you have tried the live desktop. The <a href="/getting-started">getting-started
+    guide</a> walks through the full process.</li>
+    <li><strong>Run “Check This PC”.</strong> It is on the live desktop and creates a report about the
+    hardware in front of you without touching the internal disk.</li>
+  </ol>
+
+  <h2>What would help us most</h2>
+  <div class="grid c2">
+    <div class="card"><h3>Basics</h3><p>Does it boot? Do Wi-Fi, Ethernet, sound, Bluetooth, display
+    brightness, touchpad/mouse, keyboard, sleep and wake work as expected?</p></div>
+    <div class="card"><h3>Real-world work</h3><p>Try a browser video, a USB drive, a printer if you
+    have one, an external display, and the apps you actually use. Gamers: test the game and Proton
+    setup you care about, not a synthetic benchmark alone.</p></div>
+    <div class="card"><h3>Install only when ready</h3><p>If you choose to install, test reboot,
+    updates, snapshots, and the features you depend on. Keep the initial report and note whether the
+    problem existed on the live USB or began after installation.</p></div>
+    <div class="card"><h3>Known limits, plainly stated</h3><p>Dagric does not claim every Windows
+    program or every PC works. The <a href="/testing#limitations">release proof page</a> separates
+    virtual-machine evidence from hardware testing that still needs community coverage.</p></div>
+  </div>
+
+  <h2>Send useful feedback</h2>
+  <p>Use <a href="/contact">Contact</a>, choose <strong>A bug report</strong>, and include:</p>
+  <ul>
+    <li>what you did, what you expected, and what happened instead;</li>
+    <li>whether the issue happens every time;</li>
+    <li>the output of <code>cat /etc/os-release</code>;</li>
+    <li>the Check This PC report for hardware, graphics, network, disk or Secure Boot problems; and</li>
+    <li>a screenshot or short video if the problem is visible.</li>
+  </ul>
+  <p>You can also read the complete <a href="/bugs">bug-report guide</a>. Do not send passwords,
+  private keys, recovery codes, or personal files. If you hit a security vulnerability, choose the
+  security topic on Contact instead of posting sensitive details publicly.</p>
+
+  <div class="note"><strong>Something broke after an update?</strong> Reboot and choose
+  <strong>Dagric snapshots</strong> in the boot menu, then pick the snapshot from before the change.
+  Your personal files are not part of that rollback. Tell us what happened so the update can be
+  corrected for everyone.</div>
+
+  <p><a class="btn primary" href="/download">Download the signed Free image</a>
+  <a class="btn ghost" href="/testing">Read the release proof</a></p>
+</main>
+
+<footer><div class="foot">
+  <span>© 2026 DGR Operations · Built on Debian. Not affiliated with the Debian Project.</span>
+  <span class="links"><a href="/features">Features</a><a href="/pro">Pro</a><a href="/download">Download</a><a href="/news">News</a><a href="/guide">Guide</a><a href="/support">Support</a><a href="/faq">FAQ</a><a href="/accessibility">Accessibility</a><a href="/security">Security</a><a href="/bugs">Report a bug</a><a href="/contact">Contact</a><a href="/about">About</a><a href="/review">Reviewers</a><a href="/testing">Proof</a><a href="/licenses">Licenses</a><a href="/privacy">Privacy</a><a href="/terms">Terms</a></span>
+</div></footer>
+</body>
+</html>

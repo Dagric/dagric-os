@@ -20,10 +20,17 @@ Copy-Item $iso $testIso -Force
 $iso = $testIso
 
 docker build -t dagric-boottest "$repo\test"
+$kvmReady = & "$PSScriptRoot\enable-kvm.ps1"
+if (-not $kvmReady) {
+    Write-Warning "KVM is unavailable; boot remains valid but will be much slower."
+}
 $existing = docker ps -aq --filter "name=dagric-boottest"
 if ($existing) { docker rm -f dagric-boottest | Out-Null }
+# promo/capture-real-vm.py records the framebuffer through VNC. Bind that
+# unauthenticated test display to loopback only so it is never exposed to LAN.
 docker run -d --name dagric-boottest --privileged `
     -p 6080:6080 `
+    -p 127.0.0.1:5914:5900 `
     -v "${iso}:/iso/dagric.iso:ro" `
     dagric-boottest
 Write-Host "VM starting. Watch it boot at: http://localhost:6080/vnc.html" -ForegroundColor Green

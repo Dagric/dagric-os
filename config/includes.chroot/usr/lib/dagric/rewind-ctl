@@ -1,0 +1,458 @@
+#!/usr/bin/python3
+"""Privileged, deliberately narrow controller for Dagric Rewind."""
+
+from __future__ import annotations
+
+import json
+import fcntl
+import functools
+import os
+import pathlib
+import re
+import shutil
+import subprocess
+import sys
+import tempfile
+import time
+from typing import Any
+
+from rewind_core import (
+    PRESETS,
+    automatic_apt_sessions,
+    is_automatic_apt_pair,
+    normalize_snapper_json,
+    parse_snapper_status,
+    public_snapshot,
+    safe_int,
+    utc_now,
+)
+
+
+SNAPPER = "/usr/bin/snapper"
+FINDMNT = "/usr/bin/findmnt"
+LOGGER = "/usr/bin/logger"
+STATE_DIR = pathlib.Path("/var/lib/dagric/rewind")
+CURRENT = STATE_DIR / "current.json"
+HISTORY = STATE_DIR / "history.jsonl"
+LOCK = STATE_DIR / "mutation.lock"
+CONFIG = pathlib.Path("/etc/snapper/configs/root")
+NUMBER = re.compile(r"^[0-9]+$")
+MIN_SNAPSHOT_FREE_BYTES = 1024 * 1024 * 1024
+
+
+class RewindError(RuntimeError):
+    pass
+
+
+def run(argv: list[str], *, allow_status_one: bool = False) -> str:
+    try:
+        proc = subprocess.run(
+            argv,
+            check=False,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+            timeout=45,
+            env={"PATH": "/usr/sbin:/usr/bin:/sbin:/bin", "LC_ALL": "C.UTF-8"},
+        )
+    except (OSError, subprocess.TimeoutExpired) as exc:
+        raise RewindError(f"Could not run {pathlib.Path(argv[0]).name}: {exc}") from exc
+    okay = proc.returncode == 0 or (allow_status_one and proc.returncode == 1)
+    if not okay:
+        detail = proc.stderr.strip().splitlines()
+        message = detail[-1] if detail else f"exit status {proc.returncode}"
+        raise RewindError(f"{pathlib.Path(argv[0]).name}: {message[:240]}")
+    return proc.stdout
+
+
+def filesystem_type() -> str:
+    if not pathlib.Path(FINDMNT).exists():
+        return "unknown"
+    try:
+        return run([FINDMNT, "-n", "-o", "FSTYPE", "/"]).strip().splitlines()[0]
+    except (RewindError, IndexError):
+        return "unknown"
+
+
+def availability() -> tuple[bool, str, str]:
+    fs_type = filesystem_type()
+    if pathlib.Path("/run/live/medium").is_dir():
+        return False, "live", fs_type
+    if fs_type != "btrfs":
+        return False, "filesystem", fs_type
+    if not pathlib.Path(SNAPPER).exists():
+        return False, "snapper", fs_type
+    if not CONFIG.is_file():
+        return False, "configuration", fs_type
+    return True, "ready", fs_type
+
+
+def require_root() -> None:
+    if os.geteuid() != 0:
+        raise RewindError("Administrator approval is required for this action.")
+
+
+def require_ready() -> None:
+    ready, reason, _ = availability()
+    if not ready:
+        messages = {
+            "live": "Rewind becomes available after Dagric is installed.",
+            "filesystem": "Rewind needs a Dagric installation using Btrfs.",
+            "snapper": "Snapper is not installed.",
+            "configuration": "The root snapshot configuration is missing.",
+        }
+        raise RewindError(messages.get(reason, "Rewind is not ready on this system."))
+
+
+def require_snapshot_headroom() -> None:
+    """Reject a new session when the filesystem is already plainly full.
+
+    Btrfs can still return ENOSPC because of metadata or qgroup pressure even
+    when ``statvfs`` reports space, so this is an early guard rather than a
+    promise. The Snapper error path below remains authoritative.
+    """
+    try:
+        free = shutil.disk_usage("/").free
+    except OSError as exc:
+        raise RewindError(f"Could not check free filesystem space: {exc}") from exc
+    if free < MIN_SNAPSHOT_FREE_BYTES:
+        available_mib = max(0, free // (1024 * 1024))
+        raise RewindError(
+            "Rewind needs at least 1 GB of free filesystem space before starting "
+            f"a new checkpoint; only {available_mib} MB is available. Free space, "
+            "then try again."
+        )
+
+
+def ensure_state_dir() -> None:
+    STATE_DIR.mkdir(parents=True, exist_ok=True, mode=0o700)
+    os.chmod(STATE_DIR, 0o700)
+
+
+def mutation_locked(function):
+    """Serialize mutations from two desktops or a double launch."""
+    @functools.wraps(function)
+    def wrapped(*args, **kwargs):
+        require_root()
+        ensure_state_dir()
+        fd = os.open(LOCK, os.O_RDWR | os.O_CREAT, 0o600)
+        with os.fdopen(fd, "r+") as handle:
+            fcntl.flock(handle.fileno(), fcntl.LOCK_EX)
+            return function(*args, **kwargs)
+    return wrapped
+
+
+def atomic_json(path: pathlib.Path, value: dict[str, Any]) -> None:
+    ensure_state_dir()
+    fd, name = tempfile.mkstemp(prefix=f".{path.name}.", dir=str(STATE_DIR), text=True)
+    try:
+        with os.fdopen(fd, "w", encoding="utf-8") as handle:
+            json.dump(value, handle, ensure_ascii=False, sort_keys=True)
+            handle.write("\n")
+            handle.flush()
+            os.fsync(handle.fileno())
+        os.chmod(name, 0o600)
+        os.replace(name, path)
+    finally:
+        try:
+            os.unlink(name)
+        except FileNotFoundError:
+            pass
+
+
+def read_json(path: pathlib.Path) -> dict[str, Any] | None:
+    try:
+        with path.open(encoding="utf-8") as handle:
+            value = json.load(handle)
+        return value if isinstance(value, dict) else None
+    except (FileNotFoundError, OSError, json.JSONDecodeError):
+        return None
+
+
+def quarantine_corrupt_current() -> pathlib.Path:
+    """Move unreadable active-session metadata aside without deleting evidence."""
+    ensure_state_dir()
+    destination = STATE_DIR / f"current.corrupt-{time.time_ns()}.json"
+    try:
+        os.replace(CURRENT, destination)
+    except FileNotFoundError:
+        return destination
+    os.chmod(destination, 0o600)
+    log_event(f"quarantined unreadable session metadata as {destination.name}")
+    return destination
+
+
+def read_history() -> list[dict[str, Any]]:
+    rows: list[dict[str, Any]] = []
+    try:
+        with HISTORY.open(encoding="utf-8") as handle:
+            for line in handle:
+                try:
+                    row = json.loads(line)
+                except json.JSONDecodeError:
+                    continue
+                if isinstance(row, dict):
+                    rows.append(row)
+    except FileNotFoundError:
+        pass
+    return rows[-40:]
+
+
+def append_history(row: dict[str, Any]) -> None:
+    ensure_state_dir()
+    fd = os.open(HISTORY, os.O_WRONLY | os.O_APPEND | os.O_CREAT, 0o600)
+    with os.fdopen(fd, "a", encoding="utf-8") as handle:
+        handle.write(json.dumps(row, ensure_ascii=False, sort_keys=True) + "\n")
+        handle.flush()
+        os.fsync(handle.fileno())
+
+
+def log_event(message: str) -> None:
+    if pathlib.Path(LOGGER).exists():
+        subprocess.run([LOGGER, "-t", "dagric-rewind", "--", message[:400]], check=False)
+
+
+def snapper_list() -> list[dict[str, Any]]:
+    raw = run([
+        SNAPPER,
+        "--no-dbus",
+        "--jsonout",
+        "-c",
+        "root",
+        "list",
+        "--columns",
+        "number,type,pre-number,date,description,read-only",
+    ])
+    try:
+        value = json.loads(raw)
+    except json.JSONDecodeError as exc:
+        raise RewindError("Snapper returned an unreadable snapshot list.") from exc
+    return normalize_snapper_json(value)
+
+
+def create_snapshot(args: list[str]) -> int:
+    output = run([SNAPPER, "--no-dbus", "-c", "root", "create", *args]).strip()
+    match = re.search(r"(?:^|\s)([0-9]+)(?:\s|$)", output)
+    if not match:
+        raise RewindError("Snapper created no identifiable checkpoint.")
+    return int(match.group(1))
+
+
+def preset(key: str) -> dict[str, str]:
+    if key not in PRESETS:
+        raise RewindError("That Rewind session type is not allowed.")
+    return PRESETS[key]
+
+
+def public_session(row: dict[str, Any] | None) -> dict[str, Any] | None:
+    if not row:
+        return None
+    key = str(row.get("preset", "experiment"))
+    item = PRESETS.get(key, PRESETS["experiment"])
+    return {
+        "preset": key,
+        "label": str(row.get("label", item["label"]))[:80],
+        "startedAt": str(row.get("startedAt", ""))[:64],
+        "finishedAt": str(row.get("finishedAt", ""))[:64],
+        "pre": safe_int(row.get("pre", 0)),
+        "post": safe_int(row.get("post", 0)),
+    }
+
+
+def export_state(review_pair: tuple[int, int] | None = None) -> dict[str, Any]:
+    ready, reason, fs_type = availability()
+    result: dict[str, Any] = {
+        "schema": 1,
+        "ready": ready,
+        "reason": reason,
+        "filesystem": fs_type,
+        "privacy": {"screenRecording": False, "cloud": False, "account": False},
+        "presets": [
+            {"id": key, "label": value["label"], "prompt": value["prompt"]}
+            for key, value in PRESETS.items()
+            if key != "known-good"
+        ],
+        "active": None,
+        "sessions": [],
+        "snapshots": [],
+        "review": None,
+    }
+    if not ready:
+        return result
+    require_root()
+    snapshots = snapper_list()
+    result["snapshots"] = [public_snapshot(row) for row in snapshots[-24:]][::-1]
+    result["active"] = public_session(read_json(CURRENT))
+    manual = [public_session(row) for row in read_history()]
+    automatic = [public_session(row) for row in automatic_apt_sessions(snapshots)]
+    combined = [row for row in manual + automatic if row]
+    unique = {(row["pre"], row["post"]): row for row in combined}
+    result["sessions"] = sorted(
+        unique.values(), key=lambda row: (row["finishedAt"], row["post"]), reverse=True
+    )
+    if review_pair:
+        result["review"] = build_review(*review_pair)
+    return result
+
+
+@mutation_locked
+def start_session(key: str) -> None:
+    require_ready()
+    item = preset(key)
+    if CURRENT.exists():
+        if read_json(CURRENT) is None:
+            quarantine_corrupt_current()
+        else:
+            raise RewindError("Finish the current Rewind session before starting another.")
+    require_snapshot_headroom()
+    now = utc_now()
+    number = create_snapshot([
+        "-t", "pre",
+        "-c", "number",
+        "-d", f"Dagric Rewind — {item['label']} (before)",
+        "-u", f"important=yes,dagric=rewind,preset={key}",
+        "-p",
+    ])
+    atomic_json(CURRENT, {"schema": 1, "preset": key, "pre": number, "startedAt": now})
+    log_event(f"started preset={key} pre={number}")
+
+
+def existing_post(pre_number: int) -> int:
+    candidates = []
+    for row in snapper_list():
+        row_pre = safe_int(row.get("pre-number", row.get("pre_number")))
+        if row_pre != pre_number or str(row.get("type", "")) != "post":
+            continue
+        if not str(row.get("description", "")).startswith("Dagric Rewind —"):
+            continue
+        candidates.append(safe_int(row.get("number")))
+    return max(candidates, default=0)
+
+
+@mutation_locked
+def finish_session() -> tuple[int, int]:
+    require_ready()
+    current = read_json(CURRENT)
+    if not current:
+        raise RewindError("There is no active Rewind session to finish.")
+    key = str(current.get("preset", ""))
+    item = preset(key)
+    pre_number = safe_int(current.get("pre", 0))
+    if pre_number <= 0:
+        raise RewindError("The active session has no valid starting checkpoint.")
+    finished_at = utc_now()
+    post_number = existing_post(pre_number)
+    if not post_number:
+        post_number = create_snapshot([
+            "-t", "post",
+            "--pre-number", str(pre_number),
+            "-c", "number",
+            "-d", f"Dagric Rewind — {item['label']} (after)",
+            "-u", f"important=yes,dagric=rewind,preset={key}",
+            "-p",
+        ])
+    completed = {
+        "schema": 1,
+        "preset": key,
+        "pre": pre_number,
+        "post": post_number,
+        "startedAt": str(current.get("startedAt", "")),
+        "finishedAt": finished_at,
+    }
+    if not pair_is_owned(pre_number, post_number):
+        append_history(completed)
+    CURRENT.unlink(missing_ok=True)
+    log_event(f"finished preset={key} pre={pre_number} post={post_number}")
+    return pre_number, post_number
+
+
+@mutation_locked
+def checkpoint(key: str = "known-good") -> None:
+    require_ready()
+    item = preset(key)
+    require_snapshot_headroom()
+    number = create_snapshot([
+        "-t", "single",
+        "-c", "number",
+        "-d", f"Dagric checkpoint — {item['label']}",
+        "-u", f"important=yes,dagric=checkpoint,preset={key}",
+        "-p",
+    ])
+    log_event(f"checkpoint preset={key} number={number}")
+
+
+def pair_is_owned(pre_number: int, post_number: int) -> bool:
+    return any(
+        safe_int(row.get("pre", 0)) == pre_number and safe_int(row.get("post", 0)) == post_number
+        for row in read_history()
+    )
+
+
+def pair_is_reviewable(pre_number: int, post_number: int) -> bool:
+    if pair_is_owned(pre_number, post_number):
+        return True
+    return is_automatic_apt_pair(snapper_list(), pre_number, post_number)
+
+
+def build_review(pre_number: int, post_number: int) -> dict[str, Any]:
+    require_root()
+    require_ready()
+    if pre_number <= 0 or post_number <= 0 or not pair_is_reviewable(pre_number, post_number):
+        raise RewindError("That snapshot pair is not a completed Dagric Rewind or automatic software session.")
+    output = run(
+        [SNAPPER, "--no-dbus", "-c", "root", "status", f"{pre_number}..{post_number}"],
+        allow_status_one=True,
+    )
+    summary = parse_snapper_status(output.splitlines())
+    summary.update({"pre": pre_number, "post": post_number})
+    return summary
+
+
+def parse_number(value: str) -> int:
+    if not NUMBER.fullmatch(value):
+        raise RewindError("Snapshot numbers must contain digits only.")
+    return int(value)
+
+
+def main(argv: list[str]) -> int:
+    if len(argv) < 2:
+        raise RewindError("Usage: rewind-ctl export|start|finish|checkpoint")
+    command = argv[1]
+    if command == "export":
+        review_pair = None
+        if len(argv) == 4:
+            review_pair = (parse_number(argv[2]), parse_number(argv[3]))
+        elif len(argv) != 2:
+            raise RewindError("export accepts either no snapshot pair or exactly two numbers.")
+        print(json.dumps(export_state(review_pair), ensure_ascii=False, sort_keys=True))
+        return 0
+    if command == "start" and len(argv) == 3:
+        start_session(argv[2])
+        return 0
+    if command == "start-export" and len(argv) == 3:
+        start_session(argv[2])
+        print(json.dumps(export_state(), ensure_ascii=False, sort_keys=True))
+        return 0
+    if command == "finish" and len(argv) == 2:
+        finish_session()
+        return 0
+    if command == "finish-export" and len(argv) == 2:
+        pair = finish_session()
+        print(json.dumps(export_state(pair), ensure_ascii=False, sort_keys=True))
+        return 0
+    if command == "checkpoint" and len(argv) in (2, 3):
+        checkpoint(argv[2] if len(argv) == 3 else "known-good")
+        return 0
+    if command == "checkpoint-export" and len(argv) in (2, 3):
+        checkpoint(argv[2] if len(argv) == 3 else "known-good")
+        print(json.dumps(export_state(), ensure_ascii=False, sort_keys=True))
+        return 0
+    raise RewindError("That Rewind action is not allowed.")
+
+
+if __name__ == "__main__":
+    try:
+        raise SystemExit(main(sys.argv))
+    except (RewindError, OSError) as exc:
+        print(str(exc), file=sys.stderr)
+        raise SystemExit(2)

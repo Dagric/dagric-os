@@ -1,0 +1,18 @@
+[Unit]
+Description=Dagric private bounded pressure summary
+After=local-fs.target
+ConditionPathExists=/proc/pressure/cpu
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/dagric-blackbox sample
+NoNewPrivileges=yes
+PrivateTmp=yes
+ProtectHome=yes
+ProtectSystem=strict
+ReadWritePaths=/var/lib/dagric/blackbox
+MemoryMax=64M
+CPUQuota=5%
+Nice=19
+IOSchedulingClass=idle
+UMask=0077

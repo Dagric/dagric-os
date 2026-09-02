@@ -15,6 +15,20 @@ Debian Stable ──► hand-picked packages ──► debloat + hardening hooks
 This repository *is* the operating system: every package choice, config file,
 and policy lives here, and the ISO is rebuilt from it with one command.
 
+## The main attraction: Dagric Rewind
+
+This is the next-release flagship now in the source tree and installed-VM
+testing; it is not part of the published 1.0 image below.
+
+**Your computer has an Undo button.** Dagric Rewind creates a local system
+checkpoint before an install, driver, setting, or experiment; pairs it with an
+after checkpoint; and explains what changed on a chronological timeline.
+Existing APT and Discover package snapshots become automatic receipts. It
+does not record the screen, read document contents, use the cloud, or require an
+account. Recovery uses Dagric's existing Btrfs/Snapper boot path instead of a
+risky live root rewrite. See the implemented design, safety boundary, evidence,
+and test plan in [docs/DAGRIC-REWIND.md](docs/DAGRIC-REWIND.md).
+
 ## Two editions, one source tree
 
 - **Dagric OS** (free) — the full debloated OS. Never crippled.
@@ -56,6 +70,7 @@ Full details, testing checklist, and troubleshooting: [docs/BUILDING.md](docs/BU
 | Account required | Yes | **No** |
 | Preinstalled junk | OEM + Microsoft bloat | **Every package hand-picked** |
 | Updates | Forced reboots | **Silent, background, reboot when *you* choose** |
+| Risky system changes | Hope, restore tools, or a separate sandbox | **Rewind session, change receipt, explicit recovery path** |
 | Source code | Closed | **Debian's archives, plus every Dagric script shipped in source form on the machine** |
 
 The full reasoning: [docs/PHILOSOPHY.md](docs/PHILOSOPHY.md) ·

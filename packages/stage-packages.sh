@@ -252,7 +252,8 @@ build_pkg dagric-branding
 
 # ---- dagric-desktop-defaults ---------------------------------------------
 P=$STAGE/dagric-desktop-defaults
-mkdir -p "$P/etc/skel/.config" "$P/usr/lib/firefox-esr/distribution" "$P/etc/xdg"
+mkdir -p "$P/etc/skel/.config" "$P/usr/lib/firefox-esr/distribution" "$P/etc/xdg" \
+         "$P/usr/share/color-schemes"
 cp -r "$REPO/packages/dagric-desktop-defaults/DEBIAN" "$P/"
 # kglobalshortcutsrc and kaccessrc were missing from this list, which meant
 # the Ctrl+Shift+Esc Task Manager key and the Meta+Alt+S screen-reader key
@@ -280,6 +281,17 @@ if [ -d "$INC/usr/share/konsole" ]; then
     mkdir -p "$P/usr/share/konsole"
     cp "$INC/usr/share/konsole/"* "$P/usr/share/konsole/"
 fi
+# The colour scheme named by kdeglobals has to travel with that pointer. These
+# files previously reached a fresh ISO through includes.chroot but belonged to
+# no Dagric package, so the update channel could not deliver a contrast fix to
+# an installed machine. Keep all three together: Light/Dark are the defaults and
+# High Contrast is the escape hatch exposed by Dagric Appearance.
+cp "$INC/usr/share/color-schemes/"Dagric*.colors "$P/usr/share/color-schemes/"
+_schemes=$(find "$P/usr/share/color-schemes" -maxdepth 1 -name 'Dagric*.colors' -type f | wc -l)
+[ "$_schemes" -eq 3 ] || {
+    echo "dagric-desktop-defaults: packed $_schemes Dagric colour schemes (want 3)" >&2
+    exit 1
+}
 normalise_modes "$P"
 build_pkg dagric-desktop-defaults
 
@@ -314,9 +326,10 @@ build_pkg dagric-security-policy
 # a dpkg unpack error, not a warning, so logo/ sddm/ and splash/ belong to
 # branding and are excluded from this list rather than being copied twice.
 P=$STAGE/dagric-tools
-mkdir -p "$P/usr/bin" "$P/usr/lib/dagric" "$P/usr/share/dagric" \
+mkdir -p "$P/usr/bin" "$P/usr/sbin" "$P/usr/lib/dagric" "$P/usr/share/dagric" \
          "$P/usr/share/applications" "$P/usr/share/icons/hicolor" \
-         "$P/etc/xdg/autostart"
+         "$P/usr/share/polkit-1/actions" "$P/etc/xdg/autostart" \
+         "$P/etc/systemd/system"
 cp -r "$REPO/packages/dagric-tools/DEBIAN" "$P/"
 # THE AUTOSTART ENTRY TRAVELS WITH THE PROGRAM IT STARTS.
 #
@@ -332,6 +345,15 @@ cp "$INC/etc/xdg/autostart/dagric-restart-check.desktop" "$P/etc/xdg/autostart/"
 for f in "$INC/usr/bin/"dagric-*; do
     [ -f "$f" ] && cp "$f" "$P/usr/bin/"
 done
+[ -f "$INC/usr/sbin/dagric-pipeline" ] && cp "$INC/usr/sbin/dagric-pipeline" "$P/usr/sbin/"
+[ -f "$INC/etc/systemd/system/dagric-pipeline.service" ] && \
+    cp "$INC/etc/systemd/system/dagric-pipeline.service" "$P/etc/systemd/system/"
+[ -f "$INC/etc/systemd/system/dagric-pipeline.timer" ] && \
+    cp "$INC/etc/systemd/system/dagric-pipeline.timer" "$P/etc/systemd/system/"
+[ -f "$INC/etc/systemd/system/dagric-blackbox.service" ] && \
+    cp "$INC/etc/systemd/system/dagric-blackbox.service" "$P/etc/systemd/system/"
+[ -f "$INC/etc/systemd/system/dagric-blackbox.timer" ] && \
+    cp "$INC/etc/systemd/system/dagric-blackbox.timer" "$P/etc/systemd/system/"
 [ -d "$INC/usr/lib/dagric" ] && cp -r "$INC/usr/lib/dagric/." "$P/usr/lib/dagric/"
 # Untracked checkout junk must not become dpkg-owned. The Windows checkout this
 # tree is edited on compiles boot-find-splash-rule to __pycache__/*.pyc (for two
@@ -348,7 +370,7 @@ find "$P/usr/lib/dagric" -name '*.pyc' -delete 2>/dev/null || true
 # /usr/share/dagric/family/main.qml — the window itself — was not. The rule this
 # broke is the one stated for the Konsole profile above: never ship the pointer
 # without its target.
-for d in firstrun appearance manual guide welcome styles looks hwcheck boot family; do
+for d in firstrun appearance manual guide welcome styles looks hwcheck boot family rewind budgets; do
     [ -e "$INC/usr/share/dagric/$d" ] && cp -r "$INC/usr/share/dagric/$d" "$P/usr/share/dagric/"
 done
 # Fail rather than ship a dagric-family with no window, the same way the
@@ -357,6 +379,11 @@ done
     echo "dagric-tools: packs /usr/bin/dagric-family but not its window" >&2
     echo "  (usr/share/dagric/family/main.qml). Every machine that took this" >&2
     echo "  update would get a menu entry that cannot open." >&2
+    exit 1
+}
+[ -f "$P/usr/bin/dagric-rewind" ] && [ ! -f "$P/usr/share/dagric/rewind/main.qml" ] && {
+    echo "dagric-tools: packs /usr/bin/dagric-rewind but not its window" >&2
+    echo "  (usr/share/dagric/rewind/main.qml). Refusing a broken update." >&2
     exit 1
 }
 
@@ -418,6 +445,9 @@ done
 for f in "$INC/usr/share/applications/"dagric-*.desktop; do
     [ -f "$f" ] && cp "$f" "$P/usr/share/applications/"
 done
+for f in "$INC/usr/share/polkit-1/actions/"*.policy; do
+    [ -f "$f" ] && cp "$f" "$P/usr/share/polkit-1/actions/"
+done
 [ -d "$INC/usr/share/icons/hicolor" ] && cp -r "$INC/usr/share/icons/hicolor/." "$P/usr/share/icons/hicolor/"
 # The translations, so an update can also fix a bad string.
 [ -d "$INC/usr/share/locale" ] && mkdir -p "$P/usr/share/locale" && \
@@ -425,6 +455,7 @@ done
 normalise_modes "$P"
 # The tools are the one thing in these four packages that has to be runnable.
 chmod 0755 "$P/usr/bin/"* 2>/dev/null || true
+chmod 0755 "$P/usr/sbin/dagric-pipeline" 2>/dev/null || true
 
 # EXECUTABLE BY SHEBANG, NOT BY FILE EXTENSION — and the old rule was exactly
 # inverted, which is why this is worth the paragraph.

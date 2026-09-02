@@ -149,18 +149,19 @@ done
 # is a scheme that has been named rather than designed.
 #
 # This runs on the built image rather than in a test suite on purpose: the file
-# it grades is the file that ships. Nothing here is measured against the two
-# default schemes — DagricLight and DagricDark inherit Breeze's own accent
-# colours, which fail 4.5:1 in a lot of places, and quietly repainting the
-# brand from an accessibility hook would be the wrong call to make here. That
-# is reported to the integrator, not fixed by ambush.
+# it grades is the file that ships. DagricLight and DagricDark are measured too:
+# text has to clear 4.5:1 and focus/hover decoration has to clear 3:1. The first
+# palette inherited Breeze's mid-blue foreground and failed those bars in the
+# default scheme every owner saw, including white selection text at 2.56:1.
+# A later edit must not quietly restore that disclosed accessibility gap.
 if [ ! -f "$SCHEME" ]; then
     echo "ERROR: $SCHEME missing — the High Contrast style would apply nothing." >&2
     exit 1
 fi
 
 echo "Measuring $SCHEME ..."
-if ! awk -v min=7 '
+measure_scheme() {
+awk -v fgmin="$2" -v decmin="$3" '
 function lin(c,   x) {
     x = c / 255.0
     if (x <= 0.04045) return x / 12.92
@@ -205,19 +206,37 @@ END {
             r = ratio(fval[i], bg[fsec[i], B[j]])
             pairs++
             if (r < worst) { worst = r; wat = fsec[i] " " fkey[i] " on " B[j] }
+            min = (fkey[i] ~ /^Decoration/) ? decmin : fgmin
             if (r < min) {
                 bad++
-                printf "  %.2f:1 FAIL %s %s on %s\n", r, fsec[i], fkey[i], B[j]
+                printf "  %.2f:1 FAIL (needs %.1f) %s %s on %s\n", \
+                       r, min, fsec[i], fkey[i], B[j]
             }
         }
     }
     if (pairs == 0) { print "  no colour pairs found — is this a .colors file?"; exit 1 }
     printf "  %d pair(s) measured, worst %.2f:1 (%s)\n", pairs, worst, wat
     exit (bad > 0)
-}' "$SCHEME"; then
+}' "$1"
+}
+
+if ! measure_scheme "$SCHEME" 7 7; then
     echo "ERROR: DagricHighContrast fails the 7:1 bar its own name promises." >&2
     exit 1
 fi
+
+for _scheme_name in DagricLight DagricDark; do
+    _scheme=/usr/share/color-schemes/$_scheme_name.colors
+    if [ ! -f "$_scheme" ]; then
+        echo "ERROR: $_scheme missing — the default desktop has no complete palette." >&2
+        exit 1
+    fi
+    echo "Measuring $_scheme ..."
+    if ! measure_scheme "$_scheme" 4.5 3; then
+        echo "ERROR: $_scheme_name fails WCAG AA text or non-text contrast." >&2
+        exit 1
+    fi
+done
 
 if [ ! -f "$STYLE" ]; then
     echo "ERROR: $STYLE missing — the scheme ships with no way to reach it." >&2
@@ -503,6 +522,17 @@ fi
 # And the login screen should match the desktop it leads to.
 if [ ! -f /etc/sddm.conf.d/20-accessibility.conf ]; then
     echo "WARNING: /etc/sddm.conf.d/20-accessibility.conf missing — login pointer stays small." >&2
+elif grep -q '^InputMethod=qtvirtualkeyboard$' /etc/sddm.conf.d/20-accessibility.conf; then
+    # The input method is intentionally installed for touchscreens.  Qt opens
+    # it as soon as the password field receives startup focus, however, which
+    # covers half the greeter on every ordinary keyboard-and-mouse PC.  The
+    # theme must dismiss that initial panel while leaving it available when a
+    # touchscreen owner taps the field.
+    if ! grep -q 'Qt\.inputMethod\.hide()' /usr/share/sddm/themes/dagric/Main.qml; then
+        echo "ERROR: SDDM enables qtvirtualkeyboard but the Dagric theme does not" >&2
+        echo "       dismiss its initial panel — it will cover half of every login screen." >&2
+        exit 1
+    fi
 fi
 
 # ---------------------------------------------------------------------------

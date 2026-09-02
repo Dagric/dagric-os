@@ -1,14 +1,14 @@
 #!/bin/sh
 # SPDX-FileCopyrightText: 2026 DGR Operations <repo@dagric.com>
 # SPDX-License-Identifier: GPL-3.0-or-later
-# Dagric OS — make the two QML apps identifiable, so the desktop puts the
+# Dagric OS — make Dagric's QML apps identifiable, so the desktop puts the
 # Dagric logo on them instead of a stranger's badge.
 #
 # THE BUG, seen in a QEMU boot of the shipping ISO: the first-run wizard's
 # TITLE BAR carries a gold "W" on a tan disc. It is the first window a customer
 # ever sees and it is wearing someone else's badge.
 #
-# Both QML apps run by handing a .qml file to the shared Qt interpreter,
+# Dagric's QML apps run by handing a .qml file to the shared Qt interpreter,
 # /usr/bin/qml6 -> /usr/lib/qt6/bin/qml. Nothing about that process says
 # "Dagric", so the desktop has nothing to match against. This hook writes two
 # things, and it is worth being clear about which one does what, because the
@@ -84,7 +84,7 @@
 #
 # The cost of what is done instead: any bare qml6 window on this system gets the
 # Dagric logo, because they all report one name. On this image that set is
-# exactly our two apps — nothing in Debian's default install launches the QML
+# exactly our four apps — nothing in Debian's default install launches the QML
 # runtime directly — and a Dagric logo is a better answer than the Wayland logo
 # for an unbranded window anyway.
 set -e
@@ -95,19 +95,19 @@ for c in /usr/bin/qml6 /usr/lib/qt6/bin/qml /usr/lib/x86_64-linux-gnu/qt6/bin/qm
 done
 
 if [ -z "$QML" ]; then
-    # Not fatal: both launchers already fall back to a kdialog version when the
-    # QML runtime is absent, and that path has no window identity to fix.
+    # Not fatal: the launchers already explain the missing runtime (and the
+    # older tools fall back to kdialog), so there is no window identity to fix.
     echo "0540-qml-identity: no QML runtime found, skipping" >&2
     exit 0
 fi
 
 mkdir -p /usr/lib/dagric/wm
-for app in dagric-firstrun dagric-appearance dagric-family; do
+for app in dagric-firstrun dagric-appearance dagric-family dagric-rewind; do
     ln -sf "$QML" "/usr/lib/dagric/wm/$app"
 done
 
 # Verify, because a silently-missing symlink puts the wrong taskbar icon back.
-for app in dagric-firstrun dagric-appearance dagric-family; do
+for app in dagric-firstrun dagric-appearance dagric-family dagric-rewind; do
     if [ ! -x "/usr/lib/dagric/wm/$app" ]; then
         echo "WARNING: /usr/lib/dagric/wm/$app is not executable" >&2
     fi

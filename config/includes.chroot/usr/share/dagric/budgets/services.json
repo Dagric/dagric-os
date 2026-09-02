@@ -1,0 +1,61 @@
+{
+  "schema": 1,
+  "policy": "A background component must declare limits before it can ship. Provisional limits require physical measurement before release.",
+  "services": {
+    "dagric-blackbox.service": {
+      "kind": "five-minute oneshot",
+      "cpu_percent_max": 5,
+      "memory_mib_max": 64,
+      "wakeups_per_minute_max": 0.21,
+      "network": "none",
+      "io_class": "idle",
+      "gaming_action": "defer under critical pressure",
+      "measured": false,
+      "decision": "provisional"
+    },
+    "dagric-pipeline.service": {
+      "kind": "six-hour oneshot",
+      "cpu_percent_max": 10,
+      "memory_mib_max": 96,
+      "wakeups_per_minute_max": 0.003,
+      "network": "none",
+      "io_class": "idle",
+      "gaming_action": "skip invasive work; compile policy only",
+      "measured": false,
+      "decision": "provisional"
+    },
+    "dagric-efi-fallback.service": {
+      "kind": "boot oneshot",
+      "cpu_percent_max": 10,
+      "memory_mib_max": 64,
+      "wakeups_per_minute_max": 0,
+      "network": "none",
+      "io_class": "best-effort",
+      "gaming_action": "not active after boot",
+      "measured": false,
+      "decision": "provisional"
+    },
+    "dagric-pdf-queue.service": {
+      "kind": "path-activated oneshot",
+      "cpu_percent_max": 25,
+      "memory_mib_max": 256,
+      "wakeups_per_minute_max": 0,
+      "network": "none",
+      "io_class": "best-effort",
+      "gaming_action": "runs only for an explicit print job",
+      "measured": false,
+      "decision": "provisional"
+    },
+    "dagric-snapshot-setup.service": {
+      "kind": "first-boot oneshot",
+      "cpu_percent_max": 20,
+      "memory_mib_max": 128,
+      "wakeups_per_minute_max": 0,
+      "network": "none",
+      "io_class": "best-effort",
+      "gaming_action": "not active after setup",
+      "measured": false,
+      "decision": "provisional"
+    }
+  }
+}

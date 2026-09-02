@@ -1,0 +1,3 @@
+#!/bin/sh
+# Local-only typed diagnostic ring. No network or personal-content input exists.
+exec /usr/bin/python3 /usr/lib/dagric/foundations.py blackbox "$@"

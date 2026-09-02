@@ -19,6 +19,20 @@ THUMBS=/usr/share/dagric/appearance/thumbs
 
 case "$1" in
 configure)
+    # New and existing machines receive the same private, background-only
+    # capability refresh.  `enable` is safe both in a live-build chroot (where
+    # it creates the Wants= link offline) and on a running system; failures
+    # must never make a package upgrade fail just because systemd is absent.
+    if [ -x /usr/sbin/dagric-pipeline ] && command -v systemctl >/dev/null 2>&1; then
+        systemctl enable dagric-pipeline.timer >/dev/null 2>&1 || true
+    fi
+    # ProtectSystem=strict allows only this directory to be written.  Create it
+    # for upgrades as well as fresh images, and keep other users out.
+    install -d -m 0700 /var/lib/dagric/blackbox 2>/dev/null || true
+    if [ -x /usr/bin/dagric-blackbox ] && command -v systemctl >/dev/null 2>&1; then
+        systemctl enable dagric-blackbox.timer >/dev/null 2>&1 || true
+    fi
+
     if [ -d "$STASH" ]; then
         EDITION=$(cat /etc/dagric-edition 2>/dev/null || echo free)
         if [ "$EDITION" = "pro" ]; then
@@ -32,6 +46,23 @@ configure)
         # restore them — the "one line of text" unlock the build refuses to
         # rely on. The stash is rebuilt by preinst on the next upgrade.
         rm -rf "$STASH"
+    fi
+
+    # A fresh ISO creates these identities in 0540-qml-identity, but an
+    # installed machine receives Dagric Rewind through this package without
+    # re-running live-build hooks. Create the same symlinks here so the first
+    # update-delivered Rewind window gets its own taskbar identity instead of
+    # being grouped under the generic qml6 runtime.
+    QML=
+    for q in /usr/bin/qml6 /usr/lib/qt6/bin/qml \
+             /usr/lib/x86_64-linux-gnu/qt6/bin/qml; do
+        [ -x "$q" ] && { QML=$q; break; }
+    done
+    if [ -n "$QML" ]; then
+        mkdir -p /usr/lib/dagric/wm
+        for app in dagric-firstrun dagric-appearance dagric-family dagric-rewind; do
+            ln -sf "$QML" "/usr/lib/dagric/wm/$app"
+        done
     fi
     ;;
 esac

@@ -1,0 +1,11 @@
+[Unit]
+Description=Refresh Dagric Adaptive Pipeline after hardware changes
+
+[Timer]
+OnBootSec=90s
+OnUnitActiveSec=6h
+Persistent=true
+Unit=dagric-pipeline.service
+
+[Install]
+WantedBy=timers.target

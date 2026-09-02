@@ -28,6 +28,18 @@ command -v sbverify >/dev/null 2>&1 || {
         echo "could not install sbsigntool" >&2; exit 1; }
 }
 
+# `strings` is the second half of the first-hop test below.  It comes from
+# binutils, not sbsigntool.  A minimal Debian verifier therefore had sbverify,
+# printed both signatures correctly, then treated `strings: not found` (whose
+# stderr was deliberately hidden) as proof that Microsoft's signed first hop
+# was not shim.  That is a false Secure Boot failure.  Make the diagnostic's
+# own dependency explicit before it is allowed to issue a verdict.
+command -v strings >/dev/null 2>&1 || {
+    echo "installing binutils for shim identification..."
+    apt-get install -y -qq binutils >/dev/null 2>&1 || {
+        echo "could not install binutils" >&2; exit 1; }
+}
+
 MNT=$(mktemp -d)
 mount -o loop,ro "$ISO" "$MNT" 2>/dev/null || {
     echo "could not mount $ISO (need root?)" >&2; exit 1; }

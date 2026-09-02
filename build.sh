@@ -1,6 +1,6 @@
 #!/bin/sh
 # Dagric OS — build natively on a Debian machine (needs root).
-#   sudo apt install live-build rsync
+#   sudo apt install live-build rsync python3
 #   sudo ./build.sh            # free edition
 #   sudo ./build.sh pro        # Pro edition
 #
@@ -41,6 +41,8 @@ else
 fi
 
 command -v rsync >/dev/null 2>&1 || { echo "rsync is required: apt install rsync"; exit 1; }
+command -v python3 >/dev/null 2>&1 || { echo "python3 is required: apt install python3"; exit 1; }
+python3 "$SRC/tools/check-source.py"
 
 echo "Building $EDITION edition in: $BUILD"
 rm -rf "$BUILD"
@@ -57,7 +59,8 @@ mkdir -p "$BUILD"
 #   file has vanished: ".../pool/main/dagric-tools_1.1.0_all.deb"
 #   rsync warning: some files vanished before they could be transferred (24)
 # Excluding it means the two can never race again.
-rsync -a --exclude 'out/' --exclude '.git/' --exclude 'site/repo/' "$SRC/" "$BUILD/"
+rsync -a --exclude 'out/' --exclude '.git/' --exclude 'site/repo/' \
+    --exclude '%SystemDrive%/' "$SRC/" "$BUILD/"
 cd "$BUILD"
 
 # *.hook.* and not *.hook.chroot: the boot-menu branding is a .hook.BINARY and
@@ -68,6 +71,7 @@ cd "$BUILD"
 # no accessible entry.
 chmod +x auto/* config/hooks/normal/*.hook.* 2>/dev/null || true
 chmod +x config/includes.chroot/usr/bin/* \
+         config/includes.chroot/usr/sbin/* \
          config/includes.chroot/usr/lib/live/config/* \
          config/includes.chroot/usr/lib/dagric/* 2>/dev/null || true
 
@@ -76,6 +80,8 @@ chmod +x config/includes.chroot/usr/bin/* \
 # after the pruning, this validates only the free edition's 164 names and
 # reports a clean pass having never looked at Pro's 66.
 sh tools/check-package-names.sh
+sh tools/check-rewind.sh
+sh tools/check-pipeline.sh
 
 if [ "$EDITION" != "pro" ]; then
     rm -f config/package-lists/pro-*.list.chroot
@@ -248,9 +254,15 @@ lb config
 if command -v dpkg-deb >/dev/null 2>&1; then
     rm -rf config/packages.chroot
     mkdir -p config/packages.chroot
-    DAGRIC_PKG_STAGE="$BUILD/.pkgstage" \
+    # The source/build copy can be on Windows drvfs, where chmod is a no-op
+    # and every copied DEBIAN directory reads back as 0777. dpkg-deb rejects
+    # that control directory by design. Stage metadata on the Linux filesystem
+    # instead; only the completed .deb files need to cross back into the build
+    # tree. This keeps a native WSL build as strict as the Docker path.
+    PKG_STAGE=$(mktemp -d "${TMPDIR:-/tmp}/dagric-pkgstage.XXXXXX")
+    DAGRIC_PKG_STAGE="$PKG_STAGE" \
         sh packages/stage-packages.sh "$BUILD" "$BUILD/config/packages.chroot"
-    rm -rf "$BUILD/.pkgstage"
+    rm -rf "$PKG_STAGE"
     echo "update channel: $(ls -1 config/packages.chroot/*.deb | wc -l) config packages staged for install"
 
     # Fail NOW if the tree's version is not ahead of what the channel publishes.

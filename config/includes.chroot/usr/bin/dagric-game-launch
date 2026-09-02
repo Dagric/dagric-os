@@ -31,13 +31,37 @@
     exit 2
 }
 
+# Learn and warm only code mappings while the owner explicitly launches a
+# game.  The adaptive companion degrades to the original command if it is ever
+# absent, and its prefetch is skipped whenever PSI reports resource pressure.
+if command -v dagric-pipeline-launch >/dev/null 2>&1; then
+    PIPELINE=dagric-pipeline-launch
+else
+    PIPELINE=
+fi
+
 # No powerprofilesctl (power-profiles-daemon absent or masked): run unchanged.
-command -v powerprofilesctl >/dev/null 2>&1 || exec "$@"
+if ! command -v powerprofilesctl >/dev/null 2>&1; then
+    [ -n "$PIPELINE" ] && exec "$PIPELINE" -- "$@"
+    exec "$@"
+fi
 
 # Hardware with no performance profile (many older machines): run unchanged.
-powerprofilesctl list 2>/dev/null | grep -q '^..performance:' || exec "$@"
+if ! powerprofilesctl list 2>/dev/null | grep -q '^..performance:'; then
+    [ -n "$PIPELINE" ] && exec "$PIPELINE" -- "$@"
+    exec "$@"
+fi
 
 if command -v systemd-inhibit >/dev/null 2>&1; then
+    if [ -n "$PIPELINE" ]; then
+        exec systemd-inhibit \
+            --what=idle \
+            --who="Dagric game launch" \
+            --why="A game is running" \
+            powerprofilesctl launch -p performance \
+                -r "Held by dagric-game-launch for a running game" -- \
+                "$PIPELINE" -- "$@"
+    fi
     exec systemd-inhibit \
         --what=idle \
         --who="Dagric game launch" \
@@ -45,6 +69,11 @@ if command -v systemd-inhibit >/dev/null 2>&1; then
         powerprofilesctl launch -p performance \
             -r "Held by dagric-game-launch for a running game" -- "$@"
 else
+    if [ -n "$PIPELINE" ]; then
+        exec powerprofilesctl launch -p performance \
+            -r "Held by dagric-game-launch for a running game" -- \
+            "$PIPELINE" -- "$@"
+    fi
     exec powerprofilesctl launch -p performance \
         -r "Held by dagric-game-launch for a running game" -- "$@"
 fi

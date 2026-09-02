@@ -92,6 +92,7 @@ set -- \
     style    "      $(gettext "Colors and mood")" \
     variety  "      $(gettext "Rotating wallpapers")" \
     _system  "$H_SYSTEM" \
+    rewind   "      Dagric Rewind — $(gettext "see and reverse system changes")" \
     drivers  "      $(gettext "NVIDIA driver")" \
     security "      $(gettext "Security Checkup")" \
     family   "      $(gettext "Family limits — screen time and bedtime")" \
@@ -181,7 +182,7 @@ fi
 
 # A comfortable initial size; taller on Pro, which has one more section.
 # Both numbers are "chrome plus roughly 14px per row" — the ratio these sizes
-# have always encoded. Free draws 33 rows and Pro 36, counting the five section
+# have always encoded. Free draws 34 rows and Pro 37, counting the five section
 # headings, which occupy a line each even though they cannot be chosen.
 # Guessing short only adds a scrollbar; guessing tall only adds whitespace.
 # Re-derive it if you add another row.
@@ -203,8 +204,8 @@ fi
 # "Get help — contact a human" row, at the ~14px per row this has always used.
 # The three documentation rows MOVED there from "Get started" rather than being
 # added, so they are already counted above.
-GEOM=500x760
-[ "$EDITION" = "pro" ] && GEOM=500x805
+GEOM=500x774
+[ "$EDITION" = "pro" ] && GEOM=500x819
 
 # The title says which edition this Hub belongs to. "Dagric Hub" is a product
 # name and untranslated either way; the Pro suffix follows the same rule.
@@ -242,6 +243,7 @@ case "$CHOICE" in
     display)  dagric-display & ;;
     looks)    dagric-looks & ;;
     style)    dagric-style & ;;
+    rewind)  dagric-rewind & ;;
     security) dagric-security-checkup & ;;
     family)   dagric-family & ;;
     # --check only, and in a terminal on purpose. It reports whether this

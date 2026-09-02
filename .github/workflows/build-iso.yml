@@ -18,6 +18,11 @@
 # Three changes stop it happening again.
 name: build-iso
 
+# The build only needs to read repository contents. Keep the default token
+# incapable of writing releases, tags, issues, packages, or workflow files.
+permissions:
+  contents: read
+
 on:
   push:
     branches: [main]
@@ -65,7 +70,13 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Source and privilege-boundary sanity
+        run: python3 tools/check-source.py
+
+      - name: JavaScript syntax
+        run: sh tools/check-javascript.sh
 
       # Seconds, and it runs FIRST because the failure it catches costs the
       # most to diagnose. Docker strips comments inside a line continuation and
@@ -79,8 +90,16 @@ jobs:
       - name: Dockerfile sanity
         run: sh tools/check-dockerfile.sh
 
-      - name: Install gettext
-        run: sudo apt-get update -qq && sudo apt-get install -y -qq gettext
+      - name: Site release sanity
+        run: sh tools/check-site.sh
+
+      - name: Rewind unit and privilege-boundary checks
+        run: sh tools/check-rewind.sh
+
+      - name: Install source verifiers
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq gettext shellcheck
+      - name: Shell syntax and error-level analysis
+        run: sh tools/check-shell.sh
       - name: Check po/ against the source
         run: sh tools/i18n-ci-check.sh
       # THE DELIVERY MUST NOT DEPEND ON ARTIFACT STORAGE, which on this repo is
@@ -112,7 +131,7 @@ jobs:
       - name: Upload the regenerated catalogues
         if: failure()
         continue-on-error: true
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: i18n-regenerated
           path: |
@@ -147,7 +166,7 @@ jobs:
       matrix:
         edition: [free, pro]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       # Same reclaim as release.yml — see the long note there. The free ISO
       # currently fits in the runner's ~14 GB, but only just, and every package
@@ -209,7 +228,7 @@ jobs:
       # going green and by the log. Releases are built by release.yml from a tag.
       - name: Upload ISO artifact
         if: matrix.edition == 'free'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         continue-on-error: true
         with:
           name: dagric-os-iso
