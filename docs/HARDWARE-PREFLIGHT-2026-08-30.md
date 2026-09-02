@@ -1,5 +1,9 @@
 # Hardware preflight — 30 August 2026
 
+> A later physical-host smoke test found repeated hardware I/O errors on the
+> external Seagate disk. Use the newer
+> [2 September hardware test](HARDWARE-TEST-2026-09-02.md) as the current result.
+
 ## Result
 
 **Ready for a live-USB trial; physical compatibility is not yet proven.** This
