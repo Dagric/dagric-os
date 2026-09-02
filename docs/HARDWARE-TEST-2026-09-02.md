@@ -88,6 +88,21 @@ device works on this machine. Only a physical Dagric boot can close that gap.
 The internal NVMe disks did not exhibit this failure. No repair, formatting, or
 write test was attempted on any drive.
 
+### Remediation attempt
+
+After the initial test, the Seagate USB device was still present in Plug-and-Play
+with status `OK`, but Windows exposed no corresponding `Get-Disk` object, no
+partition, and no mounted volume. A targeted device restart and hardware rescan
+were attempted. Windows denied both operations because the diagnostic session
+was not elevated. The device remained unavailable and another Disk event 154 was
+recorded at 16:54.
+
+This does not clear the failure. Plug-and-Play `OK` only means that Windows can
+see the USB device; it does not override the storage stack's repeated inability
+to read logical block zero. With no accessible disk or volume, there is no safe
+filesystem repair to run. The next valid diagnostic step is the physical
+cable/port isolation described above, followed by a new read-only check.
+
 ## Native Dagric test still required
 
 1. Isolate or disconnect the failing Seagate disk.
