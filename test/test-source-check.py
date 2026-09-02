@@ -99,6 +99,11 @@ class SourceCheckMutationTests(unittest.TestCase):
             cwd=self.root,
             check=True,
         )
+        # The release scanner must inspect the staged source snapshot, not a
+        # later worktree edit. Otherwise a key staged for commit can disappear
+        # from the check merely because the file was cleaned locally afterward.
+        (self.root / "notes.txt").write_text("clean worktree copy\n", encoding="utf-8")
+        (self.root / "merge.txt").write_text("clean worktree copy\n", encoding="utf-8")
         errors: list[str] = []
         with self.patched():
             self.assertEqual(3, source_check.check_repository(errors))

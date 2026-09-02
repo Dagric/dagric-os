@@ -154,7 +154,7 @@ def check_repository(errors: list[str]) -> int:
     # separators in shell output, QML, documentation, and translation strings.
     merge_result = subprocess.run(
         [
-            GIT, "-c", f"safe.directory={ROOT}", "grep", "-I", "-n", "-E",
+            GIT, "-c", f"safe.directory={ROOT}", "grep", "--cached", "-I", "-n", "-E",
             r"^(<<<<<<< |>>>>>>> |=======$)",
             "--", ":(exclude)tools/check-source.py",
         ],
@@ -168,7 +168,7 @@ def check_repository(errors: list[str]) -> int:
     elif merge_result.returncode not in (0, 1):
         fail(errors, "git grep failed while checking merge markers")
     key_result = subprocess.run(
-        [GIT, "-c", f"safe.directory={ROOT}", "grep", "-I", "-n", "-E", r"BEGIN ([A-Z0-9 ]+ )?PRIVATE KEY"],
+        [GIT, "-c", f"safe.directory={ROOT}", "grep", "--cached", "-I", "-n", "-E", r"BEGIN ([A-Z0-9 ]+ )?PRIVATE KEY"],
         cwd=ROOT,
         check=False,
         capture_output=True,
