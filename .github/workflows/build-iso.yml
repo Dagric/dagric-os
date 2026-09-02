@@ -193,6 +193,7 @@ jobs:
           # this workflow built free twice and called it coverage.
           docker run --rm --privileged \
             -e EDITION="$EDITION" \
+            -e DAGRIC_SOURCE_COMMIT="$GITHUB_SHA" \
             -v "$PWD:/src:ro" -v "$PWD/out:/out" \
             dagric-builder sh /src/docker/container-build.sh
 

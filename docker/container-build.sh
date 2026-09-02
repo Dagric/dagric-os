@@ -12,6 +12,30 @@ set -e
 
 EDITION="${EDITION:-free}"
 
+# Bind every artifact to the exact reviewed source revision that produced it.
+# Release builds are stricter: they refuse an unknown revision or a dirty tree,
+# because a checksum proves only the ISO bytes, not where those bytes came from.
+SOURCE_COMMIT=${DAGRIC_SOURCE_COMMIT:-}
+if [ -z "$SOURCE_COMMIT" ] && command -v git >/dev/null 2>&1; then
+    SOURCE_COMMIT=$(git -C /src rev-parse HEAD 2>/dev/null || true)
+fi
+if ! printf '%s\n' "$SOURCE_COMMIT" | grep -Eq '^[0-9a-fA-F]{40}$'; then
+    if [ "${DAGRIC_RELEASE_BUILD:-0}" = 1 ]; then
+        echo "ERROR: release build has no valid source commit." >&2
+        exit 1
+    fi
+    echo "WARNING: source commit is unknown; this is not a promotable release build." >&2
+    SOURCE_COMMIT=
+elif [ "${DAGRIC_RELEASE_BUILD:-0}" = 1 ]; then
+    [ -d /src/.git ] || { echo "ERROR: release build cannot inspect source cleanliness." >&2; exit 1; }
+    if [ -n "$(git -C /src status --porcelain --untracked-files=all)" ]; then
+        echo "ERROR: release build source tree is dirty." >&2
+        git -C /src status --short >&2
+        exit 1
+    fi
+fi
+[ -z "$SOURCE_COMMIT" ] || echo "Source revision: $SOURCE_COMMIT"
+
 # Run repository-level checks before copying the source without .git. The
 # action-pin and tracked-secret checks intentionally need the original checkout.
 python3 /src/tools/check-source.py
@@ -291,6 +315,10 @@ grep -v "  ${NAME}\$" "$SUMS" > "$SUMS.tmp" 2>/dev/null || :
 LC_ALL=C sort -k2,2 "$SUMS.tmp" -o "$SUMS"
 rm -f "$SUMS.tmp"
 echo "recorded sha256 for $NAME in out/SHA256SUMS"
+if [ -n "$SOURCE_COMMIT" ]; then
+    printf '%s\n' "$SOURCE_COMMIT" > "/out/SOURCE_COMMIT-$EDITION"
+    echo "recorded source revision in out/SOURCE_COMMIT-$EDITION"
+fi
 echo "NOTE: out/SHA256SUMS has changed. Before deploying the site, copy it to"
 echo "      site/ and RE-SIGN it — site/SHA256SUMS.sig covers the previous"
 echo "      contents and will fail gpg --verify until it is regenerated."

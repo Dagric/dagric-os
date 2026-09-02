@@ -91,6 +91,8 @@ jobs:
           mkdir -p out
           docker run --rm --privileged \
             -e EDITION=${{ matrix.edition }} \
+            -e DAGRIC_SOURCE_COMMIT="$GITHUB_SHA" \
+            -e DAGRIC_RELEASE_BUILD=1 \
             -v "$PWD:/src:ro" -v "$PWD/out:/out" \
             dagric-builder sh /src/docker/container-build.sh
 

@@ -50,6 +50,25 @@ else
     echo "artifact-check: missing combined $BASE/SHA256SUMS" >&2
     exit 1
 fi
+
+# Checksums identify artifact bytes; these files identify the reviewed source
+# that produced them. Both editions must come from the same exact commit.
+for edition in free pro; do
+    provenance="$BASE/SOURCE_COMMIT-$edition"
+    [ -f "$provenance" ] || { echo "artifact-check: missing $provenance" >&2; exit 1; }
+    commit=$(tr -d '\r\n' < "$provenance")
+    printf '%s\n' "$commit" | grep -Eq '^[0-9a-fA-F]{40}$' || {
+        echo "artifact-check: invalid source revision in $provenance" >&2
+        exit 1
+    }
+    if [ "$edition" = free ]; then
+        source_commit=$commit
+    elif [ "$commit" != "$source_commit" ]; then
+        echo "artifact-check: Free and Pro were built from different source revisions" >&2
+        exit 1
+    fi
+done
+echo "artifact-check: source revision $source_commit"
 mount -o loop,ro "$FREE" "$free_mnt"
 mounted_free=1
 mount -o loop,ro "$PRO" "$pro_mnt"

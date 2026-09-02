@@ -10,6 +10,10 @@ param([ValidateSet("free","pro")][string]$Edition = "free")
 
 $ErrorActionPreference = "Stop"
 $repo = $PSScriptRoot
+$sourceCommit = (git -C "$repo" rev-parse HEAD).Trim()
+if ($sourceCommit -notmatch '^[0-9a-fA-F]{40}$') {
+    throw "Could not resolve the Dagric source commit. Build from a Git checkout."
+}
 
 docker info *> $null
 if (-not $?) {
@@ -26,6 +30,7 @@ if (-not $?) { exit 1 }
 Write-Host "[2/2] Building the Dagric OS ($Edition) ISO (this takes a while)..." -ForegroundColor Cyan
 docker run --rm --privileged `
     -e EDITION=$Edition `
+    -e DAGRIC_SOURCE_COMMIT=$sourceCommit `
     -v "${repo}:/src:ro" `
     -v "${repo}\out:/out" `
     -v dagric-lb-cache:/build/cache `
