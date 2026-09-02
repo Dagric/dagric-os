@@ -1,36 +1,67 @@
 # ISO promotion audit — 2026-09-02
 
-## Decision: do not publish the local candidates
+## Decision: approved as a signed external-test candidate; hold stable promotion
 
-The local ISO pair is newer than the currently published Dagric 1.0 release, and its file hashes agree with its local `out/SHA256SUMS`. That is necessary evidence, but not sufficient for promotion. The local checksum signature is invalid, and the candidates lack the clean/reproducible release provenance and physical/destructive qualification required for a public release.
+The final Free and Pro images were built from the same clean, reviewed source
+revision and passed the complete automated and virtual-machine release gates.
+They are suitable for an explicitly labelled external hardware-testing release.
+They must not replace the current stable downloads until the representative
+physical-hardware and destructive-recovery rows below are completed.
 
-## Artifact identity
+The public website was not changed by this audit. Its existing signed release
+remains available while the new candidate finishes physical qualification.
 
-| Artifact | SHA-256 | Local checksum match | Promotion status |
-| --- | --- | --- | --- |
-| `out/dagric-os-1.0-amd64.iso` | `8777d8223604cb035bfa74aabb33bff28233a603ded513a5db776cf144ca3238` | Yes | Do not publish |
-| `out/dagric-os-pro-1.0-amd64.iso` | `5a0c0b165bac2eaaa45b8745dd3e45f84471369e115d749e19a1d61acb67b70a` | Yes | Do not publish |
-| `out/_testing.iso` | `fc0fbee526a6347698ca2373cd4444b9e1d52ad2f7113ad31079b042749a55e6` | No recorded candidate trail | Do not publish |
+## Frozen release identity
 
-## Blocking evidence
+Source revision: `848b0203b40c8988f94424342e8047a34c733c36`
 
-1. `out/SHA256SUMS.sig` reports **BADSIG** against the current local `out/SHA256SUMS` when verified with `out/dagric-signing-key.asc`.
-2. The newer local hashes differ from the public signed Dagric 1.0 hashes. Replacing the website would therefore be a release promotion, not a routine file refresh.
-3. The documented candidate audit records a dirty working tree and explicitly says the images are valid local test artifacts, not reproducible release artifacts tied to a reviewed commit.
-4. Physical hardware qualification and destructive recovery/update drills remain open, including retail Secure Boot, GPU/Wi-Fi/audio/Bluetooth/suspend, interrupted updates, Btrfs ENOSPC, snapshot boot/rollback, and backup-restore.
-5. The separate `_testing.iso` is mounted by the current QEMU test container but does not match the documented local candidate hashes or the published release. It has no usable promotion evidence.
+| Artifact | Bytes | SHA-256 | Result |
+| --- | ---: | --- | --- |
+| `dagric-os-1.0-amd64.iso` | 2,256,076,800 | `ef02f18a982f82b0578abf264d97703b2db72c3725fef0835ef2ea6a2ddb504e` | PASS |
+| `dagric-os-pro-1.0-amd64.iso` | 4,156,686,336 | `b150e00f7ad8aad226085cba70e034cc96112082aae23f710cdbba70a913c726` | PASS |
 
-## What did pass
+Both host exports independently matched the combined `SHA256SUMS`. The checksum
+file was freshly signed and verified in an isolated keyring with Dagric release
+fingerprint `3A079F85DE74375DD65557096CE37402BA0A0EF8`.
 
-- The two canonical `out/dagric-os*.iso` files hash to the values in the current local `out/SHA256SUMS`.
-- Prior records report automated source, package, QEMU boot, installer, and installed-system gates for the canonical candidate pair.
-- The currently public website serves a separate signed Dagric 1.0 release with a valid published checksum signature.
+## Passed gates
 
-## Required before promotion
+| Gate | Evidence |
+| --- | --- |
+| Clean reproducible source identity | Both artifacts contain provenance for the same 40-character commit; release builds reject unknown or dirty source state. |
+| Full source audit | 22/22 product contracts, 134 shell entry points, 20 JavaScript files, 317 package names, security/privacy, update, Rewind, Pipeline, Twin, Foundations, localization, desktop and website checks passed. |
+| Repeated stress | 708 gate executions across 100 rounds passed after fixing a source-scanner race. |
+| Transactional export | Docker-volume staging, host copy and independent host SHA-256 verification passed for both multi-gigabyte images. Partial exports are deleted and cannot be promoted. |
+| Immutable artifact inspection | Checksums, edition markers, Free/Pro package split, Adaptive Pipeline, Foundations payloads, image sizes and provenance passed. |
+| Secure Boot chain | Both images contain Microsoft-signed shim and Debian-signed GRUB. |
+| Firmware boot matrix | Final Free reached the live UI under BIOS, UEFI and Microsoft-keyed Secure Boot; final Pro reached a usable KDE desktop under UEFI. |
+| Free install | Fresh 50 GB GPT/UEFI/LUKS/Btrfs install, disk-only reboot, unlock and login passed; installed audit: 72 pass, 0 fail. |
+| Pro install | Fresh 50 GB GPT/UEFI/Btrfs install, disk-only reboot and login passed; installed audit: 90 pass, 0 fail. |
+| Rewind drill | On the final Pro install, Rewind created a pre/post pair, captured an `/etc` change, produced a privacy-bounded review and removed both test snapshots cleanly. |
+| Signed update repository | Four packages were rebuilt; APT policy files parsed; `InRelease` and `Release.gpg` verified with the Dagric release key. |
 
-1. Freeze and review a clean commit.
-2. Rebuild the intended edition(s) from that commit.
-3. Recompute checksums and create a fresh detached signature that verifies with the published release key.
-4. Complete the remaining recovery and representative physical-hardware evidence.
-5. Upload to a staging location, download back, compute hashes, and compare against the newly signed checksum file.
-6. Only then update the release manifest/download links and deploy the site.
+## Remaining stable-release blockers
+
+1. Run the candidate on representative physical Intel, AMD and NVIDIA systems,
+   including retail Secure Boot firmware, Wi-Fi, audio, Bluetooth, suspend,
+   battery, external display and high-DPI paths.
+2. Complete destructive copies of the installed-system matrix: interrupted
+   update/power loss, true Btrfs ENOSPC, snapshot boot and rollback, and a
+   backup-restore drill.
+3. Perform human accessibility checks for audible Orca output, reduced motion,
+   keyboard-only setup and representative high-DPI displays.
+4. Upload to a staging location, download both full artifacts back, verify them
+   against the signed checksum file, and only then change the public manifest
+   or stable download links.
+
+Unsupported Windows kernel drivers and game anti-cheat remain compatibility
+limits, not defects that a Linux distribution can bypass. Dagric must continue
+to report compatibility per title and must not claim that every Steam game
+works.
+
+## Promotion rule
+
+The candidate may be offered to informed testers with the limitations above.
+Stable/general-availability promotion is a **NO-GO** until every remaining
+blocker has dated evidence and the staged-download hashes match the signed
+manifest.

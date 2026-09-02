@@ -9,14 +9,15 @@ final Debian staging run produced:
 - `dagric-branding` 1.1.8
 - `dagric-desktop-defaults` 1.1.7
 - `dagric-security-policy` 1.1.6
-- `dagric-tools` 1.1.14
+- `dagric-tools` 1.1.15
 
-Two fresh local candidates were then built and frozen for testing:
+Two fresh release candidates were built from clean source revision
+`848b0203b40c8988f94424342e8047a34c733c36` and frozen for testing:
 
 - Free: `dagric-os-1.0-amd64.iso`, 2,256,076,800 bytes,
-  SHA-256 `8777d8223604cb035bfa74aabb33bff28233a603ded513a5db776cf144ca3238`
+  SHA-256 `ef02f18a982f82b0578abf264d97703b2db72c3725fef0835ef2ea6a2ddb504e`
 - Pro: `dagric-os-pro-1.0-amd64.iso`, 4,156,686,336 bytes,
-  SHA-256 `5a0c0b165bac2eaaa45b8745dd3e45f84471369e115d749e19a1d61acb67b70a`
+  SHA-256 `b150e00f7ad8aad226085cba70e034cc96112082aae23f710cdbba70a913c726`
 
 The staged tools package contains the existing trust and Flow work plus
 `dagric-blueprint`, `dagric-blackbox`, `dagric-life-support`, the shared
@@ -27,31 +28,32 @@ service-budget contract with executable/data modes normalized correctly.
 
 | Gate | Result |
 |---|---|
-| Source and security | PASS — 61 JSON documents, 33 Python sources, 2 Polkit policies, 8 pinned actions, 778 tracked paths |
+| Source and security | PASS — 61 JSON documents, 35 Python sources, 2 Polkit policies, 8 pinned actions, 910 tracked paths |
 | Product contracts | PASS — 22/22 |
 | Source mutation suite | PASS — 5 tests |
 | Rewind | PASS — 7 core and 8 controller/boundary tests |
 | Adaptive Pipeline and Twin | PASS — 6 pipeline and 6 Twin tests; profile privacy audit passed |
 | Trust Loop | PASS — 4 tests on Windows and Linux; live report privacy audit passed |
 | Dagric Flow | PASS — dark/light/high-contrast floors, token contract, 1080p/4K artwork and SDDM continuity |
-| Website | PASS — 26 deployed pages, no placeholders/tunnels/broken sitemap contract |
+| Website | PASS — 27 deployed pages, no placeholders/tunnels/broken sitemap contract |
 | Dependability foundations | PASS — 6 hostile/boundary tests, live Blueprint export/audit/plan, live Black Box sample, all 5 Dagric services budgeted |
-| JavaScript and shell | PASS — 20 JavaScript files and 132 shell entry points |
-| Localization | PASS — 5 catalogues, 35 desktop entries in 5 languages, 121 wizard and 28 Family strings |
-| Repeated stress | PASS — 183 gate executions across 25 rounds |
+| JavaScript and shell | PASS — 20 JavaScript files and 134 shell entry points |
+| Localization | PASS — 5 catalogues, 36 desktop entries in 5 languages, 121 wizard and 28 Family strings |
+| Repeated stress | PASS — 708 gate executions across 100 rounds |
 | Debian package resolution | PASS — all 317 names resolve; no percent-sign list corruption |
 | Debian staging | PASS — four packages built; new runtime files inspected inside archive |
 | Immutable artifacts | PASS — both hashes, manifests, edition markers, package split, signed EFI chain, Pipeline and Foundations payloads |
 | Firmware matrix | PASS — Free BIOS, Free UEFI, Free Microsoft-keyed Secure Boot and Pro UEFI reached the branded first-run UI |
-| Fresh Free install | PASS — UEFI/GPT/Btrfs install, disk-only reboot/login, 67/67 installed assertions |
-| Fresh Pro install | PASS — UEFI/GPT/Btrfs install, disk-only reboot/login, 85/85 installed assertions |
-| Rewind checkpoint drill | PASS — installed Pro snapshot created, enumerated and removed |
+| Fresh Free install | PASS — exact final ISO, UEFI/GPT/LUKS/Btrfs install, disk-only reboot/unlock/login, 72/72 installed assertions |
+| Fresh Pro install | PASS — exact final ISO, UEFI/GPT/Btrfs install, disk-only reboot/login, 90/90 installed assertions |
+| Rewind checkpoint drill | PASS — exact final Pro install created a pre/post pair, captured and reviewed an `/etc` change, then removed both test snapshots |
 | Pro graphics smoke | PASS with VM limitation — Vulkan and both MangoHud layers load through Mesa llvmpipe; no physical GPU was present |
 
-All VM evidence is preserved under
-`out/foundations-candidate-20260902/`. The installed reports are
-`install-evidence/free-uefi/installed-audit.txt` and
-`install-evidence/pro-uefi/installed-audit.txt` below that directory.
+Final immutable-artifact and firmware evidence is preserved under
+`out/audit-848b0203/`. The exact final installed reports are
+`out/install-audit-848b0203/installed-audit.txt` and
+`out/install-audit-pro-848b0203/installed-audit.txt`; the latter directory also
+contains the Rewind drill report and review JSON.
 
 ## Defects found and fixed during the build
 
@@ -126,13 +128,12 @@ service has a provisional resource budget; none is described as measured until
 physical evidence exists. Full contracts and boundaries are in
 `docs/DAGRIC-FOUNDATIONS.md`.
 
-## Remaining release blockers and honest limitations
+## Remaining stable-release blockers and honest limitations
 
-- The candidates came from a dirty working tree. They are valid local test
-  artifacts, not reproducible release artifacts tied to a reviewed commit.
-- `out/SHA256SUMS` changed during the builds and the existing
-  `out/SHA256SUMS.sig` now correctly fails verification. Nothing was published;
-  a release requires a reviewed clean-tree rebuild and a new offline signature.
+- Both candidates now come from the same reviewed clean commit, host-export
+  hashes match, and the new checksum signature verifies with the published
+  Dagric release key. The current public downloads were deliberately left
+  unchanged while physical qualification remains open.
 - Secure Boot passed with Microsoft-keyed OVMF, but retail physical firmware,
   AMD/Intel/NVIDIA graphics, Wi-Fi, audio, Bluetooth, suspend, battery and
   display hardware remain untested for this candidate.
@@ -151,6 +152,7 @@ physical evidence exists. Full contracts and boundaries are in
   a Linux distribution can promise. Compatibility must be reported per title.
 
 The current conclusion is: **the source, exact images, four firmware paths and
-both installed editions pass their automated/VM gates. The candidate is ready
-for destructive recovery and physical hardware qualification, not public
-release.**
+both installed editions pass their automated/VM gates. The signed candidate is
+ready for an explicitly labelled external hardware-testing release. Stable
+general availability remains blocked on destructive recovery and representative
+physical-hardware qualification.**
