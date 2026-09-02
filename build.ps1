@@ -28,23 +28,51 @@ docker build -t dagric-builder "$repo\docker"
 if (-not $?) { exit 1 }
 
 Write-Host "[2/2] Building the Dagric OS ($Edition) ISO (this takes a while)..." -ForegroundColor Cyan
-docker run --rm --privileged `
-    -e EDITION=$Edition `
-    -e DAGRIC_SOURCE_COMMIT=$sourceCommit `
-    -v "${repo}:/src:ro" `
-    -v "${repo}\out:/out" `
-    -v dagric-lb-cache:/build/cache `
-    dagric-builder `
-    sh /src/docker/container-build.sh
+$buildToken = [guid]::NewGuid().ToString('N').Substring(0, 12)
+$outputVolume = "dagric-build-output-$buildToken-$Edition"
+$exportContainer = "dagric-build-export-$buildToken-$Edition"
+docker volume create $outputVolume *> $null
+if ($LASTEXITCODE -ne 0) { throw "Could not create the Docker output volume." }
 
-# CHECKED, because it was not. A failed `docker run` merely skipped the "Done."
-# line and this script still exited 0 — so any wrapper, scheduled task or CI
-# step calling it saw a successful build. The docker BUILD step above is
-# checked; the step that actually makes the ISO was not.
-if ($LASTEXITCODE -ne 0) {
-    Write-Host "Build FAILED (exit $LASTEXITCODE). No ISO was produced." -ForegroundColor Red
-    Write-Host "The end of $repo\out\build.log is the place to look."
-    exit $LASTEXITCODE
+try {
+    # Keep the multi-gigabyte ISO on Docker's Linux filesystem while it is
+    # built. Direct writes through a Windows bind mount have failed at 1-4 GB
+    # with ENOMEM and left plausible-looking truncated files behind.
+    docker run --rm --privileged `
+        -e EDITION=$Edition `
+        -e DAGRIC_SOURCE_COMMIT=$sourceCommit `
+        -v "${repo}:/src:ro" `
+        -v "${outputVolume}:/out" `
+        -v dagric-lb-cache:/build/cache `
+        dagric-builder `
+        sh /src/docker/container-build.sh
+    $buildExit = $LASTEXITCODE
+
+    # docker cp streams through the engine instead of the fragile bind-mount
+    # bridge. Export the log on failure too, then verify the successful copy by
+    # hashing the exact host file against SHA256SUMS from the output volume.
+    docker create --name $exportContainer -v "${outputVolume}:/release:ro" dagric-builder true *> $null
+    if ($LASTEXITCODE -ne 0) { throw "Could not create the ISO export helper." }
+    docker cp "${exportContainer}:/release/." "$repo\out"
+    if ($LASTEXITCODE -ne 0) { throw "Could not export the Docker build output." }
+
+    if ($buildExit -ne 0) {
+        throw "Build failed inside Docker (exit $buildExit). See $repo\out\build.log."
+    }
+
+    $isoName = if ($Edition -eq 'pro') { 'dagric-os-pro-1.0-amd64.iso' } else { 'dagric-os-1.0-amd64.iso' }
+    $isoPath = Join-Path "$repo\out" $isoName
+    $expectedLine = Get-Content "$repo\out\SHA256SUMS" | Where-Object { $_ -match "  $([regex]::Escape($isoName))$" }
+    if (-not $expectedLine) { throw "SHA256SUMS does not contain $isoName." }
+    $expectedHash = ($expectedLine -split '\s+')[0].ToLowerInvariant()
+    $actualHash = (Get-FileHash -Algorithm SHA256 -LiteralPath $isoPath).Hash.ToLowerInvariant()
+    if ($actualHash -ne $expectedHash) {
+        throw "Exported ISO checksum mismatch. Expected $expectedHash, got $actualHash."
+    }
+}
+finally {
+    docker rm -f $exportContainer *> $null
+    docker volume rm -f $outputVolume *> $null
 }
 
 Write-Host "Done. ISO is in: $repo\out" -ForegroundColor Green

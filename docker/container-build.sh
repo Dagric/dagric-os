@@ -10,6 +10,14 @@
 # pro keeps the pro-*.list.chroot package lists; free removes them.
 set -e
 
+# Preserve the live-build log even when a later export step fails. The output
+# volume is Docker-native, so this copy does not cross the Windows filesystem
+# bridge until the host explicitly exports it.
+copy_build_log() {
+    [ ! -f /build/build.log ] || cp -f /build/build.log /out/build.log 2>/dev/null || true
+}
+trap copy_build_log EXIT
+
 EDITION="${EDITION:-free}"
 
 # Bind every artifact to the exact reviewed source revision that produced it.
@@ -287,7 +295,11 @@ case "$EDITION" in
     pro) NAME=dagric-os-pro-1.0-amd64.iso ;;
     *)   NAME=dagric-os-1.0-amd64.iso ;;
 esac
-dd if="$SRCISO" of="/out/$NAME" bs=4M status=none
+if ! dd if="$SRCISO" of="/out/$NAME" bs=4M status=none; then
+    echo "ERROR: ISO export to /out failed; removing the partial artifact." >&2
+    rm -f "/out/$NAME"
+    exit 1
+fi
 WANT=$(stat -c%s "$SRCISO")
 GOT=$(stat -c%s "/out/$NAME" 2>/dev/null || echo 0)
 if [ "$WANT" != "$GOT" ]; then
@@ -323,7 +335,7 @@ echo "NOTE: out/SHA256SUMS has changed. Before deploying the site, copy it to"
 echo "      site/ and RE-SIGN it — site/SHA256SUMS.sig covers the previous"
 echo "      contents and will fail gpg --verify until it is regenerated."
 
-cp -v build.log /out/ 2>/dev/null || true
+copy_build_log
 echo ""
 echo "=========================================="
 echo "  Dagric OS ($EDITION) ISO is in out/"
