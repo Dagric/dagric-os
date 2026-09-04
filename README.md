@@ -127,7 +127,7 @@ offer at https://dagric.com/licenses.
 
 Dagric-authored code is licensed under GPL-3.0-or-later, while identified
 branding artwork is CC-BY-SA-4.0 for copyright purposes. Trademark permission is
-separate. See [LICENSE](LICENSE), [LICENSES.md](LICENSES.md),
+separate. See [LICENSE](LICENSE), [LICENSE-POLICY.md](LICENSE-POLICY.md), [LICENSES.md](LICENSES.md),
 [TRADEMARKS.md](TRADEMARKS.md), and
 [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md).
 

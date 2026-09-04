@@ -13,6 +13,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 REQUIRED_FILES = (
     "LICENSE",
+    "LICENSE-POLICY.md",
     "COPYING",
     "LICENSES.md",
     "TRADEMARKS.md",

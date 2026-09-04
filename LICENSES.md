@@ -29,7 +29,8 @@ which must be honoured for at least three years after the last unit of a release
 is conveyed, at no more than the cost of conveyance. Release tags and published
 manifests must identify the source corresponding to each distributed image.
 
-The repository-level licensing map is in `LICENSE`; detailed third-party
+The repository-level licensing map is in `LICENSE-POLICY.md`; the canonical
+GPLv3 text is in `LICENSE` and `COPYING`; detailed third-party
 coverage is in `THIRD-PARTY-NOTICES.md`. The terms on the installed Dagric layer
 are also stated where every Debian tool looks for
 them: `/usr/share/doc/<package>/copyright` in each of the four `dagric-*`
