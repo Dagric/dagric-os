@@ -1,0 +1,39 @@
+name: Feature request
+description: Propose a focused improvement for Dagric OS.
+title: "[Feature]: "
+labels: [enhancement, needs-triage]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem should this solve?
+      description: Describe the user's problem before proposing an implementation.
+    validations:
+      required: true
+  - type: textarea
+    id: audience
+    attributes:
+      label: Who benefits?
+      description: Explain the user, device, workflow, or accessibility need.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed experience
+      description: What should a user see and be able to do?
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+  - type: checkboxes
+    id: principles
+    attributes:
+      label: Product principles
+      options:
+        - label: This can work without requiring a Dagric account or product telemetry.
+          required: true
+        - label: I searched existing issues and Discussions.
+          required: true

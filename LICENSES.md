@@ -22,19 +22,21 @@ clear text on every machine, each carrying its SPDX header. The one exception is
 the compiled message catalogues under `/usr/share/locale/*/LC_MESSAGES/`, whose
 corresponding source is the `.po` files in `po/`.
 
-This repository is PRIVATE and therefore cannot be the compliance mechanism.
-What backs the copyleft components is the written offer published at
-https://dagric.com/licenses and honoured through the contact page; it must be
-honoured for at least three years after the last unit of a release is conveyed,
-at no more than the cost of the conveyance. If the repository is ever opened,
-say so here and link it — do not claim it before it is true.
+This repository is public at https://github.com/Dagric/dagric-os and publishes
+Dagric's build configuration and modifications. The repository complements —
+but does not replace — the written source offer at https://dagric.com/licenses,
+which must be honoured for at least three years after the last unit of a release
+is conveyed, at no more than the cost of conveyance. Release tags and published
+manifests must identify the source corresponding to each distributed image.
 
-The terms on that Dagric layer are stated where every Debian tool looks for
+The repository-level licensing map is in `LICENSE`; detailed third-party
+coverage is in `THIRD-PARTY-NOTICES.md`. The terms on the installed Dagric layer
+are also stated where every Debian tool looks for
 them: `/usr/share/doc/<package>/copyright` in each of the four `dagric-*`
 packages. The helper scripts, hooks and wizard are **GPL-3.0-or-later**; the
 branding assets (wallpapers, logo, SDDM and splash artwork) are
 **CC-BY-SA-4.0**. The Dagric name, the D monogram and the logo are trade marks
-and are not licensed by either — see Trademarks below.
+and are not licensed by either — see `TRADEMARKS.md` and Trademarks below.
 
 ## Base system: open source, plus redistributable hardware firmware
 
@@ -105,7 +107,7 @@ licenses.
 
 ## Trademarks
 
-"Dagric" and the Dagric logo are marks of DGR Operations. Debian is a
+"Dagric" and the Dagric logo are marks of Impressions Direct 360 LLC. Debian is a
 trademark of Software in the Public Interest, Inc.; Dagric is based on Debian
 but is not a Debian product and is not endorsed by the Debian project
 (`ID_LIKE=debian`, own name and branding, per Debian's derivative guidelines).
