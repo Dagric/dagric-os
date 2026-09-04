@@ -1,0 +1,67 @@
+name: Hardware compatibility report
+description: Share a measured pass or failure from a real computer.
+title: "[Hardware]: "
+labels: [hardware, needs-triage]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Real hardware results help other owners. Do not include serial numbers, Windows product keys, public IP addresses, or account information.
+  - type: input
+    id: system
+    attributes:
+      label: Computer manufacturer and model
+      placeholder: "Example: Dell Latitude 7490"
+    validations:
+      required: true
+  - type: input
+    id: cpu
+    attributes:
+      label: CPU
+    validations:
+      required: true
+  - type: input
+    id: gpu
+    attributes:
+      label: Graphics
+    validations:
+      required: true
+  - type: input
+    id: network
+    attributes:
+      label: Wi-Fi and Ethernet hardware
+  - type: input
+    id: version
+    attributes:
+      label: Dagric version and edition
+    validations:
+      required: true
+  - type: checkboxes
+    id: results
+    attributes:
+      label: What was tested?
+      options:
+        - label: Live USB boot
+        - label: Installation and first installed boot
+        - label: Wi-Fi and Ethernet
+        - label: Audio input and output
+        - label: Graphics and external display
+        - label: Suspend and resume
+        - label: Bluetooth
+        - label: Camera
+        - label: Printer or scanner
+        - label: System update
+        - label: Snapshot and rollback
+  - type: textarea
+    id: details
+    attributes:
+      label: Results, failures, and workarounds
+    validations:
+      required: true
+  - type: checkboxes
+    id: privacy
+    attributes:
+      label: Privacy check
+      options:
+        - label: I removed serial numbers, credentials, account information, and unrelated personal data.
+          required: true

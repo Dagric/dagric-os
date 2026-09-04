@@ -1,0 +1,81 @@
+name: Product bug
+description: Report a reproducible Dagric OS defect.
+title: "[Bug]: "
+labels: [bug, needs-triage]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for helping improve Dagric. Remove credentials and personal information before submitting. Security vulnerabilities must be reported through the Security tab, not here.
+  - type: dropdown
+    id: edition
+    attributes:
+      label: Edition
+      options:
+        - Dagric OS Free
+        - Dagric OS Pro
+        - Source checkout or custom build
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Version or source revision
+      placeholder: "1.0 Foundation or full Git commit"
+    validations:
+      required: true
+  - type: dropdown
+    id: environment
+    attributes:
+      label: Where did this happen?
+      options:
+        - Installed physical computer
+        - Live USB session
+        - Virtualized test environment
+        - Build process
+        - Website or download flow
+    validations:
+      required: true
+  - type: textarea
+    id: hardware
+    attributes:
+      label: Relevant hardware
+      description: Include computer model and relevant GPU, Wi-Fi, storage, or peripheral. Do not include serial numbers.
+  - type: textarea
+    id: steps
+    attributes:
+      label: Reproduction steps
+      placeholder: |
+        1. Open ...
+        2. Choose ...
+        3. Observe ...
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Logs or screenshots
+      description: Paste only the smallest relevant excerpt after removing private information.
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Submission checks
+      options:
+        - label: I searched existing issues and Discussions.
+          required: true
+        - label: I removed credentials, personal data, and device serial numbers.
+          required: true
+        - label: This is not a security vulnerability.
+          required: true

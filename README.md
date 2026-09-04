@@ -1,5 +1,12 @@
 # Dagric OS
 
+![Dagric OS — Own it outright](site/assets/hero-shot.png)
+
+[![Source quality](https://github.com/Dagric/dagric-os/actions/workflows/quality.yml/badge.svg)](https://github.com/Dagric/dagric-os/actions/workflows/quality.yml)
+[![Latest release](https://img.shields.io/github/v/release/Dagric/dagric-os?include_prereleases&sort=semver)](https://github.com/Dagric/dagric-os/releases/latest)
+[![Code license: GPL-3.0-or-later](https://img.shields.io/badge/code-GPL--3.0--or--later-2f81f7)](LICENSE)
+[![Website](https://img.shields.io/badge/website-dagric.com-21b6d7)](https://dagric.com)
+
 **A Debian-based desktop operating system built to be the antithesis of
 Windows: no telemetry, no ads, no forced accounts, no bloat — a computer
 that works for its owner and no one else.**
@@ -14,6 +21,11 @@ Debian Stable ──► hand-picked packages ──► debloat + hardening hooks
 
 This repository *is* the operating system: every package choice, config file,
 and policy lives here, and the ISO is rebuilt from it with one command.
+
+**[Download Dagric OS Free](https://dagric.com/download)** ·
+**[Verify the release](https://dagric.com/testing)** ·
+**[Read the first-week guide](https://dagric.com/guide)** ·
+**[Ask the community](https://github.com/Dagric/dagric-os/discussions)**
 
 ## Two editions, one source tree
 
@@ -46,6 +58,16 @@ On this Windows machine (Docker Desktop must be running):
 On any Debian box: `sudo apt install live-build && sudo ./build.sh`
 
 Full details, testing checklist, and troubleshooting: [docs/BUILDING.md](docs/BUILDING.md)
+
+## Help put Dagric on real hardware
+
+The most valuable contribution is independent evidence. Try the current Free
+release without installing, verify its hash, and submit a structured
+[hardware report](https://github.com/Dagric/dagric-os/issues/new/choose). You can
+also improve documentation, translations, accessibility, and negative-path
+tests. Start with [CONTRIBUTING.md](CONTRIBUTING.md), ask questions in
+[Discussions](https://github.com/Dagric/dagric-os/discussions), and report
+security problems privately through [SECURITY.md](SECURITY.md).
 
 ## What makes it the antithesis
 
@@ -103,3 +125,13 @@ of Debian's restricted marks. The public source in this repository covers
 Dagric's own build configuration and modifications. Recipients are also pointed
 to Debian's source archives for unmodified packages and to the written source
 offer at https://dagric.com/licenses.
+
+Dagric-authored code is licensed under GPL-3.0-or-later, while identified
+branding artwork is CC-BY-SA-4.0 for copyright purposes. Trademark permission is
+separate. See [LICENSE](LICENSE), [LICENSES.md](LICENSES.md),
+[TRADEMARKS.md](TRADEMARKS.md), and
+[THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md).
+
+Before preparing a public release, run `python tools/check-release-rights.py`
+and complete the Firefox decision in
+[docs/MOZILLA-DISTRIBUTION-REVIEW.md](docs/MOZILLA-DISTRIBUTION-REVIEW.md).
