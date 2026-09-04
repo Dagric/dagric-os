@@ -31,7 +31,7 @@
         ]
       },
       {
-        "source": "/@(about|accessibility|bugs|contact|download|faq|family|features|getting-started|guide|licenses|news|privacy|pro|review|security|support|testers|testing|terms|thanks-pro)",
+        "source": "/@(about|accessibility|bugs|contact|download|faq|family|features|getting-started|guide|licenses|news|privacy|pro|review|search|security|support|switch-from-windows|testers|testing|terms|thanks-pro|videos)",
         "headers": [
           { "key": "Cache-Control", "value": "no-cache, max-age=0" }
         ]
@@ -40,6 +40,18 @@
         "source": "/guide/@(de|es|fr|it|pt-br)",
         "headers": [
           { "key": "Cache-Control", "value": "no-cache, max-age=0" }
+        ]
+      },
+      {
+        "source": "/@(robots.txt|sitemap.xml|opensearch.xml|site.webmanifest)",
+        "headers": [
+          { "key": "Cache-Control", "value": "no-cache, max-age=0" }
+        ]
+      },
+      {
+        "source": "/opensearch.xml",
+        "headers": [
+          { "key": "Content-Type", "value": "application/opensearchdescription+xml; charset=utf-8" }
         ]
       },
       {
