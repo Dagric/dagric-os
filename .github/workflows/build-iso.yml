@@ -112,7 +112,7 @@ jobs:
       - name: Upload the regenerated catalogues
         if: failure()
         continue-on-error: true
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: i18n-regenerated
           path: |
@@ -209,7 +209,7 @@ jobs:
       # going green and by the log. Releases are built by release.yml from a tag.
       - name: Upload ISO artifact
         if: matrix.edition == 'free'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         continue-on-error: true
         with:
           name: dagric-os-iso
