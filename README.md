@@ -2,7 +2,7 @@
 
 ![Dagric OS — Own it outright](site/assets/hero-shot.png)
 
-[![Source quality](https://github.com/Dagric/dagric-os/actions/workflows/quality.yml/badge.svg)](https://github.com/Dagric/dagric-os/actions/workflows/quality.yml)
+[![Repository health](https://github.com/Dagric/dagric-os/actions/workflows/quality.yml/badge.svg)](https://github.com/Dagric/dagric-os/actions/workflows/quality.yml)
 [![Latest release](https://img.shields.io/github/v/release/Dagric/dagric-os?include_prereleases&sort=semver)](https://github.com/Dagric/dagric-os/releases/latest)
 [![Code license: GPL-3.0-or-later](https://img.shields.io/badge/code-GPL--3.0--or--later-2f81f7)](LICENSE)
 [![Website](https://img.shields.io/badge/website-dagric.com-21b6d7)](https://dagric.com)
