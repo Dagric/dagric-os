@@ -58,12 +58,6 @@ jobs:
           python3 test/test-source-completeness-guards.py
       - name: JavaScript syntax
         run: sh tools/check-javascript.sh
-      - name: First-run interface and screen-fit regressions
-        run: |
-          sudo apt-get update -qq
-          sudo apt-get install -y -qq xvfb qt6-declarative-dev qt6-declarative-dev-tools qml6-module-qtquick qml6-module-qtqml qml6-module-qttest qml6-module-qtquick-controls qml6-module-qtquick-layouts qml6-module-qtquick-window qml6-module-qtquick-templates qml6-module-qtqml-workerscript
-          mkdir -p out
-          QT_QPA_PLATFORM=xcb QT_QUICK_BACKEND=software QT_QUICK_CONTROLS_STYLE=Basic xvfb-run -a /usr/lib/qt6/bin/qmltestrunner -input test/qml -o -,txt
       - name: Worker security-boundary tests
         run: node test/test-workers.mjs
       - name: Marketing discovery never authorizes submission
@@ -84,3 +78,20 @@ jobs:
         run: |
           sh tools/i18n-build.sh --check
           python3 tools/i18n-wizard.py --check
+
+  desktop-interface:
+    runs-on: ubuntu-latest
+    # Test Debian 13's Qt, not the older Qt shipped by the Ubuntu CI host.
+    container: debian:trixie@sha256:fac46bff2e02f51425b6e33b0e1169f55dfb053d83511ca28aa50c09fd5ed7a4
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - name: Install Dagric's Qt runtime and type metadata
+        run: |
+          apt-get update -qq
+          apt-get install -y -qq python3 xvfb xauth qt6-declarative-dev qt6-declarative-dev-tools qml6-module-qtquick qml6-module-qtqml qml6-module-qttest qml6-module-qtquick-controls qml6-module-qtquick-layouts qml6-module-qtquick-window qml6-module-qtquick-templates qml6-module-qtqml-workerscript
+      - name: First-run screen-fit and recovery interface checks
+        run: |
+          mkdir -p out
+          QT_QPA_PLATFORM=xcb QT_QUICK_BACKEND=software QT_QUICK_CONTROLS_STYLE=Basic xvfb-run -a /usr/lib/qt6/bin/qmltestrunner -input test/qml -o -,txt
+          sh tools/check-rewind.sh

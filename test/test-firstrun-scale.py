@@ -3,9 +3,12 @@
 """Offline controller regressions; no real monitor settings are changed."""
 import importlib.util
 import json
+import os
 from pathlib import Path
 import subprocess
 import tempfile
+import sys
+import time
 import unittest
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -124,6 +127,85 @@ class Trials(unittest.TestCase):
         with self.assertRaises(ValueError):
             self.trial.command("SCALE|150")
         self.assertEqual(other.read_text(), "untouched")
+
+
+class WorkerLifetime(unittest.TestCase):
+    """Real pipe, process, signal and wall-clock tests; only monitor I/O is fake."""
+    def setUp(self):
+        self.temp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.temp.cleanup)
+        self.path = Path(self.temp.name)
+        self.hardware = self.path / "hardware.json"
+        self.hardware.write_text(json.dumps([["eDP-1",1920,1080,100,"1"]]))
+        self.status = self.path / "status.json"
+        script = """
+import importlib.util, json, pathlib, sys, time
+spec = importlib.util.spec_from_file_location('worker_fixture', sys.argv[1])
+m = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(m)
+hardware = pathlib.Path(sys.argv[2])
+status = sys.argv[3]
+def read(): return [tuple(row) for row in json.loads(hardware.read_text())]
+def change(name, value):
+    hardware.write_text(json.dumps([(n,w,h,round(float(value)*100),value) if n == name else (n,w,h,p,s)
+                                    for n,w,h,p,s in read()]))
+m.Trials.__init__.__defaults__ = (read, change, time.monotonic)
+sys.argv = ['fixture', '--status', status]
+m.main()
+"""
+        self.process = subprocess.Popen([sys.executable, "-u", "-c", script,
+            str(ROOT / "config/includes.chroot/usr/lib/dagric/firstrun-scale.py"),
+            str(self.hardware), str(self.status)], stdin=subprocess.PIPE,
+            stdout=subprocess.DEVNULL, stderr=subprocess.PIPE,
+            env=dict(os.environ, XDG_STATE_HOME=str(self.path / "state")))
+        self.addCleanup(self.stop)
+        self.await_phase("idle")
+
+    def stop(self):
+        if self.process.poll() is None:
+            self.process.terminate()
+            self.process.wait(timeout=8)
+        if self.process.stdin and not self.process.stdin.closed:
+            self.process.stdin.close()
+        self.process.stderr.close()
+
+    def await_phase(self, wanted, seconds=5):
+        deadline = time.monotonic() + seconds
+        while time.monotonic() < deadline:
+            if self.status.exists():
+                if json.loads(self.status.read_text())["phase"] == wanted:
+                    return
+            if self.process.poll() is not None:
+                self.fail(self.process.stderr.read().decode())
+            time.sleep(0.02)
+        self.fail("controller did not reach " + wanted)
+
+    def begin_trial(self):
+        self.process.stdin.write(b"SCALE|150\n")
+        self.process.stdin.flush()
+        self.await_phase("trial")
+        self.assertEqual(json.loads(self.hardware.read_text())[0][3], 150)
+
+    def assert_restored(self):
+        self.assertEqual(json.loads(self.hardware.read_text())[0][3], 100)
+        self.assertFalse((self.path / "state/dagric/display-pending").exists())
+
+    def test_closed_ui_pipe_restores(self):
+        self.begin_trial()
+        self.process.stdin.close()
+        self.assertEqual(self.process.wait(timeout=8), 0)
+        self.assert_restored()
+
+    def test_terminated_controller_restores(self):
+        self.begin_trial()
+        self.process.terminate()
+        self.assertEqual(self.process.wait(timeout=8), 0)
+        self.assert_restored()
+
+    def test_real_watchdog_restores_with_no_ui_messages(self):
+        self.begin_trial()
+        self.await_phase("reverted", seconds=23)
+        self.assert_restored()
 
 
 if __name__ == "__main__":

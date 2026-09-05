@@ -9,7 +9,9 @@
 - GitHub lists CLOUDFLARE_R2_AUDIT_TOKEN, created 2026-09-05T19:24:27Z. Its value
   was not retrieved or printed. A dedicated GET-only workflow now tests actual
   storage API access without upload credentials. Passing GETs alone cannot prove
-  absence of broader token permissions; review the configured Cloudflare policy.
+  absence of broader token permissions. The policy was then inspected in the
+  signed-in Cloudflare dashboard: the new active account token has exactly
+  Workers R2 Storage Read, restricted to this account. No policy edits were made.
 - The lab displayed the old setup window clipped to the right, with the text
   size action opening another application. This is direct observation of the
   reported UX failure, not a successful installation/reboot acceptance test.
@@ -76,9 +78,11 @@ the old source lock must never be relabeled as covering these UI changes.
 
 ## Verification and remaining scope
 
-The controller's 12 offline tests cover trial/keep/revert/expiry, mixed display
+The controller's 15 offline tests cover trial/keep/revert/expiry, mixed display
 baselines, rejected sizes/commands, interrupted-trial ownership, symlinks and
-failed restoration. Qt 6.8.2 tests exercise navigation gating and layout previews;
+failed restoration. Three exercise real process/pipe lifetimes and a real
+20-second watchdog with only monitor I/O replaced by fixtures. Qt 6.8.2 tests
+exercise navigation gating and layout previews;
 800×600, 1366×768 and 1920×1080 checks assert Next and Keep controls are on screen.
 Generated QA images were inspected. Source-delivery integration has four new
 real ISO/SquashFS fixtures (nine total integration tests); no downloaded code
