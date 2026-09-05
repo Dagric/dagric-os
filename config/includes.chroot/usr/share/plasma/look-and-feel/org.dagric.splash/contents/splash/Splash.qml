@@ -36,8 +36,8 @@ Rectangle {
     property int stage: 0
 
     gradient: Gradient {
-        GradientStop { position: 0.0; color: "#0e1826" }
-        GradientStop { position: 1.0; color: "#050810" }
+        GradientStop { position: 0.0; color: "#202024" }
+        GradientStop { position: 1.0; color: "#101012" }
     }
 
     onStageChanged: {
@@ -50,7 +50,7 @@ Rectangle {
     Item {
         id: content
         anchors.fill: parent
-        opacity: 0
+        opacity: 1
 
         // Wordmark block, centred slightly above the middle — the same
         // optical position the Plymouth art uses, so the handoff between the
@@ -105,7 +105,7 @@ Rectangle {
                 id: fallback
                 visible: mark.status !== Image.Ready
                 text: "Dagric OS"
-                color: "#e7eef7"
+                color: "#f5f5f7"
                 font.pixelSize: Math.min(64, Math.round(root.width * 0.05))
                 font.weight: Font.Light
                 font.letterSpacing: 2
@@ -141,7 +141,7 @@ Rectangle {
             width: Math.min(300, Math.round(root.width * 0.24))
             height: 2
             radius: 1
-            color: "#1c2b40"
+            color: "#36363e"
             anchors.horizontalCenter: parent.horizontalCenter
             anchors.top: lockup.bottom
             anchors.topMargin: 34
@@ -150,10 +150,10 @@ Rectangle {
                 id: fill
                 height: parent.height
                 radius: 1
-                color: "#ff3b5c"
-                width: Math.round(track.width * Math.min(root.stage / 6.0, 1.0))
+                color: "#b82036"
+                width: Math.round(track.width * Math.min(root.stage / 7.0, 1.0))
                 Behavior on width {
-                    NumberAnimation { duration: 350; easing.type: Easing.OutCubic }
+                    NumberAnimation { duration: 200; easing.type: Easing.OutCubic }
                 }
             }
         }

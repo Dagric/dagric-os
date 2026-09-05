@@ -144,6 +144,16 @@ EOF
 }
 
 do_size() {
+    # Share the first-run controller's lock; two tools must never own the same
+    # crash-recovery file or confirm each other's changes.
+    mkdir -p "$STATE" || return 1
+    [ ! -L "$STATE/display-trial.lock" ] || return 1
+    exec 8>>"$STATE/display-trial.lock"
+    flock -n 8 || {
+        notify "$(gettext "Close Set Up Dagric before changing text size in this window.")"
+        return 1
+    }
+    [ ! -e "$PENDING" ] && [ ! -L "$PENDING" ] || return 1
     _outs=$(dg_outputs)
     if [ -z "$_outs" ]; then
         kdialog --title "$TITLE" --sorry \

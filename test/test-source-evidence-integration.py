@@ -141,6 +141,48 @@ class SourceEvidenceIntegrationTests(unittest.TestCase):
         option = "--output" if mode == "create" else "--lock"
         return self.tool("source-candidate-lock.py", [mode, *self.common_args(), option, str(self.lock_path)], expected)
 
+    def distribution(self, expected=0, free=None, output=None):
+        return self.tool("prepare-source-distribution.py", ["create", *self.common_args(),
+                         "--lock", str(self.lock_path), "--free-iso", str(free or self.isos["free"]),
+                         "--pro-iso", str(self.isos["pro"]),
+                         "--output", str(output or self.root / "distribution.json")], expected)
+
+    def test_distribution_rechecks_real_images_and_sources(self):
+        self.source_lock()
+        self.distribution()
+        result = json.loads((self.root / "distribution.json").read_text())
+        self.assertEqual(len(result["objects"]), 4)
+        self.assertEqual(len(result["sources"]), 2)
+        self.assertEqual(len(result["actual_image_bindings"]), 2)
+        self.assertEqual(result["candidate_source_lock_sha256"], digest(self.lock_path.read_bytes()))
+        for key in ("release_approved", "upload_authorized", "public_delivery_verified", "source_authenticity_verified", "corresponding_source_complete"):
+            self.assertIs(result[key], False)
+
+    def test_distribution_rejects_swapped_image(self):
+        self.source_lock()
+        self.distribution(expected=1, free=self.isos["pro"])
+        self.assertFalse((self.root / "distribution.json").exists())
+
+    def test_distribution_rehashes_cache_after_previous_pass(self):
+        self.source_lock()
+        self.distribution()
+        previous = (self.root / "distribution.json").read_bytes()
+        cached = next(self.cache.glob("*.blob"), None)
+        if cached is None:
+            cached = next(p for p in self.cache.iterdir() if p.is_file())
+        cached.write_bytes(b"changed after lock verification")
+        output = self.root / "new-distribution.json"
+        self.distribution(expected=1, output=output)
+        self.assertFalse(output.exists())
+        self.assertEqual((self.root / "distribution.json").read_bytes(), previous)
+
+    def test_distribution_refuses_overwrite(self):
+        self.source_lock()
+        self.distribution()
+        original = (self.root / "distribution.json").read_bytes()
+        self.distribution(expected=1)
+        self.assertEqual((self.root / "distribution.json").read_bytes(), original)
+
     def test_complete_real_byte_extraction_to_canonical_lock_chain(self):
         self.source_audit()
         self.image_binding()

@@ -14,6 +14,12 @@
 # each other. %1 and %2 are values substituted at runtime and may be
 # reordered to suit the language.
 gettext "Set Up Dagric"
+gettext "Try a size here. Keep it within 20 seconds, or Dagric puts it back. This changes text and icons on all screens."
+gettext "Keep this size? Restoring in %1 seconds."
+gettext "Keep this size"
+gettext "Put it back"
+gettext "This size could not be applied safely. Your previous size will be restored."
+gettext "Your taskbar choice will be applied when you finish setup."
 gettext "Every step can be skipped, and you can change all of it later."
 gettext "I'll do this later"
 gettext "Close setup. Anything already applied stays, and you can run this again from the Dagric Hub"

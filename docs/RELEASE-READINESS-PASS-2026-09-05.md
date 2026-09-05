@@ -1,5 +1,10 @@
 # Release-readiness continuation — 5 September 2026
 
+Latest continuation: [Onboarding and beta pass](ONBOARDING-AND-BETA-PASS-2026-09-05.md).
+GitHub Actions now runs successfully and the R2 audit secret is present. New
+desktop/setup source changes and a paired-image source-delivery plan are being
+verified separately; the frozen images below do not contain those UI changes.
+
 **Dagric OS is not release-ready.** This pass closes concrete engineering and
 evidence gaps while retaining all distribution and paid-release holds. A green
 developer test suite or private source download is not overall acceptance.

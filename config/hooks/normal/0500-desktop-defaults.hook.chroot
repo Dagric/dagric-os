@@ -4,57 +4,11 @@
 # Dagric OS — desktop and installer defaults.
 set -e
 
-# Default wallpaper: point the Breeze look-and-feel at Dagric Obsidian Pulse.
-#
-# THIS FILE BELONGS TO plasma-workspace, AND THAT IS NO LONGER "FINE".
-#
-# The line here used to end "...which is fine for the live/installed image built
-# here", and it was true when it was written: nothing updated the image after it
-# left. Then Dagric shipped an update channel. This file is an ordinary package
-# file, not a conffile, so the next plasma-workspace upgrade replaces it — no
-# prompt, no .dpkg-old — and every value sed'd in below goes back to stock
-# Breeze on a machine somebody paid for.
-#
-# What that actually costs, stated carefully rather than dramatised, because the
-# difference decides how urgently it needs fixing and I could not test it here:
-# these defaults SEED a user's config at first login. An account that has
-# already logged in has its own ~/.config and is unaffected. So the loss lands
-# on accounts created AFTER the upgrade, and on every "Defaults" button in
-# System Settings, which would restore KDE's look rather than Dagric's.
-#
-# THE REAL FIX is for Dagric's branding not to live inside another package's
-# file at all: ship an org.dagric.desktop look-and-feel package with its own
-# contents/defaults, and set LookAndFeelPackage to it. That is a restructure of
-# the first-login seeding path, it cannot be verified without building and
-# booting, and this is exactly the code path where guessing has hurt this
-# project before — so it is written down here and left for a session that can
-# boot the result, rather than half-done tonight.
-#
-# NOT worth trying: seeding /etc/skel/.config/kdeglobals with just
-# ColorScheme=DagricDark. The name is not the colours — every tool in this tree
-# applies a scheme with plasma-apply-colorscheme, which EXPANDS the .colors file
-# into kdeglobals. Writing the name alone would label the desktop DagricLight
-# while it painted Breeze, which is worse than the bug it was meant to fix.
-LNF=/usr/share/plasma/look-and-feel/org.kde.breeze.desktop/contents/defaults
-if [ -f "$LNF" ]; then
-    # Match by KEY, not by the stock value: upstream renames the default
-    # wallpaper per release (it happened to be "Next"), and an exact
-    # `Image=Next` match would silently no-op on drift, shipping the stock
-    # wallpaper with no build warning. Rewrite whatever the value is.
-    sed -i -E 's/^(Image=).*/\1DagricObsidianPulse/; s/^(defaultWallpaperTheme=).*/\1DagricObsidianPulse/' "$LNF"
-    if ! grep -q '^Image=DagricObsidianPulse' "$LNF"; then
-        echo "WARNING: Breeze defaults had no Image= key — wallpaper branding may not apply" >&2
-    fi
-
-    # ...and the colour scheme with it. Dagric Dark is the Obsidian Flow
-    # palette: a near-black neutral field with red reserved for decisions,
-    # focus and progress. Key the shipped default to it so first boot and
-    # "Reset" agree.
-    sed -i -E 's/^(ColorScheme=).*/\1DagricDark/' "$LNF"
-    if ! grep -q '^ColorScheme=DagricDark' "$LNF"; then
-        echo "WARNING: Breeze defaults had no ColorScheme= key — brand colours may not apply" >&2
-    fi
-fi
+# Dagric owns its global-theme package. Never rewrite Breeze package files:
+# upstream updates would replace those changes for new accounts.
+LNF=/usr/share/plasma/look-and-feel/org.dagric.desktop/contents/defaults
+test -s "$LNF" || { echo "ERROR: Dagric global theme defaults missing" >&2; exit 1; }
+grep -qx 'Theme=org.dagric.splash' "$LNF" || exit 1
 
 # Calamares: use the Dagric branding component instead of Debian's.
 if [ -f /etc/calamares/settings.conf ]; then

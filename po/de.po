@@ -74,7 +74,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: dagric 1.0\n"
 "Report-Msgid-Bugs-To: repo@dagric.com\n"
-"POT-Creation-Date: 2026-09-05 11:40-0500\n"
+"POT-Creation-Date: 2026-09-05 15:06-0500\n"
 "PO-Revision-Date: 2026-09-05 00:06+0000\n"
 "Last-Translator: Machine translation, reviewed by a second model "
 "<repo@dagric.com>\n"
@@ -96,15 +96,48 @@ msgid "Set Up Dagric"
 msgstr "Dagric einrichten"
 
 #: po/dagric-data-strings.sh:17
-#: config/includes.chroot/usr/bin/dagric-firstrun:916
+msgid ""
+"Try a size here. Keep it within 20 seconds, or Dagric puts it back. This "
+"changes text and icons on all screens."
+msgstr "Probiere hier eine Größe aus. Bestätige sie innerhalb von 20 Sekunden, sonst stellt Dagric die vorherige Größe wieder her. Dies ändert Text und Symbole auf allen Bildschirmen."
+
+#: po/dagric-data-strings.sh:18
+msgid "Keep this size? Restoring in %1 seconds."
+msgstr "Diese Größe beibehalten? Wiederherstellung in %1 Sekunden."
+
+#. TRANSLATORS: keep the two button labels SHORT. This dialog is drawn at
+#. the new, larger text size — that is the whole point of it — so a long
+#. label is the one that pushes the button off the screen, on exactly the
+#. machine where the owner most needs to press it.
+#: po/dagric-data-strings.sh:19
+#: config/includes.chroot/usr/bin/dagric-display:228
+msgid "Keep this size"
+msgstr "Diese Größe beibehalten"
+
+#: po/dagric-data-strings.sh:20
+#: config/includes.chroot/usr/bin/dagric-display:228
+msgid "Put it back"
+msgstr "Zurücksetzen"
+
+#: po/dagric-data-strings.sh:21
+msgid ""
+"This size could not be applied safely. Your previous size will be restored."
+msgstr "Diese Größe konnte nicht sicher angewendet werden. Die vorherige Größe wird wiederhergestellt."
+
+#: po/dagric-data-strings.sh:22
+msgid "Your taskbar choice will be applied when you finish setup."
+msgstr "Die gewählte Taskleiste wird nach Abschluss der Einrichtung angewendet."
+
+#: po/dagric-data-strings.sh:23
+#: config/includes.chroot/usr/bin/dagric-firstrun:936
 msgid "Every step can be skipped, and you can change all of it later."
 msgstr "Jeder Schritt kann übersprungen werden, alles ist später änderbar."
 
-#: po/dagric-data-strings.sh:18
+#: po/dagric-data-strings.sh:24
 msgid "I'll do this later"
 msgstr "Das mache ich später"
 
-#: po/dagric-data-strings.sh:19
+#: po/dagric-data-strings.sh:25
 msgid ""
 "Close setup. Anything already applied stays, and you can run this again from "
 "the Dagric Hub"
@@ -112,11 +145,11 @@ msgstr ""
 "Schließt die Einrichtung. Bereits Angewendetes bleibt, und Sie können sie "
 "jederzeit erneut aus dem Dagric Hub starten"
 
-#: po/dagric-data-strings.sh:20
+#: po/dagric-data-strings.sh:26
 msgid "Undo my changes"
 msgstr "Meine Änderungen rückgängig machen"
 
-#: po/dagric-data-strings.sh:21
+#: po/dagric-data-strings.sh:27
 msgid ""
 "Put the colours, wallpaper, text size and taskbar back the way they were "
 "when setup opened"
@@ -124,104 +157,104 @@ msgstr ""
 "Setzt Farben, Hintergrundbild, Schriftgröße und Taskleiste auf den Stand "
 "zurück, den sie beim Start der Einrichtung hatten"
 
-#: po/dagric-data-strings.sh:22
+#: po/dagric-data-strings.sh:28
 msgid "PRO EDITION"
 msgstr "PRO-EDITION"
 
-#: po/dagric-data-strings.sh:23
+#: po/dagric-data-strings.sh:29
 msgid "Pro edition"
 msgstr "Pro-Edition"
 
-#: po/dagric-data-strings.sh:24
+#: po/dagric-data-strings.sh:30
 msgid "Live trial — anything you set here lasts until you shut down."
 msgstr ""
 "Live-Test — alles, was Sie hier einstellen, gilt bis zum Herunterfahren."
 
-#: po/dagric-data-strings.sh:25
+#: po/dagric-data-strings.sh:31
 msgid "Back"
 msgstr "Zurück"
 
-#: po/dagric-data-strings.sh:26
+#: po/dagric-data-strings.sh:32
 msgid "Go back to the previous step"
 msgstr "Zum vorherigen Schritt zurückgehen"
 
-#: po/dagric-data-strings.sh:27
+#: po/dagric-data-strings.sh:33
 msgid "Next"
 msgstr "Weiter"
 
-#: po/dagric-data-strings.sh:28
+#: po/dagric-data-strings.sh:34
 msgid "Go to the next step"
 msgstr "Zum nächsten Schritt gehen"
 
-#: po/dagric-data-strings.sh:29
+#: po/dagric-data-strings.sh:35
 msgid "Finish"
 msgstr "Fertig"
 
-#: po/dagric-data-strings.sh:30
+#: po/dagric-data-strings.sh:36
 msgid "Close setup and start using Dagric"
 msgstr "Die Einrichtung schließen und Dagric benutzen"
 
-#: po/dagric-data-strings.sh:31
+#: po/dagric-data-strings.sh:37
 msgid "Skip this step"
 msgstr "Schritt überspringen"
 
-#: po/dagric-data-strings.sh:32
+#: po/dagric-data-strings.sh:38
 msgid "Leave this setting alone and go to the next step"
 msgstr "Diese Einstellung unverändert lassen und zum nächsten Schritt gehen"
 
-#: po/dagric-data-strings.sh:33
+#: po/dagric-data-strings.sh:39
 msgid "Let's go"
 msgstr "Los geht's"
 
-#: po/dagric-data-strings.sh:34
+#: po/dagric-data-strings.sh:40
 msgid "Welcome"
 msgstr "Willkommen"
 
-#: po/dagric-data-strings.sh:35
+#: po/dagric-data-strings.sh:41
 msgid "How it looks"
 msgstr "Aussehen"
 
-#: po/dagric-data-strings.sh:36
+#: po/dagric-data-strings.sh:42
 msgid "Text size"
 msgstr "Schriftgröße"
 
-#: po/dagric-data-strings.sh:37
+#: po/dagric-data-strings.sh:43
 msgid "The taskbar"
 msgstr "Taskleiste"
 
-#: po/dagric-data-strings.sh:38
+#: po/dagric-data-strings.sh:44
 msgid "Your files"
 msgstr "Ihre Dateien"
 
-#: po/dagric-data-strings.sh:39
+#: po/dagric-data-strings.sh:45
 msgid "You're ready"
 msgstr "Alles bereit"
 
-#: po/dagric-data-strings.sh:40
+#: po/dagric-data-strings.sh:46
 msgid "Step %1"
 msgstr "Schritt %1"
 
-#: po/dagric-data-strings.sh:41
+#: po/dagric-data-strings.sh:47
 msgid "Step %1 of %2"
 msgstr "Schritt %1 von %2"
 
-#: po/dagric-data-strings.sh:42
+#: po/dagric-data-strings.sh:48
 msgid "current step"
 msgstr "aktueller Schritt"
 
-#: po/dagric-data-strings.sh:43
+#: po/dagric-data-strings.sh:49
 msgid "done"
 msgstr "erledigt"
 
-#: po/dagric-data-strings.sh:44
+#: po/dagric-data-strings.sh:50
 msgid "not done yet"
 msgstr "noch nicht erledigt"
 
-#: po/dagric-data-strings.sh:45
+#: po/dagric-data-strings.sh:51
 msgid "Welcome to %1."
 msgstr "Willkommen bei %1."
 
-#: po/dagric-data-strings.sh:46
+#: po/dagric-data-strings.sh:52
 msgid ""
 "Let's make it yours. A few minutes now — the colours, the wallpaper, how big "
 "the text is, where the taskbar sits, and your files from Windows — and then "
@@ -231,7 +264,7 @@ msgstr ""
 "Farben, das Hintergrundbild, die Schriftgröße, die Position der Taskleiste "
 "und Ihre Dateien aus Windows — und dann ist alles erledigt."
 
-#: po/dagric-data-strings.sh:47
+#: po/dagric-data-strings.sh:53
 msgid ""
 "Let's make it yours. A few minutes now — the colours, the wallpaper, how big "
 "the text is, where the taskbar sits — and then it's out of your way."
@@ -240,99 +273,99 @@ msgstr ""
 "Farben, das Hintergrundbild, die Schriftgröße und die Position der "
 "Taskleiste — und dann ist alles erledigt."
 
-#: po/dagric-data-strings.sh:48
+#: po/dagric-data-strings.sh:54
 msgid "Pick a look."
 msgstr "Wählen Sie ein Design."
 
-#: po/dagric-data-strings.sh:49
+#: po/dagric-data-strings.sh:55
 msgid "Click anything — the desktop behind this window changes as you go."
 msgstr ""
 "Klicken Sie auf etwas — die Arbeitsfläche hinter diesem Fenster ändert sich "
 "dabei."
 
-#: po/dagric-data-strings.sh:50
+#: po/dagric-data-strings.sh:56
 msgid "Theme"
 msgstr "Design"
 
-#: po/dagric-data-strings.sh:51
-#: config/includes.chroot/usr/bin/dagric-firstrun:930
+#: po/dagric-data-strings.sh:57
+#: config/includes.chroot/usr/bin/dagric-firstrun:950
 msgid "Light"
 msgstr "Hell"
 
-#: po/dagric-data-strings.sh:52
-#: config/includes.chroot/usr/bin/dagric-firstrun:930
+#: po/dagric-data-strings.sh:58
+#: config/includes.chroot/usr/bin/dagric-firstrun:950
 msgid "Dark"
 msgstr "Dunkel"
 
-#: po/dagric-data-strings.sh:53
+#: po/dagric-data-strings.sh:59
 msgid "Light theme"
 msgstr "Helles Design"
 
-#: po/dagric-data-strings.sh:54
+#: po/dagric-data-strings.sh:60
 msgid "A bright desktop. Shows a small picture of what it looks like."
 msgstr ""
 "Eine helle Arbeitsfläche. Zeigt ein kleines Bild davon, wie sie aussieht."
 
-#: po/dagric-data-strings.sh:55
+#: po/dagric-data-strings.sh:61
 msgid "Dark theme"
 msgstr "Dunkles Design"
 
-#: po/dagric-data-strings.sh:56
+#: po/dagric-data-strings.sh:62
 msgid "A dark desktop, easier on the eyes at night."
 msgstr "Eine dunkle Arbeitsfläche, abends angenehmer für die Augen."
 
-#: po/dagric-data-strings.sh:57
+#: po/dagric-data-strings.sh:63
 msgid "Light theme applied."
 msgstr "Helles Design angewendet."
 
-#: po/dagric-data-strings.sh:58
+#: po/dagric-data-strings.sh:64
 msgid "Dark theme applied."
 msgstr "Dunkles Design angewendet."
 
-#: po/dagric-data-strings.sh:59
+#: po/dagric-data-strings.sh:65
 msgid "Highlight colour"
 msgstr "Akzentfarbe"
 
-#: po/dagric-data-strings.sh:60
+#: po/dagric-data-strings.sh:66
 msgid "%1 highlight colour applied."
 msgstr "Akzentfarbe %1 angewendet."
 
-#: po/dagric-data-strings.sh:61
+#: po/dagric-data-strings.sh:67
 msgid "Wallpaper"
 msgstr "Hintergrundbild"
 
-#: po/dagric-data-strings.sh:62
+#: po/dagric-data-strings.sh:68
 msgid "Wallpaper %1 of %2"
 msgstr "Hintergrundbild %1 von %2"
 
-#: po/dagric-data-strings.sh:63
+#: po/dagric-data-strings.sh:69
 msgid "Arrow keys to move between wallpapers, Space to apply one"
 msgstr ""
 "Pfeiltasten wechseln zwischen den Hintergrundbildern, Leertaste wendet eines "
 "an"
 
-#: po/dagric-data-strings.sh:64
+#: po/dagric-data-strings.sh:70
 msgid "%1 wallpaper applied."
 msgstr "Hintergrundbild %1 angewendet."
 
-#: po/dagric-data-strings.sh:65
+#: po/dagric-data-strings.sh:71
 msgid ""
 "Want your own picture? Right-click the desktop and choose Configure Desktop."
 msgstr ""
 "Lieber Ihr eigenes Bild? Klicken Sie mit der rechten Maustaste auf die "
 "Arbeitsfläche und wählen Sie „Arbeitsfläche einrichten“."
 
-#: po/dagric-data-strings.sh:66
+#: po/dagric-data-strings.sh:72
 msgid "Is the text the right size?"
 msgstr "Hat die Schrift die richtige Größe?"
 
-#: po/dagric-data-strings.sh:67
+#: po/dagric-data-strings.sh:73
 msgid "Dagric guessed from your screen. Pick another size if it guessed wrong."
 msgstr ""
 "Dagric hat anhand Ihres Bildschirms geschätzt. Wählen Sie eine andere Größe, "
 "falls die Schätzung danebenliegt."
 
-#: po/dagric-data-strings.sh:68
+#: po/dagric-data-strings.sh:74
 msgid ""
 "Dagric guessed from your screen. A change here takes effect the next time "
 "you sign in."
@@ -340,18 +373,18 @@ msgstr ""
 "Dagric hat anhand Ihres Bildschirms geschätzt. Eine Änderung hier wirkt sich "
 "bei der nächsten Anmeldung aus."
 
-#: po/dagric-data-strings.sh:69
+#: po/dagric-data-strings.sh:75
 msgid ""
 "Dagric guessed from your screen. Pick another size and it changes right away."
 msgstr ""
 "Dagric hat anhand Ihres Bildschirms geschätzt. Wählen Sie eine andere Größe, "
 "und es ändert sich sofort."
 
-#: po/dagric-data-strings.sh:70
+#: po/dagric-data-strings.sh:76
 msgid "Choose a text size"
 msgstr "Textgröße wählen"
 
-#: po/dagric-data-strings.sh:71
+#: po/dagric-data-strings.sh:77
 msgid ""
 "Opens a list of text sizes in a separate window. A new size is tried for "
 "twenty seconds and put back on its own unless you keep it."
@@ -360,74 +393,74 @@ msgstr ""
 "wird zwanzig Sekunden lang ausprobiert und von selbst zurückgesetzt, es sei "
 "denn, Sie behalten sie."
 
-#: po/dagric-data-strings.sh:72
+#: po/dagric-data-strings.sh:78
 msgid "Normal"
 msgstr "Normal"
 
-#: po/dagric-data-strings.sh:73
+#: po/dagric-data-strings.sh:79
 msgid "Standard size"
 msgstr "Standardgröße"
 
-#: po/dagric-data-strings.sh:74
+#: po/dagric-data-strings.sh:80
 msgid "Bigger"
 msgstr "Größer"
 
-#: po/dagric-data-strings.sh:75
+#: po/dagric-data-strings.sh:81
 msgid "Easier to read"
 msgstr "Leichter zu lesen"
 
-#: po/dagric-data-strings.sh:76
+#: po/dagric-data-strings.sh:82
 msgid "Biggest"
 msgstr "Am größten"
 
-#: po/dagric-data-strings.sh:77
+#: po/dagric-data-strings.sh:83
 msgid "Large text"
 msgstr "Große Schrift"
 
-#: po/dagric-data-strings.sh:78
+#: po/dagric-data-strings.sh:84
 msgid "%1, %2 percent"
 msgstr "%1, %2 Prozent"
 
-#: po/dagric-data-strings.sh:79
+#: po/dagric-data-strings.sh:85
 msgid "Text size set to %1 percent."
 msgstr "Schriftgröße auf %1 Prozent gesetzt."
 
-#: po/dagric-data-strings.sh:80
+#: po/dagric-data-strings.sh:86
 msgid "You can change this again in System Settings ▸ Display & Monitor."
 msgstr ""
 "Sie können das jederzeit unter Systemeinstellungen ▸ Anzeige und Monitor "
 "ändern."
 
-#: po/dagric-data-strings.sh:81
-#: config/includes.chroot/usr/bin/dagric-firstrun:969
+#: po/dagric-data-strings.sh:87
+#: config/includes.chroot/usr/bin/dagric-firstrun:989
 msgid "Where should the taskbar go?"
 msgstr "Wo soll die Taskleiste hin?"
 
-#: po/dagric-data-strings.sh:82
+#: po/dagric-data-strings.sh:88
 msgid ""
 "Click one to try it. Your open windows and apps stay exactly where they are."
 msgstr ""
 "Klicken Sie eines an, um es auszuprobieren. Ihre offenen Fenster und "
 "Programme bleiben genau, wo sie sind."
 
-#: po/dagric-data-strings.sh:83
+#: po/dagric-data-strings.sh:89
 msgid "Taskbar layout"
 msgstr "Taskleisten-Layout"
 
-#: po/dagric-data-strings.sh:84
+#: po/dagric-data-strings.sh:90
 msgid "Arrow keys to move between layouts, Space to try one"
 msgstr ""
 "Pfeiltasten wechseln zwischen den Layouts, Leertaste probiert eines aus"
 
-#: po/dagric-data-strings.sh:85
+#: po/dagric-data-strings.sh:91
 msgid "%1 taskbar applied."
 msgstr "Taskleiste %1 angewendet."
 
-#: po/dagric-data-strings.sh:86
+#: po/dagric-data-strings.sh:92
 msgid "Bring your files across."
 msgstr "Holen Sie Ihre Dateien herüber."
 
-#: po/dagric-data-strings.sh:87
+#: po/dagric-data-strings.sh:93
 msgid ""
 "There's a Windows drive in this PC. Dagric can copy your Documents, "
 "Pictures, Music, Videos, Downloads and browser bookmarks over."
@@ -435,15 +468,15 @@ msgstr ""
 "In diesem PC steckt eine Windows-Festplatte. Dagric kann Ihre Dokumente, "
 "Bilder, Musik, Videos, Downloads und Browser-Lesezeichen herüberkopieren."
 
-#: po/dagric-data-strings.sh:88
+#: po/dagric-data-strings.sh:94
 msgid "Windows is only ever READ."
 msgstr "Windows wird ausschließlich GELESEN."
 
-#: po/dagric-data-strings.sh:89
+#: po/dagric-data-strings.sh:95
 msgid "Windows is only ever read."
 msgstr "Windows wird ausschließlich gelesen."
 
-#: po/dagric-data-strings.sh:90
+#: po/dagric-data-strings.sh:96
 msgid ""
 "Nothing on the Windows drive is moved, changed or deleted, and files already "
 "here are never overwritten. If you change your mind about Dagric, Windows is "
@@ -454,11 +487,11 @@ msgstr ""
 "sich mit Dagric anders überlegen, ist Windows genau so, wie Sie es verlassen "
 "haben."
 
-#: po/dagric-data-strings.sh:91
+#: po/dagric-data-strings.sh:97
 msgid "Bring my files over"
 msgstr "Meine Dateien holen"
 
-#: po/dagric-data-strings.sh:92
+#: po/dagric-data-strings.sh:98
 msgid ""
 "Opens the migration tool in its own window. Nothing on the Windows drive is "
 "changed."
@@ -466,23 +499,23 @@ msgstr ""
 "Öffnet den Umzugsassistenten in einem eigenen Fenster. Auf der Windows-"
 "Festplatte wird nichts verändert."
 
-#: po/dagric-data-strings.sh:93
+#: po/dagric-data-strings.sh:99
 msgid "This opens in its own window — carry on here while it works."
 msgstr ""
 "Das öffnet sich in einem eigenen Fenster — machen Sie hier weiter, während "
 "es läuft."
 
-#: po/dagric-data-strings.sh:94
+#: po/dagric-data-strings.sh:100
 msgid ""
 "Not now? It's in the Dagric Hub under \"Migrate from Windows\", any time."
 msgstr ""
 "Jetzt nicht? Es liegt jederzeit im Dagric Hub unter „Von Windows umziehen“."
 
-#: po/dagric-data-strings.sh:95
+#: po/dagric-data-strings.sh:101
 msgid "That's it — %1 is yours."
 msgstr "Das war’s — %1 gehört Ihnen."
 
-#: po/dagric-data-strings.sh:96
+#: po/dagric-data-strings.sh:102
 msgid ""
 "Four places worth knowing about. Everything else you can find by pressing "
 "the launcher and typing."
@@ -490,53 +523,53 @@ msgstr ""
 "Vier Orte, die man kennen sollte. Alles Übrige finden Sie, indem Sie den "
 "Startknopf drücken und tippen."
 
-#: po/dagric-data-strings.sh:97
+#: po/dagric-data-strings.sh:103
 msgid "Dagric Hub"
 msgstr "Dagric Hub"
 
-#: po/dagric-data-strings.sh:98
+#: po/dagric-data-strings.sh:104
 msgid "Drivers, setup, security and migration, all in one menu."
 msgstr "Treiber, Einrichtung, Sicherheit und Umzug — alles in einem Menü."
 
-#: po/dagric-data-strings.sh:99
+#: po/dagric-data-strings.sh:105
 msgid "User Guide"
 msgstr "Benutzeranleitung"
 
-#: po/dagric-data-strings.sh:100
+#: po/dagric-data-strings.sh:106
 msgid "Your first week: updates, printers, Wi-Fi, shortcuts."
 msgstr "Ihre erste Woche: Aktualisierungen, Drucker, WLAN, Tastenkürzel."
 
-#: po/dagric-data-strings.sh:101
+#: po/dagric-data-strings.sh:107
 msgid "App Manual"
 msgstr "App-Handbuch"
 
-#: po/dagric-data-strings.sh:102
+#: po/dagric-data-strings.sh:108
 msgid "A page on every app, and what it replaced on Windows."
 msgstr "Eine Seite zu jedem Programm — und was es unter Windows ersetzt."
 
-#: po/dagric-data-strings.sh:103
+#: po/dagric-data-strings.sh:109
 msgid "Welcome page"
 msgstr "Willkommensseite"
 
-#: po/dagric-data-strings.sh:104
+#: po/dagric-data-strings.sh:110
 msgid "What Dagric is, and the promises it makes."
 msgstr "Was Dagric ist — und welche Versprechen es gibt."
 
-#: po/dagric-data-strings.sh:105
+#: po/dagric-data-strings.sh:111
 msgid "Open"
 msgstr "Öffnen"
 
-#: po/dagric-data-strings.sh:106
+#: po/dagric-data-strings.sh:112
 msgid "Open %1"
 msgstr "%1 öffnen"
 
-#: po/dagric-data-strings.sh:107
-#: config/includes.chroot/usr/bin/dagric-firstrun:758
+#: po/dagric-data-strings.sh:113
+#: config/includes.chroot/usr/bin/dagric-firstrun:778
 msgid "Your desktop is back the way it was."
 msgstr "Ihre Arbeitsfläche ist wieder wie vorher."
 
-#: po/dagric-data-strings.sh:108
-#: config/includes.chroot/usr/bin/dagric-firstrun:918
+#: po/dagric-data-strings.sh:114
+#: config/includes.chroot/usr/bin/dagric-firstrun:938
 msgid ""
 "You're running the live trial from the USB stick, so anything you set here "
 "lasts until you shut down. Install Dagric first if you want it to stick."
@@ -545,7 +578,7 @@ msgstr ""
 "einstellen, nur bis zum Herunterfahren. Installieren Sie Dagric zuerst, wenn "
 "es dauerhaft bleiben soll."
 
-#: po/dagric-data-strings.sh:109
+#: po/dagric-data-strings.sh:115
 msgid ""
 "This is the live trial. To keep any of it, run Install Dagric OS from the "
 "desktop."
@@ -553,7 +586,7 @@ msgstr ""
 "Das ist der Live-Test. Um etwas davon zu behalten, starten Sie \"Dagric OS "
 "installieren\" von der Arbeitsfläche aus."
 
-#: po/dagric-data-strings.sh:110
+#: po/dagric-data-strings.sh:116
 msgid ""
 "Want to run through this again? It's called \"Set Up Dagric\" in your apps "
 "list."
@@ -561,11 +594,11 @@ msgstr ""
 "Möchten Sie das noch einmal durchgehen? Es heißt \"Dagric einrichten\" in "
 "Ihrer App-Liste."
 
-#: po/dagric-data-strings.sh:111
+#: po/dagric-data-strings.sh:117
 msgid "Add your apps"
 msgstr "Apps hinzufügen"
 
-#: po/dagric-data-strings.sh:112
+#: po/dagric-data-strings.sh:118
 msgid ""
 "Choose what you want. Each installer opens after Finish and asks before "
 "making changes. Some choices are third-party or proprietary; none is "
@@ -575,83 +608,83 @@ msgstr ""
 "Fertig geöffnet und fragt vor Änderungen. Einige Optionen stammen von "
 "Drittanbietern oder sind proprietär; keine ist erforderlich."
 
-#: po/dagric-data-strings.sh:113
+#: po/dagric-data-strings.sh:119
 msgid "Steam"
 msgstr "Steam"
 
-#: po/dagric-data-strings.sh:114
+#: po/dagric-data-strings.sh:120
 msgid "Optional proprietary Valve client; vendor terms apply."
 msgstr "Optionaler proprietärer Valve-Client; es gelten die Anbieterverträge."
 
-#: po/dagric-data-strings.sh:115
+#: po/dagric-data-strings.sh:121
 msgid "Heroic"
 msgstr "Heroic"
 
-#: po/dagric-data-strings.sh:116
+#: po/dagric-data-strings.sh:122
 msgid "Independent launcher for Epic Games Store, GOG and Amazon Games."
 msgstr "Unabhängiger Launcher für Epic Games Store, GOG und Amazon Games."
 
-#: po/dagric-data-strings.sh:117
+#: po/dagric-data-strings.sh:123
 msgid "Bottles"
 msgstr "Bottles"
 
-#: po/dagric-data-strings.sh:118
+#: po/dagric-data-strings.sh:124
 msgid "Run Windows programs in separate Wine environments."
 msgstr "Windows-Programme in getrennten Wine-Umgebungen ausführen."
 
-#: po/dagric-data-strings.sh:119
+#: po/dagric-data-strings.sh:125
 msgid "ONLYOFFICE"
 msgstr "ONLYOFFICE"
 
-#: po/dagric-data-strings.sh:120
+#: po/dagric-data-strings.sh:126
 msgid "An office suite that looks like the one at work."
 msgstr "Ein Office-Paket, das aussieht wie das im Büro."
 
-#: po/dagric-data-strings.sh:121
+#: po/dagric-data-strings.sh:127
 msgid "Joplin"
 msgstr "Joplin"
 
-#: po/dagric-data-strings.sh:122
+#: po/dagric-data-strings.sh:128
 msgid "Private notes that sync anywhere."
 msgstr "Private Notizen, die überall synchronisieren."
 
-#: po/dagric-data-strings.sh:123
+#: po/dagric-data-strings.sh:129
 msgid "LocalSend"
 msgstr "LocalSend"
 
-#: po/dagric-data-strings.sh:124
+#: po/dagric-data-strings.sh:130
 msgid "Share files between your devices, no cloud."
 msgstr "Dateien zwischen den eigenen Geräten teilen, ohne Cloud."
 
-#: po/dagric-data-strings.sh:125
+#: po/dagric-data-strings.sh:131
 msgid "Cryptomator"
 msgstr "Cryptomator"
 
-#: po/dagric-data-strings.sh:126
+#: po/dagric-data-strings.sh:132
 msgid "Encrypt what you keep in the cloud."
 msgstr "Verschlüsselt, was in der Cloud liegt."
 
-#: po/dagric-data-strings.sh:127
+#: po/dagric-data-strings.sh:133
 msgid "Upscayl"
 msgstr "Upscayl"
 
-#: po/dagric-data-strings.sh:128
+#: po/dagric-data-strings.sh:134
 msgid "Sharpen old photos with AI."
 msgstr "Alte Fotos mit KI schärfen."
 
-#: po/dagric-data-strings.sh:129
+#: po/dagric-data-strings.sh:135
 msgid "Ollama"
 msgstr "Ollama"
 
-#: po/dagric-data-strings.sh:130
+#: po/dagric-data-strings.sh:136
 msgid "A local AI that never leaves this machine."
 msgstr "Eine lokale KI, die diesen Rechner nie verlässt."
 
-#: po/dagric-data-strings.sh:131
+#: po/dagric-data-strings.sh:137
 msgid "Already bought Pro?"
 msgstr "Pro schon gekauft?"
 
-#: po/dagric-data-strings.sh:132
+#: po/dagric-data-strings.sh:138
 msgid ""
 "Paste the code from your receipt and this machine becomes Pro — your files "
 "and settings stay."
@@ -659,15 +692,15 @@ msgstr ""
 "Den Code aus der Kaufbestätigung einfügen, und dieser Rechner wird zu Pro — "
 "Dateien und Einstellungen bleiben erhalten."
 
-#: po/dagric-data-strings.sh:133
+#: po/dagric-data-strings.sh:139
 msgid "Selected — starts when you press Finish."
 msgstr "Ausgewählt — startet nach dem Klick auf Fertig."
 
-#: po/dagric-data-strings.sh:134
+#: po/dagric-data-strings.sh:140
 msgid "Selected"
 msgstr "Ausgewählt"
 
-#: po/dagric-data-strings.sh:135
+#: po/dagric-data-strings.sh:141
 msgid ""
 "This is the live trial: anything you add now lives in memory, disappears at "
 "shutdown, and can make a machine with little RAM unstable. Install Dagric "
@@ -677,7 +710,7 @@ msgstr ""
 "Arbeitsspeicher, verschwindet beim Herunterfahren und kann einen Rechner mit "
 "wenig RAM instabil machen. Erst Dagric installieren, um es zu behalten."
 
-#: po/dagric-data-strings.sh:136
+#: po/dagric-data-strings.sh:142
 msgid ""
 "Nothing here is a subscription, and everything can be removed later from the "
 "Software Store."
@@ -689,12 +722,12 @@ msgstr ""
 #. Keep button labels short; they sit in fixed-width buttons beside
 #. each other. %1 and %2 are values substituted at runtime and may be
 #. reordered to suit the language.
-#: po/dagric-data-strings.sh:142
+#: po/dagric-data-strings.sh:148
 #: config/includes.chroot/usr/bin/dagric-family:41
 msgid "Family Limits"
 msgstr "Familienlimits"
 
-#: po/dagric-data-strings.sh:143
+#: po/dagric-data-strings.sh:149
 msgid ""
 "Set how long someone can use this computer each day, and the hours when it "
 "locks itself. Their files and their account are not touched."
@@ -703,15 +736,15 @@ msgstr ""
 "welchen Uhrzeiten er sich sperrt. Die Dateien und das Konto dieser Person "
 "bleiben unberührt."
 
-#: po/dagric-data-strings.sh:144
+#: po/dagric-data-strings.sh:150
 msgid "Person:"
 msgstr "Person:"
 
-#: po/dagric-data-strings.sh:145
+#: po/dagric-data-strings.sh:151
 msgid "Person to set limits for"
 msgstr "Person, für die Limits gelten sollen"
 
-#: po/dagric-data-strings.sh:146
+#: po/dagric-data-strings.sh:152
 msgid ""
 "This is the only administrator account on this computer. Limits cannot be "
 "set on it, because there would be no way back in. Create a second "
@@ -721,7 +754,7 @@ msgstr ""
 "keine Limits gesetzt werden, weil es dann keinen Weg zurück gäbe. Legen Sie "
 "zuerst ein zweites Administratorkonto an."
 
-#: po/dagric-data-strings.sh:147
+#: po/dagric-data-strings.sh:153
 msgid ""
 "This person has not signed in yet, so there is nothing to change. Ask them "
 "to sign in once, then come back."
@@ -729,95 +762,95 @@ msgstr ""
 "Diese Person hat sich noch nie angemeldet, daher gibt es nichts zu ändern. "
 "Bitten Sie sie, sich einmal anzumelden, und kommen Sie dann zurück."
 
-#: po/dagric-data-strings.sh:148
+#: po/dagric-data-strings.sh:154
 msgid "Limit this person's screen time"
 msgstr "Bildschirmzeit dieser Person begrenzen"
 
-#: po/dagric-data-strings.sh:149
+#: po/dagric-data-strings.sh:155
 msgid "Time allowed each day"
 msgstr "Täglich erlaubte Zeit"
 
-#: po/dagric-data-strings.sh:150
+#: po/dagric-data-strings.sh:156
 msgid "Time allowed each day: %1"
 msgstr "Täglich erlaubte Zeit: %1"
 
-#: po/dagric-data-strings.sh:151
+#: po/dagric-data-strings.sh:157
 msgid "Bedtime: none — the computer never locks by the clock"
 msgstr ""
 "Schlafenszeit: keine — der Computer sperrt sich nie zu einer festen Uhrzeit"
 
-#: po/dagric-data-strings.sh:152
+#: po/dagric-data-strings.sh:158
 msgid "The computer locks from %1 to %2"
 msgstr "Der Computer sperrt sich von %1 bis %2"
 
-#: po/dagric-data-strings.sh:153
+#: po/dagric-data-strings.sh:159
 msgid "From"
 msgstr "Von"
 
-#: po/dagric-data-strings.sh:154
+#: po/dagric-data-strings.sh:160
 msgid "until"
 msgstr "bis"
 
-#: po/dagric-data-strings.sh:155
+#: po/dagric-data-strings.sh:161
 msgid "Bedtime starts at"
 msgstr "Schlafenszeit beginnt um"
 
-#: po/dagric-data-strings.sh:156
+#: po/dagric-data-strings.sh:162
 msgid "Bedtime ends at"
 msgstr "Schlafenszeit endet um"
 
-#: po/dagric-data-strings.sh:157
+#: po/dagric-data-strings.sh:163
 msgid "Set both to the same hour for no bedtime at all."
 msgstr ""
 "Setzen Sie beide auf dieselbe Stunde, damit es gar keine Schlafenszeit gibt."
 
-#: po/dagric-data-strings.sh:158
+#: po/dagric-data-strings.sh:164
 msgid "When the time is up:"
 msgstr "Wenn die Zeit um ist:"
 
-#: po/dagric-data-strings.sh:159
+#: po/dagric-data-strings.sh:165
 msgid "Lock the screen — nothing is closed, nothing is lost"
 msgstr "Bildschirm sperren — nichts wird geschlossen, nichts geht verloren"
 
-#: po/dagric-data-strings.sh:160
+#: po/dagric-data-strings.sh:166
 msgid "Sign out — closes everything that is open"
 msgstr "Abmelden — schließt alles, was geöffnet ist"
 
-#: po/dagric-data-strings.sh:161
+#: po/dagric-data-strings.sh:167
 msgid "Remove all limits"
 msgstr "Alle Limits entfernen"
 
-#: po/dagric-data-strings.sh:162
+#: po/dagric-data-strings.sh:168
 msgid "Lets this person use the computer at any time, for as long as they like"
 msgstr ""
 "Lässt diese Person den Computer jederzeit und so lange benutzen, wie sie "
 "möchte"
 
-#: po/dagric-data-strings.sh:163
+#: po/dagric-data-strings.sh:169
 msgid "Close"
 msgstr "Schließen"
 
-#: po/dagric-data-strings.sh:164
+#: po/dagric-data-strings.sh:170
 msgid "Save"
 msgstr "Speichern"
 
-#: po/dagric-data-strings.sh:165
+#: po/dagric-data-strings.sh:171
 msgid "Save these limits for %1"
 msgstr "Diese Limits für %1 speichern"
 
-#: po/dagric-data-strings.sh:166
+#: po/dagric-data-strings.sh:172
 msgid "%1 minutes"
 msgstr "%1 Minuten"
 
-#: po/dagric-data-strings.sh:167
+#: po/dagric-data-strings.sh:173
 msgid "1 hour"
 msgstr "1 Stunde"
 
-#: po/dagric-data-strings.sh:168
+#: po/dagric-data-strings.sh:174
 msgid "%1 hours"
 msgstr "%1 Stunden"
 
-#: po/dagric-data-strings.sh:169
+#: po/dagric-data-strings.sh:175
 msgid "%1 h %2 min"
 msgstr "%1 Std. %2 Min."
 
@@ -825,503 +858,503 @@ msgstr "%1 Std. %2 Min."
 #. setup wizard. One or two words, shown as the title of a picture tile.
 #. TRANSLATORS: name of the "classic" icon family in Dagric Appearance.
 #. One or two words, shown as the title of a picture tile.
-#: po/dagric-data-strings.sh:173 po/dagric-data-strings.sh:287
+#: po/dagric-data-strings.sh:179 po/dagric-data-strings.sh:293
 msgid "Classic"
 msgstr "Klassisch"
 
 #. TRANSLATORS: one-line description of the "classic" taskbar layout, shown
 #. under its name. Keep it short — it has to fit on one line beside a tile.
-#: po/dagric-data-strings.sh:176
+#: po/dagric-data-strings.sh:182
 msgid "a taskbar at the bottom, familiar and comfortable"
 msgstr "eine Taskleiste unten, vertraut und bequem"
 
 #. TRANSLATORS: name of the "command" taskbar layout in Dagric Looks and the
 #. setup wizard. One or two words, shown as the title of a picture tile.
-#: po/dagric-data-strings.sh:179
+#: po/dagric-data-strings.sh:185
 msgid "Command"
 msgstr "Command"
 
 #. TRANSLATORS: one-line description of the "command" taskbar layout, shown
 #. under its name. Keep it short — it has to fit on one line beside a tile.
-#: po/dagric-data-strings.sh:182
+#: po/dagric-data-strings.sh:188
 msgid "the same side dock, but each window keeps its own menu bar"
 msgstr ""
 "das gleiche seitliche Dock, aber jedes Fenster behält seine eigene Menüleiste"
 
 #. TRANSLATORS: name of the "duo" taskbar layout in Dagric Looks and the
 #. setup wizard. One or two words, shown as the title of a picture tile.
-#: po/dagric-data-strings.sh:185
+#: po/dagric-data-strings.sh:191
 msgid "Duo"
 msgstr "Duo"
 
 #. TRANSLATORS: one-line description of the "duo" taskbar layout, shown
 #. under its name. Keep it short — it has to fit on one line beside a tile.
-#: po/dagric-data-strings.sh:188
+#: po/dagric-data-strings.sh:194
 msgid "two panels, top and bottom, for power users"
 msgstr "zwei Leisten, oben und unten, für Fortgeschrittene"
 
 #. TRANSLATORS: name of the "eleven" taskbar layout in Dagric Looks and the
 #. setup wizard. One or two words, shown as the title of a picture tile.
-#: po/dagric-data-strings.sh:191
+#: po/dagric-data-strings.sh:197
 msgid "Centered"
 msgstr "Zentriert"
 
 #. TRANSLATORS: one-line description of the "eleven" taskbar layout, shown
 #. under its name. Keep it short — it has to fit on one line beside a tile.
-#: po/dagric-data-strings.sh:194
+#: po/dagric-data-strings.sh:200
 msgid "a centered taskbar, clean and modern"
 msgstr "eine zentrierte Taskleiste, aufgeräumt und modern"
 
 #. TRANSLATORS: name of the "focus" taskbar layout in Dagric Looks and the
 #. setup wizard. One or two words, shown as the title of a picture tile.
-#: po/dagric-data-strings.sh:197
+#: po/dagric-data-strings.sh:203
 msgid "Focus"
 msgstr "Fokus"
 
 #. TRANSLATORS: one-line description of the "focus" taskbar layout, shown
 #. under its name. Keep it short — it has to fit on one line beside a tile.
-#: po/dagric-data-strings.sh:200
+#: po/dagric-data-strings.sh:206
 msgid "one tidy bar, nothing in your way"
 msgstr "eine aufgeräumte Leiste, nichts im Weg"
 
 #. TRANSLATORS: name of the "horizon" taskbar layout in Dagric Looks and the
 #. setup wizard. One or two words, shown as the title of a picture tile.
-#: po/dagric-data-strings.sh:203
+#: po/dagric-data-strings.sh:209
 msgid "Horizon"
 msgstr "Horizont"
 
 #. TRANSLATORS: one-line description of the "horizon" taskbar layout, shown
 #. under its name. Keep it short — it has to fit on one line beside a tile.
-#: po/dagric-data-strings.sh:206
+#: po/dagric-data-strings.sh:212
 msgid "a menu bar up top with a dock below"
 msgstr "eine Menüleiste oben und ein Dock darunter"
 
 #. TRANSLATORS: name of the "unity" taskbar layout in Dagric Looks and the
 #. setup wizard. One or two words, shown as the title of a picture tile.
-#: po/dagric-data-strings.sh:209
+#: po/dagric-data-strings.sh:215
 msgid "Unity"
 msgstr "Unity"
 
 #. TRANSLATORS: one-line description of the "unity" taskbar layout, shown
 #. under its name. Keep it short — it has to fit on one line beside a tile.
-#: po/dagric-data-strings.sh:212
+#: po/dagric-data-strings.sh:218
 msgid "a side dock, with every window's menu moved to the top bar"
 msgstr "ein seitliches Dock, mit dem Menü jedes Fensters in der oberen Leiste"
 
 #. TRANSLATORS: name of the "classy" desktop style (colours, wallpaper and
 #. effects) in Dagric Styles and the appearance gallery. One or two words.
-#: po/dagric-data-strings.sh:215
+#: po/dagric-data-strings.sh:221
 msgid "Classy"
 msgstr "Edel"
 
 #. TRANSLATORS: one-line description of the "classy" desktop style, shown
 #. under its name. Keep it short.
-#: po/dagric-data-strings.sh:218
+#: po/dagric-data-strings.sh:224
 msgid "dark glass and amber, quietly luxurious"
 msgstr "dunkles Glas und Bernstein, dezent luxuriös"
 
 #. TRANSLATORS: name of the "dawn" desktop style (colours, wallpaper and
 #. effects) in Dagric Styles and the appearance gallery. One or two words.
-#: po/dagric-data-strings.sh:221
+#: po/dagric-data-strings.sh:227
 msgid "Dawn"
 msgstr "Morgengrauen"
 
 #. TRANSLATORS: one-line description of the "dawn" desktop style, shown
 #. under its name. Keep it short.
-#: po/dagric-data-strings.sh:224
+#: po/dagric-data-strings.sh:230
 msgid "light and airy with a soft warm accent"
 msgstr "hell und luftig mit einem sanften warmen Akzent"
 
 #. TRANSLATORS: name of the "daybreak" desktop style (colours, wallpaper and
 #. effects) in Dagric Styles and the appearance gallery. One or two words.
-#: po/dagric-data-strings.sh:227
+#: po/dagric-data-strings.sh:233
 msgid "Daybreak"
 msgstr "Tagesanbruch"
 
 #. TRANSLATORS: one-line description of the "daybreak" desktop style, shown
 #. under its name. Keep it short.
-#: po/dagric-data-strings.sh:230
+#: po/dagric-data-strings.sh:236
 msgid "bright, quiet and practical"
 msgstr "hell, ruhig und praktisch"
 
 #. TRANSLATORS: name of the "forest" desktop style (colours, wallpaper and
 #. effects) in Dagric Styles and the appearance gallery. One or two words.
-#: po/dagric-data-strings.sh:233
+#: po/dagric-data-strings.sh:239
 msgid "Forest"
 msgstr "Wald"
 
 #. TRANSLATORS: one-line description of the "forest" desktop style, shown
 #. under its name. Keep it short.
-#: po/dagric-data-strings.sh:236
+#: po/dagric-data-strings.sh:242
 msgid "calm green for long working days"
 msgstr "ruhiges Grün für lange Arbeitstage"
 
 #. TRANSLATORS: name of the "highcontrast" desktop style (colours, wallpaper and
 #. effects) in Dagric Styles and the appearance gallery. One or two words.
-#: po/dagric-data-strings.sh:239
+#: po/dagric-data-strings.sh:245
 msgid "High Contrast"
 msgstr "Hoher Kontrast"
 
 #. TRANSLATORS: one-line description of the "highcontrast" desktop style, shown
 #. under its name. Keep it short.
-#: po/dagric-data-strings.sh:242
+#: po/dagric-data-strings.sh:248
 msgid "black and white, gold focus ring, no soft effects"
 msgstr "Schwarz und Weiß, goldener Fokusrahmen, keine weichen Effekte"
 
 #. TRANSLATORS: name of the "midnight" desktop style (colours, wallpaper and
 #. effects) in Dagric Styles and the appearance gallery. One or two words.
-#: po/dagric-data-strings.sh:245
+#: po/dagric-data-strings.sh:251
 msgid "Midnight"
 msgstr "Mitternacht"
 
 #. TRANSLATORS: one-line description of the "midnight" desktop style, shown
 #. under its name. Keep it short.
-#: po/dagric-data-strings.sh:248
+#: po/dagric-data-strings.sh:254
 msgid "deep dark, easy on the eyes at night"
 msgstr "tiefes Dunkel, augenschonend bei Nacht"
 
 #. TRANSLATORS: name of the "neon" desktop style (colours, wallpaper and
 #. effects) in Dagric Styles and the appearance gallery. One or two words.
-#: po/dagric-data-strings.sh:251
+#: po/dagric-data-strings.sh:257
 msgid "Neon"
 msgstr "Neon"
 
 #. TRANSLATORS: one-line description of the "neon" desktop style, shown
 #. under its name. Keep it short.
-#: po/dagric-data-strings.sh:254
+#: po/dagric-data-strings.sh:260
 msgid "electric cyan, blur and wobbly windows"
 msgstr "elektrisches Cyan, Unschärfe und wackelnde Fenster"
 
 #. TRANSLATORS: name of the "night-orbit" desktop style (colours, wallpaper and
 #. effects) in Dagric Styles and the appearance gallery. One or two words.
-#: po/dagric-data-strings.sh:257
+#: po/dagric-data-strings.sh:263
 msgid "Night Orbit"
 msgstr "Night Orbit"
 
 #. TRANSLATORS: one-line description of the "night-orbit" desktop style, shown
 #. under its name. Keep it short.
-#: po/dagric-data-strings.sh:260
+#: po/dagric-data-strings.sh:266
 msgid "aubergine, magenta and orange after dark"
 msgstr "Aubergine, Magenta und Orange nach Einbruch der Dunkelheit"
 
 #. TRANSLATORS: name of the "obsidian-flow" desktop style (colours, wallpaper and
 #. effects) in Dagric Styles and the appearance gallery. One or two words.
-#: po/dagric-data-strings.sh:263
+#: po/dagric-data-strings.sh:269
 msgid "Obsidian Flow"
 msgstr "Obsidian Flow"
 
 #. TRANSLATORS: one-line description of the "obsidian-flow" desktop style, shown
 #. under its name. Keep it short.
-#: po/dagric-data-strings.sh:266
+#: po/dagric-data-strings.sh:272
 msgid "dark material, calm motion, focused gaming"
 msgstr "dunkles Material, ruhige Bewegung, fokussiertes Gaming"
 
 #. TRANSLATORS: name of the "open-coast" desktop style (colours, wallpaper and
 #. effects) in Dagric Styles and the appearance gallery. One or two words.
-#: po/dagric-data-strings.sh:269
+#: po/dagric-data-strings.sh:275
 msgid "Open Coast"
 msgstr "Open Coast"
 
 #. TRANSLATORS: one-line description of the "open-coast" desktop style, shown
 #. under its name. Keep it short.
-#: po/dagric-data-strings.sh:272
+#: po/dagric-data-strings.sh:278
 msgid "turquoise, coral and sand with open water"
 msgstr "Türkis, Koralle und Sand mit offenem Wasser"
 
 #. TRANSLATORS: name of the "open-horizon" desktop style (colours, wallpaper and
 #. effects) in Dagric Styles and the appearance gallery. One or two words.
-#: po/dagric-data-strings.sh:275
+#: po/dagric-data-strings.sh:281
 msgid "Open Horizon"
 msgstr "Open Horizon"
 
 #. TRANSLATORS: one-line description of the "open-horizon" desktop style, shown
 #. under its name. Keep it short.
-#: po/dagric-data-strings.sh:278
+#: po/dagric-data-strings.sh:284
 msgid "warm amber space with a distant open view"
 msgstr "warmer Amber-Raum mit einer fernen offenen Aussicht"
 
 #. TRANSLATORS: name of the "wild-meadow" desktop style (colours, wallpaper and
 #. effects) in Dagric Styles and the appearance gallery. One or two words.
-#: po/dagric-data-strings.sh:281
+#: po/dagric-data-strings.sh:287
 msgid "Wild Meadow"
 msgstr "Wild Meadow"
 
 #. TRANSLATORS: one-line description of the "wild-meadow" desktop style, shown
 #. under its name. Keep it short.
-#: po/dagric-data-strings.sh:284
+#: po/dagric-data-strings.sh:290
 msgid "sage, moss and sunlight for a calm workspace"
 msgstr "Salbei, Moos und Sonnenlicht für einen ruhigen Arbeitsplatz"
 
 #. TRANSLATORS: one-line description of the "classic" icon family, shown
 #. under its name. Keep it short.
-#: po/dagric-data-strings.sh:290
+#: po/dagric-data-strings.sh:296
 msgid "Warm enamel badges inspired by durable desktop tools."
 msgstr "Warme Emaille-Symbole, inspiriert von langlebigen Desktop-Werkzeugen."
 
 #. TRANSLATORS: name of the "modern" icon family in Dagric Appearance.
 #. One or two words, shown as the title of a picture tile.
-#: po/dagric-data-strings.sh:293
+#: po/dagric-data-strings.sh:299
 msgid "Modern"
 msgstr "Modern"
 
 #. TRANSLATORS: one-line description of the "modern" icon family, shown
 #. under its name. Keep it short.
-#: po/dagric-data-strings.sh:296
+#: po/dagric-data-strings.sh:302
 msgid "Vivid dimensional icons with crisp silhouettes."
 msgstr "Lebendige räumliche Symbole mit klaren Silhouetten."
 
 #. TRANSLATORS: name of the "old-school" icon family in Dagric Appearance.
 #. One or two words, shown as the title of a picture tile.
-#: po/dagric-data-strings.sh:299
+#: po/dagric-data-strings.sh:305
 msgid "Old School"
 msgstr "Retro"
 
 #. TRANSLATORS: one-line description of the "old-school" icon family, shown
 #. under its name. Keep it short.
-#: po/dagric-data-strings.sh:302
+#: po/dagric-data-strings.sh:308
 msgid "Friendly pixel icons inspired by early personal computers."
 msgstr "Freundliche Pixelsymbole im Stil früher Personal Computer."
 
 #. TRANSLATORS: the name of a Dagric wallpaper pack. "Dagric" is the brand
 #. and never changes; translate only the descriptive word after it.
-#: po/dagric-data-strings.sh:305
+#: po/dagric-data-strings.sh:311
 msgid "Dagric"
 msgstr "Dagric"
 
 #. TRANSLATORS: the name of a Dagric wallpaper pack. "Dagric" is the brand
 #. and never changes; translate only the descriptive word after it.
-#: po/dagric-data-strings.sh:308
+#: po/dagric-data-strings.sh:314
 msgid "Dagric Arctic"
 msgstr "Dagric Arktis"
 
 #. TRANSLATORS: the name of a Dagric wallpaper pack. "Dagric" is the brand
 #. and never changes; translate only the descriptive word after it.
-#: po/dagric-data-strings.sh:311
+#: po/dagric-data-strings.sh:317
 msgid "Dagric Arctic Clean"
 msgstr "Dagric Arktis Schlicht"
 
 #. TRANSLATORS: the name of a Dagric wallpaper pack. "Dagric" is the brand
 #. and never changes; translate only the descriptive word after it.
-#: po/dagric-data-strings.sh:314
+#: po/dagric-data-strings.sh:320
 msgid "Dagric Aurora"
 msgstr "Dagric Aurora"
 
 #. TRANSLATORS: the name of a Dagric wallpaper pack. "Dagric" is the brand
 #. and never changes; translate only the descriptive word after it.
-#: po/dagric-data-strings.sh:317
+#: po/dagric-data-strings.sh:323
 msgid "Dagric Aurora Clean"
 msgstr "Dagric Aurora Schlicht"
 
 #. TRANSLATORS: the name of a Dagric wallpaper pack. "Dagric" is the brand
 #. and never changes; translate only the descriptive word after it.
-#: po/dagric-data-strings.sh:320
+#: po/dagric-data-strings.sh:326
 msgid "Dagric Contour"
 msgstr "Dagric Kontur"
 
 #. TRANSLATORS: the name of a Dagric wallpaper pack. "Dagric" is the brand
 #. and never changes; translate only the descriptive word after it.
-#: po/dagric-data-strings.sh:323
+#: po/dagric-data-strings.sh:329
 msgid "Dagric Contour Clean"
 msgstr "Dagric Kontur Schlicht"
 
 #. TRANSLATORS: the name of a Dagric wallpaper pack. "Dagric" is the brand
 #. and never changes; translate only the descriptive word after it.
-#: po/dagric-data-strings.sh:326
+#: po/dagric-data-strings.sh:332
 msgid "Dagric Copper"
 msgstr "Dagric Kupfer"
 
 #. TRANSLATORS: the name of a Dagric wallpaper pack. "Dagric" is the brand
 #. and never changes; translate only the descriptive word after it.
-#: po/dagric-data-strings.sh:329
+#: po/dagric-data-strings.sh:335
 msgid "Dagric Copper Clean"
 msgstr "Dagric Kupfer Schlicht"
 
 #. TRANSLATORS: the name of a Dagric wallpaper pack. "Dagric" is the brand
 #. and never changes; translate only the descriptive word after it.
-#: po/dagric-data-strings.sh:332
+#: po/dagric-data-strings.sh:338
 msgid "Dagric Dawn"
 msgstr "Dagric Morgengrauen"
 
 #. TRANSLATORS: the name of a Dagric wallpaper pack. "Dagric" is the brand
 #. and never changes; translate only the descriptive word after it.
-#: po/dagric-data-strings.sh:335
+#: po/dagric-data-strings.sh:341
 msgid "Dagric Dusk"
 msgstr "Dagric Dämmerung"
 
 #. TRANSLATORS: the name of a Dagric wallpaper pack. "Dagric" is the brand
 #. and never changes; translate only the descriptive word after it.
-#: po/dagric-data-strings.sh:338
+#: po/dagric-data-strings.sh:344
 msgid "Dagric Ember"
 msgstr "Dagric Glut"
 
 #. TRANSLATORS: the name of a Dagric wallpaper pack. "Dagric" is the brand
 #. and never changes; translate only the descriptive word after it.
-#: po/dagric-data-strings.sh:341
+#: po/dagric-data-strings.sh:347
 msgid "Dagric Ember Clean"
 msgstr "Dagric Glut Schlicht"
 
 #. TRANSLATORS: the name of a Dagric wallpaper pack. "Dagric" is the brand
 #. and never changes; translate only the descriptive word after it.
-#: po/dagric-data-strings.sh:344
+#: po/dagric-data-strings.sh:350
 msgid "Dagric Forest"
 msgstr "Dagric Wald"
 
 #. TRANSLATORS: the name of a Dagric wallpaper pack. "Dagric" is the brand
 #. and never changes; translate only the descriptive word after it.
-#: po/dagric-data-strings.sh:347
+#: po/dagric-data-strings.sh:353
 msgid "Dagric Halftone"
 msgstr "Dagric Raster"
 
 #. TRANSLATORS: the name of a Dagric wallpaper pack. "Dagric" is the brand
 #. and never changes; translate only the descriptive word after it.
-#: po/dagric-data-strings.sh:350
+#: po/dagric-data-strings.sh:356
 msgid "Dagric Halftone Clean"
 msgstr "Dagric Raster Schlicht"
 
 #. TRANSLATORS: the name of a Dagric wallpaper pack. "Dagric" is the brand
 #. and never changes; translate only the descriptive word after it.
-#: po/dagric-data-strings.sh:353
+#: po/dagric-data-strings.sh:359
 msgid "Dagric Ink"
 msgstr "Dagric Tinte"
 
 #. TRANSLATORS: the name of a Dagric wallpaper pack. "Dagric" is the brand
 #. and never changes; translate only the descriptive word after it.
-#: po/dagric-data-strings.sh:356
+#: po/dagric-data-strings.sh:362
 msgid "Dagric Ink Clean"
 msgstr "Dagric Tinte Schlicht"
 
 #. TRANSLATORS: the name of a Dagric wallpaper pack. "Dagric" is the brand
 #. and never changes; translate only the descriptive word after it.
-#: po/dagric-data-strings.sh:359
+#: po/dagric-data-strings.sh:365
 msgid "Dagric Linen"
 msgstr "Dagric Leinen"
 
 #. TRANSLATORS: the name of a Dagric wallpaper pack. "Dagric" is the brand
 #. and never changes; translate only the descriptive word after it.
-#: po/dagric-data-strings.sh:362
+#: po/dagric-data-strings.sh:368
 msgid "Dagric Linen Clean"
 msgstr "Dagric Leinen Schlicht"
 
 #. TRANSLATORS: the name of a Dagric wallpaper pack. "Dagric" is the brand
 #. and never changes; translate only the descriptive word after it.
-#: po/dagric-data-strings.sh:365
+#: po/dagric-data-strings.sh:371
 msgid "Dagric Mesh"
 msgstr "Dagric Netz"
 
 #. TRANSLATORS: the name of a Dagric wallpaper pack. "Dagric" is the brand
 #. and never changes; translate only the descriptive word after it.
-#: po/dagric-data-strings.sh:368
+#: po/dagric-data-strings.sh:374
 msgid "Dagric Mesh Clean"
 msgstr "Dagric Netz Schlicht"
 
 #. TRANSLATORS: the name of a Dagric wallpaper pack. "Dagric" is the brand
 #. and never changes; translate only the descriptive word after it.
-#: po/dagric-data-strings.sh:371
+#: po/dagric-data-strings.sh:377
 msgid "Dagric Midnight"
 msgstr "Dagric Mitternacht"
 
 #. TRANSLATORS: the name of a Dagric wallpaper pack. "Dagric" is the brand
 #. and never changes; translate only the descriptive word after it.
-#: po/dagric-data-strings.sh:374
+#: po/dagric-data-strings.sh:380
 msgid "Dagric Neon"
 msgstr "Dagric Neon"
 
 #. TRANSLATORS: the name of a Dagric wallpaper pack. "Dagric" is the brand
 #. and never changes; translate only the descriptive word after it.
-#: po/dagric-data-strings.sh:377
+#: po/dagric-data-strings.sh:383
 msgid "Dagric Night Orbit"
 msgstr "Dagric Night Orbit"
 
 #. TRANSLATORS: the name of a Dagric wallpaper pack. "Dagric" is the brand
 #. and never changes; translate only the descriptive word after it.
-#: po/dagric-data-strings.sh:380
+#: po/dagric-data-strings.sh:386
 msgid "Obsidian Pulse"
 msgstr "Obsidian Pulse"
 
 #. TRANSLATORS: the name of a Dagric wallpaper pack. "Dagric" is the brand
 #. and never changes; translate only the descriptive word after it.
-#: po/dagric-data-strings.sh:383
+#: po/dagric-data-strings.sh:389
 msgid "Dagric Open Coast"
 msgstr "Dagric Open Coast"
 
 #. TRANSLATORS: the name of a Dagric wallpaper pack. "Dagric" is the brand
 #. and never changes; translate only the descriptive word after it.
-#: po/dagric-data-strings.sh:386
+#: po/dagric-data-strings.sh:392
 msgid "Dagric Open Horizon"
 msgstr "Dagric Open Horizon"
 
 #. TRANSLATORS: the name of a Dagric wallpaper pack. "Dagric" is the brand
 #. and never changes; translate only the descriptive word after it.
-#: po/dagric-data-strings.sh:389
+#: po/dagric-data-strings.sh:395
 msgid "Dagric Prism"
 msgstr "Dagric Prisma"
 
 #. TRANSLATORS: the name of a Dagric wallpaper pack. "Dagric" is the brand
 #. and never changes; translate only the descriptive word after it.
-#: po/dagric-data-strings.sh:392
+#: po/dagric-data-strings.sh:398
 msgid "Dagric Prism Clean"
 msgstr "Dagric Prisma Schlicht"
 
 #. TRANSLATORS: the name of a Dagric wallpaper pack. "Dagric" is the brand
 #. and never changes; translate only the descriptive word after it.
-#: po/dagric-data-strings.sh:395
+#: po/dagric-data-strings.sh:401
 msgid "Dagric Sand"
 msgstr "Dagric Sand"
 
 #. TRANSLATORS: the name of a Dagric wallpaper pack. "Dagric" is the brand
 #. and never changes; translate only the descriptive word after it.
-#: po/dagric-data-strings.sh:398
+#: po/dagric-data-strings.sh:404
 msgid "Dagric Sand Clean"
 msgstr "Dagric Sand Schlicht"
 
 #. TRANSLATORS: the name of a Dagric wallpaper pack. "Dagric" is the brand
 #. and never changes; translate only the descriptive word after it.
-#: po/dagric-data-strings.sh:401
+#: po/dagric-data-strings.sh:407
 msgid "Dagric Slate"
 msgstr "Dagric Schiefer"
 
 #. TRANSLATORS: the name of a Dagric wallpaper pack. "Dagric" is the brand
 #. and never changes; translate only the descriptive word after it.
-#: po/dagric-data-strings.sh:404
+#: po/dagric-data-strings.sh:410
 msgid "Dagric Slate Clean"
 msgstr "Dagric Schiefer Schlicht"
 
 #. TRANSLATORS: the name of a Dagric wallpaper pack. "Dagric" is the brand
 #. and never changes; translate only the descriptive word after it.
-#: po/dagric-data-strings.sh:407
+#: po/dagric-data-strings.sh:413
 msgid "Dagric Violet"
 msgstr "Dagric Violett"
 
 #. TRANSLATORS: the name of a Dagric wallpaper pack. "Dagric" is the brand
 #. and never changes; translate only the descriptive word after it.
-#: po/dagric-data-strings.sh:410
+#: po/dagric-data-strings.sh:416
 msgid "Dagric Violet Clean"
 msgstr "Dagric Violett Schlicht"
 
 #. TRANSLATORS: the name of a Dagric wallpaper pack. "Dagric" is the brand
 #. and never changes; translate only the descriptive word after it.
-#: po/dagric-data-strings.sh:413
+#: po/dagric-data-strings.sh:419
 msgid "Dagric Void"
 msgstr "Dagric Leere"
 
 #. TRANSLATORS: the name of a Dagric wallpaper pack. "Dagric" is the brand
 #. and never changes; translate only the descriptive word after it.
-#: po/dagric-data-strings.sh:416
+#: po/dagric-data-strings.sh:422
 msgid "Dagric Void Clean"
 msgstr "Dagric Leere Schlicht"
 
 #. TRANSLATORS: the name of a Dagric wallpaper pack. "Dagric" is the brand
 #. and never changes; translate only the descriptive word after it.
-#: po/dagric-data-strings.sh:419
+#: po/dagric-data-strings.sh:425
 msgid "Dagric Wild Meadow"
 msgstr "Dagric Wild Meadow"
 
-#: config/includes.chroot/usr/lib/dagric/display-autoscale:103
+#: config/includes.chroot/usr/lib/dagric/display-autoscale:106
 #: config/includes.chroot/usr/bin/dagric-display:47
 msgid "Dagric Display"
 msgstr "Dagric Anzeige"
 
-#: config/includes.chroot/usr/lib/dagric/display-autoscale:104
+#: config/includes.chroot/usr/lib/dagric/display-autoscale:107
 msgid "The text size was put back — the last change was never confirmed."
 msgstr ""
 "Die vorherige Textgröße wurde wiederhergestellt — die letzte Änderung wurde "
@@ -1611,35 +1644,27 @@ msgstr "Automatisch für diesen Bildschirm gewählt"
 msgid "Which screen?"
 msgstr "Welcher Bildschirm?"
 
-#: config/includes.chroot/usr/bin/dagric-display:150
+#: config/includes.chroot/usr/bin/dagric-display:153
+msgid "Close Set Up Dagric before changing text size in this window."
+msgstr "Schließe die Dagric-Einrichtung, bevor du die Textgröße in diesem Fenster änderst."
+
+#: config/includes.chroot/usr/bin/dagric-display:160
 msgid "No screen reported its settings, so there is nothing to change here."
 msgstr ""
 "Kein Bildschirm hat seine Einstellungen gemeldet, daher gibt es hier nichts "
 "zu ändern."
 
-#: config/includes.chroot/usr/bin/dagric-display:184
+#: config/includes.chroot/usr/bin/dagric-display:194
 #, sh-format
 msgid "Text and icon size on $_fr:"
 msgstr "Text- und Symbolgröße auf $_fr:"
 
-#: config/includes.chroot/usr/bin/dagric-display:206
+#: config/includes.chroot/usr/bin/dagric-display:216
 #, sh-format
 msgid "The size could not be changed on $_fr."
 msgstr "Die Größe konnte auf $_fr nicht geändert werden."
 
-#. TRANSLATORS: keep the two button labels SHORT. This dialog is drawn at
-#. the new, larger text size — that is the whole point of it — so a long
-#. label is the one that pushes the button off the screen, on exactly the
-#. machine where the owner most needs to press it.
-#: config/includes.chroot/usr/bin/dagric-display:218
-msgid "Keep this size"
-msgstr "Diese Größe beibehalten"
-
-#: config/includes.chroot/usr/bin/dagric-display:218
-msgid "Put it back"
-msgstr "Zurücksetzen"
-
-#: config/includes.chroot/usr/bin/dagric-display:220
+#: config/includes.chroot/usr/bin/dagric-display:230
 #, sh-format
 msgid ""
 "Text is now at $_new%.\n"
@@ -1652,17 +1677,17 @@ msgstr ""
 "Beibehalten? Wenn Sie nicht antworten, kommt die alte Größe\n"
 "nach $HOLD Sekunden von selbst zurück."
 
-#: config/includes.chroot/usr/bin/dagric-display:234
+#: config/includes.chroot/usr/bin/dagric-display:244
 #, sh-format
 msgid "Text size kept at $_new%."
 msgstr "Schriftgröße bei $_new % beibehalten."
 
-#: config/includes.chroot/usr/bin/dagric-display:237
+#: config/includes.chroot/usr/bin/dagric-display:247
 #, sh-format
 msgid "Text size put back to $_cur%."
 msgstr "Schriftgröße auf $_cur % zurückgesetzt."
 
-#: config/includes.chroot/usr/bin/dagric-display:276
+#: config/includes.chroot/usr/bin/dagric-display:286
 msgid ""
 "Right now it follows sunset and sunrise, which was set on the full Night "
 "Light page."
@@ -1670,57 +1695,57 @@ msgstr ""
 "Zurzeit richtet es sich nach Sonnenuntergang und Sonnenaufgang; das wurde "
 "auf der vollständigen Nachtfarben-Seite eingestellt."
 
-#: config/includes.chroot/usr/bin/dagric-display:289
+#: config/includes.chroot/usr/bin/dagric-display:299
 msgid "Off — normal colours all day"
 msgstr "Aus — den ganzen Tag normale Farben"
 
-#: config/includes.chroot/usr/bin/dagric-display:290
+#: config/includes.chroot/usr/bin/dagric-display:300
 msgid "On in the evening — warmer from 8pm until 7am"
 msgstr "Abends an — wärmer von 20:00 bis 7:00 Uhr"
 
-#: config/includes.chroot/usr/bin/dagric-display:291
+#: config/includes.chroot/usr/bin/dagric-display:301
 msgid "On all the time — always warm"
 msgstr "Immer an — dauerhaft warm"
 
-#: config/includes.chroot/usr/bin/dagric-display:292
+#: config/includes.chroot/usr/bin/dagric-display:302
 msgid "More options — set your own times and warmth"
 msgstr "Weitere Einstellungen — eigene Zeiten und Wärme festlegen"
 
-#: config/includes.chroot/usr/bin/dagric-display:298
+#: config/includes.chroot/usr/bin/dagric-display:308
 msgid "Night colour makes the screen warmer so it is easier on the eyes:"
 msgstr "Nachtfarben machen den Bildschirm wärmer und damit augenschonender:"
 
-#: config/includes.chroot/usr/bin/dagric-display:305
+#: config/includes.chroot/usr/bin/dagric-display:315
 msgid "Night colour is off."
 msgstr "Nachtfarben sind aus."
 
-#: config/includes.chroot/usr/bin/dagric-display:315
+#: config/includes.chroot/usr/bin/dagric-display:325
 msgid "Night colour is on from 8pm until 7am."
 msgstr "Nachtfarben sind von 20:00 bis 7:00 Uhr aktiv."
 
-#: config/includes.chroot/usr/bin/dagric-display:319
+#: config/includes.chroot/usr/bin/dagric-display:329
 msgid "Night colour is on all the time."
 msgstr "Nachtfarben sind dauerhaft aktiv."
 
-#: config/includes.chroot/usr/bin/dagric-display:363
+#: config/includes.chroot/usr/bin/dagric-display:373
 msgid "What would you like to change?"
 msgstr "Was möchten Sie ändern?"
 
-#: config/includes.chroot/usr/bin/dagric-display:364
+#: config/includes.chroot/usr/bin/dagric-display:374
 msgid "Text and icon size"
 msgstr "Text- und Symbolgröße"
 
-#: config/includes.chroot/usr/bin/dagric-display:365
+#: config/includes.chroot/usr/bin/dagric-display:375
 msgid "Night colour — a warmer screen in the evening"
 msgstr "Nachtfarben — abends ein wärmerer Bildschirm"
 
-#: config/includes.chroot/usr/bin/dagric-display:366
+#: config/includes.chroot/usr/bin/dagric-display:376
 msgid "More screens, resolution and refresh rate"
 msgstr "Weitere Bildschirme, Auflösung und Bildwiederholrate"
 
 #: config/includes.chroot/usr/bin/dagric-driver-offer:51
-#: config/includes.chroot/usr/bin/dagric-firstrun:781
-#: config/includes.chroot/usr/bin/dagric-firstrun:895
+#: config/includes.chroot/usr/bin/dagric-firstrun:801
+#: config/includes.chroot/usr/bin/dagric-firstrun:915
 #: config/includes.chroot/usr/bin/dagric-hub:25
 #: config/includes.chroot/usr/bin/dagric-setup:17
 msgid "Press Enter to close..."
@@ -1952,43 +1977,43 @@ msgstr ""
 "Die Limits wurden nicht entfernt. Auf diesem Computer hat sich nichts "
 "geändert."
 
-#: config/includes.chroot/usr/bin/dagric-firstrun:410
+#: config/includes.chroot/usr/bin/dagric-firstrun:430
 msgid "Theme default"
 msgstr "Designvorgabe"
 
-#: config/includes.chroot/usr/bin/dagric-firstrun:411
+#: config/includes.chroot/usr/bin/dagric-firstrun:431
 msgid "Dagric blue"
 msgstr "Dagric Blau"
 
-#: config/includes.chroot/usr/bin/dagric-firstrun:412
+#: config/includes.chroot/usr/bin/dagric-firstrun:432
 msgid "Teal"
 msgstr "Blaugrün"
 
-#: config/includes.chroot/usr/bin/dagric-firstrun:413
+#: config/includes.chroot/usr/bin/dagric-firstrun:433
 msgid "Green"
 msgstr "Grün"
 
-#: config/includes.chroot/usr/bin/dagric-firstrun:414
+#: config/includes.chroot/usr/bin/dagric-firstrun:434
 msgid "Amber"
 msgstr "Bernstein"
 
-#: config/includes.chroot/usr/bin/dagric-firstrun:415
+#: config/includes.chroot/usr/bin/dagric-firstrun:435
 msgid "Coral"
 msgstr "Koralle"
 
-#: config/includes.chroot/usr/bin/dagric-firstrun:416
+#: config/includes.chroot/usr/bin/dagric-firstrun:436
 msgid "Violet"
 msgstr "Violett"
 
-#: config/includes.chroot/usr/bin/dagric-firstrun:417
+#: config/includes.chroot/usr/bin/dagric-firstrun:437
 msgid "Pink"
 msgstr "Rosa"
 
-#: config/includes.chroot/usr/bin/dagric-firstrun:418
+#: config/includes.chroot/usr/bin/dagric-firstrun:438
 msgid "Slate"
 msgstr "Schiefer"
 
-#: config/includes.chroot/usr/bin/dagric-firstrun:657
+#: config/includes.chroot/usr/bin/dagric-firstrun:677
 msgid ""
 "The text size could not be changed here. Open System Settings ▸ Display & "
 "Monitor to set it."
@@ -1996,8 +2021,8 @@ msgstr ""
 "Die Schriftgröße konnte hier nicht geändert werden. Öffnen Sie "
 "Systemeinstellungen ▸ Anzeige und Monitor, um sie einzustellen."
 
-#: config/includes.chroot/usr/bin/dagric-firstrun:837
-#: config/includes.chroot/usr/bin/dagric-firstrun:841
+#: config/includes.chroot/usr/bin/dagric-firstrun:857
+#: config/includes.chroot/usr/bin/dagric-firstrun:861
 msgid ""
 "Your chosen apps could not be started. Everything you ticked is still one "
 "click away in the Dagric Hub."
@@ -2005,12 +2030,12 @@ msgstr ""
 "Die ausgewählten Apps konnten nicht gestartet werden. Alles Angekreuzte ist "
 "im Dagric Hub weiterhin einen Klick entfernt."
 
-#: config/includes.chroot/usr/bin/dagric-firstrun:921
+#: config/includes.chroot/usr/bin/dagric-firstrun:941
 #, sh-format
 msgid "Welcome to $EDITION_NAME."
 msgstr "Willkommen bei $EDITION_NAME."
 
-#: config/includes.chroot/usr/bin/dagric-firstrun:923
+#: config/includes.chroot/usr/bin/dagric-firstrun:943
 msgid ""
 "The setup window could not be opened on this machine, so here is the short "
 "version."
@@ -2018,34 +2043,34 @@ msgstr ""
 "Das Einrichtungsfenster konnte auf diesem Computer nicht geöffnet werden, "
 "daher folgt hier die Kurzfassung."
 
-#: config/includes.chroot/usr/bin/dagric-firstrun:929
+#: config/includes.chroot/usr/bin/dagric-firstrun:949
 msgid "Light or dark?"
 msgstr "Hell oder dunkel?"
 
-#: config/includes.chroot/usr/bin/dagric-firstrun:931
-#: config/includes.chroot/usr/bin/dagric-firstrun:944
-#: config/includes.chroot/usr/bin/dagric-firstrun:955
-#: config/includes.chroot/usr/bin/dagric-firstrun:970
+#: config/includes.chroot/usr/bin/dagric-firstrun:951
+#: config/includes.chroot/usr/bin/dagric-firstrun:964
+#: config/includes.chroot/usr/bin/dagric-firstrun:975
+#: config/includes.chroot/usr/bin/dagric-firstrun:990
 msgid "Stop here — I'll finish later"
 msgstr "Hier aufhören — ich mache später weiter"
 
-#: config/includes.chroot/usr/bin/dagric-firstrun:943
+#: config/includes.chroot/usr/bin/dagric-firstrun:963
 msgid "Pick a wallpaper:"
 msgstr "Wählen Sie ein Hintergrundbild:"
 
-#: config/includes.chroot/usr/bin/dagric-firstrun:951
+#: config/includes.chroot/usr/bin/dagric-firstrun:971
 msgid "How big should everything be?"
 msgstr "Wie groß soll alles sein?"
 
-#: config/includes.chroot/usr/bin/dagric-firstrun:952
+#: config/includes.chroot/usr/bin/dagric-firstrun:972
 msgid "Normal (100%)"
 msgstr "Normal (100 %)"
 
-#: config/includes.chroot/usr/bin/dagric-firstrun:953
+#: config/includes.chroot/usr/bin/dagric-firstrun:973
 msgid "Bigger (125%)"
 msgstr "Größer (125 %)"
 
-#: config/includes.chroot/usr/bin/dagric-firstrun:954
+#: config/includes.chroot/usr/bin/dagric-firstrun:974
 msgid "Biggest (150%)"
 msgstr "Am größten (150 %)"
 
@@ -2053,7 +2078,7 @@ msgstr "Am größten (150 %)"
 #. is the product's central promise, said to somebody who is afraid of
 #. losing the Windows install they may still need. Keep the negation and
 #. keep the emphasis on READ.
-#: config/includes.chroot/usr/bin/dagric-firstrun:982
+#: config/includes.chroot/usr/bin/dagric-firstrun:1002
 msgid ""
 "A Windows drive was found on this PC.\n"
 "\n"
@@ -2071,7 +2096,7 @@ msgstr ""
 #. they must match the Name= of dagric-hub.desktop, dagric-manual.desktop
 #. and dagric-firstrun.desktop in your language, exactly. "Dagric Hub" is
 #. not translated at all — it is a product name.
-#: config/includes.chroot/usr/bin/dagric-firstrun:996
+#: config/includes.chroot/usr/bin/dagric-firstrun:1016
 msgid ""
 "You're set up.\n"
 "\n"
@@ -2094,11 +2119,11 @@ msgstr ""
 "\n"
 "Um dies erneut zu sehen, öffnen Sie \"Dagric einrichten\" im Anwendungsmenü."
 
-#: config/includes.chroot/usr/bin/dagric-firstrun:1365
+#: config/includes.chroot/usr/bin/dagric-firstrun:1408
 msgid "Dagric is set up. Everything else lives in the Dagric Hub."
 msgstr "Dagric ist eingerichtet. Alles Weitere finden Sie im Dagric Hub."
 
-#: config/includes.chroot/usr/bin/dagric-firstrun:1383
+#: config/includes.chroot/usr/bin/dagric-firstrun:1426
 msgid ""
 "Setup closed before Finish, so nothing you ticked was installed. Everything "
 "is still one click away in the Dagric Hub."
@@ -4807,56 +4832,75 @@ msgid ""
 "OpenSnitch's control directory must be owned by root:sudo with mode 2770. "
 "Restart the computer or ask an administrator to repair the Dagric tools "
 "package."
-msgstr "Das Steuerverzeichnis von OpenSnitch muss root:sudo gehören und den Modus 2770 haben. Starten Sie den Computer neu oder bitten Sie einen Administrator, das Paket mit den Dagric-Werkzeugen zu reparieren."
+msgstr ""
+"Das Steuerverzeichnis von OpenSnitch muss root:sudo gehören und den Modus "
+"2770 haben. Starten Sie den Computer neu oder bitten Sie einen "
+"Administrator, das Paket mit den Dagric-Werkzeugen zu reparieren."
 
 #: config/includes.chroot/usr/bin/opensnitch-ui:45
 msgid ""
 "Open OpenSnitch from your desktop account, without sudo. The interface must "
 "not run as root."
-msgstr "Öffnen Sie OpenSnitch von Ihrem Desktop-Konto aus, ohne sudo. Die Oberfläche darf nicht als root laufen."
+msgstr ""
+"Öffnen Sie OpenSnitch von Ihrem Desktop-Konto aus, ohne sudo. Die Oberfläche "
+"darf nicht als root laufen."
 
 #: config/includes.chroot/usr/bin/opensnitch-ui:48
 msgid ""
 "OpenSnitch controls network rules for the whole computer. Sign in with an "
 "administrator account to use it. Existing system firewall rules still apply "
 "to your account."
-msgstr "OpenSnitch steuert die Netzwerkregeln für den gesamten Computer. Melden Sie sich mit einem Administratorkonto an, um es zu verwenden. Vorhandene System-Firewallregeln gelten weiterhin für Ihr Konto."
+msgstr ""
+"OpenSnitch steuert die Netzwerkregeln für den gesamten Computer. Melden Sie "
+"sich mit einem Administratorkonto an, um es zu verwenden. Vorhandene System-"
+"Firewallregeln gelten weiterhin für Ihr Konto."
 
 #: config/includes.chroot/usr/bin/opensnitch-ui:57
 #: config/includes.chroot/usr/bin/opensnitch-ui:60
 msgid ""
 "The OpenSnitch launcher has unexpected ownership or permissions. Reinstall "
 "the Dagric tools package."
-msgstr "Der OpenSnitch-Starter hat unerwartete Eigentümer oder Berechtigungen. Installieren Sie das Paket mit den Dagric-Werkzeugen erneut."
+msgstr ""
+"Der OpenSnitch-Starter hat unerwartete Eigentümer oder Berechtigungen. "
+"Installieren Sie das Paket mit den Dagric-Werkzeugen erneut."
 
 #: config/includes.chroot/usr/bin/opensnitch-ui:70
 msgid ""
 "OpenSnitch could not save its initial preference. Check that your home "
 "folder is writable."
-msgstr "OpenSnitch konnte seine anfängliche Einstellung nicht speichern. Prüfen Sie, ob Ihr persönlicher Ordner beschreibbar ist."
+msgstr ""
+"OpenSnitch konnte seine anfängliche Einstellung nicht speichern. Prüfen Sie, "
+"ob Ihr persönlicher Ordner beschreibbar ist."
 
 #: config/includes.chroot/usr/bin/opensnitch-ui:76
 msgid "Only an administrator can update the system firewall configuration."
-msgstr "Nur ein Administrator kann die Konfiguration der System-Firewall ändern."
+msgstr ""
+"Nur ein Administrator kann die Konfiguration der System-Firewall ändern."
 
 #: config/includes.chroot/usr/bin/opensnitch-ui:85
 msgid ""
 "The firewall configuration has unexpected ownership or permissions. Ask an "
 "administrator to repair it."
-msgstr "Die Firewall-Konfiguration hat unerwartete Eigentümer oder Berechtigungen. Bitten Sie einen Administrator, sie zu reparieren."
+msgstr ""
+"Die Firewall-Konfiguration hat unerwartete Eigentümer oder Berechtigungen. "
+"Bitten Sie einen Administrator, sie zu reparieren."
 
 #: config/includes.chroot/usr/bin/opensnitch-ui:90
 #: config/includes.chroot/usr/bin/opensnitch-ui:93
 msgid ""
 "The firewall configuration is invalid. Restore its configuration before "
 "starting OpenSnitch."
-msgstr "Die Firewall-Konfiguration ist ungültig. Stellen Sie die Konfiguration wieder her, bevor Sie OpenSnitch starten."
+msgstr ""
+"Die Firewall-Konfiguration ist ungültig. Stellen Sie die Konfiguration "
+"wieder her, bevor Sie OpenSnitch starten."
 
 #: config/includes.chroot/usr/bin/opensnitch-ui:124
 msgid ""
 "Use opensnitch-ui from the launcher. Dagric manages its local control "
 "address."
-msgstr "Öffnen Sie opensnitch-ui über den Anwendungsstarter. Dagric verwaltet seine lokale Steueradresse."
+msgstr ""
+"Öffnen Sie opensnitch-ui über den Anwendungsstarter. Dagric verwaltet seine "
+"lokale Steueradresse."
 
 #~ msgid ""
 #~ "Dagric — install Heroic Games Launcher\n"

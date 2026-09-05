@@ -84,6 +84,7 @@
 // the new step politely and leaves the user's focus exactly where they left it.
 
 import QtQuick
+import QtQuick.Window
 import QtQuick.Controls
 import QtQuick.Layouts
 
@@ -91,22 +92,10 @@ ApplicationWindow {
     id: app
 
     visible: true
-    // Fullscreen, frameless, like the out-of-box experience this audience just
-    // left. Two things follow and both are deliberate:
-    //   * there is no title bar and therefore no window close button. The exit
-    //     is the wizard's own "I'll do this later", which is the escape hatch
-    //     that must never be removed — a first run someone cannot leave is a
-    //     first run someone force-reboots out of.
-    //   * anything launched from INSIDE the wizard would open behind this
-    //     window and be invisible. Two answers, for two kinds of launch: the
-    //     downloads step QUEUES its installs and runs them at Finish, after
-    //     this window is gone — and every run() helper (text size, migration,
-    //     the finish links) DROPS THE WIZARD TO WINDOWED first, because those
-    //     are interactive mid-wizard by design and cannot be deferred. See
-    //     run() for why the drop is one-way.
-    // width/height below are kept as the fallback geometry for a window
-    // manager that refuses fullscreen.
-    visibility: Window.FullScreen
+    // Let KWin manage the work area and monitor origin. Fullscreen plus manual
+    // centering became a clipped normal window when a helper opened. Layout
+    // changes are now deferred and text-size trials remain inside this window.
+    visibility: Window.Maximized
     width: 1060
     height: 720
     // These used to be 760x560. That is bigger than the whole desktop once a
@@ -116,8 +105,8 @@ ApplicationWindow {
     // could not finish the wizard. Every page scrolls now (see Page), so a
     // small window is cramped rather than broken, and the minimum can be the
     // smallest thing that still reads.
-    minimumWidth: 560
-    minimumHeight: 420
+    minimumWidth: 360
+    minimumHeight: 320
     title: app.windowTitle
     color: app.cBg
 
@@ -146,6 +135,14 @@ ApplicationWindow {
     property string scaleMode: "none"      // wayland | x11 | none
     property int currentScale: 0
     property bool hasDisplayTool: false
+    property string scaleStatusPath: ""
+    property int scaleRevision: 0
+    property bool scaleReady: false
+    property bool scaleBusy: false
+    property bool scaleTrial: false
+    property int scaleSeconds: 0
+    property string scaleError: ""
+    property var allowedScales: []
     property bool hasWindows: false
     property var wallpapers: []
     property var accents: []
@@ -249,13 +246,13 @@ ApplicationWindow {
     // feel like flipping a switch on the whole machine, and a wizard that stays
     // stubbornly light while the desktop behind it goes dark undercuts that.
     readonly property bool dark: app.mode === "dark"
-    property color cBg:     app.dark ? "#0a111c" : "#eef2f8"
-    property color cPanel:  app.dark ? "#111c2b" : "#ffffff"
-    property color cPanel2: app.dark ? "#17243a" : "#e3eaf4"
-    property color cLine:   app.dark ? "#22334d" : "#cfd9e8"
-    property color cText:   app.dark ? "#e8eef7" : "#101a26"
-    property color cDim:    app.dark ? "#93a4bd" : "#586a80"
-    property color cAccent: "#ff3b5c"
+    property color cBg:     app.dark ? "#101012" : "#f3f3f4"
+    property color cPanel:  app.dark ? "#19191d" : "#ffffff"
+    property color cPanel2: app.dark ? "#242429" : "#e8e8eb"
+    property color cLine:   app.dark ? "#36363e" : "#cfcfd5"
+    property color cText:   app.dark ? "#f5f5f7" : "#17171b"
+    property color cDim:    app.dark ? "#b6b6c0" : "#585861"
+    property color cAccent: "#b82036"
 
     // --- contrast, computed rather than guessed ------------------------------
     // WCAG 2.x relative luminance and contrast ratio, straight from the spec.
@@ -396,6 +393,7 @@ ApplicationWindow {
                 app.scaleMode = d.scaleMode ? d.scaleMode : "none";
                 app.currentScale = d.currentScale ? d.currentScale : 0;
                 app.hasDisplayTool = d.hasDisplayTool === true;
+                app.scaleStatusPath = d.scaleStatusPath || "";
                 app.strings = d.strings ? d.strings : ({});
                 app.hasWindows = d.hasWindows === true;
                 app.wallpapers = d.wallpapers ? d.wallpapers : [];
@@ -445,22 +443,8 @@ ApplicationWindow {
 
     Component.onCompleted: {
         app.loadCatalog();
-        // FIT THE SCREEN BEFORE CENTRING ON IT. 1060x720 is the comfortable
-        // size, but it was being used as the only size: on anything narrower
-        // the window simply hung off the right-hand edge, and the right-hand
-        // edge is where the footer keeps "Next" — the one control the owner
-        // has to reach. That is not a corner case here. A cautious Windows
-        // refugee tries the live ISO in VirtualBox or Boxes first, and those
-        // open at 800x600 or 1024x768; so does many an old 4:3 monitor on the
-        // machine being rescued. Shrink to what the screen actually offers,
-        // never below the minimum the layout needs, and use the AVAILABLE
-        // geometry so we do not centre the footer underneath the taskbar.
-        var aw = Screen.desktopAvailableWidth  > 0 ? Screen.desktopAvailableWidth  : Screen.width;
-        var ah = Screen.desktopAvailableHeight > 0 ? Screen.desktopAvailableHeight : Screen.height;
-        app.width  = Math.max(app.minimumWidth,  Math.min(app.width,  aw - 40));
-        app.height = Math.max(app.minimumHeight, Math.min(app.height, ah - 40));
-        app.x = Math.max(0, Math.round((aw - app.width) / 2));
-        app.y = Math.max(0, Math.round((ah - app.height) / 2));
+        // KWin owns available geometry, including panel offsets, multi-monitor
+        // origins and live scaling. Do not fight it with one-time x/y guesses.
         // The wrapper writes its "already shown" stamp on this line and not a
         // moment earlier: if the session was not ready and we never got here,
         // the next login must try again instead of losing the only chance.
@@ -598,6 +582,7 @@ ApplicationWindow {
     }
 
     function goNext() {
+        if (app.scaleBusy || app.scaleTrial) return;
         if (app.stepIndex < app.steps.length - 1)
             app.stepIndex = app.stepIndex + 1;
         else
@@ -605,6 +590,7 @@ ApplicationWindow {
     }
 
     function goBack() {
+        if (app.scaleBusy || app.scaleTrial) return;
         if (app.stepIndex > 0)
             app.stepIndex = app.stepIndex - 1;
     }
@@ -649,41 +635,72 @@ ApplicationWindow {
     }
 
     function pickScale(v) {
-        app.scale = v;
-        app.markTouched("display");
+        if (app.scaleBusy || app.scaleTrial) return;
+        app.scaleError = "";
+        if (app.scaleMode === "wayland") {
+            app.scaleBusy = true;
+        } else {
+            app.scale = v;
+            app.markTouched("display");
+        }
         app.send("SCALE|" + v);
-        app.say(app.tf("Text size set to %1 percent.", v));
+    }
+
+    function scaleDecision(keep) {
+        app.scaleBusy = true;
+        app.send(keep ? "SCALEKEEP" : "SCALEREVERT");
+    }
+
+    function pollScale() {
+        if (app.scaleMode !== "wayland" || !app.scaleStatusPath) return;
+        var xhr = new XMLHttpRequest();
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState !== XMLHttpRequest.DONE || !xhr.responseText) return;
+            try {
+                var s = JSON.parse(xhr.responseText);
+                if (s.revision <= app.scaleRevision) return;
+                app.scaleRevision = s.revision;
+                app.scaleReady = true;
+                app.allowedScales = s.allowed || [];
+                app.scaleBusy = false;
+                app.scaleTrial = s.phase === "trial";
+                app.scaleSeconds = s.remaining;
+                if (s.scale > 0) app.scale = s.scale;
+                app.scaleError = (s.phase === "error" || s.phase === "restore-error")
+                    ? app.t("This size could not be applied safely. Your previous size will be restored.") : "";
+                if (s.phase === "kept") app.markTouched("display");
+            } catch (e) { /* A missing status is not an acknowledgement. */ }
+        };
+        xhr.open("GET", "file://" + encodeURI(app.scaleStatusPath));
+        xhr.send();
+    }
+
+    Timer { interval: 250; running: app.loaded; repeat: true; onTriggered: app.pollScale() }
+    Timer { interval: 1000; running: app.scaleTrial; repeat: true;
+        onTriggered: app.scaleSeconds = Math.max(0, app.scaleSeconds - 1) }
+    Timer {
+        interval: 30000; running: app.scaleBusy; repeat: false
+        onTriggered: {
+            app.send("SCALEREVERT");
+            app.scaleBusy = false;
+            app.scaleError = app.t("This size could not be applied safely. Your previous size will be restored.");
+        }
     }
 
     function pickLayout(l) {
         app.layoutId = l.id;
         app.markTouched("taskbar");
         app.send("LAYOUT|" + l.id);
-        app.say(app.tf("%1 taskbar applied.", l.name));
+        app.say(app.t("Your taskbar choice will be applied when you finish setup."));
     }
 
     function run(what) {
-        // Leaving fullscreen is part of running a helper, not an option. Three
-        // pre-existing sites spawn windows mid-wizard — the text-size tool
-        // (whose try-a-size dialog AUTO-REVERTS in twenty seconds if its Keep
-        // button is not pressed), the migration konsole (whose page says
-        // "carry on here while it works"), and the four finish links — and a
-        // fullscreen, frameless wizard would sit exactly on top of every one
-        // of them. The first review of this change shipped that bug with a
-        // comment claiming it could not happen.
-        //
-        // Windowed, not Minimized, and deliberately NOT restored afterwards:
-        // the migration page promises the owner can keep using the wizard
-        // beside the helper, and snapping back to fullscreen on refocus would
-        // re-hide a helper window that is still open. The immersive first run
-        // lasts until the owner opens a tool; from then on the wizard behaves
-        // like an ordinary window, which is what sharing a screen requires.
-        if (app.visibility === Window.FullScreen)
-            app.visibility = Window.Windowed;
+        // A normal maximized window lets helper applications take focus.
         app.send("RUN|" + what);
     }
 
     function undoAll() {
+        if (app.scaleBusy || app.scaleTrial) return;
         app.send("UNDO");
         app.changed = false;
         app.touched = ({});
@@ -780,6 +797,7 @@ ApplicationWindow {
     // take Enter. All three button styles get the same two lines.
     component Primary: Button {
         id: pb
+        opacity: enabled ? 1 : 0.45
         implicitHeight: app.px(40)
         implicitWidth: Math.max(app.px(120), pbText.implicitWidth + app.px(44))
         Keys.onReturnPressed: function(event) { pb.clicked(); event.accepted = true; }
@@ -823,6 +841,7 @@ ApplicationWindow {
 
     component Ghost: Button {
         id: gb
+        opacity: enabled ? 1 : 0.45
         implicitHeight: app.px(40)
         implicitWidth: Math.max(app.px(110), gbText.implicitWidth + app.px(40))
         Keys.onReturnPressed: function(event) { gb.clicked(); event.accepted = true; }
@@ -854,6 +873,7 @@ ApplicationWindow {
 
     component Quiet: Button {
         id: qb
+        opacity: enabled ? 1 : 0.45
         implicitHeight: app.px(34)
         implicitWidth: qbText.implicitWidth + app.px(18)
         Keys.onReturnPressed: function(event) { qb.clicked(); event.accepted = true; }
@@ -1301,7 +1321,7 @@ ApplicationWindow {
             }
 
             Rectangle {
-                visible: app.edition === "pro"
+                visible: app.edition === "pro" && app.width >= app.px(900)
                 Layout.alignment: Qt.AlignVCenter
                 Layout.preferredWidth: proLabel.implicitWidth + app.px(18)
                 Layout.preferredHeight: app.px(24)
@@ -1951,42 +1971,17 @@ ApplicationWindow {
 
                 PageHead {
                     heading: app.t("Is the text the right size?")
-                    sub: app.hasDisplayTool
-                         ? app.t("Dagric guessed from your screen. Pick another size if it guessed wrong.")
-                         : (app.scaleMode === "x11"
+                    sub: (app.scaleMode === "x11"
                             ? app.t("Dagric guessed from your screen. A change here takes effect the next time you sign in.")
-                            : app.t("Dagric guessed from your screen. Pick another size and it changes right away."))
+                            : app.t("Try a size here. Keep it within 20 seconds, or Dagric puts it back. This changes text and icons on all screens."))
                 }
 
-                // The dedicated tool owns this properly when it is installed —
-                // shipping a second, disagreeing text-size control would just
-                // give support two answers to the same question.
-                //
-                // THE LABEL NAMES THE ACTION, NOT A DESTINATION, and it used to
-                // do neither correctly. It read "Open Display Settings", which
-                // in KDE means one specific thing: System Settings ▸ Display &
-                // Monitor. The button does not open that. It opens a small
-                // Dagric window — and the footer four lines below this one
-                // names the real System Settings page, so the page carried two
-                // similar phrases pointing at two different places, with the
-                // wrong one on the button. "Choose a text size" cannot be
-                // misread, and stays true whichever window the helper draws.
-                RowLayout {
-                    Layout.fillWidth: true
-                    spacing: app.px(14)
-                    visible: app.hasDisplayTool
-
-                    Primary {
-                        text: app.t("Choose a text size")
-                        Accessible.description: app.t("Opens a list of text sizes in a separate window. A new size is tried for twenty seconds and put back on its own unless you keep it.")
-                        onClicked: { app.markVisited("display"); app.run("display"); }
-                    }
-                }
 
                 Flow {
                     Layout.fillWidth: true
                     spacing: app.px(14)
-                    visible: !app.hasDisplayTool
+                    visible: true
+                    enabled: !app.scaleBusy && !app.scaleTrial && (app.scaleMode !== "wayland" || app.scaleReady)
 
                     Accessible.role: Accessible.Grouping
                     Accessible.name: app.t("Text size")
@@ -2013,6 +2008,8 @@ ApplicationWindow {
                                           app.t(sizeCard.modelData.name), sizeCard.modelData.v)
                             hint: app.t(sizeCard.modelData.note)
                             selected: app.scale === sizeCard.modelData.v
+                            enabled: app.scaleMode !== "wayland" || app.allowedScales.indexOf(sizeCard.modelData.v) >= 0
+                            opacity: enabled ? 1 : 0.45
                             KeyNavigation.left: sizeRepeater.itemAt(sizeCard.index - 1)
                             KeyNavigation.right: sizeRepeater.itemAt(sizeCard.index + 1)
                             onClicked: app.pickScale(sizeCard.modelData.v)
@@ -2052,6 +2049,25 @@ ApplicationWindow {
 
                 Text {
                     Layout.fillWidth: true
+                    visible: app.scaleTrial || app.scaleError !== ""
+                    text: app.scaleError || app.tf("Keep this size? Restoring in %1 seconds.", app.scaleSeconds)
+                    color: app.cText
+                    font.pixelSize: app.px(14)
+                    wrapMode: Text.WordWrap
+                    Accessible.role: Accessible.StaticText
+                    Accessible.name: text
+                }
+                Flow {
+                    Layout.fillWidth: true
+                    spacing: app.px(12)
+                    visible: app.scaleTrial
+                    enabled: !app.scaleBusy
+                    Primary { objectName: "keepSize"; text: app.t("Keep this size"); onClicked: app.scaleDecision(true) }
+                    Ghost { objectName: "revertSize"; text: app.t("Put it back"); onClicked: app.scaleDecision(false) }
+                }
+
+                Text {
+                    Layout.fillWidth: true
                     text: app.t("You can change this again in System Settings ▸ Display & Monitor.")
                     color: app.cDim
                     font.pixelSize: app.px(12)
@@ -2068,7 +2084,7 @@ ApplicationWindow {
 
                 PageHead {
                     heading: app.t("Where should the taskbar go?")
-                    sub: app.t("Click one to try it. Your open windows and apps stay exactly where they are.")
+                    sub: app.t("Your taskbar choice will be applied when you finish setup.")
                 }
 
                 GridView {
@@ -2608,7 +2624,9 @@ ApplicationWindow {
             spacing: app.px(12)
 
             Ghost {
+                objectName: "setupBack"
                 text: app.t("Back")
+                enabled: !app.scaleBusy && !app.scaleTrial
                 visible: app.stepIndex > 0
                 onClicked: app.goBack()
             }
@@ -2620,6 +2638,7 @@ ApplicationWindow {
             // buttons that do the same thing is a puzzle, not a choice.
             Quiet {
                 text: app.t("Skip this step")
+                enabled: !app.scaleBusy && !app.scaleTrial
                 visible: app.step !== "welcome" && app.step !== "finish"
                          && !app.isTouched(app.step)
                 Accessible.description: app.t("Leave this setting alone and go to the next step")
@@ -2627,8 +2646,10 @@ ApplicationWindow {
             }
 
             Primary {
+                objectName: "setupNext"
                 text: app.step === "finish" ? app.t("Finish")
                     : (app.step === "welcome" ? app.t("Let's go") : app.t("Next"))
+                enabled: !app.scaleBusy && !app.scaleTrial
                 onClicked: app.goNext()
             }
         }

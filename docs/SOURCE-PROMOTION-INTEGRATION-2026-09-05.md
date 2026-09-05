@@ -1,5 +1,12 @@
 # Proposed source promotion integration — not implemented
 
+Continuation: `tools/prepare-source-distribution.py` now combines actual paired
+image extraction with fresh source-lock/cache verification to produce a private
+non-authorizing delivery plan. Four new real-image integration regressions cover
+it. The frozen candidate passed (1,862 sources / 6,010 objects). This does not
+replace any public promotion hold or establish remote delivery. See
+`ONBOARDING-AND-BETA-PASS-2026-09-05.md` for the exact receipt and remaining scope.
+
 Prerequisite update: the standalone private canonical lock producer/checker
 `tools/source-candidate-lock.py` is implemented with 18 offline regressions.
 Real creation and a fresh full-content validation both passed for the frozen

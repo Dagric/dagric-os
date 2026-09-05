@@ -50,7 +50,7 @@
 # The autostart entry itself is left in place rather than deleted, so the stamp
 # is the single source of truth and a re-run can never resurrect the autostart.
 EDITION=$(cat /etc/dagric-edition 2>/dev/null || echo free)
-BRAND='#ff3b5c'
+BRAND='#b82036'
 WALLS=/usr/share/wallpapers
 QMLDIR=/usr/share/dagric/firstrun
 QMLFILE=$QMLDIR/main.qml
@@ -284,12 +284,29 @@ WORK=$(mktemp -d) || exit 1
 # which fires once no matter how the script ends; the signal traps exist only to
 # make the script actually stop. dagric-display and dagric-hardware-check
 # already do it this way.
-trap 'rm -rf "$WORK"' EXIT
+SCALE_PID=
+cleanup_firstrun() {
+    if [ -n "$SCALE_PID" ]; then
+        exec 9>&-
+        kill -TERM "$SCALE_PID" 2>/dev/null || true
+        wait "$SCALE_PID" 2>/dev/null || true
+    fi
+    rm -rf "$WORK"
+}
+trap 'cleanup_firstrun' EXIT
 trap 'exit 130' INT TERM HUP
 CATALOG=$WORK/catalog.json
 CAPFILE=$WORK/captured
 PANFILE=$WORK/panels
 SCLFILE=$WORK/scales
+SCALE_STATUS=$WORK/scale-status.json
+if [ "$SCALE_MODE" = wayland ]; then
+    mkfifo -m 600 "$WORK/scale-requests" || exit 1
+    exec 9<>"$WORK/scale-requests"
+    python3 /usr/lib/dagric/firstrun-scale.py --status "$SCALE_STATUS" \
+        < "$WORK/scale-requests" 9>&- >/dev/null 2>&1 &
+    SCALE_PID=$!
+fi
 
 # --- reading the drop-in files ----------------------------------------------
 skey() { sed -n "s/^[[:space:]]*$2[[:space:]]*=[[:space:]]*//p" "$1" | head -1 | sed 's/[[:space:]]*$//'; }
@@ -360,6 +377,9 @@ collect_layouts() {
         for _f in "$_dir"/*.look; do
             [ -f "$_f" ] || continue
             _id=$(basename "$_f" .look)
+            # The first run offers two bottom-panel choices. All other layouts
+            # remain available afterwards in Dagric Looks.
+            case "$_id" in classic|eleven) : ;; *) continue ;; esac
             case "$_id" in ''|*[!A-Za-z0-9._-]*) continue ;; esac
             _need=$(skey "$_f" EDITION)
             if [ "$_need" = "pro" ] && [ "$EDITION" != "pro" ]; then continue; fi
@@ -446,7 +466,7 @@ lookup_accent() { awk -F"$SEP" -v id="$1" '$1 == id { print $3; exit }' "$WORK/a
 # from it would be empty — which would make "Undo my changes" a lie. The
 # look-and-feel defaults file has the honest answer, and it is not a guess:
 # 0500-desktop-defaults.hook.chroot is what writes Image=Dagric into it.
-LNF=/usr/share/plasma/look-and-feel/org.kde.breeze.desktop/contents/defaults
+LNF=/usr/share/plasma/look-and-feel/org.dagric.desktop/contents/defaults
 lnf_key() {   # <exact group line> <key>
     [ -f "$LNF" ] || return 0
     awk -v grp="$1" -v key="$2" '
@@ -1068,6 +1088,12 @@ emit_strings() {
         printf '    "%s": "%s"' "$(jesc "$_s")" "$(jesc "$(gettext "$_s")")"
     done <<'STRINGS'
 Set Up Dagric
+Try a size here. Keep it within 20 seconds, or Dagric puts it back. This changes text and icons on all screens.
+Keep this size? Restoring in %1 seconds.
+Keep this size
+Put it back
+This size could not be applied safely. Your previous size will be restored.
+Your taskbar choice will be applied when you finish setup.
 Every step can be skipped, and you can change all of it later.
 I'll do this later
 Close setup. Anything already applied stays, and you can run this again from the Dagric Hub
@@ -1209,6 +1235,7 @@ STRINGS
     printf '  "live": %s,\n'          "$LIVE"
     printf '  "reducedMotion": %s,\n' "$REDUCED_MOTION"
     printf '  "scaleMode": "%s",\n'   "$(jesc "$SCALE_MODE")"
+    printf '  "scaleStatusPath": "%s",\n' "$(jesc "$SCALE_STATUS")"
     printf '  "currentScale": %s,\n'  "$(current_scale)"
     printf '  "currentMode": "%s",\n' "$(current_mode)"
     printf '  "currentWall": "%s",\n' "$(jesc "$(current_wall_id)")"
@@ -1260,6 +1287,7 @@ export QT_MESSAGE_PATTERN QT_LOGGING_RULES QT_QUICK_CONTROLS_STYLE QML_XHR_ALLOW
 export QT_LINUX_ACCESSIBILITY_ALWAYS_ON
 
 last_wall=
+pending_layout=
 # The downloads step's queue: a comma list of app names and a 0/1 for the Pro
 # upgrade, both re-validated here — the window's list is a wish, this file's
 # whitelist is the decision.
@@ -1328,14 +1356,21 @@ rm -f "$QML_SPOKE"
             ;;
         SCALE)
             case "$arg" in 100|125|150) : ;; *) continue ;; esac
-            capture_scale
-            set_scale "$arg"
+            if [ "$SCALE_MODE" = wayland ]; then
+                printf 'SCALE|%s\n' "$arg" >&9
+            else
+                capture_scale
+                set_scale "$arg"
+            fi
+            ;;
+        SCALEKEEP|SCALEREVERT)
+            [ "$SCALE_MODE" = wayland ] || continue
+            case "$cmd" in SCALEKEEP) printf 'KEEP\n' >&9 ;; SCALEREVERT) printf 'REVERT\n' >&9 ;; esac
             ;;
         LAYOUT)
             file=$(lookup_layout "$arg")
             [ -n "$file" ] && [ -f "$file" ] || continue
-            capture_panels || true
-            set_layout "$file"
+            pending_layout=$file
             ;;
         RUN)
             case "$arg" in migrate|display|hub|guide|manual|welcome|setup) run_helper "$arg" ;; esac
@@ -1349,10 +1384,18 @@ rm -f "$QML_SPOKE"
             case "$arg" in 1) TOPRO=1 ;; *) TOPRO=0 ;; esac
             ;;
         UNDO)
+            pending_layout=
+            [ "$SCALE_MODE" != wayland ] || printf 'UNDO\n' >&9
             undo_all
             last_wall=
             ;;
         DONE)
+            # The UI has closed before changing the desktop's work area.
+            # Selecting a thumbnail never tears down panels underneath setup.
+            if [ -n "$pending_layout" ]; then
+                capture_panels || true
+                set_layout "$pending_layout" || rebuild_panels || fallback_layout
+            fi
             # The one apply that is repeated. The wallpaper lives in
             # plasmashell's in-memory applet config, so a plasmashell restart
             # part-way through the wizard (dagric-brand-launcher does exactly
