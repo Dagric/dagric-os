@@ -137,6 +137,285 @@ jobs:
       # and never masks the i18n result.
       - name: Print the regenerated catalogues (works with no artifact quota)
         if: failure()
+# Dagric OS — CI: build the ISO when something that AFFECTS the ISO changes.
+#
+# This used to run on every push to main, and that is how it broke. A single
+# evening of twenty-four commits — most of them documentation, site copy and
+# translation catalogues — queued twenty-four separate twenty-five-minute
+# builds and left ~37 GB of near-identical ISOs behind. GitHub's artifact
+# storage quota filled, and from then on EVERY run ended in a red X at the
+# upload step while the build itself had succeeded perfectly:
+#
+#     P: Build completed successfully
+#     copied live-image-amd64.hybrid.iso (2122383360 bytes, verified)
+#     ##[error]Failed to CreateArtifact: Artifact storage quota has been hit.
+#
+# Four days of failures that were not build failures. Worse, nobody could tell,
+# because a red X looks the same either way — so the one build environment that
+# still worked looked broken while a laptop with a dead WSL was being coaxed.
+#
+# Three changes stop it happening again.
+name: build-iso
+
+# The build only needs to read repository contents. Keep the default token
+# incapable of writing releases, tags, issues, packages, or workflow files.
+permissions:
+  contents: read
+
+on:
+  push:
+    branches: [main]
+    # 1. Only build when the IMAGE could actually differ. Editing site/,
+    #    docs/, README or the changelog cannot change a single byte of the ISO,
+    #    and burning half an hour of runner time to prove it is waste that
+    #    eventually costs a working CI.
+    paths:
+      - 'config/**'
+      - 'packages/**'
+      - 'docker/**'
+      - 'auto/**'
+      - 'build.sh'
+      - 'tools/**'
+      - 'po/**'
+      - '.github/workflows/build-iso.yml'
+  workflow_dispatch:
+
+# 2. One build at a time, newest wins. Pushing three commits in five minutes
+#    should produce one ISO, not three — and the two older ones were obsolete
+#    before they finished anyway.
+concurrency:
+  group: build-iso-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # THE ONLY LINUX HOST IN THE LOOP, SO THE TRANSLATION CHECK LIVES HERE.
+  #
+  # tools/i18n-build.sh --check proves each .mo matches its .po. Nothing proved
+  # the .po files match the SOURCE — so a new user-facing string could be added
+  # to a shipped tool, never extracted, and every check in the project would
+  # pass while that sentence stayed English in all five languages. 29 strings
+  # were in exactly that state when this job was added, concentrated in the
+  # error paths of dagric-ai, dagric-drivers and dagric-gaming.
+  #
+  # It survived because the extraction cannot be run on the machine this is
+  # developed on: no gettext, no working WSL, no Docker daemon. A check nobody
+  # can run is not a check.
+  #
+  # Two minutes, its own runner, and it does not gate the ISO builds below —
+  # they answer a different question and an English error message must not stop
+  # a release. On failure it uploads the regenerated po/ and catalogues, because
+  # telling someone to run a tool they have nowhere to run is not a fix.
+  checks:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Source and privilege-boundary sanity
+        run: python3 tools/check-source.py
+      - name: Offline manual and icon-family coverage
+        run: |
+          python3 tools/check-manual-coverage.py
+          python3 tools/check-icon-themes.py
+
+      - name: Browser migration privacy
+        run: |
+          python3 test/test-migrate-browser-security.py
+          python3 test/test-migrate-continuity-privacy.py
+
+      - name: Licensing and media-rights baseline
+        run: |
+          python3 tools/check-release-rights.py
+          python3 tools/check-game-platform-policy.py
+
+      - name: JavaScript syntax
+        run: sh tools/check-javascript.sh
+      - name: Worker security-boundary tests
+        run: node test/test-workers.mjs
+      - name: Production dependency vulnerabilities
+        run: sh tools/check-dependencies.sh
+
+      # Seconds, and it runs FIRST because the failure it catches costs the
+      # most to diagnose. Docker strips comments inside a line continuation and
+      # joins what is left, so a stray instruction becomes an argument and the
+      # build dies with "E: Unable to locate package RUN" — an error naming no
+      # file and no cause. That happened here: two individually correct fixes
+      # to docker/Dockerfile each added a comment block above the RUN they were
+      # changing, and together they buried a second RUN inside the first one's
+      # continuation. Both editions failed. Twenty-five minutes of runner time
+      # each, to learn something this step reports before the image is pulled.
+      - name: Dockerfile sanity
+        run: sh tools/check-dockerfile.sh
+
+      - name: Site release sanity
+        run: sh tools/check-site.sh
+
+      - name: Rewind unit and privilege-boundary checks
+        run: sh tools/check-rewind.sh
+
+      - name: Install source verifiers
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq gettext shellcheck
+      - name: Shell syntax and error-level analysis
+        run: sh tools/check-shell.sh
+      - name: Check po/ against the source
+        env:
+          DAGRIC_I18N_KEEP_REGENERATED: "1"
+        run: sh tools/i18n-ci-check.sh
+      # THE DELIVERY MUST NOT DEPEND ON ARTIFACT STORAGE, which on this repo is
+      # a wall rather than a limit. It is private, so artifacts bill against the
+      # account's shared quota, and that quota is full: the API reports ZERO
+      # artifacts on this repository and the upload still returns "Artifact
+      # storage quota has been hit ... recalculated every 6-12 hours". So the
+      # step that exists to hand back the fix failed, and added a second red X
+      # on top of the real one — the exact confusion the header of this file
+      # spent four days learning.
+      #
+      # Hence both, in this order. The log always works and needs no quota; the
+      # artifact is nicer to consume when there is room for it, and is now
+      # continue-on-error so a storage problem is reported as a storage problem
+      # and never masks the i18n result.
+      - name: Print the regenerated catalogues (works with no artifact quota)
+        if: failure()
+        run: |
+          echo "Recover the regenerated files without the artifact:"
+          echo "  1. copy the base64 block below"
+          echo "  2. base64 -d > i18n.tar.gz   (PowerShell:"
+          echo "     [IO.File]::WriteAllBytes('i18n.tar.gz',[Convert]::FromBase64String(\$b)))"
+          echo "  3. tar xzf i18n.tar.gz  over the repo root, then commit"
+          echo ""
+          echo "----- BEGIN i18n.tar.gz -----"
+          tar czf - po config/includes.chroot/usr/share/locale | base64 -w 100
+          echo "----- END i18n.tar.gz -----"
+
+      - name: Upload the regenerated catalogues
+        if: failure()
+        continue-on-error: true
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: i18n-regenerated
+          path: |
+            po/
+            config/includes.chroot/usr/share/locale/
+          retention-days: 14
+
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    # 4. BUILD THE EDITION PEOPLE PAY FOR.
+    #
+    # This job took EDITION's default and therefore built free, every time,
+    # forever — the word never appeared in this file. So 0600-pro-edition.hook,
+    # every pro-*.list.chroot package, OpenSnitch, USBGuard, the VM stack and the
+    # dev tools were exercised by nothing at all. The half of the product that
+    # costs $39 had less CI than the half given away, and a change that broke
+    # only Pro would have reached a customer before it reached a build log. It
+    # also meant the package-name check reported a clean pass over the free
+    # edition's 164 names while Pro's other 66 went unread.
+    #
+    # A matrix rather than a second step, deliberately: each entry gets its OWN
+    # runner and therefore its own ~14 GB disk. Pro is roughly twice the size of
+    # free and a previous attempt to build both on one machine died on "No space
+    # left on device"; run side by side they never compete for it.
+    #
+    # fail-fast: false because these answer separate questions. Free breaking
+    # tells you nothing about Pro and must not cancel the run that would have
+    # said so.
+    strategy:
+      fail-fast: false
+      matrix:
+        edition: [free, pro]
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      # Same reclaim as release.yml — see the long note there. The free ISO
+      # currently fits in the runner's ~14 GB, but only just, and every package
+      # added to the image eats into that margin. Doing it here means the first
+      # sign of trouble is not a build that dies at 90% on "No space left on
+      # device" wearing some innocent hook's name.
+      - name: Reclaim runner disk
+        run: |
+          echo "before:"; df -h / | tail -1
+          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc \
+                      /usr/local/share/boost /usr/share/swift \
+                      /usr/local/share/powershell "$AGENT_TOOLSDIRECTORY" || true
+          sudo docker image prune -af >/dev/null 2>&1 || true
+          echo "after:"; df -h / | tail -1
+
+      - name: Build ISO in Debian container
+        env:
+          EDITION: ${{ matrix.edition }}
+        run: |
+          docker build -t dagric-builder docker/
+          mkdir -p out
+          # -e EDITION is the whole point of the matrix: container-build.sh reads
+          # it as EDITION="${EDITION:-free}", so leaving it out is exactly how
+          # this workflow built free twice and called it coverage.
+          docker run --rm --privileged \
+            -e EDITION="$EDITION" \
+            -e DAGRIC_SOURCE_COMMIT="$GITHUB_SHA" \
+            -v "$PWD:/src:ro" -v "$PWD/out:/out" \
+            dagric-builder sh /src/docker/container-build.sh
+
+      - name: Checksums
+        run: cd out && sha256sum *.iso > SHA256SUMS && cat SHA256SUMS
+
+      # 3. Five days, not fourteen. A CI ISO is a smoke test — proof the tree
+      #    still builds — not a release artifact. Releases come from
+      #    release.yml against a tag. Anything older than a few days has been
+      #    superseded by the next commit and is only holding quota.
+      # THE UPLOAD MUST NOT DECIDE WHETHER THE BUILD PASSED.
+      #
+      # Four days of red X's on this repo were successful builds whose artifact
+      # upload hit the storage quota. A red X looks identical either way, so the
+      # one working build environment appeared broken while a laptop with a dead
+      # WSL was being coaxed for hours. The ISO had been built correctly every
+      # single time and thrown away.
+      #
+      # continue-on-error means a storage problem is reported as a storage
+      # problem — the step goes yellow, the job stays green, and the build
+      # result answers the question it was actually asked: does the tree still
+      # build? A genuine build failure still fails, because it happens earlier
+      # and this step never runs.
+      #
+      # FREE ONLY, and that is not an oversight either. The Pro ISO is roughly
+      # twice the size of free, and this repository has already had four days of
+      # red X's caused by a full artifact quota. Uploading ~4 GB on every push to
+      # config/ would refill it within days and break the free upload too.
+      #
+      # Nothing is lost by not keeping it. A CI ISO is a smoke test, and the
+      # question asked of the Pro job — does the paid edition still build, do its
+      # hooks run, do its package names resolve — is answered entirely by the job
+      # going green and by the log. Releases are built by release.yml from a tag.
+      - name: Upload ISO artifact
+        if: matrix.edition == 'free'
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        continue-on-error: true
+        with:
+          name: dagric-os-iso
+          path: |
+            out/*.iso
+            out/SHA256SUMS
+          retention-days: 5
+
+      # Put the size and checksum on the job summary page. The quota failure
+      # was invisible until somebody read four hundred lines of log; a number
+      # on the summary makes "we are filling up" obvious well before it becomes
+      # "we are full".
+      - name: Report
+        if: always()
+        run: |
+          {
+            echo "### Dagric OS build — ${{ matrix.edition }} edition"
+            echo ""
+            if [ -f out/SHA256SUMS ]; then
+              echo '```'
+              cat out/SHA256SUMS
+              echo '```'
+              du -h out/*.iso 2>/dev/null | sed 's/^/- /'
+            else
+              echo "No ISO produced — see the build log."
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
         run: |
           echo "Recover the regenerated files without the artifact:"
           echo "  1. copy the base64 block below"
