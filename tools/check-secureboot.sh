@@ -1,16 +1,17 @@
 #!/bin/sh
-# Dagric OS — prove (or disprove) that the ISO can boot with Secure Boot on.
+# Dagric OS — inspect static EFI signature presence and signer identities.
 #
 #   sh tools/check-secureboot.sh out/dagric-os-1.0-amd64.iso
 #
-# Booting under Microsoft-keyed OVMF shows THAT it works. This shows WHY, which
-# is what you need when it does not: a Secure Boot failure is one of
+# This is not cryptographic chain validation or physical boot evidence.
+# Firmware trust/revocation databases and an actual boot must be checked
+# separately. These static checks diagnose several common packaging errors:
 #   - no EFI boot image in the ISO at all (BIOS-only build)
 #   - EFI/boot/bootx64.efi is GRUB rather than shim, so nothing Microsoft signed
 #     is ever executed and the firmware refuses at the first hop
 #   - shim is there but unsigned, or signed by a key the firmware does not carry
 #   - shim is signed but grubx64.efi is not, so it fails at the second hop
-# and those four look identical from the outside: a black screen.
+# These errors can look identical from the outside: a black screen.
 #
 # Note the asymmetry that trips people up. bootx64.efi must carry MICROSOFT's
 # signature, because Microsoft's cert is what retail firmware trusts. grubx64.efi
@@ -67,7 +68,7 @@ if [ -z "$EFIDIR" ] && [ -n "$IMG" ]; then
 fi
 
 if [ -z "$EFIDIR" ]; then
-    echo "RESULT: NO EFI BOOT DIRECTORY FOUND — this ISO cannot UEFI boot at all." >&2
+    echo "RESULT: No EFI boot directory found in the checked locations — static check failed." >&2
     fail=1
 else
     echo
@@ -100,11 +101,10 @@ else
         echo "  yes — bootx64.efi is shim (MOK strings present)"
         sbverify --list "$B" 2>/dev/null | grep -i 'subject' | head -2 \
             | grep -qi 'microsoft' \
-            && echo "  and it is signed by MICROSOFT — retail firmware will accept it" \
-            || { echo "  but NOT signed by Microsoft — retail firmware will REFUSE it" >&2; fail=1; }
+            && echo "  Microsoft signer identity is present — firmware acceptance is not tested" \
+            || { echo "  Microsoft signer identity was not found — static check failed" >&2; fail=1; }
     else
-        echo "  NO — bootx64.efi is not shim. Under Secure Boot the firmware will" >&2
-        echo "  refuse it unless it happens to be Microsoft-signed itself." >&2
+        echo "  Shim identification strings were not found in bootx64.efi — static check failed." >&2
         fail=1
     fi
 fi
@@ -113,6 +113,7 @@ umount "$IMGMNT" 2>/dev/null || true
 umount "$MNT" 2>/dev/null || true
 
 echo
-[ $fail -eq 0 ] && echo "VERDICT: Secure Boot chain looks correct." \
-                || echo "VERDICT: Secure Boot WOULD FAIL on a retail machine."
+[ $fail -eq 0 ] && echo "VERDICT: Static EFI signature presence/identity checks passed (not a physical boot test)." \
+                || echo "VERDICT: Static EFI signature presence/identity checks failed."
+echo "PENDING: Cryptographic chain validation, firmware trust/revocation checks, and physical Secure Boot evidence."
 exit $fail

@@ -46,6 +46,8 @@ jobs:
           sudo python3 test/test-opensnitch-package.py
           python3 test/test-opensnitch-calamares.py
           python3 test/test-security-artifacts.py
+          python3 test/test-embedded-sources.py
+          python3 test/test-source-completeness-guards.py
       - name: JavaScript syntax
         run: sh tools/check-javascript.sh
       - name: Worker security-boundary tests

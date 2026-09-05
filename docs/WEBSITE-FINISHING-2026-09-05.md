@@ -38,3 +38,39 @@ artifact, Worker, payment link or R2 policy was promoted. The coordinating agent
 checked the design and a migration query in the in-app browser, then verified
 the same two relevant search results on live `https://dagric.com/search`.
 The release hold remains visible and enforced.
+
+## Firefox privacy disclosure follow-up
+
+An actual candidate boot showed Firefox's own first-run Mozilla data-collection
+notice. The site now explicitly distinguishes Dagric's no-product-telemetry
+claim from bundled applications' settings, describes Mozilla telemetry and the
+separate daily usage report, and removes categorical claims that Safe Browsing
+never sends browsing-related information or that every service has a normal
+Settings switch. This changes only `site/privacy.html`, not Debian's Firefox
+defaults, policy files, manual payload, or the candidate source identity.
+
+Primary references linked directly from the policy:
+
+- https://support.mozilla.org/en-US/kb/technical-and-interaction-data
+- https://support.mozilla.org/en-US/kb/usage-ping-settings
+- https://support.mozilla.org/en-US/kb/how-does-phishing-and-malware-protection-work
+- https://support.mozilla.org/en-US/kb/how-stop-firefox-making-automatic-connections
+
+The complete website gate, 30-page audit, branding and diff checks pass; the
+privacy page renders without overflow or script errors at 320, 390, 768 and
+1440 pixels. Firebase Hosting deployment succeeded at approximately 17:43 UTC.
+The live `/privacy` response then returned HTTP 200 with both disclosures and
+the expected restrictive Content Security Policy. Release delivery remains held.
+
+## Source-completeness disclosure follow-up
+
+The deeper candidate audit found embedded-source declarations outside the
+one-to-one primary map. The download and licence pages now explain that
+distinction, retain source completeness among the hold requirements, and make
+clear that the historical public 1.0 hashes/counts do not approve newer private
+builds. Existing source-request and customer remedies remain intact. This does
+not change the old public manifests, hashes, source-index records or signatures.
+
+The website gate passed again and the hosting-only deployment completed at
+approximately 18:04 UTC. Live `/download` and `/licenses` both returned HTTP 200
+and contained the new embedded-source and historical-candidate limitations.

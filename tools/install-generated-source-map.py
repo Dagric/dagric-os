@@ -1,23 +1,21 @@
 #!/usr/bin/env python3
-"""Atomically install a validated exact-source map into the public records."""
+"""Audit a primary source map; overall source-complete installation is held.
+
+The former installer promoted a one-to-one package map to overall corresponding-
+source completeness without accounting for embedded Built-Using sources. Until
+the publication schema binds and independently checks those records against the
+immutable images, this command deliberately performs no public-record writes.
+"""
 
 from __future__ import annotations
 
 import argparse
-import importlib.util
-import json
 import subprocess
 import sys
 from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
-
-
-def write_json_atomic(path: Path, document: dict[str, object]) -> None:
-    temporary = path.with_suffix(path.suffix + ".tmp")
-    temporary.write_text(json.dumps(document, indent=2) + "\n", encoding="utf-8")
-    temporary.replace(path)
 
 
 def parse_args() -> argparse.Namespace:
@@ -63,69 +61,16 @@ def main() -> int:
         print("install-source-map: BLOCKED: generated map did not validate", file=sys.stderr)
         return 1
 
-    exact_map = json.loads(args.map_path.read_text(encoding="utf-8"))
-    index = json.loads(args.index.read_text(encoding="utf-8"))
-    release = json.loads(args.release.read_text(encoding="utf-8"))
-    if release.get("source_index", {}).get("url") != (
-        "https://dagric.com/manifest/source-index-1.0.json"
-    ):
-        print("install-source-map: BLOCKED: unexpected release source-index URL", file=sys.stderr)
-        return 1
-    debian = index.get("debian_layer")
-    gate = index.get("next_release_gate")
-    if not isinstance(debian, dict) or not isinstance(gate, dict):
-        print("install-source-map: BLOCKED: source index lacks required records", file=sys.stderr)
-        return 1
-
-    debian["exact_binary_to_source_map_status"] = "complete"
-    debian["exact_binary_to_source_map"] = exact_map
-    debian["important_limit"] = (
-        "This exact map binds every recorded Free and Pro binary name/version to its "
-        "Dagric release commit or Debian source package/version, archived .dsc SHA-256, "
-        "and the source-file SHA-256 values carried by that .dsc."
-    )
-    debian["retrieval_procedure"] = [
-        "Find the exact binary name and version under the matching Free or Pro edition in this map.",
-        "Download the mapped .dsc from Debian Snapshot and verify its recorded SHA-256.",
-        "Download every source file listed for that entry and verify the SHA-256 recorded by the .dsc.",
-        "For a Dagric-authored package, use the commit-pinned Dagric source archive and verify its recorded SHA-256.",
-    ]
-    debian["request_note"] = (
-        "The exact release mapping is published in this record. Contact Dagric support for "
-        "help obtaining the corresponding source for a named image and package."
-    )
-    gate["status"] = "complete"
-    gate["block_if_release_identity_changes"] = False
-    gate.pop("locked_release_identity", None)
-    release["source_index"]["status"] = "complete"
-    distribution = release.get("distribution")
-    if not isinstance(distribution, dict) or distribution.get("status") != "held":
-        print(
-            "install-source-map: BLOCKED: release must retain an explicit distribution hold",
-            file=sys.stderr,
-        )
-        return 1
-    reasons = distribution.get("reason_codes")
-    if not isinstance(reasons, list):
-        print("install-source-map: BLOCKED: distribution hold lacks reason codes", file=sys.stderr)
-        return 1
-    distribution["reason_codes"] = [
-        reason for reason in reasons if reason != "source-map-incomplete"
-    ]
-    if not distribution["reason_codes"]:
-        print(
-            "install-source-map: BLOCKED: source completion cannot silently lift the distribution hold",
-            file=sys.stderr,
-        )
-        return 1
-
-    write_json_atomic(args.index, index)
-    write_json_atomic(args.release, release)
+    sys.stdout.write(verification.stdout)
     print(
-        "install-source-map: installed the validated map and marked only the source-index "
-        "gate complete; distribution remains separately held"
+        "install-source-map: BLOCKED: a primary binary-to-source map cannot establish "
+        "overall corresponding-source completeness. Inventory exact Built-Using and "
+        "Static-Built-Using sources with tools/check-embedded-sources.py. Public "
+        "installation remains disabled until the release schema and promotion gate "
+        "independently bind that evidence to both immutable images. No records were changed.",
+        file=sys.stderr,
     )
-    return 0
+    return 1
 
 
 if __name__ == "__main__":

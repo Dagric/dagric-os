@@ -131,15 +131,21 @@
     <p style="margin:0 0 10px"><strong>Exact binary-to-source map.</strong> The 1.0 record maps all
     1,810 Free and 2,537 Pro binary package identities to the exact Dagric release commit or Debian
     source package and version. Each Debian entry includes an archived <code>.dsc</code> locator,
-    its locally verified SHA-256, and every source-file SHA-256 listed by that signed control file.
+    its locally verified SHA-256, and every source-file SHA-256 listed by that control file.
     Dagric-authored packages point to the release-commit source archive and its SHA-256.</p>
+    <p style="margin:0 0 10px"><strong>What this map does not establish.</strong> It records each
+    package's primary source. Some packages also embed code from other exact source versions,
+    recorded in <code>Built-Using</code> or <code>Static-Built-Using</code> metadata. Those inputs,
+    source delivery and the remaining rights checks must be verified against the exact candidate
+    before release. A primary-map pass is not complete corresponding-source or legal approval.
+    The recorded 1.0 hashes and package counts above are not evidence for a newer private build.</p>
     <p style="margin:0">Use the
     <a href="/manifest/source-index-1.0.json">machine-readable source index</a> to retrieve and
     verify a named component through
     <a href="https://snapshot.debian.org/">Debian Snapshot</a>. The
     <a href="/contact">contact page</a> remains available if you need help obtaining corresponding
     source for a named image and package. Binary delivery and new sales remain paused while the
-    separate localization, trademark, rights-approval, physical-validation, and release-provenance
+    separate source-completeness, localization, trademark, rights-approval, physical-validation, and release-provenance
     gates are completed.</p>
   </div>
   <p>Each installed package also carries its applicable copyright and licence notice at

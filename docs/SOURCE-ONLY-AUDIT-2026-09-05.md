@@ -46,3 +46,35 @@ into `.github/workflows/quality.yml`.
 This successful working-tree result is separate from the failed historical clean-candidate
 result above. A later clean checkout including the website link and QA changes still needs its
 own run before a clean-checkout success can be claimed.
+
+## Corrected clean candidate result
+
+The actual `sh tools/audit-all.sh --source-only` command subsequently exited 0
+against the untouched corrected clone at
+`/var/tmp/dagric-private-pro.QoSTpV/source`, exact revision
+`20e24dd04ea3de802531be5139f9f36fe96a1490`. **All 40 selected gates passed**,
+including the seven semantic Calamares policy regressions added after the
+earlier 39-gate run. Tracked and untracked Git status were empty before and
+after the audit. This is the clean source used for both completed corrected
+private images, not an audit of an altered failed-build checkout.
+
+Generated exact-source evidence and image/runtime/physical acceptance remain
+separate. Later website-only privacy clarification has its own website gate,
+render checks and live deployment verification in `WEBSITE-FINISHING-2026-09-05.md`.
+
+## Final audit-tooling and website integration run
+
+At approximately 18:07 UTC the coordinating agent's complete current-working-tree
+`sh tools/audit-all.sh --source-only` run exited 0 with all **42 selected gates**
+passing. This includes the added embedded-source inventory and zero-write
+completion guards, 17 embedded-source fixtures, 15 commercial-gate checks,
+13 security-artifact/output fixtures, and the final deployed website wording.
+A separate source/security check after staging the new files also exited 0,
+covering 2,293 tracked paths, 79 Python sources and 730 secret-scanned text files.
+
+This final integration run is a working-tree/staged-source result, not a claim
+that the frozen images were rebuilt from later audit-only or website changes.
+The earlier clean `20e24dd` candidate's 40-gate result and exact image/source
+identities remain unchanged. The new deliberate embedded-source promotion
+hold was tested as a hold; no commercial success or upload authorization was
+issued, and generated/runtime/physical release approval remains excluded.

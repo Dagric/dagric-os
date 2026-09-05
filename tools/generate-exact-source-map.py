@@ -447,7 +447,7 @@ def main() -> int:
     temp.replace(args.output)
     print(
         f"source-map: wrote {args.output} with {len(free)} Free entries, "
-        f"{len(pro)} Pro entries and {len(sources)} unique Debian sources",
+        f"{len(pro)} Pro entries and {len(sources)} unique source identities",
         flush=True,
     )
     return 0

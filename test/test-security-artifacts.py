@@ -4,6 +4,8 @@
 Fixtures contain text/listing data only. No image is mounted or executed.
 """
 from pathlib import Path
+import shutil
+import subprocess
 import unittest
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -111,6 +113,31 @@ class SecurityArtifactTests(unittest.TestCase):
     def test_unsquashfs_listing_parser_preserves_exact_symlink_paths(self):
         entries = namespace['parse_listing']('lrwxrwxrwx root/root 56 2026-09-05 12:00 squashfs-root/etc/xdg/autostart/opensnitch_ui.desktop -> /usr/share/applications/opensnitch_ui.desktop\n')
         self.assertEqual(entries['etc/xdg/autostart/opensnitch_ui.desktop'][2], '/usr/share/applications/opensnitch_ui.desktop')
+
+
+@unittest.skipUnless(shutil.which('sh'), 'POSIX shell required for actual checker output')
+class SecureBootOutputTests(unittest.TestCase):
+    def verdict(self, fail):
+        source = (ROOT / 'tools/check-secureboot.sh').read_text(encoding='utf-8')
+        # Execute the real verdict footer, without mounting or executing an ISO.
+        footer = source.rsplit('\necho\n', 1)[1]
+        return subprocess.run(['sh', '-c', 'fail=' + str(fail) + '\n' + footer],
+                              capture_output=True, text=True, check=False)
+
+    def test_static_success_does_not_claim_firmware_acceptance(self):
+        result = self.verdict(0)
+        self.assertEqual(result.returncode, 0)
+        self.assertIn('Static EFI signature presence/identity checks passed', result.stdout)
+        self.assertIn('not a physical boot test', result.stdout)
+        self.assertIn('PENDING: Cryptographic chain validation, firmware trust/revocation checks', result.stdout)
+        self.assertNotIn('will accept', result.stdout)
+
+    def test_static_failure_retains_failure_status_without_physical_claim(self):
+        result = self.verdict(1)
+        self.assertEqual(result.returncode, 1)
+        self.assertIn('Static EFI signature presence/identity checks failed', result.stdout)
+        self.assertIn('physical Secure Boot evidence', result.stdout)
+        self.assertNotIn('WOULD FAIL on a retail machine', result.stdout)
 
 
 if __name__ == '__main__':

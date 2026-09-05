@@ -12,6 +12,11 @@ not committed to the repository.  This script never prints that JSON; it emits
 only its SHA-256 fingerprint so the approval used for a run can be archived.
 It is an engineering control, not a substitute for advice from qualified
 counsel.
+
+An explicit final hold currently prevents source-complete promotion: the
+existing release schema does not yet bind embedded-source declarations to the
+immutable images. All existing checks still run; no detached success report
+can bypass this hold.
 """
 
 from __future__ import annotations
@@ -814,6 +819,22 @@ def common_context(args: argparse.Namespace) -> tuple[
     )
 
 
+def require_embedded_source_release_integration() -> None:
+    """Fail closed until immutable embedded-source binding is implemented.
+
+    Do not replace this with a caller-supplied status, environment switch or
+    success-count check. Future integration must extract both immutable dpkg
+    inventories, recompute exact dependency coverage, and bind their digests,
+    primary map, ISO identities and source commit in reviewed release records.
+    """
+    raise GateError(
+        "primary binary-to-source mapping is not full corresponding-source clearance; "
+        "Built-Using/Static-Built-Using release-schema and immutable-image binding "
+        "is not implemented. Use tools/check-embedded-sources.py for private audit "
+        "evidence; commercial approval and upload authorization remain blocked."
+    )
+
+
 def check_edition(args: argparse.Namespace) -> None:
     (
         release,
@@ -857,6 +878,7 @@ def check_edition(args: argparse.Namespace) -> None:
     checksums = parse_checksums(args.checksums)
     if checksums.get(args.iso.name) != digest:
         raise GateError(f"{args.edition} ISO is not correctly recorded in SHA256SUMS")
+    require_embedded_source_release_integration()
     print(
         f"commercial-release: {args.edition} candidate passed; "
         f"iso={digest} packages={len(identities)} manifest={manifest_digest} "
@@ -954,6 +976,9 @@ def check_promotion(args: argparse.Namespace) -> None:
                 "provenance_sha256": sha256_file(provenance_path),
             }
 
+    # Preserve all prior validation above, but never issue an upload receipt
+    # based solely on the legacy primary-map status in public source records.
+    require_embedded_source_release_integration()
     if args.authorization_output is not None:
         resolved_index = source_index_path(release, args.source_index)
         authorization = {

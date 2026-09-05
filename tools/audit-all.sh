@@ -44,7 +44,7 @@ if [ "$source_only" -eq 1 ]; then
     echo "NOT CHECKED: generated candidate out/exact-source-map-1.0.json (--source-only)."
     echo "Tracked source-index identity, website media, and release-gate regression checks remain selected."
 else
-    run "exact corresponding-source map" python3 tools/check-generated-source-map.py
+    run "primary binary-to-source map (not embedded-source clearance)" python3 tools/check-generated-source-map.py
 fi
 run "source-map identity regressions" python3 test/test-generate-exact-source-map.py
 run "source-map gate regressions" python3 test/test-source-map-gate.py
@@ -62,6 +62,8 @@ run "OpenSnitch administrator socket boundary" python3 test/test-opensnitch-boun
 run "OpenSnitch package lifecycle" python3 test/test-opensnitch-package.py
 run "OpenSnitch installer administrator policy" python3 test/test-opensnitch-calamares.py
 run "security artifact gate regressions" python3 test/test-security-artifacts.py
+run "embedded-source inventory regressions" python3 test/test-embedded-sources.py
+run "source completeness fail-closed guards" python3 test/test-source-completeness-guards.py
 run "Docker build definition" sh tools/check-dockerfile.sh
 run "website release safety" sh tools/check-site.sh
 run "Rewind safety boundary" sh tools/check-rewind.sh

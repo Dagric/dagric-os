@@ -1,5 +1,10 @@
 #!/usr/bin/env python3
-"""Validate a generated exact-source-map candidate without publishing it."""
+"""Validate the primary binary-to-source map, without publishing or approving it.
+
+This checks one source identity for each installed binary, not embedded source
+dependencies. Run check-embedded-sources.py on the immutable dpkg inventories
+as a separate check; neither pass is qualified legal/release approval.
+"""
 
 from __future__ import annotations
 
@@ -90,9 +95,14 @@ def main() -> int:
         for entry in edition["entries"]
     }
     print(
-        "generated-source-map: passed "
+        "generated-source-map: primary binary-to-source mapping passed "
         f"({len(identities['free'])} Free, {len(identities['pro'])} Pro, "
         f"{len(unique_sources)} unique source identities)"
+    )
+    print(
+        "NOT CHECKED: Built-Using/Static-Built-Using embedded sources; run "
+        "tools/check-embedded-sources.py. This is not full corresponding-source "
+        "clearance or release approval."
     )
     return 0
 

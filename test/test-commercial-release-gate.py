@@ -283,21 +283,20 @@ def main() -> int:
     with tempfile.TemporaryDirectory() as folder:
         fixture = Fixture(Path(folder))
         result = run(fixture.edition_args("free"), fixture.approval())
-        require(result.returncode == 0, result.stderr)
+        require(result.returncode != 0 and "immutable-image binding" in result.stderr, result.stderr)
 
         authorization = Path(folder) / "authorization.json"
         result = run(fixture.promotion_args(authorization), fixture.approval())
-        require(result.returncode == 0, result.stderr)
-        stamp = json.loads(authorization.read_text(encoding="utf-8"))
-        require(
-            stamp["schema"] == "dagric-commercial-release-authorization-v1",
-            str(stamp),
-        )
-        require(stamp["candidate_commit"] == COMMIT, str(stamp))
-        require(
-            stamp["artifacts"]["free"]["sha256"] == digest(fixture.iso["free"]),
-            str(stamp),
-        )
+        require(result.returncode != 0 and "immutable-image binding" in result.stderr, result.stderr)
+        require(not authorization.exists(), "primary-only source mapping wrote an upload authorization")
+        # A detached caller-supplied completion claim is not an authorization.
+        index = json.loads(fixture.index.read_text())
+        index['embedded_source_inventory'] = {'status': 'complete', 'missing': 0}
+        fixture.index.write_text(json.dumps(index))
+        authorization.write_text('previous receipt must remain unchanged')
+        result = run(fixture.promotion_args(authorization), fixture.approval())
+        require(result.returncode != 0 and "immutable-image binding" in result.stderr, result.stderr)
+        require(authorization.read_text() == 'previous receipt must remain unchanged', 'failed promotion modified a receipt')
 
         result = run(fixture.edition_args("free"), None)
         require(result.returncode != 0 and "human" in result.stderr, result.stderr)
@@ -309,7 +308,7 @@ def main() -> int:
         unmodified["firefox_trademark"]["decision"] = "unmodified-distribution-reviewed"
         unmodified["firefox_trademark"]["configuration_sha256"] = "absent"
         result = run(fixture.edition_args("free"), json.dumps(unmodified))
-        require(result.returncode == 0, result.stderr)
+        require(result.returncode != 0 and "immutable-image binding" in result.stderr, result.stderr)
 
         unmodified["firefox_trademark"]["decision"] = "written-permission"
         result = run(fixture.edition_args("free"), json.dumps(unmodified))

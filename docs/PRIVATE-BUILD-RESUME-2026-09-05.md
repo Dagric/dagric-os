@@ -1,6 +1,35 @@
 # Private Pro build resumed September 5
 
-## Current matching candidate pair
+## Current corrected candidate pair
+
+Started at approximately 17:23 UTC from corrected source
+`20e24dd04ea3de802531be5139f9f36fe96a1490`:
+
+- Free: Debian `/var/tmp/dagric-private-free.C8Eu6N`.
+- Pro: Debian `/var/tmp/dagric-private-pro.QoSTpV`.
+
+Both build independently into their own `source/out`. The Pro host preflight
+resolved all 316 package names; Free's simultaneous host refresh skipped, rather
+than passed, the same preflight. Neither uses the earlier Free artifact as output.
+The actual `--source-only` audit passed all 40 selected gates on the new clean
+Pro source clone; its tracked/untracked status stayed clean before and after.
+Generated source maps, image/runtime/physical evidence are explicitly excluded
+from that developer-mode claim. The follow-up now points to this corrected pair.
+
+Both corrected builds exited successfully. Free finished at approximately
+17:35 UTC and Pro at 17:42 UTC. Their untouched private outputs are:
+
+| Edition | File in its own `source/out` | Bytes | SHA-256 |
+| --- | --- | ---: | --- |
+| Free | `dagric-os-1.0-amd64.iso` | 1,999,503,360 | `0bab5d46faba0245de54c327c8291d9a2ef581022f7eeb481fa353371c34dcfc` |
+| Pro | `dagric-os-pro-1.0-amd64.iso` | 3,901,456,384 | `69f0ea42ef9a98dc17857824e492b9a2a33e1a6eaec0c15478ef7686f51c9bfa` |
+
+Each output's `SOURCE_COMMIT` is exactly `20e24dd04ea3de802531be5139f9f36fe96a1490`.
+These are private, unsigned test candidates. No public checksum, manifest,
+download route or signing receipt was replaced by this build. Subsequent
+website/privacy and evidence-document commits do not relabel their source.
+
+## First revised attempt
 
 Started at approximately 17:04 UTC (12:04 PM America/Chicago), from committed
 source `34aafa1403a65762e2d6e08915a548cb8634cf9e`, pushed to

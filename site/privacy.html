@@ -41,13 +41,15 @@
 <main id="main">
   <h1>Privacy, <span class="grad">in plain words.</span></h1>
   <p class="lead">The operating system, website, checkout and support form do different things,
-  so this policy keeps them separate. Effective 4&nbsp;September&nbsp;2026.</p>
+  so this policy keeps them separate. Effective 5&nbsp;September&nbsp;2026.</p>
 
   <h2>The operating system</h2>
   <p><strong>The installed operating system sends no product telemetry or analytics to
-  Dagric.</strong> It has no required Dagric account and no Dagric advertising identifier. Your
-  files and application history stay on your machine unless you deliberately send, sync or upload
-  them with an application you choose. Network requests needed for updates, browsing and optional
+  Dagric.</strong> This does not mean bundled applications never send data to their publishers:
+  Firefox's data collection is explained below. There is no required Dagric account and no Dagric
+  advertising identifier. Dagric does not automatically collect your files or application history;
+  applications you use for browsing, sync or uploads have their own data-handling settings.
+  Network requests needed for updates, browsing and optional
   services are listed below. Website visits, purchases, downloads and support messages are covered
   separately later on this page.</p>
 
@@ -106,14 +108,29 @@
     Dagric does not preinstall or force any Firefox extension. An extension you choose may contact
     Mozilla for installation and updates; remove it under <em>☰ → Add-ons and themes</em> to stop
     those extension-update checks.</li>
-    <li><strong>Firefox's own built-in services.</strong> Dagric ships Debian's Firefox ESR package
-    without Dagric-specific browser policy or changed first-run settings. For example,
-    <em>Safe Browsing</em> downloads Google's
-    list of malicious sites so it can warn you before you open one (the list comes to you — the
-    pages you visit are not sent to Google), <em>captive-portal detection</em> pings
-    <code>detectportal.firefox.com</code> so Firefox can tell a hotel Wi-Fi login page from a
-    broken connection, and Firefox periodically fetches its own settings and blocklists from
-    Mozilla. All three are in <em>☰ → Settings</em>.</li>
+    <li><strong>Firefox's data collection.</strong> Dagric ships Debian's Firefox ESR package
+    without Dagric-specific browser policy or changed first-run settings. Dagric does not disable
+    Firefox's data collection: Firefox can automatically send Mozilla information about browser
+    performance, device configuration and how its features are used. These reports go to Mozilla,
+    not Dagric. Review <em>☰ → Settings → Privacy &amp; Security → Firefox Data Collection and Use</em>
+    to turn off technical and interaction data collection if you prefer. The daily usage report
+    has a separate control; turning off technical and interaction data does not turn that report off.
+    See Mozilla's <a href="https://support.mozilla.org/en-US/kb/technical-and-interaction-data">technical
+    and interaction data guide</a> and <a href="https://support.mozilla.org/en-US/kb/usage-ping-settings">daily
+    usage report guide</a>. Available controls and defaults can vary with the Debian ESR version;
+    review the other choices shown there, including crash reports.</li>
+    <li><strong>Firefox's security and connection services.</strong> <em>Safe Browsing</em>
+    downloads lists of harmful sites and can make follow-up checks using partial information
+    derived from a site's address. Certain download checks can send Google the file's name,
+    origin, size and a cryptographic hash. This is not a promise that no browsing-related data
+    leaves the browser. Mozilla explains the checks and controls in its
+    <a href="https://support.mozilla.org/en-US/kb/how-does-phishing-and-malware-protection-work">phishing
+    and malware protection guide</a>; switching this protection off reduces protection against
+    dangerous sites and downloads. Firefox also checks <code>detectportal.firefox.com</code>
+    for network-login requirements and fetches settings and blocklists from Mozilla. Not every
+    connection has a switch in the ordinary Settings page; Mozilla's
+    <a href="https://support.mozilla.org/en-US/kb/how-stop-firefox-making-automatic-connections">automatic
+    connections guide</a> explains the individual controls and their trade-offs.</li>
 
     <li><strong>Encrypted DNS.</strong> Firefox keeps Debian and Mozilla's current defaults;
     Dagric neither forces a resolver nor locks the setting. Review or change it at
