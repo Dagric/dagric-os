@@ -2,31 +2,47 @@
 
 Timezone: America/Chicago
 
-## Public queue
+## Outcome
 
-| Destination | Scheduler | Publish time | Video | SHA-256 | Quality gate |
-|---|---|---|---|---|---|
-| YouTube Shorts — Dagric OS | Buffer | 2026-09-05 08:15 | `20-choose-the-look-live-youtube-shorts-vertical.mp4` | `7A573EA988EDA6E28B77123CE568DB30F3A0FBC848378B6877D068C592A2BEC1` | `publishReady: true` |
+- The replacement batch contains 100 platform-specific MP4 exports: 25 YouTube Shorts, 25 TikTok videos, 25 Instagram Reels, and 25 Snapchat Stories.
+- The final quality audit reports `100/100 PASS`, including automated and user-approved manual checks.
+- 86 unique exports are delivery-ready in public/automatic queues.
+- 14 Snapchat exports remain local because Later returned `Action Restricted — You don't have permissions to perform that action.` when additional media uploads were attempted.
+- No old cloud post, draft, or media item was deleted during this pass.
 
-Buffer displayed the exact queue receipt: `Post scheduled for Dagric OS youtube channel on Sep 5, 8:15 AM (America/Chicago)`.
+## Verified publishing queues
 
-## Private staging
+| Destination | Scheduler | Count | Date range | Verification |
+|---|---|---:|---|---|
+| YouTube Shorts — Dagric OS | Buffer | 25 | 2026-09-05 through 2026-10-02 | Buffer sidebar: `Dagric OS 25 scheduled posts` |
+| TikTok — @dagricosofficial | Buffer | 25 | 2026-09-05 through 2026-10-03 | Buffer sidebar: `dagricosofficial 25 scheduled posts` |
+| Instagram — @dagricosofficial | Buffer | 24 | 2026-09-05 through 2026-10-03 | Buffer sidebar: `dagricosofficial 24 scheduled posts` |
+| Instagram Reel — Dagric OS | Publer | 1 | 2026-09-06 13:30 | Publer calendar article verified at `01:30 PM` |
+| Snapchat Public Story — @dagricos | Later | 11 | 2026-09-06 through 2026-09-28 | Each campaign entry shows `Auto`; no September campaign entry remains `Draft` |
 
-- Buffer TikTok draft: `25-dagric-hub-in-motion-tiktok-vertical.mp4`.
-- Buffer Instagram draft: `27-browse-files-before-install-instagram-vertical.mp4`.
-- Publer Instagram draft: `25-dagric-hub-in-motion-instagram-vertical.mp4`.
-- Later media library: 12 uploaded Snapchat-ready replacement videos.
+The combined Instagram count is 25, so YouTube, TikTok, and Instagram each have all 25 approved exports scheduled exactly once.
 
-The TikTok and Instagram posts were temporarily placed into the public queue while their exact times were verified, then returned to private drafts before publication because their individual full-audio human review is still pending.
+## Cadence
 
-## Quality and duplication policy
+- The cross-platform campaign uses up to three brand posts per day, normally at 08:15, 13:30, and 18:00 Central.
+- Later's Snapchat campaign entries use 08:35 Central on September 6, 7, 8, 13, 14, 15, 20, 21, 22, 27, and 28.
+- Topic order rotates first-run, readability, layout, hardware, files, connectivity, browser, security, settings, accessibility, and full-journey demonstrations.
 
-- The published queue accepts only videos whose automated audit and all five manual checks pass.
-- Each destination receives a different topic and source filename per posting slot.
-- One scheduler owns each final destination/time slot to prevent duplicate publication.
-- No captions, subtitle streams, snapshot footage, split-screen, persistent banners, picture-in-picture, or competing video layers are allowed.
-- Synthetic-media disclosures remain enabled where a platform provides the setting.
+## Private and blocked state
 
-## Production state
+- Later retains one pre-existing duplicate private draft in the August 30–September 5 week. It was not scheduled because doing so would duplicate a video on the same account.
+- Publer retains a pre-existing September 4 item and an unsaved composer. Neither was published, rescheduled, or deleted in this pass.
+- The 14 unscheduled Snapchat exports remain in `C:\Users\1248n\Downloads\Dagric OS Videos\Realtime Replacement Batch\batch-01\snapchat` and require Later upload permission/capacity or another connected Snapchat publishing route.
 
-Docker Desktop was launched to restore the dedicated Dagric recording environment. Its processes are running, but the Linux engine was still starting at the end of this pass, so no new recording receipt was created yet.
+## Quality and disclosure controls
+
+- Source audit: `C:\Users\1248n\Downloads\Dagric OS Videos\Realtime Replacement Batch\batch-01\batch-quality-audit.json`.
+- Approved content uses continuous screen-recorded motion rather than screenshots or still-frame substitutes.
+- No burned captions, subtitle streams, split-screen, picture-in-picture, persistent banners, or competing video layers are present.
+- Public copy avoids VM/ISO terminology and directs viewers to the current release status at `https://dagric.com`.
+- Synthetic-media disclosure was enabled wherever the scheduler exposed that control.
+- Every Buffer post was checked after saving against its account, caption, date, and time.
+
+## Machine restart note
+
+The social queues are stored by Buffer, Publer, and Later, so restarting Windows will not remove the scheduled posts. A restart is still recommended before resuming local Dagric recording because Docker Desktop's Linux engine previously showed a local socket/startup fault.
