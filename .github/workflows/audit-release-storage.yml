@@ -14,6 +14,38 @@ permissions:
 
 jobs:
   privacy:
+name: Read-only release storage audit
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [codex/release-safety]
+    paths:
+      - .github/workflows/audit-release-storage.yml
+      - tools/check-private-r2-staging.py
+      - tools/check-release-hold.sh
+
+permissions:
+  contents: read
+
+jobs:
+  privacy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Verify private staging and the public download hold
+        env:
+          R2_ACCOUNT_ID: ${{ secrets.R2_ACCOUNT_ID }}
+          R2_STAGING_BUCKET: ${{ secrets.R2_STAGING_BUCKET }}
+          CLOUDFLARE_R2_AUDIT_TOKEN: ${{ secrets.CLOUDFLARE_R2_AUDIT_TOKEN }}
+        run: |
+          set -eu
+          python3 tools/check-private-r2-staging.py --account "$R2_ACCOUNT_ID" --bucket "$R2_STAGING_BUCKET"
+          sh tools/check-release-hold.sh
+      # No upload credentials, object writes, deployments, tags or releases.
+      # Success proves these GETs are authorized, not that the token has no
+      # additional privileges; its configured policy needs a separate review.
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
