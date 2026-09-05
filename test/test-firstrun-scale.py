@@ -17,6 +17,16 @@ scale = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(scale)
 
 
+class ThemeDefaults(unittest.TestCase):
+    def test_undo_uses_the_packaged_dagric_theme(self):
+        default = "/usr/share/plasma/look-and-feel/org.dagric.desktop/contents/defaults"
+        self.assertTrue((ROOT / "config/includes.chroot" / default.lstrip("/")).is_file())
+        for command in ("dagric-firstrun", "dagric-appearance"):
+            source = (ROOT / "config/includes.chroot/usr/bin" / command).read_text()
+            self.assertIn("LNF=" + default + "\n", source)
+            self.assertNotIn("org.kde.breeze.desktop/contents/defaults", source)
+
+
 class Trials(unittest.TestCase):
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory()

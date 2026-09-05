@@ -330,8 +330,8 @@ SERIALIZE='try{var ps=panels(); var o=""; for(var i=0;i<ps.length;i++){var p=ps[
 # steps are guarded on a non-empty value, so they are skipped, the previewed
 # scheme and wallpaper stay on screen, and the popup claims the desktop was put
 # back. Reading the defaults file gives the honest answer, and it is not a
-# guess: 0500-desktop-defaults.hook.chroot is what writes Image=DagricObsidianPulse into it.
-LNF=/usr/share/plasma/look-and-feel/org.kde.breeze.desktop/contents/defaults
+# guess: dagric-branding owns the global theme and its wallpaper default.
+LNF=/usr/share/plasma/look-and-feel/org.dagric.desktop/contents/defaults
 lnf_key() {   # <exact group line> <key>
     [ -f "$LNF" ] || return 0
     awk -v grp="$1" -v key="$2" '

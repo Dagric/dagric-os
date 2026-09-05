@@ -46,8 +46,10 @@
    messages each, no fuzzy or untranslated messages at the time of this pass.
    Seven obsolete external-window/immediate-layout prompts were removed after
    the full build preflight caught them. The wizard-string check is now in CI.
-9. Package versions advance to tools 1.1.20, branding 1.1.10 and desktop defaults
-   1.1.9. These are not yet installed on the older frozen candidates.
+9. The first new image contains tools 1.1.20, branding 1.1.10 and desktop
+   defaults 1.1.9. A follow-up advances tools to 1.1.21 to make Appearance's
+   Undo fallback use the same Dagric global theme as setup. This follow-up is
+   not present in the a6fdd9b6 image identified below.
 
 ## Source-distribution engineering
 
@@ -55,7 +57,8 @@ Live storage audit run 33989821819 succeeded against source 564119b. The read-on
 API can inspect both staging and the live Free bucket: staging has r2.dev off and
 no custom domains; the live bucket has no enabled public domains. Website/Free
 origin/Pro-worker hold checks passed. No storage or website configuration was
-changed. Token-policy least-privilege review remains separate from GET success.
+changed. Separate dashboard policy inspection confirmed the single read-only
+R2 permission; this was not inferred from GET success.
 
 `tools/prepare-source-distribution.py` combines fresh actual-image extraction
 with current full-cache/source-lock verification and produces a private,
@@ -78,7 +81,7 @@ the old source lock must never be relabeled as covering these UI changes.
 
 ## Verification and remaining scope
 
-The controller's 15 offline tests cover trial/keep/revert/expiry, mixed display
+The controller's 16 offline tests cover trial/keep/revert/expiry, mixed display
 baselines, rejected sizes/commands, interrupted-trial ownership, symlinks and
 failed restoration. Three exercise real process/pipe lifetimes and a real
 20-second watchdog with only monitor I/O replaced by fixtures. Qt 6.8.2 tests
@@ -86,11 +89,43 @@ exercise navigation gating and layout previews;
 800×600, 1366×768 and 1920×1080 checks assert Next and Keep controls are on screen.
 Generated QA images were inspected. Source-delivery integration has four new
 real ISO/SquashFS fixtures (nine total integration tests); no downloaded code
-is executed by them. The four config packages build locally. Broader source,
+is executed by them. One test binds both Undo implementations to the packaged
+Dagric theme. The four config packages build locally. Broader source,
 shell, JavaScript, concept, icon and locale checks pass.
 
-These tests do not replace a new image build, live Wayland scale testing,
-installation/reboot testing, multi-monitor hotplug or physical acceptance.
+GitHub source-quality run 33990394680 passed both fast-gates and the Debian 13
+desktop-interface job at commit 0e15578. The later one-line Appearance fallback
+change has its own local regression and shell checks; it is not covered by
+that earlier run.
+
+## Fresh image and live desktop evidence
+
+- Private Free build completed successfully from a6fdd9b675d7b6ffcb5e1e394a42158bb36561b8.
+- Image: `/var/tmp/dagric-private-free.BALCBQ/source/out/dagric-os-1.0-amd64.iso`.
+- Bytes: 1,999,503,360.
+- SHA-256: `18858d38856db8c3bc7436b36b16da25b1e0ba35c82db58d728ba5c95a21f945`.
+- Native lab run: `149a0a3d16344a698903092724c54f2f`, started 20:38:12 UTC.
+- Viewer: `http://localhost:6081/vnc.html`.
+- The previous run e36e5e1382ec4e548919c179fa00d488 was stopped through the
+  guarded lab entry point. Its disk and logs were preserved.
+- Observed the actual Dagric splash (D mark and red progress), then the
+  red/black desktop with one bottom panel. This is boot-to-live-desktop proof,
+  not an installed-system reboot or Secure Boot result.
+- Opened Set Up Dagric from the launcher. Its initial window fits the work
+  area. Autostart timing/reliability is not yet established by this observation.
+- Actual Wayland 100% → 125% trial stayed in the wizard; Keep and Revert stayed
+  visible and navigation was disabled. An unconfirmed trial restored 100%.
+  A second trial accepted with Keep retained 125% and re-enabled navigation.
+  At this display resolution 150% was safely disabled.
+- Selecting Centered on the taskbar page at 125% changed only the preview;
+  the wizard and existing panel stayed in place with Next visible.
+- Initial launcher showed browser, Settings, Files and Software favorites but
+  not the new Hub/Guide/Recovery pins. Do not count the configured favorite
+  list as a delivered live behavior: its first-load import still needs work.
+
+The single-output live checks do not replace installation/reboot testing,
+multi-monitor hotplug, accessibility review or physical acceptance. This lab
+has no guest network or sound and uses legacy BIOS.
 
 Still to implement/validate from the expanded brief: the simpler privacy and
 recovery onboarding steps, explicit Familiar/Modern copy, automatic appearance
