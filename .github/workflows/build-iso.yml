@@ -65,7 +65,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       # Seconds, and it runs FIRST because the failure it catches costs the
       # most to diagnose. Docker strips comments inside a line continuation and
@@ -147,7 +147,7 @@ jobs:
       matrix:
         edition: [free, pro]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       # Same reclaim as release.yml — see the long note there. The free ISO
       # currently fits in the runner's ~14 GB, but only just, and every package
