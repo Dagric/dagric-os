@@ -81,4 +81,6 @@ jobs:
       - name: Shell syntax and error-level analysis
         run: sh tools/check-shell.sh
       - name: Translation catalogues match their sources
-        run: sh tools/i18n-build.sh --check
+        run: |
+          sh tools/i18n-build.sh --check
+          python3 tools/i18n-wizard.py --check

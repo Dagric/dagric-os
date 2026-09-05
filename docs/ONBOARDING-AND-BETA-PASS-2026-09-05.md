@@ -40,12 +40,20 @@
 7. The initial menu pins real existing Hub, Guide, Settings, Software, Recovery,
    browser and file-manager entries. This is KDE's supported launcher with
    Dagric defaults, not a newly implemented assistant or custom launcher.
-8. All five translation catalogs contain the new prompts: 675 translated
+8. All five translation catalogs contain the new prompts: 668 translated
    messages each, no fuzzy or untranslated messages at the time of this pass.
+   Seven obsolete external-window/immediate-layout prompts were removed after
+   the full build preflight caught them. The wizard-string check is now in CI.
 9. Package versions advance to tools 1.1.20, branding 1.1.10 and desktop defaults
    1.1.9. These are not yet installed on the older frozen candidates.
 
 ## Source-distribution engineering
+
+Live storage audit run 33989821819 succeeded against source 564119b. The read-only
+API can inspect both staging and the live Free bucket: staging has r2.dev off and
+no custom domains; the live bucket has no enabled public domains. Website/Free
+origin/Pro-worker hold checks passed. No storage or website configuration was
+changed. Token-policy least-privilege review remains separate from GET success.
 
 `tools/prepare-source-distribution.py` combines fresh actual-image extraction
 with current full-cache/source-lock verification and produces a private,
