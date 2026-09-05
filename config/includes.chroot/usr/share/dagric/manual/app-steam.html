@@ -36,7 +36,7 @@
     <header class="hero">
       <div class="eyebrow">Games and Windows programs</div>
       <h1>Steam<span class="pill add" title="Not preinstalled — Dagric installs it for you when you ask">ADD-ON</span></h1>
-      <p class="sub">Your Steam library, running on Linux &mdash; usually with no effort at all.</p>
+      <p class="sub">Optional access to your Steam library, with compatibility checked title by title.</p>
     </header>
 
     <div class="swap"><span>On Windows this was</span><strong>Steam on Windows</strong></div>
@@ -45,42 +45,42 @@
     <section>
       <h2>What it is</h2>
       <p><strong>Steam</strong> is Valve's game store and launcher, and on Linux it
-      carries <strong>Proton</strong>: a compatibility layer that runs Windows games
-      without you doing anything. This is the same technology that powers the Steam
-      Deck, which is why Linux gaming stopped being a hobby project a few years
-      ago.</p>
-      <p>Most of your library will simply work. Some of it will not, and the honest
-      dividing line is anti-cheat: a number of competitive multiplayer games refuse to
-      run on Linux because their anti-cheat vendor has not enabled it.</p>
+      provides <strong>Proton</strong>, a compatibility layer that can run many Windows
+      games on Linux. Results vary by title, hardware, drivers, anti-cheat and other
+      online services. A native Linux version or a Proton option is not a guarantee
+      that every mode or feature works.</p>
     </section>
 
     <section>
       <h2>Getting it</h2>
-      <p>Steam is <strong>never</strong> bundled with Dagric. Valve's Subscriber
-      Agreement means nobody may redistribute it, so an operating system that ships it
-      preinstalled is breaking that agreement. Dagric installs it only when you
-      ask.</p>
+      <p>Steam is <strong>not bundled</strong> with Dagric. It is a proprietary
+      third-party client, so Dagric leaves the decision and download to you. Valve's
+      current terms govern the client, account and content.</p>
       <p>Open the <a href="tool-dagric-hub.html">Dagric Hub</a> &rarr;
       <strong>Steam</strong>, or run <code>dagric-get-steam</code>. A terminal window
       explains what Steam is, asks yes or no, and then asks for your administrator
       password. It enables 32-bit library support and installs Debian's
       <code>steam-installer</code>; Steam finishes updating itself on first
       launch.</p>
-      <p>On Dagric&nbsp;OS Pro the 32-bit graphics and Wine libraries Steam needs are
-      already in place, so the download is small. Steam is also on Flathub if you
-      would rather have it sandboxed &mdash; search for it in
+      <p>On Dagric&nbsp;OS Pro the open-source 32-bit graphics and compatibility
+      dependencies are already in place. Steam is also available through Flathub;
+      compare the package source and sandbox permissions before choosing that route in
       <a href="app-discover.html">Discover</a>.</p>
+      <div class="notice"><div>Steam and related marks belong to Valve Corporation.
+      Dagric is an independent project and is not affiliated with or endorsed by
+      Valve.</div></div>
     </section>
     <section>
       <h2>Five things you will actually do</h2>
       <ol class="tasks">
         <li><span class="t">Turn Proton on</span><p><em>Steam</em> &rarr; <em>Settings</em> &rarr; <em>Compatibility</em>
          &rarr; tick <em>Enable Steam Play for all other titles</em> and pick the
-         newest Proton. Without this, only games with native Linux builds appear
-         playable.</p></li>
+         version recommended for the title. Steam's labels and defaults can change,
+         so use its current compatibility page as the source of truth.</p></li>
         <li><span class="t">Check whether a game works before you buy it</span><p><strong>protondb.com</strong> collects reports from players by game,
          with a rating and the tweaks people needed. Check it first; it is the single
-         most useful habit in Linux gaming.</p></li>
+         most useful community checks in Linux gaming, but reports are not a
+         guarantee.</p></li>
         <li><span class="t">Point Steam at a second drive</span><p><em>Settings</em> &rarr; <em>Storage</em> &rarr; add a library folder on
          the other disk. Games can be moved between libraries without
          redownloading.</p></li>
@@ -96,13 +96,11 @@
 
     <section>
       <h2>One thing that will surprise you</h2>
-      <p><strong>Games with kernel-level anti-cheat will not run, and no amount of
-      configuration changes that.</strong> Some titles &mdash; Valorant, and a handful
-      of large competitive shooters &mdash; are blocked by the publisher's decision,
-      not by a Linux limitation; the anti-cheat vendors ship Linux support and the
-      publisher chooses whether to switch it on. If one of these is the game you play
-      every evening, check before you wipe Windows. Everything else about Steam here
-      is unremarkable, which is the good news.</p>
+      <p><strong>Online features can change compatibility even when a single-player
+      mode works.</strong> Anti-cheat, launchers, account requirements and publisher
+      updates can make a title work, partly work or stop working. Check the publisher's
+      current requirements and recent community reports before replacing a setup you
+      depend on.</p>
     </section>
 
     <section>
@@ -113,7 +111,7 @@
 
     <section>
       <h2>See also</h2>
-      <div class="related"><a href="tool-dagric-gaming.html">Proton-GE helper</a><a href="app-protonup.html">ProtonUp-Qt</a><a href="app-gameperf.html">GameMode, MangoHud and GOverlay</a><a href="app-lutris.html">Lutris</a><a href="tool-dagric-drivers.html">NVIDIA driver helper</a></div>
+      <div class="related"><a href="tool-dagric-gaming.html">GE-Proton helper</a><a href="app-protonup.html">ProtonUp-Qt</a><a href="app-gameperf.html">GameMode, MangoHud and GOverlay</a><a href="app-lutris.html">Lutris</a><a href="tool-dagric-drivers.html">NVIDIA driver helper</a></div>
     </section>
 
     <footer class="colophon">Dagric OS Manual &middot; stored on this computer, no internet needed &middot; <a href="index.html">every application</a></footer>

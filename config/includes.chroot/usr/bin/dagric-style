@@ -1,5 +1,5 @@
 #!/bin/sh
-# SPDX-FileCopyrightText: 2026 DGR Operations <repo@dagric.com>
+# SPDX-FileCopyrightText: 2026 IMPRESSIONSDIRECT360 LLC <repo@dagric.com>
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Dagric OS — "Dagric Styles": pick the desktop's visual personality in one
 # click. Where Dagric Looks reshapes the PANELS, Styles changes the MOOD:
@@ -33,6 +33,25 @@ TITLE="Dagric Styles"
 EDITION=$(cat /etc/dagric-edition 2>/dev/null || echo free)
 WALLS=/usr/share/wallpapers
 STYLE_DIRS="/usr/share/dagric/styles /etc/dagric/styles ${XDG_DATA_HOME:-$HOME/.local/share}/dagric/styles"
+
+# Automation and accessibility tools can apply the same owner-visible style
+# files without scraping this menu. This is also what the real-VM recording
+# pipeline uses: the wallpaper and palette are changed by Dagric itself before
+# capture, never painted over the footage afterward.
+REQUESTED_STYLE=
+case "${1:-}" in
+    --apply)
+        REQUESTED_STYLE=${2:-}
+        case "$REQUESTED_STYLE" in
+            ''|*[!A-Za-z0-9._-]*)
+                printf '%s\n' "Usage: dagric-style --apply STYLE_ID" >&2
+                exit 2 ;;
+        esac ;;
+    '') : ;;
+    *)
+        printf '%s\n' "Usage: dagric-style [--apply STYLE_ID]" >&2
+        exit 2 ;;
+esac
 
 # --- primitive knobs ---------------------------------------------------------
 set_scheme() { [ -n "$1" ] && plasma-apply-colorscheme "$1" >/dev/null 2>&1; }
@@ -111,6 +130,16 @@ if [ ! -s "$TMPLIST" ]; then
     exit 1
 fi
 
+apply_file() {
+    f=$1
+    set_scheme "$(skey "$f" SCHEME)"
+    set_accent "$(skey "$f" ACCENT)"
+    set_wall   "$(skey "$f" WALLPAPER)"
+    set_effect blurEnabled         "$(skey "$f" BLUR)"
+    set_effect translucencyEnabled "$(skey "$f" TRANSLUCENCY)"
+    set_effect wobblywindowsEnabled "$(skey "$f" WOBBLY)"
+}
+
 # Assemble kdialog's tag/label pairs, sorted.
 set --
 OLDIFS=$IFS; IFS='
@@ -131,20 +160,14 @@ set -- "$@" \
     accent "$(gettext "Accent color — pick any color")" \
     reset  "$(gettext "Reset — standard Dagric look")"
 
-CHOICE=$(kdialog --title "$TITLE" --icon dagric-logo --geometry 520x380 \
-    --menu "$(gettext "Pick a mood — colors, wallpaper, effects. Panels stay put:")" \
-    "$@" 2>/dev/null) || exit 0
+if [ -n "$REQUESTED_STYLE" ]; then
+    CHOICE=$REQUESTED_STYLE
+else
+    CHOICE=$(kdialog --title "$TITLE" --icon dagric-logo --geometry 520x380 \
+        --menu "$(gettext "Pick a mood — colors, wallpaper, effects. Panels stay put:")" \
+        "$@" 2>/dev/null) || exit 0
+fi
 [ -n "$CHOICE" ] || exit 0
-
-apply_file() {
-    f=$1
-    set_scheme "$(skey "$f" SCHEME)"
-    set_accent "$(skey "$f" ACCENT)"
-    set_wall   "$(skey "$f" WALLPAPER)"
-    set_effect blurEnabled         "$(skey "$f" BLUR)"
-    set_effect translucencyEnabled "$(skey "$f" TRANSLUCENCY)"
-    set_effect wobblywindowsEnabled "$(skey "$f" WOBBLY)"
-}
 
 case "$CHOICE" in
     _sep)
@@ -190,7 +213,11 @@ case "$CHOICE" in
     *)
         ROW=$(grep -F "	$CHOICE	" "$TMPLIST" | head -1)
         FILE=$(printf '%s\n' "$ROW" | cut -f4)
-        [ -n "$FILE" ] || exit 0
+        if [ -z "$FILE" ]; then
+            [ -z "$REQUESTED_STYLE" ] || printf '%s\n' "Unknown or unavailable style: $CHOICE" >&2
+            [ -z "$REQUESTED_STYLE" ] || exit 2
+            exit 0
+        fi
         apply_file "$FILE"
         # The style's display NAME, not its internal tag: the popup used to
         # read "Style applied: midnight" — or, worse, "Style applied: reset" —
@@ -202,5 +229,9 @@ case "$CHOICE" in
 esac
 kwin_reload
 
-kdialog --title "$TITLE" \
-    --passivepopup "$POPUP" 4 2>/dev/null
+if [ -n "$REQUESTED_STYLE" ]; then
+    printf '%s\n' "$POPUP"
+else
+    kdialog --title "$TITLE" \
+        --passivepopup "$POPUP" 4 2>/dev/null
+fi

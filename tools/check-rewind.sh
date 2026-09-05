@@ -36,7 +36,13 @@ else
     echo "rewind: python3 absent — skipping unit and XML tests"
 fi
 
-grep -Fq 'for d in firstrun appearance manual guide welcome styles looks hwcheck boot family rewind' packages/stage-packages.sh
+_staged_dirs=$(sed -n '/^[[:space:]]*for d in .* rewind/{s/^[[:space:]]*for d in \(.*\); do$/\1/p;q;}' packages/stage-packages.sh)
+for _required_dir in firstrun appearance manual guide welcome styles looks hwcheck boot family rewind; do
+    case " $_staged_dirs " in
+        *" $_required_dir "*) ;;
+        *) echo "rewind: package staging omits $_required_dir" >&2; exit 1 ;;
+    esac
+done
 # Rewind's policy travels in the general policy loop.  The updater shares the
 # same package and policy directory, so checking an old one-file copy command
 # would reject the safer packaging rule that keeps every Dagric privileged

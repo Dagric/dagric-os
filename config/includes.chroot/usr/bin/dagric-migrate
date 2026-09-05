@@ -1,5 +1,5 @@
 #!/bin/sh
-# SPDX-FileCopyrightText: 2026 DGR Operations <repo@dagric.com>
+# SPDX-FileCopyrightText: 2026 IMPRESSIONSDIRECT360 LLC <repo@dagric.com>
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Dagric OS — Migration Assistant: bring your files and bookmarks over from
 # the Windows installation that's still on this PC (or on a plugged-in drive).
@@ -92,10 +92,24 @@ done
 [ -f "${CAND}.bitlocker" ] && BITLOCKER=$(cat "${CAND}.bitlocker" 2>/dev/null)
 [ -f "${CAND}.mounted" ]   && MOUNTED_BY_US=$(cat "${CAND}.mounted" 2>/dev/null)
 
+# Initialise every temporary path used by cleanup before the EXIT trap exists.
+# Each later assignment comes from mktemp; there are no predictable /tmp/$$
+# fallbacks for another local account to pre-create as a symlink.
+VERI_LOG=""
+VERI_SUMMARY=""
+VERI_CHECKSUMS=""
+VERI_STDOUT=""
+VERI_STDERR=""
+BROWSER_LOG=""
+CONT_LOG=""
+STATE_LOG=""
+
 cleanup() {
     # Unmount only what we mounted; leave pre-existing mounts alone.
     for d in $MOUNTED_BY_US; do udisksctl unmount -b "$d" >/dev/null 2>&1; done
-    rm -f "$CAND" "${CAND}.bitlocker" "${CAND}.mounted"
+    rm -f "$CAND" "${CAND}.bitlocker" "${CAND}.mounted" \
+        "$VERI_LOG" "$VERI_SUMMARY" "$VERI_CHECKSUMS" \
+        "$VERI_STDOUT" "$VERI_STDERR" "$BROWSER_LOG" "$CONT_LOG" "$STATE_LOG"
 }
 trap cleanup EXIT
 
@@ -205,11 +219,41 @@ CHOICES=$(kdialog --title "$TITLE" --separate-output --checklist \
  music  "$(gettext "Music")"                            on \
  vids   "$(gettext "Videos")"                           on \
  downl  "$(gettext "Downloads")"                        off \
- marks  "$(gettext "Browser bookmarks (Chrome / Edge / Firefox)")" on \
+ marks  "$(gettext "Browser bookmarks (Chrome / Brave / Edge / DuckDuckGo / Firefox)")" on \
  tabs   "$(gettext "Browser tabs you had open")"        on \
- pwds   "$(gettext "Saved passwords (Firefox only - Chrome explains why)")" off \
- 2>/dev/null) || exit 0
+ pwds   "$(gettext "Saved passwords (Firefox + Chromium CSV export)")" off \
+ games  "$(gettext "Gaming continuity (save games, Steam screenshots, game inventory)")" off \
+ dev    "$(gettext "Developer continuity (VS Code settings, Git configuration, project inventory)")" off \
+ creative "$(gettext "Creative/work profiles (OBS, Blender, Krita, LibreOffice templates, Audacity)")" off \
+ mail   "$(gettext "Thunderbird mail and contacts profile — contains personal email")" off \
+ fonts  "$(gettext "Personal fonts — confirm you may use their licenses")" off \
+2>/dev/null) || exit 0
 [ -n "$CHOICES" ] || exit 0
+
+# Optional Windows companion bundle (generated from Dagric-Windows-Companion.ps1):
+# reads networks, printers, cloud notes, and extra app inventory not visible
+# through NTFS-only parsing. It never contains passwords or browser session data.
+COMPANION_PATH=""
+if kdialog --title "$TITLE" --yesno \
+    "$(gettext "Do you have a Dagric-Windows-Companion.json export? It adds
+network names, printers, cloud notes, and app context to your migration report.")" 2>/dev/null; then
+    COMPANION_CANDIDATE=$(kdialog --title "$TITLE" --getopenfilename "$HOME" "*.json *.dagric" 2>/dev/null)
+    if [ -n "$COMPANION_CANDIDATE" ] && [ -f "$COMPANION_CANDIDATE" ]; then
+        COMPANION_PATH="$COMPANION_CANDIDATE"
+    fi
+fi
+[ -z "$COMPANION_PATH" ] && [ -f "$HOME/Dagric-Windows-Companion.json" ] && COMPANION_PATH="$HOME/Dagric-Windows-Companion.json"
+
+# --- 4b. Verification inputs ------------------------------------------------
+VERI_LOG=$(mktemp -t dagric-migrate-verification.XXXXXX) || exit 1
+VERI_SUMMARY=$(mktemp -t dagric-migrate-verification-json.XXXXXX) || exit 1
+VERI_CHECKSUMS=$(mktemp -t dagric-migrate-verification-checksums.XXXXXX) || exit 1
+VERI_STDOUT=$(mktemp -t dagric-migrate-verification-out.XXXXXX) || exit 1
+VERI_STDERR=$(mktemp -t dagric-migrate-verification-err.XXXXXX) || exit 1
+VERIFICATION_JSON="$HOME/Dagric-Migration-Verification.json"
+VERIFICATION_HTML="$HOME/Dagric-Migration-Verification.html"
+VERI_LIMIT_FILES=180
+VERI_SHA_LIMIT=180
 
 # Map choice -> Windows dir name + Linux target. OneDrive-redirected folders
 # are merged in as a second source when present.
@@ -289,6 +333,75 @@ dg_say "$(eval_gettext '=== Dagric Migration: copying from Windows user "$WINUSE
 dg_say "$(eval_gettext '    reading $WINDEV mounted at $WINMNT (read-only; Windows is not modified)')"
 echo
 SKIPPED=$(gettext "    (some files could not be read — skipped)")
+
+copy_with_stats() {
+    c="$1"
+    src="$2"
+    dest="$3"
+    log="$4"
+    tmp=""
+    status="ok"
+    copied=0
+    bytes=0
+    fail_count=0
+    fail_text=""
+
+    mkdir -p "$dest"
+    tmp=$(mktemp -t dagric-migrate-rsync.XXXXXX) || return 1
+    if ! rsync -rt --ignore-existing --out-format='XFER|%i|%n' --stats \
+        --exclude 'desktop.ini' --exclude 'Thumbs.db' --exclude '*.lnk' \
+        "$src/" "$dest/" >"$tmp" 2>&1; then
+        status="failed"
+        COPY_FAILED=yes
+    fi
+
+    copied=$(awk -F: '/^Number of files transferred:/{gsub(/[^0-9]/, "", $2); if ($2 != "") print $2; else print 0; exit}' "$tmp")
+    bytes=$(awk '/^Total transferred file size:/ {gsub(/[^0-9]/, "", $NF); print $NF; exit}' "$tmp")
+    copied="${copied:-0}"
+    bytes="${bytes:-0}"
+    fail_count=$(awk '/^rsync error|^rsync: / {n++} END {print n+0}' "$tmp")
+    if [ "$fail_count" -gt 0 ]; then
+        status=failed
+        fail_text=$(awk '/^rsync error|^rsync: / {print; if (++i>=6) exit}' "$tmp" | sed 's/^[[:space:]]*//')
+        fail_text=$(printf '%s' "$fail_text" | tr '\n' '; ')
+        COPY_FAILED=yes
+    fi
+
+    echo "copy\t$c\t$src\t$dest\t$copied\t$bytes\t$status\t$fail_text" >> "$log"
+
+    # Checksum manifest for a small, practical sample. This is optional and
+    # explicitly bounded to keep migration responsive on large folders.
+    if [ -n "$VERI_CHECKSUMS" ] && [ "$copied" -gt 0 ] && [ "$copied" -le "$VERI_SHA_LIMIT" ]; then
+        checksum_count=0
+        while IFS='|' read -r marker code rel; do
+            [ "$marker" = "XFER" ] || continue
+            case "$code" in
+                ">f"*) : ;;
+                *) continue ;;
+            esac
+            [ "$checksum_count" -ge "$VERI_SHA_LIMIT" ] && break
+            rel=${rel#./}
+            real="$dest/$rel"
+            if [ -f "$real" ] && [ "$checksum_count" -lt "$VERI_SHA_LIMIT" ]; then
+                sha=$(sha256sum "$real" 2>/dev/null | awk '{print $1}') || continue
+                printf '%s\t%s\t%s\t%s\n' "checksum" "$real" "$sha" "$src" >> "$VERI_CHECKSUMS"
+                checksum_count=$((checksum_count + 1))
+            fi
+        done <<EOF
+$(awk -F'|' '/^XFER\\|/ {print $0}' "$tmp")
+EOF
+        if [ "$checksum_count" -gt 0 ]; then
+            # shellcheck disable=SC2013
+            sort -u "$VERI_CHECKSUMS" -o "$VERI_CHECKSUMS"
+        fi
+    fi
+
+    rm -f "$tmp"
+    if [ "$status" = ok ]; then
+        return 0
+    fi
+    return 1
+}
 # Did ANY copy fail? The closing summary used to be built unconditionally from
 # "Done! Your Windows files are now in your Dagric home folder.", so a full home
 # partition or a read-only destination produced one scrolled-past line here and
@@ -306,19 +419,38 @@ for c in $CHOICES; do
         # file paths and an arrow. There is no English in it to translate, and
         # a translator cannot improve a path.
         echo "--- $src  ->  $DEST"
-        mkdir -p "$DEST"
-        if ! rsync -rt --ignore-existing --info=progress2 \
-            --exclude 'desktop.ini' --exclude 'Thumbs.db' --exclude '*.lnk' \
-            "$src/" "$DEST/"; then
+        if ! copy_with_stats "$c" "$src" "$DEST" "$VERI_LOG"; then
+            COPY_FAILED=yes
             # $SKIPPED is also the wrong description for a full disk, a
             # read-only home or a mkdir that did not take, which is why the
             # failure is now RECORDED as well as printed — see the summary at
             # the end of this script.
-            COPY_FAILED=yes
             dg_say "$SKIPPED"
         fi
     done
 done
+
+# Emit a compact integrity note and render verification artifacts.
+    if [ -n "$VERI_LOG" ] && [ -s "$VERI_LOG" ]; then
+        VERI_OUT_JSON="$VERIFICATION_JSON"
+        VERI_OUT_HTML="$VERIFICATION_HTML"
+        python3 /usr/share/dagric/migrate-verification.py \
+            "$VERI_LOG" "$HOME" "$WINUSER" "$WINDEV" "$WINMNT" "$CHOICES" \
+            "$VERI_OUT_JSON" "$VERI_OUT_HTML" \
+            --checksum-file "${HOME}/Dagric-Migration-Verification-checksums.sha256" \
+            --companion "$COMPANION_PATH" \
+            > "$VERI_STDOUT" 2>"$VERI_STDERR"
+        # shellcheck disable=SC2181
+        VERI_STATUS=$?
+        if [ -s "$VERI_STDOUT" ]; then
+            cat "$VERI_STDOUT"
+        fi
+        if [ -s "$VERI_STDERR" ]; then
+            sed 's/^/  /' "$VERI_STDERR"
+        fi
+        : > "$VERI_STDOUT"
+        : > "$VERI_STDERR"
+    fi
 
 # --- 7. Bookmarks -> one HTML file Firefox can import ------------------------
 # NOTE: kdialog --separate-output returns the tags NEWLINE-separated, so a
@@ -352,9 +484,22 @@ def walk_chrome(node, folder):
     for ch in node.get("children", []):
         walk_chrome(ch, node.get("name", folder))
 
-# Chrome + Edge (every profile, not just Default)
-for base, label in ((r"AppData/Local/Google/Chrome/User Data", "Chrome"),
-                    (r"AppData/Local/Microsoft/Edge/User Data", "Edge")):
+# Chromium-family browser bookmarks (every profile, not just Default)
+for base, label in (
+        (r"AppData/Local/Google/Chrome/User Data", "Chrome"),
+        (r"AppData/Local/Google/Chrome Beta/User Data", "Chrome"),
+        (r"AppData/Local/Google/Chrome Dev/User Data", "Chrome"),
+        (r"AppData/Local/Google/Chrome SxS/User Data", "Chrome"),
+        (r"AppData/Local/Microsoft/Edge/User Data", "Edge"),
+        (r"AppData/Local/Microsoft/Edge Beta/User Data", "Edge"),
+        (r"AppData/Local/Microsoft/Edge Dev/User Data", "Edge"),
+        (r"AppData/Local/Microsoft/Edge SxS/User Data", "Edge"),
+        (r"AppData/Local/BraveSoftware/Brave-Browser/User Data", "Brave"),
+        (r"AppData/Local/BraveSoftware/Brave-Browser-Beta/User Data", "Brave"),
+        (r"AppData/Local/BraveSoftware/Brave-Browser-Dev/User Data", "Brave"),
+        (r"AppData/Local/BraveSoftware/Brave-Browser-Nightly/User Data", "Brave"),
+        (r"AppData/Local/BraveSoftware/Brave-Browser-Beta-Nightly/User Data", "Brave"),
+        (r"AppData/Local/DuckDuckGo/Browser/User Data", "DuckDuckGo")):
     # glob.escape: prof is /media/<user>/<NTFS label>/Users/<name>, and a label
     # like "Windows [SSD]" is legal on NTFS but is a character class to glob.
     for bm in glob.glob(os.path.join(glob.escape(os.path.join(prof, base)), "*", "Bookmarks")):
@@ -364,6 +509,29 @@ for base, label in ((r"AppData/Local/Google/Chrome/User Data", "Chrome"),
             for r in roots.values():
                 if isinstance(r, dict):
                     walk_chrome(r, label)
+        except Exception:
+            pass
+
+# Best-effort DuckDuckGo path; export is Chromium-derived but not fully stable.
+duck_roots = {
+    os.path.join(prof, r"AppData/Local/DuckDuckGo"),
+    os.path.join(prof, r"AppData/Local/DuckDuckGo/Browser/User Data"),
+}
+for base in glob.glob(os.path.join(glob.escape(os.path.join(prof, "AppData/Local")), "*")):
+    low = os.path.basename(base).lower()
+    if "duck" in low or "ddg" in low:
+        duck_roots.add(base)
+        duck_roots.add(os.path.join(base, "Browser"))
+        duck_roots.add(os.path.join(base, "Browser", "User Data"))
+        duck_roots.add(os.path.join(base, "User Data"))
+for base in duck_roots:
+    for bm in glob.glob(os.path.join(glob.escape(base), "*", "Bookmarks")):
+        try:
+            with open(bm, encoding="utf-8") as f:
+                roots = json.load(f).get("roots", {})
+            for r in roots.values():
+                if isinstance(r, dict):
+                    walk_chrome(r, "DuckDuckGo")
         except Exception:
             pass
 
@@ -433,12 +601,31 @@ Import and Backup > Import Bookmarks from HTML.")"
 
 # --- 8. Open tabs and saved passwords ---------------------------------------
 WANT_TABS=no; WANT_PWDS=no
+WANT_GAMES=no; WANT_DEV=no; WANT_CREATIVE=no; WANT_MAIL=no; WANT_FONTS=no
 for c in $CHOICES; do
     [ "$c" = tabs ] && WANT_TABS=yes
     [ "$c" = pwds ] && WANT_PWDS=yes
+    [ "$c" = games ] && WANT_GAMES=yes
+    [ "$c" = dev ] && WANT_DEV=yes
+    [ "$c" = creative ] && WANT_CREATIVE=yes
+    [ "$c" = mail ] && WANT_MAIL=yes
+    [ "$c" = fonts ] && WANT_FONTS=yes
 done
 
-if [ "$WANT_TABS" = yes ] || [ "$WANT_PWDS" = yes ]; then
+# Mail profiles and font files are opt-in for a reason: the former can contain
+# years of private mail, and the latter may carry licenses that do not travel
+# with a machine.  Confirm each meaningful expansion explicitly.
+if [ "$WANT_MAIL" = yes ]; then
+    kdialog --title "$TITLE" --warningyesno "$(gettext "Thunderbird migration copies local mail, contacts, and account settings into a private Dagric migration folder. It does not decrypt or import passwords, but the copied mail can be personal. Continue?")" 2>/dev/null || WANT_MAIL=no
+fi
+if [ "$WANT_FONTS" = yes ]; then
+    kdialog --title "$TITLE" --warningyesno "$(gettext "Only personal Windows fonts will be copied. You are responsible for confirming that each font license permits use on Dagric. Continue?")" 2>/dev/null || WANT_FONTS=no
+fi
+
+# Browser metadata is safe and powers the State Pack, so collect it on every
+# run.  The helper receives the exact selected categories below; no password or
+# tab store is read unless its corresponding checkbox was chosen.
+if :; then
     echo
     dg_say "$(gettext "--- browser tabs and logins ---")"
     PRIMARY=""
@@ -457,8 +644,7 @@ Leave it blank if they never set one (most people haven't).")" 2>/dev/null) || P
     fi
 
     # Keep stderr: a failure here must never be reported as "found nothing".
-    BROWSER_LOG=$(mktemp -t dagric-migrate-browser.XXXXXX) \
-        || BROWSER_LOG="${TMPDIR:-/tmp}/dagric-migrate-browser.$$"
+    BROWSER_LOG=$(mktemp -t dagric-migrate-browser.XXXXXX) || exit 1
 
     # THE PASSWORD GOES DOWN A PIPE, NOT INTO argv.
     #
@@ -475,14 +661,18 @@ Leave it blank if they never set one (most people haven't).")" 2>/dev/null) || P
     # interpret backslashes in it. The trailing newline is what the helper's
     # readline() consumes; a blank line means "no primary password", which is
     # the common case and is handled.
+    BROWSER_FLAGS=""
+    [ "$WANT_TABS" = yes ] && BROWSER_FLAGS="$BROWSER_FLAGS --tabs"
+    [ "$WANT_PWDS" = yes ] && BROWSER_FLAGS="$BROWSER_FLAGS --passwords"
     RES=$(printf '%s\n' "$PRIMARY" \
-            | python3 /usr/share/dagric/migrate-browser.py "$WINUSER_DIR" "$HOME" \
+            | python3 /usr/share/dagric/migrate-browser.py "$WINUSER_DIR" "$HOME" $BROWSER_FLAGS \
             2>"$BROWSER_LOG")
     N_TABS=$(printf '%s\n' "$RES" | sed -n 's/^TABS=//p')
     N_PWDS=$(printf '%s\n' "$RES" | sed -n 's/^PASSWORDS=//p')
     PWNOTE=$(printf '%s\n' "$RES" | sed -n 's/^PWNOTE=//p')
     CHROMEISH=$(printf '%s\n' "$RES" | sed -n 's/^CHROMEISH=//p')
     EXPORTED=$(printf '%s\n' "$RES" | sed -n 's/^EXPORTED=//p')
+    EXPORTED_COUNT=$(printf '%s\n' "$RES" | sed -n 's/^EXPORTED_COUNT=//p')
     MIGFAIL=$(printf '%s\n' "$RES" | sed -n 's/^FAILED=//p')
     # No TABS= line at all means the helper died outright rather than reporting.
     #
@@ -520,44 +710,98 @@ Leave it blank if they never set one (most people haven't).")" 2>/dev/null) || P
     if [ "$WANT_PWDS" = yes ]; then
         if [ "${N_PWDS:-0}" -gt 0 ] 2>/dev/null; then
             dg_say "$(eval_ngettext \
-                'Recovered $N_PWDS Firefox login -> ~/Windows-passwords.csv' \
-                'Recovered $N_PWDS Firefox logins -> ~/Windows-passwords.csv' "$N_PWDS")"
+                'Recovered $N_PWDS saved login -> ~/Windows-passwords.csv' \
+                'Recovered $N_PWDS saved logins -> ~/Windows-passwords.csv' "$N_PWDS")"
             # TRANSLATORS: a plain-text file of the owner's passwords now
             # exists on disk. "Import it, then delete it" is an instruction,
             # and PLAIN TEXT must stay emphatic.
             dg_say "$(gettext "  This file is PLAIN TEXT and readable only by you.
   Import it, then delete it.")"
         else
-            dg_say "$(gettext "No Firefox logins were recovered.")"
+            dg_say "$(gettext "No saved Firefox logins were recovered from the Firefox store.")"
             [ -n "$PWNOTE" ] && echo "  ($PWNOTE)"
         fi
-        # Chrome/Edge: be straight about the cryptography.
+
+        # Chromium-family passwords: be straight about the cryptography.
         if [ "${CHROMEISH:-0}" = 1 ]; then
             if [ -n "$EXPORTED" ]; then
                 echo
-                dg_say "$(gettext "Found a password file exported from Chrome:")"
+                if [ "${EXPORTED_COUNT:-0}" -gt 0 ] 2>/dev/null; then
+                    dg_say "$(eval_ngettext \
+                        'Found $EXPORTED_COUNT exported Chromium-password CSV file:' \
+                        'Found $EXPORTED_COUNT exported Chromium-password CSV files:' "$EXPORTED_COUNT")"
+                else
+                    dg_say "$(gettext "Found Chromium-family exported password CSV file(s):")"
+                fi
                 printf '%s\n' "$EXPORTED" | tr '|' '\n' | sed 's/^/  /'
-                dg_say "$(gettext "  Copy it to your home folder and import it the same way.")"
             else
                 echo
                 # TRANSLATORS: the two indented lines are paths through
-                # CHROME's and EDGE's settings, on the Windows machine — use
+                # Chrome/Edge/Brave/DuckDuckGo settings on the Windows machine — use
                 # the wording those browsers show in your language. The first
                 # paragraph explains WHY this cannot work; it is a security
                 # property, not an apology, and should not be softened into one.
-                dg_say "$(gettext "Chrome / Edge passwords could NOT be read, and no tool can read them here:
+                dg_say "$(gettext "Chromium-family passwords could NOT be read here:
 they are encrypted with a Windows key tied to that Windows account, which
 does not exist on this system. That is a security feature, not a fault.
 
 To bring them over, do this ONCE while still in Windows:
-  Chrome : Settings > Autofill and passwords > Google Password Manager
-           > Settings > Download file
-  Edge   : Settings > Profiles > Passwords > ... > Export passwords
+   Chrome / Edge / Brave: Passwords > Export
+   DuckDuckGo: Settings > Passwords > Export
 Save the .csv, then run this migration again - it will pick it up.")"
             fi
         fi
     fi
 fi
+
+# --- 8b. Opt-in continuity profiles and inventory --------------------------
+# The helper inventories applications on every migration run. Steam libraries,
+# game names, and gaming content are inspected only when the gaming checkbox is
+# selected. Gaming copies come only from discovered save, screenshot-media, and
+# personal controller-layout leaves; known login, session, token, cookie,
+# web-cache, authentication, credential, and private-key paths are filtered.
+# The filter is deliberately conservative and the local report records skips.
+CONT_ARGS=""
+[ "$WANT_GAMES" = yes ] && CONT_ARGS="$CONT_ARGS --copy gaming"
+[ "$WANT_DEV" = yes ] && CONT_ARGS="$CONT_ARGS --copy developer"
+[ "$WANT_CREATIVE" = yes ] && CONT_ARGS="$CONT_ARGS --copy creative"
+[ "$WANT_MAIL" = yes ] && CONT_ARGS="$CONT_ARGS --copy mail"
+[ "$WANT_FONTS" = yes ] && CONT_ARGS="$CONT_ARGS --copy fonts"
+if [ "$WANT_DEV" = yes ]; then
+    if kdialog --title "$TITLE" --yesno "$(gettext "Also copy SSH configuration and known-hosts? Private SSH keys will never be copied.")" 2>/dev/null; then
+        CONT_ARGS="$CONT_ARGS --ssh-config"
+    fi
+fi
+CONT_LOG=$(mktemp -t dagric-migrate-continuity.XXXXXX) || exit 1
+CONT_RES=$(python3 /usr/share/dagric/migrate-continuity.py "$WINUSER_DIR" "$HOME" $CONT_ARGS 2>"$CONT_LOG")
+CONT_REPORT=$(printf '%s\n' "$CONT_RES" | sed -n 's/^CONTINUITY_REPORT=//p')
+CONT_ERRORS=$(printf '%s\n' "$CONT_RES" | sed -n 's/^CONTINUITY_ERRORS=//p')
+if [ -n "$CONT_REPORT" ]; then
+    dg_say "$(gettext "Created the Windows app, Steam, and continuity report.")"
+else
+    dg_say "$(gettext "Continuity report could not be created; your copied files are still safe.")"
+    [ -s "$CONT_LOG" ] && sed 's/^/  /' "$CONT_LOG"
+fi
+rm -f "$CONT_LOG"
+
+# --- 9. Migration State Pack -------------------------------------------------
+# A local summary of the way this Windows account was used: non-secret browser
+# preferences, standard folders, shortcuts, and recent-work signals.  This does
+# not copy Windows programs, credential stores, cookies, or session tokens.
+# It remains useful even if the owner did not ask for browser tabs or passwords.
+STATE_LOG=$(mktemp -t dagric-migrate-state.XXXXXX) || exit 1
+STATE_RES=$(python3 /usr/share/dagric/migrate-state-pack.py "$WINUSER_DIR" \
+    "$HOME/Windows-browser-context.json" "$HOME" 2>"$STATE_LOG")
+STATE_PACK=$(printf '%s\n' "$STATE_RES" | sed -n 's/^STATE_PACK=//p')
+STATE_SHORTCUTS=$(printf '%s\n' "$STATE_RES" | sed -n 's/^STATE_SHORTCUTS=//p')
+STATE_RECENT=$(printf '%s\n' "$STATE_RES" | sed -n 's/^STATE_RECENT=//p')
+if [ -z "$STATE_PACK" ]; then
+    dg_say "$(gettext "Migration State Pack could not be created; your copied files are still safe.")"
+    [ -s "$STATE_LOG" ] && sed 's/^/  /' "$STATE_LOG"
+else
+    dg_say "$(gettext "Created a local Migration State Pack with your folder, shortcut, browser, and recent-work notes.")"
+fi
+rm -f "$STATE_LOG"
 
 echo
 dg_say "$(gettext "=== Migration finished ===")"
@@ -637,18 +881,38 @@ if [ "${N_PWDS:-0}" -gt 0 ] 2>/dev/null; then
     # TRANSLATORS: a warning that a plain-text password file is sitting in the
     # owner's home folder. "Delete it once imported" must survive translation.
     FIREFOX_STEPS="$FIREFOX_STEPS
-$(gettext "• Passwords — Firefox ▸ Passwords ▸ ⋯ ▸ Import from a File ▸
-  Windows-passwords.csv   (KeePassXC on Pro can import the same file)
+$(gettext "• Passwords — open Windows-passwords.csv and import into one place:
+  Firefox: Passwords ▸ ⋯ ▸ Import from a File
+  Chromium browsers: Settings ▸ Passwords ▸ Import
+  Windows-passwords.csv is standard CSV (name, url, username, password)
 
 ⚠ Windows-passwords.csv is PLAIN TEXT. Delete it once imported.")"
 fi
 
 # Appended LAST so it lands below the failure warning when there is one, and
 # only when at least one bullet was earned above.
+CONTEXT_FILE="$HOME/Windows-browser-context.json"
+if [ -f "$CONTEXT_FILE" ]; then
+    FIREFOX_STEPS="$FIREFOX_STEPS
+$(gettext "• Continuity profile helper — open Windows-browser-context.json and use it as a checklist
+  to restore startup pages, search engine choices, and enabled extensions.")
+"
+fi
+if [ -n "$STATE_PACK" ] && [ -f "$STATE_PACK" ]; then
+    FIREFOX_STEPS="$FIREFOX_STEPS
+$(gettext "• Restore Migration Notes — run Restore Migration Notes from the launcher (or dagric-restore-assistant)
+  to open a safe checklist for browser setup, shortcuts, and recent work patterns.")"
+fi
+if [ -n "$CONT_REPORT" ] && [ -f "$CONT_REPORT" ]; then
+    FIREFOX_STEPS="$FIREFOX_STEPS
+$(gettext "• Windows app and continuity report — open Dagric-Continuity-Report.html for reinstall plans,
+  Steam inventory, and a record of every selected profile copy.")"
+fi
+
 if [ -n "$FIREFOX_STEPS" ]; then
     SUMMARY="$SUMMARY
 
-$(gettext "To finish up, in Firefox:")$FIREFOX_STEPS"
+$(gettext "To finish up:")$FIREFOX_STEPS"
 fi
 
 kdialog --title "$TITLE" "$SUMMARY_DLG" "$SUMMARY" 2>/dev/null

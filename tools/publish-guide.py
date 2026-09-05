@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# SPDX-FileCopyrightText: 2026 DGR Operations <repo@dagric.com>
+# SPDX-FileCopyrightText: 2026 IMPRESSIONSDIRECT360 LLC <repo@dagric.com>
 # SPDX-License-Identifier: GPL-3.0-or-later
 """Publish the in-OS user guide to the website.
 
@@ -20,7 +20,7 @@ version from that source, so editing the guide once updates both.
 
 Run:  python3 tools/publish-guide.py     (then deploy the site)
 """
-import os, re, shutil, sys
+import os, re, sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SRC  = os.path.join(ROOT, "config/includes.chroot/usr/share/dagric/guide")
@@ -40,7 +40,8 @@ SITE = "https://dagric.com"
 # the website is worse than meaningless — it is a dead end on a machine that may
 # be offline precisely because the Wi-Fi is what they are trying to fix.
 HEAD_EXTRA = """<link rel="canonical" href="{site}/guide{suffix}">
-{alternates}<meta property="og:type" content="article">
+{alternates}<meta name="description" content="{desc}">
+<meta property="og:type" content="article">
 <meta property="og:title" content="{title}">
 <meta property="og:description" content="{desc}">
 <meta property="og:url" content="{site}/guide{suffix}">
@@ -544,6 +545,25 @@ def _scope_selector(sel):
 # the reasoning survives into the published copy and the selector is only ever
 # a selector.
 _CSS_COMMENT = re.compile(r'/\*.*?\*/', re.S)
+_HTML_COMMENT = re.compile(r'<!--.*?-->', re.S)
+
+
+def _strip_long_publish_comments(source):
+    """Drop implementation essays from generated web assets.
+
+    The offline guide remains the readable source of truth.  The published
+    copies should not duplicate multi-paragraph maintenance notes into every
+    page or ship them to visitors, while short structural and licence comments
+    remain useful.  This mirrors the 320-character public-source gate.
+    """
+    for pattern in (_HTML_COMMENT, _CSS_COMMENT):
+        source = pattern.sub(
+            lambda match: match.group(0) if len(match.group(0)) <= 320 else "",
+            source,
+        )
+    had_final_newline = source.endswith("\n")
+    source = "\n".join(line.rstrip() for line in source.splitlines())
+    return source + ("\n" if had_final_newline else "")
 
 
 def _split_rules(body):
@@ -662,7 +682,10 @@ def publish():
     for asset in ("guide.js",):
         s = os.path.join(SRC, asset)
         if os.path.exists(s):
-            shutil.copy2(s, os.path.join(DST, asset))
+            source = open(s, encoding="utf-8").read()
+            open(os.path.join(DST, asset), "w", encoding="utf-8", newline="\n").write(
+                _strip_long_publish_comments(source)
+            )
             print("  asset   %s" % asset)
 
     s = os.path.join(SRC, "guide.css")
@@ -686,7 +709,9 @@ def publish():
         # that do not exist offline, so putting them in guide.css itself would
         # ship dead selectors inside the ISO and invite somebody to "use" them.
         open(os.path.join(DST, "guide.css"), "w",
-             encoding="utf-8", newline="\n").write(css + SITE_CSS)
+             encoding="utf-8", newline="\n").write(
+                 _strip_long_publish_comments(css + SITE_CSS)
+             )
         print("  asset   guide.css  (%d light-mode block(s) re-scoped to data-theme,"
               " + site bar)" % n_light)
 
@@ -788,7 +813,9 @@ def publish():
         # handled once a CDN or a mail client gets hold of it.
         out = os.path.join(DST, meta["suffix"].lstrip("/"), "index.html")
         os.makedirs(os.path.dirname(out), exist_ok=True)
-        open(out, "w", encoding="utf-8", newline="\n").write(html)
+        open(out, "w", encoding="utf-8", newline="\n").write(
+            _strip_long_publish_comments(html)
+        )
         print("  page    %-22s -> /guide%-8s (%d KB)"
               % (rel.replace(os.sep, "/"), meta["suffix"] or "", len(html) // 1024))
 

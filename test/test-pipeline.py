@@ -69,6 +69,17 @@ class PipelineTests(unittest.TestCase):
         self.assertNotIn("bfq-for-rotational-via-udev", profile["policy"]["actions"])
         self.assertIn("keep-ssd-kernel-default", profile["policy"]["actions"])
 
+    def test_atom_n450_class_gets_conservative_profile(self) -> None:
+        self.write("/proc/meminfo", "MemTotal:        1572864 kB\nMemAvailable:    700000 kB\n")
+        self.write("/proc/cpuinfo", "processor : 0\nprocessor : 1\nmodel name : Intel(R) Atom(TM) CPU N455 @ 1.66GHz\n")
+        profile = pipeline.build_profile(self.root)
+        policy = profile["policy"]
+        self.assertEqual("atom-low-resource", policy["machine_class"])
+        self.assertEqual(2, policy["launch_prefetch_max_mib"])
+        self.assertTrue(policy["low_resource"]["enabled"])
+        self.assertIn("atom-low-resource-profile", policy["actions"])
+        self.assertEqual([], pipeline.audit_profile(profile))
+
     def test_unsafe_or_identifying_profile_is_rejected(self) -> None:
         profile = pipeline.build_profile(self.root)
         profile["policy"]["experimental"]["sched_ext"] = True
@@ -87,7 +98,7 @@ class PipelineTests(unittest.TestCase):
         target = self.root / "library.so"
         target.write_bytes(b"x" * 8192)
         with mock.patch.object(pipeline, "allowed_prefetch_path", return_value=True), \
-             mock.patch.object(pipeline.os, "posix_fadvise") as fadvise:
+             mock.patch.object(pipeline.os, "posix_fadvise", create=True) as fadvise:
             result = pipeline.prefetch([str(target)], 1)
         self.assertEqual(1, result["files"])
         self.assertEqual(8192, result["bytes"])

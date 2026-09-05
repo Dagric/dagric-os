@@ -34,7 +34,7 @@ Avoid the current generic dark sci-fi background; it does not identify the work 
 
 1. Dagric OS — Your computer. Yours again.
 2. The 32-second real desktop test-drive Reel: `promo/instagram-launch-2026-09-02/10-real-dagric-desktop-test-drive-narrated.mp4`
-3. ImpressionsDirect360
+3. IMPRESSIONSDIRECT360 LLC
 4. Client work
 
 ## First founder post

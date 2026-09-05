@@ -1,5 +1,5 @@
 #!/bin/sh
-# SPDX-FileCopyrightText: 2026 DGR Operations <repo@dagric.com>
+# SPDX-FileCopyrightText: 2026 IMPRESSIONSDIRECT360 LLC <repo@dagric.com>
 # SPDX-License-Identifier: GPL-3.0-or-later
 #
 # Dagric OS — the apt sources the INSTALLED system gets.
@@ -28,7 +28,8 @@
 #     non-free. dagric-drivers runs `apt-get install -y nvidia-detect`, which
 #     can only fail, and then reports a connection problem for what is actually
 #     a missing component. The Hub row, features.html and the FAQ all sell this.
-#   * one-click Steam. steam-installer is in non-free.
+#   * one-click Steam. Debian's steam-installer package is in contrib and then
+#     obtains Valve's proprietary client under Valve's terms.
 #   * any other contrib/non-free package an owner reasonably reaches for later,
 #     with no clue why apt claims it does not exist.
 #
@@ -44,9 +45,9 @@
 # installer.
 #
 # non-free-firmware is what makes Wi-Fi and graphics work on the 2012-2018
-# hardware this product targets; non-free carries the NVIDIA driver and Steam;
-# contrib carries the packages that glue non-free bits to the system. Debian
-# splits them for its own policy reasons, which are about Debian's guarantees
+# hardware this product targets; non-free carries the NVIDIA driver; contrib
+# carries the Steam installer and other packages that depend on non-free bits.
+# Debian splits them for its own policy reasons, which are about Debian's guarantees
 # and not about what a person who just left Windows needs from their laptop.
 #
 # -backports is deliberately NOT here even though Debian's version adds it.
@@ -76,8 +77,8 @@ cat << EOF > "$CHROOT"/etc/apt/sources.list
 # used, so this machine behaves like the one you tried.
 #
 # non-free-firmware  Wi-Fi, Bluetooth and graphics firmware
-# non-free           the NVIDIA driver, Steam
-# contrib            packages that depend on non-free pieces
+# non-free           the NVIDIA driver
+# contrib            Steam installer and packages that depend on non-free pieces
 #
 # Dagric's own updates come from /etc/apt/sources.list.d/dagric.list, which is
 # signed with a key in /usr/share/keyrings/. Security updates from Debian

@@ -17,11 +17,9 @@ Free is never a crippled Pro; Pro is never a different OS.
 
 ## Dagric OS (free)
 
-Everything already shipped: debloated KDE Plasma, zero telemetry,
-silent updates that never force a reboot, Firefox (telemetry/Pocket/studies
-off, tracking protection on, and the uBlock Origin ad blocker, which Firefox
-fetches from addons.mozilla.org on first launch and the owner can remove like
-any add-on), LibreOffice essentials
+Everything already shipped: debloated KDE Plasma, no Dagric product telemetry,
+silent updates that never force a reboot, Debian's unmodified Firefox ESR,
+LibreOffice essentials
 (Writer/Calc/Impress), Elisa music library, Flathub, NTFS/exFAT,
 Dagric Welcome, branded installer, **Dagric Styles** (`dagric-style` —
 one-click desktop moods: color scheme + accent + wallpaper + KWin effects,
@@ -103,8 +101,11 @@ own.
   that answers the question the live USB otherwise leaves hanging: will the
   Wi-Fi work, is the disk BitLocker'd, is Secure Boot going to be a problem,
   is there room. It names the Wi-Fi chip in plain words and says whether its
-  firmware is on the disc (Broadcom `b43`/`wl` are not, and cannot be, so those
-  owners are told to plan for a cable) — and it decides "broken" from sysfs, a
+  firmware is on the disc. Future candidates use the explicit reviewed firmware
+  list and exclude Broadcom `b43`/`wl`, so those owners are told to plan for a
+  cable. The published 1.0 package manifests did include live-build-resolved
+  Broadcom installer packages; that historical payload is separately disclosed
+  and release-blocked pending review. The tool decides "broken" from sysfs, a
   driver bound with no `net/` directory, rather than from firmware errors in
   the kernel log, because `iwlwifi` logs a failure for every API version above
   the one that exists on cards that work perfectly. It never prompts for a
@@ -179,8 +180,10 @@ own.
   edition rather than being part of what Pro adds.
   They do not all come from the same place, and saying "from Flathub" was wrong
   in a way that hid a real bug for weeks: **Steam** apt-installs Valve's
-  `steam-installer` from Debian's non-free section, **Resolve** and **Ollama**
-  run a vendor installer, and the rest are Flathub. Because Steam comes through
+  `steam-installer` from Debian's contrib section; that installer then obtains
+  Valve's proprietary client under Valve's current terms. **Resolve** opens its
+  vendor's download page, **Ollama** installs a pinned and SHA-256-verified archive
+  from its official GitHub release, and the rest are Flathub. Because Steam comes through
   apt rather than a Flatpak runtime, it inherits this image's no-recommends
   policy — which is how the free edition ended up installing Steam with no
   Vulkan driver at all, so Proton games could not start. `dagric-get-steam`
@@ -323,14 +326,15 @@ worse than no VPAT:
 
 ### Languages
 
-The shell tools and the launcher entries speak **German, French, Spanish,
-Brazilian Portuguese and Italian** — 448 messages per language, all five at
-448/448 with nothing untranslated, compiled to `.mo` catalogues that ship in
-the image (397 KiB total, measured: de 82,700 + es 80,871 + fr 82,698 +
-it 80,273 + pt_BR 80,115 bytes; `msgfmt` is a build-host
-tool and has no business on a desktop ISO, so compilation happens here and the
-output is committed like the wallpapers). `0150-locales.hook.chroot` fails the
-build if a catalogue is missing.
+The shell tools and launcher entries have catalogues for **German, French,
+Spanish, Brazilian Portuguese and Italian**. As of 4 September 2026 every
+catalogue is mechanically synchronised with source, has zero fuzzy and zero
+untranslated active messages, passes placeholder/URL/product-name guards, and
+is compiled to the `.mo` files that ship in the image. This completion used
+machine translation and mechanical QA; it is not a native-speaker approval.
+`msgfmt` is a build-host tool and has no business on a desktop image, so
+compilation happens here and the output is committed. The commercial gate
+fails if any locale later becomes incomplete or stale.
 
 Coverage is honest rather than uniform:
 
@@ -357,7 +361,7 @@ guide, which does ship translated, is where a non-English reader is sent.
 > `X-Dagric-Review-Status: second-model-reviewed; back-translation-verified;
 > no-native-speaker-pass`) and names the tier-one strings that
 > must be reviewed first: all of `dagric-migrate`, all of `dagric-usb-protect`,
-> the Secure Boot notice in `dagric-drivers`, the Steam and Resolve licence
+> the Secure Boot notice in `dagric-drivers`, the Steam terms and Resolve redistribution
 > paragraphs, and the translated affirmative in `y yes`. **Do not list
 > Deutsch / Français / Español / Português / Italiano on the download page, in
 > the shop, or in a language picker until those have been cleared.** Shipping
@@ -409,7 +413,7 @@ crippled, Pro is a clear step up.
 |---|---|
 | Windows apps | Wine (64- and 32-bit) + winetricks — run classic .exe software; Bottles via one-click consent install |
 | Windows itself | "Windows in a window" — KVM/QEMU + virt-manager preinstalled with UEFI (OVMF) and software TPM (swtpm) for Windows 11 guests; `dagric-vm` enables it with consent. Windows is never bundled — the helper points to Microsoft's official ISO download |
-| Games | Steam via one-click consent install (`dagric-get-steam` — NEVER bundled); 32-bit Vulkan prepped; `dagric-gaming` adds community Proton-GE on request |
+| Games | Steam via one-click consent install (`dagric-get-steam` — the proprietary client is not bundled); 32-bit Vulkan prepped; `dagric-gaming` adds community GE-Proton on request; compatibility varies by title and service |
 | Performance | gamemode governor + MangoHud FPS overlay |
 
 **Stability**
@@ -454,9 +458,10 @@ heredocs in `0530-accessibility.hook.chroot`, which put their Keywords outside
 `includes.chroot` and the hook only asserts they arrived. Where the edition line
 falls is mechanical, not a marketing judgement:
 
-> A helper that only **fetches a free app** — from Flathub, from Debian, or
-> from the vendor — ships on **both** editions. A helper that drives software
-> **only Pro installs** ships on Pro.
+> A helper that offers an optional app without depending on software that only
+> Pro installs ships on **both** editions. The helper must disclose its source,
+> licensing boundary and owner action; the downloaded app may be open-source or
+> proprietary. A helper that drives software **only Pro installs** ships on Pro.
 
 By that test exactly two are Pro: `dagric-vm` (needs the KVM/QEMU/virt-manager
 stack) and `dagric-usb-protect` (needs USBGuard). Both would be dead buttons on
@@ -467,11 +472,12 @@ both editions, and appear in the Hub under **Add more apps**.
 All fourteen were briefly Pro-only. That build shipped a free edition whose own
 manual documented Steam, Bottles, Heroic and Resolve and then offered no way to
 reach any of them — the exact "free feels broken" failure this project forbids
-— and the thing being gated was a script that runs `apt install steam`. Steam
-is free software; charging $39 for the convenience of installing it protected
-no revenue and made the gate look petty to precisely the people most likely to
-notice. Pro's value is that the creator and gaming stacks arrive **already
-installed and tuned** (Wine, gamemode, MangoHud, the full creator suite, the VM
+— and the thing being gated was a helper that installs Debian's
+`steam-installer`, which then obtains Valve's proprietary Steam client after
+the owner accepts Valve's terms. Charging for access to that optional helper
+did not create a sound product boundary. Pro's value is that the creator and
+gaming stacks arrive **already installed and tuned** (Wine, gamemode, MangoHud,
+the full creator suite, the VM
 stack, the Security Suite), not that free owners are forbidden to download
 things.
 
@@ -486,7 +492,9 @@ carried `X-Dagric-Edition=pro`, so Pro got a *Gaming Setup* entry this document
 said did not exist, and free — whose manual page for the helper is marked
 available and tells the owner to open *launcher → Gaming Setup* — got none. The
 flag is removed. The launcher entry and the Hub row now both ship on **both**
-editions, since it only downloads a free Proton build. `dagric-hub` itself and
+editions, since it only downloads the open-source GE-Proton compatibility tool.
+That tool is independent of Valve and does not guarantee that any title,
+anti-cheat system or online service will work. `dagric-hub` itself and
 `dagric-app-names` are the other two without one — the Hub has an entry, the
 regenerator is an apt hook. `dagric-guide` is a *wrapper*, not a new tool:
 `dagric-guide.desktop`'s `Exec=` used to hardcode the English

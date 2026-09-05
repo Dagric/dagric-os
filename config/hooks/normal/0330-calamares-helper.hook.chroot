@@ -1,5 +1,5 @@
 #!/bin/sh
-# SPDX-FileCopyrightText: 2026 DGR Operations <repo@dagric.com>
+# SPDX-FileCopyrightText: 2026 IMPRESSIONSDIRECT360 LLC <repo@dagric.com>
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Dagric OS — make the replacement Calamares bootloader helper runnable, and
 # prove it is the one that will actually run.
@@ -80,7 +80,7 @@ fi
 # contrib non-free non-free-firmware" — so contrib and non-free silently vanish
 # the moment the machine reboots into the install, and with them the NVIDIA
 # driver (non-free), nvidia-detect (non-free) and one-click Steam
-# (steam-installer, non-free). All three are advertised. The failure is
+# (steam-installer, contrib). All three are advertised. The failure is
 # invisible during evaluation, because the live ISO has the components and only
 # the installed system does not.
 SRC=/usr/share/calamares/helpers/calamares-sources-final

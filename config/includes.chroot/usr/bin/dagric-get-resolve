@@ -1,17 +1,16 @@
 #!/bin/sh
-# SPDX-FileCopyrightText: 2026 DGR Operations <repo@dagric.com>
+# SPDX-FileCopyrightText: 2026 IMPRESSIONSDIRECT360 LLC <repo@dagric.com>
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Dagric OS — DaVinci Resolve installation guide.
-# Blackmagic's license does not allow anyone to redistribute Resolve,
-# so no OS may legally preinstall it. This walks you through the
-# official 2-minute download instead. (Kdenlive is preinstalled if you
-# want to start editing right now.)
+# Dagric has not obtained permission to redistribute Resolve, so it is not
+# preinstalled. This opens Blackmagic's official download and current terms.
+# Kdenlive is preinstalled if you want to start editing right now.
 . /usr/bin/dagric-i18n.sh
 
 # TRANSLATORS: the four indented lines are COMMANDS the owner types verbatim
 # into a terminal — cd, unzip, sudo and the file names must not be translated
 # or reflowed, or the instructions stop working. The last paragraph is a
-# LICENCE statement (Blackmagic forbids redistribution, which is why Dagric
+# LICENCE statement (Dagric has not obtained redistribution permission and
 # does not bundle Resolve); keep that meaning exact. "DaVinci Resolve",
 # "Blackmagic", "NVIDIA" and "Dagric" are names.
 dg_say "$(gettext "DaVinci Resolve on Dagric OS
@@ -26,8 +25,8 @@ dg_say "$(gettext "DaVinci Resolve on Dagric OS
 4. NVIDIA users: run  sudo dagric-drivers  first — Resolve on Linux
    performs best with the proprietary driver.
 
-Why isn't it preinstalled? Blackmagic's license forbids redistribution.
-Any OS that bundles it is violating that license — Dagric won't.")"
+Why isn't it preinstalled? Dagric has not obtained permission to redistribute
+Resolve. This helper opens Blackmagic's official download and current terms.")"
 
 command -v xdg-open >/dev/null 2>&1 && \
     xdg-open "https://www.blackmagicdesign.com/products/davinciresolve" 2>/dev/null || true

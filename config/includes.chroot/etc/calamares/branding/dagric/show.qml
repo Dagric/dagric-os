@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2026 DGR Operations <repo@dagric.com>
+// SPDX-FileCopyrightText: 2026 IMPRESSIONSDIRECT360 LLC <repo@dagric.com>
 // SPDX-License-Identifier: GPL-3.0-or-later
 //
 // Dagric OS — the slides shown while the installer copies the system across.
@@ -103,7 +103,7 @@ Presentation
             wrapMode: Text.WordWrap
             horizontalAlignment: Text.AlignHCenter
             color: "#e6edf3"; font.pixelSize: 22
-            text: qsTr("Need more software?\n\nOpen Discover to install thousands of apps —\nchosen by you, sandboxed, removable.")
+            text: qsTr("Need more software?\n\nOpen Discover to install thousands of apps —\nchosen by you, clearly sourced, removable.")
         }
     }
 }

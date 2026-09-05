@@ -6,8 +6,8 @@ Prepared August 30, 2026 for review by licensed counsel. This is a factual intak
 
 Ask U.S./Missouri counsel with software, consumer, privacy and open-source experience to review:
 
-- the legal seller identity and the relationship among Dagric OS, DGR Operations and the Stripe account name/statement descriptor;
-- the $39 one-time digital-software sale, one-machine license, permanent local use, free updates promise and final-after-download policy;
+- the legal seller identity and the relationship among Dagric OS, IMPRESSIONSDIRECT360 LLC and the Stripe account name/statement descriptor;
+- the $39 one-time hosted delivery, guided-upgrade and support entitlement for one machine, permanent local use, preservation of component licence rights, free-updates promise and final-after-download policy;
 - warranty disclaimer, liability cap, Missouri governing-law clause and mandatory consumer rights outside Missouri or the United States;
 - whether checkout obtains the required assent and accurately presents seller, refund, delivery and license terms;
 - privacy disclosures and rights handling for contact messages, Stripe orders, Cloudflare delivery/KV records, Firebase logs and international processing;
@@ -18,9 +18,9 @@ Ask U.S./Missouri counsel with software, consumer, privacy and open-source exper
 
 ## Product and transaction facts to verify
 
-- Publisher shown publicly: **DGR Operations**; product/brand: **Dagric OS**.
+- Legal publisher shown publicly: **IMPRESSIONSDIRECT360 LLC**; fictitious/brand name: **Dagric**; product: **Dagric OS**.
 - Dagric OS is assembled from Debian 13, KDE and other open-source components.
-- Free is downloadable without an account. Pro is currently advertised as a one-time **$39** purchase for one machine.
+- New binary delivery and sales are currently paused pending release-exact source and human review gates. When resumed, Pro is intended as a one-time **$39** hosted delivery, guided-upgrade and support entitlement for one machine; it does not restrict rights granted by the licences of included components.
 - Pro is delivered after Stripe Checkout through a Cloudflare Worker that verifies the Checkout Session and streams a private R2 object.
 - The installed system does not perform recurring license checks. A one-time claim creates an anonymous machine fingerprint tied to purchase-delivery records.
 - The policy revised on August 30, 2026 allows cancellation of a paid order before the Pro download begins. Once downloading begins, there are no discretionary change-of-mind or compatibility refunds. Mandatory consumer remedies remain available, and older orders retain the promise displayed when they completed.
@@ -48,8 +48,8 @@ Provide counsel a clean repository snapshot and screenshots of the actual Stripe
 ## Questions requiring explicit answers
 
 1. What exact legal name, assumed-name registration and postal/contact information must appear at checkout, on receipts and in the site footer?
-2. May the brand be Dagric OS while the underlying seller is DGR Operations, and what explanatory wording is needed?
-3. Is the aligned `DAGRIC OS` checkout/statement branding and the explanation of DGR Operations as seller adequate?
+2. May the brand be Dagric OS while the underlying seller is IMPRESSIONSDIRECT360 LLC, and what explanatory wording is needed?
+3. Is the aligned `DAGRIC OS` checkout/statement branding and the explanation of IMPRESSIONSDIRECT360 LLC as seller adequate?
 4. Is affirmative assent (for example, a checkout checkbox or adjacent linked terms) required for the license, refund and liability clauses?
 5. Does the final-after-download policy require an express pre-download consent/acknowledgement, checkout checkbox, receipt language or geographic sales restriction in any market the site serves?
 6. Are the purchase policy, perpetual-use and free-updates promises internally consistent and operationally sustainable?
@@ -74,14 +74,14 @@ The named lawyers are research leads, not endorsements. Confirm conflicts, engag
 
 Hello,
 
-I operate DGR Operations in Missouri and publish Dagric OS, a Debian/KDE-based desktop operating system. The Free edition is public; Pro is a one-time $39 digital-software purchase delivered after Stripe Checkout. I am seeking a scoped legal review of the customer terms/digital-download policy, privacy disclosures and retention, seller/Stripe branding, software marketing and open-source compliance before broader press outreach.
+I operate IMPRESSIONSDIRECT360 LLC in Missouri and publish Dagric OS, a Debian/KDE-based desktop operating system. Binary delivery and new sales are paused while release-exact corresponding source and human review gates are completed. Pro is intended as a one-time $39 hosted delivery, guided-upgrade and support entitlement delivered after Stripe Checkout. I am seeking a scoped legal review of the customer terms/digital-download policy, privacy disclosures and retention, seller/Stripe branding, software marketing and open-source compliance before broader press outreach.
 
 Could you confirm whether this is within your practice, identify the attorney who would handle it, and provide the conflict-check information and estimated fee or initial-consultation terms you need? I can provide the public site, repository and a short data-flow summary. I will not email credentials or customer data.
 
 Thank you,
 
 [Legal name]<br>
-DGR Operations / Dagric OS<br>
+IMPRESSIONSDIRECT360 LLC / Dagric OS<br>
 [Email] · [Phone]
 
 ## Before contacting counsel

@@ -3,11 +3,12 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>About — Dagric OS</title>
-<meta name="description" content="Why Dagric OS exists: your computer should answer to you — not to advertisers, telemetry, or a subscription.">
+<title>About Dagric OS | Independent Linux Desktop from St. Louis</title>
+<meta name="description" content="Meet Dagric OS, an independent St. Louis desktop operating system built on Debian and KDE Plasma around privacy, ownership, recovery, and public evidence.">
 <link rel="icon" type="image/png" href="/assets/dagric-logo.png">
 <link rel="stylesheet" href="/assets/site.css">
 <link rel="canonical" href="https://dagric.com/about">
+<link rel="search" type="application/opensearchdescription+xml" title="Search Dagric OS" href="/opensearch.xml">
 <meta name="theme-color" content="#0C0F14">
 <script src="/assets/theme.js"></script>
 <link rel="icon" href="/favicon.ico" sizes="32x32">
@@ -15,15 +16,15 @@
 <link rel="manifest" href="/site.webmanifest">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Dagric OS">
-<meta property="og:title" content="About — Dagric OS">
-<meta property="og:description" content="Why Dagric OS exists: your computer should answer to you — not to advertisers, telemetry, or a subscription.">
+<meta property="og:title" content="About Dagric OS | Independent Linux Desktop from St. Louis">
+<meta property="og:description" content="An independent St. Louis operating system built on Debian and KDE Plasma around privacy, ownership, recovery, and public evidence.">
 <meta property="og:url" content="https://dagric.com/about">
 <meta property="og:image" content="https://dagric.com/assets/hero-desktop.png">
 <meta property="og:image:width" content="1920">
 <meta property="og:image:height" content="1080">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="About — Dagric OS">
-<meta name="twitter:description" content="Why Dagric OS exists: your computer should answer to you — not to advertisers, telemetry, or a subscription.">
+<meta name="twitter:title" content="About Dagric OS | Independent Linux Desktop from St. Louis">
+<meta name="twitter:description" content="An independent St. Louis operating system built on Debian and KDE Plasma around privacy, ownership, recovery, and public evidence.">
 <meta name="twitter:image" content="https://dagric.com/assets/hero-desktop.png">
 </head>
 <body>
@@ -32,7 +33,7 @@
   <a class="brand" href="/"><img src="/assets/dagric-logo.png" alt="" width="30" height="30">Dagric&nbsp;OS</a>
   <div class="nav-links">
     <a href="/features">Features</a><a href="/pro">Pro</a><a href="/about">About</a>
-    <a href="/guide">Guide</a><a href="/support">Support</a>
+    <a href="/guide">Guide</a><a href="/support">Support</a><a href="/search">Search</a>
     <a class="cta" href="/download">Download</a>
   </div>
 </div></nav>
@@ -54,36 +55,43 @@
     <li><strong>Zero Dagric telemetry.</strong> The installed OS sends us no usage analytics or crash reports.</li>
     <li><strong>No ads, no accounts.</strong> The desktop is not a billboard, and your machine works without permission from a server.</li>
     <li><strong>No forced restarts.</strong> Security updates land silently; the reboot is yours to choose.</li>
-    <li><strong>No subscriptions.</strong> Pro is one purchase for one machine. Your licence is
-    verified once, when you claim it — after that, nothing ever checks on you.</li>
+    <li><strong>No subscriptions.</strong> Pro's one-time purchase provides private delivery,
+    guided upgrade, and support for one managed machine. It is checked when claimed, with no
+    recurring purchase check; component-level open-source rights remain unchanged.</li>
     <li><strong>Repairable by design.</strong> Snapshots before updates; roll back from the boot menu, on the default btrfs install.</li>
   </ul>
 
   <h2>Standing on giants</h2>
   <p>Dagric OS is built from free and open-source software — the Linux kernel,
   <a href="https://www.debian.org">Debian</a> 13, and <a href="https://kde.org">KDE Plasma</a> —
-  curated, hardened, branded, and tested into a coherent product. We honor every license, publish
-  checksums and GPG signatures for every release, and bundle no proprietary applications: things
-  like Steam or the NVIDIA driver install only when <em>you</em> ask, with one click. The one
-  exception is the same one Debian's own official media makes &mdash; closed-source device
-  firmware and CPU microcode, without which Wi-Fi and audio do not work on real hardware. It is
-  stated in full on the <a href="/licenses">licenses</a> page.</p>
+  curated, hardened, branded, and tested into a coherent product. Dagric publishes checksums,
+  signatures, package inventories, and licence notices, and now keeps binary delivery held until
+  the exact corresponding-source and human review gates pass. Proprietary applications such as
+  Steam and the NVIDIA driver are not bundled; separately licensed hardware-enablement components
+  in published 1.0 include firmware, microcode, Broadcom installers, and two astronomy-camera
+  libraries. The exact status is on the <a href="/licenses">licenses</a> page.</p>
   <p>When you buy Pro, you're not buying exclusivity over free software — you're buying
   <strong>curation, convenience, integration, and support</strong>, and you're funding the work
   that keeps Dagric OS maintained.</p>
 
   <h2>Who we are</h2>
-  <p>Dagric OS is made by <strong>DGR Operations</strong>, an independent company in the United
-  States. Small on purpose: one product, done right.</p>
+  <p>Dagric OS is made by <strong>IMPRESSIONSDIRECT360 LLC</strong>, an independent company in the United
+  States. It is led by <strong>Dorien Richardson</strong>, a Linux and full-stack developer in
+  St.&nbsp;Louis, Missouri. The project's engineering history is public on
+  <a href="https://github.com/Dagric/dagric-os">GitHub</a>, and the founder's professional
+  background is available on
+  <a href="https://www.linkedin.com/in/dorien-richardson">LinkedIn</a>. Small on purpose: one
+  product, done right.</p>
 
-  <!-- The secondary CTA was a bare class="btn" — site.css gives that only a border and
-       no panel background, so it was a #22344f hairline on a #0C0F14 page (1.5:1, under
-       the 3:1 WCAG 1.4.11 wants of a control boundary) and the only button on the site
-       whose hover did nothing, because .btn.ghost:hover cannot match. Exactly the defect
-       already fixed one page over on features.html; this page was missed. And like that
-       page, this was a CTA pair asking for the $39 decision with no price and no refund
-       beside it, while index, pro, download and features all pair the two. .refund
-       already renders the green check and muted type; nothing new is needed. -->
+  <h2 id="brand-architecture">How the brand fits together</h2>
+  <div class="grid c3">
+    <div class="card boxed"><h3>Dagric</h3><p>The brand behind the product. It carries the promise that your computer belongs to you.</p></div>
+    <div class="card boxed"><h3>Dagric OS</h3><p>The operating-system family and the name used in ordinary public communication.</p></div>
+    <div class="card boxed"><h3>IMPRESSIONSDIRECT360 LLC</h3><p>The legal publisher and seller shown on checkout, terms, privacy notices, and business records.</p></div>
+  </div>
+  <div class="note"><p style="margin:0"><strong>One system, two editions.</strong> Dagric OS Free is the complete everyday operating system. Dagric OS Pro is the same system with additional preconfigured suites for a one-time $39.</p></div>
+
+
   <p style="margin-top:32px">
     <a class="btn primary" href="/download">Try Dagric OS</a>
     <a class="btn ghost" href="/pro">See Pro · $39</a>
@@ -93,8 +101,17 @@
 </main>
 
 <footer><div class="foot">
-  <span>© 2026 DGR Operations · Built on Debian. Not affiliated with the Debian Project.</span>
+  <span>© 2026 IMPRESSIONSDIRECT360 LLC · Dagric OS™ · Built on Debian. Not affiliated with the Debian Project.</span>
   <span class="links"><a href="/features">Features</a><a href="/pro">Pro</a><a href="/download">Download</a><a href="/news">News</a><a href="/guide">Guide</a><a href="/support">Support</a><a href="/faq">FAQ</a><a href="/accessibility">Accessibility</a><a href="/security">Security</a><a href="/bugs">Report a bug</a><a href="/contact">Contact</a><a href="/about">About</a><a href="/review">Reviewers</a><a href="/licenses">Licenses</a><a href="/privacy">Privacy</a><a href="/terms">Terms</a></span>
+  <div class="social-footer" role="navigation" aria-label="Dagric OS social media">
+    <strong>Follow Dagric OS</strong>
+    <a href="https://www.youtube.com/@DagricOS" target="_blank" rel="me noopener">YouTube</a>
+    <a href="https://www.tiktok.com/@dagricosofficial" target="_blank" rel="me noopener">TikTok</a>
+    <a href="https://www.instagram.com/dagricosofficial/" target="_blank" rel="me noopener">Instagram</a>
+    <a href="https://www.snapchat.com/@dagricos" target="_blank" rel="me noopener">Snapchat</a>
+    <a href="https://www.linkedin.com/in/dorien-richardson" target="_blank" rel="me noopener">LinkedIn</a>
+    <a href="https://github.com/Dagric/dagric-os" target="_blank" rel="me noopener">GitHub</a>
+  </div>
 </div></footer>
 </body>
 </html>

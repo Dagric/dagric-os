@@ -1,0 +1,253 @@
+#!/bin/sh
+# SPDX-FileCopyrightText: 2026 IMPRESSIONSDIRECT360 LLC <repo@dagric.com>
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+# Privileged half of dagric-ai. The desktop process downloads a pinned archive;
+# this helper copies it across the privilege boundary, verifies it again, stages
+# every replacement, and rolls back if the service cannot start.
+set -eu
+
+PATH=/usr/sbin:/usr/bin:/sbin:/bin
+export PATH
+
+die() { printf 'dagric-ai: %s\n' "$*" >&2; exit 1; }
+
+[ "$(id -u)" = 0 ] || die "administrator privileges are required"
+[ "$#" = 1 ] || die "expected exactly one downloaded archive"
+
+RELEASE=/usr/lib/dagric/ollama-release
+[ -f "$RELEASE" ] && [ ! -L "$RELEASE" ] || die "release metadata is missing"
+# shellcheck disable=SC1091
+. "$RELEASE"
+
+case "${OLLAMA_VERSION:-}:${OLLAMA_URL:-}:${OLLAMA_SHA256:-}:${OLLAMA_SIZE:-}" in
+    *[!A-Za-z0-9._:/=-]*) die "release metadata contains unsafe characters" ;;
+esac
+case "$OLLAMA_URL" in
+    "https://github.com/ollama/ollama/releases/download/$OLLAMA_VERSION/ollama-linux-amd64.tar.zst") ;;
+    *) die "release URL does not match the pinned version" ;;
+esac
+printf '%s\n' "$OLLAMA_SHA256" | grep -Eq '^[0-9a-f]{64}$' \
+    || die "release checksum is invalid"
+case "$OLLAMA_SIZE" in ''|*[!0-9]*) die "release size is invalid" ;; esac
+
+SOURCE=$1
+[ -f "$SOURCE" ] && [ ! -L "$SOURCE" ] || die "download is not a regular file"
+
+for _cmd in cp cut find getent grep install mv readlink realpath sha256sum systemctl tar useradd usermod wc; do
+    command -v "$_cmd" >/dev/null 2>&1 || die "required command is missing: $_cmd"
+done
+unset _cmd
+
+WORK=$(mktemp -d /var/tmp/dagric-ollama.XXXXXX) || die "could not create a private work directory"
+ARCHIVE=$WORK/ollama.tar.zst
+EXTRACT=$WORK/extract
+NEW_LIB=
+NEW_BIN=
+OLD_LIB=
+OLD_BIN=
+OLD_SERVICE=$WORK/ollama.service.old
+HAD_LIB=0
+HAD_BIN=0
+HAD_SERVICE=0
+WAS_ACTIVE=0
+WAS_ENABLED=0
+LIB_SWAPPED=0
+BIN_SWAPPED=0
+SERVICE_SWAPPED=0
+SUCCESS=0
+
+cleanup() {
+    _status=$?
+    trap - EXIT HUP INT TERM
+
+    if [ "$SUCCESS" != 1 ]; then
+        if [ "$LIB_SWAPPED" = 1 ] || [ "$BIN_SWAPPED" = 1 ] || [ "$SERVICE_SWAPPED" = 1 ]; then
+            systemctl stop ollama.service >/dev/null 2>&1 || true
+        fi
+
+        if [ "$SERVICE_SWAPPED" = 1 ]; then
+            if [ "$HAD_SERVICE" = 1 ]; then
+                cp -a -- "$OLD_SERVICE" /etc/systemd/system/ollama.service 2>/dev/null || true
+            else
+                rm -f /etc/systemd/system/ollama.service
+            fi
+        fi
+
+        if [ "$BIN_SWAPPED" = 1 ]; then
+            rm -f /usr/local/bin/ollama
+            if [ "$HAD_BIN" = 1 ] && [ -n "$OLD_BIN" ] && [ -e "$OLD_BIN" ]; then
+                mv -- "$OLD_BIN" /usr/local/bin/ollama 2>/dev/null || true
+                OLD_BIN=
+            fi
+        fi
+
+        if [ "$LIB_SWAPPED" = 1 ]; then
+            rm -rf /usr/local/lib/ollama
+            if [ "$HAD_LIB" = 1 ] && [ -n "$OLD_LIB" ] && [ -e "$OLD_LIB" ]; then
+                mv -- "$OLD_LIB" /usr/local/lib/ollama 2>/dev/null || true
+                OLD_LIB=
+            fi
+        fi
+
+        if [ "$LIB_SWAPPED" = 1 ] || [ "$BIN_SWAPPED" = 1 ] || [ "$SERVICE_SWAPPED" = 1 ]; then
+            systemctl daemon-reload >/dev/null 2>&1 || true
+        fi
+        if [ "$SERVICE_SWAPPED" = 1 ]; then
+            if [ "$WAS_ENABLED" = 1 ]; then
+                systemctl enable ollama.service >/dev/null 2>&1 || true
+            else
+                systemctl disable ollama.service >/dev/null 2>&1 || true
+            fi
+        fi
+        if [ "$WAS_ACTIVE" = 1 ] && {
+            [ "$LIB_SWAPPED" = 1 ] || [ "$BIN_SWAPPED" = 1 ] || [ "$SERVICE_SWAPPED" = 1 ];
+        }; then
+            systemctl start ollama.service >/dev/null 2>&1 || true
+        fi
+    fi
+
+    [ -z "$NEW_LIB" ] || rm -rf -- "$NEW_LIB"
+    [ -z "$NEW_BIN" ] || rm -f -- "$NEW_BIN"
+    [ -z "$OLD_LIB" ] || rm -rf -- "$OLD_LIB"
+    [ -z "$OLD_BIN" ] || rm -f -- "$OLD_BIN"
+    rm -rf -- "$WORK"
+    exit "$_status"
+}
+trap cleanup EXIT
+trap 'exit 130' HUP INT TERM
+
+# Copy once as root, then validate the private copy. Re-reading a pathname in a
+# user-writable directory after validation would leave a swap window.
+cp -- "$SOURCE" "$ARCHIVE" || die "could not copy the downloaded archive"
+chmod 0600 "$ARCHIVE"
+chown root:root "$ARCHIVE"
+
+ACTUAL_SIZE=$(wc -c < "$ARCHIVE" | tr -d '[:space:]')
+[ "$ACTUAL_SIZE" = "$OLLAMA_SIZE" ] || die "download size does not match the reviewed release"
+ACTUAL_SHA256=$(sha256sum "$ARCHIVE" | cut -d' ' -f1)
+[ "$ACTUAL_SHA256" = "$OLLAMA_SHA256" ] || die "download checksum does not match the reviewed release"
+
+# The reviewed archive may only populate Ollama's binary and private library
+# tree. GNU tar also refuses absolute and parent-traversal member names; this
+# allowlist makes that policy explicit before extraction.
+tar --zstd -tf "$ARCHIVE" | while IFS= read -r _member; do
+    case "$_member" in
+        ./) ;;
+        ./bin|./bin/|bin|bin/|./lib|./lib/|lib|lib/|./lib/ollama|./lib/ollama/|lib/ollama|lib/ollama/) ;;
+        ./bin/ollama|bin/ollama|./lib/ollama/*|lib/ollama/*) ;;
+        *) printf 'dagric-ai: archive contains an unexpected path: %s\n' "$_member" >&2; exit 1 ;;
+    esac
+done || die "archive path validation failed"
+
+mkdir -m 0700 "$EXTRACT"
+tar --zstd --no-same-owner --no-same-permissions -xf "$ARCHIVE" -C "$EXTRACT"
+[ -f "$EXTRACT/bin/ollama" ] && [ ! -L "$EXTRACT/bin/ollama" ] \
+    || die "archive does not contain the Ollama executable"
+[ -d "$EXTRACT/lib/ollama" ] && [ ! -L "$EXTRACT/lib/ollama" ] \
+    || die "archive does not contain the Ollama libraries"
+
+# Refuse devices, sockets and links that escape the extracted tree. Relative
+# library symlinks are allowed because upstream archives use them for SONAMEs.
+_special=$(find "$EXTRACT" ! -type d ! -type f ! -type l -print -quit)
+[ -z "$_special" ] || die "archive contains a special filesystem object"
+find "$EXTRACT" -type l -print | while IFS= read -r _link; do
+    _target=$(readlink "$_link") || exit 1
+    case "$_target" in /*) exit 1 ;; esac
+    _resolved=$(realpath -m "$(dirname "$_link")/$_target") || exit 1
+    case "$_resolved" in "$EXTRACT"/*) ;; *) exit 1 ;; esac
+done || die "archive contains a link outside its installation tree"
+
+install -d -o root -g root -m 0755 /usr/local/bin /usr/local/lib
+NEW_LIB=$(mktemp -d /usr/local/lib/.dagric-ollama-new.XXXXXX) \
+    || die "could not stage Ollama libraries"
+cp -a -- "$EXTRACT/lib/ollama/." "$NEW_LIB/"
+chown -R root:root "$NEW_LIB"
+chmod -R go-w "$NEW_LIB"
+
+NEW_BIN=$(mktemp /usr/local/bin/.dagric-ollama-new.XXXXXX) \
+    || die "could not stage the Ollama executable"
+install -o root -g root -m 0755 "$EXTRACT/bin/ollama" "$NEW_BIN"
+
+systemctl is-active --quiet ollama.service && WAS_ACTIVE=1 || true
+systemctl is-enabled --quiet ollama.service && WAS_ENABLED=1 || true
+if [ -e /etc/systemd/system/ollama.service ]; then
+    cp -a -- /etc/systemd/system/ollama.service "$OLD_SERVICE"
+    HAD_SERVICE=1
+fi
+
+systemctl stop ollama.service >/dev/null 2>&1 || true
+
+if [ -e /usr/local/lib/ollama ]; then
+    OLD_LIB=$(mktemp -d /usr/local/lib/.dagric-ollama-old.XXXXXX) \
+        || die "could not reserve a library rollback path"
+    rmdir "$OLD_LIB"
+    mv -- /usr/local/lib/ollama "$OLD_LIB"
+    HAD_LIB=1
+    LIB_SWAPPED=1
+fi
+mv -- "$NEW_LIB" /usr/local/lib/ollama
+NEW_LIB=
+LIB_SWAPPED=1
+
+if [ -e /usr/local/bin/ollama ]; then
+    OLD_BIN=$(mktemp /usr/local/bin/.dagric-ollama-old.XXXXXX) \
+        || die "could not reserve an executable rollback path"
+    cp -a -- /usr/local/bin/ollama "$OLD_BIN"
+    HAD_BIN=1
+fi
+mv -f -- "$NEW_BIN" /usr/local/bin/ollama
+NEW_BIN=
+BIN_SWAPPED=1
+
+if ! getent passwd ollama >/dev/null 2>&1; then
+    useradd --system --user-group --home-dir /usr/share/ollama \
+        --create-home --shell /usr/sbin/nologin ollama
+fi
+install -d -o ollama -g ollama -m 0750 /usr/share/ollama
+for _group in render video; do
+    getent group "$_group" >/dev/null 2>&1 && usermod -a -G "$_group" ollama
+done
+unset _group
+
+SERVICE_TMP=$(mktemp /etc/systemd/system/.ollama.service.XXXXXX) \
+    || die "could not stage the Ollama service"
+cat > "$SERVICE_TMP" <<'EOF'
+[Unit]
+Description=Ollama local AI service
+After=network-online.target
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/ollama serve
+User=ollama
+Group=ollama
+Environment="HOME=/usr/share/ollama"
+Environment="OLLAMA_HOST=127.0.0.1:11434"
+Restart=on-failure
+RestartSec=3
+UMask=0077
+NoNewPrivileges=yes
+PrivateTmp=yes
+ProtectHome=yes
+ProtectSystem=strict
+ReadWritePaths=/usr/share/ollama
+ProtectKernelTunables=yes
+ProtectKernelModules=yes
+ProtectControlGroups=yes
+RestrictSUIDSGID=yes
+LockPersonality=yes
+
+[Install]
+WantedBy=multi-user.target
+EOF
+chmod 0644 "$SERVICE_TMP"
+chown root:root "$SERVICE_TMP"
+mv -f -- "$SERVICE_TMP" /etc/systemd/system/ollama.service
+SERVICE_SWAPPED=1
+
+systemctl daemon-reload
+systemctl enable --now ollama.service
+
+SUCCESS=1
+printf 'Installed Ollama %s (%s).\n' "$OLLAMA_VERSION" "$OLLAMA_SHA256"

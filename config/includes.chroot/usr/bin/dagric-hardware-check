@@ -1,5 +1,5 @@
 #!/bin/sh
-# SPDX-FileCopyrightText: 2026 DGR Operations <repo@dagric.com>
+# SPDX-FileCopyrightText: 2026 IMPRESSIONSDIRECT360 LLC <repo@dagric.com>
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Dagric OS — Hardware Check. Answers, BEFORE anything is installed, the one
 # question the live USB otherwise leaves hanging: "will this actually work on
@@ -64,8 +64,10 @@ case "$1" in
         exit 0 ;;
 esac
 
-WORK=$(mktemp -d /tmp/dagric-hwcheck.XXXXXX 2>/dev/null) || WORK=/tmp/dagric-hwcheck.$$
-mkdir -p "$WORK" 2>/dev/null || { echo "Cannot create a working directory."; exit 1; }
+WORK=$(mktemp -d "${TMPDIR:-/tmp}/dagric-hwcheck.XXXXXX" 2>/dev/null) || {
+    echo "Cannot create a secure working directory."
+    exit 1
+}
 trap 'rm -rf "$WORK"' EXIT
 trap 'rm -rf "$WORK"; exit 130' INT TERM HUP
 

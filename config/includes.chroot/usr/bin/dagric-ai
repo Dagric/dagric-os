@@ -1,158 +1,93 @@
 #!/bin/sh
-# SPDX-FileCopyrightText: 2026 DGR Operations <repo@dagric.com>
+# SPDX-FileCopyrightText: 2026 IMPRESSIONSDIRECT360 LLC <repo@dagric.com>
 # SPDX-License-Identifier: GPL-3.0-or-later
-# Dagric OS — privacy-first local AI, on your terms.
-# Installs Ollama (local LLM runner — models run on YOUR hardware,
-# nothing leaves the machine) from the official installer, only when
-# the owner asks for it.
-set -e
+# Dagric OS — privacy-first local AI, installed from a reviewed release.
+set -eu
 . /usr/bin/dagric-i18n.sh
 
-# TRANSLATORS: every indented line under "To remove it completely" is a COMMAND
-# typed verbatim into a terminal — translate the prose around them, never the
-# commands themselves. "Ollama" is a product name.
-#
-# The old version of this screen said removal was `sudo rm -f
-# /usr/local/bin/ollama` and stopped there. That is wrong: Ollama's installer
-# also creates a systemd service, a system user, and a model directory, so
-# deleting the binary leaves an enabled service behind pointing at nothing. It
-# also never mentioned that a background service gets enabled at all — which on
-# an OS that sells itself on privacy is exactly the kind of thing the owner is
-# entitled to hear BEFORE saying yes, not discover later in systemctl.
+RELEASE=/usr/lib/dagric/ollama-release
+[ -r "$RELEASE" ] || {
+    dg_say "$(gettext "The reviewed Ollama release information is missing. Nothing was changed.")"
+    exit 1
+}
+# shellcheck disable=SC1091
+. "$RELEASE"
+
 dg_say "$(gettext "Dagric local AI setup
 =======================
 This installs Ollama, a local large-language-model runner:
   * models run entirely on this computer (GPU-accelerated when available)
-  * works offline; nothing is sent anywhere
+  * prompts and inference stay on this computer after a model is downloaded
+  * installation and the first run need internet access to fetch Ollama and a model
 
 What it changes on this machine:
   * installs the ollama binary and adds a system user for it
-  * enables a background service that starts at boot and listens only on
-    this computer (127.0.0.1 port 11434) — not reachable from your network
+  * enables a restricted background service that starts at boot and listens
+    only on this computer (127.0.0.1 port 11434)
   * downloaded models land in /usr/share/ollama and can be several GB each
 
 To remove it completely:
   sudo systemctl disable --now ollama
   sudo rm -f /usr/local/bin/ollama /etc/systemd/system/ollama.service
-  sudo rm -rf /usr/share/ollama
+  sudo rm -rf /usr/local/lib/ollama /usr/share/ollama
   sudo userdel ollama
 ")"
 dg_live_warn
 
-# Same guard as dagric-gaming: without it, `dagric-ai --help` prints the banner
-# and then blocks forever on the read below. The banner is the help text and is
-# already translated, so this adds no msgid and cannot drift.
 case "${1:-}" in
     -h|--help) exit 0 ;;
 esac
 
-printf '%s ' "$(gettext "Install Ollama from https://ollama.com? [y/N]")"
+case "$(uname -m)" in
+    x86_64|amd64) ;;
+    *)
+        dg_say "$(gettext "This reviewed Ollama package is for 64-bit Intel/AMD computers. Nothing was changed.")"
+        exit 1
+        ;;
+esac
+
+printf '%s ' "$(eval_gettext 'Download and install reviewed Ollama $OLLAMA_VERSION (about 1.4 GB)? [y/N]')"
 read -r answer
-if dg_is_yes "$answer"; then
-    # Download first, THEN run — never `curl ... | sh`. That pipeline reports
-    # sh's exit status, and sh handed an EMPTY script exits 0, so a failed
-    # download looked like a successful install. Combined with an unconditional
-    # "Done." afterwards, somebody on a dropped connection was told to try
-    # `ollama run llama3.2` and got command-not-found.
-    TMP=$(mktemp) || exit 1
-    if ! curl -fsSL https://ollama.com/install.sh -o "$TMP"; then
-        rm -f "$TMP"
-        dg_say "$(gettext "Could not download the installer — nothing was changed. Check your internet connection and try again.")"
-        exit 1
-    fi
-
-    # WHY THERE IS NO PINNED HASH HERE, since every other vendored thing in this
-    # product has one (grub-btrfs in 0800, the video wallpaper in 0900, PhotoGIMP
-    # in 0600 — all pinned tag + sha256).
-    #
-    # Those are ARCHIVES of a released artefact: upstream publishes a tag, the
-    # bytes never change again, and a mismatch means something is wrong. This is
-    # a LIVE INSTALLER SCRIPT that Ollama rewrites whenever they ship — so a
-    # pinned hash would not detect tampering, it would detect Tuesday. The first
-    # upstream edit would turn this helper off for every owner, silently, which
-    # is precisely the failure mode this tree keeps writing down: a checksum that
-    # makes a feature never install is a bug that hides instead of failing.
-    #
-    # Pinning OLLAMA_VERSION instead was considered and rejected for a different
-    # reason: it freezes what the owner installs to whatever was current when
-    # this line was last edited, and an AI runner that is a year behind on an
-    # RDNA/ROCm machine is a worse outcome than an unpinned fetch.
-    #
-    # So the honest posture is: verify it is what it claims to be, show the owner
-    # exactly what is about to run, and record it so the machine can answer "what
-    # did I execute" afterwards. site/security.html says the same thing in public
-    # rather than leaving a reviewer to find it.
-    #
-    # The shape gate is not security theatre: an HTTP 200 carrying an error page,
-    # a captive-portal login, or a truncated body all reach `sh` otherwise, and
-    # sh runs HTML as a series of failing commands. Checking for the installer's
-    # own markers costs nothing and refuses all three.
-    if ! head -c 4096 "$TMP" | grep -q '^#!/bin/sh' ||
-       ! grep -q 'ollama' "$TMP"; then
-        rm -f "$TMP"
-        dg_say "$(gettext "What came back from ollama.com is not the installer — nothing was
-changed and nothing was run. This usually means a captive portal or a
-network filter answered instead. Try again on a different connection.")"
-        exit 1
-    fi
-
-    OLLAMA_SUM=$(sha256sum "$TMP" 2>/dev/null | cut -d' ' -f1)
-    [ -n "$OLLAMA_SUM" ] || OLLAMA_SUM="(sha256sum unavailable)"
-
-    # THE LOG GOES SOMEWHERE THIS PROCESS CAN ACTUALLY WRITE.
-    #
-    # It was /var/lib/dagric/ollama-install.log, which is root:root 0755 —
-    # created by root-run systemd units — while this script runs as the ordinary
-    # desktop user (it is launched through konsole with no pkexec; Ollama's own
-    # installer calls sudo for its part). So both the mkdir and the append
-    # failed with EACCES, silenced by `2>/dev/null || true`, and the owner was
-    # told in five languages that a record existed which was never written.
-    # A promise in a translated string is still a promise.
-    #
-    # XDG_STATE_HOME is the right home for this: it is per-user, it is writable
-    # without privilege, and it is where a record of "what this account did"
-    # belongs. The owner can read it without sudo, which is the entire point of
-    # offering it to them.
-    OLLAMA_LOGDIR="${XDG_STATE_HOME:-$HOME/.local/state}/dagric"
-    OLLAMA_LOG="$OLLAMA_LOGDIR/ollama-install.log"
-
-    # TRANSLATORS: $OLLAMA_SUM is a long hexadecimal checksum and $OLLAMA_LOG is
-    # a file path — leave both exactly as they are. Single quotes around the
-    # msgid are MANDATORY — with double quotes the shell expands the variables
-    # before gettext looks the string up, the lookup misses, and the message
-    # comes out in English with no warning.
-    dg_say "$(eval_gettext 'About to run Ollama'"'"'s installer, downloaded just now from
-ollama.com. Its checksum is:
-
-  $OLLAMA_SUM
-
-It will be recorded in $OLLAMA_LOG so you can check later exactly what this
-computer ran.')"
-
-    if sh "$TMP"; then
-        # Recorded AFTER success, with the date, so the log is a list of what
-        # actually ran rather than of what was attempted. Failure to write is
-        # reported rather than swallowed — the owner was just promised this file
-        # exists, and a promise that quietly does not hold is the defect this
-        # block was rewritten to remove.
-        if mkdir -p "$OLLAMA_LOGDIR" 2>/dev/null &&
-           printf '%s  ollama.com/install.sh  sha256=%s\n' \
-               "$(date -u '+%Y-%m-%dT%H:%M:%SZ')" "$OLLAMA_SUM" \
-               >> "$OLLAMA_LOG" 2>/dev/null; then
-            :
-        else
-            printf 'dagric-ai: could not write %s\n' "$OLLAMA_LOG" >&2
-        fi
-        rm -f "$TMP"
-        echo ""
-        # TRANSLATORS: "ollama run llama3.2" is a command typed verbatim.
-        dg_say "$(gettext "Done. Try:  ollama run llama3.2")"
-    else
-        rm -f "$TMP"
-        echo ""
-        dg_say "$(gettext "The Ollama installer did not finish. It may be partly installed — the removal commands shown above will clear whatever landed.")"
-        exit 1
-    fi
-else
+if ! dg_is_yes "$answer"; then
     dg_say "$(gettext "Nothing changed.")"
+    exit 0
 fi
+
+WORK=$(mktemp -d "${TMPDIR:-/tmp}/dagric-ollama.XXXXXX") || exit 1
+ARCHIVE=$WORK/ollama.tar.zst
+trap 'rm -rf -- "$WORK"' EXIT HUP INT TERM
+umask 077
+
+if ! curl --proto '=https' --tlsv1.2 --fail --location --show-error \
+        --output "$ARCHIVE" "$OLLAMA_URL"; then
+    dg_say "$(gettext "Could not download the reviewed Ollama release. Nothing was changed; check your connection and try again.")"
+    exit 1
+fi
+
+ACTUAL_SIZE=$(wc -c < "$ARCHIVE" | tr -d '[:space:]')
+ACTUAL_SHA256=$(sha256sum "$ARCHIVE" | cut -d' ' -f1)
+if [ "$ACTUAL_SIZE" != "$OLLAMA_SIZE" ] || [ "$ACTUAL_SHA256" != "$OLLAMA_SHA256" ]; then
+    dg_say "$(gettext "The Ollama download did not match Dagric's reviewed release. Nothing was installed.")"
+    exit 1
+fi
+
+dg_say "$(eval_gettext 'The download matches Dagric'"'"'s reviewed release ($OLLAMA_SHA256). Administrator approval is required for installation.')"
+
+if ! pkexec /usr/lib/dagric/install-ollama "$ARCHIVE"; then
+    dg_say "$(gettext "Ollama was not installed. Any previous working installation was restored.")"
+    exit 1
+fi
+
+OLLAMA_LOGDIR="${XDG_STATE_HOME:-$HOME/.local/state}/dagric"
+OLLAMA_LOG="$OLLAMA_LOGDIR/ollama-install.log"
+if mkdir -p "$OLLAMA_LOGDIR" 2>/dev/null &&
+   printf '%s  %s  sha256=%s\n' \
+       "$(date -u '+%Y-%m-%dT%H:%M:%SZ')" "$OLLAMA_VERSION" "$OLLAMA_SHA256" \
+       >> "$OLLAMA_LOG" 2>/dev/null; then
+    chmod 0600 "$OLLAMA_LOG" 2>/dev/null || true
+else
+    printf 'dagric-ai: could not write %s\n' "$OLLAMA_LOG" >&2
+fi
+
+echo ""
+dg_say "$(gettext "Done. Try:  ollama run llama3.2")"

@@ -10,6 +10,7 @@ const manifest = JSON.parse(await readFile(path.join(here, "review-batch", "mani
 const topicBySlug = new Map(topics.map((topic) => [topic.slug, topic]));
 const outputRoot = path.join(here, "review-batch", "_audit-frames");
 const serveUrl = await bundle({entryPoint: path.join(here, "src", "index.ts")});
+const narrationExtension = process.env.DAGRIC_NARRATION_FORMAT === "mp3" ? "mp3" : "wav";
 
 let completed = 0;
 for (const entry of manifest.videos) {
@@ -19,7 +20,7 @@ for (const entry of manifest.videos) {
     ...topic,
     format: entry.format,
     durationSeconds: entry.durationSeconds,
-    voiceFile: topic.voiceScript ? `narration-batch/${topic.slug}.wav` : undefined,
+    voiceFile: topic.voiceScript ? `narration-batch/${topic.slug}.${narrationExtension}` : undefined,
   };
   const composition = await selectComposition({serveUrl, id: "DagricSocialBatch", inputProps});
   const formatDir = path.join(outputRoot, entry.format);

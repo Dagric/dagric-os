@@ -6,10 +6,12 @@ ConditionPathExists=/proc/pressure/cpu
 [Service]
 Type=oneshot
 ExecStart=/usr/sbin/dagric-pipeline scan --quiet
+ExecStart=/usr/sbin/dagric-pipeline apply
 NoNewPrivileges=yes
 PrivateTmp=yes
 ProtectHome=yes
 ProtectSystem=strict
+ProtectKernelTunables=no
 ReadWritePaths=/var/lib/dagric/pipeline
 MemoryMax=96M
 CPUQuota=10%

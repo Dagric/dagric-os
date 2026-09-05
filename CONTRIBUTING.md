@@ -36,6 +36,9 @@ repository's GPL-3.0-or-later terms; identified branding contributions require
 confirmation that the contributor has the rights to provide them under the
 stated artwork license.
 
+Public-facing copy and source comments must follow the
+[Dagric editorial standard](docs/EDITORIAL-STANDARD.md).
+
 Run the fast checks that match your change. The broad local entry point is:
 
 ```sh

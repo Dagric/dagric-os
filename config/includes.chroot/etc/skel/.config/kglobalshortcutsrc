@@ -20,6 +20,19 @@
 _launch=Ctrl+Shift+Esc\tMeta+Esc,Meta+Esc,Task Manager
 
 # ---------------------------------------------------------------------------
+# Search: Dagric's discoverable chord, without taking KDE's away.
+#
+# KDE documents Alt+Space and Alt+F2 for KRunner. Meta+Space is added because
+# the setup specification teaches it as Dagric's direct "search anything"
+# shortcut. The installed Plasma 6 krunner binary identifies its KGlobalAccel
+# component as "krunner" and the action as "run_command"; keep both upstream
+# chords beside the Dagric chord. Both fields match so Reset to Default retains
+# the complete Dagric default rather than silently dropping Meta+Space.
+[krunner]
+_k_friendly_name=KRunner
+run_command=Meta+Space\tAlt+Space\tAlt+F2,Meta+Space\tAlt+Space\tAlt+F2,Run Command
+
+# ---------------------------------------------------------------------------
 # Screen reader on/off.
 #
 # THE ONE SHORTCUT THAT CANNOT BE LEFT TO A DEFAULT. Somebody who needs Orca

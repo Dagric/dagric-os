@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2026 DGR Operations <repo@dagric.com>
+// SPDX-FileCopyrightText: 2026 IMPRESSIONSDIRECT360 LLC <repo@dagric.com>
 // SPDX-License-Identifier: GPL-3.0-or-later
 //
 // Dagric OS — "Dagric Appearance": the preview-before-you-commit gallery.
@@ -30,7 +30,7 @@
 // (Item.activeFocusOnTab defaults to false), and a MouseArea offers assistive
 // technology no way to press anything. The two tabs at the top were the only
 // keyboard-reachable controls in the whole application: you could switch
-// between Styles and Layouts and then do absolutely nothing with either.
+// between Styles, Layouts and Icons and then do absolutely nothing with them.
 //
 // Two problems are specific to THIS window, and both are more serious than
 // they look:
@@ -90,7 +90,7 @@ ApplicationWindow {
     readonly property color cLine: "#22334d"
     readonly property color cText: "#e8eef7"
     readonly property color cDim: "#93a4bd"
-    readonly property color cBrand: "#3fa9f5"
+    readonly property color cBrand: "#ff3b5c"
     readonly property color cBarBg: "#132338"
 
     // --- contrast, computed rather than guessed ------------------------------
@@ -155,6 +155,7 @@ ApplicationWindow {
     property string edition: "free"
     property var styles: []
     property var layouts: []
+    property var iconStyles: []
     property string loadError: ""
     property bool loaded: false
 
@@ -216,6 +217,7 @@ ApplicationWindow {
                 app.reducedMotion = data.reducedMotion === true;
                 app.styles = data.styles ? data.styles : [];
                 app.layouts = data.layouts ? data.layouts : [];
+                app.iconStyles = data.icons ? data.icons : [];
                 app.loaded = true;
             } catch (e) {
                 app.loadError = "The appearance catalogue is damaged.";
@@ -777,6 +779,30 @@ ApplicationWindow {
                     Accessible.ignored: true
                 }
             }
+
+            TabButton {
+                id: tabIcons
+                text: "Icons"
+                background: Rectangle {
+                    color: "transparent"
+                    Rectangle {
+                        anchors.bottom: parent.bottom
+                        width: parent.width
+                        height: tabIcons.checked ? 3 : 1
+                        color: tabIcons.checked ? app.cBrand : app.cEdge
+                    }
+                    FocusRing { ringRadius: app.px(4); on: tabIcons.activeFocus }
+                }
+                contentItem: Text {
+                    text: tabIcons.text
+                    color: tabIcons.checked ? app.cText : app.cDim
+                    font.pixelSize: app.px(14)
+                    font.bold: tabIcons.checked
+                    horizontalAlignment: Text.AlignHCenter
+                    verticalAlignment: Text.AlignVCenter
+                    Accessible.ignored: true
+                }
+            }
         }
 
         StackLayout {
@@ -875,6 +901,54 @@ ApplicationWindow {
                     text: app.loadError !== ""
                           ? app.loadError
                           : "No layouts are installed. Reinstall the dagric-branding package to restore them."
+                    Accessible.role: Accessible.StaticText
+                    Accessible.name: text
+                }
+            }
+
+            Item {
+                GridView {
+                    id: iconGrid
+                    anchors.fill: parent
+                    anchors.margins: app.px(8)
+                    clip: true
+                    visible: app.iconStyles.length > 0
+                    model: app.iconStyles
+                    delegate: cardDelegate
+                    cacheBuffer: 600
+
+                    activeFocusOnTab: true
+                    keyNavigationEnabled: true
+                    keyNavigationWraps: false
+
+                    Accessible.role: Accessible.List
+                    Accessible.name: "Icon styles"
+                    Accessible.description: "Arrow keys to move between icon styles, Space to try one on"
+
+                    property int columns: Math.max(1, Math.floor(width / app.px(250)))
+                    cellWidth: Math.floor(width / columns)
+                    cellHeight: Math.round((cellWidth - app.px(36)) * 0.5625) + app.px(104)
+
+                    ScrollBar.vertical: ScrollBar {
+                        contentItem: Rectangle {
+                            implicitWidth: app.px(6)
+                            radius: app.px(3)
+                            color: app.cEdge
+                        }
+                    }
+                }
+
+                Text {
+                    anchors.centerIn: parent
+                    width: parent.width - app.px(60)
+                    visible: app.iconStyles.length === 0
+                    horizontalAlignment: Text.AlignHCenter
+                    wrapMode: Text.WordWrap
+                    color: app.cDim
+                    font.pixelSize: app.px(13)
+                    text: app.loadError !== ""
+                          ? app.loadError
+                          : "No icon styles are installed. Reinstall the dagric-branding package to restore them."
                     Accessible.role: Accessible.StaticText
                     Accessible.name: text
                 }
@@ -1068,7 +1142,7 @@ ApplicationWindow {
                 onClicked: app.keep()
                 background: Rectangle {
                     radius: app.px(8)
-                    color: keepBtn.down ? "#2f8ed0" : app.cBrand
+                    color: keepBtn.down ? Qt.darker(app.cBrand, 1.16) : app.cBrand
                     FocusRing { ringRadius: app.px(8); on: keepBtn.activeFocus }
                 }
                 contentItem: Text {

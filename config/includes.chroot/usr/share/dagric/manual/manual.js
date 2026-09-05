@@ -16,7 +16,7 @@
  *
  * Dagric's German documentation is the welcome page and the user guide — the
  * two things a new owner reads in their first hour, both single pages, both
- * translated in full. This manual is 97 pages and more than 46,000 words of reference
+ * translated in full. This manual is 112 pages and more than 50,000 words of reference
  * material, and translating it has two costs that do not shrink: the words
  * themselves, and the fact that every English edit re-opens every language.
  * More to the point, this manual's whole promise is that its search knows the

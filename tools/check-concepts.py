@@ -91,6 +91,9 @@ CONCEPTS = (
     )),
     Concept("Apps, search, and offline manual", (
         req("config/includes.chroot/usr/bin/dagric-app-names"),
+        req("config/includes.chroot/usr/bin/dagric-store", "Popular", "Windows replacements", "Flathub", "Debian"),
+        req("config/includes.chroot/usr/share/applications/dagric-software-store.desktop", "Name=Dagric Picks", "Icon=dagric-picks", "Exec=/usr/bin/dagric-store"),
+        req("config/includes.chroot/etc/skel/.config/kglobalshortcutsrc", "[krunner]", "run_command=Meta+Space"),
         req("config/includes.chroot/usr/bin/dagric-manual"),
         req("config/includes.chroot/usr/share/dagric/manual/index.html"),
         req("config/hooks/normal/0340-offline-docs.hook.chroot"),
@@ -104,9 +107,13 @@ CONCEPTS = (
         req("config/package-lists/installer.list.chroot", "mokutil"),
     )),
     Concept("Windows migration", (
-        req("config/includes.chroot/usr/bin/dagric-migrate", "rsync", "--ignore-existing"),
+        req("config/includes.chroot/usr/bin/dagric-migrate", "rsync", "--ignore-existing", "migrate-state-pack.py"),
         req("config/package-lists/system.list.chroot", "ntfs-3g", "exfatprogs", "rsync"),
         req("config/includes.chroot/usr/share/applications/dagric-migrate.desktop"),
+        req("config/includes.chroot/usr/share/dagric/migrate-browser.py", "Windows-browser-context.json"),
+        req("config/includes.chroot/usr/share/dagric/migrate-state-pack.py", "Dagric-Migration-State-Pack.json"),
+        req("config/includes.chroot/usr/bin/dagric-restore-assistant", "--apply-kde"),
+        req("config/includes.chroot/usr/share/applications/dagric-restore-assistant.desktop"),
     )),
     Concept("Steam and Linux gaming", (
         req("config/includes.chroot/usr/bin/dagric-get-steam", "steam-installer", "mesa-vulkan-drivers:i386"),
@@ -124,7 +131,7 @@ CONCEPTS = (
         req("config/package-lists/pro-security.list.chroot", "opensnitch", "usbguard"),
         req("config/hooks/normal/0300-hardening.hook.chroot"),
         req("config/includes.chroot/usr/bin/dagric-security-checkup"),
-        req("config/includes.chroot/usr/lib/firefox-esr/distribution/policies.json", "DisableTelemetry", "DisableFirefoxStudies"),
+        req("config/package-lists/apps.list.chroot", "firefox-esr"),
     )),
     Concept("Updates and package delivery", (
         req("packages/build-repo.sh"),
@@ -148,7 +155,7 @@ CONCEPTS = (
         req("config/includes.chroot/usr/share/applications/dagric-family.desktop"),
     )),
     Concept("Family Pack staging safety", (
-        req("site/family.html", "FAMILY_PRICE_PLACEHOLDER", "STRIPE_FAMILY_LINK_PLACEHOLDER"),
+        req("site/family.html", "currently offered", "not available for purchase or delivery"),
         req("infra/gate-worker.js", "REPLACE_ME_family_pack_price_id_from_stripe"),
         req("firebase.json", "family.html"),
         req("tools/check-site.sh", "PLACEHOLDER"),

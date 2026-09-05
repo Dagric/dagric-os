@@ -13,22 +13,7 @@
 <link rel="icon" href="/favicon.ico" sizes="32x32">
 <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
 <link rel="manifest" href="/site.webmanifest">
-<!-- assets/pageindex.js is deliberately NOT loaded. It built a sticky section
-     index into the right-hand gutter on the five long document pages, and the
-     owner reported it misbehaving on scroll — "when I scroll down it is funny
-     and doesn't work how it's supposed to". The mechanism is a position:sticky
-     <ol> inside a position:absolute box that carries BOTH top and bottom, so
-     the rail stops dead --s-7 above the end of <main> and slides away while
-     there is still page left; that is the "funny" part, and it is the shape of
-     the bug even before anything else is measured.
-     It is out rather than patched because nothing here has a browser to verify
-     a fix in — every check available is layout arithmetic, and this is a defect
-     you can only see. A feature nobody asked for that confuses the owner is
-     worse than an empty gutter. The file stays in the tree; put the tag back
-     when somebody can watch it scroll.
-     Removing the tag is the whole revert: the nav is display:none below
-     1440px, absolutely positioned above it, and takes part in no layout at any
-     width, so these pages are byte-for-byte what they were before it existed. -->
+
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Dagric OS">
 <meta property="og:title" content="Terms &amp; purchase policy — Dagric OS">
@@ -56,36 +41,34 @@
 <main id="main">
   <h1>Terms &amp; <span class="grad">purchase policy.</span></h1>
   <p class="lead">The fair-and-square version, then the fine print. Effective
-  30&nbsp;August&nbsp;2026.</p>
+  4&nbsp;September&nbsp;2026.</p>
 
   <h2>The deal, plainly</h2>
   <ul>
     <li><strong>Free edition:</strong> free forever, for anyone, for any lawful use.</li>
     <li><strong>Pro ($39, one-time):</strong>
-    <!-- This line used to read "Updates to Pro 1.x are included" — the only version
-         limit anywhere on the site, against six unqualified promises on the pages
-         that take the money: pro.html "One purchase. Yours forever." and "free
-         updates", index.html "keep it forever — updates included" and "own it
-         forever · free updates", faq.html "keep it forever, updates included". A
-         narrowing that appears only in the terms is the pattern a consumer-protection
-         regulator flags, and it turns Pro 2.0 into a chargeback argument. The terms
-         were the one line, so the terms moved. If the business ever does want a paid
-         major upgrade, the marketing changes first, not this. -->
-    one purchase licenses <strong>one machine</strong> you own or manage. A second machine is a
-    second purchase. The purchase is verified once, when you
+
+    one purchase provides a paid delivery, guided-upgrade, and support entitlement for
+    <strong>one machine</strong> you own or manage. A second concurrently managed machine needs a
+    second service entitlement. The purchase is verified once, when you
     claim it (details on the <a href="/privacy">privacy page</a>), and never again — no recurring
     activation, no expiry, no server your machine needs permission from to keep working. Support
-    moves a licence to a replacement machine on request.
+    moves the service entitlement to a replacement machine on request.
     <strong>Updates are included and free</strong> for
     as long as we publish them, with no version cut-off — the same promise the rest of this site
     makes on the pages that take the money. There is no paid upgrade waiting at the end of it, and
     if we ever stop publishing, the copy you bought keeps working and keeps receiving its
     security updates from Debian.</li>
-    <li><strong>What you're buying:</strong> Dagric OS is assembled from open-source software; the
-    purchase pays for curation, integration, testing, and support — not exclusivity over free
-    software (see <a href="/licenses">Licenses</a>).</li>
-    <li><strong>Don't</strong> resell the download itself or pass off Dagric OS as your own
-    product. The <strong>Dagric</strong> name and logo are trademarks of DGR Operations.</li>
+    <li><strong>What you're buying:</strong> the paid delivery, guided-upgrade, curation, integration,
+    testing, and support service — not exclusivity over free software. Dagric-authored code and most
+    included software are open source; separately licensed hardware-enablement components are
+    disclosed on <a href="/licenses">Licenses</a>.</li>
+    <li><strong>Open-source rights remain yours.</strong> The one-machine service entitlement does
+    not reduce any right to run, copy, study, modify, or redistribute a component under its
+    applicable licence. Do not sell or share a checkout session, private download credential, or
+    support entitlement. Modified distributions must use distinct branding unless written
+    trademark permission says otherwise; the <strong>Dagric</strong> name and logo are marks of
+    IMPRESSIONSDIRECT360 LLC.</li>
   </ul>
 
   <h2>Checkout, promotions and delivery</h2>
@@ -97,10 +80,11 @@
     <li><strong>Promotion codes.</strong> A promotion can be limited by product, customer, first
     order, redemption count or expiry. Codes have no cash value, cannot be combined unless checkout
     expressly allows it, and may be changed or withdrawn before redemption. A completed order will
-    be honored. A discount does not change the one-machine Pro licence; a zero-dollar order has no
+    be honored. A discount does not change the one-machine Pro service entitlement; a zero-dollar order has no
     payment amount to refund.</li>
-    <li><strong>Digital delivery.</strong> Pro is delivered through the private link on the
-    post-checkout page. The link contains a Stripe session identifier and should be kept private.
+    <li><strong>Digital delivery.</strong> New checkout and binary delivery are currently paused.
+    When distribution is open, Pro is delivered through the private link on the post-checkout page.
+    The link contains a Stripe session identifier and should be kept private.
     It supports reinstalls and resumed downloads, subject to a generous bandwidth-abuse limit. If
     an honest reinstall reaches that limit, <a href="/support">support</a> can review it.</li>
     <li><strong>Compatibility.</strong> The Free live image is the evaluation copy for your actual
@@ -111,8 +95,10 @@
   </ul>
 
   <h2>Digital-download refund policy</h2>
-  <p>Dagric OS Pro is downloadable digital software delivered immediately after checkout. Use the
-  Free live image and <em>Check This PC</em> on your actual hardware before buying. Before a Pro
+  <p>New orders are paused while release-exact corresponding source is completed. For an order
+  placed while distribution was open, Dagric OS Pro is downloadable digital software. Use the
+  Free live image and <em>Check This PC</em> on your actual hardware before buying when downloads
+  resume. Before a Pro
   download begins, you may use the <a href="/contact">contact page</a> with your purchase email to
   ask us to cancel and refund a paid order. <strong>Once the Pro download begins, the sale is final:</strong>
   we do not offer change-of-mind or compatibility refunds after delivery has started.</p>
@@ -136,37 +122,34 @@
     kind, to the maximum extent permitted by law. Nothing here excludes a warranty or remedy that
     applicable consumer law does not allow us to exclude. Always back up your data before
     installing any operating system.</li>
-    <li><strong>Liability.</strong> To the extent permitted by law, DGR Operations' total
+    <li><strong>Liability.</strong> To the extent permitted by law, IMPRESSIONSDIRECT360 LLC's total
     liability for any claim related to the software or this site is limited to the amount you paid
     us. This limit does not apply where applicable law does not permit it.</li>
-    <li><strong>Third parties.</strong> Optional installs you trigger (Steam, NVIDIA driver,
-    DaVinci Resolve, Flathub apps) come from their own vendors under their own licenses and terms.
+    <li><strong>Third parties.</strong> Optional installs you trigger (including Steam, Heroic,
+    NVIDIA driver, DaVinci Resolve, and other Flathub apps) come from Debian, Flathub, or their
+    vendors under their own licenses and terms. GOG, Epic Games, and Amazon Games accounts,
+    purchases, and content remain governed by those providers' terms.
     Payments are handled by Stripe under <a href="https://stripe.com/legal/consumer">Stripe's
     terms</a>. We never see or store your card details.</li>
     <li><strong>Who you are paying.</strong> Dagric OS is sold by
-    <strong>DGR&nbsp;Operations</strong>. Stripe checkout identifies the customer-facing brand as
+    <strong>IMPRESSIONSDIRECT360 LLC</strong>, operating under the fictitious name
+    <strong>Dagric</strong>. Stripe checkout identifies the customer-facing product brand as
     <strong>Dagric OS</strong>, and the bank statement descriptor is <strong>DAGRIC OS</strong>.
     Both refer to this seller. If you do not recognise a charge, the
     <a href="/contact">contact form</a> can identify it quickly; contacting us does
     not limit any right to dispute an unauthorized charge with your bank.</li>
     <li><strong>Affiliation.</strong> Built on Debian; not affiliated with or endorsed by the
-    Debian Project, KDE e.V., Valve, NVIDIA, or Blackmagic Design.</li>
+    Debian Project, KDE e.V., Valve, GOG, Epic Games, Amazon, Heroic Games Launcher, Lutris,
+    NVIDIA, Blackmagic Design, or their respective owners.</li>
     <li><strong>Changes.</strong> Changes to these terms apply prospectively from the effective
-    date shown above. The price, licence scope and purchase policy shown when an order completes
+    date shown above. The price, service-entitlement scope and purchase policy shown when an order completes
     govern that order.</li>
     <li><strong>Governing law and severability.</strong> Missouri, United States, without taking
     away mandatory consumer rights that apply where you live. If any clause is unenforceable, the
     rest still applies.</li>
   </ul>
 
-  <!-- Every other document page hands the reader somewhere: /about and /faq end on a
-       button, /licenses on a link to Pro, /support and /bugs on the FAQ, /accessibility
-       and /privacy on the contact page. This one ended on "Governing law. Missouri" and
-       stopped — on the page linked from the two places that take the money, read by the
-       person who is deciding whether to trust us with $39. Nothing below is a new
-       claim: the FAQ's coverage is support.html's own sentence, and "one-time $39",
-       the digital-download policy and "free forever, no account" are restated from
-       the two sections directly above and from about.html. -->
+
   <h2>Questions before you decide?</h2>
   <p>The <a href="/faq">FAQ</a> covers pricing, privacy, Windows apps, hardware and the purchase policy, and
   the <a href="/contact">contact page</a> reaches us directly. Ask before you pay rather than
@@ -180,8 +163,17 @@
 </main>
 
 <footer><div class="foot">
-  <span>© 2026 DGR Operations · Built on Debian. Not affiliated with the Debian Project.</span>
+  <span>© 2026 IMPRESSIONSDIRECT360 LLC · Built on Debian. Not affiliated with the Debian Project.</span>
   <span class="links"><a href="/features">Features</a><a href="/pro">Pro</a><a href="/download">Download</a><a href="/news">News</a><a href="/guide">Guide</a><a href="/support">Support</a><a href="/faq">FAQ</a><a href="/accessibility">Accessibility</a><a href="/security">Security</a><a href="/bugs">Report a bug</a><a href="/contact">Contact</a><a href="/about">About</a><a href="/review">Reviewers</a><a href="/licenses">Licenses</a><a href="/privacy">Privacy</a><a href="/terms">Terms</a></span>
+  <div class="social-footer" role="navigation" aria-label="Dagric OS social media">
+    <strong>Follow Dagric OS</strong>
+    <a href="https://www.youtube.com/@DagricOS" target="_blank" rel="me noopener">YouTube</a>
+    <a href="https://www.tiktok.com/@dagricosofficial" target="_blank" rel="me noopener">TikTok</a>
+    <a href="https://www.instagram.com/dagricosofficial/" target="_blank" rel="me noopener">Instagram</a>
+    <a href="https://www.snapchat.com/@dagricos" target="_blank" rel="me noopener">Snapchat</a>
+    <a href="https://www.linkedin.com/in/dorien-richardson" target="_blank" rel="me noopener">LinkedIn</a>
+    <a href="https://github.com/Dagric/dagric-os" target="_blank" rel="me noopener">GitHub</a>
+  </div>
 </div></footer>
 </body>
 </html>

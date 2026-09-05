@@ -18,6 +18,7 @@ const selectedTopics = Number.isFinite(topicLimit) ? topics.slice(0, topicLimit)
 const selectedFormats = process.env.DAGRIC_BATCH_FORMAT
   ? Object.fromEntries(Object.entries(formats).filter(([name]) => name === process.env.DAGRIC_BATCH_FORMAT))
   : formats;
+const narrationExtension = process.env.DAGRIC_NARRATION_FORMAT === "mp3" ? "mp3" : "wav";
 
 await mkdir(outputRoot, {recursive: true});
 for (const format of Object.keys(selectedFormats)) await mkdir(path.join(outputRoot, format), {recursive: true});
@@ -35,7 +36,7 @@ for (let topicIndex = 0; topicIndex < selectedTopics.length; topicIndex++) {
       ...topic,
       format,
       durationSeconds,
-      voiceFile: topic.voiceScript ? `narration-batch/${topic.slug}.wav` : undefined,
+      voiceFile: topic.voiceScript ? `narration-batch/${topic.slug}.${narrationExtension}` : undefined,
     };
     const composition = await selectComposition({serveUrl, id: "DagricSocialBatch", inputProps});
     const number = String(topicIndex + 1).padStart(2, "0");

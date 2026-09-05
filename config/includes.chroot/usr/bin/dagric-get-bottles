@@ -1,5 +1,5 @@
 #!/bin/sh
-# SPDX-FileCopyrightText: 2026 DGR Operations <repo@dagric.com>
+# SPDX-FileCopyrightText: 2026 IMPRESSIONSDIRECT360 LLC <repo@dagric.com>
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Dagric OS — install Bottles, on request (Pro Windows-app support).
 # Bottles (GPL-3.0) runs Windows software on Linux in tidy, per-app
@@ -17,9 +17,10 @@
 
 dg_say "$(gettext "Dagric — install Bottles (run Windows apps)
 
-Bottles is a free, open-source app that runs Windows programs and games on
-Linux inside self-contained \"bottles\", tuned per app for the best chance of
-working. It's the easy way to bring a Windows app across. Installs from Flathub.")"
+Bottles is a free, open-source app that runs Windows programs and games in
+separate Wine environments. Those environments are not security sandboxes,
+compatibility varies, and downloaded runtimes remain under their providers'
+terms. Bottles installs from Flathub.")"
 
 dg_live_warn
 printf '\n%s ' "$(gettext "Install Bottles now? [y/N]")"

@@ -1,5 +1,5 @@
 #!/bin/sh
-# SPDX-FileCopyrightText: 2026 DGR Operations <repo@dagric.com>
+# SPDX-FileCopyrightText: 2026 IMPRESSIONSDIRECT360 LLC <repo@dagric.com>
 # SPDX-License-Identifier: GPL-3.0-or-later
 #
 # Dagric OS — catch a Dockerfile instruction swallowed by a line continuation.
@@ -41,7 +41,7 @@ KEYWORDS='FROM|RUN|CMD|LABEL|MAINTAINER|EXPOSE|ENV|ADD|COPY|ENTRYPOINT|VOLUME|US
 
 fail=0
 found=0
-for df in docker/Dockerfile docker/*.Dockerfile Dockerfile; do
+for df in docker/Dockerfile docker/*.Dockerfile test/Dockerfile Dockerfile; do
     [ -f "$df" ] || continue
     found=$((found + 1))
     # awk carries "am I inside a continuation" across lines, which is the whole

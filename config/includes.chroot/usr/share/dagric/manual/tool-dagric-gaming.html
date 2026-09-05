@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Proton-GE helper &mdash; Dagric OS Manual</title>
+<title>GE-Proton helper &mdash; Dagric OS Manual</title>
 <link rel="stylesheet" href="manual.css">
 <script src="manual.js"></script>
 </head>
@@ -34,7 +34,7 @@
         <a href="tool-dagric-security-checkup.html">Security Checkup</a>
         <a href="tool-dagric-usb-protect.html">USB Protection</a>
         <a href="tool-dagric-vm.html">Windows in a window (VM setup)</a>
-        <a href="tool-dagric-gaming.html" class="active">Proton-GE helper</a>
+        <a href="tool-dagric-gaming.html" class="active">GE-Proton helper</a>
         <a href="tool-dagric-ai.html">Local AI (Ollama)</a>
         <a href="tool-dagric-manual.html">This manual</a>
         <a href="tool-dagric-background.html">Helpers that run by themselves</a>
@@ -47,8 +47,8 @@
 
     <header class="hero">
       <div class="eyebrow">Dagric&#x27;s own tools</div>
-      <h1>Proton-GE helper</h1>
-      <p class="sub">Add the community Proton build that fixes games weeks before the official one.</p>
+      <h1>GE-Proton helper</h1>
+      <p class="sub">Add an optional community Proton build and test it one title at a time.</p>
     </header>
 
     <div class="swap"><span>On Windows this was</span><strong>nothing &mdash; a Linux gaming convenience</strong></div>
@@ -56,22 +56,26 @@
 
     <section>
       <h2>What it is</h2>
-      <p><strong>Proton-GE</strong> is a community build of Proton, maintained by
-      GloriousEggroll, carrying extra media codecs and game-specific patches that
-      often arrive weeks before Valve's official release. This helper downloads the
-      newest one and unpacks it into Steam's compatibility tools folder.</p>
+      <p><strong>GE-Proton</strong> is a community compatibility tool maintained by
+      GloriousEggroll. This helper downloads its current release from the project's
+      GitHub repository, verifies the published SHA-256 digest, and installs it into
+      Steam's compatibility tools folder.</p>
       <p>It also reminds you what Dagric&nbsp;OS Pro already installed for gaming:
       Wine and winetricks, GameMode and MangoHud, and the 32-bit Vulkan libraries
       Proton needs. Steam itself is never bundled &mdash; see
       <a href="app-steam.html">Steam</a>.</p>
+      <div class="notice"><div>GE-Proton and Dagric are independent of Valve.
+      A compatibility layer cannot guarantee that a game, anti-cheat system or
+      online service will work, and each game and service remains governed by its
+      publisher's current license and terms.</div></div>
     </section>
 
     <section>
       <h2>Running it</h2>
-      <p>Dagric Hub &rarr; <strong>Proton-GE for Steam</strong>, launcher &rarr;
+      <p>Dagric Hub &rarr; <strong>GE-Proton for Steam</strong>, launcher &rarr;
       <em>Gaming Setup</em>, or <code>dagric-gaming</code>. It opens a terminal,
       summarises what is already installed, and asks whether to download the latest
-      Proton-GE from GitHub. Answer anything but yes and nothing happens.</p>
+      GE-Proton from GitHub. Answer anything but yes and nothing happens.</p>
       <p>It needs no administrator password &mdash; everything it installs goes into
       your own Steam folder.</p>
     </section>
@@ -86,7 +90,7 @@
          is printed so you can see exactly what is being fetched.</p></li>
         <li><span class="t">Enable it in Steam</span><p><em>Steam</em> &rarr; <em>Settings</em> &rarr; <em>Compatibility</em>,
          then per game under <em>Properties</em> &rarr; <em>Compatibility</em> choose
-         the GE-Proton version.</p></li>
+         a GE-Proton version, then test that title's actual features.</p></li>
         <li><span class="t">Use the graphical alternative instead</span><p><a href="app-protonup.html">ProtonUp-Qt</a> does the same job with a
          window, manages several versions at once, handles Lutris and Heroic as well,
          and can remove old builds. If you expect to do this more than once, install
@@ -101,15 +105,15 @@
       <h2>One thing that will surprise you</h2>
       <p><strong>It downloads from the internet, and it says so before it
       does.</strong> This is one of the few Dagric helpers that fetches something from
-      outside Debian's archive or Flathub, and the reason is that Proton-GE is not
-      packaged anywhere else. The helper prints the exact URL it is about to use. If
+      outside Debian's archive or Flathub. It intentionally uses the project's
+      release on GitHub and prints the exact URL it is about to use. If
       the machine is offline it reports that it could not find the release and changes
       nothing.</p>
     </section>
 
     <section>
       <h2>Where to find it</h2>
-      <p>Dagric Hub &rarr; <em>Proton-GE for Steam</em>, or
+      <p>Dagric Hub &rarr; <em>GE-Proton for Steam</em>, or
       <code>dagric-gaming</code>.</p>
     </section>
 

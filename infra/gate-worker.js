@@ -4,8 +4,15 @@
 // the 3.3 GB download is resumable. Without a valid paid session: no file.
 const FILE = "dagric-os-pro-1.0-amd64.iso";
 // The layouts and styles the free image does not carry, for in-place upgrades.
-// Same private bucket, same licence check, ~100 KB instead of 3.8 GB.
+// Same private bucket, same purchase-entitlement check, ~100 KB instead of 3.8 GB.
 const ASSETS = "dagric-pro-assets.tar.gz";
+const SECURITY_HEADERS = Object.freeze({
+  "Cache-Control": "no-store",
+  "Content-Security-Policy": "default-src 'none'; base-uri 'none'; frame-ancestors 'none'",
+  "Referrer-Policy": "no-referrer",
+  "X-Content-Type-Options": "nosniff",
+  "X-Frame-Options": "DENY",
+});
 
 // ── what was bought, and how many machines it covers ───────────────────────
 // The allowance used to be the constant MACHINE_CAP = 1, which was true for as
@@ -75,7 +82,7 @@ const MACHINE_CAPS = {
 // state. A PARTLY configured one is an error: deploying only a price or only a
 // machine count would sell an entitlement the worker cannot honour. Once both
 // values exist, the duplicate-id guard below prevents the computed object key
-// from silently turning every $39 single purchase into a family licence.
+// from silently turning every $39 single purchase into a family entitlement.
 const FAMILY_PRICE_CONFIGURED = /^price_[A-Za-z0-9]+$/.test(PRICE_FAMILY_PACK);
 const FAMILY_COUNT_CONFIGURED = Number.isInteger(FAMILY_MACHINES) && FAMILY_MACHINES >= 2;
 if (FAMILY_PRICE_CONFIGURED !== FAMILY_COUNT_CONFIGURED) {
@@ -96,13 +103,13 @@ if (FAMILY_PRICE_CONFIGURED) {
 // typo'd table value — every one of them resolves to 1, the smallest allowance
 // anybody could have paid for. The asymmetry is the whole point: a cap that
 // comes out too small is a support email that takes a minute to fix, and a cap
-// that comes out too big is a $39 licence quietly behaving like the household
+// that comes out too big is a $39 service entitlement quietly behaving like the household
 // one, on machines we will never hear about and cannot take back. This is the
 // one number in this file where being generous costs the sale instead of
 // protecting the customer, so it is the one number that fails small.
 const MACHINE_CAP_FALLBACK = 1;
 
-// ── the licence allowance ──────────────────────────────────────────────────
+// ── the hosted-service allowance ───────────────────────────────────────────
 // A purchase upgrades the machines it paid for and no more. Machines are
 // identified by an anonymous fingerprint the upgrade tool sends as `m`: a
 // SHA-256 of the machine's DMI product UUID salted with the session id, so
@@ -113,7 +120,7 @@ const MACHINE_CAP_FALLBACK = 1;
 // the block in fetch().
 //
 // The byte and fetch budgets are BANDWIDTH protection for a free-software
-// payload, not licensing. The ISO budget meters bytes delivered per session so
+// payload, not a software-use restriction. The ISO budget meters bytes delivered per session so
 // that Range tricks cannot pull unlimited copies; the legacy fetch budget
 // covers pre-fingerprint tools. Both are generous enough that no honest
 // customer meets them across years of reinstalls, and both are backstops to a
@@ -141,15 +148,49 @@ const ISO_BYTE_BUDGET = 110 * 1024 * 1024 * 1024; // ~26 Pro ISOs / 50 free
 // 3-attempt runs, which was one machine's worth of bad-network evenings when
 // one machine was all a purchase could have. A household with five machines on
 // pre-fingerprint tools would otherwise share one machine's budget between
-// five and hit a licence-shaped 409 for what is only a bandwidth backstop.
+// five and hit an entitlement-shaped 409 for what is only a bandwidth backstop.
 const LEGACY_ASSET_CAP_PER_MACHINE = 15;
 
 export default {
   async fetch(req, env) {
+    if (req.method !== "GET" && req.method !== "HEAD") {
+      return msg(405, "Only downloads and download checks are accepted.", { Allow: "GET, HEAD" });
+    }
+    // Fail closed. Distribution can resume only after release engineering has
+    // completed the candidate's exact source map and human approvals and an
+    // operator explicitly sets this non-secret value to "true" at deployment.
+    // This check must stay ahead of Stripe, KV, and R2 access.
+    if (!env || env.DISTRIBUTION_ENABLED !== "true") {
+      return msg(
+        503,
+        "Dagric OS binary delivery is temporarily paused while the remaining " +
+          "release gates are completed. Your purchase record remains intact; " +
+          "contact Dagric support for order help.",
+        { "Retry-After": "86400", "Cache-Control": "no-store" }
+      );
+    }
     const url = new URL(req.url);
-    const sid = url.searchParams.get("session_id") || "";
-    if (!/^cs_[A-Za-z0-9_]{8,}$/.test(sid)) {
+    const sid = sessionId(req, url);
+    if (!/^cs_[A-Za-z0-9_]{8,252}$/.test(sid)) {
       return msg(400, "Missing or malformed session. Use the download link from your purchase page.");
+    }
+
+    // A valid Checkout Session is a bearer credential. Throttle by that value
+    // before asking Stripe or R2 so one leaked link cannot be fanned out into
+    // an API-lookup or egress spike. The in-repo limiter complements the byte
+    // budget below and does not depend on a dashboard rule staying in place.
+    if (env && env.RATE_LIMIT && typeof env.RATE_LIMIT.limit === "function") {
+      try {
+        const { success } = await env.RATE_LIMIT.limit({ key: sid });
+        if (!success) {
+          return msg(429, "Too many download requests. Wait a moment and try again.", {
+            "Retry-After": "10",
+          });
+        }
+      } catch {
+        // Availability wins if the limiter itself is temporarily unavailable;
+        // Stripe verification and the transfer budgets still apply.
+      }
     }
 
     // Ask Stripe about this checkout session (server-side; key never leaves).
@@ -207,18 +248,18 @@ export default {
     // machines it paid for — one, or the household number for a Family Pack —
     // and moving a slot is a Stripe-bound support action nobody can share. That
     // is the control this block enforces; the byte budgets below are bandwidth
-    // protection, not licensing.
+    // protection, not a software-use restriction.
     //
     // `cap` is threaded into every one of these calls rather than read from a
     // constant inside them. The functions below have no other way to know what
     // was bought — they see a session id and a hash, not a line item — so a
     // helper that quietly defaulted would be a helper that quietly decided the
-    // licence.
+    // hosted-service entitlement.
     //
     // THE SLOT COMMITS AT /assets, NOT HERE. The tool HEADs first (a dry
     // validation — the point where `--check` or a declined consent stops), then
     // GETs /assets only after the owner says yes. Reserving on HEAD would burn
-    // a slot on an evaluation the owner walked away from — the whole licence
+    // a slot on an evaluation the owner walked away from — the whole service entitlement
     // when the purchase covers one — so HEAD only READS: it turns away a machine
     // the purchase has no room for and reserves nothing.
     const m = url.searchParams.get("m") || "";
@@ -231,11 +272,11 @@ export default {
       if (held === "other") return machineTaken(cap);
       // "mine" | "free" | "unknown" all pass — the reservation is at /assets,
       // and a dry HEAD must never be the thing that consumes the slot.
-      return new Response(null, { status: 200, headers: { "Cache-Control": "no-store" } });
+      return new Response(null, { status: 200, headers: secureHeaders() });
     }
 
     // ---------------------------------------------------------------------
-    // /assets — the same licence, a much smaller payload.
+    // /assets — the same purchase entitlement, a much smaller payload.
     //
     // dagric-upgrade-to-pro turns an installed free machine into a Pro one
     // without a reinstall. Almost everything it needs is in Debian main and
@@ -244,7 +285,7 @@ export default {
     // hiding behind a flag, because a flag is one line of text to edit.
     //
     // So this is the one thing an upgrade has to ask for, and it asks with the
-    // licence it already has. Everything above this line — the session shape,
+    // purchase entitlement it already has. Everything above this line — the session shape,
     // the Stripe lookup, paid, the right price, refunded — has already run and
     // applies unchanged. A tarball of a few hundred kilobytes is the entire
     // difference between having paid and not.
@@ -269,7 +310,7 @@ export default {
         //
         // SCALED BY THE CAP, because without a fingerprint this counter is the
         // only thing standing between a five-machine household and a 409 that
-        // reads like a licence problem. It is not one: this budget is bandwidth
+        // reads like an entitlement problem. It is not one: this budget is bandwidth
         // protection for a 190 KB tarball, and five machines legitimately need
         // five machines' worth of retries.
         const used = await readNum(`legacy:${sid}`, env);
@@ -305,11 +346,11 @@ export default {
       }
       if (!mValid) await bumpNum(`legacy:${sid}`, env); // charge on delivery only
       return new Response(a.body, {
-        headers: {
+        headers: secureHeaders({
           "Content-Type": "application/gzip",
           "Content-Length": String(a.size),
-          "Cache-Control": "no-store",
-        },
+          "Content-Disposition": `attachment; filename="${ASSETS}"`,
+        }),
       });
     }
 
@@ -317,9 +358,15 @@ export default {
     // through to here and gets real headers; Cloudflare serves it bodyless.
 
     // Paid — stream the ISO from the private bucket, honoring Range.
-    const range = parseRange(req.headers.get("Range"));
+    const rangeHeader = req.headers.get("Range");
+    const range = parseRange(rangeHeader);
+    if (rangeHeader && !range) {
+      return msg(416, "That byte range is not valid. Restart the download without a Range header.", {
+        "Accept-Ranges": "bytes",
+      });
+    }
 
-    // BANDWIDTH BUDGET, not a licence check: the ISO is free software, so a cap
+    // BANDWIDTH BUDGET, not a software-use restriction: the ISO is free software, so a cap
     // on it protects egress, not a sale. Meter BYTES DELIVERED per session
     // against a generous ceiling, so range gymnastics buy nothing — a resumed
     // download totals about one ISO no matter how it is chunked or where it
@@ -356,22 +403,20 @@ export default {
       if (head) {
         return new Response(null, {
           status: 416,
-          headers: {
+          headers: secureHeaders({
             "Content-Range": `bytes */${head.size}`,
             "Accept-Ranges": "bytes",
-            "Cache-Control": "no-store",
-          },
+          }),
         });
       }
     }
     if (!obj) return msg(500, "File temporarily unavailable — try again shortly.");
 
-    const headers = {
+    const headers = secureHeaders({
       "Content-Type": "application/octet-stream",
       "Content-Disposition": `attachment; filename="${FILE}"`,
       "Accept-Ranges": "bytes",
-      "Cache-Control": "no-store",
-    };
+    });
     if (range) {
       // Announce what R2 ACTUALLY returned, not what was asked for. A client may
       // request more bytes than exist (`bytes=0-99999999999`); R2 clamps the body
@@ -422,7 +467,7 @@ function readRec(raw) {
 //     rather than 0 or undefined, so a caller that ignores isPro (a future one;
 //     there is none today) still cannot be handed a number bigger than one.
 //   * A table value that is not a sane count — a typo, a string, a zero — is
-//     skipped rather than trusted. A malformed entry must not become a licence.
+//     skipped rather than trusted. A malformed entry must not expand an entitlement.
 //   * hasOwnProperty, not `in` or a bare lookup: price ids arrive from Stripe
 //     as strings and a bare `MACHINE_CAPS[id]` would happily find "constructor"
 //     on the prototype chain and treat a function as a machine count.
@@ -533,10 +578,10 @@ function machineTaken(cap) {
   if (cap === 1) {
     return msg(
       409,
-      "This purchase is already upgrading a different machine. One purchase " +
-        "covers one machine — dagric.com/support can move it to this one " +
+      "This purchase is already upgrading a different machine. The purchase " +
+        "provides one guided-upgrade/support slot — dagric.com/support can move it to this one " +
         "(a machine that was replaced or a virtual machine that moved counts), " +
-        "or you can buy a second licence for a second machine."
+        "or you can buy a second service entitlement for another managed machine."
     );
   }
   return msg(
@@ -544,7 +589,7 @@ function machineTaken(cap) {
     `This purchase already covers ${cap} machines, and all ${cap} slots are ` +
       "in use by other computers. dagric.com/support can move a slot to this " +
       "machine (a machine that was replaced or a virtual machine that moved " +
-      "counts), or you can buy another licence for more machines."
+      "counts), or you can buy another service entitlement for more managed machines."
   );
 }
 
@@ -603,8 +648,22 @@ function parseRange(h) {
   if (!m) return null;
   const offset = Number(m[1]);
   const end = m[2] === "" ? null : Number(m[2]);
+  if (!Number.isSafeInteger(offset) || (end !== null && !Number.isSafeInteger(end))) return null;
   if (end !== null && end < offset) return null;
   return end === null ? { offset } : { offset, length: end - offset + 1 };
+}
+
+function sessionId(req, url) {
+  const authorization = req.headers.get("Authorization") || "";
+  if (authorization) {
+    const match = /^Bearer (cs_[A-Za-z0-9_]{8,252})$/.exec(authorization);
+    return match ? match[1] : "";
+  }
+  return url.searchParams.get("session_id") || "";
+}
+
+function secureHeaders(extra = {}) {
+  return { ...SECURITY_HEADERS, ...extra };
 }
 
 // The ERROR page only. A paid session never reaches this function: the success
@@ -657,6 +716,6 @@ function msg(status, text, extra) {
 <p><a style="color:#7CB8EC" href="https://dagric.com/pro">Get Dagric Pro</a></p></div>`;
   return new Response(body, {
     status,
-    headers: { "Content-Type": "text/html; charset=utf-8", ...extra },
+    headers: secureHeaders({ "Content-Type": "text/html; charset=utf-8", ...extra }),
   });
 }

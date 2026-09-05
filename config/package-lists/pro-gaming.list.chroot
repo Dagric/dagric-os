@@ -26,8 +26,8 @@ winetricks
 # software". Neither could be true.
 wine-binfmt
 
-# NOTE: Steam is deliberately NOT preinstalled (Valve's EULA — owner
-# mandate: proprietary stores are never bundled). It installs only via the
+# NOTE: Steam is deliberately NOT preinstalled. Dagric does not redistribute
+# Valve's proprietary client; it installs only via the
 # dagric-get-steam consent helper in the Hub; the 0600 hook pre-enables
 # i386 multiarch + 32-bit Wine/Vulkan so that consent install works
 # instantly when the owner opts in.

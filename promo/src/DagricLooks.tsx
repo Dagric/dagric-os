@@ -18,7 +18,7 @@ import { BG, LINE, INK, MUTED, ACCENT, ACCENT2, SANS, DIAGRAM } from "./theme";
  * WHY THIS EXISTS. DagricPromo already has a Looks scene and it is wrong in
  * ways that cost money. It animates FOUR of the seven layouts, which means the
  * free edition reads as two layouts when it ships three (Classic, Focus,
- * Eleven), and Pro reads as "adds two" when it adds four. It draws Horizon's
+ * Centered), and Pro reads as "adds two" when it adds four. It draws Horizon's
  * bottom panel as a floating, rounded, screen-centred dock with a second
  * Dagric launcher sitting on it — horizon.look adds exactly one widget to that
  * panel, org.kde.plasma.icontasks, and sets nothing but .location and .height.
@@ -142,7 +142,7 @@ const LOOKS: Look[] = [
     // mechanism, and kickoff is added BEFORE the first one, so the launcher
     // stays hard left. Nothing here sets an alignment.
     id: "eleven",
-    name: "Eleven",
+    name: "Centered",
     description: "a centered taskbar, clean and modern",
     sort: 30,
     pro: false,
@@ -229,8 +229,8 @@ const LOOKS: Look[] = [
   },
   {
     // looks/duo.look — SORT=70, EDITION=pro.
-    // Duo's bottom panel is gridUnit*2.2 and so is Classic's — the same
-    // multiplier, so the two MUST render at exactly the same thickness here.
+    // Duo's bottom panel and Classic's are both 46 logical pixels, so they
+    // MUST render at exactly the same thickness here.
     // They do, because GU is one expression for the whole file. The shipped
     // SVGs draw them 40px and 34px, a 15% disagreement about two numbers that
     // are the same number; do not "fix" one tile and reintroduce it.
@@ -478,7 +478,7 @@ const Widget: React.FC<{ id: string; t: number; vertical: boolean }> = ({
         </div>
       );
 
-    // Draws nothing and grows. This one element is why Eleven's task block
+    // Draws nothing and grows. This one element is why Centered's task block
     // lands centred and why the tray and clock sit hard right on horizon,
     // command, unity and duo: the layout falls out of the widget ORDER in the
     // script rather than being positioned by hand.
@@ -1041,7 +1041,7 @@ const Heading: React.FC = () => {
 // NAME and DESCRIPTION are the .look files' own NAME= and DESCRIPTION= values,
 // verbatim and lower-case, because that is the text dagric-looks line 76 puts
 // on the menu row and po/dagric.pot carries as the msgid in five languages.
-// In particular Eleven reads "a centered taskbar" (US), which is what the
+// In particular Centered reads "a centered taskbar" (US), which is what the
 // dialog prints; the manual's "a centred taskbar" is the drifted copy. And
 // Classic reads "a taskbar at the bottom, familiar and comfortable", NOT
 // site/index.html:198's "A taskbar at the bottom — familiar from day one",

@@ -34,7 +34,7 @@
         <a href="tool-dagric-security-checkup.html">Security Checkup</a>
         <a href="tool-dagric-usb-protect.html">USB Protection</a>
         <a href="tool-dagric-vm.html">Windows in a window (VM setup)</a>
-        <a href="tool-dagric-gaming.html">Proton-GE helper</a>
+        <a href="tool-dagric-gaming.html">GE-Proton helper</a>
         <a href="tool-dagric-ai.html">Local AI (Ollama)</a>
         <a href="tool-dagric-manual.html">This manual</a>
         <a href="tool-dagric-background.html">Helpers that run by themselves</a>
@@ -48,7 +48,7 @@
     <header class="hero">
       <div class="eyebrow">Dagric&#x27;s own tools</div>
       <h1>Migration Assistant</h1>
-      <p class="sub">Bring your files, bookmarks, open tabs and Firefox logins across from Windows.</p>
+      <p class="sub">Bring your files, bookmarks, open tabs, and saved logins across from Windows.</p>
     </header>
 
     <div class="swap"><span>On Windows this was</span><strong>Windows Easy Transfer, and a very long evening with a USB stick</strong></div>
@@ -58,8 +58,10 @@
       <p>The <strong>Migration Assistant</strong> finds the Windows installation
       still on this computer, shows you what is in it, and copies over what you pick.
       It handles Documents, Desktop, Pictures, Music, Videos and Downloads, the
-      bookmarks from Chrome, Edge and Firefox, the tabs you had open, and &mdash;
-      for Firefox &mdash; your saved logins.</p>
+      bookmarks from Chrome, Brave, Edge, and DuckDuckGo, the tabs you had open,
+      and your saved logins (Firefox plus exported Chromium CSV). It also produces
+      <code>Windows-browser-context.json</code> and a <code>Dagric-Migration-State-Pack.json</code>,
+      local continuation notes for browser setup, Windows folders, shortcuts, and recent work.</p>
       <p><strong>The Windows partition is only ever mounted read-only.</strong>
       Nothing there is moved, changed or deleted, so you can boot back into Windows
       afterwards and find it exactly as you left it. Files are copied, and a copy
@@ -81,34 +83,69 @@
          Backup</em> &rarr; <em>Import Bookmarks from HTML</em>. Your open tabs come as
          <code>~/Windows-open-tabs.html</code> and import the same way, arriving as a
          folder you can &ldquo;Open All in Tabs&rdquo;.</p></li>
-        <li><span class="t">Deal with saved passwords</span><p>Firefox logins can be recovered into
-         <code>~/Windows-passwords.csv</code>; if that profile had a Primary Password
-         you are asked for it. Import the file into Firefox or
+        <li><span class="t">Deal with saved passwords</span><p>Firefox logins and any exported Chromium CSV passwords are merged into
+         <code>~/Windows-passwords.csv</code>; if the Firefox profile had a Primary Password
+         you are asked for it. Import the file into Firefox, a password manager, or
          <a href="app-keepassxc.html">KeePassXC</a>, then <strong>delete it</strong>
          &mdash; it is plain text, and the tool says so twice for a reason.</p></li>
         <li><span class="t">Run it more than once</span><p>It is safe to. Copies skip files that already exist, so a second run
          picks up the folders you did not tick the first time without duplicating
          anything.</p></li>
+        <li><span class="t">Restore your setup fast</span><p>
+         Run <em>Restore Migration Notes</em> from the launcher. It turns the local State Pack
+         into a readable checklist for search engines, startup pages, enabled extensions,
+         shortcut names and recent-work signals; it can also add a one-click launcher entry in KDE.</p></li>
       </ol>
     </section>
 
     <section>
+      <h2>What the State Pack does not collect</h2>
+      <p>It is a local, private summary rather than a Windows clone. It contains no password,
+      cookie, browser session, file contents, or Windows program installer. Recent links and
+      Jump List files are read only for useful file or web destinations, where Windows left
+      them available. Some apps store those records in private formats, so this is best effort.</p>
+    </section>
+
+    <section>
       <h2>One thing that will surprise you</h2>
-      <p><strong>Chrome and Edge passwords cannot be recovered, by anybody, and
-      that is a good thing.</strong> They are encrypted with a key tied to your
+      <p><strong>Chromium-family browser passwords cannot be recovered, by anybody,
+      and that is a good thing.</strong> They are encrypted with a key tied to your
       Windows user account, which does not exist on this machine. No tool can decrypt
       them here &mdash; if one claims to, be suspicious of it.</p>
       <p>The fix takes two minutes and must be done <em>while you still have
-      Windows</em>: in Chrome, <em>Settings</em> &rarr; <em>Autofill and passwords</em>
-      &rarr; <em>Google Password Manager</em> &rarr; <em>Settings</em> &rarr;
-      <em>Download file</em>; in Edge, <em>Settings</em> &rarr; <em>Profiles</em>
-      &rarr; <em>Passwords</em> &rarr; <em>Export passwords</em>. Save the CSV, then
-      run the migration &mdash; it looks for that file and tells you where it
-      found it.</p>
+      Windows</em>: in Chrome / Edge / Brave / DuckDuckGo, open
+      <em>Settings</em> &rarr; <em>Passwords</em> (or <em>Password Manager</em>) and
+      <em>Export</em> to CSV. Save the CSV, then run the migration again — it looks
+      for that file and tells you where it found it.</p>
       <p>One more thing to check before you wipe the old machine: if the Windows drive
       is <strong>BitLocker</strong>-encrypted, Dagric cannot read it without the
       recovery key. The tool detects that and says so plainly. Turn BitLocker off in
       Windows first, or copy your files to a plain USB drive.</p>
+    </section>
+
+    <section>
+      <h2>For the closest possible handoff</h2>
+      <p>The Migration Assistant can now make an app-and-continuity report, inventory Steam,
+      and optionally copy selected developer, creative, Thunderbird, game-save, and personal-font
+      material. It reads Steam libraries and game names only when you select
+      <em>Gaming continuity</em>. Gaming migration does not copy a whole Steam <code>userdata</code> or
+      <code>config</code> tree. It selects Windows <code>Saved Games</code> and
+      <code>Documents/My Games</code>, per-game Steam Cloud <code>remote</code> leaves,
+      screenshot image files, and personal controller-layout files. Steam itself is offered only
+      through <code>dagric-get-steam</code>, which shows the third-party notice and asks first.</p>
+      <p>The continuity filter skips paths named like logins, sessions, authentication data,
+      tokens, cookies, credentials, web caches, and private keys. That conservative filter is
+      best effort because games can use arbitrary file formats and names. The report shows how
+      many paths were filtered; review migrated material before sharing it with anyone.</p>
+      <p>If you used Migration Assistant from an earlier preview build, this update does not
+      delete that earlier copy. Review the legacy
+      <code>~/Dagric-Migration/Gaming/Steam_game_saves</code> and
+      <code>~/Dagric-Migration/Gaming/Controller_layouts</code> folders yourself; remove them
+      when you no longer need them.</p>
+      <p>For Wi-Fi names, printers, Bluetooth devices, monitors, the complete Windows app list,
+      WSL distribution names, and cloud-folder warnings, run the included <code>Dagric-Windows-Companion.ps1</code>
+      while still signed into Windows. It can make either a local JSON inventory or an AES-encrypted
+      transfer bundle; browser password exports remain a separate browser-confirmed action.</p>
     </section>
 
     <section>

@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Security — Dagric OS</title>
+<title>Dagric OS Security | Signed Releases &amp; Vulnerabilities</title>
 <meta name="description" content="How Dagric OS signs its releases, how to report a vulnerability, and an honest list of what is not yet proven.">
 <link rel="icon" type="image/png" href="/assets/dagric-logo.png">
 <link rel="stylesheet" href="/assets/site.css">
@@ -15,14 +15,14 @@
 <link rel="manifest" href="/site.webmanifest">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Dagric OS">
-<meta property="og:title" content="Security — Dagric OS">
+<meta property="og:title" content="Dagric OS Security | Signed Releases &amp; Vulnerabilities">
 <meta property="og:description" content="How Dagric OS signs its releases, how to report a vulnerability, and an honest list of what is not yet proven.">
 <meta property="og:url" content="https://dagric.com/security">
 <meta property="og:image" content="https://dagric.com/assets/hero-desktop.png">
 <meta property="og:image:width" content="1920">
 <meta property="og:image:height" content="1080">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Security — Dagric OS">
+<meta name="twitter:title" content="Dagric OS Security | Signed Releases &amp; Vulnerabilities">
 <meta name="twitter:description" content="How Dagric OS signs its releases, how to report a vulnerability, and an honest list of what is not yet proven.">
 <meta name="twitter:image" content="https://dagric.com/assets/hero-desktop.png">
 </head>
@@ -72,6 +72,18 @@ sha256sum -c SHA256SUMS</code></pre>
   <a href="/SHA256SUMS.sig">SHA256SUMS.sig</a> ·
   <a href="/dagric-signing-key.asc">signing key</a>. The full instructions, including the
   Windows path, are on the <a href="/download">download page</a>.</p>
+
+  <h2 id="site">Website and purchase endpoints</h2>
+  <p>The public site is static and loads no third-party scripts. Its production policy
+  blocks framing, plug-ins, inline script, unapproved connections and mixed-content
+  downgrades; browsers are also told not to MIME-sniff responses or send full referrer
+  paths to another site.</p>
+  <p>The contact endpoint accepts bounded JSON only, rejects browser requests from
+  unrecognised origins before storage, rate-limits submissions and writes messages to a
+  private inbox. The Pro download endpoint accepts downloads and checks only, verifies
+  the purchase with Stripe on the server, throttles each purchase session and serves the
+  files from private storage. Dagric's installed upgrade tool sends that purchase session
+  in a private request header rather than putting it in a URL or process argument.</p>
 
   <h2 id="updates">How security updates reach your machine</h2>
   <p>Debian's security updates are downloaded and installed automatically, in the
@@ -162,8 +174,17 @@ sha256sum -c SHA256SUMS</code></pre>
 </main>
 
 <footer><div class="foot">
-  <span>© 2026 DGR Operations · Built on Debian. Not affiliated with the Debian Project.</span>
+  <span>© 2026 IMPRESSIONSDIRECT360 LLC · Built on Debian. Not affiliated with the Debian Project.</span>
   <span class="links"><a href="/features">Features</a><a href="/pro">Pro</a><a href="/download">Download</a><a href="/news">News</a><a href="/guide">Guide</a><a href="/support">Support</a><a href="/faq">FAQ</a><a href="/accessibility">Accessibility</a><a href="/security">Security</a><a href="/bugs">Report a bug</a><a href="/contact">Contact</a><a href="/about">About</a><a href="/review">Reviewers</a><a href="/licenses">Licenses</a><a href="/privacy">Privacy</a><a href="/terms">Terms</a></span>
+  <div class="social-footer" role="navigation" aria-label="Dagric OS social media">
+    <strong>Follow Dagric OS</strong>
+    <a href="https://www.youtube.com/@DagricOS" target="_blank" rel="me noopener">YouTube</a>
+    <a href="https://www.tiktok.com/@dagricosofficial" target="_blank" rel="me noopener">TikTok</a>
+    <a href="https://www.instagram.com/dagricosofficial/" target="_blank" rel="me noopener">Instagram</a>
+    <a href="https://www.snapchat.com/@dagricos" target="_blank" rel="me noopener">Snapchat</a>
+    <a href="https://www.linkedin.com/in/dorien-richardson" target="_blank" rel="me noopener">LinkedIn</a>
+    <a href="https://github.com/Dagric/dagric-os" target="_blank" rel="me noopener">GitHub</a>
+  </div>
 </div></footer>
 </body>
 </html>

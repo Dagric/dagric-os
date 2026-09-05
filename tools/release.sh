@@ -1,5 +1,5 @@
 #!/bin/sh
-# SPDX-FileCopyrightText: 2026 DGR Operations <repo@dagric.com>
+# SPDX-FileCopyrightText: 2026 IMPRESSIONSDIRECT360 LLC <repo@dagric.com>
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Dagric OS — cut a release without publishing a checksum for a file nobody can
 # download.
@@ -32,6 +32,8 @@
 # So this script makes the order structural instead of remembered:
 #
 #     sign      hash the local ISOs and sign the manifest      (always safe)
+#     stage     copy only to an isolated candidate prefix      (GATED)
+#     promote   copy the signed candidate to live R2 keys      (GATED)
 #     publish   copy the manifest into site/ and deploy        (GATED)
 #
 # `publish` refuses to run unless the bytes R2 is serving RIGHT NOW already hash
@@ -39,23 +41,33 @@
 # get it the wrong way round, this stops you instead of your customers finding
 # out.
 #
-# It deliberately does NOT upload. There is no R2 credential in this repo and
-# there should not be one; the upload stays a human step with the human's keys.
+# R2 credentials remain environment-only. `tools/upload-to-r2.sh` can write
+# only an isolated candidate prefix; `tools/promote-r2-release.sh` is the sole
+# audited path from that prefix to the customer-facing keys.
 set -e
 
 cd "$(dirname "$0")/.."
 OUT=out
 SITE=site
 KEYID=6CE37402BA0A0EF8
+KEY_FINGERPRINT=3A079F85DE74375DD65557096CE37402BA0A0EF8
 MODE=${1:-}
 
 usage() {
     cat >&2 <<'EOF'
 usage: sh tools/release.sh sign      hash out/*.iso and sign out/SHA256SUMS
+       sh tools/release.sh gate      re-run gate and refresh authorization only
+       sh tools/release.sh physical  validate candidate-bound physical evidence
        sh tools/release.sh publish   verify R2 matches, then copy into site/
        sh tools/release.sh check     verify only, change nothing
 
-The upload to R2 happens BETWEEN sign and publish, by hand.
+Commercial sign/publish also require DAGRIC_RELEASE_TAG and the protected
+COMMERCIAL_RELEASE_APPROVAL_JSON human legal/trademark attestation. Live
+promotion and publication additionally require PHYSICAL_RELEASE_EVIDENCE_JSON.
+Between
+sign and publish, stage with tools/upload-to-r2.sh and then run the separate,
+explicit tools/promote-r2-release.sh command. The staging helper cannot write
+customer-facing R2 keys.
 EOF
     exit 2
 }
@@ -82,7 +94,10 @@ list_isos() {
 # absent from the file customers are told to verify against is indistinguishable
 # from an unofficial build. Sign after the LAST build; this enforces it rather
 # than asking.
-REQUIRED_ISOS='dagric-os-1.0-amd64.iso dagric-os-pro-1.0-amd64.iso'
+PRODUCT_VERSION=$(python3 -c \
+    'import json; print(json.load(open("site/manifest/release.json"))["version"])')
+PRODUCT_VERSION_RE=$(printf '%s' "$PRODUCT_VERSION" | sed 's/[.]/\\./g')
+REQUIRED_ISOS="dagric-os-$PRODUCT_VERSION-amd64.iso dagric-os-pro-$PRODUCT_VERSION-amd64.iso"
 
 require_all_editions() {
     _m=$1
@@ -97,9 +112,157 @@ require_all_editions() {
     return 1
 }
 
+# Build/source/legal gate shared by the last safe point before upload (`sign`)
+# and the last safe point before site promotion (`publish`). It reads the
+# package inventory from each immutable ISO rather than trusting package-list
+# source, then binds both artifacts to the tag, exact source map and a qualified
+# human review of the Firefox configuration or verified absence and game artwork.
+commercial_gate() {
+    [ -n "${DAGRIC_RELEASE_TAG:-}" ] || {
+        echo "release: DAGRIC_RELEASE_TAG is required for a commercial release." >&2
+        return 1
+    }
+    [ -n "${COMMERCIAL_RELEASE_APPROVAL_JSON:-}" ] || {
+        echo "release: COMMERCIAL_RELEASE_APPROVAL_JSON is required." >&2
+        echo "         A qualified human legal/trademark reviewer must approve" >&2
+        echo "         this exact commit; an AI or engineering note is not approval." >&2
+        return 1
+    }
+    command -v xorriso >/dev/null 2>&1 || {
+        echo "release: xorriso is required to inspect candidate package manifests." >&2
+        return 1
+    }
+    _record_commit=$(git rev-parse HEAD 2>/dev/null) || {
+        echo "release: cannot determine the release-record Git commit." >&2
+        return 1
+    }
+    _tag_commit=$(git rev-parse "refs/tags/$DAGRIC_RELEASE_TAG^{commit}" 2>/dev/null) || {
+        echo "release: $DAGRIC_RELEASE_TAG is not an existing release tag." >&2
+        return 1
+    }
+    [ "$_tag_commit" = "$_record_commit" ] || {
+        echo "release: $DAGRIC_RELEASE_TAG does not point at record $_record_commit." >&2
+        return 1
+    }
+    [ -z "$(git status --porcelain --untracked-files=all)" ] || {
+        echo "release: commercial candidate checkout is dirty." >&2
+        return 1
+    }
+    _commit=$(python3 -c \
+        'import json; print(json.load(open("site/manifest/release.json"))["source"]["commit"])')
+    git cat-file -e "$_commit^{commit}" 2>/dev/null || {
+        echo "release: recorded build-source commit does not exist locally." >&2
+        return 1
+    }
+    git merge-base --is-ancestor "$_commit" "$_record_commit" || {
+        echo "release: build-source commit is not an ancestor of the release tag." >&2
+        return 1
+    }
+    _bad_delta=$(git diff --name-only "$_commit..$_record_commit" | \
+        grep -Ev '^(site/manifest/(release\.json|source-index-[0-9.]+\.json|dagric-os(-pro)?-[0-9.]+\.packages)|docs/RELEASE-[A-Za-z0-9._-]+\.md)$' || true)
+    if [ -n "$_bad_delta" ]; then
+        echo "release: release-record commit changes build-affecting files:" >&2
+        printf '%s\n' "$_bad_delta" >&2
+        return 1
+    fi
+
+    # Development and quality jobs may report partial translations, but the
+    # commercial artifact must not advertise a locale whose catalog silently
+    # falls back to English for fuzzy or untranslated messages.
+    python3 tools/check-release-locales.py || return 1
+
+    _gate_dir="$OUT/release-gate"
+    mkdir -p "$_gate_dir"
+    rm -f "$_gate_dir/COMMERCIAL-RELEASE-AUTHORIZATION.json"
+    for _edition in free pro; do
+        case "$_edition" in
+            free)
+                _iso="$OUT/dagric-os-$PRODUCT_VERSION-amd64.iso"
+                _manifest="$_gate_dir/dagric-os-$PRODUCT_VERSION.packages"
+                ;;
+            pro)
+                _iso="$OUT/dagric-os-pro-$PRODUCT_VERSION-amd64.iso"
+                _manifest="$_gate_dir/dagric-os-pro-$PRODUCT_VERSION.packages"
+                ;;
+        esac
+        [ -f "$_iso" ] || { echo "release: missing $_iso" >&2; return 1; }
+        rm -f "$_manifest"
+        xorriso -osirrox on -indev "$_iso" \
+            -extract /live/filesystem.packages "$_manifest" >/dev/null 2>&1 || {
+            echo "release: cannot extract filesystem.packages from $_iso" >&2
+            return 1
+        }
+        _provenance="$OUT/SOURCE_COMMIT-$_edition"
+        [ -f "$_provenance" ] || _provenance="$OUT/SOURCE_COMMIT"
+        [ -f "$_provenance" ] || {
+            echo "release: missing source provenance for $_edition" >&2
+            return 1
+        }
+        python3 tools/check-commercial-release.py edition \
+            --edition "$_edition" \
+            --iso "$_iso" \
+            --package-manifest "$_manifest" \
+            --package-sections "$OUT/PACKAGE_SECTIONS-$_edition.tsv" \
+            --provenance "$_provenance" \
+            --checksums "$OUT/SHA256SUMS" \
+            --candidate-commit "$_commit" \
+            --release-tag "$DAGRIC_RELEASE_TAG" || return 1
+    done
+
+    _free_provenance="$OUT/SOURCE_COMMIT-free"
+    [ -f "$_free_provenance" ] || _free_provenance="$OUT/SOURCE_COMMIT"
+    _pro_provenance="$OUT/SOURCE_COMMIT-pro"
+    [ -f "$_pro_provenance" ] || _pro_provenance="$OUT/SOURCE_COMMIT"
+    python3 tools/check-commercial-release.py promotion \
+        --checksums "$OUT/SHA256SUMS" \
+        --free-manifest "$_gate_dir/dagric-os-$PRODUCT_VERSION.packages" \
+        --pro-manifest "$_gate_dir/dagric-os-pro-$PRODUCT_VERSION.packages" \
+        --free-package-sections "$OUT/PACKAGE_SECTIONS-free.tsv" \
+        --pro-package-sections "$OUT/PACKAGE_SECTIONS-pro.tsv" \
+        --free-iso "$OUT/dagric-os-$PRODUCT_VERSION-amd64.iso" \
+        --pro-iso "$OUT/dagric-os-pro-$PRODUCT_VERSION-amd64.iso" \
+        --free-provenance "$_free_provenance" \
+        --pro-provenance "$_pro_provenance" \
+        --candidate-commit "$_commit" \
+        --release-tag "$DAGRIC_RELEASE_TAG" \
+        --authorization-output \
+            "$_gate_dir/COMMERCIAL-RELEASE-AUTHORIZATION.json" || return 1
+}
+
+physical_gate() {
+    [ -n "${DAGRIC_RELEASE_TAG:-}" ] || {
+        echo "release: DAGRIC_RELEASE_TAG is required for physical qualification." >&2
+        return 1
+    }
+    [ -n "${PHYSICAL_RELEASE_EVIDENCE_JSON:-}" ] || {
+        echo "release: PHYSICAL_RELEASE_EVIDENCE_JSON is required before live promotion." >&2
+        echo "         VM evidence cannot substitute for physical qualification." >&2
+        return 1
+    }
+    _commit=$(python3 -c \
+        'import json; print(json.load(open("site/manifest/release.json"))["source"]["commit"])')
+    _physical_output=$(python3 tools/check-physical-release.py check \
+        --candidate-commit "$_commit" \
+        --release-tag "$DAGRIC_RELEASE_TAG") || return 1
+    printf '%s\n' "$_physical_output"
+    _physical_digest=$(printf '%s\n' "$_physical_output" | \
+        sed -n 's/.*evidence=\([0-9a-f]\{64\}\).*/\1/p')
+    [ -n "$_physical_digest" ] || {
+        echo "release: physical evidence gate returned no digest." >&2
+        return 1
+    }
+    mkdir -p "$OUT/release-gate"
+    printf '%s  PHYSICAL_RELEASE_EVIDENCE_JSON\n' "$_physical_digest" \
+        > "$OUT/release-gate/PHYSICAL-RELEASE-EVIDENCE.sha256"
+}
+
 do_sign() {
     _isos=$(list_isos)
     [ -n "$_isos" ] || { echo "release: no out/dagric-os-*-amd64.iso — build first" >&2; exit 1; }
+
+    # A receipt authorizes only the exact already-promoted checksum/signature
+    # pair. Starting a new signing pass revokes any previous local receipt.
+    rm -f "$OUT/release-gate/R2-LIVE-PROMOTION.json"
 
     : > "$OUT/SHA256SUMS.tmp"
     for _i in $_isos; do
@@ -119,6 +282,10 @@ do_sign() {
 
     require_all_editions "$OUT/SHA256SUMS" || exit 1
 
+    # No upload instruction is printed unless the built artifacts, exact source
+    # map and human legal/trademark attestation all match this candidate.
+    commercial_gate || exit 1
+
     rm -f "$OUT/SHA256SUMS.sig"
     gpg --batch --yes --local-user "$KEYID" \
         --output "$OUT/SHA256SUMS.sig" --detach-sign "$OUT/SHA256SUMS"
@@ -130,9 +297,24 @@ do_sign() {
     echo
     echo "  signed with $KEYID"
     echo
-    echo "  NEXT: upload these ISOs to R2, then run"
+    echo "  NEXT: stage both ISOs, SHA256SUMS, SHA256SUMS.sig and"
+    echo "        out/release-gate/COMMERCIAL-RELEASE-AUTHORIZATION.json with"
+    echo "        sh tools/upload-to-r2.sh <file>"
+    echo "  Then, after reviewing the exact tag and authorization record, run"
+    echo "        DAGRIC_PROMOTE_TO_LIVE=YES sh tools/promote-r2-release.sh"
     echo "        sh tools/release.sh publish"
-    echo "  Publishing before the upload lands is the bug this script exists to stop."
+    echo "  Staging cannot replace live downloads; promotion is explicit and signature-last."
+}
+
+do_gate() {
+    [ -f "$OUT/SHA256SUMS" ] || {
+        echo "release: no $OUT/SHA256SUMS — run 'sign' first" >&2
+        exit 1
+    }
+    require_all_editions "$OUT/SHA256SUMS" || exit 1
+    commercial_gate || exit 1
+    echo "release: commercial candidate gate passed; authorization refreshed at"
+    echo "         $OUT/release-gate/COMMERCIAL-RELEASE-AUTHORIZATION.json"
 }
 
 # ---------------------------------------------------------------------------
@@ -145,8 +327,8 @@ do_sign() {
 # that is stated rather than silently skipped.
 check_live() {
     _sums=$1
-    _url_base=$(grep -oE 'https://[^"]*/dagric-os-1\.0-amd64\.iso' "$SITE/download.html" \
-                | head -1 | sed 's|/dagric-os-1\.0-amd64\.iso$||')
+    _url_base=$(grep -oE "https://[^\"]*/dagric-os-$PRODUCT_VERSION_RE-amd64\.iso" "$SITE/download.html" \
+                | head -1 | sed "s|/dagric-os-$PRODUCT_VERSION-amd64.iso$||")
     [ -n "$_url_base" ] || { echo "release: no ISO URL in $SITE/download.html" >&2; exit 1; }
 
     _bad=0
@@ -306,11 +488,11 @@ check_signature() {
     fi
     _fpr=$(awk '$2=="VALIDSIG"{print $3}' "$_st"); rm -f "$_st"
     case "$_fpr" in
-        *"$KEYID") echo "  signature verifies, made by $KEYID" ;;
+        "$KEY_FINGERPRINT") echo "  signature verifies, made by $KEY_FINGERPRINT" ;;
         "")  echo "  gpg reported no VALIDSIG — refusing to treat that as a pass." >&2
              return 1 ;;
         *)   echo "  SIGNED BY THE WRONG KEY." >&2
-             echo "    expected a fingerprint ending $KEYID" >&2
+             echo "    expected exact fingerprint $KEY_FINGERPRINT" >&2
              echo "    got $_fpr" >&2
              echo "  The published key on /download is $KEYID; a manifest signed" >&2
              echo "  by anything else cannot be verified by a customer." >&2
@@ -333,8 +515,8 @@ do_check() {
     echo
     # Both checks always run. Reporting only the first failure would hide the
     # second, and on 2026-08-02 the second one was the whole story.
-    _url_base=$(grep -oE 'https://[^"]*/dagric-os-1\.0-amd64\.iso' "$SITE/download.html" \
-                | head -1 | sed 's|/dagric-os-1\.0-amd64\.iso$||')
+    _url_base=$(grep -oE "https://[^\"]*/dagric-os-$PRODUCT_VERSION_RE-amd64\.iso" "$SITE/download.html" \
+                | head -1 | sed "s|/dagric-os-$PRODUCT_VERSION-amd64.iso$||")
     check_r2_manifest "$_src" "$_url_base" || _ok=1
     echo
     if [ "$_ok" -eq 0 ]; then
@@ -347,10 +529,88 @@ do_check() {
     return 1
 }
 
+require_promotion_receipt() {
+    _receipt="$OUT/release-gate/R2-LIVE-PROMOTION.json"
+    [ -f "$_receipt" ] || {
+        echo "release: no verified live-promotion receipt." >&2
+        echo "         Run tools/promote-r2-release.sh after offline signing." >&2
+        return 1
+    }
+    RECEIPT="$_receipt" RELEASE_TAG="$DAGRIC_RELEASE_TAG" \
+        PRODUCT_VERSION="$PRODUCT_VERSION" python3 - <<'PY'
+import hashlib
+import json
+import os
+from pathlib import Path
+
+def digest(path):
+    return hashlib.sha256(Path(path).read_bytes()).hexdigest()
+
+def fail(message):
+    raise SystemExit("release: invalid live-promotion receipt: " + message)
+
+try:
+    receipt = json.loads(Path(os.environ["RECEIPT"]).read_text(encoding="utf-8"))
+    release = json.loads(Path("site/manifest/release.json").read_text(encoding="utf-8"))
+except (OSError, json.JSONDecodeError) as exc:
+    fail(str(exc))
+
+if receipt.get("schema") != "dagric-r2-live-promotion-v1":
+    fail("wrong schema")
+if receipt.get("release_tag") != os.environ["RELEASE_TAG"]:
+    fail("wrong release tag")
+if receipt.get("candidate_commit") != release.get("source", {}).get("commit"):
+    fail("wrong build-source commit")
+if receipt.get("authorization_sha256") != digest(
+    "out/release-gate/COMMERCIAL-RELEASE-AUTHORIZATION.json"
+):
+    fail("commercial authorization changed after promotion")
+physical_record = Path("out/release-gate/PHYSICAL-RELEASE-EVIDENCE.sha256")
+if not physical_record.is_file():
+    fail("physical evidence digest is missing")
+physical_digest = physical_record.read_text(encoding="utf-8").split()[0]
+if receipt.get("physical_evidence_sha256") != physical_digest:
+    fail("physical evidence changed after promotion")
+if receipt.get("checksums_sha256") != digest("out/SHA256SUMS"):
+    fail("SHA256SUMS changed after promotion")
+if receipt.get("signature_sha256") != digest("out/SHA256SUMS.sig"):
+    fail("signature changed after promotion")
+
+checksums = {}
+for line in Path("out/SHA256SUMS").read_text(encoding="utf-8").splitlines():
+    parts = line.split()
+    if len(parts) != 2:
+        fail("malformed SHA256SUMS")
+    checksums[parts[1].lstrip("*")] = parts[0]
+version = os.environ["PRODUCT_VERSION"]
+for edition, filename in (
+    ("free", f"dagric-os-{version}-amd64.iso"),
+    ("pro", f"dagric-os-pro-{version}-amd64.iso"),
+):
+    record = receipt.get("artifacts", {}).get(edition, {})
+    if record.get("filename") != filename or record.get("sha256") != checksums.get(filename):
+        fail(f"{edition} artifact identity changed after promotion")
+PY
+}
+
 do_publish() {
     [ -f "$OUT/SHA256SUMS" ] && [ -f "$OUT/SHA256SUMS.sig" ] \
         || { echo "release: run 'sign' first" >&2; exit 1; }
-    do_check || exit 1
+    # Live delivery remains disabled during fixed-key replacement and metadata
+    # publication, so an unauthenticated fetch cannot be the pre-publish proof.
+    # Verify the local signature now; the promotion receipt below is the
+    # authenticated readback proof for both held live objects.
+    check_signature "$OUT/SHA256SUMS" || exit 1
+    # Re-run after the human upload and before changing site/ or promoting a
+    # release. This catches a replaced local ISO, stale source map, changed art
+    # or revoked/mismatched per-candidate approval.
+    commercial_gate || exit 1
+    physical_gate || exit 1
+    # `publish` cannot be used as an alternate promotion path. The receipt is
+    # written only after the dedicated helper has read back both live ISOs and
+    # the signature, and it is bound to the authorization just reproduced.
+    require_promotion_receipt || exit 1
+    sh tools/check-release-hold.sh || exit 1
 
     cp "$OUT/SHA256SUMS" "$OUT/SHA256SUMS.sig" "$SITE/"
     echo
@@ -372,8 +632,8 @@ do_publish() {
     if command -v xorriso >/dev/null 2>&1; then
         mkdir -p "$SITE/manifest"
         for _e in "" "-pro"; do
-            _iso="$OUT/dagric-os${_e}-1.0-amd64.iso"
-            _dst="$SITE/manifest/dagric-os${_e}-1.0.packages"
+            _iso="$OUT/dagric-os${_e}-$PRODUCT_VERSION-amd64.iso"
+            _dst="$SITE/manifest/dagric-os${_e}-$PRODUCT_VERSION.packages"
             [ -f "$_iso" ] || continue
             if xorriso -osirrox on -indev "$_iso" \
                  -extract /live/filesystem.packages "$_dst" >/dev/null 2>&1; then
@@ -423,12 +683,18 @@ do_publish() {
         exit 1
     }
 
+    # Re-prove the hold after all metadata generation, immediately before the
+    # operator deploys it. Distribution is enabled only after that deploy.
+    sh tools/check-release-hold.sh || exit 1
+
     echo "  now:  firebase deploy --only hosting"
     echo "  then: sh tools/verify-published.sh (proves the LIVE end state, site AND channel)"
 }
 
 case "$MODE" in
     sign)    do_sign ;;
+    gate)    do_gate ;;
+    physical) physical_gate ;;
     publish) do_publish ;;
     check)   do_check ;;
     *)       usage ;;

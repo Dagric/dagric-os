@@ -1,88 +1,37 @@
-/* Dagric OS — unified design system (one source of truth for every page)
-   ─────────────────────────────────────────────────────────────────────────
-   "Daybook": this product's whole claim is that every sentence on the site was
-   checked against the shipped ISO. So the site is set like a periodical that
-   stakes its name on its copy — one serif display voice, a real ratio scale,
-   hairline rules and air doing the structural work, and colour spent so rarely
-   that when it appears you believe it.
 
-   Three things a redesign of this file must never undo, all recorded at their
-   own rules below: img,video{height:auto}, .skip{position:fixed}, and the phone
-   blocks for the nav, the footer and table cell padding. Every measurement
-   quoted here was taken in Chrome against a local server, not estimated. */
 
 :root{
-  /* ── RAW PALETTE ─────────────────────────────────────────────────────
-     The old ramp lived inside a 1.14:1 band of near-black: --bg to --panel
-     measured 1.143:1 and .alt — the only device separating one section from
-     the next — measured 1.052:1, below the perceptual floor on most panels.
-     That is why the site read as outlined rectangles on flat black rather
-     than as surfaces at different depths, and why the card BORDER (1.32:1)
-     was the highest-contrast edge in the layout.
-     These step 1.19 / 1.31. Recomputed with the exact WCAG relative-luminance
-     formula, not sampled by eye; the full ink table is in the comment under
-     the semantic layer. Do not nudge one of these without re-running it. */
+
   --ink-0:#0C0F14;   /* page                                        1.00  */
   --ink-1:#1D2126;   /* .alt band, Pro card fill, row hover   1.186 vs ink-0 */
   --ink-2:#25292E;   /* card fill where a card must stay bounded    1.312 */
   --ink-3:#31353A;   /* hover / raised                             1.560 */
   --well :#080B0F;   /* code, pre, .sums — a well BELOW the page    1.01  */
 
-  /* Two rule weights, and the difference is a rule rather than a taste:
-     --rule is DECORATIVE separation only (hairlines, card tops, table rows).
-     --rule-2 is any border that is the sole indicator of a control, so it
-     clears WCAG 1.4.11's 3:1 for non-text contrast — 3.03:1 on the page.
-     --rule-3 exists because --rule-2 measures only 2.31:1 once it sits on a
-     raised --ink-2 surface: a ghost control inside a panel needs the heavier
-     one or its only affordance fails 1.4.11. */
+
   --rule  :#43474C;  /* 2.05:1 on ink-0 — decorative                       */
   --rule-2:#5C6065;  /* 3.03:1 on ink-0 — controls on the page             */
   --rule-3:#71757B;  /* 3.10:1 on ink-2 — controls on a raised surface     */
 
-  /* --paper is warm and is the DISPLAY ink (headings, summaries, filled
-     primary buttons). --text is cool and is the UI ink. Never mixed in one
-     element — that is what keeps the serif reading as a different voice
-     rather than as the same voice at a different size. */
+
   --paper:#F5F2EB;   /* 17.17:1 on ink-0 */
   --text :#E8EBF0;   /* 16.06:1 */
   --body :#C0C8D4;   /* 11.38:1 — body copy */
   --soft :#98A2B0;   /*  7.43:1 — captions, meta, thead, .tiny */
 
-  /* Colour, and there is almost none: one cool accent, one warm mark that
-     always and only means Pro, and the green tick kept because "green means
-     included" is read in half a second down a pricing list and costs nothing.
-     --accent-deep is the ONLY fill on the site that ever carries #fff text. */
+
   --accent     :#7CB8EC;  /*  9.07:1 — links, eyebrow rule            */
   --accent-2   :#8FC3EE;  /* 10.24:1 — focus ring                     */
   --accent-deep:#14487A;  /*  9.38:1 under #ffffff                    */
   --pro        :#E3C27D;  /* 11.22:1 — PRO badge, Pro rails, Pro card */
   --good       :#4ADE80;  /* 11.02:1 — ✓ marks                        */
-  /* --warn and --bad are --good's siblings and they were literals in two
-     page-local blocks: accessibility.html's "Partially Supports" / "Does Not
-     Support" verdicts and contact.html's #status.err. Both measure fine on a
-     dark page (10.00:1 and 7.53:1) and both collapse on a light one — 1.70:1
-     and 2.26:1 — which would have put the published ACR's own gap disclosures
-     and the refund form's failure message under AA on the two pages where
-     being straight is the entire value. Named here so the light band reaches
-     them; the words carry the meaning in both, so 1.4.1 never depended on hue. */
+
   --warn       :#E8B339;  /* 10.00:1 — "Partially Supports"           */
   --bad        :#F0837B;  /*  7.53:1 — "Does Not Support", form error */
   --mono-a     :#A9DCF2;  /* 13.34:1 on --well — code / kbd           */
   --mono-b     :#8FD6AE;  /* 11.64:1 on --well — pre / .sums          */
 
-  /* ── SEMANTIC LAYER ──────────────────────────────────────────────────
-     Components are written against ROLES, not against literal colours, so
-     .card / .note / .btn.ghost / table / code / details each exist once and
-     would survive a light band, the guide's prefers-color-scheme block, or a
-     future theme without forking. The print block at the bottom of this file
-     is already the first consumer of that: it overrides seven names instead
-     of every component.
-     --focus is a token for the same reason and it is not academic. The old
-     ring (#59c2e8) measures 1.85:1 on a light ground and 1.26:1 on a
-     saturated blue block, so the first light surface anyone adds with a fixed
-     ring silently voids the WCAG claim published on /accessibility. Every
-     ground on the site is dark today and the ring is 10.24:1 against it; the
-     day that stops being true, override this one name. */
+
   --surface  :var(--ink-0);
   --surface-2:var(--ink-2);
   --surface-3:var(--ink-3);
@@ -93,64 +42,29 @@
   --on-block:var(--ink-0);   /* 17.17:1 — the highest-contrast control here */
   --focus:var(--accent-2);
 
-  /* ── THE FIVE NAMES THAT USED TO BE LITERALS ─────────────────────────
-     Every one of these was a hardcoded colour sitting on a component, and
-     each was a light band away from a measured failure. They are named here
-     so the light band overrides SEVEN tokens instead of forking six rules.
-     The defect each one prevents is recorded at its own rule below.
 
-     --nav-bg / --nav-bg-blur hold a colour WITH ITS ALPHA, not a hue. That is
-     deliberate: the bar is translucent over whatever scrolls beneath it, so a
-     solid replacement would change what dark renders. Same for --pro-edge and
-     --pro-edge-hi, whose rgba() composites differently over --ink-0 (2.33:1)
-     than over --ink-1 (2.34:1) — collapsing them to one solid would move the
-     Pro rails on the two cards that sit on a tinted band. Keeping the alpha in
-     the token is what makes the dark theme byte-identical after this change. */
   --nav-bg     :rgba(12,15,20,.92); /* opaque fallback — no backdrop-filter */
   --nav-bg-blur:rgba(12,15,20,.78); /* the value that actually renders today */
   --block-hi   :#fff;               /* filled control, hover — brighter still */
   --pro-edge   :rgba(227,194,125,.35); /* Pro rail: .cmp, price card, dl card */
   --pro-edge-hi:rgba(227,194,125,.45); /* PRO badge outline — 3.11:1 on ink-0 */
 
-  /* Native UI — scrollbars, the <select> on /contact and its dropdown popup,
-     form field spin buttons — is painted by the OS, not by this sheet, and it
-     followed the SYSTEM theme rather than the page. On a light-default Windows
-     machine (which is this audience) /contact rendered a near-black field with
-     a bright white native dropdown hanging off it. This is the one line that
-     fixes that, and it has to be re-declared in the light band. */
+
   color-scheme:dark;
 
-  /* ── TYPE ────────────────────────────────────────────────────────────
-     NO WEBFONT, and that is a decision rather than an omission. Daybook
-     wants one serif display voice; a self-hosted subset costs ~70 KB, makes
-     font-src load-bearing for the first time, adds an OFL file to ship and a
-     filename to version forever (every woff2 under /assets is served immutable
-     for a year). Georgia is on every Windows machine since 1996 — which is exactly
-     the machine this site is written for — has a true italic, and costs zero
-     bytes, zero requests and zero CSP surface. The Linux and mac names after
-     it are metric-reasonable fallbacks. If a licensed face is ever bought,
-     it drops in here and nothing else in this file moves.
-     Body stays system-ui: the existing comment is right, and 100% of body
-     bytes stay free. */
+
   --ff-display:Georgia,"Iowan Old Style","Palatino Linotype","Source Serif 4","Noto Serif","Liberation Serif",serif;
   --ff-ui:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
   --ff-mono:ui-monospace,Consolas,monospace;
 
-  /* EIGHT SIZES ON THE WHOLE SITE, down from the 22 the homepage rendered —
-     17 of which sat between 12.67px and 19.2px with steps of 1.009x-1.031x,
-     differences nobody can see, which is exactly why no hierarchy formed.
-     rem stays 16px: every existing rem value on the site (table .95rem, the
-     phone cell padding, the 34rem measure, contact.html's 16px inputs) keeps
-     its measured pixel value. */
+
   --t-meta:.8125rem;   /* 13px — eyebrows, thead, .tiny, badges, code   */
   --t-ui:.9375rem;     /* 15px — nav, footer, .btn, .refund, captions   */
   --t-body:1.0625rem;  /* 17px — all body copy (was 16px)               */
   --t-h3:1.3125rem;    /* 21px — h3, summary, .tier                     */
   --t-h2s:1.6875rem;   /* 27px — lead items, phone h2                   */
 
-  /* ── RHYTHM. A ratio scale replacing the 25 ad-hoc vertical values that
-     were each in use twice or more (2,3,4,6,8,9,10,12,13,14,15,16,18,20,22,
-     24,26,32,34,36,38,40,44,52,80). Every vertical gap is one of these. */
+
   --s-1:4px; --s-2:8px; --s-3:12px; --s-4:20px;
   --s-5:32px; --s-6:52px; --s-7:84px; --s-8:136px;
 
@@ -160,49 +74,39 @@
   --w-page:1120px;  /* outer shell; unchanged so the nav/footer wrap
                        plateaus measured in the checklist do not move    */
 
-  /* Editorial is near-square. The 20px pills and 14px cards were the
-     loudest "template" signal on the site. The NAMES are kept so the eight
-     page-local <style> blocks that reference them go near-square with zero
-     edits — index (.price), news (article, article img), features and
-     contact all resolve through here. */
+
   --r-sm:2px; --r-md:3px; --r-lg:4px; --r-pill:999px;
 
   /* One shadow, and it is a plate shadow rather than a glow. The four
      60-70px blue blooms are gone: elevation was binary, nothing or a bloom. */
   --shadow:0 30px 60px -30px rgba(0,0,0,.85);
 
-  /* ── NAV HEIGHT AS ONE NUMBER ────────────────────────────────────────
-     The nav's height and scroll-padding-top used to be two independent
-     numbers, and they had already drifted: the comment claimed the tall
-     plateau ran to 455px when the code wrapped at 472px, so between 456 and
-     472px every anchor — including "Skip to content", the one control a
-     keyboard user must be able to trust — landed 8.7px UNDER the bar. Making
-     the padding a calc() off the same token means the two can only ever be
-     wrong once. The four values below were re-derived for THIS type scale by
-     sweeping 320-1300px in 1px steps and reading the bar's own height at every
-     width; every breakpoint sits on the measured wrap, not on a round number.
-     Measured plateaus and the headroom each one leaves:
-         320-471   nav 117.6px   pad 134px   +16.4
-         472-599   nav  93.3px   pad 110px   +16.7
-         600-640   nav  63.3px   pad  80px   +16.7
-         641+      nav  65.3px   pad  82px   +16.7
-     Zero failing widths across the sweep, which is the pass condition — not
-     "better than before". Re-derive them again if the nav's type or padding
-     changes, because that is what moves the wrap points.
 
-     THE SWEEP ABOVE WAS RUN WITHOUT A SCROLLBAR, AND THAT HID TWO BANDS. On a
-     desktop browser with classic space-consuming scrollbars the content box is
-     ~15px narrower than the width the media query matched, so the bar wraps
-     while the query still serves the shorter plateau. Re-swept with a 15px
-     scrollbar present: 472-486px gave nav 117.6px against pad 110px, and the
-     equivalent band above 600px failed the same way — 30 widths where an
-     anchor lands under the bar, the skip link among them.
-     The breakpoints below are therefore set to the SCROLLBAR-INCLUSIVE wrap
-     points, 487 and 615. The cost is up to 24px of extra headroom between 472
-     and 487 on a machine with overlay scrollbars, where the bar is already
-     short; the alternative is a target hidden behind the bar. Over-shooting is
-     invisible, under-shooting is a defect, so this errs long deliberately. */
   --nav-h:66px;
+}
+
+/* Searchable, crawlable topic directory. All result cards are present in the
+   HTML; JavaScript only filters them for people, so crawlers and no-script
+   visitors still receive the complete set of descriptive internal links. */
+.site-search{max-width:var(--w-col);margin-top:var(--s-5)}
+.site-search label{display:block;font:600 var(--t-h3)/1.3 var(--ff-display);color:var(--on);margin-bottom:var(--s-2)}
+.site-search-row{display:flex;gap:var(--s-3);align-items:stretch;flex-wrap:wrap}
+.site-search-row input{flex:1 1 28rem;min-width:0;padding:15px 18px;border:1px solid var(--rule-2);border-radius:var(--r-md);background:var(--well);color:var(--on);font:500 var(--t-ui)/1.4 var(--ff-ui)}
+.site-search-row input::placeholder{color:var(--on-3)}
+.search-status{min-height:1.5em;margin:var(--s-2) 0 0;color:var(--on-3);font-size:var(--t-meta)}
+.search-results{max-width:var(--w-page);padding-top:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(22rem,100%),1fr));gap:var(--s-4)}
+.search-results .card{margin:0}
+.search-results .card h2{font-size:var(--t-h3);margin:0 0 var(--s-2);padding:0;border:0}
+.search-results .card[hidden]{display:none}
+
+.video-watch{padding:0 0 var(--s-7);margin:0 0 var(--s-7);border-bottom:1px solid var(--rule)}
+.video-watch h2{margin-top:var(--s-2)}
+.video-watch > p{max-width:var(--w-text)}
+.video-watch video{display:block;width:100%;height:auto;margin-top:var(--s-4);border:1px solid var(--rule);border-radius:var(--r-md);background:#000;box-shadow:var(--shadow)}
+.video-next{padding:0 0 var(--s-5)}
+
+@media(max-width:640px){
+  .site-search-row .btn{width:100%;text-align:center}
 }
 @media(max-width:640px){:root{--nav-h:64px}}
 @media(max-width:615px){:root{--nav-h:94px}}   /* links wrap under the brand */
@@ -211,84 +115,23 @@
 *{margin:0;padding:0;box-sizing:border-box}
 html{scroll-behavior:smooth;scroll-padding-top:calc(var(--nav-h) + 16px)}
 
-/* THE SHELL HAS A VIEWPORT MINIMUM AND THE FOOTER IS PINNED TO THE BOTTOM OF
-   IT. Nothing gave it one before, so a page shorter than the window ended
-   wherever its content ended and left the window's remaining height as bare
-   page BELOW the footer — measured on /404 at 1920x1080: the footer's last
-   pixel at y=818 with 262px of nothing under it, 24% of the screen, and 40%
-   of that document's height sitting in empty bands. A footer floating in the
-   middle of the window reads as a page that failed to finish loading, which
-   on an error page is the worst possible reading.
-   This is structural, not a 404 fix: /bugs, /about, /support and /contact are
-   all under ~1100px too, and any page added later inherits the guarantee.
-   Auto margin, not min-height on main: an auto margin on a column flex item
-   absorbs exactly the leftover and vanishes when there is none, so the 14
-   pages that already overflow lay out byte-for-byte as before.
-   svh, then vh as the fallback for anything that lacks it — on a phone the
-   dynamic toolbar makes 100vh taller than the visible window, which would push
-   the footer just off the bottom of the very screens this is meant to tidy.
-   Two things depend on this and are checked: every body child has zero
-   vertical margin (verified on all 17 pages), so nothing changes by losing
-   margin collapse; and the print block restores display:block, because a
-   pinned footer on paper means one sheet with a footer stranded at the
-   bottom. .skip is position:fixed and is not a flex item at all. */
+
 body{background:var(--surface);color:var(--on-2);
   font:var(--t-body)/1.62 var(--ff-ui);-webkit-font-smoothing:antialiased;
   min-height:100vh;min-height:100svh;display:flex;flex-direction:column}
 body > footer{margin-top:auto}
-/* WIDTH:100% IS NOT REDUNDANT UNDER display:flex, AND LEAVING IT OUT COST THE
-   TWO WIDEST PAGES A FIFTH OF THEIR WIDTH. A column flex container stretches
-   its items across the cross axis only while their cross-axis margins are NOT
-   auto — and `main{margin:0 auto}` plus /pro's body-level
-   `header.phero{margin:0 auto}` are exactly that, so stretch switches off and
-   the item shrink-wraps to max-content instead. Measured the moment the flex
-   line landed, at 1280px: /features' main went 1120 -> 928.6px and took all
-   four of its card grids down with it, while /pro's stayed at 1120 only
-   because its max-content happened to exceed the cap. A layout that depends on
-   how long the longest word in the page is, is not a layout.
-   width:100% gives every child a definite cross size again, which is what
-   block layout gave them, and hands the auto margins back the one job they
-   were written for: centring.
-   .skip is excluded because it is position:fixed and therefore not a flex item
-   at all — 100% there resolves against the viewport and would stretch the
-   focused skip link across the whole screen. */
+
 body > :not(.skip){width:100%}
 a{color:var(--accent);text-decoration:none}
 a:hover{text-decoration:underline;text-underline-offset:3px;text-decoration-thickness:1px}
 
-/* height:auto is load-bearing, not boilerplate. Every content image and the promo
-   video carry width/height ATTRIBUTES (correctly — they reserve layout space and
-   stop the page jumping). Those attributes also map to a presentational `height`,
-   and a presentational hint is only beaten by an author rule. max-width capped the
-   WIDTH; nothing touched the height, and aspect-ratio is ignored while both axes
-   are definite. So on a phone every one of them rendered at its full intrinsic
-   pixel height inside a ~320px-wide box. Measured at 360px:
-     shot-launcher.png   322x800  should be 322x201   (index)
-     shot-hub.png        318x800  should be 318x199   (features)
-     shot-installer.png  320x800  should be 320x200   (download)
-     dagric-promo.mp4    318x720  should be 318x179   (features)
-     7 x look-*.svg      322x400  should be 322x201   (index)
-   The Look diagrams were the worst of it: .look img asks for aspect-ratio 16/10
-   and object-fit:cover, and with a definite 400px height cover cropped 47% of
-   each diagram's WIDTH, centred — so "Command" (a side dock) and "Unity" (a side
-   dock plus top bar) had the dock cropped off the frame. Seven pictures whose only
-   job is showing where the taskbar sits, with the taskbar cut out of them.
-   Logos are unaffected: .brand img and .hero .logo set both axes themselves and
-   outrank this rule. */
-img,video{max-width:100%;height:auto;display:block}
 
-/* ── .grad: the site's most-repeated device, retired as a gradient ──────
-   There were 36 spans carrying this class — twelve on the homepage alone,
-   where every single h2 ended in one, so the site's most distinctive asset
-   had no emphasis value left and read as wallpaper. It is now the ITALIC of
-   the display face: "Your computer. Yours again." set the way a periodical
-   sets a two-clause headline. Zero markup edits on fifteen pages.
-   This also RETIRES invariant --grad/--grad-fill rather than managing it:
-   white 16px/700 on --grad measured 2.17:1 mid-button against WCAG 1.4.3's
-   4.5:1, and the whole reason a second deepened token existed was to keep
-   white text off the bright one. There is no gradient left to put it on.
-   --grad-fill survives as an alias (below) because contact.html and
-   thanks-pro.html still fill their buttons from it at 9.38:1 under white. */
+img,video{max-width:100%;height:auto;display:block}
+.live-demo video{background:#05080d}
+.live-proof{max-width:var(--w-text);margin:12px 0 0;color:var(--soft);font-size:var(--t-meta)}
+.live-proof strong{color:var(--good)}
+
+
 .grad{font-style:italic;color:inherit;background:none;-webkit-text-fill-color:currentColor}
 
 .center{text-align:center}
@@ -299,24 +142,13 @@ img,video{max-width:100%;height:auto;display:block}
 a:focus-visible,.btn:focus-visible,button:focus-visible,summary:focus-visible,
 input:focus-visible,select:focus-visible,textarea:focus-visible{
   outline:2px solid var(--focus);outline-offset:2px}
-/* position:FIXED, not absolute. Absolute resolves against the initial
-   containing block, so the `top:10px` below meant 10px from the top of the
-   DOCUMENT, not the viewport: measured on index.html at scrollY 14363 the
-   focused link laid out at viewport y -14353px, and the only way a browser
-   can reveal it is to scroll the whole page back to the top - so the first
-   Tab press from anywhere mid-page threw the reader back to the start.
-   Fixed pins it 10px below the top of the VIEWPORT at any scroll position,
-   and fixed elements never add to scrollable overflow. z-index 100 still
-   clears the sticky nav's 50. */
+
 .skip{position:fixed;left:-9999px}
 .skip:focus{left:16px;top:10px;z-index:100;background:var(--surface-2);padding:8px 14px;
   border-radius:2px;border:1px solid var(--rule-3);color:var(--on)}
 
 /* ── nav (reachable on mobile — links wrap, never hidden) ── */
-/* The bar was the single worst light-band failure on the site: a near-black
-   literal here meant a dark bar across the top of every light page, with
-   --on-2 nav links measuring 1.59:1 against it. Tokenised, not deleted — the
-   translucency is the point of the component. */
+
 nav{position:sticky;top:0;z-index:50;background:var(--nav-bg);
   border-bottom:1px solid var(--rule)}
 /* The opaque value is declared first so a browser without backdrop-filter
@@ -337,38 +169,7 @@ nav{position:sticky;top:0;z-index:50;background:var(--nav-bg);
 .nav-links a.cta{background:var(--block);color:var(--on-block);font-weight:600;
   padding:8px 18px;border-radius:2px}
 .nav-links a.cta:hover{color:var(--on-block);background:var(--block-hi);text-decoration:none}
-/* Measured on a 375x812 phone against the live site: the sticky bar was 143px,
-   18% of the viewport, gone permanently on every scroll — brand on row one,
-   five links on row two, the Download pill alone on row three. And the links
-   were 25px tall, with "Pro" only 23px wide, well under the 44-48px both Apple
-   and Google ask for.
 
-   NOT replaced with a hamburger, deliberately, because the comment at the top
-   of this block is right: links that wrap are always reachable, and a menu
-   hidden behind a control is worse for the audience this site is written for.
-   Kept visible, made smaller in the places that cost nothing and BIGGER in the
-   place that matters.
-
-   The trick is that padding grows the tap target without growing the row: the
-   negative vertical margin pulls the visual position back, so the hit area
-   becomes 44px while the bar itself gets SHORTER, not taller. The height comes
-   off the container's own padding instead.
-
-   The Download pill stays inside .nav-links and stays on the link row. An
-   earlier version of this block claimed it moved up beside the brand — it
-   cannot, because .cta is a CHILD of .nav-links, so `order` only reorders it
-   within that row. Moving it would take an HTML change across sixteen pages.
-   Recorded because a comment describing behaviour the code does not have is
-   exactly the defect this project keeps finding.
-
-   This is NOT a conformance fix. site/accessibility.html states WCAG 2.1, and
-   Target Size (Minimum) is a 2.2 criterion, so nothing here was failing the
-   published claim. It is a usability fix worth doing on its own terms — but if
-   that page is ever moved to WCAG 2.2 or EN 301 549 v4, this block is what
-   keeps 2.5.8 satisfied, so do not shrink it back.
-
-   THIS ENTIRE BLOCK SHIPS UNCHANGED THROUGH THE REDESIGN. Only the bar's
-   colour and the brand's face moved; every number below is the measured one. */
 @media(max-width:640px){
   .nav-in{justify-content:center;padding:7px 16px;gap:2px 12px}
   .nav-links{margin:0 auto;justify-content:center;gap:0 6px;font-size:.9rem}
@@ -378,27 +179,15 @@ nav{position:sticky;top:0;z-index:50;background:var(--nav-bg);
   .nav-links a.cta{padding:10px 16px;margin:4px 0 0}
 }
 
-/* ── buttons ──────────────────────────────────────────────────────────
-   Near-square, not pills, and the primary is now the highest-contrast
-   control on the site rather than the lowest: --paper fill with --ink-0 text
-   at 17.17:1, where the old gradient button measured 2.17:1 under white.
-   The 2px translateY lifts are gone everywhere — colour transition only. */
+
 .btn{display:inline-block;padding:14px 26px;border-radius:2px;font-weight:600;
   font-size:var(--t-ui);letter-spacing:.01em;font-family:var(--ff-ui);
   border:1px solid transparent;color:var(--on);text-decoration:none;
   transition:background-color .16s ease,border-color .16s ease,color .16s ease}
 .btn:hover{text-decoration:none}
-/* transparent, NOT none: .btn carries a 1px border and dropping it made the
-   primary button 52.9px tall beside a 54.9px ghost, so every side-by-side CTA
-   pair sat 1px out of true at the top and 1px at the bottom — /about, both
-   pairs on /features, and the pair on /terms. The homepage hides it only
-   because .phero .btns is flex and stretch equalises the two. */
+
 .btn.primary{background:var(--block);color:var(--on-block)}
-/* --block-hi, not #fff. --block inverts for free under a light band (--paper
-   is always "the ink", --ink-0 always "the page"), so a literal white hover
-   painted the light theme's near-black button white with near-white text:
-   1.13:1, on the primary call to action, on hover only — the hardest kind of
-   defect to notice in review. */
+
 .btn.primary:hover{background:var(--block-hi);color:var(--on-block)}
 /* The border IS the affordance on a ghost button, so it takes --rule-2
    (3.03:1) and clears WCAG 1.4.11. --rule at 2.05:1 would not. */
@@ -408,20 +197,7 @@ nav{position:sticky;top:0;z-index:50;background:var(--nav-bg);
 .refund{color:var(--on-3);font-size:var(--t-ui);margin-top:10px}
 .refund::before{content:"✓ ";color:var(--good);font-weight:800}
 
-/* ── type scale ───────────────────────────────────────────────────────
-   The clamps are continuous, so there is no ninth size and — more usefully —
-   no media-query fight left to lose. The old file had a (0,2,2) document-h1
-   override at min-width:641px specifically to outrank a phone clamp; both are
-   deleted, because a clamp whose minimum IS the phone size cannot be undone
-   by a later rule. E4's expected document h1 moves 41.6px -> 44px on purpose.
 
-   THE h3 FIX IS THE POINT OF THIS SCALE. h3 was 17.6px at line-height 1.65 —
-   it never opted into the heading system and inherited body leading, so a card
-   title was a 1.13x step over its own 15.52px card text distinguished only by
-   weight and colour: a bold paragraph. Across 13 cards on the homepage, 21 on
-   /features and 29 on /pro that was the dominant text relationship on the
-   site. It is now 21px display serif at lh 1.28 against 17px sans body — a
-   1.24x step, a face change, a weight change AND a leading change. */
 h1,h2,h3,h4,.lead,summary,.tier,.amount,.big{font-family:var(--ff-display)}
 h1{font-size:clamp(2.125rem,1.60rem + 1.35vw,2.75rem);line-height:1.10;
    letter-spacing:-.015em;font-weight:500;color:var(--on)}
@@ -443,15 +219,7 @@ table,.amount,.sums,.value .row .price,.dl .meta,code,kbd,pre{font-variant-numer
 /* ── document pages (guide/legal/etc.) ── */
 main{max-width:820px;margin:0 auto;padding:var(--s-6) 24px var(--s-7)}
 main.wide{max-width:var(--w-page)}
-/* THE PRE-FOOTER SEAM IS RHYTHM; THE 12px ON TOP OF IT WAS AN ACCIDENT. main's
-   --s-7 bottom plus footer's --s-6 top is 136px = --s-8, the step this scale
-   reserves for the largest boundary, and the end of a document is exactly that
-   — so the 84px stays. What did not belong is the trailing block margin of the
-   last child: `main p{margin:var(--s-3) 0}` leaves 12px hanging off the bottom
-   of the final paragraph, outside any rule that meant to put it there, so 13
-   pages measured 148-152px where the scale says 136. A margin that only exists
-   because nothing follows it is not rhythm, it is a leftover.
-   (0,1,1) beats `main p` at (0,0,2), which is what makes one rule enough. */
+
 main > :last-child{margin-bottom:0}
 main h1{margin-bottom:var(--s-3)}
 main h2{margin:var(--s-6) 0 var(--s-3);font-size:clamp(1.5rem,1.05rem + .7vw,1.875rem)}
@@ -464,22 +232,14 @@ ul,ol{color:var(--on-2);margin:var(--s-3) 0 var(--s-3) 24px;display:grid;gap:var
 li strong,p strong{color:var(--on)}
 .steps{counter-reset:s;list-style:none;margin-left:0}
 .steps li{counter-increment:s;position:relative;padding-left:52px;padding-bottom:var(--s-3)}
-/* The numeral used to be white on a gradient tile, which print drops — five
-   empty circles where steps 1-5 should be. A hanging serif numeral has no
-   fill to lose, so the print rule for it becomes colour only. */
+
 .steps li::before{content:counter(s);position:absolute;left:0;top:-2px;
   font:500 var(--t-h2s)/1.2 var(--ff-display);color:var(--on-3);font-variant-numeric:lining-nums}
 code,kbd{background:var(--well);border:1px solid var(--rule);border-radius:2px;padding:2px 7px;
   font:var(--t-meta) var(--ff-mono);color:var(--mono-a)}
 pre{background:var(--well);border:1px solid var(--rule);border-radius:2px;padding:16px 18px;
   overflow-x:auto;margin:var(--s-4) 0}
-/* A <pre> is a legitimate scroll container, but a scroll container that is not
-   focusable is a WCAG 2.1.1 failure the same way an unlabelled .tablewrap is.
-   Measured at 360px, `gpg --verify SHA256SUMS.sig SHA256SUMS` on /download and
-   /getting-started overflowed its box by 5px — enough to scroll, not enough to
-   be worth a focus stop. Trimming the phone padding removes the scroll
-   altogether, which is the better fix than making a five-pixel drift keyboard-
-   operable. Re-check both pages if the mono size or these commands change. */
+
 @media(max-width:640px){pre{padding:12px}}
 pre code{background:none;border:none;padding:0;color:var(--mono-b)}
 /* No fill and no radius: a rule in the margin says "aside" as clearly as a
@@ -487,96 +247,21 @@ pre code{background:none;border:none;padding:0;color:var(--mono-b)}
 .note{border-left:2px solid var(--accent);background:none;border-radius:0;
   padding:2px 0 2px var(--s-4);margin:var(--s-5) 0;color:var(--on-2);max-width:var(--w-text)}
 
-/* ── reading measure on document pages ──────────────────────────────
-   main is 820px, so a line of 16px text held 106 characters — measured
-   on /privacy at 1280px: 772px of text divided by a 6.96px average
-   character, taken over the 5,340 characters of the page's real copy,
-   not a lorem sample. Comfortable is 60-75. At 34rem and the new 17px
-   body the same paragraphs measure ~73 characters. These are the pages
-   a school procurement officer has to read end to end, so this is the
-   one place the measure actually decides whether the page gets read.
 
-   main itself STAYS 820px, because the conformance tables on
-   /accessibility need the width: narrowing main to 620px grew the
-   tallest ACR row from 170px to 269px and the page from 5,075px to
-   6,485px. Constraining the text instead leaves .tablewrap on the full
-   container, so the three-column tables sit wider than the prose —
-   which is what a table of criteria/conformance/remarks wants anyway.
-
-   :has() does the page-scoping with no HTML edits: any main holding
-   cards, a grid, a form or sections is a marketing or conversion page
-   and is left alone (index, features, pro, download, support, bugs,
-   contact). It applies to the eight true document pages: about,
-   accessibility, faq, getting-started, licenses, news, privacy, terms.
-   A browser without :has() drops the whole rule and renders a plain
-   820px column, so the failure mode is "wider", not "broken".
-
-   THE COLUMN IS NO LONGER CENTRED, AND THAT DELETES THREE OF THIS
-   RULE'S FIVE DOCUMENTED TRAPS. The old version centred the text with
-   auto margins, which overwrote the 24px margin-left that ul/ol carry
-   their bullets on — so the indent had to move to padding, that swap
-   had to stay scoped or download/support/bugs would indent twice to
-   48px, and .steps had to be excluded INSIDE the selector because a
-   later `main > .steps{padding-left:0}` at (0,1,1) loses to this
-   selector's (0,3,2). Ragging the column left needs none of that: the
-   native margin survives untouched, so the companion padding rule, the
-   double-indent risk and the .steps exclusion are all gone. Headings,
-   tables and code keep the full 820px and hang left of the prose, which
-   is the hanging-head layout a periodical uses and which finally spends
-   the 276px of gutter that sat empty at every desktop width.
-   E5's expected value therefore moves from padding-left:24px to
-   margin-left:24px. State it; do not "restore" the old one. */
 main:not(.wide):not(:has(> .grid, > .dl, > .strip, > .card, > form, > section))
   > :is(p,ul,ol,dl,article,blockquote,details,.lead,.sub,.note){
   max-width:var(--w-text);margin-right:auto}
-/* A hairline under every document h2 turns the page into departments
-   instead of an undifferentiated column. Full container width on purpose,
-   so it reaches past the prose measure. */
+
 main:not(.wide):not(:has(> .grid, > .dl, > .strip, > .card, > form, > section))
   > h2{border-bottom:1px solid var(--rule);padding-bottom:var(--s-3)}
 
-/* ── THE SECTION INDEX ────────────────────────────────────────────────
-   The one place on this site where empty gutter is spent rather than trimmed.
-   The rule above rags the prose left inside a centred 820px column, which is
-   the hanging-head layout a periodical uses and is right — but on a 1920px
-   monitor it leaves 780-802px to the RIGHT of the text carrying nothing, on
-   the five pages somebody actually reads end to end: /accessibility (5,615px),
-   /privacy, /faq, /licenses, /terms. Measured content ratio on those pages:
-   0.402 at 1920, 0.536 at 1440, 0.603 at 1280 — so this is specifically a
-   large-monitor problem and it is fixed only where it exists.
 
-   THE MEASURE DOES NOT MOVE AND NEITHER DOES main. The index is absolutely
-   positioned OUTSIDE main's right edge, so the column stays 820px, stays
-   centred, and every line of prose on these pages lays out at the identical
-   x as before at every width. Below 1440px the nav is display:none and takes
-   part in nothing. assets/pageindex.js builds it from the page's own h2s and
-   explains why it is a script; without JavaScript there is simply no index.
-
-   1440px IS THE ARITHMETIC, NOT A ROUND NUMBER. The index needs --s-6 of gap
-   plus 14rem of width to the right of main = 276px, and the gutter at a given
-   viewport is (vw - 820)/2. That reaches 276px at vw=1372. The breakpoint is
-   set at 1440 for the reason the nav breakpoints are set the way they are: a
-   desktop with classic space-consuming scrollbars gives the layout ~15px less
-   than the width the media query matched, so at 1440 the real gutter is 302px
-   against 276px needed — 26px of headroom. An absolutely positioned element
-   still contributes to scrollable overflow, so under-shooting here would put
-   the site's longest legal pages into horizontal scroll. Over-shoot on
-   purpose: the cost is that a 1400px window keeps the layout it has today.
-
-   The list sticks rather than scrolling away because on a 5,615px page an
-   index you have to scroll back up to reach is a link to the top of the page.
-   It clears the sticky bar by --nav-h + --s-5, the same shape .dept-rail uses.
-   44px targets, matching what the nav and the footer were rebuilt to — this is
-   a navigation landmark and it is held to the same standard even though it
-   only ever renders on a mouse-driven screen. */
 .pageindex{display:none}
 @media screen and (min-width:1440px){
   main.has-pageindex{position:relative}
   .pageindex{display:block;position:absolute;left:100%;top:var(--s-6);bottom:var(--s-7);
     width:14rem;margin-left:var(--s-6)}
-  /* (0,1,1) so it beats `ul,ol` at (0,0,1) — that rule makes every list on a
-     document page a grid with a 24px indent, which is right for prose and
-     wrong for a rail. */
+
   .pageindex > ol{position:sticky;top:calc(var(--nav-h) + var(--s-5));
     list-style:none;margin:0;display:block;border-top:1px solid var(--rule)}
   .pageindex a{display:flex;align-items:center;min-height:44px;padding:11px 0;
@@ -586,37 +271,15 @@ main:not(.wide):not(:has(> .grid, > .dl, > .strip, > .card, > form, > section))
   .pageindex a:hover{color:var(--on);text-decoration:none}
 }
 
-/* main.wide is the shell for the two long marketing pages that are not built
-   out of <section> blocks (/pro and /features). Their h2s get the same hairline
-   the document pages use, so those pages read as departments too instead of as
-   one long run of card grids. Direct children only, so a heading inside a card
-   or a band is untouched. */
+
 main.wide > h2{margin-top:var(--s-7);border-bottom:1px solid var(--rule);
   padding-bottom:var(--s-3)}
 main.wide > h2:first-child{margin-top:0}
-/* main.wide is 1120px, so prose that is a direct child of it ran ~150 characters
-   a line — worse than the 106 the 820px column produced before the measure rule
-   was written. Cards, grids, tables and media are untouched and keep the full
-   width; only the running text is capped. */
+
 main.wide > :is(p,ul,ol,dl){max-width:var(--w-text)}
 
 /* ── sections (marketing pages) ── */
-/* ASYMMETRIC BLOCK PADDING, 52 TOP / 84 BOTTOM, AND THE SCALE IS UNTOUCHED —
-   both values were already on it. A flat --s-7 on both edges meant every
-   boundary between two sections cost 168px, and the homepage has nine of them.
-   Measured at 1280x800 before this rule: seams of 167, 169, 167, 167, 181, 167,
-   181, 179, 181px — each one 21-23% of the screen, 1,547px in total, which was
-   64% of the homepage's 2,403px of empty band.
-   Eight of the ten boundaries also change tint (section.alt), so the space
-   reads as a band edge and is doing work. Two do not — the pair at "Bring your
-   Windows apps." and "Everything you know is still here." — and there the
-   reader gets 167px with no visual cue at all.
-   The bottom edge keeps the larger value on purpose: a section's own heading
-   opens it, so it needs less air above than below, and the *seam* is what was
-   wrong rather than the amount of air any one section carries. 52+84=136 is
-   --s-8, which is the step this scale already reserves for a major boundary.
-   The tablet and phone blocks below stay symmetric at --s-6: their seams are
-   104px, already under a fifth of a short screen, and that is rhythm. */
+
 section{padding:var(--s-6) 24px var(--s-7);counter-increment:sec}
 section.alt{background:var(--ink-1)}
 .sec-head{max-width:var(--w-col);margin:0 auto var(--s-5)}
@@ -624,22 +287,9 @@ section.alt{background:var(--ink-1)}
 .sec-head .lead{margin:var(--s-3) 0 0}
 .center .sec-head .lead{margin-left:auto;margin-right:auto}
 
-/* ── the department rail ─────────────────────────────────────────────
-   The homepage was ten sections at a flat 80px padding whose content
-   heights ranged 618px to 1592px, all centred, all the same shape:
-   eyebrow, h2, paragraph, grid of rectangles, ten times. The rail gives
-   each one a numeral and a hairline in the left margin and lets the
-   copy run flush left — a magazine's department mark. The numeral is a
-   CSS counter, i.e. decoration: `/ ""` gives it an empty alt string so
-   assistive tech announces nothing. Below 960px the rail folds away and
-   the numeral rides above the heading. */
+
 .dept{max-width:var(--w-page);margin:0 auto;display:grid;gap:var(--s-4)}
-/* min-width:0 is not tidying. A grid item's automatic minimum size is its
-   MIN-CONTENT, so an item is allowed to grow past its own track — and the
-   pricing and download grids inside a department did exactly that: measured at
-   360px the department track was 324px and the item inside it laid out at
-   628px, taking the whole homepage into horizontal scroll with 42 elements past
-   the right edge. Same reason every nested grid below carries it. */
+
 .dept > *{min-width:0}
 .dept-rail{font:500 var(--t-h2s)/1 var(--ff-display);color:var(--rule-2);
   font-variant-numeric:lining-nums}
@@ -650,105 +300,28 @@ section.alt{background:var(--ink-1)}
     border-top:1px solid var(--rule);padding-top:var(--s-3)}
 }
 
-/* ── cards + grids ───────────────────────────────────────────────────
-   A card stops being a box and becomes a ruled entry: a hairline above,
-   a serif title, and air. The card border used to be the highest-contrast
-   edge in the whole layout (1.32:1 against a 1.14:1 page-to-card step),
-   which is why the page read as outlined rectangles rather than surfaces.
-   .card.boxed keeps the bounded surface for the places a reader is being
-   asked to compare or to decide — pricing, downloads, support routes —
-   because a boundary there says "these are separate things we checked". */
-/* A bare .grid now has a template of its own. pro.html used class="grid" with
-   no c2/c3 and carried its own grid-template-columns in a page-local block;
-   deleting that duplicate without giving the shared component a default
-   collapsed that page's three card grids to one column. */
-/* minmax(min(Xrem,100%),1fr), never minmax(Xrem,1fr). auto-fit resolves the
-   track against the CONTAINER, and a fixed rem minimum larger than the
-   container overruns the viewport instead of collapsing. Measured in Chrome at
-   an exact 320px viewport, which is the width WCAG 2.1 SC 1.4.10 (Reflow, AA)
-   is specified at and the width a 1280px desktop becomes at the 400% zoom that
-   criterion exists for: the homepage scrolled sideways by 2px with 10 elements
-   past the right edge, and /download - the page carrying both ISO links and the
-   Stripe button - by 4px with both edition cards overhanging. 19rem is 304px
-   against a container of 280-284px.
-   min() makes the minimum "19rem, or the full container, whichever is smaller",
-   so the track can never be wider than what holds it. Desktop layout is
-   identical; only the sub-304px case changes, where the cards now stack.
-   Applied to every rem-minimum track on the site, not only the three that
-   failed: 17rem had 8px of headroom at 320px, which is one padding change away
-   from being the next instance of this bug. */
+
+
+
 .grid{display:grid;gap:var(--s-5);grid-template-columns:repeat(auto-fit,minmax(min(17rem,100%),1fr))}
 .grid > *,.calls > *,.looks-grid > *{min-width:0}
 .grid.c2{grid-template-columns:repeat(auto-fit,minmax(min(19rem,100%),1fr))}
 .grid.c3{grid-template-columns:repeat(auto-fit,minmax(min(15rem,100%),1fr))}
 .card{background:none;border:0;border-top:1px solid var(--rule);border-radius:0;
   padding:var(--s-4) 0 var(--s-2)}
-/* margin-TOP as well as bottom: `main h3` sets a 32px top margin for document
-   prose and it was leaking into every card and annotation title, so each one
-   sat 32px below its own rule. Visible now that the rule IS the card. */
+
 .card h3{margin:0 0 var(--s-2)}
 .card p{color:var(--on-2);font-size:var(--t-body);margin:0;max-width:40ch}
 .card .ico{display:none}
 .card.boxed{background:var(--surface-2);border:1px solid var(--rule);
   border-radius:var(--r-md);padding:var(--s-5)}
-/* A six-item grid promotes its first entry to a lead item, magazine-style.
-   :has() is already load-bearing in this sheet; without it every entry is
-   the same size, which is the layout that ships today. */
+
 @media(min-width:760px){
   .grid.c3:has(> :nth-child(6)) > :first-child{grid-column:span 2}
   .grid.c3:has(> :nth-child(6)) > :first-child h3{font-size:var(--t-h2s);line-height:1.22}
 }
 
-/* ── LAST-ROW HOLES ──────────────────────────────────────────────────
-   auto-fit resolves to three tracks at every desktop width on this site, and
-   three divides 3, 6, 9 and 12. It does not divide 4 or 7, and five grids here
-   hold one of those two counts — so each ended on a hole wide enough to read
-   as a card that failed to load. Measured geometrically at 1280-1920 (last-row
-   item extents against the container, so a spanning item is counted properly):
-       /features .feat   4 items -> 3+1     hole 736x202px, 69% of the row
-       /pro      .grid   4 items -> 3+1     hole 736x202px
-       /pro      .grid   7 items -> 3+3+1   hole 736x119px
-       /pro .looks-strip 7 items -> 5+2     hole 655x156px
-       /features .feat   8 items -> 3+3+2   hole 368x229px
-       /pro      .grid   5 items -> 3+2     hole 368x394px, 34% of the row
-   Both devices below are already in this codebase; neither is invented here.
 
-   FOUR: raise the track minimum so auto-fit resolves to TWO columns and the
-   grid becomes a 2x2 block. 22rem is the threshold and it is arithmetic, not
-   taste — three tracks plus two 32px gaps need 1136px against a 1072px
-   container, so three can no longer fit, while two fit from 736px up. Kept in
-   the min(x,100%) form for the reason documented above this block.
-   GATED AT 900px, and that gate is load-bearing: below it the 17rem track
-   already resolves to two columns on its own (three need a 880px container,
-   i.e. a 928px viewport), so an ungated 22rem would take the 4-item grids down
-   to ONE column between 768 and 928 — turning a last-row hole into a tablet
-   regression.
-
-   SEVEN: the twelve-column template index.html already uses for the seven
-   Looks, whose comment states the arithmetic — twelve is what makes 3 and 4
-   both divide cleanly. Three across, then four across, no hole. On /pro the
-   same seven Looks render through .looks-strip and get the same rule locally,
-   so the "3 free, 4 on Pro" split is drawn identically on both pages.
-
-   FIVE is the same trick as SEVEN with a smaller number: SIX columns, because
-   six is the smallest count that 3 and 2 both divide. Three 2-column cards,
-   then two 3-column cards — both rows full width, no hole. Tracks come out at
-   152px, so a card is 336px on row one and 512px on row two against the same
-   1072px container the other cases use; nothing drops below the width the
-   4-item case (368px) already proves is readable for a heading and a
-   paragraph.
-   The count is NOT negotiable downward to four or up to six to dodge the
-   arithmetic: the only 5-item grid on the site is /pro's "Don't buy Pro if…",
-   and each of its cards is one verified reason not to buy. Padding that list
-   to six to make a template divide, or cutting a true reason to make it four,
-   would be letting the stylesheet edit the argument. The template moves; the
-   cards do not.
-
-   ":has(> :nth-child(n)):not(:has(> :nth-child(n+1)))" is how "exactly n
-   children" is spelled. It costs one extra :has() and it is what keeps these
-   rules off the 3-, 6-, 9- and 12-item grids that are already correct. A
-   browser without :has() drops all of it and renders the ragged rows that ship
-   today: degraded, not broken. */
 @media(min-width:900px){
   .grid:has(> :nth-child(4)):not(:has(> :nth-child(5))){
     grid-template-columns:repeat(auto-fit,minmax(min(22rem,100%),1fr))}
@@ -760,11 +333,7 @@ section.alt{background:var(--ink-1)}
   .grid:has(> :nth-child(5)):not(:has(> :nth-child(6))) > :nth-child(n+4){grid-column:span 3}
 }
 
-/* ── .call — a card beside a capture ────────────────────────────────
-   Same markup as .card with one class swapped, so no copy moves. The
-   counter is the icon: it is what replaced 38 emoji that were styled two
-   different ways on the two pages that sell (9 as 1.55rem blocks above the
-   title on index, 29 set INSIDE the <h3> at heading size on /pro). */
+
 .calls{counter-reset:call;display:grid;gap:var(--s-4);max-width:var(--w-col)}
 .call{border-top:1px solid var(--rule);padding:var(--s-3) 0 0;
   display:grid;grid-template-columns:2.4rem minmax(0,1fr);gap:0 var(--s-3)}
@@ -773,57 +342,26 @@ section.alt{background:var(--ink-1)}
 .call h3{margin:0 0 var(--s-2)}
 .call p{color:var(--on-2);margin:0}
 
-/* ── tables ──────────────────────────────────────────────────────────
-   Rules only, never zebra. 13px caps over a --rule-2 line for the head
-   (3.03:1, a real boundary), hairlines between rows, and the row-header
-   column in the display serif so a reference table reads as an index. */
+
 table{width:100%;border-collapse:collapse;margin:var(--s-4) 0;font-size:.95rem}
 th,td{padding:12px 15px;border-bottom:1px solid var(--rule);text-align:left;color:var(--on-2)}
 thead th{color:var(--on-3);font-size:var(--t-meta);text-transform:uppercase;
   letter-spacing:.08em;font-weight:600;border-bottom:1px solid var(--rule-2)}
 th[scope=row]{font-family:var(--ff-display);font-weight:600;font-size:var(--t-body);color:var(--on)}
 tbody tr:hover td{background:var(--ink-1)}
-/* Kept green. "Green means included" is read in half a second down a pricing
-   list and it costs nothing; the meaning is carried by the ✓ glyph and the —
-   on the .n rows as well, so WCAG 1.4.1 does not depend on the hue. */
+
 td.y,.y{color:var(--good);font-weight:600}
 td.n,.n{color:var(--on-3)}
 .cmp td:nth-child(2),.cmp td:nth-child(3),.cmp th:nth-child(2),.cmp th:nth-child(3){text-align:center}
-/* The Pro column carries a gold rail so the edition split is drawn, not only
-   printed. INSET BOX-SHADOW, NEVER A BORDER: /pro's three-column .cmp measures
-   exactly 320px inside a 320px wrapper at 360px, and 2px borders on both sides
-   of a column add 4px — which starts that wrapper scrolling, silently, on a
-   page whose wrapper is one of three that had no tabindex/role/name. An inset
-   shadow costs zero layout width. */
+
 .cmp thead th:nth-child(3){color:var(--pro)}
 .cmp td:nth-child(3),.cmp th:nth-child(3){
   box-shadow:inset 1px 0 0 var(--pro-edge),inset -1px 0 0 var(--pro-edge)}
 .tablewrap{overflow-x:auto}
 
-/* ── page hero ───────────────────────────────────────────────────────
-   Finally shared. The comment here used to claim pro/features/download/faq
-   used it; grep found it on index alone, and four different page openings
-   shipped instead — a hand-rolled .hero-pro, a features block built out of
-   style="text-align:center;max-width:720px", and a bare <h1> at the top of
-   an 820px column on download and faq. Those are deleted and this is the
-   opening on all five. Flush left, no radial wash, no glow. */
+
 .phero{padding:var(--s-7) 24px var(--s-6);max-width:var(--w-page);margin:0 auto}
-/* A .phero NESTED INSIDE main.wide PAID FOR ITS OPENING TWICE. main already
-   contributes --s-6 (52px) of top padding and 24px on the sides; the phero then
-   added --s-7 (84px) and another 24px on top of that — 136px of stacked block
-   padding before the first word, on the two pages built this way.
-   Measured on /download at 1280x800 before this rule: 143px of empty band under
-   the nav and 121px more under the lead, the first screen only 46% inked, and
-   the two edition cards not starting until y=571. That is the page that takes
-   the money and it was the emptiest opening on the site.
-   features.html had already been patched by hand with style="padding:0 0
-   var(--s-5)" and measured 66px, so the defect was known — but the fix lived on
-   one page and the other page's inline style only zeroed the sides. The defect
-   is the component nesting, not the page, so it is fixed here once and BOTH
-   inline overrides are deleted.
-   Scoped to main.wide, not to main: index.html nests a .phero too, but its own
-   block sets main{padding:0}, so its hero IS the page's opening and must keep
-   the full --s-7. /pro's phero is a body child and is never matched. */
+
 main.wide > .phero{padding:0 0 var(--s-5)}
 .phero h1{font-size:clamp(2.5rem,0.40rem + 6.40vw,4.75rem);line-height:1.02;
   letter-spacing:-.02em;max-width:16ch;margin:0 0 var(--s-4)}
@@ -838,35 +376,12 @@ main.wide > .phero{padding:0 0 var(--s-5)}
     gap:var(--s-6);align-items:center}
 }
 
-/* ONE frame for all four real screenshots. This had drifted into four
-   declarations in three files: .shot here (var(--shadow) + a 1px accent
-   ring), .strip in features.html (0 24px 70px rgba(0,0,0,.5) hardcoded, no
-   ring), .strip in download.html (var(--shadow), no ring) and a dead .shot
-   in pro.html (0 30px 90px rgba(0,0,0,.55)) waiting for the Pro capture its
-   comment promises. Three different shadows for the same object, and only
-   the homepage got the ring. Same frame, one place — and if a Pro capture
-   ever lands, it uses THIS rule rather than a fifth copy.
-   The blue accent ring is gone with the rest of the glow; what is left is a
-   1px hairline and a soft plate shadow. --w-col replaces the old 900px cap
-   so the frame sits on the width scale (E: 900 -> 832px, deliberate). */
+
 .shot,.strip{max-width:var(--w-col);margin:var(--s-6) 0 0;border-radius:2px;overflow:hidden;
   border:1px solid var(--rule);box-shadow:var(--shadow);background:var(--well)}
 .shot img,.strip img{width:100%;display:block}
 
-/* A <p> holding TWO buttons is a button row, and the site had been building
-   those out of inline-block pills plus style="margin-left:10px" on the second
-   one. That works until the row wraps, which it does on every mainstream phone
-   — and then it fails twice: consecutive line boxes touch, so the stacked
-   pills get a 0.0px vertical gap (measured at 390px on /terms: button one's
-   bottom and button two's top are the same y), and the margin-left meant as a
-   horizontal gap becomes a stray 10px indent, so the second button sits at
-   left=30 under a first button at left=20 while every heading and paragraph on
-   the page sits at 20.
-   flex + gap is correct in both states. Scoped to `.btn + .btn` so it matches
-   only the three real two-button rows and leaves the five single-button
-   paragraphs — two of which centre themselves with text-align, which flex
-   would ignore — exactly as they were. The element stays a <p>: the reading-
-   measure rule matches on element name, not on display. */
+
 p:has(> .btn + .btn){display:flex;flex-wrap:wrap;gap:10px;align-items:center}
 @media(max-width:640px){.shot,.strip{margin-top:var(--s-5)}}
 
@@ -880,10 +395,7 @@ p:has(> .btn + .btn){display:flex;flex-wrap:wrap;gap:10px;align-items:center}
 .look .pad{padding:var(--s-3) 0 0}
 .look h3{margin-bottom:var(--s-1)}
 .look p{color:var(--on-3);font-size:var(--t-ui);margin:0}
-/* The frozen fact is "3 layouts free, 7 on Pro". A gold rail on the four that
-   already carry a PRO badge draws it, from zero markup changes, using the
-   .badge that is in the DOM already. Without :has() the badge still says PRO
-   and nothing is lost. */
+
 .look:has(.badge) img{border-top:3px solid var(--pro)}
 
 /* ── badges ── */
@@ -891,40 +403,15 @@ p:has(> .btn + .btn){display:flex;flex-wrap:wrap;gap:10px;align-items:center}
   letter-spacing:.08em;padding:1px 7px;border-radius:2px;background:none;
   border:1px solid var(--pro-edge-hi);color:var(--pro);margin-left:8px;vertical-align:2px}
 
-/* THE "ALSO ON FREE" MARK, and it exists because /pro was selling four things
-   the free edition already has. Its whole job is to be legible to a SKIMMER —
-   the refund case is a reader who bought from the feature grid and never
-   reached the comparison table forty lines below it, which has printed
-   One-click / One-click for those same rows all along.
 
-   Deliberately NOT gold. --pro means "this is the paid tier" everywhere on
-   this site, including the rail this file draws on .look:has(.badge) nine
-   lines above; a gold pill reading "Also free" would argue with its own
-   colour on the one page that takes the money.
-
-   Tokens only, so it is re-struck by the light band and the print band with
-   no second declaration: --rule-2 is the 3.03:1 control border (the outline
-   is the non-text indicator, WCAG 1.4.11) and --on-2 is body ink well past
-   4.5:1. (0,2,0) beats .badge's (0,1,0), so order in this file cannot break
-   it. */
 .badge.also-free{border-color:var(--rule-2);color:var(--on-2)}
 
-/* ── checksum block ──────────────────────────────────────────────────
-   Nothing on the site carries class="sums" today — the hand-transcribed
-   checksums were removed because they drifted from the signed SHA256SUMS
-   they told people to check against. Kept, re-pointed, and with the rule
-   attached: if one is ever rendered and it scrolls, it takes the
-   tabindex/role/aria-labelledby trio, because a 64-character hash always
-   scrolls. No checksum is printed back into a page. */
+
 .sums{background:var(--well);border:1px solid var(--rule);border-radius:2px;padding:16px 18px;
   font:var(--t-meta)/1.8 var(--ff-mono);color:var(--mono-b);overflow-x:auto;
   white-space:nowrap;margin:var(--s-4) 0}
 
-/* ── FAQ / disclosure ───────────────────────────────────────────────
-   28 disclosures across / and /faq were 28 stacked panels. A ruled index
-   reads as a table of contents, which is what a list of questions is.
-   faq.html's full local re-declaration of these rules is deleted so this
-   component lives in one place. */
+
 details{background:none;border:0;border-top:1px solid var(--rule);border-radius:0;
   padding:0;margin:0}
 details summary{cursor:pointer;font:600 var(--t-h3)/1.28 var(--ff-display);color:var(--on);
@@ -945,15 +432,20 @@ footer{border-top:1px solid var(--rule-2);padding:var(--s-6) 24px;color:var(--on
 .foot .links a{color:var(--on-2)}
 .foot .links a:hover{color:var(--on)}
 .foot .links a:not(:last-child)::after{content:"·";margin:0 12px;color:var(--rule-2)}
-/* ── the light/dark control ──────────────────────────────────────────
-   Its own row under .foot, never inside it — see the note in theme.js for
-   why the footer's flex row and the nav are both off limits.
-   The border IS this control's only affordance, so it takes --rule-2 and
-   clears WCAG 1.4.11 in both themes (3.03:1 dark, 3.31-4.45:1 light) —
-   --rule at 2.05:1 would not, which is the same rule .btn.ghost follows.
-   Height is 44px on purpose: the nav and footer links were both taken to
-   44px targets and a control that only exists once per page should not be
-   the smallest thing in the region. */
+.social-footer{flex:1 0 100%;display:flex;align-items:center;justify-content:flex-end;
+  gap:8px;flex-wrap:wrap;padding-top:var(--s-3);border-top:1px solid var(--rule)}
+.social-footer strong{margin-right:auto;color:var(--on);font-size:var(--t-meta);
+  letter-spacing:.06em;text-transform:uppercase}
+.social-footer a{display:inline-flex;align-items:center;min-height:38px;padding:7px 11px;
+  border:1px solid var(--rule-2);border-radius:999px;color:var(--on-2);font-size:var(--t-meta);
+  font-weight:650;text-decoration:none;transition:background .16s ease,color .16s ease,border-color .16s ease}
+.social-footer a:hover{background:var(--ink-2);border-color:var(--rule-3);color:var(--on)}
+.social-grid{max-width:var(--w-col)}
+.social-grid > a{color:inherit;text-decoration:none;transition:border-color .16s ease,transform .16s ease}
+.social-grid > a:hover{border-color:var(--rule-3);transform:translateY(-2px)}
+.social-grid > a span{display:block;margin-top:var(--s-3);color:var(--accent-2);
+  font-family:var(--ff-ui);font-size:var(--t-ui);font-weight:700}
+
 .themebox{max-width:var(--w-page);margin:var(--s-4) auto 0;display:flex;justify-content:flex-end}
 .themetog{min-height:44px;padding:10px 16px;background:none;cursor:pointer;
   border:1px solid var(--rule-2);border-radius:2px;color:var(--on-2);
@@ -962,19 +454,7 @@ footer{border-top:1px solid var(--rule-2);padding:var(--s-6) 24px;color:var(--on
 .themetog:hover{color:var(--on);border-color:var(--on);background:var(--surface-2)}
 @media(max-width:640px){.themebox{justify-content:center;margin-top:var(--s-3)}}
 
-/* THE NAV MOUNT. assets/theme.js moves this one element into .nav-links at
-   >=641px and back to the footer below that; .themebox-nav is the class it
-   swaps on. The control was footer-only and the owner could not find it —
-   /faq is 2,544px and the homepage 16,000px, and nobody scrolls to the bottom
-   of a page hunting for a theme switch.
-   Everything here neutralises the footer-row styling for the inline context:
-   the auto margins and the 1120px cap would otherwise stretch a flex item
-   across the whole bar and push the Download pill off the end. Height is 34px
-   rather than 44 because in the nav it sits in a row whose OWN links are 44px
-   targets by padding, and a 44px bordered box beside them would be the tallest
-   thing in the bar and set the bar's height. It is only ever shown at >=641px,
-   where the pointer is a mouse — the 44px minimum this project holds itself to
-   is a touch target, and the phone mount keeps it. */
+
 .themebox-nav{margin:0;max-width:none;display:flex;align-items:center}
 .themebox-nav .themetog{min-height:34px;padding:7px 12px;font-size:var(--t-meta);
   border-color:var(--rule);color:var(--on-3)}
@@ -1008,28 +488,7 @@ footer{border-top:1px solid var(--rule-2);padding:var(--s-6) 24px;color:var(--on
   pre,.sums{font-size:12px}
   .call{grid-template-columns:2rem minmax(0,1fr)}
 
-  /* Cell padding is 30px per cell, which is desktop money spent on a 320px
-     screen. On /pro the three-column .cmp measured 374px inside a 320px
-     wrapper — the "Pro" column, the one thing that page is selling, sat 34px
-     off the right edge on a 360px phone and only appeared if you thought to
-     swipe a table sideways inside a page that scrolls vertically. Trimming the
-     padding is enough on its own: the table's min-content is the sum of its
-     columns', so 9px (and 6px for the three-column .cmp, whose widest
-     unbreakable word is "Photo/audio/video") brings /pro to exactly 320px and
-     removes the horizontal scroll entirely. Font size is deliberately NOT
-     reduced — .95rem is already 15.2px and shrinking table text on a phone is
-     the wrong half of the trade.
-     Measured at 360px: /pro .cmp 374 -> 320px, its wrapper no longer
-     scrolls horizontally, and the page went from 33 elements past the right
-     edge to 0. index.html's two tables are NOT part of that result and an
-     earlier version of this comment claimed they were, with four-digit
-     figures that reproduce in no dimension: both render at 324px inside a
-     324px wrapper and neither overflowed before the change either. What
-     moved there is only their max-content width (966 -> 942 and 995 -> 941),
-     which is slack, not layout. Recorded because a comment stating a
-     measurement that cannot be reproduced is worse than no comment.
-     The Pro-column rail added above is an inset shadow for exactly this
-     reason — see the note on .cmp. */
+
   th,td{padding:11px 9px}
   .cmp th,.cmp td{padding:11px 6px}
   th[scope=row]{font-size:var(--t-ui)}
@@ -1037,138 +496,27 @@ footer{border-top:1px solid var(--rule-2);padding:var(--s-6) 24px;color:var(--on
   .foot{justify-content:center;text-align:center;gap:12px}
   .foot > span:first-child,.foot .links{max-width:100%}
   .foot .links{justify-content:center;gap:2px 0}
-  /* The nav block above took its links from 23px to 44px targets and explains
-     at length why that matters. The footer kept the identical defect: 14 links
-     on every page, each one 23px tall, the smallest ("Terms") a 36x23px target.
-     Same standard, same fix — padding makes the hit area, and dropping the "·"
-     on phone pays for it. Each separator cost 22px of a 320px row, so removing
-     13 of them frees 286px and the block drops from four rows to three; the
-     links then read as a spaced set, which is what the nav does one screen up.
-     Measured at 360px: smallest target 36x23 -> 39x43, rows 4 -> 3, footer
-     228 -> 269px. No negative margins here on purpose — the row pitch is 45px
-     against a 43px box, so adjacent rows do not overlap. Overlapping hit areas
-     would just move the defect rather than fix it. */
+
   .foot .links a{padding:10px 9px;display:inline-block;font-size:.875rem}
   .foot .links a:not(:last-child)::after{display:none}
-  /* 14px, not the 15px UI rung: at 15px the fourteen links needed a fourth row
-     and the footer grew from 269px to 342px on a 360px screen. The tap target
-     is set by the padding above, not by the type, so this costs nothing that
-     matters and buys back a whole row. */
+  .social-footer{justify-content:center}
+  .social-footer strong{flex:1 0 100%;margin:0;text-align:center}
+  .social-footer a{min-height:42px}
+
   footer{padding:var(--s-5) 24px}
 }
 
-/* ── motion ──────────────────────────────────────────────────────────
-   There is almost none, on purpose: a text-first page must not withhold its
-   text, and anything scroll-driven would want JavaScript that the CSP forces
-   into an external file for decoration's sake. What exists is colour
-   transitions plus one 160ms rise on an opened disclosure.
-   THE KEYFRAME HAS A `from` AND NO `to`. The element's own static style is
-   the finished state, so the reduce block below cancels the animation into
-   VISIBLE. Written the obvious way — from{opacity:0} to{opacity:1} — the
-   same reduce block would leave every answer permanently invisible, which is
-   exactly the class of defect this file exists to catch. Any motion added
-   later must follow this shape. */
+
 @keyframes reveal{from{opacity:0;transform:translateY(6px)}}
 details[open] > p{animation:reveal .16s ease-out}
-/* ── .theme-swap: transitions OFF for the instant the theme changes ──────
-   THIS IS A CORRECTNESS FIX, NOT A POLISH ONE, and it was found by measuring
-   rather than by looking. .btn and .themetog carry `transition:...color .16s`.
-   When the light band is switched on at runtime, `color` on those controls
-   resolves through var(--on) — a custom property on :root — and the engine
-   starts a colour transition whose endpoint it never re-resolves: measured in
-   Chrome, a ghost button was still reporting the DARK --paper #F5F2EB six
-   hundred milliseconds after the swap, on the light page, at 1.03:1 against
-   it. Setting transition:none on the element and forcing a recalc returned
-   the correct #241F17 immediately, which is what identified the cause.
-   A fresh page load was always correct — there is no previous value to
-   transition from — so this defect reached only the reader who pressed the
-   button, which is every reader who ever sees the light theme.
-   Suppressing transitions for one frame is also the right behaviour on its
-   own terms: a theme swap should be instantaneous, not a 160ms cross-fade of
-   every colour on the page. theme.js adds this class, forces a reflow, and
-   drops it on the next animation frame. */
+
 .theme-swap,.theme-swap *,.theme-swap *::before,.theme-swap *::after{
   transition:none!important;animation:none!important}
 @media (prefers-reduced-motion:reduce){
   *{scroll-behavior:auto!important;transition:none!important;animation:none!important}
 }
 
-/* ── LIGHT ────────────────────────────────────────────────────────────────
-   The same publication, printed. Not an inversion: Georgia on warm stock,
-   the same hairlines, the same air, colour spent the same four times.
 
-   IT IS OPT-IN, AND THAT IS THE WHOLE DESIGN DECISION HERE. This band is
-   keyed to an attribute, NOT to `@media (prefers-color-scheme: light)`.
-   Windows defaults to light and this site is written for people leaving
-   Windows 10, so following the system preference would not "add a light
-   option" — it would silently flip the front door for most visitors, who
-   never asked for it. Dark stays the default for everybody until they say
-   otherwise in the footer. assets/theme.js stamps the attribute; with
-   JavaScript off nothing here can match and the site is dark, which is
-   exactly what it is today.
-
-   ── THE RAMP GOES BOTH WAYS, AND THAT IS WHY IT WORKS ──
-   Dark stacks everything above the page (well < ink-0 < ink-1 < ink-2) and
-   steps 1.19 / 1.31. Light cannot copy that: white is a hard ceiling, so
-   there is no room to put four surfaces above the page. The page therefore
-   sits in the MIDDLE of the light ramp — .card.boxed lifts toward white,
-   .alt and the code wells tint downward — and the usable separation comes
-   out at 1.28 between a card and an alt band, against dark's 1.31. Measured
-   against the page: ink-1 1.14, ink-2 1.13, ink-3 1.15, well 1.19.
-   Do NOT try to buy more by darkening the page; at the luminance that needs
-   (~#EBEBEB) it stops reading as paper and starts reading as grey UI.
-   This transfers at all because Daybook separates with hairlines and air,
-   not fills: .card is background:none with a top rule, and details, .call,
-   .value .row, news articles, .trust, .midcta and .cta-band are all rules.
-
-   ── EVERY TEXT-ON-SURFACE PAIR, WCAG 2.x relative luminance, AA needs 4.5 ──
-   None of these tokens is large-text-only, so all are held to 4.5:1.
-                page     .alt    card   raised    well
-     --paper   14.24   12.54   16.09   16.36   11.96
-     --text    14.39   12.67   16.25   16.53   12.08
-     --body     8.56    7.54    9.67    9.83    7.19
-     --soft     5.88    5.18    6.64    6.75    4.94
-     --accent   6.49    5.71    7.33    7.45    5.45
-     --pro      5.90    5.20    6.66    6.78    4.96
-     --good     6.15    5.42    6.95    7.07    5.17
-   --mono-a on --well 6.46 · --mono-b on --well 5.55 (their only ground).
-   --on-block on --block 14.24 · on --block-hi 17.19 · #fff on --accent-deep
-   9.38 (a fixed dark fill — the one value that is valid in both themes).
-
-   ── NON-TEXT, WCAG 1.4.11, needs 3:1 ──
-     --rule-2   3.94  3.47  4.45  4.53  3.31   (sole affordance of a control)
-     --rule-3   4.99  4.40  5.64  5.74  4.19
-     --rule     1.67  1.47  1.88  1.91  1.40   (decorative only, as in dark)
-   --rule-3 is DARKER than --rule-2 here, the opposite of the dark ramp, and
-   that is correct rather than a slip: "heavier" means further from the
-   surface, and in dark the raised surface is lighter while in light it is
-   whiter. Stepping it the dark way lands at 2.78:1 on --ink-1 and fails.
-
-   ── --focus ──
-   #1B4F7D, measured on every ground a ring can land on: page 7.43, .alt 6.54,
-   card 8.39, raised 8.53, well 6.24. The old ring (--accent-2 #8FC3EE) is the
-   value the comment at the top of this file warns about — 1.87:1 on white —
-   so this is the override that comment was written for.
-   IT MEASURES ONLY 1.92:1 AGAINST --block, the near-black button fill, AND
-   THAT IS SAFE ONLY BECAUSE :focus-visible CARRIES outline-offset:2px, so the
-   ring is always drawn on the surface BEHIND a control and never on its fill.
-   If anyone ever sets outline-offset:0, the primary button's focus ring fails.
-   This dependency is not new and it is not a light-mode problem: the dark
-   theme's ring measures 1.68:1 on its own --block today, so light is in fact
-   the better of the two. It was simply never written down. It is now.
-
-   ── THE DARK-BACKGROUND ASSETS ARE LEFT ALONE, DELIBERATELY ──
-   Three videos, six screenshots and seven Look SVGs are dark because Dagric
-   ships dark. A screenshot is a DEPICTION of the product, not site chrome, so
-   a dark plate on a light page is accurate, and faking a light capture would
-   mean a screenshot that shows something the product does not do. What
-   carries them is the frame, and the frame is already tokenised: .shot/.strip
-   is background:var(--well) + 1px var(--rule) + var(--shadow). Giving --well
-   and --shadow their light values turns that into a mount board — a recessed
-   warm tint with a hairline and a soft plate shadow, which is how a printed
-   periodical sits a dark photograph on a light page. Zero asset work, and
-   img,video{max-width:100%;height:auto} is untouched. The seven Look SVGs get
-   the same treatment through .look img's --rule border and --pro top rail. */
 :root[data-theme="light"]{
   --ink-0:#F3EFE4;   /* page — warm stock, not grey UI                      */
   --ink-1:#E8E1CE;   /* .alt band, Pro card fill, row hover — tints DOWN    */
@@ -1185,10 +533,7 @@ details[open] > p{animation:reveal .16s ease-out}
   --body :#3D444E;
   --soft :#555C66;
 
-  /* One cool accent, one warm mark that only ever means Pro, one green tick —
-     the same four spends, re-struck for paper. Gold cannot be luminous in
-     ink, so --pro is the ochre a press would actually lay down; it carries
-     the $39 on the homepage price card, so it is held to 4.5:1 as text. */
+
   --accent     :#15588E;
   --accent-2   :#1B4F7D;
   --accent-deep:#14487A;  /* unchanged — a fixed dark fill under #fff       */
@@ -1213,35 +558,9 @@ details[open] > p{animation:reveal .16s ease-out}
   color-scheme:light;
 }
 
-/* -- print ---------------------------------------------------------------
-   NOT a light theme and NOT a retreat from dark-only: paper has no
-   background. Browsers drop background-color when printing but keep color:,
-   so every page on this site printed as --text #e8eef6 on white - measured
-   1.17:1. Body copy printed at 1.99:1 and code/kbd at 1.52:1.
-   Two of the worst cases die on their own under this design and the rules
-   are kept anyway as belt and braces: .grad is a font-style now, not
-   background-clip:text with color:transparent, so the product name can no
-   longer vanish from the top of every printed page; and .steps li::before is
-   a plain numeral rather than white ink on a dropped gradient, so it needs a
-   colour and no longer needs a drawn circle.
-   Because components are written against the semantic layer, this block
-   overrides names rather than components.
-   getting-started, licenses, privacy and terms are pages a school or library
-   actually puts on paper for somebody. Ink, not brand. -- */
+
 @media print{
-  /* `:root,:root[data-theme]` RATHER THAN `:root`, AND IT IS NOT TIDINESS.
-     The light band above is `:root[data-theme="light"]` at specificity (0,2,0)
-     and this block was (0,1,0), so once a reader had switched to light, EVERY
-     token below lost on specificity regardless of source order and the light
-     SCREEN palette printed instead of the ink palette. That is the same defect
-     the guide's own stylesheet documents at length, arrived at from the other
-     direction — there it was ordering, here it would have been specificity.
-     `:root[data-theme]` is (0,2,0), ties the light band, and wins on order
-     because it is later in the file; the bare `:root` still covers the dark
-     default at (0,1,0). One block, two themes, no duplicated palette — which
-     is what "reconcile with print rather than duplicate it" has to mean.
-     This block stays the LAST word on colour in this file. Do not add a theme
-     after it without giving that theme's selector a match here. */
+
   :root,:root[data-theme]{
     --ink-0:#fff;--ink-1:#fff;--ink-2:#fff;--ink-3:#fff;--well:#fff;
     --rule:#bbb;--rule-2:#999;--rule-3:#999;
@@ -1249,29 +568,17 @@ details[open] > p{animation:reveal .16s ease-out}
     --accent:#0b4f8a;--accent-2:#0b4f8a;--accent-deep:#fff;
     --pro:#000;--good:#000;--warn:#000;--bad:#000;--mono-a:#000;--mono-b:#000;
     --block:#fff;--on-block:#000;--shadow:none;
-    /* The five ex-literals need ink values here too, or a printed page would
-       inherit whichever theme the reader happened to be looking at. --pro-edge
-       is the one that matters: it draws the edition split on the price and
-       download cards, and those print. */
+
     --nav-bg:#fff;--nav-bg-blur:#fff;--block-hi:#fff;
     --pro-edge:#999;--pro-edge-hi:#666;
     color-scheme:light}
   @page{margin:16mm}
   html,body{background:#fff!important;color:#000!important}
-  /* display:block UNDOES THE VIEWPORT-MINIMUM SHELL, and it is required, not
-     tidying. The screen rule makes body a column flex box with min-height:100svh
-     and pins the footer with margin-top:auto. On paper "the viewport" is one
-     sheet, so a flex body would put the colophon at the foot of page one and
-     start the document again on page two; and min-height:100svh against a print
-     context is a length nothing here should be asserting. Block layout is what
-     a print stylesheet wants and what these pages had before.
-     Same specificity as the screen rule (0,0,1) and later in the file, so it
-     wins on source order — no !important needed, and none is added, because an
-     !important here would also outrank a page-local print rule. */
+
   body{font-size:11pt;line-height:1.5;display:block;min-height:0}
   /* .themebox joins the furniture that does not print: it is a control, and a
      printed page has no theme to switch. */
-  nav,.skip,video,.foot .links,.themebox,.dept-rail::before{display:none!important}
+  nav,.skip,video,.foot .links,.social-footer,.themebox,.dept-rail::before{display:none!important}
   main{max-width:100%!important;margin:0!important;padding:0!important}
   section{padding:0 0 14px!important}
   .wrap,.sec-head,.dept,.phero{max-width:100%!important}
@@ -1295,48 +602,15 @@ details[open] > p{animation:reveal .16s ease-out}
   .tablewrap,pre,.sums,table{overflow:visible!important}
   th,td{border-bottom:1px solid #bbb}
   .cmp td:nth-child(3),.cmp th:nth-child(3){box-shadow:none!important}
-  /* .s-yes/.s-part/.s-no are accessibility.html's own conformance verdicts, and
-     they were the last coloured text on the site that printed illegibly:
-     "Partially Supports" came out at 1.92:1 and "Does Not Support" at 2.55:1 on
-     white, while "Supports" printed black because --good happens to be mapped
-     above. So the ACR printed its passes clearly and its GAPS faintly — on the
-     one page a procurement officer prints, and the one page whose entire value
-     is being straight about what the product cannot do. The status classes are
-     page-local, which is exactly why the token-level print override never
-     reached them.
-     #status.err is here for the same reason: contact.html's failure message is
-     the only other page-local colour that survives onto paper.
-     `form button` because the print block styles .btn and this submit control
-     is a bare <button> — it was filling with --accent-deep, which this block
-     re-points to #fff, so the site's only form printed a white label on a white
-     ground: a button that vanishes on the page people print to post a refund
-     request. */
+
   thead th,td.y,td.n,.y,.n,.s-yes,.s-part,.s-no,.refund::before{color:#000}
-  /* #status.err NEEDS !important AND THE LIST ABOVE COULD NOT GIVE IT.
-     It was in that selector list and it did not work, because the rule it has
-     to beat is contact.html:51 `#status.err{color:#F0837B}` — identical
-     specificity (1,1,0), and it lives in a page-local <style> at contact.html:10
-     that loads AFTER the <link> to this file, so source order handed the tie to
-     the page. Measured in the browser under print media on /contact: the failure
-     message printed rgb(240,131,123) on white = 2.55:1, while #status.ok printed
-     black at 21:1 only because --good is remapped at the top of this block. So
-     the site's one form printed its SUCCESS message clearly and its FAILURE
-     message faintly, on the page somebody prints to post a refund request —
-     the same shape of defect as the .s-part/.s-no verdicts noted above.
-     Split into its own rule rather than adding !important to the shared list,
-     because those other selectors are already winning and do not need it. */
+
   #status.err{color:#000!important}
   form button{color:#000!important;background:none!important;border:1px solid #555!important}
   footer{border-top:1px solid #bbb;padding:10px 0 0;font-size:9pt;color:#444}
 }
 
-/* ── LEGACY TOKEN ALIASES — DO NOT DELETE ────────────────────────────
-   Eight page-local <style> blocks make 65 var() calls against the old
-   names. Re-pointing them here means no page can silently lose a colour
-   mid-migration, and it means a page-local rule that has not been
-   rewritten yet still renders in the new palette instead of the old one.
-   --grad is an alias to a flat colour, not a gradient: background-clip:text
-   over a solid still renders solid, so any stray legacy use is safe. */
+
 :root{
   --bg:var(--ink-0); --bg2:var(--ink-1);
   --panel:var(--ink-2); --panel-hi:var(--ink-3);

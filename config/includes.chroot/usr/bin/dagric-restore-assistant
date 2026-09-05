@@ -1,0 +1,106 @@
+#!/usr/bin/env python3
+# SPDX-FileCopyrightText: 2026 IMPRESSIONSDIRECT360 LLC <repo@dagric.com>
+# SPDX-License-Identifier: GPL-3.0-or-later
+"""Turn a Dagric Migration State Pack into safe, KDE-friendly restoration notes."""
+import argparse
+import html
+import json
+import os
+import subprocess
+import sys
+
+# $HOME is the account selected in Dagric's graphical session.  Use it
+# explicitly rather than inheriting a launcher-specific platform fallback.
+HOME_DIR = os.environ.get("HOME") or os.path.expanduser("~")
+DEFAULT_PACK = os.path.join(HOME_DIR, "Dagric-Migration-State-Pack.json")
+DEFAULT_NOTES = os.path.join(HOME_DIR, "Dagric-Migration-Notes.html")
+
+
+def esc(value):
+    return html.escape(str(value), quote=True)
+
+
+def entries(title, rows, render):
+    if not rows:
+        return "<section><h2>%s</h2><p>Nothing was found.</p></section>" % esc(title)
+    return "<section><h2>%s</h2><ul>%s</ul></section>" % (esc(title), "".join("<li>%s</li>" % render(row) for row in rows))
+
+
+def write_notes(pack, dest):
+    browser = pack.get("browser_context", {})
+    chromium = browser.get("chromium", []) if isinstance(browser, dict) else []
+    ff = ((browser.get("firefox") or {}).get("profiles") or []) if isinstance(browser, dict) else []
+    folders = pack.get("shell_folders", [])
+    shortcuts = pack.get("desktop_shortcuts", [])
+    recent = (pack.get("recent_activity") or {}).get("recent_links", [])
+    jumps = (pack.get("recent_activity") or {}).get("jump_list_signals", [])
+    browser_rows = []
+    for family in chromium:
+        for profile in family.get("profiles", []):
+            name = profile.get("name") or profile.get("profile") or "Profile"
+            bits = ["<strong>%s — %s</strong>" % (esc(family.get("label", "Browser")), esc(name))]
+            if profile.get("homepage"): bits.append("homepage: %s" % esc(profile["homepage"]))
+            if profile.get("search_engine"): bits.append("search: %s" % esc(profile["search_engine"]))
+            if profile.get("theme"): bits.append("theme: %s" % esc(profile["theme"]))
+            urls = profile.get("startup_urls") or []
+            if urls: bits.append("startup pages: %s" % esc(", ".join(str(x) for x in urls[:10])))
+            exts = profile.get("extensions") or []
+            if exts: bits.append("enabled extensions: %s" % esc(", ".join(x.get("name", x.get("id", "")) for x in exts[:20])))
+            browser_rows.append("; ".join(bits))
+    for profile in ff:
+        prefs = profile.get("prefs") or {}
+        addons = profile.get("addons") or []
+        bits = ["<strong>Firefox — %s</strong>" % esc(profile.get("name", "Profile"))]
+        if prefs.get("browser.startup.homepage"): bits.append("homepage: %s" % esc(prefs["browser.startup.homepage"]))
+        if prefs.get("extensions.activeThemeID"): bits.append("theme: %s" % esc(prefs["extensions.activeThemeID"]))
+        if addons: bits.append("enabled extensions: %s" % esc(", ".join(x.get("name", x.get("id", "")) for x in addons if x.get("active"))))
+        browser_rows.append("; ".join(bits))
+    document = """<!doctype html><meta charset=utf-8><title>Dagric Migration Notes</title>
+<style>body{max-width:980px;margin:3rem auto;padding:0 1.5rem;font:16px system-ui;color:#e8edf5;background:#121821}section{background:#1c2633;padding:1rem 1.25rem;margin:1rem 0;border-radius:12px}li{margin:.65rem 0;overflow-wrap:anywhere}small{color:#b9c7d9}</style>
+<h1>Dagric Migration Notes</h1><p>This local checklist helps you recreate your working setup. It never imports passwords, cookies, browser sessions, or Windows programs.</p>
+""" + entries("Folders that existed in Windows", folders, lambda r: "%s <small>(%s items)</small>" % (esc(r.get("name")), esc(r.get("items", "unknown")))) + entries("Browser setup to restore", browser_rows, lambda r: r) + entries("Desktop and Start-menu shortcuts", shortcuts, lambda r: "%s <small>%s · %s</small>" % (esc(r.get("name")), esc(r.get("source")), esc(", ".join(r.get("signals") or []) or "no portable target"))) + entries("Recent work signals", recent, lambda r: "%s <small>%s</small>" % (esc(r.get("name")), esc(", ".join(r.get("signals") or []) or "recent link"))) + entries("Jump-list-like signals", jumps, lambda r: "%s <small>%s</small>" % (esc(r.get("relative_path")), esc(", ".join(r.get("signals") or []) or "no portable target")))
+    fd = os.open(dest, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
+    with os.fdopen(fd, "w", encoding="utf-8") as fh:
+        fh.write(document)
+
+
+def kde_launcher(notes):
+    apps = os.path.join(HOME_DIR, ".local", "share", "applications")
+    os.makedirs(apps, exist_ok=True)
+    path = os.path.join(apps, "dagric-migration-notes.desktop")
+    # Desktop Entry Exec is tokenized, not a shell command. Quote the path so
+    # a normal home folder such as /home/Alex Smith keeps working.
+    safe_notes = notes.replace("\\", "\\\\").replace('"', '\\"').replace("%", "%%")
+    text = "[Desktop Entry]\nType=Application\nName=Open Migration Notes\nComment=Continue setting up Dagric after moving from Windows\nExec=xdg-open \\\"%s\\\"\nIcon=dagric-logo\nCategories=Utility;\n" % safe_notes
+    with open(path, "w", encoding="utf-8") as fh:
+        fh.write(text)
+    return path
+
+
+def main():
+    p = argparse.ArgumentParser(description=__doc__)
+    p.add_argument("pack", nargs="?", default=DEFAULT_PACK)
+    p.add_argument("--open", action="store_true", help="open the generated notes in the default browser")
+    p.add_argument("--apply-kde", action="store_true", help="add an Open Migration Notes entry to KDE's application launcher")
+    args = p.parse_args()
+    try:
+        with open(os.path.expanduser(args.pack), encoding="utf-8") as fh:
+            pack = json.load(fh)
+    except (OSError, ValueError) as exc:
+        print("Could not read Migration State Pack: %s" % exc, file=sys.stderr)
+        return 1
+    if pack.get("format") != "dagric-migration-state-pack":
+        print("That is not a Dagric Migration State Pack.", file=sys.stderr)
+        return 1
+    notes = DEFAULT_NOTES
+    write_notes(pack, notes)
+    print("NOTES=%s" % notes)
+    if args.apply_kde:
+        print("KDE_LAUNCHER=%s" % kde_launcher(notes))
+    if args.open:
+        subprocess.Popen(["xdg-open", notes], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE policyconfig PUBLIC
+ "-//freedesktop//DTD PolicyKit Policy Configuration 1.0//EN"
+ "http://www.freedesktop.org/software/polkit/policyconfig-1.dtd">
+<!-- The helper validates and installs one pinned Ollama release only. -->
+<policyconfig>
+  <vendor>Dagric OS</vendor>
+  <vendor_url>https://dagric.com/</vendor_url>
+  <action id="org.dagric.ai.install">
+    <description>Install the reviewed Dagric local AI runtime</description>
+    <message>Administrator approval is required to install the local AI runtime.</message>
+    <defaults>
+      <allow_any>no</allow_any>
+      <allow_inactive>no</allow_inactive>
+      <allow_active>auth_admin</allow_active>
+    </defaults>
+    <annotate key="org.freedesktop.policykit.exec.path">/usr/lib/dagric/install-ollama</annotate>
+    <annotate key="org.freedesktop.policykit.exec.allow_gui">false</annotate>
+  </action>
+</policyconfig>

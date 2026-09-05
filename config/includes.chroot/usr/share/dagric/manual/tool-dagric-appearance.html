@@ -34,7 +34,7 @@
         <a href="tool-dagric-security-checkup.html">Security Checkup</a>
         <a href="tool-dagric-usb-protect.html">USB Protection</a>
         <a href="tool-dagric-vm.html">Windows in a window (VM setup)</a>
-        <a href="tool-dagric-gaming.html">Proton-GE helper</a>
+        <a href="tool-dagric-gaming.html">GE-Proton helper</a>
         <a href="tool-dagric-ai.html">Local AI (Ollama)</a>
         <a href="tool-dagric-manual.html">This manual</a>
         <a href="tool-dagric-background.html">Helpers that run by themselves</a>
@@ -48,15 +48,15 @@
     <header class="hero">
       <div class="eyebrow">Dagric&#x27;s own tools</div>
       <h1>Dagric Appearance</h1>
-      <p class="sub">Every desktop style and layout as a picture. Try one for real; keep it only if you like it.</p>
+      <p class="sub">Desktop colours, layouts and app-icon styles as pictures. Try one for real; keep it only if you like it.</p>
     </header>
 
     <div class="swap"><span>On Windows this was</span><strong>Personalisation, but with an undo</strong></div>
 
     <section>
       <h2>What it is</h2>
-      <p><strong>Dagric Appearance</strong> shows every style and every layout as a
-      thumbnail. Click one and the desktop changes <em>immediately and for real</em>
+      <p><strong>Dagric Appearance</strong> shows every colour style, panel layout and
+      Dagric app-icon family as a thumbnail. Click one and the desktop changes <em>immediately and for real</em>
       &mdash; not a preview image, the actual desktop.</p>
       <p>Nothing is saved yet. A bar appears at the bottom offering <strong>Keep</strong>
       and <strong>Revert</strong> with a twenty-second countdown. Answer neither
@@ -71,19 +71,23 @@
         <li><span class="t">Try something</span><p>Click any tile. Look at the actual desktop behind the window. Press
          <em>Keep</em> if you like it, <em>Revert</em> if you do not, or do nothing at
          all and it reverts itself.</p></li>
-        <li><span class="t">Understand the two kinds of tile</span><p><em>Styles</em> change the mood: colour scheme, accent colour,
+        <li><span class="t">Understand the three kinds of tile</span><p><em>Styles</em> change the mood: colour scheme, accent colour,
          wallpaper, and window effects like glassy blur.
          <em>Layouts</em> change the shape: where the taskbar, panels and menus sit.
-         They combine freely.</p></li>
+         <em>Icons</em> change Dagric's own tool icons between Modern, Classic and
+         Old School. Other applications keep their official icons. All three choices
+         combine freely.</p></li>
         <li><span class="t">Recover from a change that went wrong</span><p>You cannot really get stuck: an unanswered change reverts by itself
          after twenty seconds. If a layout leaves the panel somewhere unhelpful, open
          <a href="tool-dagric-looks.html">Dagric Looks</a> and choose Classic, which
          rebuilds the panels from scratch.</p></li>
-        <li><span class="t">Add your own</span><p>Styles and layouts are plain text files. Copy one from
+        <li><span class="t">Add your own</span><p>Styles, layouts and icon-style entries are plain text files. Copy one from
          <code>/usr/share/dagric/styles/</code> into
          <code>~/.local/share/dagric/styles/</code>, edit it, and it appears here next
          time &mdash; with your own thumbnail if you drop a matching PNG into
-         <code>~/.local/share/dagric/appearance/thumbs/</code>. No root needed.</p></li>
+         <code>~/.local/share/dagric/appearance/thumbs/</code>. Icon-style entries live
+         under <code>~/.local/share/dagric/icon-styles/</code> and may select any icon
+         theme already installed for your account. No root needed.</p></li>
         <li><span class="t">Use the text menus instead</span><p><a href="tool-dagric-looks.html">Dagric Looks</a> and
          <a href="tool-dagric-style.html">Dagric Styles</a> are the same catalogue as
          a simple list. If the graphical gallery cannot start for any reason, it says

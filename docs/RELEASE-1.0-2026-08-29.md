@@ -1,5 +1,11 @@
 # Dagric OS 1.0 “Foundation” — verified 29 August 2026 release
 
+> **Historical record — distribution superseded by the 4 September 2026
+> hold.** The links and delivery arrangement below describe what was available
+> for this release. New binary delivery and sales must remain paused until the
+> release-exact source and required human review gates pass. See
+> [RELEASE-HOLD-2026-09-04.md](RELEASE-HOLD-2026-09-04.md).
+
 This release replaces the earlier Dagric OS 1.0 images with freshly built,
 signed Free and Pro images. The public release record ties both files to source
 revision `3f19b305464b82478ce83db8d970a2abbf326cf9`, exact byte counts, package

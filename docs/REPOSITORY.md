@@ -39,7 +39,7 @@ tree is at 1.1.3 and the channel publishes 1.1.1.
 | Package | Contains | Bump it when... |
 |---|---|---|
 | `dagric-branding` | wallpapers, logo, SDDM theme, splash | the look changes |
-| `dagric-desktop-defaults` | Plasma skel defaults, Firefox policies, `mimeapps.list` | default behavior changes |
+| `dagric-desktop-defaults` | Plasma skel defaults and `mimeapps.list` | default behavior changes; Firefox remains unmodified |
 | `dagric-security-policy` | sysctl hardening, APT no-recommends (conffiles) | the security baseline evolves |
 | `dagric-tools` | `/usr/bin/dagric-*`, the wizard, manual, guide, welcome, styles, looks, icons, translations | the product itself changes |
 
@@ -156,7 +156,7 @@ entry — see below). Editing the hook to change the policy does nothing.
 | `dagric-security-policy` | **installs itself** | Kernel hardening sysctls and the APT policy. Its own description promises the baseline "can evolve via updates", which was untrue while nothing matched it. |
 | `dagric-tools` | waits for a click | The wizard, Hub, manual, helpers — the owner's own tools. |
 | `dagric-branding` | waits for a click | Wallpapers, login theme, splash. |
-| `dagric-desktop-defaults` | waits for a click | Desktop and browser defaults. |
+| `dagric-desktop-defaults` | waits for a click | Desktop defaults. |
 
 `Origins-Pattern` admits `origin=Dagric,codename=trixie,label=Dagric OS`; a
 `Package-Blacklist` holds the other three back **by name**. The blacklist is the

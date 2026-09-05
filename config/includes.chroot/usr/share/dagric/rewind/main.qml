@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2026 DGR Operations <repo@dagric.com>
+// SPDX-FileCopyrightText: 2026 IMPRESSIONSDIRECT360 LLC <repo@dagric.com>
 // SPDX-License-Identifier: GPL-3.0-or-later
 //
 // Dagric Rewind is a view, not a privileged program.  It reads a root-owned
@@ -21,8 +21,8 @@ ApplicationWindow {
 
     FontMetrics { id: systemFont }
     readonly property real uiScale: Math.max(1.0, Math.min(1.45, systemFont.height / 17.0))
-    readonly property color blue: "#4eb4ff"
-    readonly property color blueSoft: "#173b59"
+    readonly property color accent: "#ff3b5c"
+    readonly property color accentSoft: "#4a1824"
     readonly property color green: "#55d69e"
     readonly property color amber: "#f6c66a"
     readonly property color red: "#ff818e"
@@ -168,7 +168,7 @@ ApplicationWindow {
     component Capsule: Rectangle {
         id: capsule
         property alias text: capsuleLabel.text
-        property color accent: app.blue
+        property color accent: app.accent
         implicitWidth: capsuleLabel.implicitWidth + app.scaled(22)
         implicitHeight: app.scaled(28)
         radius: height / 2
@@ -187,7 +187,7 @@ ApplicationWindow {
 
     component RewindButton: Button {
         id: control
-        property color accent: app.blue
+        property color accent: app.accent
         property bool quiet: false
         implicitHeight: app.scaled(42)
         leftPadding: app.scaled(18); rightPadding: app.scaled(18)
@@ -207,7 +207,7 @@ ApplicationWindow {
                        (control.down ? "#27445e" : control.hovered ? "#203a51" : "#172b3d") :
                        (control.down ? Qt.darker(control.accent, 1.18) :
                         control.hovered ? Qt.lighter(control.accent, 1.08) : control.accent)
-            border.color: control.quiet ? (control.activeFocus ? app.blue : app.line) : "transparent"
+            border.color: control.quiet ? (control.activeFocus ? app.accent : app.line) : "transparent"
             border.width: control.activeFocus ? 2 : 1
             Behavior on color { ColorAnimation { duration: app.reducedMotion ? 0 : 120 } }
         }
@@ -243,12 +243,12 @@ ApplicationWindow {
                 Layout.preferredWidth: app.scaled(45)
                 Layout.preferredHeight: app.scaled(45)
                 radius: app.scaled(14)
-                color: app.blueSoft
+                color: app.accentSoft
                 border.color: "#326f9d"
                 Label {
                     anchors.centerIn: parent
                     text: "↶"
-                    color: app.blue
+                    color: app.accent
                     font.pixelSize: app.scaled(28)
                     font.weight: Font.DemiBold
                 }
@@ -271,7 +271,7 @@ ApplicationWindow {
             }
 
             Capsule { text: "LOCAL ONLY"; accent: app.green }
-            Capsule { text: "NO SCREEN RECORDING"; accent: app.blue }
+            Capsule { text: "NO SCREEN RECORDING"; accent: app.accent }
 
             RewindButton {
                 text: "Refresh"
@@ -446,7 +446,7 @@ ApplicationWindow {
                                         background: Rectangle {
                                             radius: app.scaled(12)
                                             color: presetButton.down ? "#21425a" : presetButton.hovered ? "#1b354b" : app.panelRaised
-                                            border.color: presetButton.activeFocus ? app.blue : app.line
+                                            border.color: presetButton.activeFocus ? app.accent : app.line
                                             border.width: presetButton.activeFocus ? 2 : 1
                                             Behavior on color { ColorAnimation { duration: app.reducedMotion ? 0 : 130 } }
                                         }
@@ -528,7 +528,7 @@ ApplicationWindow {
                                     Layout.fillWidth: true
                                     spacing: app.scaled(8)
                                     Capsule { text: app.state.review ? app.state.review.added + " ADDED" : ""; accent: app.green }
-                                    Capsule { text: app.state.review ? app.state.review.modified + " CHANGED" : ""; accent: app.blue }
+                                    Capsule { text: app.state.review ? app.state.review.modified + " CHANGED" : ""; accent: app.accent }
                                     Capsule { text: app.state.review ? app.state.review.deleted + " REMOVED" : ""; accent: app.red }
                                 }
                             }
@@ -557,7 +557,7 @@ ApplicationWindow {
                                     Layout.fillWidth: true
                                     Label {
                                         text: changedPathRow.modelData.kind === "added" ? "+" : changedPathRow.modelData.kind === "deleted" ? "−" : "•"
-                                        color: changedPathRow.modelData.kind === "added" ? app.green : changedPathRow.modelData.kind === "deleted" ? app.red : app.blue
+                                        color: changedPathRow.modelData.kind === "added" ? app.green : changedPathRow.modelData.kind === "deleted" ? app.red : app.accent
                                         font.pixelSize: app.scaled(16)
                                         font.weight: Font.Bold
                                     }
@@ -659,12 +659,12 @@ ApplicationWindow {
                                             font.pixelSize: app.scaled(10)
                                         }
                                     }
-                                    Label { text: "›"; color: app.blue; font.pixelSize: app.scaled(20) }
+                                    Label { text: "›"; color: app.accent; font.pixelSize: app.scaled(20) }
                                 }
                                 background: Rectangle {
                                     radius: app.scaled(11)
                                     color: sessionButton.down ? "#213d54" : sessionButton.hovered ? "#1b3449" : app.panelRaised
-                                    border.color: sessionButton.activeFocus ? app.blue : app.line
+                                    border.color: sessionButton.activeFocus ? app.accent : app.line
                                     border.width: sessionButton.activeFocus ? 2 : 1
                                 }
                             }
@@ -684,7 +684,7 @@ ApplicationWindow {
                                     Layout.preferredWidth: app.scaled(8)
                                     Layout.preferredHeight: app.scaled(8)
                                     radius: width / 2
-                                    color: snapshotRow.modelData.description.indexOf("Dagric") === 0 ? app.blue : "#62788d"
+                                    color: snapshotRow.modelData.description.indexOf("Dagric") === 0 ? app.accent : "#62788d"
                                 }
                                 ColumnLayout {
                                     Layout.fillWidth: true

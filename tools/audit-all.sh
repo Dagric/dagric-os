@@ -24,8 +24,19 @@ run() {
 }
 
 run "source and security" python3 tools/check-source.py
+run "offline manual application coverage" python3 tools/check-manual-coverage.py
+run "selectable Dagric icon families" python3 tools/check-icon-themes.py
+run "licensing and media rights" python3 tools/check-release-rights.py
+run "optional game-platform boundary" python3 tools/check-game-platform-policy.py
+run "exact corresponding-source map" python3 tools/check-generated-source-map.py
+run "commercial release gate regressions" python3 test/test-commercial-release-gate.py
+run "physical release gate regressions" python3 test/test-physical-release-gate.py
+run "release workflow ordering" python3 test/test-release-workflow-gate.py
+run "commercial locale gate regressions" python3 test/test-release-locales.py
 run "product concept contracts" python3 tools/check-concepts.py
 run "source-check mutation suite" python3 test/test-source-check.py
+run "browser migration privacy" python3 test/test-migrate-browser-security.py
+run "Steam migration privacy" python3 test/test-migrate-continuity-privacy.py
 run "Docker build definition" sh tools/check-dockerfile.sh
 run "website release safety" sh tools/check-site.sh
 run "Rewind safety boundary" sh tools/check-rewind.sh
@@ -36,6 +47,8 @@ run "Dagric Update unit tests" python3 test/test-update-core.py
 run "Dagric Flow visual contract" python3 tools/check-flow.py
 run "Dagric dependability foundations" sh tools/check-foundations.sh
 run "JavaScript syntax" sh tools/check-javascript.sh
+run "Worker security boundaries" node test/test-workers.mjs
+run "JavaScript dependency vulnerabilities" sh tools/check-dependencies.sh
 run "shell syntax and error rules" sh tools/check-shell.sh
 run "translation catalogues" sh tools/i18n-build.sh --check
 run "desktop-entry localization" python3 tools/i18n-desktop.py --check

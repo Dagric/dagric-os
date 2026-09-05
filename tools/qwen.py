@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# SPDX-FileCopyrightText: 2026 DGR Operations <repo@dagric.com>
+# SPDX-FileCopyrightText: 2026 IMPRESSIONSDIRECT360 LLC <repo@dagric.com>
 # SPDX-License-Identifier: GPL-3.0-or-later
 """Call the Qwen Cloud Token Plan endpoint, or the direct DeepSeek one.
 
@@ -185,17 +185,22 @@ def _get(path, model="", timeout=60):
 
 
 def ask(prompt, system=None, model=DEFAULT_MODEL, max_tokens=8192,
-        temperature=0.7, timeout=1800):
+        temperature=0.7, timeout=1800, thinking=None, response_format=None):
     msgs = []
     if system:
         msgs.append({"role": "system", "content": system})
     msgs.append({"role": "user", "content": prompt})
-    d = _post("/chat/completions", {
+    payload = {
         "model": model,
         "messages": msgs,
         "max_tokens": max_tokens,
         "temperature": temperature,
-    }, timeout)
+    }
+    if thinking is not None:
+        payload["thinking"] = {"type": thinking}
+    if response_format is not None:
+        payload["response_format"] = response_format
+    d = _post("/chat/completions", payload, timeout)
     ch = d.get("choices") or []
     if not ch:
         sys.exit("No choices in response: " + json.dumps(d)[:800])

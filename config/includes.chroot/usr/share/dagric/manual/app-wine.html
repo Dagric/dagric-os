@@ -46,11 +46,15 @@
       <h2>What it is</h2>
       <p><strong>Wine</strong> is not an emulator: it reimplements the Windows
       programming interfaces on Linux, so a Windows program's instructions run
-      directly on your processor. That means near-native speed, and it means
-      compatibility varies by program rather than by category.</p>
-      <p>Dagric&nbsp;OS Pro installs both the 64-bit and 32-bit halves, so the classic
-      thirty-year back catalogue of small Windows utilities runs as well as modern
-      software.</p>
+      through a compatibility layer rather than a full hardware emulator.
+      Compatibility, performance and device integration vary by program and setup.</p>
+      <p>Dagric&nbsp;OS Pro installs both the 64-bit and 32-bit halves, so the
+      system can attempt both older 32-bit and newer 64-bit applications. That does
+      not guarantee that any particular installer, driver or online feature works.</p>
+      <div class="notice"><div>Wine and Dagric are independent of Microsoft.
+      Windows names describe compatibility only. A Windows application's license,
+      account rules and any third-party runtime EULA still apply when it is used
+      through Wine.</div></div>
     </section>
 
     <section>
@@ -64,31 +68,32 @@
         <li><span class="t">Configure the fake Windows</span><p><code>winecfg</code> opens a control panel: which Windows version to
          claim to be, drive mappings, graphics options, audio. Claiming an older
          Windows version fixes a surprising number of installers.</p></li>
-        <li><span class="t">Add the missing pieces</span><p><code>winetricks</code> installs the runtimes programs expect &mdash;
-         the Visual C++ redistributables, .NET, DirectX components, core fonts. When a
-         program complains about a missing DLL, this is the tool.</p></li>
+        <li><span class="t">Add a required dependency carefully</span><p><code>winetricks</code> can download runtimes some programs expect,
+         including Microsoft redistributables, .NET components and fonts. Those
+         downloads may carry their own licenses or EULAs. Read the displayed terms,
+         use only what the program actually requires, and keep each app in a separate
+         prefix when practical.</p></li>
         <li><span class="t">Keep programs apart</span><p>Give each application its own prefix:
          <code>WINEPREFIX=~/.wine-appname wine setup.exe</code>. One program's
          requirements then cannot break another's.
          <a href="app-bottles.html">Bottles</a> does exactly this with a window
          instead of environment variables, and is the easier route.</p></li>
-        <li><span class="t">Find out if your program works</span><p>The Wine Application Database at <strong>appdb.winehq.org</strong>
-         rates thousands of programs and lists what people had to do. Check before you
-         spend an evening.</p></li>
+        <li><span class="t">Research before installing</span><p>The Wine Application Database at <strong>appdb.winehq.org</strong>
+         carries community compatibility reports and workarounds. Check report dates,
+         Wine versions and tested features; a community result is not a guarantee for
+         your hardware or software version.</p></li>
       </ol>
     </section>
 
     <section>
       <h2>One thing that will surprise you</h2>
-      <p><strong>It is often not slower &mdash; and occasionally it is faster.</strong>
-      Because Wine translates calls rather than emulating hardware, a Windows program
-      under Wine on Linux sometimes outperforms the same program on Windows on the
-      same machine. It is not magic and it is not universal, but the instinct that
-      &ldquo;compatibility layer&rdquo; must mean &ldquo;slow&rdquo; is simply
-      wrong.</p>
-      <p>What does fail: anything with kernel drivers, most anti-cheat, and software
-      that checks the hardware very closely. For those, use
-      <a href="app-virt-manager.html">a real Windows in a virtual machine</a>.</p>
+      <p><strong>A program opening is not a complete compatibility test.</strong>
+      Performance can be close to native in some workloads and poor in others.
+      Installers, kernel drivers, anti-cheat, account sign-in, printing and hardware
+      access can behave differently. Test the exact workflow you depend on.</p>
+      <p>If a required feature does not work, check the software publisher's current
+      platform support and license before trying another compatibility layer or
+      <a href="app-virt-manager.html">a licensed Windows installation</a>.</p>
     </section>
 
     <section>

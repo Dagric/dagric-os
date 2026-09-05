@@ -64,7 +64,7 @@ fi
 check "firewalld is active" systemctl is-active --quiet firewalld.service
 check "AppArmor is active" systemctl is-active --quiet apparmor.service
 check "unattended upgrades are configured" test -s /etc/apt/apt.conf.d/52dagric-unattended
-check "Firefox telemetry policy parses" python3 -m json.tool /usr/lib/firefox-esr/distribution/policies.json
+check "Dagric does not inject Firefox distribution policy" test ! -e /usr/lib/firefox-esr/distribution/policies.json
 check "Chromium privacy policy parses" python3 -m json.tool /etc/chromium/policies/managed/10-dagric-privacy.json
 check "Rewind privileged helper exists" test -x /usr/lib/dagric/rewind-ctl
 check "Rewind policy exists" test -s /usr/share/polkit-1/actions/org.dagric.rewind.policy

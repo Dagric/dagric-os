@@ -37,7 +37,7 @@
     <header class="hero">
       <div class="eyebrow">Internet and communication</div>
       <h1>Firefox</h1>
-      <p class="sub">The web browser, set up for privacy before you ever open it.</p>
+      <p class="sub">Debian's Firefox ESR browser, with its settings under your control.</p>
     </header>
 
     <div class="swap"><span>On Windows this was</span><strong>Microsoft Edge</strong></div>
@@ -48,11 +48,10 @@
       Support Release, which means it takes security fixes continuously but changes
       its interface only about once a year &mdash; the right trade for a machine
       somebody depends on.</p>
-      <p>Dagric configures it before you first open it: telemetry off, Firefox
-      Studies off, Pocket removed, sponsored tiles off the home page, enhanced
-      tracking protection on including cryptominers and fingerprinters, and the
-      <strong>uBlock Origin</strong> ad blocker set up. There is no onboarding tour
-      and no request that you sign in to anything.</p>
+      <p>Dagric ships Debian's Firefox ESR package without Dagric-specific
+      browser policies, forced extensions, or modified first-run content.
+      Firefox's privacy, search, Home page, account, DRM and add-on choices stay
+      in Firefox's own menus, where you can review and change them yourself.</p>
     </section>
 
     <section>
@@ -70,24 +69,21 @@
         <li><span class="t">Sign in and sync</span><p>Optional and entirely up to you. A Firefox Account syncs bookmarks,
          passwords, history and open tabs between this machine and your phone,
          end-to-end encrypted. Nothing pesters you to create one.</p></li>
-        <li><span class="t">Add or remove an extension</span><p>&#9776; menu &rarr; <em>Add-ons and themes</em>. uBlock Origin is
-         already there; if you do not want it, remove it like any other add-on. That
-         is a deliberate choice on our part &mdash; software you did not ask for
-         should always be removable.</p></li>
-        <li><span class="t">Watch Netflix, Spotify and the rest</span><p>They work. Dagric enables the DRM playback component Firefox needs
-         (Widevine) so streaming services play instead of showing an error. It is the
-         one proprietary component in the browser, it is enabled rather than locked
-         on, and you can switch it off in Firefox's settings.</p></li>
+        <li><span class="t">Add or remove an extension</span><p>&#9776; menu &rarr;
+         <em>Add-ons and themes</em>. Dagric does not preinstall or force browser
+         extensions; choose only the ones you want.</p></li>
+        <li><span class="t">Control DRM playback</span><p>Some streaming services
+         request an optional DRM component. Review Firefox's current choice under
+         <em>Settings &rarr; General &rarr; Play DRM-controlled content</em>; Dagric
+         does not lock that setting.</p></li>
       </ol>
     </section>
 
     <section>
-      <h2>One thing that will surprise you</h2>
-      <p><strong>The ad blocker arrives on your first connection, not in the
-      ISO.</strong> uBlock Origin is set up by policy but Firefox fetches it from
-      Mozilla's add-ons site the first time it runs, so on a machine that has never
-      been online you will briefly see an unfiltered web. Connect once and it appears
-      by itself.</p>
+      <h2>Your browser choices stay yours</h2>
+      <p>Dagric does not silently add an ad blocker or alter Firefox's first-run
+      experience. If you want a content blocker, open <em>Add-ons and themes</em>,
+      review its publisher and permissions, and install it yourself.</p>
       <p>The other thing worth knowing: ESR looks a version or two behind whatever
       you read about online. That is intentional. Security updates land on the same
       day as everyone else's.</p>

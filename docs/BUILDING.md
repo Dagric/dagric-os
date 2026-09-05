@@ -60,6 +60,18 @@ sudo ./build.sh
 Then rebuild. Keep this folder in Git so every ISO is reproducible from a
 commit.
 
+## Commercial releases
+
+A successful developer build is not a releasable commercial artifact. Read
+[COMMERCIAL-RELEASE-GATE.md](COMMERCIAL-RELEASE-GATE.md) before creating a tag.
+The release workflow builds the source commit named by the later release-record
+commit and blocks upload when exact source mapping, artifact manifests or the
+qualified-human legal/trademark attestation are absent or stale. A commercial
+release additionally requires all five shipped PO catalogs to have zero fuzzy
+and zero untranslated entries. Manual R2 work goes only to a verified,
+dedicated private bucket through `tools/upload-to-r2.sh`; the separate post-signature
+`tools/promote-r2-release.sh` command owns the exact live keys.
+
 ## Troubleshooting
 
 - Build output is teed to `build.log` (copied to `out\` even on failure).

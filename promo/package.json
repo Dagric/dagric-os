@@ -1,23 +1,34 @@
 {
   "name": "dagric-promo",
   "version": "1.0.0",
-  "description": "Dagric OS promo video (Remotion)",
+  "description": "Dagric OS continuous-footage video pipeline",
   "scripts": {
     "studio": "remotion studio",
-    "render": "remotion render DagricPromo out/dagric-promo.mp4",
-    "render:walkthrough": "remotion render InstallWalkthrough out/dagric-install-walkthrough.mp4",
-    "render:short": "remotion render DagricShort out/dagric-short.mp4",
-    "render:looks": "remotion render DagricLooks out/dagric-looks.mp4",
-    "render:all": "npm run render && npm run render:walkthrough && npm run render:short && npm run render:looks",
-    "render:social-batch": "node render-social-batch.mjs",
-    "still": "remotion still DagricPromo out/poster.png --frame=90",
-    "still:walkthrough": "remotion still InstallWalkthrough out/walkthrough-poster.png --frame=620",
-    "still:looks": "remotion still DagricLooks out/looks-poster.png --frame=840"
+    "capture:realtime": "python capture-real-vm.py",
+    "render": "npm run render:realtime",
+    "render:realtime": "python assemble-real-vm-footage.py",
+    "audit:realtime": "python audit-real-vm-footage.py",
+    "render:walkthrough": "python assemble-continuous-walkthrough.py",
+    "audit:walkthrough": "python audit-continuous-walkthrough.py",
+    "render:focused": "python assemble-focused-live-shorts.py",
+    "audit:focused": "python audit-focused-live-shorts.py",
+    "review:focused": "python make-focused-live-contact-sheets.py",
+    "audit:library": "python audit-all-dagric-videos.py",
+    "review:library": "python make-library-master-contact-sheets.py",
+    "render:all": "npm run render:realtime && npm run audit:realtime",
+    "legacy:render:promo": "remotion render DagricPromo out/dagric-promo.mp4",
+    "legacy:render:walkthrough": "remotion render InstallWalkthrough out/dagric-install-walkthrough.mp4",
+    "legacy:render:short": "remotion render DagricShort out/dagric-short.mp4",
+    "legacy:render:looks": "remotion render DagricLooks out/dagric-looks.mp4",
+    "legacy:render:social-batch": "node render-social-batch.mjs",
+    "legacy:audit:social-batch": "node audit-social-batch.mjs",
+    "tts:voices": "python elevenlabs_tts.py voices",
+    "tts:eleven": "python elevenlabs_tts.py synthesize"
   },
   "dependencies": {
-    "@remotion/cli": "4.0.286",
+    "@remotion/cli": "4.0.520",
     "react": "19.0.0",
     "react-dom": "19.0.0",
-    "remotion": "4.0.286"
+    "remotion": "4.0.520"
   }
 }

@@ -4,7 +4,7 @@ Name=Dagric Life Support
 GenericName=Emergency system assessment
 Comment=Check whether storage or resource pressure needs recovery action
 Exec=konsole -e sh -c '/usr/bin/dagric-life-support; rc=$?; printf "\nPress Enter to close..."; read x; exit $rc'
-Icon=dagric-logo
+Icon=dagric-life-support
 Terminal=false
 Categories=System;Utility;
 Keywords=recovery;emergency;storage;pressure;health;backup;safe mode;

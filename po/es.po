@@ -1,135 +1,119 @@
 # Dagric OS -- Spanish translation.
-# Copyright (C) 2026 DGR Operations
+# Copyright (C) 2026 IMPRESSIONSDIRECT360 LLC
 # This file is distributed under the same license as the dagric package.
 #
 # ###########################################################################
 # REVIEWED BY A SECOND MODEL, NOT BY A NATIVE SPEAKER. The difference matters
 # and is the reason this block still exists.
-#
 # Every msgstr below was produced by machine translation and has since been
 # read end to end, in context and in batches grouped by the program each string
 # comes from, by a different model family from the one that wrote it
 # (qwen3.8-max). 21 changes were applied to this catalogue.
-#
 # 1 of them fixed a SAFETY string:
-#     the NVIDIA kernel-module failure opened "AVISO" (a notice) where the English
-#     says WARNING; it now opens "ADVERTENCIA".
-#
+# the NVIDIA kernel-module failure opened "AVISO" (a notice) where the English
+# says WARNING; it now opens "ADVERTENCIA".
 # What that review IS: a careful second pass by something that does not share
-# the first pass's blind spots, held to a written brief -- change what is wrong,
+# the first pass's blind spots, held to a written brief -- change what is
+# wrong,
 # do not restyle what is merely different -- with every proposed change put
 # through mechanical guards (tools/i18n-review.py) that reject a translation
 # which loses a $VAR, drops a URL, translates a product name, or breaks an
 # accepted-answer list. 0 were rejected. 0 untouched strings drifted.
-#
 # What it is NOT: a native speaker of Spanish reading this for release. Nobody
 # who speaks Spanish as a first language has read this file. If that ever
 # happens, this block is what should be replaced, and the five categories below
 # are still where to start -- they are the strings that cost money when they
 # are wrong, and a second machine pass does not retire that risk, only reduce
 # it:
-#
-#   * everything from dagric-migrate. It touches the owner's Windows
-#     partition, and the product rests on "Windows is only ever READ".
-#     Negation and modality are where machine translation fails, and this
-#     file is made of them. The French catalogue had exactly this defect.
-#   * everything from dagric-usb-protect. A translation that loses "plug in
-#     everything you normally use before continuing" produces a machine its
-#     owner cannot type on.
-#   * the Secure Boot notice in dagric-drivers. Getting it wrong means a
-#     black screen at the next boot.
-#   * the licence paragraphs in dagric-get-steam and dagric-get-resolve, and
-#     the consent wording in dagric-vm. Sold in the EU: this is liability,
-#     not polish.
-#   * "y yes". Translating the [y/N] prompt without translating the accepted
-#     answer means the owner types their own language's letter and nothing
-#     happens. This catalogue gets it right; keep it that way.
-#
+# * everything from dagric-migrate. It touches the owner's Windows
+# partition, and the product rests on "Windows is only ever READ".
+# Negation and modality are where machine translation fails, and this
+# file is made of them. The French catalogue had exactly this defect.
+# * everything from dagric-usb-protect. A translation that loses "plug in
+# everything you normally use before continuing" produces a machine its
+# owner cannot type on.
+# * the Secure Boot notice in dagric-drivers. Getting it wrong means a
+# black screen at the next boot.
+# * the licence paragraphs in dagric-get-steam and dagric-get-resolve, and
+# the consent wording in dagric-vm. Sold in the EU: this is liability,
+# not polish.
+# * "y yes". Translating the [y/N] prompt without translating the accepted
+# answer means the owner types their own language's letter and nothing
+# happens. This catalogue gets it right; keep it that way.
 # The [y/N] PROMPT INDICATOR is deliberately NOT localised to show the English
 # letter as well. The reviewer proposed that in every language, 38 times in
-# total; a three-model panel (qwen3.8-max, glm-5.2, deepseek-v4-pro) rejected it
+# total; a three-model panel (qwen3.8-max, glm-5.2, deepseek-v4-pro) rejected
+# it
 # unanimously, including the model that proposed it. The accepted-answer list
 # still takes "y" everywhere -- only the display was left alone.
-#
-#
 # BACK-TRANSLATION QA, 2026-08-04. Every string in this catalogue was rendered
 # back into English by deepseek-v4-pro, which was shown the Spanish and NOTHING
 # else — no English source, no product name, no description of what the program
 # does. A model that cannot see the original cannot agree with it, which is the
 # point: a meaning inversion survives a review that pattern-matches two texts
 # into agreement, and cannot survive a round trip.
-#
 # glm-5.2 then compared each round trip against the real English and marked it
-# SAME, DRIFT or INVERSION. Three model families, three jobs, none of them
+# SAME, DRIFT or IN1.0. Three model families, three jobs, none of them
 # checking work it produced.
-#
-# Result for Spanish: 28 of 438 flagged, 2 of them as INVERSION.
+# Result for Spanish: 28 of 438 flagged, 2 of them as IN1.0.
 # Across all five catalogues: 3 inversions raised out of 2,189 strings, and all
-# three were put to a three-model panel with the source, the translation and the
+# three were put to a three-model panel with the source, the translation and
+# the
 # back-translation pasted in. Unanimous REFUTED at high confidence: Spanish
 # "Windows solo se LEE" is the pasiva refleja and means "Windows is only read",
 # not "Windows reads"; Portuguese "rode antes X" is an adverb meaning run X
 # first, not run something before X. Both were literal-back-translation
 # artifacts. ZERO genuine inversions remain.
-#
 # That is the strongest check available short of a native speaker, and it is
 # still not one. The block above stands.
-#
 # A string that should ship in English until it has been checked can be
 # marked "#, fuzzy": msgfmt drops fuzzy messages and the English source is
 # shown instead. Never build with --use-fuzzy.
-# ###########################################################################
-#
 msgid ""
 msgstr ""
 "Project-Id-Version: dagric 1.0\n"
 "Report-Msgid-Bugs-To: repo@dagric.com\n"
-"POT-Creation-Date: 2026-09-01 16:39+0000\n"
-"PO-Revision-Date: 2026-08-04 01:00+0000\n"
+"POT-Creation-Date: 2026-09-04 17:46-0500\n"
+"PO-Revision-Date: 2026-09-05 00:07+0000\n"
 "Last-Translator: Machine translation, reviewed by a second model "
 "<repo@dagric.com>\n"
-"Language-Team: none\n"
 "Language: es\n"
-"MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=UTF-8\n"
-"Content-Transfer-Encoding: 8bit\n"
+"Language-Team: none\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: machine translation 2026-07-27, reviewed qwen3.8-max "
-"2026-08-04\n"
-"X-Dagric-Review-Status: second-model-reviewed; back-translation-verified; no-"
-"native-speaker-pass\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
 
 #. TRANSLATORS: the setup wizard's own buttons, headings and labels.
 #. Keep button labels short; they sit in fixed-width buttons beside
 #. each other. %1 and %2 are values substituted at runtime and may be
 #. reordered to suit the language.
-#: po/dagric-data-strings.sh:15
-#: config/includes.chroot/usr/bin/dagric-firstrun:70
+#: config/includes.chroot/usr/bin/dagric-firstrun:70 po/dagric-data-strings.sh:16
 msgid "Set Up Dagric"
 msgstr "Configurar Dagric"
 
-#: po/dagric-data-strings.sh:16
-#: config/includes.chroot/usr/bin/dagric-firstrun:917
+#: config/includes.chroot/usr/bin/dagric-firstrun:916 po/dagric-data-strings.sh:17
 msgid "Every step can be skipped, and you can change all of it later."
 msgstr "Puedes omitir cualquier paso y cambiarlo todo más adelante."
 
-#: po/dagric-data-strings.sh:17
+#: po/dagric-data-strings.sh:18
 msgid "I'll do this later"
 msgstr "Lo haré más tarde"
 
-#: po/dagric-data-strings.sh:18
+#: po/dagric-data-strings.sh:19
 msgid ""
-"Close setup. Anything already applied stays, and you can run this again from "
-"the Dagric Hub"
+"Close setup. Anything already applied stays, and you can run this again from"
+" the Dagric Hub"
 msgstr ""
 "Cierra la configuración. Lo ya aplicado se conserva, y puedes volver a "
 "abrirla desde el Dagric Hub"
 
-#: po/dagric-data-strings.sh:19
+#: po/dagric-data-strings.sh:20
 msgid "Undo my changes"
 msgstr "Deshacer mis cambios"
 
-#: po/dagric-data-strings.sh:20
+#: po/dagric-data-strings.sh:21
 msgid ""
 "Put the colours, wallpaper, text size and taskbar back the way they were "
 "when setup opened"
@@ -137,210 +121,206 @@ msgstr ""
 "Devuelve los colores, el fondo de pantalla, el tamaño del texto y la barra "
 "de tareas al estado que tenían al abrir la configuración"
 
-#: po/dagric-data-strings.sh:21
+#: po/dagric-data-strings.sh:22
 msgid "PRO EDITION"
 msgstr "EDICIÓN PRO"
 
-#: po/dagric-data-strings.sh:22
+#: po/dagric-data-strings.sh:23
 msgid "Pro edition"
 msgstr "Edición Pro"
 
-#: po/dagric-data-strings.sh:23
+#: po/dagric-data-strings.sh:24
 msgid "Live trial — anything you set here lasts until you shut down."
 msgstr "Prueba en vivo: todo lo que ajustes aquí dura hasta que apagues."
 
-#: po/dagric-data-strings.sh:24
+#: po/dagric-data-strings.sh:25
 msgid "Back"
 msgstr "Atrás"
 
-#: po/dagric-data-strings.sh:25
+#: po/dagric-data-strings.sh:26
 msgid "Go back to the previous step"
 msgstr "Volver al paso anterior"
 
-#: po/dagric-data-strings.sh:26
+#: po/dagric-data-strings.sh:27
 msgid "Next"
 msgstr "Siguiente"
 
-#: po/dagric-data-strings.sh:27
+#: po/dagric-data-strings.sh:28
 msgid "Go to the next step"
 msgstr "Ir al paso siguiente"
 
-#: po/dagric-data-strings.sh:28
+#: po/dagric-data-strings.sh:29
 msgid "Finish"
 msgstr "Finalizar"
 
-#: po/dagric-data-strings.sh:29
+#: po/dagric-data-strings.sh:30
 msgid "Close setup and start using Dagric"
 msgstr "Cerrar la configuración y empezar a usar Dagric"
 
-#: po/dagric-data-strings.sh:30
+#: po/dagric-data-strings.sh:31
 msgid "Skip this step"
 msgstr "Omitir este paso"
 
-#: po/dagric-data-strings.sh:31
+#: po/dagric-data-strings.sh:32
 msgid "Leave this setting alone and go to the next step"
 msgstr "Dejar este ajuste como está e ir al paso siguiente"
 
-#: po/dagric-data-strings.sh:32
+#: po/dagric-data-strings.sh:33
 msgid "Let's go"
 msgstr "Empecemos"
 
-#: po/dagric-data-strings.sh:33
+#: po/dagric-data-strings.sh:34
 msgid "Welcome"
 msgstr "Bienvenida"
 
-#: po/dagric-data-strings.sh:34
+#: po/dagric-data-strings.sh:35
 msgid "How it looks"
 msgstr "Apariencia"
 
-#: po/dagric-data-strings.sh:35
+#: po/dagric-data-strings.sh:36
 msgid "Text size"
 msgstr "Tamaño del texto"
 
-#: po/dagric-data-strings.sh:36
+#: po/dagric-data-strings.sh:37
 msgid "The taskbar"
 msgstr "Barra de tareas"
 
-#: po/dagric-data-strings.sh:37
+#: po/dagric-data-strings.sh:38
 msgid "Your files"
 msgstr "Tus archivos"
 
-#: po/dagric-data-strings.sh:38
+#: po/dagric-data-strings.sh:39
 msgid "You're ready"
 msgstr "Todo listo"
 
-#: po/dagric-data-strings.sh:39
+#: po/dagric-data-strings.sh:40
 msgid "Step %1"
 msgstr "Paso %1"
 
-#: po/dagric-data-strings.sh:40
+#: po/dagric-data-strings.sh:41
 msgid "Step %1 of %2"
 msgstr "Paso %1 de %2"
 
-#: po/dagric-data-strings.sh:41
+#: po/dagric-data-strings.sh:42
 msgid "current step"
 msgstr "paso actual"
 
-#: po/dagric-data-strings.sh:42
+#: po/dagric-data-strings.sh:43
 msgid "done"
 msgstr "hecho"
 
-#: po/dagric-data-strings.sh:43
+#: po/dagric-data-strings.sh:44
 msgid "not done yet"
 msgstr "aún sin hacer"
 
-#: po/dagric-data-strings.sh:44
+#: po/dagric-data-strings.sh:45
 msgid "Welcome to %1."
 msgstr "Te damos la bienvenida a %1."
 
-#: po/dagric-data-strings.sh:45
-msgid ""
-"Let's make it yours. A few minutes now — the colours, the wallpaper, how big "
-"the text is, where the taskbar sits, and your files from Windows — and then "
-"it's out of your way."
-msgstr ""
-"Vamos a hacerlo tuyo. Unos minutos ahora: los colores, el fondo de pantalla, "
-"el tamaño del texto, dónde va la barra de tareas y tus archivos de Windows, "
-"y después te dejamos en paz."
-
 #: po/dagric-data-strings.sh:46
 msgid ""
-"Let's make it yours. A few minutes now — the colours, the wallpaper, how big "
-"the text is, where the taskbar sits — and then it's out of your way."
+"Let's make it yours. A few minutes now — the colours, the wallpaper, how big"
+" the text is, where the taskbar sits, and your files from Windows — and then"
+" it's out of your way."
 msgstr ""
-"Vamos a hacerlo tuyo. Unos minutos ahora: los colores, el fondo de pantalla, "
-"el tamaño del texto y dónde va la barra de tareas, y después te dejamos en "
-"paz."
+"Vamos a hacerlo tuyo. Unos minutos ahora: los colores, el fondo de pantalla,"
+" el tamaño del texto, dónde va la barra de tareas y tus archivos de Windows,"
+" y después te dejamos en paz."
 
 #: po/dagric-data-strings.sh:47
+msgid ""
+"Let's make it yours. A few minutes now — the colours, the wallpaper, how big"
+" the text is, where the taskbar sits — and then it's out of your way."
+msgstr ""
+"Vamos a hacerlo tuyo. Unos minutos ahora: los colores, el fondo de pantalla,"
+" el tamaño del texto y dónde va la barra de tareas, y después te dejamos en "
+"paz."
+
+#: po/dagric-data-strings.sh:48
 msgid "Pick a look."
 msgstr "Elige un estilo."
 
-#: po/dagric-data-strings.sh:48
+#: po/dagric-data-strings.sh:49
 msgid "Click anything — the desktop behind this window changes as you go."
 msgstr "Haz clic en lo que quieras: el escritorio cambia al instante."
 
-#: po/dagric-data-strings.sh:49
+#: po/dagric-data-strings.sh:50
 msgid "Theme"
 msgstr "Tema"
 
-#: po/dagric-data-strings.sh:50
-#: config/includes.chroot/usr/bin/dagric-firstrun:931
+#: config/includes.chroot/usr/bin/dagric-firstrun:930 po/dagric-data-strings.sh:51
 msgid "Light"
 msgstr "Claro"
 
-#: po/dagric-data-strings.sh:51
-#: config/includes.chroot/usr/bin/dagric-firstrun:931
+#: config/includes.chroot/usr/bin/dagric-firstrun:930 po/dagric-data-strings.sh:52
 msgid "Dark"
 msgstr "Oscuro"
 
-#: po/dagric-data-strings.sh:52
+#: po/dagric-data-strings.sh:53
 msgid "Light theme"
 msgstr "Tema claro"
 
-#: po/dagric-data-strings.sh:53
+#: po/dagric-data-strings.sh:54
 msgid "A bright desktop. Shows a small picture of what it looks like."
 msgstr "Un escritorio claro. Muestra una imagen pequeña de cómo queda."
 
-#: po/dagric-data-strings.sh:54
+#: po/dagric-data-strings.sh:55
 msgid "Dark theme"
 msgstr "Tema oscuro"
 
-#: po/dagric-data-strings.sh:55
+#: po/dagric-data-strings.sh:56
 msgid "A dark desktop, easier on the eyes at night."
 msgstr "Un escritorio oscuro, más cómodo para la vista por la noche."
 
-#: po/dagric-data-strings.sh:56
+#: po/dagric-data-strings.sh:57
 msgid "Light theme applied."
 msgstr "Tema claro aplicado."
 
-#: po/dagric-data-strings.sh:57
+#: po/dagric-data-strings.sh:58
 msgid "Dark theme applied."
 msgstr "Tema oscuro aplicado."
 
-#: po/dagric-data-strings.sh:58
+#: po/dagric-data-strings.sh:59
 msgid "Highlight colour"
 msgstr "Color de acento"
 
-#: po/dagric-data-strings.sh:59
+#: po/dagric-data-strings.sh:60
 msgid "%1 highlight colour applied."
 msgstr "Color de acento %1 aplicado."
 
-#: po/dagric-data-strings.sh:60
+#: po/dagric-data-strings.sh:61
 msgid "Wallpaper"
 msgstr "Fondo de pantalla"
 
-#: po/dagric-data-strings.sh:61
+#: po/dagric-data-strings.sh:62
 msgid "Wallpaper %1 of %2"
 msgstr "Fondo de pantalla %1 de %2"
 
-#: po/dagric-data-strings.sh:62
+#: po/dagric-data-strings.sh:63
 msgid "Arrow keys to move between wallpapers, Space to apply one"
 msgstr ""
 "Usa las flechas para moverte entre los fondos de pantalla y Espacio para "
 "aplicar uno"
 
-#: po/dagric-data-strings.sh:63
+#: po/dagric-data-strings.sh:64
 msgid "%1 wallpaper applied."
 msgstr "Fondo de pantalla %1 aplicado."
 
-#: po/dagric-data-strings.sh:64
-msgid ""
-"Want your own picture? Right-click the desktop and choose Configure Desktop."
+#: po/dagric-data-strings.sh:65
+msgid "Want your own picture? Right-click the desktop and choose Configure Desktop."
 msgstr ""
 "¿Prefieres tu propia imagen? Haz clic derecho en el escritorio y elige "
 "«Configurar el escritorio»."
 
-#: po/dagric-data-strings.sh:65
+#: po/dagric-data-strings.sh:66
 msgid "Is the text the right size?"
 msgstr "¿El texto tiene el tamaño adecuado?"
 
-#: po/dagric-data-strings.sh:66
-msgid "Dagric guessed from your screen. Pick another size if it guessed wrong."
-msgstr ""
-"Dagric lo ha deducido de tu pantalla. Elige otro tamaño si se ha equivocado."
-
 #: po/dagric-data-strings.sh:67
+msgid "Dagric guessed from your screen. Pick another size if it guessed wrong."
+msgstr "Dagric lo ha deducido de tu pantalla. Elige otro tamaño si se ha equivocado."
+
+#: po/dagric-data-strings.sh:68
 msgid ""
 "Dagric guessed from your screen. A change here takes effect the next time "
 "you sign in."
@@ -348,93 +328,89 @@ msgstr ""
 "Dagric lo ha deducido de tu pantalla. Un cambio aquí tendrá efecto la "
 "próxima vez que inicies sesión."
 
-#: po/dagric-data-strings.sh:68
-msgid ""
-"Dagric guessed from your screen. Pick another size and it changes right away."
-msgstr ""
-"Dagric lo ha deducido de tu pantalla. Elige otro tamaño y cambia al instante."
-
 #: po/dagric-data-strings.sh:69
+msgid "Dagric guessed from your screen. Pick another size and it changes right away."
+msgstr "Dagric lo ha deducido de tu pantalla. Elige otro tamaño y cambia al instante."
+
+#: po/dagric-data-strings.sh:70
 msgid "Choose a text size"
 msgstr "Elegir tamaño del texto"
 
-#: po/dagric-data-strings.sh:70
+#: po/dagric-data-strings.sh:71
 msgid ""
 "Opens a list of text sizes in a separate window. A new size is tried for "
 "twenty seconds and put back on its own unless you keep it."
 msgstr ""
-"Abre una lista de tamaños de texto en una ventana aparte. Un nuevo tamaño se "
-"prueba durante veinte segundos y se deshace solo a menos que lo mantengas."
+"Abre una lista de tamaños de texto en una ventana aparte. Un nuevo tamaño se"
+" prueba durante veinte segundos y se deshace solo a menos que lo mantengas."
 
-#: po/dagric-data-strings.sh:71
+#: po/dagric-data-strings.sh:72
 msgid "Normal"
 msgstr "Normal"
 
-#: po/dagric-data-strings.sh:72
+#: po/dagric-data-strings.sh:73
 msgid "Standard size"
 msgstr "Tamaño estándar"
 
-#: po/dagric-data-strings.sh:73
+#: po/dagric-data-strings.sh:74
 msgid "Bigger"
 msgstr "Más grande"
 
-#: po/dagric-data-strings.sh:74
+#: po/dagric-data-strings.sh:75
 msgid "Easier to read"
 msgstr "Más fácil de leer"
 
-#: po/dagric-data-strings.sh:75
+#: po/dagric-data-strings.sh:76
 msgid "Biggest"
 msgstr "El más grande"
 
-#: po/dagric-data-strings.sh:76
+#: po/dagric-data-strings.sh:77
 msgid "Large text"
 msgstr "Texto grande"
 
-#: po/dagric-data-strings.sh:77
+#: po/dagric-data-strings.sh:78
 msgid "%1, %2 percent"
 msgstr "%1, %2 por ciento"
 
-#: po/dagric-data-strings.sh:78
+#: po/dagric-data-strings.sh:79
 msgid "Text size set to %1 percent."
 msgstr "Tamaño del texto ajustado al %1 por ciento."
 
-#: po/dagric-data-strings.sh:79
+#: po/dagric-data-strings.sh:80
 msgid "You can change this again in System Settings ▸ Display & Monitor."
 msgstr ""
 "Puedes cambiarlo cuando quieras en Preferencias del sistema ▸ Pantalla y "
 "monitor."
 
-#: po/dagric-data-strings.sh:80
-#: config/includes.chroot/usr/bin/dagric-firstrun:970
+#: config/includes.chroot/usr/bin/dagric-firstrun:969 po/dagric-data-strings.sh:81
 msgid "Where should the taskbar go?"
 msgstr "¿Dónde quieres la barra de tareas?"
 
-#: po/dagric-data-strings.sh:81
-msgid ""
-"Click one to try it. Your open windows and apps stay exactly where they are."
+#: po/dagric-data-strings.sh:82
+msgid "Click one to try it. Your open windows and apps stay exactly where they are."
 msgstr ""
 "Haz clic en una para probarla. Tus ventanas y aplicaciones abiertas se "
 "quedan donde están."
 
-#: po/dagric-data-strings.sh:82
+#: po/dagric-data-strings.sh:83
 msgid "Taskbar layout"
 msgstr "Disposición de la barra de tareas"
 
-#: po/dagric-data-strings.sh:83
+#: po/dagric-data-strings.sh:84
 msgid "Arrow keys to move between layouts, Space to try one"
 msgstr ""
 "Usa las flechas para moverte entre las disposiciones y Espacio para probar "
 "una"
 
-#: po/dagric-data-strings.sh:84
+#: po/dagric-data-strings.sh:85
 msgid "%1 taskbar applied."
 msgstr "Barra de tareas %1 aplicada."
 
-#: po/dagric-data-strings.sh:85
+#: po/dagric-data-strings.sh:86
 msgid "Bring your files across."
 msgstr "Trae tus archivos."
 
-#: po/dagric-data-strings.sh:86
+#: po/dagric-data-strings.sh:87
 msgid ""
 "There's a Windows drive in this PC. Dagric can copy your Documents, "
 "Pictures, Music, Videos, Downloads and browser bookmarks over."
@@ -442,51 +418,49 @@ msgstr ""
 "Este PC tiene un disco de Windows. Dagric puede copiar tus Documentos, "
 "Imágenes, Música, Vídeos, Descargas y marcadores del navegador."
 
-#: po/dagric-data-strings.sh:87
+#: po/dagric-data-strings.sh:88
 msgid "Windows is only ever READ."
 msgstr "Windows solo se LEE."
 
-#: po/dagric-data-strings.sh:88
+#: po/dagric-data-strings.sh:89
 msgid "Windows is only ever read."
 msgstr "Windows solo se lee."
 
-#: po/dagric-data-strings.sh:89
+#: po/dagric-data-strings.sh:90
 msgid ""
-"Nothing on the Windows drive is moved, changed or deleted, and files already "
-"here are never overwritten. If you change your mind about Dagric, Windows is "
-"exactly as you left it."
+"Nothing on the Windows drive is moved, changed or deleted, and files already"
+" here are never overwritten. If you change your mind about Dagric, Windows "
+"is exactly as you left it."
 msgstr ""
-"En el disco de Windows no se mueve, cambia ni borra nada, y los archivos que "
-"ya están aquí nunca se sobrescriben. Si cambias de idea sobre Dagric, "
+"En el disco de Windows no se mueve, cambia ni borra nada, y los archivos que"
+" ya están aquí nunca se sobrescriben. Si cambias de idea sobre Dagric, "
 "Windows está exactamente como lo dejaste."
 
-#: po/dagric-data-strings.sh:90
+#: po/dagric-data-strings.sh:91
 msgid "Bring my files over"
 msgstr "Traer mis archivos"
 
-#: po/dagric-data-strings.sh:91
+#: po/dagric-data-strings.sh:92
 msgid ""
 "Opens the migration tool in its own window. Nothing on the Windows drive is "
 "changed."
 msgstr ""
-"Abre el asistente de migración en su propia ventana. No se cambia nada en el "
-"disco de Windows."
+"Abre el asistente de migración en su propia ventana. No se cambia nada en el"
+" disco de Windows."
 
-#: po/dagric-data-strings.sh:92
+#: po/dagric-data-strings.sh:93
 msgid "This opens in its own window — carry on here while it works."
 msgstr "Esto se abre en su propia ventana; sigue aquí mientras trabaja."
 
-#: po/dagric-data-strings.sh:93
-msgid ""
-"Not now? It's in the Dagric Hub under \"Migrate from Windows\", any time."
-msgstr ""
-"¿Ahora no? Está en el Dagric Hub, en «Migrar desde Windows», cuando quieras."
-
 #: po/dagric-data-strings.sh:94
+msgid "Not now? It's in the Dagric Hub under \"Migrate from Windows\", any time."
+msgstr "¿Ahora no? Está en el Dagric Hub, en «Migrar desde Windows», cuando quieras."
+
+#: po/dagric-data-strings.sh:95
 msgid "That's it — %1 is yours."
 msgstr "Ya está: %1 es tuyo."
 
-#: po/dagric-data-strings.sh:95
+#: po/dagric-data-strings.sh:96
 msgid ""
 "Four places worth knowing about. Everything else you can find by pressing "
 "the launcher and typing."
@@ -494,62 +468,62 @@ msgstr ""
 "Cuatro sitios que conviene conocer. Todo lo demás lo encuentras pulsando el "
 "lanzador y escribiendo."
 
-#: po/dagric-data-strings.sh:96
+#: po/dagric-data-strings.sh:97
 msgid "Dagric Hub"
 msgstr "Dagric Hub"
 
-#: po/dagric-data-strings.sh:97
+#: po/dagric-data-strings.sh:98
 msgid "Drivers, setup, security and migration, all in one menu."
 msgstr "Controladores, configuración, seguridad y migración, todo en un menú."
 
-#: po/dagric-data-strings.sh:98
+#: po/dagric-data-strings.sh:99
 msgid "User Guide"
 msgstr "Guía del usuario"
 
-#: po/dagric-data-strings.sh:99
+#: po/dagric-data-strings.sh:100
 msgid "Your first week: updates, printers, Wi-Fi, shortcuts."
 msgstr "Tu primera semana: actualizaciones, impresoras, wifi, atajos."
 
-#: po/dagric-data-strings.sh:100
+#: po/dagric-data-strings.sh:101
 msgid "App Manual"
 msgstr "Manual de aplicaciones"
 
-#: po/dagric-data-strings.sh:101
+#: po/dagric-data-strings.sh:102
 msgid "A page on every app, and what it replaced on Windows."
 msgstr "Una página por cada aplicación y a qué sustituye de Windows."
 
-#: po/dagric-data-strings.sh:102
+#: po/dagric-data-strings.sh:103
 msgid "Welcome page"
 msgstr "Página de bienvenida"
 
-#: po/dagric-data-strings.sh:103
+#: po/dagric-data-strings.sh:104
 msgid "What Dagric is, and the promises it makes."
 msgstr "Qué es Dagric y las promesas que hace."
 
-#: po/dagric-data-strings.sh:104
+#: po/dagric-data-strings.sh:105
 msgid "Open"
 msgstr "Abrir"
 
-#: po/dagric-data-strings.sh:105
+#: po/dagric-data-strings.sh:106
 msgid "Open %1"
 msgstr "Abrir %1"
 
-#: po/dagric-data-strings.sh:106
 #: config/includes.chroot/usr/bin/dagric-firstrun:758
+#: po/dagric-data-strings.sh:107
 msgid "Your desktop is back the way it was."
 msgstr "Tu escritorio ha vuelto a estar como estaba."
 
-#: po/dagric-data-strings.sh:107
-#: config/includes.chroot/usr/bin/dagric-firstrun:919
+#: config/includes.chroot/usr/bin/dagric-firstrun:918
+#: po/dagric-data-strings.sh:108
 msgid ""
 "You're running the live trial from the USB stick, so anything you set here "
 "lasts until you shut down. Install Dagric first if you want it to stick."
 msgstr ""
-"Estás en la prueba en vivo desde la memoria USB, así que todo lo que ajustes "
-"aquí dura hasta que apagues. Instala Dagric primero si quieres que se "
+"Estás en la prueba en vivo desde la memoria USB, así que todo lo que ajustes"
+" aquí dura hasta que apagues. Instala Dagric primero si quieres que se "
 "conserve."
 
-#: po/dagric-data-strings.sh:108
+#: po/dagric-data-strings.sh:109
 msgid ""
 "This is the live trial. To keep any of it, run Install Dagric OS from the "
 "desktop."
@@ -557,7 +531,7 @@ msgstr ""
 "Esta es la prueba en vivo. Para conservar algo de esto, abre «Instalar "
 "Dagric OS» desde el escritorio."
 
-#: po/dagric-data-strings.sh:109
+#: po/dagric-data-strings.sh:110
 msgid ""
 "Want to run through this again? It's called \"Set Up Dagric\" in your apps "
 "list."
@@ -565,95 +539,97 @@ msgstr ""
 "¿Quieres repasarlo otra vez? Se llama «Configurar Dagric» en tu lista de "
 "aplicaciones."
 
-#: po/dagric-data-strings.sh:110
+#: po/dagric-data-strings.sh:111
 msgid "Add your apps"
 msgstr "Añade tus aplicaciones"
 
-#: po/dagric-data-strings.sh:111
-msgid ""
-"Tick what you want and it installs itself right after you press Finish. All "
-"of it is free software, and none of it is required."
-msgstr ""
-"Marca lo que quieras y se instalará solo justo después de pulsar Finalizar. "
-"Todo es software libre y nada es obligatorio."
-
 #: po/dagric-data-strings.sh:112
+msgid ""
+"Choose what you want. Each installer opens after Finish and asks before "
+"making changes. Some choices are third-party or proprietary; none is "
+"required."
+msgstr ""
+"Elige lo que quieras. Cada instalador se abre después de Finalizar y "
+"pregunta antes de hacer cambios. Algunas opciones son de terceros o "
+"propietarias; ninguna es obligatoria."
+
+#: po/dagric-data-strings.sh:113
 msgid "Steam"
 msgstr "Steam"
 
-#: po/dagric-data-strings.sh:113
-msgid "Your game library, from Valve."
-msgstr "Tu biblioteca de juegos, de Valve."
-
 #: po/dagric-data-strings.sh:114
+msgid "Optional proprietary Valve client; vendor terms apply."
+msgstr "Cliente propietario opcional de Valve; se aplican sus condiciones."
+
+#: po/dagric-data-strings.sh:115
 msgid "Heroic"
 msgstr "Heroic"
 
-#: po/dagric-data-strings.sh:115
-msgid "Epic, GOG and Amazon games in one place."
-msgstr "Juegos de Epic, GOG y Amazon en un solo lugar."
-
 #: po/dagric-data-strings.sh:116
+msgid "Independent launcher for Epic Games Store, GOG and Amazon Games."
+msgstr "Lanzador independiente para Epic Games Store, GOG y Amazon Games."
+
+#: po/dagric-data-strings.sh:117
 msgid "Bottles"
 msgstr "Bottles"
 
-#: po/dagric-data-strings.sh:117
-msgid "Run Windows programs in tidy containers."
-msgstr "Ejecuta programas de Windows en contenedores ordenados."
-
 #: po/dagric-data-strings.sh:118
+msgid "Run Windows programs in separate Wine environments."
+msgstr "Ejecuta programas de Windows en entornos Wine separados."
+
+#: po/dagric-data-strings.sh:119
 msgid "ONLYOFFICE"
 msgstr "ONLYOFFICE"
 
-#: po/dagric-data-strings.sh:119
+#: po/dagric-data-strings.sh:120
 msgid "An office suite that looks like the one at work."
 msgstr "Una suite ofimática que se parece a la del trabajo."
 
-#: po/dagric-data-strings.sh:120
+#: po/dagric-data-strings.sh:121
 msgid "Joplin"
 msgstr "Joplin"
 
-#: po/dagric-data-strings.sh:121
+#: po/dagric-data-strings.sh:122
 msgid "Private notes that sync anywhere."
 msgstr "Notas privadas que se sincronizan en cualquier parte."
 
-#: po/dagric-data-strings.sh:122
+#: po/dagric-data-strings.sh:123
 msgid "LocalSend"
 msgstr "LocalSend"
 
-#: po/dagric-data-strings.sh:123
+#: po/dagric-data-strings.sh:124
 msgid "Share files between your devices, no cloud."
 msgstr "Comparte archivos entre tus dispositivos, sin nube."
 
-#: po/dagric-data-strings.sh:124
+#: po/dagric-data-strings.sh:125
 msgid "Cryptomator"
 msgstr "Cryptomator"
 
-#: po/dagric-data-strings.sh:125
+#: po/dagric-data-strings.sh:126
 msgid "Encrypt what you keep in the cloud."
 msgstr "Cifra lo que guardas en la nube."
 
-#: po/dagric-data-strings.sh:126
+#: po/dagric-data-strings.sh:127
 msgid "Upscayl"
 msgstr "Upscayl"
 
-#: po/dagric-data-strings.sh:127
+#: po/dagric-data-strings.sh:128
 msgid "Sharpen old photos with AI."
 msgstr "Mejora fotos antiguas con IA."
 
-#: po/dagric-data-strings.sh:128
+#: po/dagric-data-strings.sh:129
 msgid "Ollama"
 msgstr "Ollama"
 
-#: po/dagric-data-strings.sh:129
+#: po/dagric-data-strings.sh:130
 msgid "A local AI that never leaves this machine."
 msgstr "Una IA local que nunca sale de este equipo."
 
-#: po/dagric-data-strings.sh:130
+#: po/dagric-data-strings.sh:131
 msgid "Already bought Pro?"
 msgstr "¿Ya compraste Pro?"
 
-#: po/dagric-data-strings.sh:131
+#: po/dagric-data-strings.sh:132
 msgid ""
 "Paste the code from your receipt and this machine becomes Pro — your files "
 "and settings stay."
@@ -661,15 +637,15 @@ msgstr ""
 "Pega el código de tu recibo y este equipo se convierte en Pro; tus archivos "
 "y ajustes se quedan como están."
 
-#: po/dagric-data-strings.sh:132
+#: po/dagric-data-strings.sh:133
 msgid "Selected — starts when you press Finish."
 msgstr "Seleccionado: comienza al pulsar Finalizar."
 
-#: po/dagric-data-strings.sh:133
+#: po/dagric-data-strings.sh:134
 msgid "Selected"
 msgstr "Seleccionado"
 
-#: po/dagric-data-strings.sh:134
+#: po/dagric-data-strings.sh:135
 msgid ""
 "This is the live trial: anything you add now lives in memory, disappears at "
 "shutdown, and can make a machine with little RAM unstable. Install Dagric "
@@ -679,10 +655,10 @@ msgstr ""
 "desaparece al apagar y puede volver inestable un equipo con poca RAM. "
 "Instala Dagric primero para conservarlo."
 
-#: po/dagric-data-strings.sh:135
+#: po/dagric-data-strings.sh:136
 msgid ""
-"Nothing here is a subscription, and everything can be removed later from the "
-"Software Store."
+"Nothing here is a subscription, and everything can be removed later from the"
+" Software Store."
 msgstr ""
 "Nada de esto es una suscripción y todo se puede quitar después desde la "
 "Tienda de software."
@@ -691,12 +667,11 @@ msgstr ""
 #. Keep button labels short; they sit in fixed-width buttons beside
 #. each other. %1 and %2 are values substituted at runtime and may be
 #. reordered to suit the language.
-#: po/dagric-data-strings.sh:141
-#: config/includes.chroot/usr/bin/dagric-family:41
+#: config/includes.chroot/usr/bin/dagric-family:41 po/dagric-data-strings.sh:142
 msgid "Family Limits"
 msgstr "Límites familiares"
 
-#: po/dagric-data-strings.sh:142
+#: po/dagric-data-strings.sh:143
 msgid ""
 "Set how long someone can use this computer each day, and the hours when it "
 "locks itself. Their files and their account are not touched."
@@ -704,15 +679,15 @@ msgstr ""
 "Define cuánto tiempo se puede usar este equipo cada día y a qué horas se "
 "bloquea solo. Sus archivos y su cuenta no se tocan."
 
-#: po/dagric-data-strings.sh:143
+#: po/dagric-data-strings.sh:144
 msgid "Person:"
 msgstr "Persona:"
 
-#: po/dagric-data-strings.sh:144
+#: po/dagric-data-strings.sh:145
 msgid "Person to set limits for"
 msgstr "Persona a la que poner límites"
 
-#: po/dagric-data-strings.sh:145
+#: po/dagric-data-strings.sh:146
 msgid ""
 "This is the only administrator account on this computer. Limits cannot be "
 "set on it, because there would be no way back in. Create a second "
@@ -722,487 +697,610 @@ msgstr ""
 "poner límites, porque no habría forma de volver a entrar. Crea antes una "
 "segunda cuenta de administrador."
 
-#: po/dagric-data-strings.sh:146
+#: po/dagric-data-strings.sh:147
 msgid ""
 "This person has not signed in yet, so there is nothing to change. Ask them "
 "to sign in once, then come back."
 msgstr ""
-"Esta persona todavía no ha iniciado sesión, así que no hay nada que cambiar. "
-"Pídele que inicie sesión una vez y vuelve luego."
+"Esta persona todavía no ha iniciado sesión, así que no hay nada que cambiar."
+" Pídele que inicie sesión una vez y vuelve luego."
 
-#: po/dagric-data-strings.sh:147
+#: po/dagric-data-strings.sh:148
 msgid "Limit this person's screen time"
 msgstr "Limitar el tiempo de pantalla de esta persona"
 
-#: po/dagric-data-strings.sh:148
+#: po/dagric-data-strings.sh:149
 msgid "Time allowed each day"
 msgstr "Tiempo permitido cada día"
 
-#: po/dagric-data-strings.sh:149
+#: po/dagric-data-strings.sh:150
 msgid "Time allowed each day: %1"
 msgstr "Tiempo permitido cada día: %1"
 
-#: po/dagric-data-strings.sh:150
+#: po/dagric-data-strings.sh:151
 msgid "Bedtime: none — the computer never locks by the clock"
 msgstr "Hora de dormir: ninguna — el equipo nunca se bloquea por horario"
 
-#: po/dagric-data-strings.sh:151
+#: po/dagric-data-strings.sh:152
 msgid "The computer locks from %1 to %2"
 msgstr "El equipo se bloquea de %1 a %2"
 
-#: po/dagric-data-strings.sh:152
+#: po/dagric-data-strings.sh:153
 msgid "From"
 msgstr "De"
 
-#: po/dagric-data-strings.sh:153
+#: po/dagric-data-strings.sh:154
 msgid "until"
 msgstr "hasta"
 
-#: po/dagric-data-strings.sh:154
+#: po/dagric-data-strings.sh:155
 msgid "Bedtime starts at"
 msgstr "La hora de dormir empieza a las"
 
-#: po/dagric-data-strings.sh:155
+#: po/dagric-data-strings.sh:156
 msgid "Bedtime ends at"
 msgstr "La hora de dormir termina a las"
 
-#: po/dagric-data-strings.sh:156
+#: po/dagric-data-strings.sh:157
 msgid "Set both to the same hour for no bedtime at all."
 msgstr "Pon las dos a la misma hora para no tener hora de dormir."
 
-#: po/dagric-data-strings.sh:157
+#: po/dagric-data-strings.sh:158
 msgid "When the time is up:"
 msgstr "Cuando se acabe el tiempo:"
 
-#: po/dagric-data-strings.sh:158
+#: po/dagric-data-strings.sh:159
 msgid "Lock the screen — nothing is closed, nothing is lost"
 msgstr "Bloquear la pantalla — no se cierra nada, no se pierde nada"
 
-#: po/dagric-data-strings.sh:159
+#: po/dagric-data-strings.sh:160
 msgid "Sign out — closes everything that is open"
 msgstr "Cerrar la sesión — cierra todo lo que esté abierto"
 
-#: po/dagric-data-strings.sh:160
+#: po/dagric-data-strings.sh:161
 msgid "Remove all limits"
 msgstr "Quitar todos los límites"
 
-#: po/dagric-data-strings.sh:161
+#: po/dagric-data-strings.sh:162
 msgid "Lets this person use the computer at any time, for as long as they like"
 msgstr ""
 "Deja que esta persona use el equipo a cualquier hora y todo el tiempo que "
 "quiera"
 
-#: po/dagric-data-strings.sh:162
+#: po/dagric-data-strings.sh:163
 msgid "Close"
 msgstr "Cerrar"
 
-#: po/dagric-data-strings.sh:163
+#: po/dagric-data-strings.sh:164
 msgid "Save"
 msgstr "Guardar"
 
-#: po/dagric-data-strings.sh:164
+#: po/dagric-data-strings.sh:165
 msgid "Save these limits for %1"
 msgstr "Guardar estos límites para %1"
 
-#: po/dagric-data-strings.sh:165
+#: po/dagric-data-strings.sh:166
 msgid "%1 minutes"
 msgstr "%1 minutos"
 
-#: po/dagric-data-strings.sh:166
+#: po/dagric-data-strings.sh:167
 msgid "1 hour"
 msgstr "1 hora"
 
-#: po/dagric-data-strings.sh:167
+#: po/dagric-data-strings.sh:168
 msgid "%1 hours"
 msgstr "%1 horas"
 
-#: po/dagric-data-strings.sh:168
+#: po/dagric-data-strings.sh:169
 msgid "%1 h %2 min"
 msgstr "%1 h %2 min"
 
 #. TRANSLATORS: name of the "classic" taskbar layout in Dagric Looks and the
 #. setup wizard. One or two words, shown as the title of a picture tile.
-#: po/dagric-data-strings.sh:172
+#. TRANSLATORS: name of the "classic" icon family in Dagric Appearance.
+#. One or two words, shown as the title of a picture tile.
+#: po/dagric-data-strings.sh:173 po/dagric-data-strings.sh:287
 msgid "Classic"
 msgstr "Clásico"
 
 #. TRANSLATORS: one-line description of the "classic" taskbar layout, shown
 #. under its name. Keep it short — it has to fit on one line beside a tile.
-#: po/dagric-data-strings.sh:175
+#: po/dagric-data-strings.sh:176
 msgid "a taskbar at the bottom, familiar and comfortable"
 msgstr "una barra de tareas abajo, familiar y cómoda"
 
 #. TRANSLATORS: name of the "command" taskbar layout in Dagric Looks and the
 #. setup wizard. One or two words, shown as the title of a picture tile.
-#: po/dagric-data-strings.sh:178
+#: po/dagric-data-strings.sh:179
 msgid "Command"
 msgstr "Command"
 
 #. TRANSLATORS: one-line description of the "command" taskbar layout, shown
 #. under its name. Keep it short — it has to fit on one line beside a tile.
-#: po/dagric-data-strings.sh:181
+#: po/dagric-data-strings.sh:182
 msgid "the same side dock, but each window keeps its own menu bar"
-msgstr ""
-"el mismo dock lateral, pero cada ventana conserva su propia barra de menú"
+msgstr "el mismo dock lateral, pero cada ventana conserva su propia barra de menú"
 
 #. TRANSLATORS: name of the "duo" taskbar layout in Dagric Looks and the
 #. setup wizard. One or two words, shown as the title of a picture tile.
-#: po/dagric-data-strings.sh:184
+#: po/dagric-data-strings.sh:185
 msgid "Duo"
 msgstr "Duo"
 
 #. TRANSLATORS: one-line description of the "duo" taskbar layout, shown
 #. under its name. Keep it short — it has to fit on one line beside a tile.
-#: po/dagric-data-strings.sh:187
+#: po/dagric-data-strings.sh:188
 msgid "two panels, top and bottom, for power users"
 msgstr "dos paneles, arriba y abajo, para usuarios avanzados"
 
 #. TRANSLATORS: name of the "eleven" taskbar layout in Dagric Looks and the
 #. setup wizard. One or two words, shown as the title of a picture tile.
-#: po/dagric-data-strings.sh:190
-msgid "Eleven"
-msgstr "Eleven"
+#: po/dagric-data-strings.sh:191
+msgid "Centered"
+msgstr "Centrado"
 
 #. TRANSLATORS: one-line description of the "eleven" taskbar layout, shown
 #. under its name. Keep it short — it has to fit on one line beside a tile.
-#: po/dagric-data-strings.sh:193
+#: po/dagric-data-strings.sh:194
 msgid "a centered taskbar, clean and modern"
 msgstr "una barra de tareas centrada, limpia y moderna"
 
 #. TRANSLATORS: name of the "focus" taskbar layout in Dagric Looks and the
 #. setup wizard. One or two words, shown as the title of a picture tile.
-#: po/dagric-data-strings.sh:196
+#: po/dagric-data-strings.sh:197
 msgid "Focus"
 msgstr "Enfoque"
 
 #. TRANSLATORS: one-line description of the "focus" taskbar layout, shown
 #. under its name. Keep it short — it has to fit on one line beside a tile.
-#: po/dagric-data-strings.sh:199
+#: po/dagric-data-strings.sh:200
 msgid "one tidy bar, nothing in your way"
 msgstr "una sola barra ordenada, nada en medio"
 
 #. TRANSLATORS: name of the "horizon" taskbar layout in Dagric Looks and the
 #. setup wizard. One or two words, shown as the title of a picture tile.
-#: po/dagric-data-strings.sh:202
+#: po/dagric-data-strings.sh:203
 msgid "Horizon"
 msgstr "Horizonte"
 
 #. TRANSLATORS: one-line description of the "horizon" taskbar layout, shown
 #. under its name. Keep it short — it has to fit on one line beside a tile.
-#: po/dagric-data-strings.sh:205
+#: po/dagric-data-strings.sh:206
 msgid "a menu bar up top with a dock below"
 msgstr "una barra de menús arriba y un dock debajo"
 
 #. TRANSLATORS: name of the "unity" taskbar layout in Dagric Looks and the
 #. setup wizard. One or two words, shown as the title of a picture tile.
-#: po/dagric-data-strings.sh:208
+#: po/dagric-data-strings.sh:209
 msgid "Unity"
 msgstr "Unity"
 
 #. TRANSLATORS: one-line description of the "unity" taskbar layout, shown
 #. under its name. Keep it short — it has to fit on one line beside a tile.
-#: po/dagric-data-strings.sh:211
+#: po/dagric-data-strings.sh:212
 msgid "a side dock, with every window's menu moved to the top bar"
-msgstr ""
-"un dock lateral, con el menú de cada ventana movido a la barra superior"
+msgstr "un dock lateral, con el menú de cada ventana movido a la barra superior"
 
 #. TRANSLATORS: name of the "classy" desktop style (colours, wallpaper and
 #. effects) in Dagric Styles and the appearance gallery. One or two words.
-#: po/dagric-data-strings.sh:214
+#: po/dagric-data-strings.sh:215
 msgid "Classy"
 msgstr "Elegante"
 
 #. TRANSLATORS: one-line description of the "classy" desktop style, shown
 #. under its name. Keep it short.
-#: po/dagric-data-strings.sh:217
+#: po/dagric-data-strings.sh:218
 msgid "dark glass and amber, quietly luxurious"
 msgstr "cristal oscuro y ámbar, discretamente lujoso"
 
 #. TRANSLATORS: name of the "dawn" desktop style (colours, wallpaper and
 #. effects) in Dagric Styles and the appearance gallery. One or two words.
-#: po/dagric-data-strings.sh:220
+#: po/dagric-data-strings.sh:221
 msgid "Dawn"
 msgstr "Alba"
 
 #. TRANSLATORS: one-line description of the "dawn" desktop style, shown
 #. under its name. Keep it short.
-#: po/dagric-data-strings.sh:223
+#: po/dagric-data-strings.sh:224
 msgid "light and airy with a soft warm accent"
 msgstr "claro y ligero con un acento cálido y suave"
 
 #. TRANSLATORS: name of the "daybreak" desktop style (colours, wallpaper and
 #. effects) in Dagric Styles and the appearance gallery. One or two words.
-#: po/dagric-data-strings.sh:226
+#: po/dagric-data-strings.sh:227
 msgid "Daybreak"
 msgstr "Amanecer"
 
 #. TRANSLATORS: one-line description of the "daybreak" desktop style, shown
 #. under its name. Keep it short.
-#: po/dagric-data-strings.sh:229
-msgid "the Dagric default: bright, blue, calm"
-msgstr "el tema predeterminado de Dagric: claro, azul, tranquilo"
+#: po/dagric-data-strings.sh:230
+msgid "bright, quiet and practical"
+msgstr "brillante, tranquilo y práctico"
 
 #. TRANSLATORS: name of the "forest" desktop style (colours, wallpaper and
 #. effects) in Dagric Styles and the appearance gallery. One or two words.
-#: po/dagric-data-strings.sh:232
+#: po/dagric-data-strings.sh:233
 msgid "Forest"
 msgstr "Bosque"
 
 #. TRANSLATORS: one-line description of the "forest" desktop style, shown
 #. under its name. Keep it short.
-#: po/dagric-data-strings.sh:235
+#: po/dagric-data-strings.sh:236
 msgid "calm green for long working days"
 msgstr "verde tranquilo para jornadas de trabajo largas"
 
 #. TRANSLATORS: name of the "highcontrast" desktop style (colours, wallpaper and
 #. effects) in Dagric Styles and the appearance gallery. One or two words.
-#: po/dagric-data-strings.sh:238
+#: po/dagric-data-strings.sh:239
 msgid "High Contrast"
 msgstr "Alto contraste"
 
 #. TRANSLATORS: one-line description of the "highcontrast" desktop style, shown
 #. under its name. Keep it short.
-#: po/dagric-data-strings.sh:241
+#: po/dagric-data-strings.sh:242
 msgid "black and white, gold focus ring, no soft effects"
 msgstr "blanco y negro, anillo de foco dorado, sin efectos suaves"
 
 #. TRANSLATORS: name of the "midnight" desktop style (colours, wallpaper and
 #. effects) in Dagric Styles and the appearance gallery. One or two words.
-#: po/dagric-data-strings.sh:244
+#: po/dagric-data-strings.sh:245
 msgid "Midnight"
 msgstr "Medianoche"
 
 #. TRANSLATORS: one-line description of the "midnight" desktop style, shown
 #. under its name. Keep it short.
-#: po/dagric-data-strings.sh:247
+#: po/dagric-data-strings.sh:248
 msgid "deep dark, easy on the eyes at night"
 msgstr "oscuro profundo, agradable para la vista de noche"
 
 #. TRANSLATORS: name of the "neon" desktop style (colours, wallpaper and
 #. effects) in Dagric Styles and the appearance gallery. One or two words.
-#: po/dagric-data-strings.sh:250
+#: po/dagric-data-strings.sh:251
 msgid "Neon"
 msgstr "Neón"
 
 #. TRANSLATORS: one-line description of the "neon" desktop style, shown
 #. under its name. Keep it short.
-#: po/dagric-data-strings.sh:253
+#: po/dagric-data-strings.sh:254
 msgid "electric cyan, blur and wobbly windows"
 msgstr "cian eléctrico, desenfoque y ventanas gelatinosas"
 
-#. TRANSLATORS: the name of a Dagric wallpaper pack. "Dagric" is the brand
-#. and never changes; translate only the descriptive word after it.
-#: po/dagric-data-strings.sh:256
-msgid "Dagric"
-msgstr "Dagric"
+#. TRANSLATORS: name of the "night-orbit" desktop style (colours, wallpaper and
+#. effects) in Dagric Styles and the appearance gallery. One or two words.
+#: po/dagric-data-strings.sh:257
+msgid "Night Orbit"
+msgstr "Órbita Nocturna"
+
+#. TRANSLATORS: one-line description of the "night-orbit" desktop style, shown
+#. under its name. Keep it short.
+#: po/dagric-data-strings.sh:260
+msgid "aubergine, magenta and orange after dark"
+msgstr "berenjena, magenta y naranja después del anochecer"
+
+#. TRANSLATORS: name of the "obsidian-flow" desktop style (colours, wallpaper and
+#. effects) in Dagric Styles and the appearance gallery. One or two words.
+#: po/dagric-data-strings.sh:263
+msgid "Obsidian Flow"
+msgstr "Flujo de Obsidiana"
+
+#. TRANSLATORS: one-line description of the "obsidian-flow" desktop style, shown
+#. under its name. Keep it short.
+#: po/dagric-data-strings.sh:266
+msgid "dark material, calm motion, focused gaming"
+msgstr "material oscuro, movimiento tranquilo, juego enfocado"
+
+#. TRANSLATORS: name of the "open-coast" desktop style (colours, wallpaper and
+#. effects) in Dagric Styles and the appearance gallery. One or two words.
+#: po/dagric-data-strings.sh:269
+msgid "Open Coast"
+msgstr "Costa Abierta"
+
+#. TRANSLATORS: one-line description of the "open-coast" desktop style, shown
+#. under its name. Keep it short.
+#: po/dagric-data-strings.sh:272
+msgid "turquoise, coral and sand with open water"
+msgstr "turquesa, coral y arena con aguas abiertas"
+
+#. TRANSLATORS: name of the "open-horizon" desktop style (colours, wallpaper and
+#. effects) in Dagric Styles and the appearance gallery. One or two words.
+#: po/dagric-data-strings.sh:275
+msgid "Open Horizon"
+msgstr "Horizonte Abierto"
+
+#. TRANSLATORS: one-line description of the "open-horizon" desktop style, shown
+#. under its name. Keep it short.
+#: po/dagric-data-strings.sh:278
+msgid "warm amber space with a distant open view"
+msgstr "espacio ámbar cálido con una vista abierta distante"
+
+#. TRANSLATORS: name of the "wild-meadow" desktop style (colours, wallpaper and
+#. effects) in Dagric Styles and the appearance gallery. One or two words.
+#: po/dagric-data-strings.sh:281
+msgid "Wild Meadow"
+msgstr "Prado Salvaje"
+
+#. TRANSLATORS: one-line description of the "wild-meadow" desktop style, shown
+#. under its name. Keep it short.
+#: po/dagric-data-strings.sh:284
+msgid "sage, moss and sunlight for a calm workspace"
+msgstr "salvia, musgo y luz solar para un espacio de trabajo tranquilo"
+
+#. TRANSLATORS: one-line description of the "classic" icon family, shown
+#. under its name. Keep it short.
+#: po/dagric-data-strings.sh:290
+msgid "Warm enamel badges inspired by durable desktop tools."
+msgstr ""
+"Emblemas esmaltados cálidos inspirados en herramientas de escritorio "
+"duraderas."
+
+#. TRANSLATORS: name of the "modern" icon family in Dagric Appearance.
+#. One or two words, shown as the title of a picture tile.
+#: po/dagric-data-strings.sh:293
+msgid "Modern"
+msgstr "Moderno"
+
+#. TRANSLATORS: one-line description of the "modern" icon family, shown
+#. under its name. Keep it short.
+#: po/dagric-data-strings.sh:296
+msgid "Vivid dimensional icons with crisp silhouettes."
+msgstr "Iconos tridimensionales vivos con siluetas nítidas."
+
+#. TRANSLATORS: name of the "old-school" icon family in Dagric Appearance.
+#. One or two words, shown as the title of a picture tile.
+#: po/dagric-data-strings.sh:299
+msgid "Old School"
+msgstr "Retro"
+
+#. TRANSLATORS: one-line description of the "old-school" icon family, shown
+#. under its name. Keep it short.
+#: po/dagric-data-strings.sh:302
+msgid "Friendly pixel icons inspired by early personal computers."
+msgstr ""
+"Iconos de píxeles amigables inspirados en los primeros ordenadores "
+"personales."
 
 #. TRANSLATORS: the name of a Dagric wallpaper pack. "Dagric" is the brand
 #. and never changes; translate only the descriptive word after it.
-#: po/dagric-data-strings.sh:259
-msgid "Dagric Arctic"
-msgstr "Dagric Ártico"
-
-#. TRANSLATORS: the name of a Dagric wallpaper pack. "Dagric" is the brand
-#. and never changes; translate only the descriptive word after it.
-#: po/dagric-data-strings.sh:262
+#: po/dagric-data-strings.sh:305
 msgid "Dagric Arctic Clean"
 msgstr "Dagric Ártico Limpio"
 
 #. TRANSLATORS: the name of a Dagric wallpaper pack. "Dagric" is the brand
 #. and never changes; translate only the descriptive word after it.
-#: po/dagric-data-strings.sh:265
-msgid "Dagric Aurora"
-msgstr "Dagric Aurora"
+#: po/dagric-data-strings.sh:308
+msgid "Dagric Arctic"
+msgstr "Dagric Ártico"
 
 #. TRANSLATORS: the name of a Dagric wallpaper pack. "Dagric" is the brand
 #. and never changes; translate only the descriptive word after it.
-#: po/dagric-data-strings.sh:268
+#: po/dagric-data-strings.sh:311
 msgid "Dagric Aurora Clean"
 msgstr "Dagric Aurora Limpio"
 
 #. TRANSLATORS: the name of a Dagric wallpaper pack. "Dagric" is the brand
 #. and never changes; translate only the descriptive word after it.
-#: po/dagric-data-strings.sh:271
-msgid "Dagric Contour"
-msgstr "Dagric Contorno"
+#: po/dagric-data-strings.sh:314
+msgid "Dagric Aurora"
+msgstr "Dagric Aurora"
 
 #. TRANSLATORS: the name of a Dagric wallpaper pack. "Dagric" is the brand
 #. and never changes; translate only the descriptive word after it.
-#: po/dagric-data-strings.sh:274
+#: po/dagric-data-strings.sh:317
 msgid "Dagric Contour Clean"
 msgstr "Dagric Contorno Limpio"
 
 #. TRANSLATORS: the name of a Dagric wallpaper pack. "Dagric" is the brand
 #. and never changes; translate only the descriptive word after it.
-#: po/dagric-data-strings.sh:277
-msgid "Dagric Copper"
-msgstr "Dagric Cobre"
+#: po/dagric-data-strings.sh:320
+msgid "Dagric Contour"
+msgstr "Dagric Contorno"
 
 #. TRANSLATORS: the name of a Dagric wallpaper pack. "Dagric" is the brand
 #. and never changes; translate only the descriptive word after it.
-#: po/dagric-data-strings.sh:280
+#: po/dagric-data-strings.sh:323
 msgid "Dagric Copper Clean"
 msgstr "Dagric Cobre Limpio"
 
 #. TRANSLATORS: the name of a Dagric wallpaper pack. "Dagric" is the brand
 #. and never changes; translate only the descriptive word after it.
-#: po/dagric-data-strings.sh:283
+#: po/dagric-data-strings.sh:326
+msgid "Dagric Copper"
+msgstr "Dagric Cobre"
+
+#. TRANSLATORS: the name of a Dagric wallpaper pack. "Dagric" is the brand
+#. and never changes; translate only the descriptive word after it.
+#: po/dagric-data-strings.sh:329
 msgid "Dagric Dawn"
 msgstr "Dagric Alba"
 
 #. TRANSLATORS: the name of a Dagric wallpaper pack. "Dagric" is the brand
 #. and never changes; translate only the descriptive word after it.
-#: po/dagric-data-strings.sh:286
+#: po/dagric-data-strings.sh:332
 msgid "Dagric Dusk"
 msgstr "Dagric Ocaso"
 
 #. TRANSLATORS: the name of a Dagric wallpaper pack. "Dagric" is the brand
 #. and never changes; translate only the descriptive word after it.
-#: po/dagric-data-strings.sh:289
-msgid "Dagric Ember"
-msgstr "Dagric Brasa"
-
-#. TRANSLATORS: the name of a Dagric wallpaper pack. "Dagric" is the brand
-#. and never changes; translate only the descriptive word after it.
-#: po/dagric-data-strings.sh:292
+#: po/dagric-data-strings.sh:335
 msgid "Dagric Ember Clean"
 msgstr "Dagric Brasa Limpio"
 
 #. TRANSLATORS: the name of a Dagric wallpaper pack. "Dagric" is the brand
 #. and never changes; translate only the descriptive word after it.
-#: po/dagric-data-strings.sh:295
+#: po/dagric-data-strings.sh:338
+msgid "Dagric Ember"
+msgstr "Dagric Brasa"
+
+#. TRANSLATORS: the name of a Dagric wallpaper pack. "Dagric" is the brand
+#. and never changes; translate only the descriptive word after it.
+#: po/dagric-data-strings.sh:341
 msgid "Dagric Forest"
 msgstr "Dagric Bosque"
 
 #. TRANSLATORS: the name of a Dagric wallpaper pack. "Dagric" is the brand
 #. and never changes; translate only the descriptive word after it.
-#: po/dagric-data-strings.sh:298
-msgid "Dagric Halftone"
-msgstr "Dagric Semitono"
-
-#. TRANSLATORS: the name of a Dagric wallpaper pack. "Dagric" is the brand
-#. and never changes; translate only the descriptive word after it.
-#: po/dagric-data-strings.sh:301
+#: po/dagric-data-strings.sh:344
 msgid "Dagric Halftone Clean"
 msgstr "Dagric Semitono Limpio"
 
 #. TRANSLATORS: the name of a Dagric wallpaper pack. "Dagric" is the brand
 #. and never changes; translate only the descriptive word after it.
-#: po/dagric-data-strings.sh:304
-msgid "Dagric Ink"
-msgstr "Dagric Tinta"
+#: po/dagric-data-strings.sh:347
+msgid "Dagric Halftone"
+msgstr "Dagric Semitono"
 
 #. TRANSLATORS: the name of a Dagric wallpaper pack. "Dagric" is the brand
 #. and never changes; translate only the descriptive word after it.
-#: po/dagric-data-strings.sh:307
+#: po/dagric-data-strings.sh:350
 msgid "Dagric Ink Clean"
 msgstr "Dagric Tinta Limpio"
 
 #. TRANSLATORS: the name of a Dagric wallpaper pack. "Dagric" is the brand
 #. and never changes; translate only the descriptive word after it.
-#: po/dagric-data-strings.sh:310
-msgid "Dagric Linen"
-msgstr "Dagric Lino"
+#: po/dagric-data-strings.sh:353
+msgid "Dagric Ink"
+msgstr "Dagric Tinta"
 
 #. TRANSLATORS: the name of a Dagric wallpaper pack. "Dagric" is the brand
 #. and never changes; translate only the descriptive word after it.
-#: po/dagric-data-strings.sh:313
+#: po/dagric-data-strings.sh:356
 msgid "Dagric Linen Clean"
 msgstr "Dagric Lino Limpio"
 
 #. TRANSLATORS: the name of a Dagric wallpaper pack. "Dagric" is the brand
 #. and never changes; translate only the descriptive word after it.
-#: po/dagric-data-strings.sh:316
-msgid "Dagric Mesh"
-msgstr "Dagric Malla"
+#: po/dagric-data-strings.sh:359
+msgid "Dagric Linen"
+msgstr "Dagric Lino"
 
 #. TRANSLATORS: the name of a Dagric wallpaper pack. "Dagric" is the brand
 #. and never changes; translate only the descriptive word after it.
-#: po/dagric-data-strings.sh:319
+#: po/dagric-data-strings.sh:362
 msgid "Dagric Mesh Clean"
 msgstr "Dagric Malla Limpio"
 
 #. TRANSLATORS: the name of a Dagric wallpaper pack. "Dagric" is the brand
 #. and never changes; translate only the descriptive word after it.
-#: po/dagric-data-strings.sh:322
+#: po/dagric-data-strings.sh:365
+msgid "Dagric Mesh"
+msgstr "Dagric Malla"
+
+#. TRANSLATORS: the name of a Dagric wallpaper pack. "Dagric" is the brand
+#. and never changes; translate only the descriptive word after it.
+#: po/dagric-data-strings.sh:368
+msgid "Dagric"
+msgstr "Dagric"
+
+#. TRANSLATORS: the name of a Dagric wallpaper pack. "Dagric" is the brand
+#. and never changes; translate only the descriptive word after it.
+#: po/dagric-data-strings.sh:371
 msgid "Dagric Midnight"
 msgstr "Dagric Medianoche"
 
 #. TRANSLATORS: the name of a Dagric wallpaper pack. "Dagric" is the brand
 #. and never changes; translate only the descriptive word after it.
-#: po/dagric-data-strings.sh:325
+#: po/dagric-data-strings.sh:374
 msgid "Dagric Neon"
 msgstr "Dagric Neón"
 
 #. TRANSLATORS: the name of a Dagric wallpaper pack. "Dagric" is the brand
 #. and never changes; translate only the descriptive word after it.
-#: po/dagric-data-strings.sh:328
-msgid "Dagric Prism"
-msgstr "Dagric Prisma"
+#: po/dagric-data-strings.sh:377
+msgid "Dagric Night Orbit"
+msgstr "Dagric Órbita Nocturna"
 
 #. TRANSLATORS: the name of a Dagric wallpaper pack. "Dagric" is the brand
 #. and never changes; translate only the descriptive word after it.
-#: po/dagric-data-strings.sh:331
+#: po/dagric-data-strings.sh:380
+msgid "Obsidian Pulse"
+msgstr "Pulso de Obsidiana"
+
+#. TRANSLATORS: the name of a Dagric wallpaper pack. "Dagric" is the brand
+#. and never changes; translate only the descriptive word after it.
+#: po/dagric-data-strings.sh:383
+msgid "Dagric Open Coast"
+msgstr "Dagric Costa Abierta"
+
+#. TRANSLATORS: the name of a Dagric wallpaper pack. "Dagric" is the brand
+#. and never changes; translate only the descriptive word after it.
+#: po/dagric-data-strings.sh:386
+msgid "Dagric Open Horizon"
+msgstr "Dagric Horizonte Abierto"
+
+#. TRANSLATORS: the name of a Dagric wallpaper pack. "Dagric" is the brand
+#. and never changes; translate only the descriptive word after it.
+#: po/dagric-data-strings.sh:389
 msgid "Dagric Prism Clean"
 msgstr "Dagric Prisma Limpio"
 
 #. TRANSLATORS: the name of a Dagric wallpaper pack. "Dagric" is the brand
 #. and never changes; translate only the descriptive word after it.
-#: po/dagric-data-strings.sh:334
-msgid "Dagric Sand"
-msgstr "Dagric Arena"
+#: po/dagric-data-strings.sh:392
+msgid "Dagric Prism"
+msgstr "Dagric Prisma"
 
 #. TRANSLATORS: the name of a Dagric wallpaper pack. "Dagric" is the brand
 #. and never changes; translate only the descriptive word after it.
-#: po/dagric-data-strings.sh:337
+#: po/dagric-data-strings.sh:395
 msgid "Dagric Sand Clean"
 msgstr "Dagric Arena Limpio"
 
 #. TRANSLATORS: the name of a Dagric wallpaper pack. "Dagric" is the brand
 #. and never changes; translate only the descriptive word after it.
-#: po/dagric-data-strings.sh:340
-msgid "Dagric Slate"
-msgstr "Dagric Pizarra"
+#: po/dagric-data-strings.sh:398
+msgid "Dagric Sand"
+msgstr "Dagric Arena"
 
 #. TRANSLATORS: the name of a Dagric wallpaper pack. "Dagric" is the brand
 #. and never changes; translate only the descriptive word after it.
-#: po/dagric-data-strings.sh:343
+#: po/dagric-data-strings.sh:401
 msgid "Dagric Slate Clean"
 msgstr "Dagric Pizarra Limpio"
 
 #. TRANSLATORS: the name of a Dagric wallpaper pack. "Dagric" is the brand
 #. and never changes; translate only the descriptive word after it.
-#: po/dagric-data-strings.sh:346
-msgid "Dagric Violet"
-msgstr "Dagric Violeta"
+#: po/dagric-data-strings.sh:404
+msgid "Dagric Slate"
+msgstr "Dagric Pizarra"
 
 #. TRANSLATORS: the name of a Dagric wallpaper pack. "Dagric" is the brand
 #. and never changes; translate only the descriptive word after it.
-#: po/dagric-data-strings.sh:349
+#: po/dagric-data-strings.sh:407
 msgid "Dagric Violet Clean"
 msgstr "Dagric Violeta Limpio"
 
 #. TRANSLATORS: the name of a Dagric wallpaper pack. "Dagric" is the brand
 #. and never changes; translate only the descriptive word after it.
-#: po/dagric-data-strings.sh:352
+#: po/dagric-data-strings.sh:410
+msgid "Dagric Violet"
+msgstr "Dagric Violeta"
+
+#. TRANSLATORS: the name of a Dagric wallpaper pack. "Dagric" is the brand
+#. and never changes; translate only the descriptive word after it.
+#: po/dagric-data-strings.sh:413
+msgid "Dagric Void Clean"
+msgstr "Dagric Vacío Limpio"
+
+#. TRANSLATORS: the name of a Dagric wallpaper pack. "Dagric" is the brand
+#. and never changes; translate only the descriptive word after it.
+#: po/dagric-data-strings.sh:416
 msgid "Dagric Void"
 msgstr "Dagric Vacío"
 
 #. TRANSLATORS: the name of a Dagric wallpaper pack. "Dagric" is the brand
 #. and never changes; translate only the descriptive word after it.
-#: po/dagric-data-strings.sh:355
-msgid "Dagric Void Clean"
-msgstr "Dagric Vacío Limpio"
+#: po/dagric-data-strings.sh:419
+msgid "Dagric Wild Meadow"
+msgstr "Dagric Prado Salvaje"
 
-#: config/includes.chroot/usr/lib/dagric/display-autoscale:103
 #: config/includes.chroot/usr/bin/dagric-display:47
+#: config/includes.chroot/usr/lib/dagric/display-autoscale:103
 msgid "Dagric Display"
 msgstr "Pantalla de Dagric"
 
 #: config/includes.chroot/usr/lib/dagric/display-autoscale:104
 msgid "The text size was put back — the last change was never confirmed."
-msgstr ""
-"Se ha restaurado el tamaño del texto: el último cambio nunca se confirmó."
+msgstr "Se ha restaurado el tamaño del texto: el último cambio nunca se confirmó."
 
 #: config/includes.chroot/usr/lib/dagric/display-common.sh:293
 msgid "Built-in screen"
@@ -1243,8 +1341,7 @@ msgstr "Eso es una cuenta del sistema, no una persona."
 
 #: config/includes.chroot/usr/lib/dagric/family-apply:49
 msgid "That account cannot log in, so it has no screen time."
-msgstr ""
-"Esa cuenta no puede iniciar sesión, así que no tiene tiempo de pantalla."
+msgstr "Esa cuenta no puede iniciar sesión, así que no tiene tiempo de pantalla."
 
 #: config/includes.chroot/usr/lib/dagric/family-apply:64
 msgid ""
@@ -1259,13 +1356,11 @@ msgstr ""
 
 #: config/includes.chroot/usr/lib/dagric/family-apply:77
 msgid "This computer has no time-limit settings for that account yet."
-msgstr ""
-"Este equipo todavía no tiene ajustes de límite de tiempo para esa cuenta."
+msgstr "Este equipo todavía no tiene ajustes de límite de tiempo para esa cuenta."
 
 #: config/includes.chroot/usr/lib/dagric/family-apply:85
 msgid "The time-limit settings file is not in the expected format."
-msgstr ""
-"El archivo de ajustes de límite de tiempo no tiene el formato esperado."
+msgstr "El archivo de ajustes de límite de tiempo no tiene el formato esperado."
 
 #: config/includes.chroot/usr/lib/dagric/family-apply:95
 #: config/includes.chroot/usr/lib/dagric/family-apply:96
@@ -1277,149 +1372,136 @@ msgstr "Valor no válido."
 msgid "Those bedtime hours would leave no time at all to use the computer."
 msgstr "Esas horas de dormir no dejarían nada de tiempo para usar el equipo."
 
-#. TRANSLATORS: every indented line under "To remove it completely" is a COMMAND
-#. typed verbatim into a terminal — translate the prose around them, never the
-#. commands themselves. "Ollama" is a product name.
-#.
-#. The old version of this screen said removal was `sudo rm -f
-#. /usr/local/bin/ollama` and stopped there. That is wrong: Ollama's installer
-#. also creates a systemd service, a system user, and a model directory, so
-#. deleting the binary leaves an enabled service behind pointing at nothing. It
-#. also never mentioned that a background service gets enabled at all — which on
-#. an OS that sells itself on privacy is exactly the kind of thing the owner is
-#. entitled to hear BEFORE saying yes, not discover later in systemctl.
-#: config/includes.chroot/usr/bin/dagric-ai:22
+#: config/includes.chroot/usr/bin/dagric-ai:10
+msgid "The reviewed Ollama release information is missing. Nothing was changed."
+msgstr ""
+"Falta la información de la versión revisada de Ollama. No se ha cambiado "
+"nada."
+
+#: config/includes.chroot/usr/bin/dagric-ai:16
 msgid ""
 "Dagric local AI setup\n"
 "=======================\n"
 "This installs Ollama, a local large-language-model runner:\n"
 "  * models run entirely on this computer (GPU-accelerated when available)\n"
-"  * works offline; nothing is sent anywhere\n"
+"  * prompts and inference stay on this computer after a model is downloaded\n"
+"  * installation and the first run need internet access to fetch Ollama and "
+"a model\n"
 "\n"
 "What it changes on this machine:\n"
 "  * installs the ollama binary and adds a system user for it\n"
-"  * enables a background service that starts at boot and listens only on\n"
-"    this computer (127.0.0.1 port 11434) — not reachable from your network\n"
+"  * enables a restricted background service that starts at boot and listens\n"
+"    only on this computer (127.0.0.1 port 11434)\n"
 "  * downloaded models land in /usr/share/ollama and can be several GB each\n"
 "\n"
 "To remove it completely:\n"
 "  sudo systemctl disable --now ollama\n"
 "  sudo rm -f /usr/local/bin/ollama /etc/systemd/system/ollama.service\n"
-"  sudo rm -rf /usr/share/ollama\n"
+"  sudo rm -rf /usr/local/lib/ollama /usr/share/ollama\n"
 "  sudo userdel ollama\n"
 msgstr ""
-"Configuración de la IA local de Dagric\n"
+"Configuración de IA local de Dagric\n"
 "=======================\n"
 "Esto instala Ollama, un ejecutor local de modelos de lenguaje grandes:\n"
-"  * los modelos se ejecutan por completo en este ordenador (con GPU si la "
-"hay)\n"
-"  * funciona sin conexión; no se envía nada a ninguna parte\n"
+"  * los modelos se ejecutan completamente en este ordenador (acelerado por "
+"GPU cuando esté disponible)\n"
+"  * las indicaciones y la inferencia permanecen en este ordenador después de"
+" descargar un modelo\n"
+"  * la instalación y la primera ejecución necesitan acceso a internet para "
+"obtener Ollama y un modelo\n"
 "\n"
-"Lo que cambia en este ordenador:\n"
-"  * instala el binario ollama y añade un usuario del sistema para él\n"
-"  * activa un servicio en segundo plano que arranca al iniciar y escucha\n"
-"    solo en este ordenador (127.0.0.1 puerto 11434) — inaccesible desde tu "
-"red\n"
-"  * los modelos descargados van a /usr/share/ollama y pueden pesar varios GB "
-"cada uno\n"
+"Lo que cambia en esta máquina:\n"
+"  * instala el binario de ollama y añade un usuario del sistema para él\n"
+"  * habilita un servicio en segundo plano restringido que se inicia al "
+"arrancar y escucha\n"
+"    solo en este ordenador (127.0.0.1 puerto 11434)\n"
+"  * los modelos descargados se guardan en /usr/share/ollama y pueden ocupar "
+"varios GB cada uno\n"
 "\n"
 "Para eliminarlo por completo:\n"
 "  sudo systemctl disable --now ollama\n"
 "  sudo rm -f /usr/local/bin/ollama /etc/systemd/system/ollama.service\n"
-"  sudo rm -rf /usr/share/ollama\n"
+"  sudo rm -rf /usr/local/lib/ollama /usr/share/ollama\n"
 "  sudo userdel ollama\n"
 
+#: config/includes.chroot/usr/bin/dagric-ai:44
+msgid ""
+"This reviewed Ollama package is for 64-bit Intel/AMD computers. Nothing was "
+"changed."
+msgstr ""
+"Este paquete revisado de Ollama es para ordenadores Intel/AMD de 64 bits. No"
+" se ha cambiado nada."
+
 #: config/includes.chroot/usr/bin/dagric-ai:49
-msgid "Install Ollama from https://ollama.com? [y/N]"
-msgstr "¿Instalar Ollama desde https://ollama.com? [s/N]"
-
-#: config/includes.chroot/usr/bin/dagric-ai:60
-msgid ""
-"Could not download the installer — nothing was changed. Check your internet "
-"connection and try again."
-msgstr ""
-"No se pudo descargar el instalador: no se cambió nada. Comprueba tu conexión "
-"a internet e inténtalo de nuevo."
-
-#: config/includes.chroot/usr/bin/dagric-ai:93
-msgid ""
-"What came back from ollama.com is not the installer — nothing was\n"
-"changed and nothing was run. This usually means a captive portal or a\n"
-"network filter answered instead. Try again on a different connection."
-msgstr ""
-"Lo que ha llegado desde ollama.com no es el instalador: no se cambió\n"
-"nada y no se ejecutó nada. Esto suele significar que ha respondido una\n"
-"página de acceso a la red o un filtro de red. Inténtalo con otra\n"
-"conexión."
-
-#. TRANSLATORS: $OLLAMA_SUM is a long hexadecimal checksum and $OLLAMA_LOG is
-#. a file path — leave both exactly as they are. Single quotes around the
-#. msgid are MANDATORY — with double quotes the shell expands the variables
-#. before gettext looks the string up, the lookup misses, and the message
-#. comes out in English with no warning.
-#: config/includes.chroot/usr/bin/dagric-ai:124
 #, sh-format
-msgid ""
-"About to run Ollama's installer, downloaded just now from\n"
-"ollama.com. Its checksum is:\n"
-"\n"
-"  $OLLAMA_SUM\n"
-"\n"
-"It will be recorded in $OLLAMA_LOG so you can check later exactly what this\n"
-"computer ran."
+msgid "Download and install reviewed Ollama $OLLAMA_VERSION (about 1.4 GB)? [y/N]"
 msgstr ""
-"Se va a ejecutar el instalador de Ollama, descargado ahora mismo desde\n"
-"ollama.com. Su suma de verificación es:\n"
-"\n"
-"  $OLLAMA_SUM\n"
-"\n"
-"Quedará registrada en $OLLAMA_LOG para que puedas comprobar más adelante\n"
-"qué ejecutó exactamente este equipo."
+"¿Descargar e instalar la versión revisada de Ollama $OLLAMA_VERSION "
+"(aproximadamente 1,4 GB)? [s/N]"
 
-#. TRANSLATORS: "ollama run llama3.2" is a command typed verbatim.
-#: config/includes.chroot/usr/bin/dagric-ai:149
-msgid "Done. Try:  ollama run llama3.2"
-msgstr "Listo. Prueba:  ollama run llama3.2"
-
-#: config/includes.chroot/usr/bin/dagric-ai:153
-msgid ""
-"The Ollama installer did not finish. It may be partly installed — the "
-"removal commands shown above will clear whatever landed."
-msgstr ""
-"El instalador de Ollama no terminó. Puede que haya quedado instalado en "
-"parte: los comandos de eliminación indicados arriba borrarán todo lo que "
-"haya quedado."
-
-#: config/includes.chroot/usr/bin/dagric-ai:157
-#: config/includes.chroot/usr/bin/dagric-drivers:270
-#: config/includes.chroot/usr/bin/dagric-gaming:62
-#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:383
+#: config/includes.chroot/usr/bin/dagric-ai:52
+#: config/includes.chroot/usr/bin/dagric-drivers:272
+#: config/includes.chroot/usr/bin/dagric-gaming:66
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:394
 msgid "Nothing changed."
 msgstr "No se cambió nada."
 
-#: config/includes.chroot/usr/bin/dagric-appearance:78
+#: config/includes.chroot/usr/bin/dagric-ai:63
+msgid ""
+"Could not download the reviewed Ollama release. Nothing was changed; check "
+"your connection and try again."
+msgstr ""
+"No se pudo descargar la versión revisada de Ollama. No se ha cambiado nada; "
+"comprueba tu conexión e inténtalo de nuevo."
+
+#: config/includes.chroot/usr/bin/dagric-ai:70
+msgid ""
+"The Ollama download did not match Dagric's reviewed release. Nothing was "
+"installed."
+msgstr ""
+"La descarga de Ollama no coincidía con la versión revisada de Dagric. No se "
+"ha instalado nada."
+
+#: config/includes.chroot/usr/bin/dagric-ai:74
+#, sh-format
+msgid ""
+"The download matches Dagric's reviewed release ($OLLAMA_SHA256). "
+"Administrator approval is required for installation."
+msgstr ""
+"La descarga coincide con la versión revisada de Dagric ($OLLAMA_SHA256). Se "
+"requiere aprobación del administrador para la instalación."
+
+#: config/includes.chroot/usr/bin/dagric-ai:77
+msgid "Ollama was not installed. Any previous working installation was restored."
+msgstr "Ollama no se instaló. Se restauró cualquier instalación funcional anterior."
+
+#: config/includes.chroot/usr/bin/dagric-ai:93
+msgid "Done. Try:  ollama run llama3.2"
+msgstr "Listo. Prueba:  ollama run llama3.2"
+
+#: config/includes.chroot/usr/bin/dagric-appearance:79
 msgid "Dagric Appearance"
 msgstr "Apariencia de Dagric"
 
 #. TRANSLATORS: "qml-qt6" is a package name and "Dagric Styles" is a tool
 #. name — neither is translated.
-#: config/includes.chroot/usr/bin/dagric-appearance:103
+#: config/includes.chroot/usr/bin/dagric-appearance:104
 msgid ""
-"The appearance gallery needs the QML runtime (package qml-qt6), which is not "
-"installed. Opening the classic Styles menu instead."
+"The appearance gallery needs the QML runtime (package qml-qt6), which is not"
+" installed. Opening the classic Styles menu instead."
 msgstr ""
 "La galería de apariencia necesita el entorno QML (paquete qml-qt6), que no "
 "está instalado. Se abrirá el menú clásico de Estilos en su lugar."
 
-#: config/includes.chroot/usr/bin/dagric-appearance:216
+#: config/includes.chroot/usr/bin/dagric-appearance:224
 msgid ""
-"No styles or layouts are installed. Reinstall the dagric-branding package to "
-"restore them."
+"No styles or layouts are installed. Reinstall the dagric-branding package to"
+" restore them."
 msgstr ""
 "No hay estilos ni disposiciones instalados. Reinstala el paquete dagric-"
 "branding para recuperarlos."
 
-#: config/includes.chroot/usr/bin/dagric-appearance:413
+#: config/includes.chroot/usr/bin/dagric-appearance:454
 msgid ""
 "Your previous layout could not be read, so the standard Dagric layout was "
 "restored."
@@ -1427,20 +1509,19 @@ msgstr ""
 "No se pudo leer tu disposición anterior, así que se restauró la disposición "
 "estándar de Dagric."
 
-#: config/includes.chroot/usr/bin/dagric-appearance:552
+#: config/includes.chroot/usr/bin/dagric-appearance:605
 #, sh-format
 msgid "Kept: $name"
 msgstr "Mantenido: $name"
 
-#: config/includes.chroot/usr/bin/dagric-appearance:573
-msgid ""
-"The gallery closed while a preview was running, so the desktop was put back."
+#: config/includes.chroot/usr/bin/dagric-appearance:626
+msgid "The gallery closed while a preview was running, so the desktop was put back."
 msgstr ""
 "La galería se cerró mientras había una vista previa activa, así que se "
 "restauró el escritorio."
 
 #. TRANSLATORS: "Dagric Styles" is a tool name — leave it as it is.
-#: config/includes.chroot/usr/bin/dagric-appearance:595
+#: config/includes.chroot/usr/bin/dagric-appearance:648
 msgid ""
 "The appearance gallery could not start. Opening the classic Styles menu "
 "instead."
@@ -1549,8 +1630,8 @@ msgid ""
 "Right now it follows sunset and sunrise, which was set on the full Night "
 "Light page."
 msgstr ""
-"Ahora mismo sigue la puesta y la salida del sol, algo que se configuró en la "
-"página completa de Luz nocturna."
+"Ahora mismo sigue la puesta y la salida del sol, algo que se configuró en la"
+" página completa de Luz nocturna."
 
 #: config/includes.chroot/usr/bin/dagric-display:289
 msgid "Off — normal colours all day"
@@ -1602,7 +1683,7 @@ msgstr "Más pantallas, resolución y frecuencia de actualización"
 
 #: config/includes.chroot/usr/bin/dagric-driver-offer:51
 #: config/includes.chroot/usr/bin/dagric-firstrun:781
-#: config/includes.chroot/usr/bin/dagric-firstrun:896
+#: config/includes.chroot/usr/bin/dagric-firstrun:895
 #: config/includes.chroot/usr/bin/dagric-hub:25
 #: config/includes.chroot/usr/bin/dagric-setup:17
 msgid "Press Enter to close..."
@@ -1647,18 +1728,18 @@ msgstr "Comprobación de controladores de Dagric"
 msgid "NVIDIA GPU detected:"
 msgstr "Tarjeta gráfica NVIDIA detectada:"
 
-#: config/includes.chroot/usr/bin/dagric-drivers:33
+#: config/includes.chroot/usr/bin/dagric-drivers:35
 msgid ""
 "Install NVIDIA's proprietary driver from the system's non-free repository? "
 "[y/N]"
 msgstr ""
-"¿Instalar el controlador propietario de NVIDIA desde el repositorio non-free "
-"del sistema? [s/N]"
+"¿Instalar el controlador propietario de NVIDIA desde el repositorio non-free"
+" del sistema? [s/N]"
 
 #. TRANSLATORS: this warns that skipping the enrollment step
 #. leaves the machine at a BLACK SCREEN after reboot. Keep that
 #. consequence explicit — it is the whole point of the notice.
-#: config/includes.chroot/usr/bin/dagric-drivers:49
+#: config/includes.chroot/usr/bin/dagric-drivers:51
 msgid ""
 "NOTE: Secure Boot is ON. The NVIDIA driver builds a kernel\n"
 "module that must be signed and enrolled, or it won't load\n"
@@ -1670,7 +1751,7 @@ msgstr ""
 "(pantalla en negro). Dagric preparará la clave de firma y te pedirá que la\n"
 "registres; eso lo terminarás en el siguiente reinicio."
 
-#: config/includes.chroot/usr/bin/dagric-drivers:82
+#: config/includes.chroot/usr/bin/dagric-drivers:84
 msgid ""
 "Could not reach the package servers.\n"
 "\n"
@@ -1680,12 +1761,12 @@ msgstr ""
 "\n"
 "No se cambió nada: inténtalo de nuevo cuando vuelvas a tener conexión."
 
-#: config/includes.chroot/usr/bin/dagric-drivers:138
+#: config/includes.chroot/usr/bin/dagric-drivers:140
 msgid ""
 "Could not work out which NVIDIA driver this card needs.\n"
 "\n"
-"Nothing has been installed, and your screen keeps working on the open-"
-"source\n"
+"Nothing has been installed, and your screen keeps working on the open-source"
+"\n"
 "driver it is using now. Installing the wrong branch would disable that "
 "driver\n"
 "and could leave you with a black screen, so this stops instead of guessing.\n"
@@ -1696,14 +1777,14 @@ msgstr ""
 "No se pudo determinar qué controlador de NVIDIA necesita esta tarjeta.\n"
 "\n"
 "No se ha instalado nada y tu pantalla sigue funcionando con el controlador\n"
-"de código abierto que usa ahora. Instalar la rama equivocada lo "
-"desactivaría\n"
+"de código abierto que usa ahora. Instalar la rama equivocada lo desactivaría"
+"\n"
 "y podrías quedarte con la pantalla en negro; se detiene en vez de adivinar.\n"
 "\n"
 "Comprueba tu conexión e inténtalo de nuevo, o indícanos la tarjeta en\n"
 "https://dagric.com/support y te diremos qué controlador necesita."
 
-#: config/includes.chroot/usr/bin/dagric-drivers:205
+#: config/includes.chroot/usr/bin/dagric-drivers:207
 msgid ""
 "The driver did not install.\n"
 "\n"
@@ -1722,7 +1803,7 @@ msgstr ""
 "indícanos la tarjeta en https://dagric.com/support y te diremos cuál "
 "necesita."
 
-#: config/includes.chroot/usr/bin/dagric-drivers:237
+#: config/includes.chroot/usr/bin/dagric-drivers:239
 msgid ""
 "WARNING: the NVIDIA kernel module did not finish building.\n"
 "The open-source driver has been switched back on, so the screen still works\n"
@@ -1730,10 +1811,10 @@ msgid ""
 "wrong."
 msgstr ""
 "ADVERTENCIA: el módulo del núcleo de NVIDIA no terminó de compilarse.\n"
-"Se ha vuelto a activar el controlador de código abierto, así que la "
-"pantalla\n"
-"seguirá funcionando tras reiniciar. Vuelve a ejecutar este asistente "
-"después\n"
+"Se ha vuelto a activar el controlador de código abierto, así que la pantalla"
+"\n"
+"seguirá funcionando tras reiniciar. Vuelve a ejecutar este asistente después"
+"\n"
 "y te dirá qué falló."
 
 #. TRANSLATORS: 'MOK Management', 'Enroll MOK' and 'Continue' are
@@ -1742,7 +1823,7 @@ msgstr ""
 #. these three must stay in English or the owner will hunt for a
 #. button that is not there. Everything around them should be
 #. translated.
-#: config/includes.chroot/usr/bin/dagric-drivers:258
+#: config/includes.chroot/usr/bin/dagric-drivers:260
 msgid ""
 "IMPORTANT — finish Secure Boot enrollment:\n"
 "  1. Reboot now.\n"
@@ -1762,11 +1843,11 @@ msgstr ""
 "Si te lo saltas, el controlador no se cargará y volverás al\n"
 "controlador de código abierto. Puedes repetir esto cuando quieras."
 
-#: config/includes.chroot/usr/bin/dagric-drivers:267
+#: config/includes.chroot/usr/bin/dagric-drivers:269
 msgid "Done. Reboot to switch to the NVIDIA driver."
 msgstr "Listo. Reinicia para cambiar al controlador de NVIDIA."
 
-#: config/includes.chroot/usr/bin/dagric-drivers:273
+#: config/includes.chroot/usr/bin/dagric-drivers:275
 msgid ""
 "No NVIDIA GPU found. AMD and Intel graphics use the built-in\n"
 "open-source drivers — nothing to install."
@@ -1865,24 +1946,24 @@ msgid ""
 "The text size could not be changed here. Open System Settings ▸ Display & "
 "Monitor to set it."
 msgstr ""
-"Aquí no se pudo cambiar el tamaño del texto. Abre Preferencias del sistema ▸ "
-"Pantalla y monitor para ajustarlo."
+"Aquí no se pudo cambiar el tamaño del texto. Abre Preferencias del sistema ▸"
+" Pantalla y monitor para ajustarlo."
 
-#: config/includes.chroot/usr/bin/dagric-firstrun:838
-#: config/includes.chroot/usr/bin/dagric-firstrun:842
+#: config/includes.chroot/usr/bin/dagric-firstrun:837
+#: config/includes.chroot/usr/bin/dagric-firstrun:841
 msgid ""
 "Your chosen apps could not be started. Everything you ticked is still one "
 "click away in the Dagric Hub."
 msgstr ""
-"No se pudieron iniciar las aplicaciones elegidas. Todo lo que marcaste sigue "
-"a un clic en el Dagric Hub."
+"No se pudieron iniciar las aplicaciones elegidas. Todo lo que marcaste sigue"
+" a un clic en el Dagric Hub."
 
-#: config/includes.chroot/usr/bin/dagric-firstrun:922
+#: config/includes.chroot/usr/bin/dagric-firstrun:921
 #, sh-format
 msgid "Welcome to $EDITION_NAME."
 msgstr "Te damos la bienvenida a $EDITION_NAME."
 
-#: config/includes.chroot/usr/bin/dagric-firstrun:924
+#: config/includes.chroot/usr/bin/dagric-firstrun:923
 msgid ""
 "The setup window could not be opened on this machine, so here is the short "
 "version."
@@ -1890,34 +1971,34 @@ msgstr ""
 "La ventana de configuración no se pudo abrir en este equipo, así que aquí "
 "tienes la versión breve."
 
-#: config/includes.chroot/usr/bin/dagric-firstrun:930
+#: config/includes.chroot/usr/bin/dagric-firstrun:929
 msgid "Light or dark?"
 msgstr "¿Claro u oscuro?"
 
-#: config/includes.chroot/usr/bin/dagric-firstrun:932
-#: config/includes.chroot/usr/bin/dagric-firstrun:945
-#: config/includes.chroot/usr/bin/dagric-firstrun:956
-#: config/includes.chroot/usr/bin/dagric-firstrun:971
+#: config/includes.chroot/usr/bin/dagric-firstrun:931
+#: config/includes.chroot/usr/bin/dagric-firstrun:944
+#: config/includes.chroot/usr/bin/dagric-firstrun:955
+#: config/includes.chroot/usr/bin/dagric-firstrun:970
 msgid "Stop here — I'll finish later"
 msgstr "Parar aquí: lo termino más tarde"
 
-#: config/includes.chroot/usr/bin/dagric-firstrun:944
+#: config/includes.chroot/usr/bin/dagric-firstrun:943
 msgid "Pick a wallpaper:"
 msgstr "Elige un fondo de pantalla:"
 
-#: config/includes.chroot/usr/bin/dagric-firstrun:952
+#: config/includes.chroot/usr/bin/dagric-firstrun:951
 msgid "How big should everything be?"
 msgstr "¿De qué tamaño quieres que sea todo?"
 
-#: config/includes.chroot/usr/bin/dagric-firstrun:953
+#: config/includes.chroot/usr/bin/dagric-firstrun:952
 msgid "Normal (100%)"
 msgstr "Normal (100 %)"
 
-#: config/includes.chroot/usr/bin/dagric-firstrun:954
+#: config/includes.chroot/usr/bin/dagric-firstrun:953
 msgid "Bigger (125%)"
 msgstr "Más grande (125 %)"
 
-#: config/includes.chroot/usr/bin/dagric-firstrun:955
+#: config/includes.chroot/usr/bin/dagric-firstrun:954
 msgid "Biggest (150%)"
 msgstr "El más grande (150 %)"
 
@@ -1925,7 +2006,7 @@ msgstr "El más grande (150 %)"
 #. is the product's central promise, said to somebody who is afraid of
 #. losing the Windows install they may still need. Keep the negation and
 #. keep the emphasis on READ.
-#: config/includes.chroot/usr/bin/dagric-firstrun:983
+#: config/includes.chroot/usr/bin/dagric-firstrun:982
 msgid ""
 "A Windows drive was found on this PC.\n"
 "\n"
@@ -1942,7 +2023,7 @@ msgstr ""
 #. they must match the Name= of dagric-hub.desktop, dagric-manual.desktop
 #. and dagric-firstrun.desktop in your language, exactly. "Dagric Hub" is
 #. not translated at all — it is a product name.
-#: config/includes.chroot/usr/bin/dagric-firstrun:997
+#: config/includes.chroot/usr/bin/dagric-firstrun:996
 msgid ""
 "You're set up.\n"
 "\n"
@@ -1963,11 +2044,11 @@ msgstr ""
 "Para volver a ver esto, abre «Configurar Dagric» desde el menú de "
 "aplicaciones."
 
-#: config/includes.chroot/usr/bin/dagric-firstrun:1366
+#: config/includes.chroot/usr/bin/dagric-firstrun:1365
 msgid "Dagric is set up. Everything else lives in the Dagric Hub."
 msgstr "Dagric ya está configurado. Todo lo demás está en el Dagric Hub."
 
-#: config/includes.chroot/usr/bin/dagric-firstrun:1384
+#: config/includes.chroot/usr/bin/dagric-firstrun:1383
 msgid ""
 "Setup closed before Finish, so nothing you ticked was installed. Everything "
 "is still one click away in the Dagric Hub."
@@ -1976,74 +2057,101 @@ msgstr ""
 "lo marcado. Todo sigue a un clic en el Dagric Hub."
 
 #. TRANSLATORS: "wine setup.exe" and "dagric-get-steam" are commands typed
-#. verbatim. Wine, winetricks, gamemode, mangohud, Vulkan, Proton, Proton-GE,
+#. verbatim. Wine, winetricks, gamemode, mangohud, Vulkan, Proton, GE-Proton,
 #. Steam and GloriousEggroll are product names — leave them all as they are.
-#: config/includes.chroot/usr/bin/dagric-gaming:13
+#: config/includes.chroot/usr/bin/dagric-gaming:14
 msgid ""
 "Dagric gaming setup\n"
 "=====================\n"
 "Already preinstalled on Dagric Pro:\n"
-"  * Wine + winetricks       run Windows apps:  wine setup.exe\n"
+"  * Wine + winetricks       try Windows apps:  wine setup.exe\n"
 "  * gamemode + mangohud     performance governor + FPS overlay\n"
-"  * 32-bit Vulkan           ready for Proton's Windows games\n"
+"  * 32-bit Vulkan           graphics support used by many compatibility "
+"layers\n"
 "\n"
-"Steam itself is NEVER bundled (it is proprietary) — install it any time\n"
-"with one click from the Dagric Hub, or run:  dagric-get-steam\n"
+"Dagric does not bundle the proprietary Steam client. You can ask Debian's\n"
+"installer to obtain it under Valve's current terms from the Dagric Hub, or "
+"run:\n"
+"dagric-get-steam\n"
 "\n"
-"This helper adds Proton-GE (GloriousEggroll's community Proton with\n"
-"extra media codecs and game-specific fixes) for a Steam you've installed."
+"This helper downloads GE-Proton, GloriousEggroll's community compatibility\n"
+"tool, for a Steam installation you already chose. It may help some titles, "
+"but\n"
+"game, online-service and anti-cheat compatibility varies. Dagric and GE-"
+"Proton\n"
+"are not affiliated with or endorsed by Valve."
 msgstr ""
 "Configuración de juegos de Dagric\n"
 "=====================\n"
 "Ya preinstalado en Dagric Pro:\n"
-"  * Wine + winetricks       ejecutar aplicaciones de Windows:  wine "
-"setup.exe\n"
-"  * gamemode + mangohud     regulador de rendimiento + contador de FPS\n"
-"  * Vulkan de 32 bits       listo para los juegos de Windows con Proton\n"
+"  * Wine + winetricks       prueba aplicaciones de Windows:  wine setup.exe\n"
+"  * gamemode + mangohud     gobernador de rendimiento + superposición de FPS"
 "\n"
-"Steam en sí NUNCA se incluye (es propietario): instálalo cuando quieras con "
-"un clic\n"
-"desde el Dagric Hub, o ejecuta:  dagric-get-steam\n"
+"  * Vulkan de 32 bits        soporte gráfico utilizado por muchas capas de "
+"compatibilidad\n"
 "\n"
-"Este asistente añade Proton-GE (el Proton comunitario de GloriousEggroll, "
-"con códecs\n"
-"multimedia extra y arreglos para juegos concretos) para un Steam ya "
-"instalado."
+"Dagric no incluye el cliente propietario de Steam. Puedes pedir al "
+"instalador de Debian\n"
+"que lo obtenga bajo los términos actuales de Valve desde Dagric Hub, o "
+"ejecutar:\n"
+"dagric-get-steam\n"
+"\n"
+"Este asistente descarga GE-Proton, la herramienta de compatibilidad "
+"comunitaria de GloriousEggroll,\n"
+"para una instalación de Steam que ya hayas elegido. Puede ayudar con algunos"
+" títulos, pero\n"
+"la compatibilidad con juegos, servicios en línea y anti-trampas varía. "
+"Dagric y GE-Proton\n"
+"no están afiliados ni respaldados por Valve."
 
-#: config/includes.chroot/usr/bin/dagric-gaming:59
-msgid "Download the latest Proton-GE from GitHub? [y/N]"
-msgstr "¿Descargar el último Proton-GE desde GitHub? [s/N]"
+#: config/includes.chroot/usr/bin/dagric-gaming:63
+msgid "Download the latest GE-Proton release from GloriousEggroll's GitHub? [y/N]"
+msgstr ""
+"¿Descargar la última versión de GE-Proton desde el GitHub de "
+"GloriousEggroll? [s/N]"
 
-#: config/includes.chroot/usr/bin/dagric-gaming:70
+#: config/includes.chroot/usr/bin/dagric-gaming:74
 msgid "Steam data dir not found. Launch Steam once first, then re-run this."
 msgstr ""
 "No se encontró el directorio de datos de Steam. Abre Steam una vez y vuelve "
 "a ejecutar esto."
 
-#: config/includes.chroot/usr/bin/dagric-gaming:79
+#: config/includes.chroot/usr/bin/dagric-gaming:84
 msgid "Could not find the latest release (offline?). Try again later."
-msgstr ""
-"No se pudo encontrar la última versión (¿sin conexión?). Inténtalo más tarde."
+msgstr "No se pudo encontrar la última versión (¿sin conexión?). Inténtalo más tarde."
 
-#: config/includes.chroot/usr/bin/dagric-gaming:82
+#: config/includes.chroot/usr/bin/dagric-gaming:111
+msgid ""
+"The release did not provide a verifiable x86-64 archive. Nothing was "
+"installed; try again later."
+msgstr ""
+"La versión no proporcionó un archivo x86-64 verificable. No se ha instalado "
+"nada; inténtalo de nuevo más tarde."
+
+#: config/includes.chroot/usr/bin/dagric-gaming:114
 #, sh-format
 msgid "Downloading: $URL"
 msgstr "Descargando: $URL"
 
-#: config/includes.chroot/usr/bin/dagric-gaming:111
-msgid ""
-"Download failed — nothing was installed. Check your connection and try again."
+#: config/includes.chroot/usr/bin/dagric-gaming:143
+msgid "Download failed — nothing was installed. Check your connection and try again."
 msgstr ""
 "La descarga falló: no se instaló nada. Comprueba tu conexión e inténtalo de "
 "nuevo."
 
-#: config/includes.chroot/usr/bin/dagric-gaming:120
+#: config/includes.chroot/usr/bin/dagric-gaming:149
 msgid ""
-"The download was damaged and could not be unpacked — nothing was installed."
+"The downloaded GE-Proton archive did not match GitHub's published digest. "
+"Nothing was installed."
 msgstr ""
-"La descarga estaba dañada y no se pudo descomprimir: no se instaló nada."
+"El archivo descargado de GE-Proton no coincidía con el resumen publicado en "
+"GitHub. No se ha instalado nada."
 
-#: config/includes.chroot/usr/bin/dagric-gaming:126
+#: config/includes.chroot/usr/bin/dagric-gaming:158
+msgid "The download was damaged and could not be unpacked — nothing was installed."
+msgstr "La descarga estaba dañada y no se pudo descomprimir: no se instaló nada."
+
+#: config/includes.chroot/usr/bin/dagric-gaming:164
 msgid ""
 "Could not move the unpacked files into Steam's folder — nothing was "
 "installed."
@@ -2051,14 +2159,14 @@ msgstr ""
 "No se pudieron mover los archivos descomprimidos a la carpeta de Steam: no "
 "se instaló nada."
 
-#: config/includes.chroot/usr/bin/dagric-gaming:132
+#: config/includes.chroot/usr/bin/dagric-gaming:170
 #, sh-format
 msgid "Installed to $DEST"
 msgstr "Instalado en $DEST"
 
 #. TRANSLATORS: "Settings", "Compatibility" and "Properties" are Steam's own
 #. menu labels — use the words Steam shows in your language, if you know them.
-#: config/includes.chroot/usr/bin/dagric-gaming:135
+#: config/includes.chroot/usr/bin/dagric-gaming:173
 msgid ""
 "In Steam: Settings > Compatibility > enable, then pick the GE-Proton\n"
 "version per game under Properties > Compatibility."
@@ -2067,7 +2175,7 @@ msgstr ""
 "versión\n"
 "de GE-Proton por juego en Propiedades > Compatibilidad."
 
-#: config/includes.chroot/usr/bin/dagric-gaming:159
+#: config/includes.chroot/usr/bin/dagric-gaming:197
 msgid ""
 "One more thing: GameMode can give a running game priority over\n"
 "everything else, which smooths out stutter on slower machines. That needs "
@@ -2080,23 +2188,23 @@ msgstr ""
 "que\n"
 "añadir tu cuenta al grupo «gamemode», y tendrá efecto en tu próxima sesión."
 
-#: config/includes.chroot/usr/bin/dagric-gaming:162
+#: config/includes.chroot/usr/bin/dagric-gaming:200
 msgid "Add your account to the gamemode group? [y/N]"
 msgstr "¿Añadir tu cuenta al grupo gamemode? [s/N]"
 
-#: config/includes.chroot/usr/bin/dagric-gaming:166
+#: config/includes.chroot/usr/bin/dagric-gaming:204
 msgid "Done — log out and back in for it to take effect."
 msgstr "Listo: cierra la sesión y vuelve a entrar para que surta efecto."
 
-#: config/includes.chroot/usr/bin/dagric-gaming:168
+#: config/includes.chroot/usr/bin/dagric-gaming:206
 msgid ""
 "Could not change the group (administrator access is required). Games still "
 "run; only the priority boost is skipped."
 msgstr ""
-"No se pudo cambiar el grupo (hace falta acceso de administrador). Los juegos "
-"siguen funcionando; solo se omite el aumento de prioridad."
+"No se pudo cambiar el grupo (hace falta acceso de administrador). Los juegos"
+" siguen funcionando; solo se omite el aumento de prioridad."
 
-#: config/includes.chroot/usr/bin/dagric-gaming:171
+#: config/includes.chroot/usr/bin/dagric-gaming:209
 msgid "Left as it is. Games still run normally."
 msgstr "Se deja como está. Los juegos siguen funcionando con normalidad."
 
@@ -2104,51 +2212,49 @@ msgstr "Se deja como está. Los juegos siguen funcionando con normalidad."
 msgid ""
 "Dagric — install Bottles (run Windows apps)\n"
 "\n"
-"Bottles is a free, open-source app that runs Windows programs and games on\n"
-"Linux inside self-contained \"bottles\", tuned per app for the best chance "
-"of\n"
-"working. It's the easy way to bring a Windows app across. Installs from "
-"Flathub."
+"Bottles is a free, open-source app that runs Windows programs and games in\n"
+"separate Wine environments. Those environments are not security sandboxes,\n"
+"compatibility varies, and downloaded runtimes remain under their providers'\n"
+"terms. Bottles installs from Flathub."
 msgstr ""
-"Dagric — instalar Bottles (ejecutar programas de Windows)\n"
+"Dagric — instalar Bottles (ejecutar aplicaciones de Windows)\n"
 "\n"
-"Bottles es una aplicación libre y de código abierto que ejecuta programas y "
-"juegos\n"
-"de Windows en Linux dentro de «botellas» independientes, ajustadas para "
-"cada\n"
-"aplicación para que tenga la mayor probabilidad de funcionar. Es la forma "
-"sencilla\n"
-"de traerte una aplicación de Windows. Se instala desde Flathub."
+"Bottles es una aplicación gratuita y de código abierto que ejecuta programas"
+" y juegos de Windows en\n"
+"entornos Wine separados. Esos entornos no son sandboxes de seguridad,\n"
+"la compatibilidad varía, y los tiempos de ejecución descargados permanecen "
+"bajo los términos de sus\n"
+"proveedores. Bottles se instala desde Flathub."
 
-#: config/includes.chroot/usr/bin/dagric-get-bottles:25
+#: config/includes.chroot/usr/bin/dagric-get-bottles:26
 msgid "Install Bottles now? [y/N]"
 msgstr "¿Instalar Bottles ahora? [s/N]"
 
-#: config/includes.chroot/usr/bin/dagric-get-bottles:28
+#: config/includes.chroot/usr/bin/dagric-get-bottles:29
 #: config/includes.chroot/usr/bin/dagric-get-cryptomator:22
-#: config/includes.chroot/usr/bin/dagric-get-heroic:19
+#: config/includes.chroot/usr/bin/dagric-get-heroic:24
 #: config/includes.chroot/usr/bin/dagric-get-joplin:22
 #: config/includes.chroot/usr/bin/dagric-get-localsend:21
 #: config/includes.chroot/usr/bin/dagric-get-onlyoffice:24
-#: config/includes.chroot/usr/bin/dagric-get-protonup:22
-#: config/includes.chroot/usr/bin/dagric-get-steam:29
+#: config/includes.chroot/usr/bin/dagric-get-protonup:23
+#: config/includes.chroot/usr/bin/dagric-get-steam:37
 #: config/includes.chroot/usr/bin/dagric-get-upscayl:21
 #: config/includes.chroot/usr/bin/dagric-get-variety:40
 #: config/includes.chroot/usr/bin/dagric-vm:76
 msgid "No changes made."
 msgstr "No se ha cambiado nada."
 
-#: config/includes.chroot/usr/bin/dagric-get-bottles:35
+#: config/includes.chroot/usr/bin/dagric-get-bottles:36
 msgid "Bottles installed — launch it from the application launcher."
 msgstr "Bottles está instalado: ábrelo desde el menú de aplicaciones."
 
-#: config/includes.chroot/usr/bin/dagric-get-bottles:37
+#: config/includes.chroot/usr/bin/dagric-get-bottles:38
 #: config/includes.chroot/usr/bin/dagric-get-cryptomator:31
-#: config/includes.chroot/usr/bin/dagric-get-heroic:28
+#: config/includes.chroot/usr/bin/dagric-get-heroic:33
 #: config/includes.chroot/usr/bin/dagric-get-joplin:31
 #: config/includes.chroot/usr/bin/dagric-get-localsend:32
 #: config/includes.chroot/usr/bin/dagric-get-onlyoffice:33
-#: config/includes.chroot/usr/bin/dagric-get-protonup:31
+#: config/includes.chroot/usr/bin/dagric-get-protonup:32
 #: config/includes.chroot/usr/bin/dagric-get-upscayl:30
 msgid "Install did not complete. Check your network and try again."
 msgstr ""
@@ -2160,8 +2266,8 @@ msgid ""
 "Dagric — install Cryptomator (encrypt before the cloud)\n"
 "\n"
 "Cryptomator creates encrypted vaults that live inside your normal cloud\n"
-"folders. Your files are encrypted on your machine first, so Google, "
-"Dropbox,\n"
+"folders. Your files are encrypted on your machine first, so Google, Dropbox,"
+"\n"
 "or anyone else only ever stores scrambled data. You hold the only key.\n"
 "From Flathub."
 msgstr ""
@@ -2183,25 +2289,35 @@ msgstr "¿Instalar Cryptomator ahora? [s/N]"
 msgid "Cryptomator installed — launch it from the application launcher."
 msgstr "Cryptomator está instalado: ábrelo desde el menú de aplicaciones."
 
-#: config/includes.chroot/usr/bin/dagric-get-heroic:10
+#: config/includes.chroot/usr/bin/dagric-get-heroic:11
 msgid ""
 "Dagric — install Heroic Games Launcher\n"
 "\n"
-"Heroic is a free, open-source launcher for your Epic Games, GOG, and Amazon\n"
-"Prime Gaming libraries, with Proton/Wine built in. It installs from Flathub."
+"Heroic is an independent, open-source launcher supporting Epic Games Store,\n"
+"GOG and Amazon Games accounts. It supports Wine and Proton for compatible\n"
+"Windows titles and installs from Flathub.\n"
+"\n"
+"Heroic is not official or endorsed by those providers. Compatibility varies,"
+"\n"
+"and provider, game and optional runtime terms still apply."
 msgstr ""
 "Dagric — instalar Heroic Games Launcher\n"
 "\n"
-"Heroic es un lanzador libre y de código abierto para tus bibliotecas de Epic "
-"Games,\n"
-"GOG y Amazon Prime Gaming, con Proton/Wine incorporado. Se instala desde "
-"Flathub."
+"Heroic es un lanzador independiente y de código abierto que admite cuentas "
+"de Epic Games Store,\n"
+"GOG y Amazon Games. Admite Wine y Proton para títulos de Windows compatibles"
+" y se instala desde Flathub.\n"
+"\n"
+"Heroic no es oficial ni está respaldado por esos proveedores. La "
+"compatibilidad varía,\n"
+"y los términos del proveedor, del juego y del tiempo de ejecución opcional "
+"siguen aplicándose."
 
-#: config/includes.chroot/usr/bin/dagric-get-heroic:16
+#: config/includes.chroot/usr/bin/dagric-get-heroic:21
 msgid "Install Heroic now? [y/N]"
 msgstr "¿Instalar Heroic ahora? [s/N]"
 
-#: config/includes.chroot/usr/bin/dagric-get-heroic:26
+#: config/includes.chroot/usr/bin/dagric-get-heroic:31
 msgid "Heroic installed — launch it from the application launcher."
 msgstr "Heroic está instalado: ábrelo desde el menú de aplicaciones."
 
@@ -2219,8 +2335,8 @@ msgstr ""
 "Joplin guarda notas, cuadernos y tareas en Markdown sencillo en TU disco.\n"
 "No hace falta cuenta, funciona totalmente sin conexión y, si algún día "
 "quieres\n"
-"sincronizar, va cifrado de extremo a extremo: a una carpeta, a Syncthing o a "
-"tu\n"
+"sincronizar, va cifrado de extremo a extremo: a una carpeta, a Syncthing o a"
+" tu\n"
 "propio servidor.\n"
 "La alternativa privada a OneNote y Notion. Desde Flathub."
 
@@ -2236,8 +2352,8 @@ msgstr "Joplin está instalado: ábrelo desde el menú de aplicaciones."
 msgid ""
 "Dagric — install LocalSend (share files, privately)\n"
 "\n"
-"LocalSend sends files and messages straight between your devices on the "
-"same\n"
+"LocalSend sends files and messages straight between your devices on the same"
+"\n"
 "network — phone, laptop, desktop — with no account, no cloud, and nothing\n"
 "leaving your network. It's the private alternative to AirDrop. From Flathub."
 msgstr ""
@@ -2245,8 +2361,8 @@ msgstr ""
 "\n"
 "LocalSend envía archivos y mensajes directamente entre tus dispositivos de "
 "la misma\n"
-"red — móvil, portátil, sobremesa — sin cuenta, sin nube y sin que nada salga "
-"de tu\n"
+"red — móvil, portátil, sobremesa — sin cuenta, sin nube y sin que nada salga"
+" de tu\n"
 "red. La alternativa privada a AirDrop. Desde Flathub."
 
 #: config/includes.chroot/usr/bin/dagric-get-localsend:18
@@ -2292,39 +2408,43 @@ msgstr "¿Instalar ONLYOFFICE ahora? [s/N]"
 msgid "ONLYOFFICE installed — launch it from the application launcher."
 msgstr "ONLYOFFICE está instalado: ábrelo desde el menú de aplicaciones."
 
-#. TRANSLATORS: "ProtonUp-Qt", "Proton-GE", "Wine-GE", "Steam", "Lutris" and
+#. TRANSLATORS: "ProtonUp-Qt", "GE-Proton", "Wine-GE", "Steam", "Lutris" and
 #. "Flathub" are product names — leave them exactly as they are.
 #: config/includes.chroot/usr/bin/dagric-get-protonup:12
 msgid ""
 "Dagric — install ProtonUp-Qt\n"
 "\n"
 "ProtonUp-Qt is a free, open-source app for installing and switching between\n"
-"Proton-GE and Wine-GE versions for Steam and Lutris — no terminal needed.\n"
-"It installs from Flathub."
+"GE-Proton and Wine-GE versions for Steam and Lutris — no terminal needed.\n"
+"It installs from Flathub. Compatibility varies by title and service; GE-"
+"Proton\n"
+"is an independent project and is not affiliated with Valve's Proton project."
 msgstr ""
 "Dagric — instalar ProtonUp-Qt\n"
 "\n"
-"ProtonUp-Qt es una aplicación libre y de código abierto para instalar y "
-"cambiar\n"
-"entre versiones de Proton-GE y Wine-GE para Steam y Lutris, sin usar el "
+"ProtonUp-Qt es una aplicación gratuita y de código abierto para instalar y "
+"cambiar entre\n"
+"versiones de GE-Proton y Wine-GE para Steam y Lutris — sin necesidad de "
 "terminal.\n"
-"Se instala desde Flathub."
+"Se instala desde Flathub. La compatibilidad varía según el título y el "
+"servicio; GE-Proton\n"
+"es un proyecto independiente y no está afiliado al proyecto Proton de Valve."
 
-#: config/includes.chroot/usr/bin/dagric-get-protonup:19
+#: config/includes.chroot/usr/bin/dagric-get-protonup:20
 msgid "Install ProtonUp-Qt now? [y/N]"
 msgstr "¿Instalar ProtonUp-Qt ahora? [s/N]"
 
-#: config/includes.chroot/usr/bin/dagric-get-protonup:29
+#: config/includes.chroot/usr/bin/dagric-get-protonup:30
 msgid "ProtonUp-Qt installed — launch it from the application launcher."
 msgstr "ProtonUp-Qt está instalado: ábrelo desde el menú de aplicaciones."
 
 #. TRANSLATORS: the four indented lines are COMMANDS the owner types verbatim
 #. into a terminal — cd, unzip, sudo and the file names must not be translated
 #. or reflowed, or the instructions stop working. The last paragraph is a
-#. LICENCE statement (Blackmagic forbids redistribution, which is why Dagric
+#. LICENCE statement (Dagric has not obtained redistribution permission and
 #. does not bundle Resolve); keep that meaning exact. "DaVinci Resolve",
 #. "Blackmagic", "NVIDIA" and "Dagric" are names.
-#: config/includes.chroot/usr/bin/dagric-get-resolve:17
+#: config/includes.chroot/usr/bin/dagric-get-resolve:16
 msgid ""
 "DaVinci Resolve on Dagric OS\n"
 "==============================\n"
@@ -2338,58 +2458,79 @@ msgid ""
 "4. NVIDIA users: run  sudo dagric-drivers  first — Resolve on Linux\n"
 "   performs best with the proprietary driver.\n"
 "\n"
-"Why isn't it preinstalled? Blackmagic's license forbids redistribution.\n"
-"Any OS that bundles it is violating that license — Dagric won't."
+"Why isn't it preinstalled? Dagric has not obtained permission to "
+"redistribute\n"
+"Resolve. This helper opens Blackmagic's official download and current terms."
 msgstr ""
 "DaVinci Resolve en Dagric OS\n"
 "==============================\n"
 "1. Visita  https://www.blackmagicdesign.com/products/davinciresolve\n"
-"   (se abrirá en tu navegador ahora si es posible...)\n"
-"2. Pulsa «Free Download», elige la versión de Linux y regístrate.\n"
-"3. Descomprime la descarga y ejecuta el instalador:\n"
+"   (abriéndolo en tu navegador ahora si es posible...)\n"
+"2. Haz clic en \"Descarga gratuita\", elige la versión para Linux y "
+"regístrate.\n"
+"3. Descomprime la descarga y luego ejecuta el instalador:\n"
 "       cd ~/Downloads\n"
 "       unzip DaVinci_Resolve_*_Linux.zip\n"
 "       sudo ./DaVinci_Resolve_*_Linux.run\n"
-"4. Usuarios de NVIDIA: ejecuta antes  sudo dagric-drivers  — en Linux,\n"
-"   Resolve rinde mejor con el controlador propietario.\n"
+"4. Usuarios de NVIDIA: ejecuta  sudo dagric-drivers  primero — Resolve en "
+"Linux\n"
+"   funciona mejor con el controlador propietario.\n"
 "\n"
-"¿Por qué no viene preinstalado? La licencia de Blackmagic prohíbe la\n"
-"redistribución. Cualquier sistema que lo incluya está incumpliéndola: Dagric "
-"no."
+"¿Por qué no está preinstalado? Dagric no ha obtenido permiso para "
+"redistribuir\n"
+"Resolve. Este asistente abre la descarga oficial de Blackmagic y los "
+"términos actuales."
 
-#. TRANSLATORS: this paragraph explains a LICENCE position — Dagric does not
-#. bundle Steam because Valve's licence forbids it. Keep that meaning exact;
-#. it is the reason the helper exists. "Steam" and "Valve" are product names.
+#. TRANSLATORS: keep the distinction between software included in Dagric and a
+#. user-requested download. "Steam" and "Valve" are third-party product names.
 #: config/includes.chroot/usr/bin/dagric-get-steam:16
 msgid ""
 "Dagric — install Steam\n"
 "\n"
-"Steam is Valve's proprietary game store and launcher. Dagric doesn't ship "
-"it\n"
-"preinstalled (its licence forbids anyone bundling it), but installing it is "
-"one\n"
-"step. Everything it depends on is already set up on Dagric Pro.\n"
+"Steam is Valve's proprietary game store and launcher. Dagric does not "
+"include\n"
+"or redistribute the Steam client. If you choose to continue, Debian's "
+"installer\n"
+"will obtain it under Valve's terms. Dagric Pro already includes its open-"
+"source\n"
+"system dependencies.\n"
+"\n"
+"This also installs Debian's open-source steam-devices access rules for "
+"advanced\n"
+"controller features and /dev/uinput. Debian warns that these rules trade "
+"local-\n"
+"user isolation for functionality and should not be used on a machine with\n"
+"untrusted local users.\n"
 "\n"
 "You'll be asked for your administrator password, then Steam downloads and\n"
 "installs. Afterwards, launch \"Steam\" from the application launcher."
 msgstr ""
 "Dagric — instalar Steam\n"
 "\n"
-"Steam es la tienda y el lanzador de juegos propietarios de Valve. Dagric no "
-"lo\n"
-"incluye preinstalado (su licencia prohíbe a cualquiera distribuirlo con el "
-"sistema),\n"
-"pero instalarlo es un solo paso. Todo lo que necesita ya está preparado en "
-"Dagric Pro.\n"
+"Steam es la tienda y el lanzador propietario de Valve. Dagric no incluye\n"
+"ni redistribuye el cliente de Steam. Si decides continuar, el instalador de "
+"Debian\n"
+"lo obtendrá según los términos de Valve. Dagric Pro ya incluye sus "
+"dependencias\n"
+"de sistema de código abierto.\n"
 "\n"
-"Se te pedirá la contraseña de administrador y después Steam se descargará e\n"
-"instalará. Luego abre «Steam» desde el menú de aplicaciones."
+"Esto también instala las reglas de acceso de código abierto steam-devices de"
+" Debian\n"
+"para funciones avanzadas del controlador y /dev/uinput. Debian advierte que "
+"estas reglas\n"
+"intercambian el aislamiento de usuarios locales por funcionalidad y no "
+"deberían usarse\n"
+"en una máquina con usuarios locales no confiables.\n"
+"\n"
+"Se te pedirá tu contraseña de administrador y luego Steam se descargará e "
+"instalará.\n"
+"Después, inicia \"Steam\" desde el lanzador de aplicaciones."
 
-#: config/includes.chroot/usr/bin/dagric-get-steam:26
+#: config/includes.chroot/usr/bin/dagric-get-steam:34
 msgid "Install Steam now? [y/N]"
 msgstr "¿Instalar Steam ahora? [s/N]"
 
-#: config/includes.chroot/usr/bin/dagric-get-steam:62
+#: config/includes.chroot/usr/bin/dagric-get-steam:70
 msgid ""
 "Steam installed. Launch it from the application launcher; on first\n"
 "run it finishes updating itself."
@@ -2397,7 +2538,7 @@ msgstr ""
 "Steam está instalado. Ábrelo desde el menú de aplicaciones; en el primer\n"
 "arranque termina de actualizarse."
 
-#: config/includes.chroot/usr/bin/dagric-get-steam:69
+#: config/includes.chroot/usr/bin/dagric-get-steam:77
 #, sh-format
 msgid ""
 "Steam installation did not complete (exit $RC). You can retry from\n"
@@ -2461,8 +2602,8 @@ msgstr ""
 "\n"
 "Variety cambia tu fondo de pantalla según un horario, desde tus propias "
 "carpetas y,\n"
-"si lo activas, desde colecciones en línea. Añade un icono en la bandeja para "
-"saltar,\n"
+"si lo activas, desde colecciones en línea. Añade un icono en la bandeja para"
+" saltar,\n"
 "pausar y marcar como favorita la imagen actual.\n"
 "\n"
 "Dos cosas que conviene saber antes de instalarlo:\n"
@@ -2471,8 +2612,8 @@ msgstr ""
 "    DESACTIVADO hasta que habilites una fuente, pero es la razón por la que "
 "Dagric\n"
 "    no lo preinstala.\n"
-"  * Si solo quieres una presentación rotativa de TUS propias imágenes, no "
-"lo\n"
+"  * Si solo quieres una presentación rotativa de TUS propias imágenes, no lo"
+"\n"
 "    necesitas en absoluto: haz clic derecho en el escritorio, «Configurar "
 "escritorio\n"
 "    y fondo de pantalla» y elige «Presentación».\n"
@@ -2537,15 +2678,13 @@ msgstr "No se encontró ningún navegador. La página está en $PAGE"
 
 #: config/includes.chroot/usr/bin/dagric-hub:33
 msgid "Checking whether this machine can move to the next Dagric release."
-msgstr ""
-"Comprobando si este ordenador puede pasar a la siguiente versión de Dagric."
+msgstr "Comprobando si este ordenador puede pasar a la siguiente versión de Dagric."
 
 #. TRANSLATORS: "sudo dagric-upgrade" is a command typed verbatim — do not
 #. translate it, and keep the two spaces before it.
 #: config/includes.chroot/usr/bin/dagric-hub:36
 msgid "To perform the upgrade when you are ready, run:  sudo dagric-upgrade"
-msgstr ""
-"Para hacer la actualización cuando estés listo, ejecuta:  sudo dagric-upgrade"
+msgstr "Para hacer la actualización cuando estés listo, ejecuta:  sudo dagric-upgrade"
 
 #. TRANSLATORS: a section heading in the Dagric Hub menu. The ── dashes are
 #. decoration that pads the row to a comfortable width; re-cut them to whatever
@@ -2667,8 +2806,8 @@ msgid "Heroic — Epic, GOG, Amazon"
 msgstr "Heroic — Epic, GOG, Amazon"
 
 #: config/includes.chroot/usr/bin/dagric-hub:136
-msgid "Proton-GE for Steam"
-msgstr "Proton-GE para Steam"
+msgid "GE-Proton for Steam"
+msgstr "GE-Proton para Steam"
 
 #: config/includes.chroot/usr/bin/dagric-hub:137
 msgid "Windows apps — Bottles"
@@ -2757,8 +2896,8 @@ msgid ""
 "are missing now, log out and back in, then try again."
 msgstr ""
 "No se pudo aplicar la disposición — el escritorio no respondió. Si ahora "
-"faltan los paneles, cierra la sesión y vuelve a entrar, y luego inténtalo de "
-"nuevo."
+"faltan los paneles, cierra la sesión y vuelve a entrar, y luego inténtalo de"
+" nuevo."
 
 #: config/includes.chroot/usr/bin/dagric-looks:150
 #, sh-format
@@ -2784,8 +2923,8 @@ msgid ""
 "\n"
 "Topics are matched against PAGE NAMES: \"kate\", \"app-kate\" and \"ate\" "
 "all reach\n"
-"the Kate page. Windows names do not work here -- \"notepad\" matches no "
-"page\n"
+"the Kate page. Windows names do not work here -- \"notepad\" matches no page"
+"\n"
 "name, so it fails. Search by Windows name in the manual's own search box\n"
 "instead; that index is what \"notepad finds Kate\" refers to.\n"
 "\n"
@@ -2794,8 +2933,8 @@ msgstr ""
 "Manual de Dagric: todas las aplicaciones de este ordenador, sin conexión.\n"
 "\n"
 "  dagric-manual              abrir la portada (buscar desde ahí)\n"
-"  dagric-manual <tema>       abrir una página, p. ej.  dagric-manual "
-"dolphin\n"
+"  dagric-manual <tema>       abrir una página, p. ej.  dagric-manual dolphin"
+"\n"
 "  dagric-manual --list       listar todos los temas\n"
 "  dagric-manual --help       este texto\n"
 "\n"
@@ -2803,8 +2942,8 @@ msgstr ""
 "llegan\n"
 "todos a la página de Kate. Los nombres de Windows no funcionan aquí: "
 "«notepad» no\n"
-"coincide con ningún nombre de página y falla. Busca por el nombre de Windows "
-"en el\n"
+"coincide con ningún nombre de página y falla. Busca por el nombre de Windows"
+" en el\n"
 "buscador del propio manual; ese índice es al que se refiere «notepad "
 "encuentra Kate».\n"
 "\n"
@@ -2852,7 +2991,7 @@ msgstr "Buscando una instalación de Windows…"
 #. itself uses in your language, because that is what the owner will be
 #. reading on the other machine. "BitLocker" is a product name.
 #. "Nothing on the drive was changed" is a promise; keep it.
-#: config/includes.chroot/usr/bin/dagric-migrate:109
+#: config/includes.chroot/usr/bin/dagric-migrate:123
 #, sh-format
 msgid ""
 "A BitLocker-encrypted drive was found ($BITLOCKER) but Dagric cannot\n"
@@ -2862,8 +3001,8 @@ msgid ""
 "Device encryption), or copy your files to a plain USB drive instead.\n"
 "Nothing on the drive was changed."
 msgstr ""
-"Se ha encontrado un disco cifrado con BitLocker ($BITLOCKER), pero Dagric no "
-"puede\n"
+"Se ha encontrado un disco cifrado con BitLocker ($BITLOCKER), pero Dagric no"
+" puede\n"
 "desbloquearlo sin la clave de recuperación.\n"
 "\n"
 "En Windows: desactiva BitLocker (Configuración > Privacidad y seguridad > "
@@ -2871,7 +3010,7 @@ msgstr ""
 "de dispositivo), o copia tus archivos a una memoria USB normal.\n"
 "No se ha cambiado nada en el disco."
 
-#: config/includes.chroot/usr/bin/dagric-migrate:116
+#: config/includes.chroot/usr/bin/dagric-migrate:130
 msgid ""
 "No Windows installation was found on this PC's drives.\n"
 "\n"
@@ -2881,32 +3020,32 @@ msgid ""
 "If Windows lives on a drive that isn't plugged in, connect it and\n"
 "run Migration again from the Dagric Hub. Nothing was changed."
 msgstr ""
-"No se ha encontrado ninguna instalación de Windows en los discos de este "
-"PC.\n"
+"No se ha encontrado ninguna instalación de Windows en los discos de este PC."
 "\n"
-"Si apareció una petición de contraseña y se canceló, Dagric no pudo abrir el "
-"disco\n"
+"\n"
+"Si apareció una petición de contraseña y se canceló, Dagric no pudo abrir el"
+" disco\n"
 "de Windows para mirar dentro: vuelve a ejecutar esto y acéptala.\n"
 "\n"
 "Si Windows está en un disco que no está conectado, conéctalo y vuelve a "
 "ejecutar la\n"
 "migración desde el Dagric Hub. No se ha cambiado nada."
 
-#: config/includes.chroot/usr/bin/dagric-migrate:146
+#: config/includes.chroot/usr/bin/dagric-migrate:160
 #, sh-format
 msgid "$dev — $sz of user files"
 msgstr "$dev — $sz de archivos de usuario"
 
-#: config/includes.chroot/usr/bin/dagric-migrate:149
+#: config/includes.chroot/usr/bin/dagric-migrate:163
 msgid "Several Windows installations were found. Which one?"
 msgstr "Se han encontrado varias instalaciones de Windows. ¿Cuál?"
 
-#: config/includes.chroot/usr/bin/dagric-migrate:168
+#: config/includes.chroot/usr/bin/dagric-migrate:182
 #, sh-format
 msgid "No user profiles were found in $WINMNT/Users."
 msgstr "No se han encontrado perfiles de usuario en $WINMNT/Users."
 
-#: config/includes.chroot/usr/bin/dagric-migrate:181
+#: config/includes.chroot/usr/bin/dagric-migrate:195
 msgid "Which Windows user are you?"
 msgstr "¿Qué usuario de Windows eres?"
 
@@ -2914,7 +3053,7 @@ msgstr "¿Qué usuario de Windows eres?"
 #. single most important sentence in this tool. The owner is about to point it
 #. at a Windows installation they may still need to boot. It must not read as
 #. "moved", and the reassurance must survive.
-#: config/includes.chroot/usr/bin/dagric-migrate:200
+#: config/includes.chroot/usr/bin/dagric-migrate:214
 #, sh-format
 msgid ""
 "Found Windows user \"$WINUSER\". What should come over to Dagric?\n"
@@ -2924,43 +3063,79 @@ msgstr ""
 "Dagric?\n"
 "(Los archivos se COPIAN: Windows conserva los suyos intactos.)"
 
-#: config/includes.chroot/usr/bin/dagric-migrate:202
+#: config/includes.chroot/usr/bin/dagric-migrate:216
 msgid "Documents"
 msgstr "Documentos"
 
-#: config/includes.chroot/usr/bin/dagric-migrate:203
+#: config/includes.chroot/usr/bin/dagric-migrate:217
 msgid "Desktop"
 msgstr "Escritorio"
 
-#: config/includes.chroot/usr/bin/dagric-migrate:204
+#: config/includes.chroot/usr/bin/dagric-migrate:218
 msgid "Pictures"
 msgstr "Imágenes"
 
-#: config/includes.chroot/usr/bin/dagric-migrate:205
+#: config/includes.chroot/usr/bin/dagric-migrate:219
 msgid "Music"
 msgstr "Música"
 
-#: config/includes.chroot/usr/bin/dagric-migrate:206
+#: config/includes.chroot/usr/bin/dagric-migrate:220
 msgid "Videos"
 msgstr "Vídeos"
 
-#: config/includes.chroot/usr/bin/dagric-migrate:207
+#: config/includes.chroot/usr/bin/dagric-migrate:221
 msgid "Downloads"
 msgstr "Descargas"
 
-#: config/includes.chroot/usr/bin/dagric-migrate:208
-msgid "Browser bookmarks (Chrome / Edge / Firefox)"
-msgstr "Marcadores del navegador (Chrome / Edge / Firefox)"
+#: config/includes.chroot/usr/bin/dagric-migrate:222
+msgid "Browser bookmarks (Chrome / Brave / Edge / DuckDuckGo / Firefox)"
+msgstr "Marcadores del navegador (Chrome / Brave / Edge / DuckDuckGo / Firefox)"
 
-#: config/includes.chroot/usr/bin/dagric-migrate:209
+#: config/includes.chroot/usr/bin/dagric-migrate:223
 msgid "Browser tabs you had open"
 msgstr "Pestañas del navegador que tenías abiertas"
 
-#: config/includes.chroot/usr/bin/dagric-migrate:210
-msgid "Saved passwords (Firefox only - Chrome explains why)"
-msgstr "Contraseñas guardadas (solo Firefox: Chrome explica por qué)"
+#: config/includes.chroot/usr/bin/dagric-migrate:224
+msgid "Saved passwords (Firefox + Chromium CSV export)"
+msgstr "Contraseñas guardadas (exportación CSV de Firefox + Chromium)"
 
-#: config/includes.chroot/usr/bin/dagric-migrate:277
+#: config/includes.chroot/usr/bin/dagric-migrate:225
+msgid "Gaming continuity (save games, Steam screenshots, game inventory)"
+msgstr ""
+"Continuidad de juegos (partidas guardadas, capturas de Steam, inventario de "
+"juegos)"
+
+#: config/includes.chroot/usr/bin/dagric-migrate:226
+msgid "Developer continuity (VS Code settings, Git configuration, project inventory)"
+msgstr ""
+"Continuidad de desarrollador (configuración de VS Code, configuración de "
+"Git, inventario de proyectos)"
+
+#: config/includes.chroot/usr/bin/dagric-migrate:227
+msgid "Creative/work profiles (OBS, Blender, Krita, LibreOffice templates, Audacity)"
+msgstr ""
+"Perfiles creativos/de trabajo (OBS, Blender, Krita, plantillas de "
+"LibreOffice, Audacity)"
+
+#: config/includes.chroot/usr/bin/dagric-migrate:228
+msgid "Thunderbird mail and contacts profile — contains personal email"
+msgstr "Perfil de correo y contactos de Thunderbird: contiene correo personal"
+
+#: config/includes.chroot/usr/bin/dagric-migrate:229
+msgid "Personal fonts — confirm you may use their licenses"
+msgstr "Fuentes personales: confirma que puedes usar sus licencias"
+
+#: config/includes.chroot/usr/bin/dagric-migrate:238
+msgid ""
+"Do you have a Dagric-Windows-Companion.json export? It adds\n"
+"network names, printers, cloud notes, and app context to your migration "
+"report."
+msgstr ""
+"¿Tienes una exportación de Dagric-Windows-Companion.json? Añade\n"
+"nombres de red, impresoras, notas en la nube y contexto de aplicaciones a tu"
+" informe de migración."
+
+#: config/includes.chroot/usr/bin/dagric-migrate:321
 #, sh-format
 msgid ""
 "Not enough space: your selection is $NEED_GB GB but this\n"
@@ -2969,26 +3144,23 @@ msgid ""
 msgstr ""
 "No hay espacio suficiente: tu selección ocupa $NEED_GB GB pero este\n"
 "disco solo tiene $FREE_GB GB libres. Quita alguna carpeta de la selección\n"
-"(los vídeos suelen ser lo más grande) e inténtalo de nuevo. No se ha copiado "
-"nada."
+"(los vídeos suelen ser lo más grande) e inténtalo de nuevo. No se ha copiado"
+" nada."
 
 #. TRANSLATORS: "read-only; Windows is not modified" is the promise the whole
 #. tool rests on. It is a statement of fact about what is happening right now —
 #. keep it, and keep it in the present tense.
-#: config/includes.chroot/usr/bin/dagric-migrate:288
+#: config/includes.chroot/usr/bin/dagric-migrate:332
 #, sh-format
 msgid "=== Dagric Migration: copying from Windows user \"$WINUSER\" ==="
-msgstr ""
-"=== Migración de Dagric: copiando del usuario de Windows «$WINUSER» ==="
+msgstr "=== Migración de Dagric: copiando del usuario de Windows «$WINUSER» ==="
 
-#: config/includes.chroot/usr/bin/dagric-migrate:289
+#: config/includes.chroot/usr/bin/dagric-migrate:333
 #, sh-format
-msgid ""
-"    reading $WINDEV mounted at $WINMNT (read-only; Windows is not modified)"
-msgstr ""
-"    leyendo $WINDEV montado en $WINMNT (solo lectura; Windows no se modifica)"
+msgid "    reading $WINDEV mounted at $WINMNT (read-only; Windows is not modified)"
+msgstr "    leyendo $WINDEV montado en $WINMNT (solo lectura; Windows no se modifica)"
 
-#: config/includes.chroot/usr/bin/dagric-migrate:291
+#: config/includes.chroot/usr/bin/dagric-migrate:335
 msgid "    (some files could not be read — skipped)"
 msgstr "    (algunos archivos no se han podido leer: omitidos)"
 
@@ -2996,12 +3168,12 @@ msgstr "    (algunos archivos no se han podido leer: omitidos)"
 #. Import Bookmarks from HTML" is a path through FIREFOX's own menus.
 #. Use the wording Firefox shows in your language, not a literal
 #. translation, or the owner will look for a menu item that is not there.
-#: config/includes.chroot/usr/bin/dagric-migrate:428
+#: config/includes.chroot/usr/bin/dagric-migrate:596
 #, sh-format
 msgid "Bookmarks saved to: $OUT"
 msgstr "Marcadores guardados en: $OUT"
 
-#: config/includes.chroot/usr/bin/dagric-migrate:429
+#: config/includes.chroot/usr/bin/dagric-migrate:597
 msgid ""
 "Import them in Firefox:  Bookmarks > Manage Bookmarks >\n"
 "Import and Backup > Import Bookmarks from HTML."
@@ -3009,13 +3181,32 @@ msgstr ""
 "Para importarlos en Firefox:  Marcadores > Administrar marcadores >\n"
 "Importar y respaldar > Importar marcadores desde HTML."
 
-#: config/includes.chroot/usr/bin/dagric-migrate:443
+#: config/includes.chroot/usr/bin/dagric-migrate:619
+msgid ""
+"Thunderbird migration copies local mail, contacts, and account settings into"
+" a private Dagric migration folder. It does not decrypt or import passwords,"
+" but the copied mail can be personal. Continue?"
+msgstr ""
+"La migración de Thunderbird copia el correo local, los contactos y la "
+"configuración de la cuenta en una carpeta privada de migración de Dagric. No"
+" descifra ni importa contraseñas, pero el correo copiado puede ser personal."
+" ¿Continuar?"
+
+#: config/includes.chroot/usr/bin/dagric-migrate:622
+msgid ""
+"Only personal Windows fonts will be copied. You are responsible for "
+"confirming that each font license permits use on Dagric. Continue?"
+msgstr ""
+"Solo se copiarán las fuentes personales de Windows. Eres responsable de "
+"confirmar que cada licencia de fuente permite su uso en Dagric. ¿Continuar?"
+
+#: config/includes.chroot/usr/bin/dagric-migrate:630
 msgid "--- browser tabs and logins ---"
 msgstr "--- pestañas y credenciales del navegador ---"
 
 #. TRANSLATORS: "Primary Password" is Firefox's own term for the
 #. master password — use whatever Firefox calls it in your language.
-#: config/includes.chroot/usr/bin/dagric-migrate:452
+#: config/includes.chroot/usr/bin/dagric-migrate:639
 msgid ""
 "If this person set a Primary Password in Firefox, type it so the saved\n"
 "logins can be unlocked.\n"
@@ -3028,23 +3219,23 @@ msgstr ""
 "\n"
 "Déjala en blanco si nunca puso ninguna (la mayoría no lo hace)."
 
-#: config/includes.chroot/usr/bin/dagric-migrate:495
+#: config/includes.chroot/usr/bin/dagric-migrate:685
 msgid "the browser recovery helper did not finish"
 msgstr "el asistente de recuperación del navegador no terminó"
 
-#: config/includes.chroot/usr/bin/dagric-migrate:498
+#: config/includes.chroot/usr/bin/dagric-migrate:688
 #, sh-format
 msgid "Some browser data could not be read: $MIGFAIL"
 msgstr "No se pudieron leer algunos datos del navegador: $MIGFAIL"
 
-#: config/includes.chroot/usr/bin/dagric-migrate:510
+#: config/includes.chroot/usr/bin/dagric-migrate:700
 #, sh-format
 msgid "Recovered $N_TABS open tab -> ~/Windows-open-tabs.html"
 msgid_plural "Recovered $N_TABS open tabs -> ~/Windows-open-tabs.html"
 msgstr[0] "Recuperada $N_TABS pestaña abierta -> ~/Windows-open-tabs.html"
 msgstr[1] "Recuperadas $N_TABS pestañas abiertas -> ~/Windows-open-tabs.html"
 
-#: config/includes.chroot/usr/bin/dagric-migrate:513
+#: config/includes.chroot/usr/bin/dagric-migrate:703
 msgid ""
 "No open tabs could be recovered - the session files could not be read.\n"
 "  A half-written session file (an unclean Windows shutdown) can cause this."
@@ -3054,24 +3245,23 @@ msgstr ""
 "incorrecto\n"
 "  de Windows) puede ser la causa."
 
-#: config/includes.chroot/usr/bin/dagric-migrate:516
+#: config/includes.chroot/usr/bin/dagric-migrate:706
 msgid "No open tabs were found (the browsers may have been closed cleanly)."
 msgstr ""
 "No se han encontrado pestañas abiertas (puede que los navegadores se "
 "cerraran correctamente)."
 
-#: config/includes.chroot/usr/bin/dagric-migrate:523
+#: config/includes.chroot/usr/bin/dagric-migrate:713
 #, sh-format
-msgid "Recovered $N_PWDS Firefox login -> ~/Windows-passwords.csv"
-msgid_plural "Recovered $N_PWDS Firefox logins -> ~/Windows-passwords.csv"
-msgstr[0] "Recuperada $N_PWDS credencial de Firefox -> ~/Windows-passwords.csv"
-msgstr[1] ""
-"Recuperadas $N_PWDS credenciales de Firefox -> ~/Windows-passwords.csv"
+msgid "Recovered $N_PWDS saved login -> ~/Windows-passwords.csv"
+msgid_plural "Recovered $N_PWDS saved logins -> ~/Windows-passwords.csv"
+msgstr[0] "Se recuperó $N_PWDS inicio de sesión guardado -> ~/Windows-passwords.csv"
+msgstr[1] "Se recuperaron $N_PWDS inicios de sesión guardados -> ~/Windows-passwords.csv"
 
 #. TRANSLATORS: a plain-text file of the owner's passwords now
 #. exists on disk. "Import it, then delete it" is an instruction,
 #. and PLAIN TEXT must stay emphatic.
-#: config/includes.chroot/usr/bin/dagric-migrate:528
+#: config/includes.chroot/usr/bin/dagric-migrate:718
 msgid ""
 "  This file is PLAIN TEXT and readable only by you.\n"
 "  Import it, then delete it."
@@ -3079,50 +3269,85 @@ msgstr ""
 "  Este archivo está en TEXTO PLANO y solo tú puedes leerlo.\n"
 "  Impórtalo y después bórralo."
 
-#: config/includes.chroot/usr/bin/dagric-migrate:531
-msgid "No Firefox logins were recovered."
-msgstr "No se ha recuperado ninguna credencial de Firefox."
+#: config/includes.chroot/usr/bin/dagric-migrate:721
+msgid "No saved Firefox logins were recovered from the Firefox store."
+msgstr ""
+"No se recuperaron inicios de sesión guardados de Firefox desde el almacén de"
+" Firefox."
 
-#: config/includes.chroot/usr/bin/dagric-migrate:538
-msgid "Found a password file exported from Chrome:"
-msgstr "Se ha encontrado un archivo de contraseñas exportado de Chrome:"
+#: config/includes.chroot/usr/bin/dagric-migrate:731
+#, sh-format
+msgid "Found $EXPORTED_COUNT exported Chromium-password CSV file:"
+msgid_plural "Found $EXPORTED_COUNT exported Chromium-password CSV files:"
+msgstr[0] "Se encontró $EXPORTED_COUNT archivo CSV exportado de contraseñas de Chromium:"
+msgstr[1] ""
+"Se encontraron $EXPORTED_COUNT archivos CSV exportados de contraseñas de "
+"Chromium:"
 
-#: config/includes.chroot/usr/bin/dagric-migrate:540
-msgid "  Copy it to your home folder and import it the same way."
-msgstr "  Cópialo a tu carpeta personal e impórtalo de la misma manera."
+#: config/includes.chroot/usr/bin/dagric-migrate:734
+msgid "Found Chromium-family exported password CSV file(s):"
+msgstr "Se encontraron archivos CSV exportados de contraseñas de la familia Chromium:"
 
 #. TRANSLATORS: the two indented lines are paths through
-#. CHROME's and EDGE's settings, on the Windows machine — use
+#. Chrome/Edge/Brave/DuckDuckGo settings on the Windows machine — use
 #. the wording those browsers show in your language. The first
 #. paragraph explains WHY this cannot work; it is a security
 #. property, not an apology, and should not be softened into one.
-#: config/includes.chroot/usr/bin/dagric-migrate:548
+#: config/includes.chroot/usr/bin/dagric-migrate:744
 msgid ""
-"Chrome / Edge passwords could NOT be read, and no tool can read them here:\n"
+"Chromium-family passwords could NOT be read here:\n"
 "they are encrypted with a Windows key tied to that Windows account, which\n"
 "does not exist on this system. That is a security feature, not a fault.\n"
 "\n"
 "To bring them over, do this ONCE while still in Windows:\n"
-"  Chrome : Settings > Autofill and passwords > Google Password Manager\n"
-"           > Settings > Download file\n"
-"  Edge   : Settings > Profiles > Passwords > ... > Export passwords\n"
+"   Chrome / Edge / Brave: Passwords > Export\n"
+"   DuckDuckGo: Settings > Passwords > Export\n"
 "Save the .csv, then run this migration again - it will pick it up."
 msgstr ""
-"Las contraseñas de Chrome / Edge NO se han podido leer, y ninguna "
-"herramienta puede\n"
-"leerlas aquí: están cifradas con una clave de Windows ligada a aquella "
-"cuenta de\n"
-"Windows, que no existe en este sistema. Eso es una medida de seguridad, no "
-"un fallo.\n"
+"Las contraseñas de la familia Chromium NO se pudieron leer aquí:\n"
+"están cifradas con una clave de Windows vinculada a esa cuenta de Windows, "
+"que\n"
+"no existe en este sistema. Eso es una característica de seguridad, no un "
+"fallo.\n"
 "\n"
-"Para traerlas, haz esto UNA VEZ mientras sigas en Windows:\n"
-"  Chrome : Configuración > Autocompletar y contraseñas > Administrador de\n"
-"           contraseñas de Google > Configuración > Descargar archivo\n"
-"  Edge   : Configuración > Perfiles > Contraseñas > ... > Exportar "
-"contraseñas\n"
-"Guarda el .csv y vuelve a ejecutar esta migración: lo detectará."
+"Para transferirlas, haz esto UNA VEZ mientras aún estés en Windows:\n"
+"   Chrome / Edge / Brave: Contraseñas > Exportar\n"
+"   DuckDuckGo: Configuración > Contraseñas > Exportar\n"
+"Guarda el .csv y luego ejecuta esta migración de nuevo; lo detectará."
 
-#: config/includes.chroot/usr/bin/dagric-migrate:563
+#: config/includes.chroot/usr/bin/dagric-migrate:771
+msgid ""
+"Also copy SSH configuration and known-hosts? Private SSH keys will never be "
+"copied."
+msgstr ""
+"¿Copiar también la configuración de SSH y known-hosts? Las claves SSH "
+"privadas nunca se copiarán."
+
+#: config/includes.chroot/usr/bin/dagric-migrate:780
+msgid "Created the Windows app, Steam, and continuity report."
+msgstr "Se creó el informe de aplicaciones de Windows, Steam y continuidad."
+
+#: config/includes.chroot/usr/bin/dagric-migrate:782
+msgid "Continuity report could not be created; your copied files are still safe."
+msgstr ""
+"No se pudo crear el informe de continuidad; tus archivos copiados siguen a "
+"salvo."
+
+#: config/includes.chroot/usr/bin/dagric-migrate:799
+msgid "Migration State Pack could not be created; your copied files are still safe."
+msgstr ""
+"No se pudo crear el paquete de estado de migración; tus archivos copiados "
+"siguen a salvo."
+
+#: config/includes.chroot/usr/bin/dagric-migrate:802
+msgid ""
+"Created a local Migration State Pack with your folder, shortcut, browser, "
+"and recent-work notes."
+msgstr ""
+"Se creó un paquete de estado de migración local con tus notas de carpetas, "
+"accesos directos, navegador y trabajo reciente."
+
+#: config/includes.chroot/usr/bin/dagric-migrate:807
 msgid "=== Migration finished ==="
 msgstr "=== Migración finalizada ==="
 
@@ -3130,7 +3355,7 @@ msgstr "=== Migración finalizada ==="
 #. modified — it was only ever read" is the sentence the owner will remember,
 #. and the one that decides whether they trust this product. Do not weaken the
 #. negation.
-#: config/includes.chroot/usr/bin/dagric-migrate:568
+#: config/includes.chroot/usr/bin/dagric-migrate:812
 msgid ""
 "Done! Your Windows files are now in your Dagric home folder.\n"
 "\n"
@@ -3141,7 +3366,7 @@ msgstr ""
 "\n"
 "Windows en sí no se ha modificado: solo se ha leído."
 
-#: config/includes.chroot/usr/bin/dagric-migrate:604
+#: config/includes.chroot/usr/bin/dagric-migrate:848
 msgid ""
 "• Bookmarks — Bookmarks ▸ Manage Bookmarks ▸ Import and Backup ▸\n"
 "  Import Bookmarks from HTML ▸ Windows-bookmarks.html"
@@ -3149,7 +3374,7 @@ msgstr ""
 "• Marcadores — Marcadores ▸ Administrar marcadores ▸ Importar y respaldar ▸\n"
 "  Importar marcadores desde HTML ▸ Windows-bookmarks.html"
 
-#: config/includes.chroot/usr/bin/dagric-migrate:609
+#: config/includes.chroot/usr/bin/dagric-migrate:853
 msgid ""
 "• Open tabs — import Windows-open-tabs.html the same way; they arrive as a\n"
 "  bookmark folder you can 'Open All in Tabs'"
@@ -3165,12 +3390,12 @@ msgstr ""
 #. reclaim the Windows partition next. "Windows itself was still only ever
 #. read" keeps the product's central promise intact on the failure path — the
 #. copy went wrong, the Windows installation did not.
-#: config/includes.chroot/usr/bin/dagric-migrate:622
+#: config/includes.chroot/usr/bin/dagric-migrate:866
 msgid ""
 "⚠ NOT everything was copied.\n"
 "\n"
-"Some folders did not copy completely — read the messages above, free up "
-"disk\n"
+"Some folders did not copy completely — read the messages above, free up disk"
+"\n"
 "space or check the drive, then run Migration again. Do NOT delete anything\n"
 "from Windows until it has finished cleanly.\n"
 "\n"
@@ -3186,22 +3411,58 @@ msgstr ""
 
 #. TRANSLATORS: a warning that a plain-text password file is sitting in the
 #. owner's home folder. "Delete it once imported" must survive translation.
-#: config/includes.chroot/usr/bin/dagric-migrate:640
+#: config/includes.chroot/usr/bin/dagric-migrate:884
 msgid ""
-"• Passwords — Firefox ▸ Passwords ▸ ⋯ ▸ Import from a File ▸\n"
-"  Windows-passwords.csv   (KeePassXC on Pro can import the same file)\n"
+"• Passwords — open Windows-passwords.csv and import into one place:\n"
+"  Firefox: Passwords ▸ ⋯ ▸ Import from a File\n"
+"  Chromium browsers: Settings ▸ Passwords ▸ Import\n"
+"  Windows-passwords.csv is standard CSV (name, url, username, password)\n"
 "\n"
 "⚠ Windows-passwords.csv is PLAIN TEXT. Delete it once imported."
 msgstr ""
-"• Contraseñas — Firefox ▸ Contraseñas ▸ ⋯ ▸ Importar desde un archivo ▸\n"
-"  Windows-passwords.csv   (KeePassXC en Pro puede importar el mismo "
-"archivo)\n"
+"• Contraseñas: abre Windows-passwords.csv e impórtalas en un solo lugar:\n"
+"  Firefox: Contraseñas ▸ ⋯ ▸ Importar desde un archivo\n"
+"  Navegadores Chromium: Configuración ▸ Contraseñas ▸ Importar\n"
+"  Windows-passwords.csv es CSV estándar (nombre, url, usuario, contraseña)\n"
 "\n"
-"⚠ Windows-passwords.csv está en TEXTO PLANO. Bórralo en cuanto lo importes."
+"⚠ Windows-passwords.csv es TEXTO PLANO. Elimínalo una vez importado."
 
-#: config/includes.chroot/usr/bin/dagric-migrate:651
-msgid "To finish up, in Firefox:"
-msgstr "Para terminar, en Firefox:"
+#: config/includes.chroot/usr/bin/dagric-migrate:897
+msgid ""
+"• Continuity profile helper — open Windows-browser-context.json and use it "
+"as a checklist\n"
+"  to restore startup pages, search engine choices, and enabled extensions."
+msgstr ""
+"• Ayudante de perfil de continuidad: abre Windows-browser-context.json y "
+"úsalo como lista de verificación\n"
+"  para restaurar páginas de inicio, opciones de motor de búsqueda y "
+"extensiones habilitadas."
+
+#: config/includes.chroot/usr/bin/dagric-migrate:903
+msgid ""
+"• Restore Migration Notes — run Restore Migration Notes from the launcher "
+"(or dagric-restore-assistant)\n"
+"  to open a safe checklist for browser setup, shortcuts, and recent work "
+"patterns."
+msgstr ""
+"• Restaurar notas de migración: ejecuta Restaurar notas de migración desde "
+"el lanzador (o dagric-restore-assistant)\n"
+"  para abrir una lista de verificación segura para la configuración del "
+"navegador, accesos directos y patrones de trabajo recientes."
+
+#: config/includes.chroot/usr/bin/dagric-migrate:908
+msgid ""
+"• Windows app and continuity report — open Dagric-Continuity-Report.html for"
+" reinstall plans,\n"
+"  Steam inventory, and a record of every selected profile copy."
+msgstr ""
+"• Informe de aplicaciones de Windows y continuidad: abre Dagric-Continuity-"
+"Report.html para planes de reinstalación,\n"
+"  inventario de Steam y un registro de cada copia de perfil seleccionada."
+
+#: config/includes.chroot/usr/bin/dagric-migrate:915
+msgid "To finish up:"
+msgstr "Para terminar:"
 
 #: config/includes.chroot/usr/bin/dagric-restart-check:68
 msgid "A security update is ready"
@@ -3220,21 +3481,19 @@ msgid ""
 "Dagric Rewind is incomplete. Reinstall or update the dagric-tools package, "
 "then try again."
 msgstr ""
-"Dagric Rewind está incompleto. Reinstala o actualiza el paquete dagric-tools "
-"e inténtalo de nuevo."
+"Dagric Rewind está incompleto. Reinstala o actualiza el paquete dagric-tools"
+" e inténtalo de nuevo."
 
-#: config/includes.chroot/usr/bin/dagric-rewind:89
+#: config/includes.chroot/usr/bin/dagric-rewind:119
 msgid "The action could not be completed."
 msgstr "No se pudo completar la acción."
 
-#: config/includes.chroot/usr/bin/dagric-rewind:161
+#: config/includes.chroot/usr/bin/dagric-rewind:194
 msgid "Btrfs Assistant is not installed. Update Dagric, then try again."
-msgstr ""
-"Btrfs Assistant no está instalado. Actualiza Dagric e inténtalo de nuevo."
+msgstr "Btrfs Assistant no está instalado. Actualiza Dagric e inténtalo de nuevo."
 
-#: config/includes.chroot/usr/bin/dagric-rewind:170
-msgid ""
-"Dagric Rewind could not open. The snapshots themselves were not changed."
+#: config/includes.chroot/usr/bin/dagric-rewind:203
+msgid "Dagric Rewind could not open. The snapshots themselves were not changed."
 msgstr "Dagric Rewind no se pudo abrir. Las instantáneas no se modificaron."
 
 #: config/includes.chroot/usr/bin/dagric-security-checkup:9
@@ -3255,8 +3514,8 @@ msgstr "La auditoría no se pudo ejecutar (necesita acceso de administrador)."
 #: config/includes.chroot/usr/bin/dagric-security-checkup:44
 msgid "Drive health:  ⚠ A DRIVE IS FAILING — back up now!"
 msgstr ""
-"Estado de los discos:  ⚠ UN DISCO ESTÁ FALLANDO: ¡haz una copia de seguridad "
-"ya!"
+"Estado de los discos:  ⚠ UN DISCO ESTÁ FALLANDO: ¡haz una copia de seguridad"
+" ya!"
 
 #. TRANSLATORS: "Kup" is the name of the backup app that ships with
 #. Dagric — do not translate it.
@@ -3282,8 +3541,7 @@ msgstr ""
 
 #: config/includes.chroot/usr/bin/dagric-security-checkup:70
 msgid "Drive health:  all drives report healthy (SMART)"
-msgstr ""
-"Estado de los discos:  todos los discos informan de buen estado (SMART)"
+msgstr "Estado de los discos:  todos los discos informan de buen estado (SMART)"
 
 #: config/includes.chroot/usr/bin/dagric-security-checkup:76
 msgid "see report"
@@ -3365,8 +3623,8 @@ msgid ""
 "\n"
 "Anything installed now is kept in this computer's memory rather than on a "
 "disk:\n"
-"it disappears at shutdown, and on a machine without much RAM it can make "
-"the\n"
+"it disappears at shutdown, and on a machine without much RAM it can make the"
+"\n"
 "trial session unstable. Installing Dagric first avoids both.\n"
 "\n"
 "Continue anyway?"
@@ -3375,8 +3633,8 @@ msgstr ""
 "\n"
 "Todo lo que instales ahora queda en la memoria de este ordenador y no en un "
 "disco:\n"
-"desaparece al apagar y, en un equipo con poca RAM, puede volver inestable "
-"la\n"
+"desaparece al apagar y, en un equipo con poca RAM, puede volver inestable la"
+"\n"
 "sesión de prueba. Instalar Dagric primero evita ambas cosas.\n"
 "\n"
 "¿Continuar de todos modos?"
@@ -3398,7 +3656,7 @@ msgstr ""
 "Flathub NO se pudo activar: puede que estés sin conexión o que se cancelara "
 "la petición de contraseña. Vuelve a intentarlo cuando quieras desde el Hub."
 
-#: config/includes.chroot/usr/bin/dagric-style:110
+#: config/includes.chroot/usr/bin/dagric-style:129
 msgid ""
 "No styles are installed. Reinstall the dagric-branding package to restore "
 "them."
@@ -3406,30 +3664,30 @@ msgstr ""
 "No hay ningún estilo instalado. Reinstala el paquete dagric-branding para "
 "recuperarlos."
 
-#: config/includes.chroot/usr/bin/dagric-style:131
+#: config/includes.chroot/usr/bin/dagric-style:160
 msgid "Accent color — pick any color"
 msgstr "Color de acento: elige cualquier color"
 
-#: config/includes.chroot/usr/bin/dagric-style:132
+#: config/includes.chroot/usr/bin/dagric-style:161
 msgid "Reset — standard Dagric look"
 msgstr "Restablecer: el aspecto estándar de Dagric"
 
-#: config/includes.chroot/usr/bin/dagric-style:135
+#: config/includes.chroot/usr/bin/dagric-style:167
 msgid "Pick a mood — colors, wallpaper, effects. Panels stay put:"
 msgstr ""
 "Elige un ambiente: colores, fondo de pantalla y efectos. Los paneles no se "
 "mueven:"
 
-#: config/includes.chroot/usr/bin/dagric-style:155
+#: config/includes.chroot/usr/bin/dagric-style:178
 msgid "accent color"
 msgstr "color de acento"
 
-#: config/includes.chroot/usr/bin/dagric-style:162
+#: config/includes.chroot/usr/bin/dagric-style:185
 #, sh-format
 msgid "Accent color set to $HEX"
 msgstr "Color de acento establecido en $HEX"
 
-#: config/includes.chroot/usr/bin/dagric-style:185
+#: config/includes.chroot/usr/bin/dagric-style:208
 msgid ""
 "The standard Dagric style is missing, so nothing was changed. Reinstall the "
 "dagric-branding package to restore it."
@@ -3437,158 +3695,170 @@ msgstr ""
 "Falta el estilo estándar de Dagric, así que no se cambió nada. Reinstala el "
 "paquete dagric-branding para recuperarlo."
 
-#: config/includes.chroot/usr/bin/dagric-style:189
+#: config/includes.chroot/usr/bin/dagric-style:212
 msgid "Reset to the standard Dagric look"
 msgstr "Restablecer el aspecto estándar de Dagric"
 
-#: config/includes.chroot/usr/bin/dagric-style:201
+#: config/includes.chroot/usr/bin/dagric-style:228
 #, sh-format
 msgid "Style applied: $NAME"
 msgstr "Estilo aplicado: $NAME"
 
-#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:64
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:69
 msgid "STOPPED:"
 msgstr "DETENIDO:"
 
-#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:73
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:78
 msgid "run this as root:  sudo dagric-upgrade-to-pro"
 msgstr "ejecuta esto como root:  sudo dagric-upgrade-to-pro"
 
-#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:78
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:83
 msgid "Dagric OS — upgrade this machine to Pro"
 msgstr "Dagric OS — actualiza esta máquina a Pro"
 
-#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:86
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:91
 msgid "This machine is already running Dagric OS Pro."
 msgstr "Esta máquina ya está ejecutando Dagric OS Pro."
 
-#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:87
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:92
 msgid "Nothing to do."
 msgstr "No hay nada que hacer."
 
-#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:97
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:102
 msgid "This is the live USB session, not an installed system."
 msgstr "Esta es la sesión USB en vivo, no un sistema instalado."
 
-#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:99
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:104
 msgid "An upgrade here would be written to memory and lost at shutdown."
-msgstr ""
-"Una actualización aquí se escribiría en memoria y se perdería al apagar."
+msgstr "Una actualización aquí se escribiría en memoria y se perdería al apagar."
 
-#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:100
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:105
 msgid "Install Dagric first, then run this on the installed machine."
 msgstr "Instala Dagric primero y luego ejecuta esto en la máquina instalada."
 
-#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:122
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:127
 msgid "ERROR: some packages on this machine are half-configured."
 msgstr "ERROR: algunos paquetes de esta máquina están a medio configurar."
 
-#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:126
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:131
 msgid "Run  sudo dpkg --configure -a  first, then try again."
 msgstr "Ejecuta  sudo dpkg --configure -a  primero y luego inténtalo de nuevo."
 
-#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:141
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:146
 msgid "ERROR: not enough free disk space."
 msgstr "ERROR: no hay suficiente espacio libre en el disco."
 
-#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:142
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:147
 #, sh-format
 msgid "Pro needs about 6 GB free; this machine has $FREE_GB GB."
 msgstr "Pro necesita unos 6 GB libres; esta máquina tiene $FREE_GB GB."
 
-#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:175
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:180
 msgid "ERROR: this machine is running on battery."
 msgstr "ERROR: esta máquina está funcionando con batería."
 
-#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:176
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:181
 msgid "Plug it in first — this installs several gigabytes."
 msgstr "Conéctala primero — esto instala varios gigabytes."
 
-#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:180
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:185
 msgid "ERROR: curl is missing."
 msgstr "ERROR: falta curl."
 
-#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:182
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:187
 msgid "fix the above and run this again. Nothing was changed."
 msgstr "arregla lo anterior y ejecuta esto de nuevo. No se cambió nada."
 
-#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:184
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:189
 #, sh-format
 msgid "This machine: Dagric OS $CUR"
 msgstr "Esta máquina: Dagric OS $CUR"
 
-#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:185
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:190
 #, sh-format
 msgid "Free disk:    $FREE_GB GB"
 msgstr "Disco libre:    $FREE_GB GB"
 
-#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:191
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:196
 msgid "Your Pro purchase"
 msgstr "Tu compra de Pro"
 
-#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:194
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:199
 msgid "Open the download page from your purchase email. Its address ends in"
-msgstr ""
-"Abre la página de descarga desde tu correo de compra. Su dirección termina en"
-
-#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:196
-msgid "Paste that cs_... value here (it is not a password and not secret)."
-msgstr "Pega ese valor cs_... aquí (no es una contraseña ni es secreto)."
+msgstr "Abre la página de descarga desde tu correo de compra. Su dirección termina en"
 
 #: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:201
+msgid ""
+"Paste that cs_... value here. Treat it like a private download link: anyone "
+"who has it can use your Pro download access."
+msgstr ""
+"Pega ese valor cs_... aquí. Trátalo como un enlace de descarga privado: "
+"cualquiera que lo tenga puede usar tu acceso de descarga Pro."
+
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:206
 msgid "Purchase session: "
 msgstr "Sesión de compra: "
 
-#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:209
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:213
 msgid ""
-"that does not look like a purchase session. It starts with cs_ and\n"
+"that does not look like a complete purchase session. It starts with cs_ and\n"
 "        appears in the address of your download page. Nothing was changed."
 msgstr ""
-"eso no parece una sesión de compra. Empieza con cs_ y\n"
+"eso no parece una sesión de compra completa. Comienza con cs_ y\n"
 "        aparece en la dirección de tu página de descarga. No se cambió nada."
 
-#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:214
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:218
 msgid "Checking the purchase..."
 msgstr "Comprobando la compra..."
 
-#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:260
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:271
 msgid ""
-"Your purchase covers one machine. This machine introduces itself to the\n"
-"licence check as an anonymous fingerprint (a one-way hash tied to this\n"
-"purchase) — never a serial number, never anything readable."
+"Your purchase provides guided upgrade and support for one managed machine.\n"
+"This machine introduces itself to the purchase check as an anonymous "
+"fingerprint\n"
+"(a one-way hash tied to this purchase) — never a serial number, never "
+"anything readable."
 msgstr ""
-"Tu compra cubre un equipo. Este equipo se presenta a la comprobación de\n"
-"licencia con una huella anónima (un hash de un solo sentido ligado a esta\n"
-"compra); nunca un número de serie, nunca nada legible."
+"Tu compra proporciona actualización guiada y soporte para una máquina "
+"administrada.\n"
+"Esta máquina se presenta a la verificación de compra como una huella anónima"
+"\n"
+"(un hash unidireccional vinculado a esta compra), nunca un número de serie, "
+"nunca nada legible."
 
-#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:264
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:275
 msgid ""
 "(This machine has no stable hardware id, so the fingerprint is based on\n"
 "an installation id that changes if you reinstall. A reinstall will need a\n"
-"quick message to dagric.com/support to move the licence — at no cost.)"
+"quick message to dagric.com/support to move the service slot — at no cost.)"
 msgstr ""
-"(Este equipo no tiene un identificador de hardware estable, así que la\n"
-"huella se basa en un identificador de instalación que cambia al\n"
-"reinstalar. Una reinstalación necesitará entonces un breve mensaje a\n"
-"dagric.com/support para mover la licencia — sin coste.)"
+"(Esta máquina no tiene un id de hardware estable, por lo que la huella se "
+"basa en\n"
+"un id de instalación que cambia si reinstalas. Una reinstalación requerirá "
+"un\n"
+"mensaje rápido a dagric.com/support para mover la ranura de servicio, sin "
+"costo.)"
 
-#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:274
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:285
 msgid "Confirmed. Thank you."
 msgstr "Confirmado. Gracias."
 
-#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:276
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:287
 msgid ""
 "this purchase is already upgrading a different machine. One purchase\n"
-"        covers one machine. dagric.com/support can move the licence to this\n"
-"        machine, or a second machine needs a second purchase. Nothing was\n"
+"        provides one guided-upgrade/support slot. dagric.com/support can "
+"move the slot to this\n"
+"        machine, or a second managed machine needs a second service "
+"entitlement. Nothing was\n"
 "        changed."
 msgstr ""
-"esta compra ya está actualizando otro equipo. Una compra cubre un\n"
-"        equipo. dagric.com/support puede mover la licencia a este equipo; "
-"un\n"
-"        segundo equipo necesita una segunda compra. No se cambió nada."
+"esta compra ya está actualizando otra máquina. Una compra\n"
+"        proporciona una ranura de actualización guiada/soporte. "
+"dagric.com/support puede mover la ranura a esta\n"
+"        máquina, o una segunda máquina gestionada necesita un segundo "
+"derecho de servicio. No se cambió nada."
 
-#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:281
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:292
 msgid ""
 "that purchase session was not recognised as paid. If you have just\n"
 "        bought Pro, give it a minute and try again — and if it keeps "
@@ -3600,7 +3870,7 @@ msgstr ""
 "fallando,\n"
 "        dagric.com/support puede buscarlo. No se cambió nada."
 
-#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:289
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:300
 msgid ""
 "that session code looks incomplete. Copy the whole cs_... value\n"
 "        from the address bar of your download page — it is long, and it is "
@@ -3612,42 +3882,43 @@ msgstr ""
 "es fácil\n"
 "        perder el final. No se cambió nada."
 
-#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:293
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:304
 msgid ""
-"could not reach the licence check just now. Your purchase is fine;\n"
+"could not reach the purchase-entitlement check just now. Your purchase is "
+"fine;\n"
 "        this is our end or your connection. Try again in a minute. Nothing "
 "was\n"
 "        changed."
 msgstr ""
-"no se pudo contactar con la verificación de licencia ahora mismo. Tu compra "
-"está bien;\n"
-"        esto es cosa nuestra o de tu conexión. Inténtalo de nuevo en un "
-"minuto. No se\n"
-"        cambió nada."
+"no se pudo contactar con la verificación de derecho de compra en este "
+"momento. Tu compra está bien;\n"
+"        esto es por nuestro lado o por tu conexión. Inténtalo de nuevo en un"
+" minuto. No se cambió nada."
 
-#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:300
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:311
 #, sh-format
 msgid ""
-"the licence check answered $HTTP, which it should not. Please send\n"
+"the purchase-entitlement check answered $HTTP, which it should not. Please "
+"send\n"
 "        that number to dagric.com/support. Nothing was changed."
 msgstr ""
-"la verificación de licencia respondió $HTTP, cosa que no debería. Por favor "
-"envía\n"
+"la verificación de derecho de compra respondió $HTTP, lo cual no debería. "
+"Por favor, envía\n"
 "        ese número a dagric.com/support. No se cambió nada."
 
-#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:306
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:317
 msgid "--check: the purchase is valid and this machine can be upgraded."
 msgstr "--check: la compra es válida y esta máquina se puede actualizar."
 
-#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:307
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:318
 msgid "Run without --check to do it."
 msgstr "Ejecuta sin --check para hacerlo."
 
-#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:324
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:335
 msgid "What this will do"
 msgstr "Qué hará esto"
 
-#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:327
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:338
 msgid ""
 "  * install the Pro applications — the creator suite, the gaming stack, the\n"
 "    virtualisation tools, the backup tools and the rest (about 83 packages)"
@@ -3657,55 +3928,55 @@ msgstr ""
 "    herramientas de virtualización, las de copia de seguridad y el resto "
 "(unos 83 paquetes)"
 
-#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:329
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:340
 msgid ""
 "  * install them the way the Pro ISO does: Docker, virtual machines, USB\n"
-"    protection and remote login are all set up but left OFF until you "
-"switch\n"
+"    protection and remote login are all set up but left OFF until you switch"
+"\n"
 "    them on. The one exception is OpenSnitch, the application firewall, "
 "which\n"
 "    is switched ON — the same as the Pro ISO, because a firewall nobody "
 "turned\n"
 "    on protects nobody. It blocks nothing on its own; it asks you the first\n"
 "    time a program reaches the internet. Dagric's own background services —\n"
-"    the clock, updates, printing, the software centre — are answered for "
-"you\n"
+"    the clock, updates, printing, the software centre — are answered for you"
+"\n"
 "    in advance, so the questions you get are about programs you chose."
 msgstr ""
-"  * instálalos igual que hace el ISO Pro: Docker, las máquinas virtuales, la "
-"protección USB\n"
-"    y el inicio de sesión remoto quedan configurados pero APAGADOS hasta que "
-"los\n"
+"  * instálalos igual que hace el ISO Pro: Docker, las máquinas virtuales, la"
+" protección USB\n"
+"    y el inicio de sesión remoto quedan configurados pero APAGADOS hasta que"
+" los\n"
 "    enciendas. La única excepción es OpenSnitch, el cortafuegos de "
 "aplicaciones, que\n"
 "    está ENCENDIDO — igual que en el ISO Pro, porque un cortafuegos que "
 "nadie\n"
-"    encendió no protege a nadie. No bloquea nada por sí solo; te pregunta la "
-"primera\n"
-"    vez que un programa accede a internet. Los servicios de fondo propios de "
-"Dagric —\n"
+"    encendió no protege a nadie. No bloquea nada por sí solo; te pregunta la"
+" primera\n"
+"    vez que un programa accede a internet. Los servicios de fondo propios de"
+" Dagric —\n"
 "    el reloj, las actualizaciones, la impresión, el centro de software — ya "
 "están\n"
 "    respondidos por ti de antemano, así que las preguntas que recibes son "
 "sobre\n"
 "    programas que tú elegiste."
 
-#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:337
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:348
 msgid "  * add the four extra desktop layouts and three extra colour styles"
 msgstr ""
 "  * añadir los cuatro diseños de escritorio extra y los tres estilos de "
 "color extra"
 
-#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:338
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:349
 msgid ""
 "  * mark this machine as Pro, so the Hub and the appearance gallery show\n"
 "    everything you have paid for"
 msgstr ""
-"  * marcar esta máquina como Pro, para que el Hub y la galería de apariencia "
-"muestren\n"
+"  * marcar esta máquina como Pro, para que el Hub y la galería de apariencia"
+" muestren\n"
 "    todo lo que has pagado"
 
-#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:341
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:352
 msgid ""
 "Your files, your settings, your installed applications and your wallpaper "
 "are\n"
@@ -3715,9 +3986,8 @@ msgstr ""
 "pantalla\n"
 "no se tocan."
 
-#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:344
-msgid ""
-"This downloads several gigabytes and takes a while on a slow connection."
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:355
+msgid "This downloads several gigabytes and takes a while on a slow connection."
 msgstr "Esto descarga varios gigabytes y tarda un rato con una conexión lenta."
 
 #. TRANSLATORS: a word the owner must TYPE EXACTLY to confirm. Short, UPPERCASE,
@@ -3728,40 +3998,40 @@ msgstr "Esto descarga varios gigabytes y tarda un rato con una conexión lenta."
 #. ASCII (German ue for u-umlaut, and so on). Make it a word your language
 #. actually uses for "upgrade" — a speed bump nobody can read is also a wall.
 #. The English UPGRADE keeps working whatever you put here.
-#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:369
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:380
 msgid "UPGRADE"
 msgstr "ACTUALIZA"
 
 #. TRANSLATORS: as above, ASCII letters only. Deliberately a DIFFERENT word from
 #. the one above, because it is a different and more serious decision — typing
 #. the same thing for both would make them feel like one.
-#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:373
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:384
 msgid "NO-ROLLBACK"
 msgstr "SINREGRESO"
 
-#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:376
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:387
 msgid "A snapshot is taken first, so this is recoverable from the boot menu."
 msgstr ""
 "Primero se toma una instantánea, así que esto se puede recuperar desde el "
 "menú de arranque."
 
-#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:378
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:389
 #, sh-format
 msgid "Type $UPGRADE_WORD to continue: "
 msgstr "Escribe $UPGRADE_WORD para continuar: "
 
-#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:387
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:398
 msgid "THIS MACHINE HAS NO ROLLBACK."
 msgstr "ESTA MÁQUINA NO TIENE REGRESO."
 
-#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:395
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:406
 msgid ""
-"Snapshots need a btrfs root and this install does not have one. Nothing "
-"here\n"
+"Snapshots need a btrfs root and this install does not have one. Nothing here"
+"\n"
 "deletes your files, and the worst realistic outcome is a half-installed set "
 "of\n"
-"applications you can finish with  sudo apt-get -f install  — but there is "
-"no\n"
+"applications you can finish with  sudo apt-get -f install  — but there is no"
+"\n"
 "one-click way back."
 msgstr ""
 "Las instantáneas necesitan una raíz btrfs y esta instalación no la tiene. "
@@ -3772,31 +4042,31 @@ msgstr ""
 "hay\n"
 "una forma de volver con un clic."
 
-#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:400
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:411
 #, sh-format
 msgid "Type $NOROLLBACK_WORD to continue anyway, or press Enter to stop: "
 msgstr ""
 "Escribe $NOROLLBACK_WORD para continuar de todas formas, o pulsa Enter para "
 "detener: "
 
-#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:403
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:414
 msgid "Nothing changed. That was the safe answer."
 msgstr "No se cambió nada. Esa fue la respuesta segura."
 
-#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:411
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:422
 msgid "Taking a rollback snapshot..."
 msgstr "Tomando una instantánea de regreso..."
 
-#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:417
-#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:456
-#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:587
-#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:699
-#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:743
-#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:807
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:428
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:476
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:607
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:719
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:763
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:827
 msgid "done."
 msgstr "hecho."
 
-#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:419
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:430
 msgid ""
 "the snapshot failed, so this stopped before changing anything.\n"
 "        That is deliberate: the rollback was the reason it was safe to "
@@ -3806,19 +4076,19 @@ msgstr ""
 "        Es a propósito: el regreso era la razón por la que era seguro "
 "continuar."
 
-#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:428
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:439
 msgid "cannot create a working directory."
 msgstr "no se puede crear un directorio de trabajo."
 
-#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:433
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:444
 msgid "Fetching the Pro layouts and styles..."
 msgstr "Descargando los diseños y estilos Pro..."
 
-#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:461
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:481
 msgid "that attempt did not work; trying again in a few seconds..."
 msgstr "ese intento no funcionó; probando de nuevo en unos segundos..."
 
-#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:468
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:488
 msgid ""
 "the extra desktop layouts and colour styles could not be downloaded,\n"
 "        and they are the one part of Pro that has to come from us rather "
@@ -3826,14 +4096,14 @@ msgid ""
 "        from Debian. NOTHING has been installed and nothing on this machine "
 "has\n"
 "        been changed, so there is nothing half-finished to clean up. Your\n"
-"        purchase is fine. Run this again when the connection is steady — and "
-"if\n"
+"        purchase is fine. Run this again when the connection is steady — and"
+" if\n"
 "        it keeps failing, dagric.com/support can look it up."
 msgstr ""
 "los diseños de escritorio extra y los estilos de color no se pudieron "
 "descargar,\n"
-"        y son la única parte de Pro que tiene que venir de nosotros en lugar "
-"de\n"
+"        y son la única parte de Pro que tiene que venir de nosotros en lugar"
+" de\n"
 "        Debian. NADA se ha instalado y nada en esta máquina se ha cambiado,\n"
 "        así que no hay nada a medio terminar que limpiar. Tu compra está "
 "bien.\n"
@@ -3841,24 +4111,24 @@ msgstr ""
 "fallando,\n"
 "        dagric.com/support puede buscarlo."
 
-#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:498
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:518
 msgid "Reading package lists..."
 msgstr "Leyendo listas de paquetes..."
 
-#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:500
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:520
 msgid ""
 "could not read the package lists. Check the network and try again.\n"
 "    Nothing was installed."
 msgstr ""
-"no se pudieron leer las listas de paquetes. Revisa la red y prueba de "
-"nuevo.\n"
+"no se pudieron leer las listas de paquetes. Revisa la red y prueba de nuevo."
+"\n"
 "    No se instaló nada."
 
-#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:506
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:526
 msgid "Downloading (this is the long part)..."
 msgstr "Descargando (esta es la parte larga)..."
 
-#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:509
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:529
 msgid ""
 "the download did not finish, so nothing was installed. This is usually\n"
 "    the connection. Run this again — apt keeps what it already fetched."
@@ -3866,15 +4136,15 @@ msgstr ""
 "la descarga no terminó, así que no se instaló nada. Esto suele ser\n"
 "    la conexión. Ejecuta esto de nuevo — apt conserva lo que ya descargó."
 
-#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:512
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:532
 msgid "Installing..."
 msgstr "Instalando..."
 
-#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:565
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:585
 msgid "Adding 32-bit support for Windows applications and games..."
 msgstr "Añadiendo soporte de 32 bits para aplicaciones y juegos de Windows..."
 
-#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:589
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:609
 msgid ""
 "note: 32-bit Wine and Vulkan did not install. Wine still works\n"
 "        for 64-bit Windows programs; older installers may not run."
@@ -3883,7 +4153,7 @@ msgstr ""
 "        para programas de Windows de 64 bits; los instaladores antiguos "
 "pueden no funcionar."
 
-#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:593
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:613
 msgid ""
 "note: could not enable 32-bit support. Wine still works for 64-bit\n"
 "        Windows programs; older installers may not run."
@@ -3892,38 +4162,36 @@ msgstr ""
 "programas\n"
 "        de Windows de 64 bits; los instaladores antiguos pueden no funcionar."
 
-#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:604
-msgid ""
-"Setting the opt-in policy (everything installed, nothing switched on)..."
-msgstr ""
-"Configurando la política de activación (todo instalado, nada encendido)..."
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:624
+msgid "Setting the opt-in policy (everything installed, nothing switched on)..."
+msgstr "Configurando la política de activación (todo instalado, nada encendido)..."
 
-#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:666
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:686
 msgid ""
 "note: could not open the KDE Connect ports. Phone pairing may need\n"
 "        the firewall adjusting by hand; everything else is unaffected."
 msgstr ""
-"nota: no se pudieron abrir los puertos de KDE Connect. El emparejamiento del "
-"teléfono\n"
+"nota: no se pudieron abrir los puertos de KDE Connect. El emparejamiento del"
+" teléfono\n"
 "        puede necesitar ajustar el cortafuegos a mano; todo lo demás no se "
 "ve afectado."
 
-#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:705
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:725
 msgid "ERROR: the install did not finish cleanly."
 msgstr "ERROR: la instalación no terminó limpiamente."
 
-#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:707
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:727
 msgid ""
 "This machine is still marked as free ON PURPOSE — one that claims to be\n"
 "Pro without the applications is harder to fix than one that is honestly\n"
 "still free."
 msgstr ""
 "Esta máquina sigue marcada como free A PROPÓSITO — una que dice ser\n"
-"Pro sin las aplicaciones es más difícil de arreglar que una que "
-"honestamente\n"
+"Pro sin las aplicaciones es más difícil de arreglar que una que honestamente"
+"\n"
 "sigue siendo free."
 
-#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:711
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:731
 msgid ""
 "Whatever DID install has been set to the Pro edition's opt-in policy, so\n"
 "nothing that arrived is running: no Docker daemon, no remote login, no\n"
@@ -3935,19 +4203,19 @@ msgstr ""
 "acceso remoto,\n"
 "sin bloqueo USB, sin servicios de máquinas virtuales."
 
-#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:715
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:735
 msgid "Try:  sudo apt-get -f install   then run this again."
 msgstr "Prueba:  sudo apt-get -f install   y luego ejecuta esto de nuevo."
 
-#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:722
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:742
 msgid "Adding the Pro layouts and styles..."
 msgstr "Añadiendo los diseños y estilos Pro..."
 
-#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:750
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:770
 msgid ""
 "the layouts and styles arrived but would not unpack — usually that\n"
-"        is disk space. The applications ARE installed and set to the Pro opt-"
-"in\n"
+"        is disk space. The applications ARE installed and set to the Pro "
+"opt-in\n"
 "        policy, but this machine has deliberately not been marked as Pro "
 "yet, so\n"
 "        running this tool again will finish the job."
@@ -3960,58 +4228,58 @@ msgstr ""
 "propósito todavía,\n"
 "        así que ejecutar esta herramienta de nuevo terminará el trabajo."
 
-#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:763
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:783
 msgid "Marking this machine as Pro..."
 msgstr "Marcando esta máquina como Pro..."
 
-#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:815
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:835
 msgid "Done — this is a Dagric OS Pro machine."
 msgstr "Hecho — esta es una máquina Dagric OS Pro."
 
-#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:817
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:837
 msgid ""
 "Log out and back in to see it. The Hub will show the Pro tools, and the\n"
 "  appearance gallery will show the extra layouts and styles."
 msgstr ""
-"Cierra sesión y vuelve a entrar para verlo. El Hub mostrará las herramientas "
-"Pro y la\n"
+"Cierra sesión y vuelve a entrar para verlo. El Hub mostrará las herramientas"
+" Pro y la\n"
 "  galería de apariencia mostrará los diseños y estilos extra."
 
-#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:820
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:840
 msgid ""
 "Everything the Pro edition installs is here, and everything that can listen "
 "or\n"
 "intercept is OFF until you turn it on:"
 msgstr ""
-"Todo lo que instala la edición Pro está aquí, y todo lo que puede escuchar "
-"o\n"
+"Todo lo que instala la edición Pro está aquí, y todo lo que puede escuchar o"
+"\n"
 "interceptar está APAGADO hasta que lo enciendas:"
 
-#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:823
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:843
 msgid "Docker, virtual machines, USB protection and remote login"
 msgstr "Docker, máquinas virtuales, protección USB y acceso remoto"
 
-#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:823
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:843
 msgid "installed, off"
 msgstr "instalado, apagado"
 
-#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:824
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:844
 msgid "OpenSnitch application firewall"
 msgstr "Cortafuegos de aplicaciones OpenSnitch"
 
-#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:824
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:844
 msgid "installed, on"
 msgstr "instalado, encendido"
 
-#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:826
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:846
 msgid "Turn any of them on from the Dagric Hub."
 msgstr "Enciende cualquiera de ellos desde el Dagric Hub."
 
-#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:828
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:848
 msgid "Two honest differences from a machine installed from the Pro ISO:"
 msgstr "Dos diferencias honestas con una máquina instalada desde el ISO Pro:"
 
-#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:830
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:850
 msgid ""
 "  * The Pro ISO ships CJK fonts and a few defaults chosen at install time. "
 "Those\n"
@@ -4019,20 +4287,19 @@ msgid ""
 "—\n"
 "    which is the point of upgrading rather than reinstalling."
 msgstr ""
-"  * El ISO Pro incluye fuentes CJK y algunos valores por defecto elegidos en "
-"la instalación.\n"
+"  * El ISO Pro incluye fuentes CJK y algunos valores por defecto elegidos en"
+" la instalación.\n"
 "    Esos también están aquí, pero se conservaron tus ajustes existentes en "
 "lugar de\n"
 "    reemplazarlos — que es el punto de actualizar en lugar de reinstalar."
 
-#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:833
-msgid ""
-"  * Your snapshot history starts before this upgrade, not at a fresh install."
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:853
+msgid "  * Your snapshot history starts before this upgrade, not at a fresh install."
 msgstr ""
 "  * Tu historial de instantáneas empieza antes de esta actualización, no en "
 "una instalación nueva."
 
-#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:835
+#: config/includes.chroot/usr/bin/dagric-upgrade-to-pro:855
 msgid "Thank you for buying Pro."
 msgstr "Gracias por comprar Pro."
 
@@ -4106,8 +4373,8 @@ msgid ""
 msgstr ""
 "No se está bloqueando nada en este momento.\n"
 "\n"
-"Todos los dispositivos USB conectados a este equipo ya están permitidos, por "
-"lo que\n"
+"Todos los dispositivos USB conectados a este equipo ya están permitidos, por"
+" lo que\n"
 "no había nada que añadir. Si algo sigue sin funcionar, la protección USB\n"
 "no es lo que lo está impidiendo.\n"
 "\n"
@@ -4196,8 +4463,8 @@ msgstr ""
 "bloqueado\n"
 "en este momento se añade de forma permanente a la lista de permitidos, así "
 "que\n"
-"desconecta primero cualquier cosa que no reconozcas. La protección permanece "
-"ACTIVADA y\n"
+"desconecta primero cualquier cosa que no reconozcas. La protección permanece"
+" ACTIVADA y\n"
 "no se te quita nada que ya funcione.\n"
 "\n"
 "“Desactivar la protección” vuelve a permitir todos los dispositivos USB, "
@@ -4207,8 +4474,8 @@ msgstr ""
 #: config/includes.chroot/usr/bin/dagric-usb-protect:263
 msgid "USB protection is off. All USB devices work normally."
 msgstr ""
-"La protección USB está desactivada. Todos los dispositivos USB funcionan con "
-"normalidad."
+"La protección USB está desactivada. Todos los dispositivos USB funcionan con"
+" normalidad."
 
 #: config/includes.chroot/usr/bin/dagric-usb-protect:266
 msgid "Could not turn it off (administrator access is required)."
@@ -4259,8 +4526,8 @@ msgid ""
 msgstr ""
 "La protección USB está ACTIVADA.\n"
 "\n"
-"Todo lo que está conectado ahora está permitido. Los dispositivos USB "
-"nuevos\n"
+"Todo lo que está conectado ahora está permitido. Los dispositivos USB nuevos"
+"\n"
 "quedarán bloqueados hasta que los apruebes; vuelve a ejecutar esta "
 "herramienta\n"
 "cuando quieras para actualizar la lista o desactivar la protección."
@@ -4279,8 +4546,8 @@ msgstr ""
 "dispositivos\n"
 "USB siguen funcionando.\n"
 "\n"
-"(Hace falta acceso de administrador, y Dagric se niega a propósito a activar "
-"el\n"
+"(Hace falta acceso de administrador, y Dagric se niega a propósito a activar"
+" el\n"
 "bloqueo USB sin una lista de dispositivos permitidos.)"
 
 #: config/includes.chroot/usr/bin/dagric-vm:34
@@ -4289,8 +4556,8 @@ msgid ""
 "stack and Virtual Machine Manager are not installed on this edition.\n"
 "Nothing was changed."
 msgstr ""
-"Windows en una máquina virtual es una función de Dagric Pro: en esta "
-"edición\n"
+"Windows en una máquina virtual es una función de Dagric Pro: en esta edición"
+"\n"
 "no están instalados ni el conjunto KVM/QEMU ni el Gestor de máquinas "
 "virtuales.\n"
 "No se cambió nada."
@@ -4344,8 +4611,8 @@ msgstr ""
 "La virtualización de tu CPU (Intel VT-x / AMD-V) está DESACTIVADA o no es\n"
 "compatible. Normalmente solo hay que activarla en la BIOS/UEFI: reinicia, "
 "entra en\n"
-"la configuración (a menudo F2 o Supr), busca «Virtualization» / «SVM» / «VT-"
-"x»,\n"
+"la configuración (a menudo F2 o Supr), busca «Virtualization» / «SVM» / "
+"«VT-x»,\n"
 "actívala y guarda. Después vuelve a ejecutar esto. No se ha cambiado nada."
 
 #: config/includes.chroot/usr/bin/dagric-vm:70
@@ -4356,14 +4623,14 @@ msgstr "Virtualización de la CPU: disponible."
 msgid "Enable VM support now? [y/N]"
 msgstr "¿Activar ahora la compatibilidad con máquinas virtuales? [s/N]"
 
-#: config/includes.chroot/usr/bin/dagric-vm:91
+#: config/includes.chroot/usr/bin/dagric-vm:92
 #, sh-format
 msgid "User \"$ME\" added to libvirt+kvm; VM service running."
 msgstr ""
 "Usuario «$ME» añadido a libvirt+kvm; el servicio de máquinas virtuales está "
 "en marcha."
 
-#: config/includes.chroot/usr/bin/dagric-vm:93
+#: config/includes.chroot/usr/bin/dagric-vm:94
 msgid "Could not enable VM support (administrator access is required)."
 msgstr ""
 "No se pudo activar la compatibilidad con máquinas virtuales (hace falta "
@@ -4373,7 +4640,7 @@ msgstr ""
 #. page and of Virtual Machine Manager. The URL, "swtpm", "OVMF" and "TPM" are
 #. literal. The last line is a PRIVACY promise — the owner's files stay outside
 #. the VM — so keep it exact.
-#: config/includes.chroot/usr/bin/dagric-vm:102
+#: config/includes.chroot/usr/bin/dagric-vm:103
 msgid ""
 "Done. One thing to know: group changes apply at your NEXT login —\n"
 "log out and back in once before creating your first VM.\n"
@@ -4403,28 +4670,103 @@ msgstr ""
 "     (En una máquina virtual, Windows funciona sin activar con pequeñas\n"
 "      limitaciones estéticas, o usa tu clave de licencia.)\n"
 "  2. Abre «Gestor de máquinas virtuales» desde el menú de aplicaciones.\n"
-"  3. Nueva VM > Medio de instalación local > elige la ISO > dale 4 GB de RAM "
-"o más,\n"
+"  3. Nueva VM > Medio de instalación local > elige la ISO > dale 4 GB de RAM"
+" o más,\n"
 "     2 CPU o más y 64 GB de disco o más. El requisito de TPM de Windows 11 "
 "está\n"
 "     cubierto: Pro incluye swtpm (un TPM por software) y firmware UEFI "
 "(OVMF).\n"
 "\n"
-"Tus archivos se quedan fuera de la máquina virtual salvo que los compartas a "
-"propósito."
+"Tus archivos se quedan fuera de la máquina virtual salvo que los compartas a"
+" propósito."
 
 #: config/includes.chroot/usr/bin/dagric-welcome:31
 msgid "The Dagric welcome page is not installed."
 msgstr "La página de bienvenida de Dagric no está instalada."
 
 #~ msgid ""
-#~ "Nothing here is permanent. Skip anything you like, and change all of it "
-#~ "later from the Dagric Hub."
+#~ "Dagric — install Heroic Games Launcher\n"
+#~ "\n"
+#~ "Heroic is a free, open-source "
+#~ "launcher for your Epic Games, GOG, "
+#~ "and Amazon\n"
+#~ "Prime Gaming libraries, with Proton/Wine "
+#~ "built in. It installs from Flathub."
 #~ msgstr ""
-#~ "Aquí nada es permanente. Omite lo que quieras y cámbialo todo más "
-#~ "adelante desde el Dagric Hub."
+#~ "Dagric — instalar Heroic Games Launcher\n"
+#~ "\n"
+#~ "Heroic es un lanzador libre y de "
+#~ "código abierto para tus bibliotecas de "
+#~ "Epic Games,\n"
+#~ "GOG y Amazon Prime Gaming, con "
+#~ "Proton/Wine incorporado. Se instala desde "
+#~ "Flathub."
 
-#, sh-format
+#~ msgid "the Dagric default: bright, blue, calm"
+#~ msgstr "el tema predeterminado de Dagric: claro, azul, tranquilo"
+
+#~ msgid "Install Ollama from https://ollama.com? [y/N]"
+#~ msgstr "¿Instalar Ollama desde https://ollama.com? [s/N]"
+
+#~ msgid ""
+#~ "What came back from ollama.com is not the installer — nothing was\n"
+#~ "changed and nothing was run. This usually means a captive portal or a\n"
+#~ "network filter answered instead. Try again on a different connection."
+#~ msgstr ""
+#~ "Lo que ha llegado desde ollama.com no es el instalador: no se cambió\n"
+#~ "nada y no se ejecutó nada. Esto suele significar que ha respondido una\n"
+#~ "página de acceso a la red o un filtro de red. Inténtalo con otra\n"
+#~ "conexión."
+
+#~ msgid ""
+#~ "About to run Ollama's installer, downloaded just now from\n"
+#~ "ollama.com. Its checksum is:\n"
+#~ "\n"
+#~ "  $OLLAMA_SUM\n"
+#~ "\n"
+#~ "It will be recorded in $OLLAMA_LOG so"
+#~ " you can check later exactly what "
+#~ "this\n"
+#~ "computer ran."
+#~ msgstr ""
+#~ "Se va a ejecutar el instalador de Ollama, descargado ahora mismo desde\n"
+#~ "ollama.com. Su suma de verificación es:\n"
+#~ "\n"
+#~ "  $OLLAMA_SUM\n"
+#~ "\n"
+#~ "Quedará registrada en $OLLAMA_LOG para que puedas comprobar más adelante\n"
+#~ "qué ejecutó exactamente este equipo."
+
+#~ msgid ""
+#~ "The Ollama installer did not finish. "
+#~ "It may be partly installed — the "
+#~ "removal commands shown above will clear "
+#~ "whatever landed."
+#~ msgstr ""
+#~ "El instalador de Ollama no terminó. "
+#~ "Puede que haya quedado instalado en "
+#~ "parte: los comandos de eliminación "
+#~ "indicados arriba borrarán todo lo que "
+#~ "haya quedado."
+
+#~ msgid "Found a password file exported from Chrome:"
+#~ msgstr "Se ha encontrado un archivo de contraseñas exportado de Chrome:"
+
+#~ msgid "  Copy it to your home folder and import it the same way."
+#~ msgstr "  Cópialo a tu carpeta personal e impórtalo de la misma manera."
+
+#~ msgid "Paste that cs_... value here (it is not a password and not secret)."
+#~ msgstr "Pega ese valor cs_... aquí (no es una contraseña ni es secreto)."
+
+#~ msgid ""
+#~ "Nothing here is permanent. Skip anything"
+#~ " you like, and change all of it"
+#~ " later from the Dagric Hub."
+#~ msgstr ""
+#~ "Aquí nada es permanente. Omite lo que"
+#~ " quieras y cámbialo todo más adelante"
+#~ " desde el Dagric Hub."
+
 #~ msgid ""
 #~ "Welcome to $EDITION_NAME.\n"
 #~ "\n"
@@ -4434,8 +4776,10 @@ msgstr "La página de bienvenida de Dagric no está instalada."
 #~ msgstr ""
 #~ "Te damos la bienvenida a $EDITION_NAME.\n"
 #~ "\n"
-#~ "La ventana de configuración no se pudo abrir en este equipo, así que aquí "
-#~ "tienes\n"
-#~ "la versión corta. Puedes saltarte cualquier pregunta y nada de esto es "
+#~ "La ventana de configuración no se "
+#~ "pudo abrir en este equipo, así que"
+#~ " aquí tienes\n"
+#~ "la versión corta. Puedes saltarte cualquier"
+#~ " pregunta y nada de esto es "
 #~ "definitivo:\n"
 #~ "podrás cambiarlo todo más tarde desde el Dagric Hub."

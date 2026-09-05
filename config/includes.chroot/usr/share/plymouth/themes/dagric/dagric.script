@@ -146,7 +146,7 @@ if (Plymouth.GetMode() == "boot") {
     # Under the art's own rule when there is art: the track is only there to
     # give the fill something to sit on where the rule has faded out at the ends.
     bar.bg.sprite.SetOpacity(0.35);
-    bar.fg.image = Image.Text("█", 0.247, 0.663, 0.961);   # #3fa9f5
+    bar.fg.image = Image.Text("█", 1.000, 0.231, 0.361);   # #ff3b5c
 }
 
 fun progress_callback(duration, progress) {

@@ -11,6 +11,8 @@
     "signature",
     "artifacts",
     "package_manifests",
+    "source_index",
+    "distribution",
     "test_record"
   ],
   "properties": {
@@ -35,6 +37,48 @@
       }
     },
     "package_manifests": { "type": "object" },
+    "source_index": {
+      "type": "object",
+      "required": ["url", "status", "release_locked"],
+      "properties": {
+        "url": { "type": "string", "format": "uri" },
+        "status": { "enum": ["interim", "complete"] },
+        "release_locked": { "const": true }
+      }
+    },
+    "distribution": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "status_url", "reason_codes"],
+      "properties": {
+        "status": { "enum": ["held", "available"] },
+        "status_url": { "type": "string", "format": "uri" },
+        "reason_codes": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "enum": [
+              "source-map-incomplete",
+              "localization-incomplete",
+              "firefox-disposition-pending",
+              "human-rights-approval-pending",
+              "physical-validation-pending",
+              "release-provenance-pending"
+            ]
+          }
+        }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "status": { "const": "held" } } },
+          "then": { "properties": { "reason_codes": { "minItems": 1 } } }
+        },
+        {
+          "if": { "properties": { "status": { "const": "available" } } },
+          "then": { "properties": { "reason_codes": { "maxItems": 0 } } }
+        }
+      ]
+    },
     "test_record": { "type": "string", "format": "uri" }
   }
 }

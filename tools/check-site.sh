@@ -1,5 +1,5 @@
 #!/bin/sh
-# SPDX-FileCopyrightText: 2026 DGR Operations <repo@dagric.com>
+# SPDX-FileCopyrightText: 2026 IMPRESSIONSDIRECT360 LLC <repo@dagric.com>
 # SPDX-License-Identifier: GPL-3.0-or-later
 #
 # Dagric OS — refuse to deploy a site that is not finished.
@@ -166,6 +166,21 @@ _broken=$(
 # no explanation — which is the worst possible behaviour for a release gate and
 # is the same grep -c trap this repo has now hit three times.
 if [ "${_broken:-0}" -gt 0 ]; then
+    FAIL=1
+fi
+
+# -------------------------------------------------------------- brand system
+# A retired name, missing primary promise, or desktop theme presented as a
+# second master identity is a release defect rather than a copy preference.
+if ! python3 tools/check-brand.py; then
+    FAIL=1
+fi
+
+# ------------------------------------------------------- source/access record
+# audit-site.py locks the source index to the exact Free/Pro hashes and source
+# commit, validates every exact binary-to-source entry, and independently keeps
+# held distribution controls fail-closed until the remaining release gates pass.
+if ! python3 tools/audit-site.py; then
     FAIL=1
 fi
 

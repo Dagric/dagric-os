@@ -1,8 +1,8 @@
 #!/bin/sh
-# SPDX-FileCopyrightText: 2026 DGR Operations <repo@dagric.com>
+# SPDX-FileCopyrightText: 2026 IMPRESSIONSDIRECT360 LLC <repo@dagric.com>
 # SPDX-License-Identifier: GPL-3.0-or-later
 #
-# Dagric OS — is po/ actually in sync with the source?  (CI only; needs gettext)
+# Dagric OS — is po/ actually in sync with the source?  (needs gettext)
 #
 #     sh tools/i18n-ci-check.sh
 #
@@ -19,9 +19,9 @@
 # The German owner whose driver install fails is the one person guaranteed to
 # get an English wall of text.
 #
-# It went unnoticed because the extraction cannot run on the machine this
-# project is developed on: no gettext, no working WSL, no Docker daemon. CI is
-# the only Linux host in the loop, so the check belongs here.
+# Local runs are transactional: generated files are compared with the starting
+# files and restored on exit. CI explicitly sets
+# DAGRIC_I18N_KEEP_REGENERATED=1 so a failing job can attach the proposed fix.
 #
 # AND IT HANDS BACK THE FIX. A red X saying "run i18n-extract.sh" is useless to
 # someone who has nowhere to run it. On failure the workflow uploads the
@@ -58,12 +58,44 @@ POT=po/dagric.pot
 SAVE=$(mktemp -d) || exit 1
 A=$(mktemp) || exit 1
 B=$(mktemp) || exit 1
-trap 'rm -rf "$SAVE" "$A" "$B"' EXIT INT TERM
+BEFORE="$SAVE/before.list"
+AFTER="$SAVE/after.list"
+ALL="$SAVE/all.list"
+mkdir -p "$SAVE/artifacts"
 
-for f in "$POT" po/*.po; do
-    [ -f "$f" ] || continue
-    cp "$f" "$SAVE/$(basename "$f")"
-done
+artifact_paths() {
+    for f in po/dagric-data-strings.sh "$POT" po/*.po \
+        config/includes.chroot/usr/share/locale/*/LC_MESSAGES/dagric.mo; do
+        [ -f "$f" ] && printf '%s\n' "$f"
+    done | sort -u
+}
+
+artifact_paths > "$BEFORE"
+while IFS= read -r f; do
+    mkdir -p "$SAVE/artifacts/$(dirname "$f")"
+    cp "$f" "$SAVE/artifacts/$f"
+done < "$BEFORE"
+
+restore_artifacts() {
+    [ "${DAGRIC_I18N_KEEP_REGENERATED:-0}" = "1" ] && return
+    artifact_paths > "$AFTER"
+    while IFS= read -r f; do
+        grep -Fqx "$f" "$BEFORE" || rm -f "$f"
+    done < "$AFTER"
+    while IFS= read -r f; do
+        mkdir -p "$(dirname "$f")"
+        cp "$SAVE/artifacts/$f" "$f"
+    done < "$BEFORE"
+}
+
+cleanup() {
+    status=$?
+    trap - EXIT INT TERM HUP
+    restore_artifacts
+    rm -rf "$SAVE" "$A" "$B"
+    exit "$status"
+}
+trap cleanup EXIT INT TERM HUP
 
 sh tools/i18n-extract.sh
 
@@ -73,7 +105,7 @@ sh tools/i18n-extract.sh
 # disagree with its own source.
 for f in "$POT" po/*.po; do
     [ -f "$f" ] || continue
-    orig="$SAVE/$(basename "$f")"
+    orig="$SAVE/artifacts/$f"
     [ -f "$orig" ] || continue
     grep -v '^"POT-Creation-Date:' "$f"    > "$A" || true
     grep -v '^"POT-Creation-Date:' "$orig" > "$B" || true
@@ -84,10 +116,21 @@ done
 
 sh tools/i18n-build.sh
 
-# --porcelain rather than `git diff --quiet`, because diff only sees TRACKED
-# files: a brand-new catalogue or a new generated file in po/ is untracked, and
-# a new language appearing out of nowhere is exactly the change worth catching.
-if [ -z "$(git status --porcelain -- po config/includes.chroot/usr/share/locale)" ]; then
+artifact_paths > "$AFTER"
+cat "$BEFORE" "$AFTER" | sort -u > "$ALL"
+CHANGED=""
+while IFS= read -r f; do
+    if ! grep -Fqx "$f" "$BEFORE" || [ ! -f "$f" ] \
+        || ! cmp -s "$SAVE/artifacts/$f" "$f"; then
+        CHANGED="${CHANGED}${CHANGED:+
+}$f"
+    fi
+done < "$ALL"
+
+# Compare against the byte-for-byte starting snapshot, not against Git HEAD.
+# That keeps the result correct in an intentionally dirty developer worktree and
+# still detects a newly generated catalogue that was absent at the start.
+if [ -z "$CHANGED" ]; then
     echo "i18n: po/ and the catalogues match the source"
     exit 0
 fi
@@ -104,8 +147,8 @@ fi
 #
 # Reporting both as the same wall of red is how a gate gets ignored, which is
 # the failure mode this project keeps writing comments about.
-NEW=$(git diff -U0 -- "$POT" | grep '^+msgid "' | grep -v '^+msgid ""$' || true)
-GONE=$(git diff -U0 -- "$POT" | grep '^-msgid "' | grep -v '^-msgid ""$' || true)
+NEW=$(diff -U0 "$SAVE/artifacts/$POT" "$POT" | grep '^+msgid "' | grep -v '^+msgid ""$' || true)
+GONE=$(diff -U0 "$SAVE/artifacts/$POT" "$POT" | grep '^-msgid "' | grep -v '^-msgid ""$' || true)
 
 echo "" >&2
 if [ -n "$NEW" ]; then
@@ -130,8 +173,13 @@ if [ -n "$GONE" ]; then
 fi
 echo "" >&2
 echo "Files that changed when the extraction was re-run:" >&2
-git diff --stat -- po config/includes.chroot/usr/share/locale >&2
+printf '%s\n' "$CHANGED" | sed 's/^/    /' >&2
 echo "" >&2
-echo "The regenerated po/ and catalogues are attached to this run as the" >&2
-echo "'i18n-regenerated' artifact. Download, unpack over the repo, commit." >&2
+if [ "${DAGRIC_I18N_KEEP_REGENERATED:-0}" = "1" ]; then
+    echo "The regenerated po/ and catalogues are retained for the CI" >&2
+    echo "'i18n-regenerated' artifact. Download, unpack over the repo, commit." >&2
+else
+    echo "This local check restores the starting files on exit. Run" >&2
+    echo "tools/i18n-extract.sh and tools/i18n-build.sh to apply the update." >&2
+fi
 exit 1

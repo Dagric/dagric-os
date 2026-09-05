@@ -1,5 +1,5 @@
 #!/bin/sh
-# SPDX-FileCopyrightText: 2026 DGR Operations <repo@dagric.com>
+# SPDX-FileCopyrightText: 2026 IMPRESSIONSDIRECT360 LLC <repo@dagric.com>
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Dagric OS — prove the offline documentation actually works offline.
 #
@@ -27,7 +27,9 @@
 # worse than no switcher.
 set -e
 
-DOCS=/usr/share/dagric
+DOCS=${DAGRIC_DOCS_ROOT:-/usr/share/dagric}
+APPS=${DAGRIC_APPLICATIONS_ROOT:-/usr/share/applications}
+LOCAL_APPS=${DAGRIC_LOCAL_APPLICATIONS_ROOT:-/usr/local/share/applications}
 GUIDE="$DOCS/guide"
 fail=0
 
@@ -204,6 +206,61 @@ if [ -f "$MJS" ]; then
     done
 fi
 
+# --- 4. every visible launcher must have a manual route ---------------------
+#
+# "Every app" used to mean every CARD the manual author remembered to add.
+# That let ten installed launchers ship without a page of their own and gave us
+# no warning when a new Dagric tool landed. application-map.tsv is the explicit
+# contract between the desktop menu and the offline manual. Alternate launchers
+# for one feature may share a page, but silence is no longer allowed.
+MMAP="$DOCS/manual/application-map.tsv"
+if [ ! -f "$MMAP" ]; then
+    echo "ERROR: offline manual launcher map is missing: $MMAP" >&2
+    fail=1
+else
+    _dups=$(awk -F '\t' '!/^#/ && NF { print $1 }' "$MMAP" | sort | uniq -d)
+    if [ -n "$_dups" ]; then
+        echo "ERROR: duplicate launcher names in $MMAP:" >&2
+        echo "$_dups" | sed 's/^/       /' >&2
+        fail=1
+    fi
+
+    while IFS="$(printf '\t')" read -r _desktop _manual_page; do
+        case "$_desktop" in ''|'#'*) continue ;; esac
+        if [ ! -f "$DOCS/manual/$_manual_page" ]; then
+            echo "ERROR: $_desktop maps to missing manual page $_manual_page" >&2
+            fail=1
+        fi
+    done < "$MMAP"
+
+    for _desktop_path in "$APPS"/*.desktop; do
+        [ -f "$_desktop_path" ] || continue
+        _desktop=$(basename "$_desktop_path")
+        # A same-named /usr/local entry intentionally overrides a package entry
+        # (Dagric uses this to hide Debian launchers that are not useful here).
+        _effective="$_desktop_path"
+        [ -f "$LOCAL_APPS/$_desktop" ] \
+            && _effective="$LOCAL_APPS/$_desktop"
+        _visible=$(awk -F= '
+            BEGIN { inside=0; type="Application"; nodisplay="false"; hidden="false" }
+            /^\[Desktop Entry\]$/ { inside=1; next }
+            inside && /^\[/ { exit }
+            inside && $1 == "Type" { type=tolower($2) }
+            inside && $1 == "NoDisplay" { nodisplay=tolower($2) }
+            inside && $1 == "Hidden" { hidden=tolower($2) }
+            END {
+                if (type == "application" && nodisplay != "true" && hidden != "true") print "yes"
+            }
+        ' "$_effective")
+        [ "$_visible" = yes ] || continue
+        if ! awk -F '\t' -v d="$_desktop" '!/^#/ && $1 == d { found=1 } END { exit !found }' "$MMAP"; then
+            echo "ERROR: visible launcher $_desktop has no offline manual route." >&2
+            echo "       Add it to manual/application-map.tsv and document it." >&2
+            fail=1
+        fi
+    done
+fi
+
 [ "$fail" -eq 0 ] || exit 1
 
 _n=$(find "$GUIDE" -mindepth 2 -name index.html | wc -l)
@@ -211,5 +268,7 @@ _w=$(find "$DOCS/welcome" -mindepth 1 -maxdepth 1 -type d 2>/dev/null | wc -l)
 _h=$(find "$DOCS" -name '*.html' -type f 2>/dev/null | wc -l)
 echo "offline-docs: guide in $((_n + 1)) languages, welcome page in $((_w + 1)),"
 echo "              every switcher target present, manual.js table matches,"
-echo "              no root-absolute paths, and all relative refs in $_h pages resolve"
-unset _abs _page _dir _href _ref _target _d _p _n _w _h MJS
+echo "              every visible launcher has a manual route, no root-absolute"
+echo "              paths, and all relative refs in $_h pages resolve"
+unset _abs _page _dir _href _ref _target _d _p _n _w _h MJS MMAP APPS LOCAL_APPS
+unset _dups _desktop _manual_page _desktop_path _effective _visible

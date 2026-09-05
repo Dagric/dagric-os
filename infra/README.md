@@ -1,6 +1,11 @@
 # Dagric infrastructure
 
 ## gate-worker.js — the Pro download paywall
+
+The Worker is fail-closed behind `DISTRIBUTION_ENABLED`. It must remain
+`"false"` while a release lacks its exact corresponding-source map or required
+human legal/IP approvals. After those gates pass, deployment must explicitly set
+it to `"true"`; code deployment alone never resumes delivery.
 Cloudflare Worker `dagric-gate` (live at https://dagric-gate.dagric.workers.dev).
 Verifies a Stripe Checkout session is PAID for the Dagric Pro price, then
 streams `dagric-os-pro-1.0-amd64.iso` from the PRIVATE R2 bucket `dagric-pro`

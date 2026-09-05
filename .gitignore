@@ -23,6 +23,14 @@ build.log
 
 # Test harness output
 test/screen.png
+/test/artifacts/
+
+# Local audit, media, and scratch exports. These can contain large videos or
+# synthetic migration/browser fixtures and must never ride along with a broad
+# `git add -A`; keep the source scripts and manifests instead.
+/output/
+/outputs/
+/tmp/
 
 # Remotion promo: dependencies and rendered artifacts (keep the source)
 promo/node_modules/
@@ -41,6 +49,7 @@ promo/.remotion/
 /promo/linkedin-launch-*/
 /promo/narration/audio/
 /promo/public/narration-batch/
+/promo/audit-work/
 
 # Debian package staging mirrors config/includes.chroot and is rebuilt by
 # packages/stage-packages.sh.  It must never become release source.

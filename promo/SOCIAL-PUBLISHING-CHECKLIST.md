@@ -48,7 +48,7 @@ link. A post is not approved until every required item passes.
 
 Use when third-party software or marks are prominent:
 
-> Dagric OS is an independent product of Impressions Direct 360 LLC. Third-party
+> Dagric OS is an independent product of IMPRESSIONSDIRECT360 LLC. Third-party
 > names and marks belong to their respective owners and are shown only to identify
 > software or compatibility. No affiliation or endorsement is implied.
 

@@ -56,7 +56,7 @@ Changes the *layout*: panels, docks, menu bars.
   prefixed with a `CLEAR` snippet that removes **all** existing panels first,
   and each layout re-brands the launcher with the Dagric logo so branding
   survives the switch.
-- Seven layouts ship. Free: Classic, Focus, Eleven. Pro: Horizon, Command,
+- Seven layouts ship. Free: Classic, Focus, Centered. Pro: Horizon, Command,
   Unity, Duo.
 
 ### Assets

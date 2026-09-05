@@ -32,10 +32,21 @@ set -e
 ISO=$1
 MODE=${2:-uefi}
 SECS=${SECS:-240}
+case "$MODE" in
+    bios|uefi|secureboot) ;;
+    *) echo "mode must be bios|uefi|secureboot" >&2; exit 1 ;;
+esac
+case "$SECS" in
+    ''|*[!0-9]*) echo "SECS must be a whole number of seconds" >&2; exit 1 ;;
+esac
+if [ "$SECS" -lt 1 ] || [ "$SECS" -gt 1800 ]; then
+    echo "SECS must be between 1 and 1800" >&2
+    exit 1
+fi
 # DAGRIC_REPO override: this script is normally run from a copy under /srv
 # (the repo lives on a 9p mount where CRLF has to be stripped first), and in
 # that case $0's parent is not the repo and screenshots land in /out.
-REPO=${DAGRIC_REPO:-$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)}
+REPO=${DAGRIC_REPO:-$(unset CDPATH; cd -- "$(dirname -- "$0")/.." && pwd)}
 # Keyed by ISO as well as mode. Keying on mode alone meant testing the Pro
 # image silently overwrote the free image's screenshots in out/boot-test/uefi,
 # so the two editions could never be compared — which is exactly how the
@@ -47,7 +58,18 @@ command -v qemu-system-x86_64 >/dev/null || { echo "qemu-system-x86_64 missing" 
 
 rm -rf "$OUT"
 mkdir -p "$OUT"
-MON=$(mktemp -u /tmp/dgmonXXXXXX)
+MON_DIR=$(mktemp -d "${TMPDIR:-/tmp}/dagric-boot-monitor.XXXXXX") || exit 1
+MON="$MON_DIR/monitor.sock"
+QPID=""
+cleanup() {
+    if [ -n "$QPID" ]; then
+        kill "$QPID" 2>/dev/null || true
+        wait "$QPID" 2>/dev/null || true
+    fi
+    rm -rf "$MON_DIR"
+}
+trap cleanup EXIT
+trap 'exit 130' INT TERM HUP
 
 OVMF=/usr/share/OVMF
 set -- -m 4096 -smp 2 -cdrom "$ISO" -boot d \
@@ -138,7 +160,6 @@ case "$MODE" in
             -global driver=cfi.pflash01,property=secure,value=on \
             -machine smm=on
         ;;
-    *) echo "mode must be bios|uefi|secureboot" >&2; exit 1 ;;
 esac
 
 echo "booting $MODE for ${SECS}s -> $OUT"
@@ -193,7 +214,7 @@ PY
 
 kill $QPID 2>/dev/null || true
 wait $QPID 2>/dev/null || true
-rm -f "$MON"
+QPID=""
 
 # PPM is what the monitor emits; convert so the images can actually be looked at.
 #

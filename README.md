@@ -2,7 +2,6 @@
 
 ![Dagric OS — Own it outright](site/assets/hero-shot.png)
 
-[![Source quality](https://github.com/Dagric/dagric-os/actions/workflows/quality.yml/badge.svg)](https://github.com/Dagric/dagric-os/actions/workflows/quality.yml)
 [![Latest release](https://img.shields.io/github/v/release/Dagric/dagric-os?include_prereleases&sort=semver)](https://github.com/Dagric/dagric-os/releases/latest)
 [![Code license: GPL-3.0-or-later](https://img.shields.io/badge/code-GPL--3.0--or--later-2f81f7)](LICENSE)
 [![Website](https://img.shields.io/badge/website-dagric.com-21b6d7)](https://dagric.com)
@@ -22,7 +21,7 @@ Debian Stable ──► hand-picked packages ──► debloat + hardening hooks
 This repository *is* the operating system: every package choice, config file,
 and policy lives here, and the ISO is rebuilt from it with one command.
 
-**[Download Dagric OS Free](https://dagric.com/download)** ·
+**[Current release status](https://dagric.com/download)** ·
 **[Verify the release](https://dagric.com/testing)** ·
 **[Read the first-week guide](https://dagric.com/guide)** ·
 **[Ask the community](https://github.com/Dagric/dagric-os/discussions)**
@@ -52,9 +51,15 @@ and test plan in [docs/DAGRIC-REWIND.md](docs/DAGRIC-REWIND.md).
 
 ## Current verified release
 
-Dagric OS 1.0 “Foundation” was rebuilt and published on 29 August 2026. The
-[download page](https://dagric.com/download) links the Free image and Pro
-checkout. Before installing, check the
+**Distribution hold (4 September 2026): new binary delivery and sales are
+paused.** The recorded 1.0 images remain historical artifacts. Their exact
+Free/Pro binary-to-source map and five technical locale gates are now complete,
+but the new candidate still lacks qualified-human rights review, candidate-bound
+physical qualification, clean release provenance, signatures and promotion.
+Do not present the old Free object or Pro checkout as available. See
+[the release-hold record](docs/RELEASE-HOLD-2026-09-04.md).
+
+Dagric OS 1.0 “Foundation” was recorded on 29 August 2026. Before relying on it, check the
 [machine-readable release record](https://dagric.com/manifest/release.json),
 [signed SHA-256 hashes](https://dagric.com/SHA256SUMS), and public
 [build and test record](https://dagric.com/testing). The test record separates
@@ -75,8 +80,8 @@ Full details, testing checklist, and troubleshooting: [docs/BUILDING.md](docs/BU
 
 ## Help put Dagric on real hardware
 
-The most valuable contribution is independent evidence. Try the current Free
-release without installing, verify its hash, and submit a structured
+The most valuable contribution is independent evidence. While distribution is
+held, build a candidate from this repository, verify its hash, and submit a structured
 [hardware report](https://github.com/Dagric/dagric-os/issues/new/choose). You can
 also improve documentation, translations, accessibility, and negative-path
 tests. Start with [CONTRIBUTING.md](CONTRIBUTING.md), ask questions in
@@ -137,13 +142,15 @@ Debian's software is free to modify and redistribute; this project follows
 [Debian's derivative guidelines](https://wiki.debian.org/Derivatives/Guidelines):
 its own name and branding, `ID_LIKE=debian` honesty in `os-release`, and no use
 of Debian's restricted marks. The public source in this repository covers
-Dagric's own build configuration and modifications. Recipients are also pointed
-to Debian's source archives for unmodified packages and to the written source
-offer at https://dagric.com/licenses.
+Dagric's own build configuration and modifications. The frozen 1.0 source index
+now maps every recorded Free and Pro binary package to exact corresponding
+source, including archived `.dsc` and source-file hashes. New delivery remains
+held for the independent release gates listed above; see
+[the source disclosure](https://dagric.com/licenses#corresponding-source).
 
 Dagric-authored code is licensed under GPL-3.0-or-later, while identified
 branding artwork is CC-BY-SA-4.0 for copyright purposes. Trademark permission is
-separate. See [LICENSE](LICENSE), [LICENSES.md](LICENSES.md),
+separate. See [LICENSE](LICENSE), [LICENSE-POLICY.md](LICENSE-POLICY.md), [LICENSES.md](LICENSES.md),
 [TRADEMARKS.md](TRADEMARKS.md), and
 [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md).
 

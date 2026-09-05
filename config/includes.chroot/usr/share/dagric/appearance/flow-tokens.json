@@ -1,17 +1,22 @@
 {
-  "name": "Dagric Flow",
-  "version": 1,
+  "name": "Dagric Design Language",
+  "shortName": "DDL",
+  "themeFamily": "Dagric Flow",
+  "version": 2,
   "principles": [
+    "One recognizable Dagric system from boot through recovery",
     "Material depth over visual noise",
-    "Motion communicates change; it is never decoration",
+    "Motion explains change; it is never decoration",
     "Performance is part of the visual system",
-    "Accessibility overrides aesthetics"
+    "Accessibility overrides aesthetics",
+    "User choice is visible, reversible and respected"
   ],
   "palette": {
     "obsidian": "#0B0D12",
     "graphite": "#151821",
     "carbon": "#20242E",
     "frost": "#F5F7FA",
+    "warmWhite": "#F7F3EA",
     "mist": "#AEB6C2",
     "pulseRed": "#FF3B5C",
     "signalViolet": "#8B5CF6",
@@ -21,14 +26,53 @@
   },
   "layout": {
     "baseUnitPx": 8,
-    "cornerRadiusPx": 16,
-    "panelHeightPx": 40,
+    "cornerRadiusPx": 12,
+    "radiiPx": {
+      "compact": 8,
+      "control": 10,
+      "majorSurface": 12,
+      "maximumRoutineSurface": 14
+    },
+    "panelHeightPx": 46,
+    "controlMinimumPx": 36,
+    "touchTargetMinimumPx": 44,
+    "contentGutterPx": 24
+  },
+  "typography": {
+    "uiFamily": "Noto Sans",
+    "codeFamily": "Noto Sans Mono",
+    "minimumBodyPx": 14,
+    "defaultBodyPx": 16,
+    "weightPolicy": "regular for body, medium for controls, semibold for hierarchy"
+  },
+  "motion": {
+    "menuOpenMs": 150,
+    "windowTransitionMs": 180,
+    "workspaceTransitionMs": 240,
     "maxTransitionMs": 300,
-    "reducedMotion": "replace movement with fade"
+    "easing": "out-cubic",
+    "reducedMotion": "replace travel and scale with a short opacity fade"
+  },
+  "surfaces": {
+    "blur": "reserved for shell surfaces where separation needs it",
+    "transparency": "restrained; never reduce text contrast or obscure content",
+    "shadow": "soft single shadow; no stacked glow",
+    "border": "one-pixel separation when contrast alone is insufficient"
   },
   "rules": {
     "accentUse": "state, focus, progress and critical actions only",
+    "themeAccent": "Pulse Red anchors Dagric Flow; user-selected styles may choose another deliberate accent",
     "bodyText": "never pulseRed on a dark background",
-    "wallpaper": "static by default; no live compositing cost"
+    "wallpaper": "static by default; no live compositing cost",
+    "thirdPartyMarks": "Dagric helpers use original generic artwork unless written permission or an applicable brand policy authorizes a mark",
+    "confirmation": "destructive, privileged and third-party installation actions require a clear owner decision",
+    "copy": "plain language first; package and compatibility details remain available under advanced guidance"
+  },
+  "signatureSurfaces": {
+    "panel": "quiet bottom edge with a branded launcher and readable status area",
+    "launcher": "search-first access to applications, files, settings and actions",
+    "controlCenter": "one coherent place for immediate device state and controls",
+    "appearance": "live preview with automatic revert for display-affecting changes",
+    "recovery": "plain-language repair choices that explain risk before acting"
   }
 }

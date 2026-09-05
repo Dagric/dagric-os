@@ -30,11 +30,11 @@ and the machine reboots only when you say so.</translation>
         <source>Need more software?
 
 Open Discover to install thousands of apps —
-chosen by you, sandboxed, removable.</source>
+chosen by you, clearly sourced, removable.</source>
         <translation>Need more software?
 
 Open Discover to install thousands of apps —
-chosen by you, sandboxed, removable.</translation>
+chosen by you, clearly sourced, removable.</translation>
     </message>
 </context>
 </TS>

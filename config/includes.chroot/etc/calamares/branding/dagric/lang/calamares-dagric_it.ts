@@ -30,11 +30,11 @@ e il computer si riavvia solo quando lo decide Lei.</translation>
         <source>Need more software?
 
 Open Discover to install thousands of apps —
-chosen by you, sandboxed, removable.</source>
+chosen by you, clearly sourced, removable.</source>
         <translation>Ha bisogno di altro software?
 
 Apra Discover per installare migliaia di applicazioni —
-scelte da Lei, isolate, sempre rimovibili.</translation>
+scelte da Lei, con la provenienza indicata, sempre rimovibili.</translation>
     </message>
 </context>
 </TS>

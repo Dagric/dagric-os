@@ -28,8 +28,11 @@ $existing = docker ps -aq --filter "name=dagric-boottest"
 if ($existing) { docker rm -f dagric-boottest | Out-Null }
 # promo/capture-real-vm.py records the framebuffer through VNC. Bind that
 # unauthenticated test display to loopback only so it is never exposed to LAN.
-docker run -d --name dagric-boottest --privileged `
-    -p 6080:6080 `
+$runtimeSecurity = @("--cap-drop=ALL", "--security-opt=no-new-privileges:true", "--pids-limit=512")
+if ($kvmReady) { $runtimeSecurity += "--device=/dev/kvm" }
+docker run -d --name dagric-boottest @runtimeSecurity `
+    --read-only --tmpfs /tmp:rw,nosuid,nodev,size=64m `
+    -p 127.0.0.1:6080:6080 `
     -p 127.0.0.1:5914:5900 `
     -v "${iso}:/iso/dagric.iso:ro" `
     dagric-boottest

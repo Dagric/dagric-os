@@ -45,9 +45,12 @@ docker volume create dagric-disk | Out-Null
 docker run --rm -v dagric-disk:/disk dagric-boottest sh -c "[ -f /disk/disk.qcow2 ] || qemu-img create -f qcow2 /disk/disk.qcow2 50G"
 
 $uefiEnv = "0"; if ($Uefi) { $uefiEnv = "1" }
-docker run -d --name dagric-boottest --privileged `
+$runtimeSecurity = @("--cap-drop=ALL", "--security-opt=no-new-privileges:true", "--pids-limit=512")
+if ($kvmReady) { $runtimeSecurity += "--device=/dev/kvm" }
+docker run -d --name dagric-boottest @runtimeSecurity `
+    --read-only --tmpfs /tmp:rw,nosuid,nodev,size=64m `
     -e UEFI=$uefiEnv `
-    -p 6080:6080 `
+    -p 127.0.0.1:6080:6080 `
     -v "${iso}:/iso/dagric.iso:ro" `
     -v dagric-disk:/disk `
     dagric-boottest

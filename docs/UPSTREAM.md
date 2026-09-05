@@ -39,8 +39,8 @@ against it.
 | Project | What it adds | License | How | Tier |
 |---|---|---|---|---|
 | **Antynea/grub-btrfs** | "Boot into previous snapshot" entries in GRUB — the factory-reset safety net | GPL-3.0 | vendor + snapper config | free (recovery) |
-| **DavidoTek/ProtonUp-Qt** | GUI to install/manage Proton-GE & Wine-GE | GPL-3.0 | Flatpak | Pro |
-| **Heroic-Games-Launcher** | Epic + GOG + Amazon games | GPL-3.0 | Flatpak / consent-helper | Pro |
+| **DavidoTek/ProtonUp-Qt** | GUI to install/manage GE-Proton & Wine-GE | GPL-3.0 | Flatpak | both (optional) |
+| **Heroic-Games-Launcher** | Independent launcher for Epic Games Store, GOG and Amazon Games accounts | GPL-3.0 | Flatpak / consent-helper | both (optional) |
 | **linuxmint/webapp-manager** | Turn Office365/Netflix/Canva URLs into desktop apps | GPL-3.0 | vendor (.deb build) | free |
 | **Calamares OEM mode** | True out-of-box-experience: ship frozen, customer sets up on first boot | GPL | Calamares config (already have Calamares) | both |
 

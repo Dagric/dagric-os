@@ -77,9 +77,9 @@ maintained in [DAGRIC-REWIND.md](DAGRIC-REWIND.md).
 - [x] Calamares branding module — product name, colors, 3-slide ownership
       slideshow (`etc/calamares/branding/dagric/`); config verified in image
 - [x] Flathub enabled out of the box in Discover (verified in image)
-- [x] Firefox policies: telemetry/Pocket/studies/sponsored tiles off, tracking
-      protection on, uBlock Origin installed via ExtensionSettings (fetched
-      from AMO on first run; removable by the owner) (verified in image)
+- [x] Firefox ESR redistributed as Debian packages it, with no Dagric policy,
+      forced extension, or modified first-run behavior (repository and installed
+      system checks added)
 - [x] Calamares install run-through test — full install to a 20 GB virtual
       disk in the QEMU harness, then booted the INSTALLED system to the
       Plasma desktop (branded SDDM login included). Found and fixed three

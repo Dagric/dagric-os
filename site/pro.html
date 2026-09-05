@@ -3,29 +3,14 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Dagric OS Pro — Everything, unlocked.</title>
-<meta name="description" content="Dagric OS Pro: the complete creative, gaming, developer, and Windows-app suite. One purchase, $39, own it outright.">
+<title>Dagric OS Pro | Creator &amp; Developer Suite — $39 Once</title>
+<meta name="description" content="Dagric OS Pro adds a preconfigured creator, developer, gaming, privacy and Windows-app suite to the complete Free edition. One-time $39 purchase.">
 <link rel="icon" type="image/png" href="/assets/dagric-logo.png">
 <link rel="stylesheet" href="/assets/site.css">
 <style>
-/* .hero-pro is gone. site.css's .phero is the shared page opening now — its own
-   comment claimed pro/features/download/faq used it, and grep found it on index
-   alone while four different hand-rolled openings shipped instead. Only the
-   class on the <header> changed: id="main" stays on that same element (see the
-   note above it) so the 1290px skip-link defect cannot return.
-   The 640px h1 restatement that used to live here is gone with it: the shared
-   .phero h1 clamp bottoms out at 40px on a phone, so this page can no longer
-   opt out of the site scale by accident. */
 
-/* The fourth screenshot frame used to live here — a private .shot with an
-   880px cap and its own shadow, against the shared rule's cap and
-   var(--shadow). It matched nothing (this page has no class="shot" today),
-   which is exactly why it was dangerous: it is (0,1,0) in a stylesheet that
-   loads after site.css, and it sat in the slot this page's own comment
-   reserves for the Pro capture. The day that screenshot lands, the frame
-   would have silently re-forked on the one page selling the $39 product,
-   after the commit that consolidated the other three. Deleted rather than
-   corrected: the shared .shot,.strip rule in site.css is the frame now. */
+
+
 
 /* The local .grid override is gone too — site.css owns the component, so this
    page's card grid is the same object as the homepage's. */
@@ -55,24 +40,7 @@
 /* The four Pro layouts carry the same gold rail the homepage grid uses, so the
    3-free/7-on-Pro split is drawn on both pages with the same mark. */
 .looks-strip div:nth-child(n+4) img{border-top:3px solid var(--pro)}
-/* ...and the GEOMETRY should draw it too, which it did not. These are the same
-   seven Looks the homepage shows, and index.html renders them on a twelve-
-   column template so the three free layouts sit three-across and the four Pro
-   ones four-across — the 3/7 split stated by the layout itself, with its own
-   comment explaining that twelve is what makes 3 and 4 both divide cleanly.
-   This page rendered them through a plain auto-fit instead and got 5+2:
-   measured at 1280-1920, a 655x156px hole at the end of the row and the gold
-   rail split across two rows in the middle of the Pro group. Same seven
-   things, same mark, two different shapes, on the page that sells them.
-   Copied rather than shared because .looks-strip and .looks-grid are different
-   components — this one is a caption strip with no h3 — and the fix is the
-   template, not the card.
-   641px rather than the 900px gate the .grid rules use, and the difference is
-   what is inside them: those hold a heading and a paragraph and would be
-   unreadable in a 165px column, while these are captioned pictures of a
-   taskbar and stay legible all the way down. At 768px this takes the strip
-   from 5+2 with a 493x174px hole to 3+4 with none, at 227px and 165px wide.
-   Below 641 site.css's phone rules collapse the page to one column. */
+
 @media(min-width:641px){
   .looks-strip{grid-template-columns:repeat(12,1fr)}
   .looks-strip > :nth-child(-n+3){grid-column:span 4}
@@ -86,6 +54,7 @@ table.cmp td:nth-child(2),table.cmp td:nth-child(3),table.cmp th:nth-child(2),ta
 }
 </style>
 <link rel="canonical" href="https://dagric.com/pro">
+<link rel="search" type="application/opensearchdescription+xml" title="Search Dagric OS" href="/opensearch.xml">
 <meta name="theme-color" content="#0C0F14">
 <script src="/assets/theme.js"></script>
 <link rel="icon" href="/favicon.ico" sizes="32x32">
@@ -93,15 +62,15 @@ table.cmp td:nth-child(2),table.cmp td:nth-child(3),table.cmp th:nth-child(2),ta
 <link rel="manifest" href="/site.webmanifest">
 <meta property="og:type" content="product">
 <meta property="og:site_name" content="Dagric OS">
-<meta property="og:title" content="Dagric OS Pro — Everything, unlocked.">
-<meta property="og:description" content="Dagric OS Pro: the complete creative, gaming, developer, and Windows-app suite. One purchase, $39, own it outright.">
+<meta property="og:title" content="Dagric OS Pro | Creator &amp; Developer Suite — $39 Once">
+<meta property="og:description" content="A preconfigured creator, developer, gaming, privacy and Windows-app suite. One-time $39 purchase.">
 <meta property="og:url" content="https://dagric.com/pro">
 <meta property="og:image" content="https://dagric.com/assets/hero-desktop.png">
 <meta property="og:image:width" content="1920">
 <meta property="og:image:height" content="1080">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Dagric OS Pro — Everything, unlocked.">
-<meta name="twitter:description" content="Dagric OS Pro: the complete creative, gaming, developer, and Windows-app suite. One purchase, $39, own it outright.">
+<meta name="twitter:title" content="Dagric OS Pro | Creator &amp; Developer Suite — $39 Once">
+<meta name="twitter:description" content="A preconfigured creator, developer, gaming, privacy and Windows-app suite. One-time $39 purchase.">
 <meta name="twitter:image" content="https://dagric.com/assets/hero-desktop.png">
 </head>
 <body>
@@ -110,66 +79,28 @@ table.cmp td:nth-child(2),table.cmp td:nth-child(3),table.cmp th:nth-child(2),ta
   <a class="brand" href="/"><img src="/assets/dagric-logo.png" alt="" width="30" height="30">Dagric&nbsp;OS</a>
   <div class="nav-links">
     <a href="/features">Features</a><a href="/pro">Pro</a><a href="/about">About</a>
-    <a href="/guide">Guide</a><a href="/support">Support</a>
+    <a href="/guide">Guide</a><a href="/support">Support</a><a href="/search">Search</a>
     <a class="cta" href="/download">Download</a>
   </div>
 </div></nav>
 
-<!-- id="main" deliberately lives on the hero, NOT on <main> below. This was the only
-     page on the site whose <h1> sat outside the skip target: <main> opened after the
-     whole hero, so "Skip to content" dropped a keyboard or screen-reader user roughly
-     1290px past the headline, past the "$1,000 a year … $39, once" price framing, past
-     the Buy button and past the refund line — on the one page that takes the money.
-     The id was moved rather than the <main> tag so that href="#main" stays byte-
-     identical across all 15 pages (the skip/nav/footer blocks are uniform) and so the
-     hero's full-bleed radial gradient stays outside main.wide's 1120px max-width and
-     60px top padding. index.html can nest its hero inside <main> only because it also
-     resets main{max-width:none;margin:0;padding:0}; this page does not. -->
+
 <header class="phero" id="main">
   <h1>Your computer. <span class="grad">Everything, unlocked.</span></h1>
-  <!-- Above the fold this page named a price with nothing to weigh it against. Both
-       lines that do the anchoring — "for the price of one month of Photoshop" and the
-       $1,000+/year table — sit below a full-width hero screenshot, so the one number a
-       visitor carried away from the fold was the cost, unopposed. Price framing has to
-       arrive WITH the price. The lead was also a parts list where it should be the
-       outcome the parts buy.
-       The figure is this page's own existing claim in the CTA band below, linked by
-       repetition rather than restated with a second set of numbers, so the "Honest
-       math" caveat still governs it; the Photoshop line further down is untouched, so
-       the two comparisons do not say the same thing twice.
 
-       "local AI" is OUT of this list and must not come back. Nothing installs Ollama:
-       no pro-*.list.chroot names it, and 0600-pro-edition.hook.chroot never touches it.
-       The only delivery is /usr/bin/dagric-ai, which at RUNTIME asks "Install Ollama
-       from https://ollama.com?" and curls their install script — and dagric-hub lists
-       that row in the UNCONDITIONAL block, sixteen lines above `if [ "$EDITION" = "pro"
-       ]`, so it is byte-identical on the free edition. This paragraph is what a visitor
-       reads next to the price, and calling a one-click downloader "installed, tuned and
-       working the first time you switch the computer on" is a refund conversation — the
-       comparison table below already prints One-click / One-click for the same feature
-       and would have contradicted it on the same page. The "Local, private AI" card
-       further down says "Ollama one-click", which is true, and stays. -->
-  <p class="lead">The complete edition — creative studio, Windows apps and gaming, the developer
-  stack and all seven desktop layouts — installed, tuned and working the first time you
-  switch the computer on. Nothing to assemble. One purchase. Yours forever.</p>
-  <p style="max-width:var(--w-text);margin:0 0 var(--s-5)">The
-  subscriptions it replaces run past <strong>$1,000 a year</strong> — again next year, and the year
-  after. Dagric Pro is <strong>$39, once</strong>, and then it's yours.</p>
-  <a class="btn primary lg" href="https://buy.stripe.com/6oU5kwbye2Jogri31D8k809">Get Dagric Pro — $39</a>
-  <p class="refund">Test Free first · sales final once download begins · free updates · one machine per purchase</p>
-  <p class="refund">Completing checkout accepts the <a href="/terms">sale terms</a>.
-  See <a href="/privacy">privacy</a> for Stripe and download-gate data.</p>
-  <!-- The two objections that stop a $39 click are "will it even work on my machine" and "what if I
-       hate it". Only the second had an answer up here. The first one's answer was 1,175 words down,
-       in the last line of the page: "Or start with the free edition". Nothing below is new — the
-       live-USB behaviour is faq.html's "every ISO is also a live system", Check This PC is
-       download.html's own section, "same system underneath" is download.html's "Pro is that same
-       system with...", and the upgrade sentence matches faq.html's answer. This note used to end
-       "there is no in-place upgrade yet, so free-then-Pro means installing twice" — true when
-       written, false the same week: the Hub's Upgrade to Pro row and dagric-upgrade-to-pro shipped,
-       and the build now refuses to produce an ISO whose package set disagrees with the upgrade
-       tool's. Trying free first is now genuinely risk-free, which is a BETTER close for this page,
-       not a worse one: removing the risk should not cost the sale. -->
+  <p class="lead">The complete Dagric stack — creative and developer tools, Windows-compatibility
+  runtimes, gaming performance tools, and all seven desktop layouts — preinstalled and tuned.
+  Optional third-party clients still require your confirmation, and app/game compatibility
+  varies. One purchase. Yours forever.</p>
+  <p style="max-width:var(--w-text);margin:0 0 var(--s-5)">Paid creative and
+  productivity subscriptions add up quickly. Dagric Pro is <strong>$39, once</strong>;
+  whether its included alternatives replace a paid tool depends on your workflow.</p>
+  <p class="note" style="margin-top:var(--s-3)">That price covers hosted delivery, a guided
+  upgrade, and support for one concurrently managed machine. It does not limit any right to use,
+  copy, modify, or redistribute an included component under that component's own licence.</p>
+  <a class="btn primary lg" href="/download">Check Pro release status</a>
+  <p class="refund">New sales and binary delivery are temporarily paused while the remaining release gates are completed.</p>
+
   <p class="note" style="margin-top:var(--s-5)">Not sure it will even
   work on your machine? Find out before you spend anything: <a href="/download">the free edition</a>
   is the same system underneath, it runs live from a USB stick without touching your disk, and every
@@ -178,17 +109,7 @@ table.cmp td:nth-child(2),table.cmp td:nth-child(3),table.cmp th:nth-child(2),ta
   <strong>upgrades to Pro in place</strong> — open the Dagric Hub, pick <em>Upgrade to Pro</em>,
   paste the code from your receipt, and the machine becomes Pro with your files and settings exactly
   where you left them. No second install, no USB stick, no moving files.</p>
-  <!-- Same 820px wallpaper removed here as on index.html — see the long note
-       there for the measurement. Worse on this page, though: it was the SAME
-       FILE, hero-shot.png, carrying alt="The Dagric OS Pro desktop". One image
-       described as two different products, and it shows neither — no windows,
-       no launcher, no application, nothing a $39 buyer is being asked to pay
-       for. A page that must justify a price should not spend its first full
-       screen after the pitch on a picture of a wallpaper.
 
-       This is the slot for a genuine Pro capture once one exists: the VM
-       manager, OpenSnitch prompting on an outbound connection, or LibreOffice
-       with a Word document open. Not a generated one. -->
 
 </header>
 
@@ -214,91 +135,51 @@ table.cmp td:nth-child(2),table.cmp td:nth-child(3),table.cmp th:nth-child(2),ta
     <div class="card"><h3>OBS Studio</h3><p>Record and stream with the same tool the pros
     use.</p></div>
   </div>
-  <!-- "Pro includes a guided installer" made two claims and neither held.
-       dagric-get-resolve has no edition guard and dagric-hub lists it seventeen
-       lines above the EDITION = pro gate, so the free edition has it too; and
-       the script installs nothing — it opens Blackmagic's page and prints the
-       steps, three of which are typed into a terminal. Promising an installer to
-       a Windows switcher and handing them sudo is the exact experience this
-       product exists to spare them. The licence reason is the true version and
-       the better one — it is what /licenses and the script's own header have
-       said all along. -->
+
   <p style="color:var(--muted)">Want DaVinci Resolve? The Hub walks you through Blackmagic's own
   download: it opens the download page, then shows you each step to follow, including the few
-  lines to type. Blackmagic's licence forbids anyone from redistributing Resolve, so no operating
-  system can legally preinstall it — this is as close to one click as the licence allows. Kdenlive
-  is already installed if you would rather start cutting right now.</p>
+  lines to type. Dagric has not obtained permission to redistribute Resolve, so it is not
+  preinstalled; the Hub sends you to Blackmagic's current terms and official download instead.
+  Kdenlive is already installed if you would rather start cutting right now.</p>
 
   <div class="cta-band">
-    <div class="big">Replaces <span class="grad">$1,000+/year</span> of subscriptions.</div>
+    <div class="big">A configured <span class="grad">open-source toolkit</span> without another subscription.</div>
     <div class="value">
-      <div class="row"><b>Adobe Photoshop</b><span>→ GIMP + PhotoGIMP</span><span class="price">$263/yr → $0</span></div>
-      <div class="row"><b>Adobe Illustrator</b><span>→ Inkscape</span><span class="price">$263/yr → $0</span></div>
-      <div class="row"><b>Adobe Premiere Pro</b><span>→ Kdenlive</span><span class="price">$263/yr → $0</span></div>
-      <div class="row"><b>Adobe Lightroom</b><span>→ darktable</span><span class="price">$120/yr → $0</span></div>
-      <div class="row"><b>Microsoft 365</b><span>→ LibreOffice (full suite)</span><span class="price">$100/yr → $0</span></div>
-      <!-- This row is $240 of the "$1,000+/year" headline, and it is the ONE row whose
-           replacement Pro does not preinstall — Ollama is fetched at runtime by
-           dagric-ai, on both editions. The "Honest math" note below says the $39 buys
-           things "preinstalled", so without this parenthesis the caveat that governs
-           every other row is false for this one. The remaining rows still total $1,045,
-           so "past $1,000 a year" survives the disclosure untouched. -->
-      <div class="row"><b>ChatGPT Plus</b><span>→ Ollama, local &amp; private (one-click install, both editions)</span><span class="price">$240/yr → $0</span></div>
-      <div class="row"><b>1Password</b><span>→ KeePassXC</span><span class="price">$36/yr → $0</span></div>
+      <div class="row"><b>Photo editing</b><span>GIMP + PhotoGIMP</span><span class="price">Included</span></div>
+      <div class="row"><b>Vector design</b><span>Inkscape</span><span class="price">Included</span></div>
+      <div class="row"><b>Video editing</b><span>Kdenlive</span><span class="price">Included</span></div>
+      <div class="row"><b>Photo workflow</b><span>darktable</span><span class="price">Included</span></div>
+      <div class="row"><b>Office documents</b><span>LibreOffice (full suite)</span><span class="price">Included</span></div>
+
+      <div class="row"><b>Local language models</b><span>Ollama setup (optional, both editions)</span><span class="price">Owner initiated</span></div>
+      <div class="row"><b>Password vault</b><span>KeePassXC</span><span class="price">Included</span></div>
       <div class="row total"><b>Dagric OS Pro</b><span>everything above, integrated &amp; tested</span><span class="price">$39, once</span></div>
     </div>
     <p style="color:var(--on-3);font-size:var(--t-ui);margin-top:var(--s-4);max-width:var(--w-col)">Honest math: the tools on the
-    right are the leading free, open-source alternatives — not the trademarked products, and free to
-    anyone. What the $39 buys is the finished suite: hand-picked, preinstalled, integrated, tested,
-    and supported, so it is installed and configured on first boot instead of being a weekend of setup. (Blender,
-    Krita, Inkscape, OBS and more are in there too.)</p>
+    right are independent open-source tools with different features and file compatibility — not the
+    trademarked products or guaranteed drop-in replacements. They are available to anyone. What the
+    $39 buys is the finished suite: hand-picked, preinstalled, integrated, tested,
+    and supported, so it is installed and configured on first boot instead of being a weekend of setup. The
+    service entitlement covers one concurrently managed machine; the software components keep all rights
+    granted by their own licences. (Blender, Krita, Inkscape, OBS and more are in there too.)</p>
     <p style="margin-top:var(--s-5)">
-      <a class="btn primary lg" href="https://buy.stripe.com/6oU5kwbye2Jogri31D8k809">Get all of it — $39, once</a></p>
-    <p class="refund">Downloadable software · sales final once download begins</p>
+      <a class="btn primary lg" href="/download">Check source availability</a></p>
+    <p class="refund">The release-status page explains the temporary distribution hold.</p>
   </div>
 
   <h2>Windows apps &amp; <span class="grad">serious gaming</span></h2>
-  <!-- THREE OF THESE FOUR CARDS WERE SELLING THE FREE EDITION BACK TO THE BUYER, and
-       this section is the single biggest refund driver on the site.
 
-       dagric-hub emits `steam`, `heroic`, `protonup`, `gaming` (Proton-GE) and
-       `bottles` in its UNCONDITIONAL menu block, twenty-odd lines ABOVE
-       `if [ "$EDITION" = "pro" ]`, and none of dagric-get-steam, dagric-get-heroic,
-       dagric-get-bottles, dagric-get-protonup or dagric-gaming contains a single
-       reference to EDITION or /etc/dagric-edition (grep: zero hits in all five). The
-       ungating was deliberate and the Hub says why in its own comment: "Steam is free;
-       gating the convenience of installing it behind $39 protected no revenue and made
-       the gate look petty." That call is right and nothing here asks to reverse it.
-
-       What was wrong was the page. The comparison table below has printed
-       One-click / One-click for these rows since the row-header fix — but a skimmer
-       buys off THIS grid and never scrolls forty lines to find the contradiction. So
-       they pay $39 for Steam, boot the free ISO's Hub later, see the same button, and
-       ask for the money back. The table was honest and the shop window was not.
-
-       Every "Pro adds" clause below is a diff of the two BUILT manifests
-       (out/manifest/free.packages, 1619 pkgs; out/manifest/pro.packages, 2356 pkgs —
-       both generated by the Jul 28 builds that produced the shipped ISOs), not a diff
-       of the source lists, which have moved since. Do not restate a package here
-       without checking it in both files: `wine` is absent from free.packages entirely,
-       and free's ONLY vulkan line is libvulkan1:amd64. -->
   <p class="note">Straight answer, same as further down the page: <strong>three of these four are
   one click from the Hub on the free edition too</strong> — we don't gate a download button. What
   Pro buys is the runtime underneath each one, which is the part that takes assembling. Each card
   says exactly what that is.</p>
   <div class="grid">
     <div class="card"><h3>Bottles + Wine <span class="badge also-free">Also free</span></h3>
-    <p>Run Windows software in tidy per-app containers
-    tuned for compatibility — one click from the Dagric Hub, on either edition. The Pro half is
+    <p>Run Windows software in separate per-app Wine environments
+    tuned for compatibility — not security sandboxes — with an install helper on either edition. The Pro half is
     underneath it: <strong>Wine 10.0 and winetricks preinstalled</strong>, plus 32-bit Wine for
     classic <code>.exe</code> installers. The free edition ships no Wine at all.</p></div>
-    <!-- "the free edition carries the 64-bit driver only" was written here first and it was
-         WRONG, caught by re-reading the manifests instead of trusting the sentence. free
-         .packages has libvulkan1:amd64 and NO mesa-vulkan-drivers of either architecture —
-         the loader with nothing behind it. pro.packages has mesa-vulkan-drivers:amd64 AND
-         :i386, libvulkan1:i386 and vulkan-tools. The true version is the stronger one, which
-         is usually how this goes. pro-gaming.list.chroot's own comment says what that costs
-         a player: "without them Steam games fall back to slow OpenGL or fail." -->
+
     <div class="card"><h3>Steam + Proton <span class="badge also-free">Also free</span></h3>
     <p>The consent install is one click on both editions. What Pro has waiting for it is the
     stack Proton actually runs on: the <strong>Mesa Vulkan drivers in both 64- and 32-bit</strong>,
@@ -308,7 +189,7 @@ table.cmp td:nth-child(2),table.cmp td:nth-child(3),table.cmp th:nth-child(2),ta
     frames.</p></div>
     <div class="card"><h3>Heroic &amp; ProtonUp-Qt <span class="badge also-free">Also free</span></h3>
     <p>Your Epic, GOG, and Amazon libraries —
-    plus point-and-click Proton-GE management. One click from the Hub on either edition, like Steam
+    plus point-and-click GE-Proton management. One click from the Hub on either edition, like Steam
     and Bottles beside it. Pro preinstalls <strong>Lutris</strong> alongside them for the Battle.net,
     EA and Ubisoft installers.</p></div>
     <div class="card"><h3>Windows in a window <span class="badge">Pro only</span></h3>
@@ -324,7 +205,7 @@ table.cmp td:nth-child(2),table.cmp td:nth-child(3),table.cmp th:nth-child(2),ta
   <div class="looks-strip">
     <div><img src="/assets/look-classic.svg" alt="Classic"><div class="cap">Classic</div></div>
     <div><img src="/assets/look-focus.svg" alt="Focus"><div class="cap">Focus</div></div>
-    <div><img src="/assets/look-eleven.svg" alt="Eleven"><div class="cap">Eleven</div></div>
+    <div><img src="/assets/look-eleven.svg" alt="Centered"><div class="cap">Centered</div></div>
     <div><img src="/assets/look-horizon.svg" alt="Horizon"><div class="cap">Horizon · Pro</div></div>
     <div><img src="/assets/look-command.svg" alt="Command"><div class="cap">Command · Pro</div></div>
     <div><img src="/assets/look-unity.svg" alt="Unity"><div class="cap">Unity · Pro</div></div>
@@ -333,58 +214,26 @@ table.cmp td:nth-child(2),table.cmp td:nth-child(3),table.cmp th:nth-child(2),ta
 
   <h2>And the <span class="grad">working stack</span></h2>
   <div class="grid">
-    <!-- "working out of the box" was false for the two items in the list that are
-         daemons. 0600-pro-edition.hook.chroot:171 runs `systemctl disable docker.service
-         docker.socket` and :22 runs `systemctl disable ssh.service`, and the hook's
-         verifier at :316 exists specifically to PROVE they shipped that way ("pro: opt-in
-         policy verified"). The shipped manual agrees with the hook, not with this card —
-         app-docker.html: "Docker is installed on Pro but the daemon ships switched off".
-         So a buyer's first `docker run` answered "Cannot connect to the Docker daemon"
-         while the page had told them otherwise. Do not restore the short line: the
-         correction is the stronger pitch, because "nothing listens uninvited" is a promise
-         this product actually keeps. -->
+
     <div class="card"><h3>Developer-ready</h3><p>Docker + Compose, Podman, Distrobox,
     build-essential, Git, Python and SSH, all preinstalled. Podman runs rootless the moment
     you open a terminal; the Docker daemon and the SSH server ship switched off until you
     turn them on — one command each, spelled out in the built-in manual — so nothing listens
     on your machine uninvited.</p></div>
-    <!-- The one card on this page with NO Pro differentiator at all, and it is named in
-         the schema note at the foot of the file and in the hero comment as the exact
-         claim that must not come back. Nothing installs Ollama: no pro-*.list.chroot
-         names it (grep: zero), it is absent from BOTH built manifests, and the only
-         delivery is /usr/bin/dagric-ai, which asks at runtime and curls upstream's
-         installer — with no EDITION check in it. dagric-hub emits the row
-         unconditionally. Byte-identical on free, therefore.
-         It stays on the page because it is part of the desktop a buyer is choosing,
-         but it says so in its own words now instead of leaving the disclosure to a
-         table the skimmer never reaches. Do not re-add a Pro-sounding clause here. -->
+
     <div class="card"><h3>Local, private AI <span class="badge also-free">Also free</span></h3>
     <p>Ollama one-click: run capable language models
     on your hardware. Nothing leaves the machine. This one is <strong>identical on the free
     edition</strong> — Ollama is fetched from upstream when you ask for it, on both, and Pro adds
     nothing to it. It's listed because it's part of the desktop, not because it's part of
     the $39.</p></div>
-    <!-- KDE Connect was removed from this card when it moved to the free
-         edition. Zorin ships the same software free as Zorin Connect, so
-         selling it here made the comparison sheet worse, not better. Listing
-         a free feature under "what the $39 buys" is the kind of claim a
-         buyer checks and then stops trusting the rest of the page. -->
+
     <div class="card"><h3>Cloud storage</h3><p>Google Drive and Nextcloud in Dolphin,
     Borg/Vorta backups to any cloud via rclone.</p></div>
     <div class="card"><h3>Security suite</h3><p>Opt-in OpenSnitch application firewall, and USB
     Protection that allow-lists your own devices before it blocks anything — armed when you
     choose, never at the cost of your keyboard.</p></div>
-    <!-- HALF THIS CLAIM WAS FREE. "broad Unicode coverage — nothing renders as boxes"
-         read as a Pro feature and it is not one: fonts-noto-core 20201225-2 is in BOTH
-         built manifests, byte-identical, along with fonts-noto-mono, fonts-noto-color-emoji,
-         fonts-dejavu-core, fonts-liberation and the crosextra metric-compatible pair. A
-         free-edition owner already never sees a box on ordinary accented or symbol text.
-         What is actually Pro is fonts-noto-cjk 1:20240730 (free=0, pro=1) — the 89 MB
-         CJK set the pro-apps list holds back on purpose so the free ISO stays lean — and
-         the libreoffice metapackage (free ships writer/calc/impress/draw only).
-         The comparison table's Office row was already right about this; the card was not.
-         Splitting the sentence is the whole fix: the Pro half stays a Pro claim and the
-         free half stops being sold. -->
+
     <div class="card"><h3>Full office &amp; fonts</h3><p>The complete LibreOffice suite, where the
     free edition ships Writer, Calc, Impress and Draw — plus the <strong>CJK fonts</strong> for
     Chinese, Japanese and Korean. Broad Unicode coverage is on both editions, so ordinary accented
@@ -401,17 +250,7 @@ table.cmp td:nth-child(2),table.cmp td:nth-child(3),table.cmp th:nth-child(2),ta
   <h2>Curated <span class="grad">open-source gems</span></h2>
   <p class="lead">Hand-picked tools that make
   "own it outright" real — private by default, no accounts, no cloud lock-in.</p>
-  <!-- This note was already telling the truth; the cards were telling it in a parenthesis
-       at the END of a paragraph, which is the one place a skimmer never reads. The five
-       "(one-click install)" cards now carry the same mark the gaming grid uses, at the top
-       of the card, so the free/Pro split is visible without reading a word. Verified
-       ungated: dagric-get-onlyoffice, dagric-get-joplin, dagric-get-localsend,
-       dagric-get-cryptomator and dagric-get-upscayl contain zero EDITION references, and
-       dagric-hub lists all five in its unconditional block. The seven UNMARKED cards here
-       are genuinely Pro-preinstalled — keepassxc, syncthing, flatseal, darktable, audacity,
-       handbrake, qbittorrent and filelight are each free=0 / pro=1 in the built manifests.
-       Do not mark a card without that check; the mark is only worth anything if it is
-       exactly right. -->
+
   <p class="note">
   Straight answer: the ones marked <em>one-click install</em> below are in the free edition's Hub
   too — we don't gate a download button. What Pro buys is everything else on this page, already
@@ -451,71 +290,27 @@ table.cmp td:nth-child(2),table.cmp td:nth-child(3),table.cmp th:nth-child(2),ta
   </div>
 
   <h2 id="tbl-compare-editions-pro">Compare <span class="grad">editions</span></h2>
-  <!-- This wrapper is overflow-x:auto and had no tabindex, no role and no
-       name — a div with overflow:auto is NOT focusable in Chrome without
-       tabindex, so the moment this table starts scrolling a keyboard-only
-       reader cannot scroll it at all. WCAG 2.1.1, on the page that takes the
-       money. It measures exactly 320px inside a 320px wrapper at 360px today
-       and does not scroll, but this redesign moves the type scale and a type
-       scale is what starts a table scrolling, silently. Same trio as the two
-       on index.html and the four on accessibility.html; the name is the id of
-       the h2 immediately above so the two cannot drift apart. -->
+
   <div class="tablewrap" tabindex="0" role="region" aria-labelledby="tbl-compare-editions-pro">
-  <!-- FIRST COLUMN IS <th scope="row">, NOT <td>, for the reason recorded on the
-       homepage's copy of this table: these 14 cells are row LABELS, and left as
-       <td> the row-header relationship is not programmatically determinable —
-       WCAG 1.3.1, Level A. Measured after the change at 320px: this table grew
-       317.4 -> 336.5px inside its .tablewrap, and documentElement.scrollWidth
-       stayed at 320. The extra width is scroll distance inside the wrapper, not
-       page overflow; do not "fix" it by taking the scope back off. -->
+
   <table class="cmp">
     <thead><tr><th>What you get</th><th>Free</th><th>Pro</th></tr></thead>
     <tbody>
     <tr><th scope="row">Private, hardened, debloated desktop</th><td class="y">✓</td><td class="y">✓</td></tr>
-    <!-- ✓ / ✓ was TRUE of the free edition and still wrong as a row, and the direction
-         of the error is the unusual one: this row UNDER-sold Pro while every other
-         defect on this page over-sold it.
-         Free really does get automatic rollback, and that is not a Pro feature: snapper
-         0.10.6 and btrfs-progs are in BOTH built manifests; 0800-snapshot-recovery.hook
-         .chroot is not a pro-* file and contains zero EDITION references, so it vendors
-         grub-btrfs 4.14 (pinned, sha256sum -c) into both images; and dagric-snapshot-setup
-         has no edition guard either — it installs the DPkg::Pre-Invoke/Post-Invoke pair
-         that snapshots before and after every package operation on both editions.
-         What free does NOT get is timeshift 24.06.6-2 (free=0, pro=1), i.e. restore points
-         the OWNER schedules rather than ones apt triggers. Two matching ticks told a reader
-         the editions were equal here and quietly gave away a real difference.
-         The list's own comment also credits Timeshift's rsync mode for covering manual ext4
-         installs. That is NOT claimed here: it is a source comment, not a measurement, and
-         nobody has booted an ext4 install to confirm it. Three-model panel split 2-1 on
-         changing this row at all, and the dissent's one specific objection was exactly that
-         clause — so the row claims only what the manifests prove. Do not add ext4 back
-         without an ext4 install that was actually restored. -->
+
     <tr><th scope="row">Snapshot rollback &amp; silent updates</th><td>Automatic, before every update</td><td class="y">+ Timeshift scheduled restore points</td></tr>
     <tr><th scope="row">Dagric Looks layouts</th><td>3</td><td class="y">7</td></tr>
     <tr><th scope="row">Office suite</th><td>Writer · Calc · Impress · Draw</td><td class="y">Full LibreOffice + CJK</td></tr>
     <tr><th scope="row">Creative &amp; video suite</th><td class="n">—</td><td class="y">✓</td></tr>
     <tr><th scope="row">Photo/audio/video studio (darktable, Audacity, HandBrake)</th><td class="n">—</td><td class="y">✓</td></tr>
     <tr><th scope="row">Privacy toolkit (KeePassXC, Syncthing, Flatseal)</th><td class="n">—</td><td class="y">✓</td></tr>
-    <!-- Both of these rows said "Preinstalled", and neither could be true.
-         Steam, Heroic and Bottles are in no package list and never will be:
-         Steam and Heroic are proprietary and Bottles is a Flatpak, and this
-         product's whole licensing position is that none of the three is
-         bundled — they are one click from the Hub, on BOTH editions. What Pro
-         really preinstalls is the runtime underneath, which is the part that
-         takes assembling: Wine, winetricks, GameMode, MangoHud, Lutris and
-         32-bit Vulkan. That is a genuine advantage and it is what these rows
-         claim now. Selling "Preinstalled" to somebody who boots Pro and finds
-         no Steam is a refund at best, and it contradicts our own licence page. -->
+
     <tr><th scope="row">Windows apps (Wine runtime)</th><td>Bottles, one-click</td><td class="y">Wine + winetricks, preinstalled and tuned</td></tr>
     <tr><th scope="row">Gaming stack</th><td>Launchers, one-click</td><td class="y">GameMode, MangoHud, Lutris, 32-bit Vulkan preinstalled</td></tr>
     <tr><th scope="row">Steam, Heroic, Bottles</th><td>One-click</td><td class="y">One-click</td></tr>
     <tr><th scope="row">Local AI (Ollama)</th><td>One-click</td><td class="y">One-click</td></tr>
     <tr><th scope="row">Developer toolchain (Docker, Podman, Distrobox, Git, SSH)</th><td class="n">—</td><td class="y">✓</td></tr>
-    <!-- Split when KDE Connect moved to the free edition. Leaving it as one row
-         reading "—" for free would have gone on claiming a free feature is
-         paid, on the comparison table, which is the single place on this site a
-         buyer reads adversarially. Cloud backup and Drive in Dolphin really are
-         Pro, so they keep their own row. -->
+
     <tr><th scope="row">Phone integration (KDE Connect)</th><td class="y">✓</td><td class="y">✓</td></tr>
     <tr><th scope="row">Cloud backup, Drive in Dolphin</th><td class="n">—</td><td class="y">✓</td></tr>
     <tr><th scope="row">Opt-in security suite</th><td class="n">—</td><td class="y">✓</td></tr>
@@ -523,31 +318,15 @@ table.cmp td:nth-child(2),table.cmp td:nth-child(3),table.cmp th:nth-child(2),ta
   </table>
   </div>
 
-  <!-- HONEST DISQUALIFICATION, and it goes immediately after the comparison table on
-       purpose — a reader who has just studied the two columns is exactly the reader
-       deciding, and this is the last thing between them and the Buy button.
-       Every line is a fact already established elsewhere in this repo or on this site;
-       nothing here is new marketing. In order: the Hub's unconditional block (five
-       helpers, zero EDITION references between them); download.html's stated requirement
-       "Storage: 25 GB free (Free) / 40 GB (Pro)"; the fact that every application in
-       pro-apps.list.chroot is a Debian package under its own free licence, which
-       /licenses already says in as many words; and the Resolve paragraph higher up this
-       page, which is itself the corrected version of a false "guided installer" claim.
-       It does not repeat the purchase policy. The final-after-download line is stated
-       above and below and is not this section's job — this section exists to stop a
-       bad-fit purchase before checkout. -->
+
   <h2>Don't buy Pro <span class="grad">if…</span></h2>
-  <!-- This section said "Five reasons" and one of them was "…you have already installed the free
-       edition — there is no in-place upgrade yet". That card is gone because its premise is gone:
-       the Hub's Upgrade to Pro row does the move in place, files and settings kept. An installed
-       free user is now a perfectly good buyer, and telling them otherwise was costing sales to
-       protect them from an afternoon that no longer exists. -->
+
   <p class="lead">Four reasons to keep your $39. We would rather lose the sale than
   take it from somebody who was going to want it back.</p>
   <div class="grid">
     <div class="card"><h3>…you only wanted Steam, Heroic, Bottles or Ollama</h3><p>All four are one
     click from the Hub on the <a href="/download">free edition</a>, and so are ProtonUp-Qt,
-    Proton-GE, ONLYOFFICE, Joplin, LocalSend, Cryptomator and Upscayl. If that list is your whole
+    GE-Proton, ONLYOFFICE, Joplin, LocalSend, Cryptomator and Upscayl. If that list is your whole
     reason for buying, download the free ISO instead — you will get the same buttons. Pro's gaming
     value is the 32-bit Vulkan, GameMode and MangoHud underneath them, which matters if you play,
     and not otherwise.</p></div>
@@ -561,9 +340,9 @@ table.cmp td:nth-child(2),table.cmp td:nth-child(3),table.cmp th:nth-child(2),ta
     every one of them on the free edition yourself, for nothing, and we would not think less of
     you. What the $39 buys is that somebody already did it, wired the pieces together, and tested
     that the result works on first boot.</p></div>
-    <div class="card"><h3>…you need DaVinci Resolve preinstalled</h3><p>No operating system can
-    legally ship it — Blackmagic's licence forbids redistribution, so the Hub walks you through
-    their own download, on both editions equally. Buying Pro does not get Resolve installed for
+    <div class="card"><h3>…you need DaVinci Resolve preinstalled</h3><p>Dagric has not obtained
+    permission to redistribute Resolve, so the Hub walks you through Blackmagic's own download
+    on both editions equally. Buying Pro does not get Resolve installed for
     you. Kdenlive is preinstalled and is a real video editor; if it isn't the one you need, that is
     worth knowing before checkout rather than after.</p></div>
   </div>
@@ -571,31 +350,33 @@ table.cmp td:nth-child(2),table.cmp td:nth-child(3),table.cmp th:nth-child(2),ta
   is what you get.</p>
 
   <div class="cta-band" style="margin-bottom:0">
-    <div class="big">Ready to <span class="grad">unlock everything?</span></div>
-    <p style="color:var(--on-2);max-width:var(--w-text);margin:var(--s-3) 0 var(--s-5)">Instant download after
-    checkout. One purchase, one machine. Test the Free live image on your actual hardware before
-    buying; once the Pro download begins, the sale is final.</p>
-    <a class="btn primary" href="https://buy.stripe.com/6oU5kwbye2Jogri31D8k809">Get Dagric Pro — $39</a>
-    <p class="refund">Completing checkout accepts the <a href="/terms">sale terms</a> ·
-    <a href="/privacy">Privacy</a></p>
-    <p style="margin-top:var(--s-4)"><a href="/download">Or start with the free edition →</a></p>
+    <div class="big">Want every <span class="grad">Dagric feature?</span></div>
+    <p style="color:var(--on-2);max-width:var(--w-text);margin:var(--s-3) 0">The $39 one-time
+    service entitlement covers hosted delivery, guided upgrade, and support for one concurrently
+    managed machine. Component licence rights remain unchanged.</p>
+    <p style="color:var(--on-2);max-width:var(--w-text);margin:var(--s-3) 0 var(--s-5)">New sales and
+    binary delivery are temporarily paused while the remaining release gates are completed.</p>
+    <a class="btn primary" href="/download">Check release status</a>
+    <p class="refund"><a href="/contact">Existing-customer help</a></p>
   </div>
 </main>
 
 <footer><div class="foot">
-  <span>© 2026 DGR Operations · Built on Debian. Not affiliated with the Debian Project or the trademark owners named above.</span>
+  <span>© 2026 IMPRESSIONSDIRECT360 LLC · Built on Debian. Not affiliated with the Debian Project or the trademark owners named above.</span>
   <span class="links"><a href="/features">Features</a><a href="/pro">Pro</a><a href="/download">Download</a><a href="/news">News</a><a href="/guide">Guide</a><a href="/support">Support</a><a href="/faq">FAQ</a><a href="/accessibility">Accessibility</a><a href="/security">Security</a><a href="/bugs">Report a bug</a><a href="/contact">Contact</a><a href="/about">About</a><a href="/review">Reviewers</a><a href="/licenses">Licenses</a><a href="/privacy">Privacy</a><a href="/terms">Terms</a></span>
+  <div class="social-footer" role="navigation" aria-label="Dagric OS social media">
+    <strong>Follow Dagric OS</strong>
+    <a href="https://www.youtube.com/@DagricOS" target="_blank" rel="me noopener">YouTube</a>
+    <a href="https://www.tiktok.com/@dagricosofficial" target="_blank" rel="me noopener">TikTok</a>
+    <a href="https://www.instagram.com/dagricosofficial/" target="_blank" rel="me noopener">Instagram</a>
+    <a href="https://www.snapchat.com/@dagricos" target="_blank" rel="me noopener">Snapchat</a>
+    <a href="https://www.linkedin.com/in/dorien-richardson" target="_blank" rel="me noopener">LinkedIn</a>
+    <a href="https://github.com/Dagric/dagric-os" target="_blank" rel="me noopener">GitHub</a>
+  </div>
 </div></footer>
-<!-- The product schema is the machine-readable definition of the $39 product: it is
-     what Google rich results, social cards and AI assistants quote back. "local AI"
-     was in this description after the hero lead had been scrubbed of it, so the page
-     was selling as Pro-only a capability that is byte-identical on the free edition —
-     the comparison table twenty-two lines above prints One-click / One-click for it,
-     and dagric-hub emits the row in its unconditional block. Keep this string in sync
-     with the hero lead; see the note at the top of the hero for why it must not come
-     back. -->
+
 <script type="application/ld+json">
-{"@context":"https://schema.org","@type":"Product","name":"Dagric OS Pro","description":"The complete Dagric OS: creative studio, Windows apps and gaming, developer stack, privacy toolkit, and all seven desktop layouts. One purchase, own it outright.","brand":{"@type":"Brand","name":"Dagric OS"},"operatingSystem":"Linux (Debian 13, KDE Plasma)","applicationCategory":"OperatingSystem","image":"https://dagric.com/assets/hero-desktop.png","url":"https://dagric.com/pro","offers":{"@type":"Offer","price":"39.00","priceCurrency":"USD","availability":"https://schema.org/InStock","url":"https://dagric.com/pro"}}
+{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Dagric OS Pro","description":"Dagric OS with a preconfigured creator, developer, gaming, privacy and Windows-app suite.","brand":{"@type":"Brand","name":"Dagric OS"},"operatingSystem":"Linux (64-bit PC; Debian 13; KDE Plasma)","applicationCategory":"UtilitiesApplication","softwareVersion":"1.0","datePublished":"2026-08-29","image":"https://dagric.com/assets/hero-desktop.png","screenshot":"https://dagric.com/assets/hero-desktop.png","url":"https://dagric.com/pro","softwareHelp":"https://dagric.com/support","releaseNotes":"https://dagric.com/news","license":"https://dagric.com/licenses","offers":{"@type":"Offer","price":"39.00","priceCurrency":"USD","availability":"https://schema.org/OutOfStock","url":"https://dagric.com/pro"}}
 </script>
 </body>
 </html>

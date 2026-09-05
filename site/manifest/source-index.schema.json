@@ -1,0 +1,367 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://dagric.com/manifest/source-index.schema.json",
+  "title": "Dagric OS release-pinned source and notices index",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "product",
+    "release",
+    "dagric_layer",
+    "debian_layer",
+    "notices",
+    "next_release_gate"
+  ],
+  "properties": {
+    "$schema": { "type": "string", "format": "uri" },
+    "product": { "const": "Dagric OS" },
+    "release": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["version", "source_commit", "artifacts"],
+      "properties": {
+        "version": { "type": "string", "minLength": 1 },
+        "codename": { "type": "string", "minLength": 1 },
+        "source_commit": { "$ref": "#/$defs/sha1" },
+        "artifacts": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 2,
+          "items": { "$ref": "#/$defs/releaseArtifact" }
+        }
+      }
+    },
+    "dagric_layer": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "repository",
+        "commit_tree",
+        "source_archive",
+        "licensing_map"
+      ],
+      "properties": {
+        "status": { "const": "available" },
+        "repository": { "$ref": "#/$defs/httpsUrl" },
+        "commit_tree": { "$ref": "#/$defs/httpsUrl" },
+        "source_archive": { "$ref": "#/$defs/httpsUrl" },
+        "licensing_map": { "$ref": "#/$defs/httpsUrl" },
+        "release_legal_documents": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "status",
+            "commit",
+            "gpl_text",
+            "repository_license_notice",
+            "third_party_notices"
+          ],
+          "properties": {
+            "status": { "const": "part-of-release-source" },
+            "commit": { "$ref": "#/$defs/sha1" },
+            "gpl_text": { "$ref": "#/$defs/httpsUrl" },
+            "repository_license_notice": { "$ref": "#/$defs/httpsUrl" },
+            "third_party_notices": { "$ref": "#/$defs/httpsUrl" }
+          }
+        },
+        "legal_documentation_supplement": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "status",
+            "commit",
+            "not_part_of_release_build",
+            "gpl_text",
+            "repository_license_notice",
+            "third_party_notices"
+          ],
+          "properties": {
+            "status": { "const": "post-release-documentation-only" },
+            "commit": { "$ref": "#/$defs/sha1" },
+            "not_part_of_release_build": { "const": true },
+            "gpl_text": { "$ref": "#/$defs/httpsUrl" },
+            "repository_license_notice": { "$ref": "#/$defs/httpsUrl" },
+            "third_party_notices": { "$ref": "#/$defs/httpsUrl" }
+          }
+        }
+      },
+      "oneOf": [
+        {
+          "required": ["release_legal_documents"],
+          "not": { "required": ["legal_documentation_supplement"] }
+        },
+        {
+          "required": ["legal_documentation_supplement"],
+          "not": { "required": ["release_legal_documents"] }
+        }
+      ]
+    },
+    "debian_layer": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "base",
+        "binary_inventory_status",
+        "exact_binary_to_source_map_status",
+        "important_limit",
+        "official_services",
+        "retrieval_procedure",
+        "request_route",
+        "request_note"
+      ],
+      "properties": {
+        "base": { "type": "string", "minLength": 1 },
+        "binary_inventory_status": { "const": "available" },
+        "exact_binary_to_source_map_status": {
+          "enum": ["not-yet-generated", "complete"]
+        },
+        "important_limit": { "type": "string", "minLength": 1 },
+        "official_services": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["source_browser", "permanent_archive"],
+          "properties": {
+            "source_browser": { "$ref": "#/$defs/httpsUrl" },
+            "permanent_archive": { "$ref": "#/$defs/httpsUrl" }
+          }
+        },
+        "retrieval_procedure": {
+          "type": "array",
+          "minItems": 3,
+          "items": { "type": "string", "minLength": 1 }
+        },
+        "request_route": { "$ref": "#/$defs/httpsUrl" },
+        "request_note": { "type": "string", "minLength": 1 },
+        "exact_binary_to_source_map": { "$ref": "#/$defs/exactSourceMap" }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "exact_binary_to_source_map_status": { "const": "not-yet-generated" }
+            },
+            "required": ["exact_binary_to_source_map_status"]
+          },
+          "then": {
+            "not": { "required": ["exact_binary_to_source_map"] }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "exact_binary_to_source_map_status": { "const": "complete" }
+            },
+            "required": ["exact_binary_to_source_map_status"]
+          },
+          "then": { "required": ["exact_binary_to_source_map"] }
+        }
+      ]
+    },
+    "notices": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["web_summary", "release_signature", "installed_package_notices"],
+      "properties": {
+        "web_summary": { "$ref": "#/$defs/httpsUrl" },
+        "release_signature": { "$ref": "#/$defs/httpsUrl" },
+        "installed_package_notices": { "type": "string", "minLength": 1 }
+      }
+    },
+    "next_release_gate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "block_if_release_identity_changes",
+        "required_before_another_binary_release"
+      ],
+      "properties": {
+        "status": { "enum": ["blocked-pending-exact-source-map", "complete"] },
+        "block_if_release_identity_changes": { "type": "boolean" },
+        "required_before_another_binary_release": {
+          "type": "array",
+          "minItems": 3,
+          "items": { "type": "string", "minLength": 1 }
+        },
+        "locked_release_identity": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["source_commit", "free_sha256", "pro_sha256"],
+          "properties": {
+            "source_commit": { "$ref": "#/$defs/sha1" },
+            "free_sha256": { "$ref": "#/$defs/sha256" },
+            "pro_sha256": { "$ref": "#/$defs/sha256" }
+          }
+        }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "status": { "const": "blocked-pending-exact-source-map" } } },
+          "then": {
+            "properties": { "block_if_release_identity_changes": { "const": true } },
+            "required": ["locked_release_identity"]
+          }
+        },
+        {
+          "if": { "properties": { "status": { "const": "complete" } } },
+          "then": {
+            "properties": { "block_if_release_identity_changes": { "const": false } },
+            "not": { "required": ["locked_release_identity"] }
+          }
+        }
+      ]
+    }
+  },
+  "$defs": {
+    "sha1": { "type": "string", "pattern": "^[0-9a-f]{40}$" },
+    "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+    "httpsUrl": { "type": "string", "pattern": "^https://[^\\s]+$" },
+    "packageName": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9+.-]*(?::[a-z0-9][a-z0-9-]*)?$"
+    },
+    "sourceName": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9+.-]*$"
+    },
+    "releaseArtifact": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "edition",
+        "filename",
+        "sha256",
+        "binary_package_manifest",
+        "binary_package_manifest_sha256"
+      ],
+      "properties": {
+        "edition": { "enum": ["free", "pro"] },
+        "filename": { "type": "string", "minLength": 1 },
+        "sha256": { "$ref": "#/$defs/sha256" },
+        "binary_package_manifest": { "$ref": "#/$defs/httpsUrl" },
+        "binary_package_manifest_sha256": { "$ref": "#/$defs/sha256" }
+      }
+    },
+    "sourceFile": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["filename", "url", "sha256"],
+      "properties": {
+        "filename": { "type": "string", "minLength": 1 },
+        "url": { "$ref": "#/$defs/httpsUrl" },
+        "sha256": { "$ref": "#/$defs/sha256" }
+      }
+    },
+    "sourceMapEntry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "binary_name",
+        "binary_version",
+        "source_name",
+        "source_version",
+        "origin",
+        "locator",
+        "integrity"
+      ],
+      "properties": {
+        "binary_name": { "$ref": "#/$defs/packageName" },
+        "binary_version": { "type": "string", "minLength": 1, "pattern": "^\\S+$" },
+        "source_name": { "$ref": "#/$defs/sourceName" },
+        "source_version": { "type": "string", "minLength": 1, "pattern": "^\\S+$" },
+        "origin": { "enum": ["debian", "dagric"] },
+        "locator": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "dsc_url": { "$ref": "#/$defs/httpsUrl" },
+            "debian_archive_url": { "$ref": "#/$defs/httpsUrl" },
+            "dagric_source_archive_url": { "$ref": "#/$defs/httpsUrl" },
+            "dagric_commit": { "$ref": "#/$defs/sha1" }
+          }
+        },
+        "integrity": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "dsc_sha256": { "$ref": "#/$defs/sha256" },
+            "source_archive_sha256": { "$ref": "#/$defs/sha256" },
+            "source_files": {
+              "type": "array",
+              "minItems": 1,
+              "items": { "$ref": "#/$defs/sourceFile" }
+            }
+          }
+        }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "origin": { "const": "debian" } }, "required": ["origin"] },
+          "then": {
+            "properties": {
+              "locator": {
+                "anyOf": [
+                  { "required": ["dsc_url"] },
+                  { "required": ["debian_archive_url"] }
+                ]
+              },
+              "integrity": { "required": ["dsc_sha256"] }
+            }
+          }
+        },
+        {
+          "if": { "properties": { "origin": { "const": "dagric" } }, "required": ["origin"] },
+          "then": {
+            "properties": {
+              "locator": {
+                "required": ["dagric_source_archive_url", "dagric_commit"]
+              },
+              "integrity": { "required": ["source_archive_sha256"] }
+            }
+          }
+        }
+      ]
+    },
+    "editionSourceMap": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "binary_package_manifest",
+        "binary_package_manifest_sha256",
+        "entries"
+      ],
+      "properties": {
+        "binary_package_manifest": { "$ref": "#/$defs/httpsUrl" },
+        "binary_package_manifest_sha256": { "$ref": "#/$defs/sha256" },
+        "entries": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/sourceMapEntry" }
+        }
+      }
+    },
+    "exactSourceMap": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["format", "generated_utc", "editions"],
+      "properties": {
+        "format": { "const": "dagric-exact-binary-source-map-v1" },
+        "generated_utc": {
+          "type": "string",
+          "format": "date-time",
+          "pattern": "Z$"
+        },
+        "editions": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["free", "pro"],
+          "properties": {
+            "free": { "$ref": "#/$defs/editionSourceMap" },
+            "pro": { "$ref": "#/$defs/editionSourceMap" }
+          }
+        }
+      }
+    }
+  }
+}

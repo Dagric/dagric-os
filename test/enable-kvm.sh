@@ -1,5 +1,5 @@
 #!/bin/sh
-# SPDX-FileCopyrightText: 2026 DGR Operations <repo@dagric.com>
+# SPDX-FileCopyrightText: 2026 IMPRESSIONSDIRECT360 LLC <repo@dagric.com>
 # SPDX-License-Identifier: GPL-3.0-or-later
 #
 # Dagric OS — turn on hardware acceleration for the QEMU test harness.
@@ -37,9 +37,11 @@
 # is also why it is a script and not a line in a document nobody re-reads.
 set -e
 
+ALPINE_IMAGE=alpine@sha256:28bd5fe8b56d1bd048e5babf5b10710ebe0bae67db86916198a6eec434943f8b
+
 # AMD (svm) and Intel (vmx) need different modules, so pick from what the CPU
 # actually reports rather than assuming the machine this was written on.
-VENDOR=$(docker run --rm --privileged alpine sh -c \
+VENDOR=$(docker run --rm --cap-drop=ALL --network=none --read-only "$ALPINE_IMAGE" sh -c \
     'grep -oE "\bvmx\b|\bsvm\b" /proc/cpuinfo 2>/dev/null | head -1' 2>/dev/null || true)
 
 case "$VENDOR" in
@@ -58,13 +60,15 @@ echo "CPU reports $VENDOR — loading $MOD"
 
 # -v /lib/modules mounts the Docker VM's own modules, which is where the .ko
 # files are; the container image has none of its own.
-docker run --rm --privileged -v /lib/modules:/lib/modules alpine sh -c \
-    "apk add -q kmod 2>/dev/null; modprobe $MOD" || {
+docker run --rm --privileged --network=none --read-only \
+    -v /lib/modules:/lib/modules:ro "$ALPINE_IMAGE" sh -c \
+    "modprobe $MOD" || {
         echo "ERROR: modprobe $MOD failed." >&2
         exit 1
     }
 
-if docker run --rm --privileged -v /dev:/hostdev alpine test -e /hostdev/kvm; then
+if docker run --rm --device=/dev/kvm --cap-drop=ALL --network=none --read-only \
+    "$ALPINE_IMAGE" test -c /dev/kvm; then
     echo "/dev/kvm is present — pass --device /dev/kvm to the test container."
     echo "Expect the harness to print 'KVM available — hardware-accelerated boot'."
 else

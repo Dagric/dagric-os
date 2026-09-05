@@ -10,10 +10,10 @@ JSON; the explanation lives in this file, which Chromium ignores.
 THE GAP THIS CLOSED. Before this, there was no Chromium policy anywhere in the
 Dagric tree, on an image that ships Chromium. site/privacy.html describes how
 this machine resolves names, and that page's own comment block records that a
-claim was once made about Chromium which only ever held for Firefox — and calls
-it "the version of this mistake that does the most damage, because the reader
-who checks is the procurement officer". Shipping the Firefox DoH policy alone
-would have reproduced that mistake exactly, and on the PAID tier.
+claim was once made about one browser without matching the other — and calls it
+"the version of this mistake that does the most damage, because the reader who
+checks is the procurement officer". Chromium's policy must therefore stand on
+its own documented behavior rather than borrowing a Firefox claim.
 
 DnsOverHttpsMode "automatic", not "secure".
   automatic  upgrades to DNS-over-HTTPS when the resolver the network handed us
@@ -23,7 +23,8 @@ DnsOverHttpsMode "automatic", not "secure".
              corporate split-horizon DNS, and it breaks every captive portal,
              because a portal works by hijacking DNS until you sign in. A
              browser that cannot resolve anything is not a privacy win.
-This is the same trade as Fallback:true in the Firefox policy.
+This is Chromium's explicit Dagric policy; Firefox remains on Debian/Mozilla's
+own configuration.
 
 No DnsOverHttpsTemplates on purpose. Pinning a template would route every name
 this machine looks up through one company that we picked, on a product sold on
@@ -36,6 +37,6 @@ prefix, not the password — and it warns people whose credentials are already i
 a breach corpus. Dagric does not trade a real protection for the appearance of
 one.
 
-The Firefox equivalent is usr/lib/firefox-esr/distribution/policies.json, where
-DNSOverHTTPS is set Enabled with Fallback true and Locked false. Both browsers
-are left UNLOCKED: an owner who wants their own resolver, or none, can say so.
+There is intentionally no Firefox equivalent. Dagric redistributes Debian's
+Firefox ESR without a Dagric distribution policy so the browser's defaults and
+first-run behavior remain unmodified.

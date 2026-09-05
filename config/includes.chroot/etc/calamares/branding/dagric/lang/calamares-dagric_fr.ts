@@ -30,11 +30,11 @@ et l'ordinateur ne redémarre que lorsque vous le décidez.</translation>
         <source>Need more software?
 
 Open Discover to install thousands of apps —
-chosen by you, sandboxed, removable.</source>
+chosen by you, clearly sourced, removable.</source>
         <translation>Besoin de plus de logiciels ?
 
 Ouvrez Discover pour installer des milliers d'applications —
-choisies par vous, isolées, désinstallables.</translation>
+choisies par vous, avec une source clairement indiquée et désinstallables.</translation>
     </message>
 </context>
 </TS>

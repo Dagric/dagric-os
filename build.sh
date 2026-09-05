@@ -333,6 +333,23 @@ fi
 
 lb build
 
+# Preserve the resolved dpkg Section for every installed binary. The ISO's
+# filesystem.packages has name/version only; this companion record lets the
+# commercial gate identify all contrib/non-free/non-free-firmware packages,
+# including binary libraries whose names do not contain "firmware".
+SECTION_MAP="$SRC/out/PACKAGE_SECTIONS-$EDITION.tsv"
+mkdir -p "$SRC/out"
+# dpkg-query, not the shell, expands these fields.
+# shellcheck disable=SC2016
+chroot chroot dpkg-query -W \
+    -f='${binary:Package}\t${Version}\t${Section}\n' \
+    | LC_ALL=C sort -u > "$SECTION_MAP"
+[ -s "$SECTION_MAP" ] || {
+    echo "ERROR: resolved package-section inventory is empty." >&2
+    exit 1
+}
+echo "recorded resolved package sections in $SECTION_MAP"
+
 mkdir -p "$SRC/out"
 case "$EDITION" in
     pro) NAME=dagric-os-pro-1.0-amd64.iso ;;

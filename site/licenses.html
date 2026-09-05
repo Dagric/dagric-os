@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Licenses — Dagric OS</title>
+<title>Dagric OS Open-Source Licenses | Bundled Software</title>
 <meta name="description" content="How Dagric OS honors open-source licenses, and what is (and is never) bundled.">
 <link rel="icon" type="image/png" href="/assets/dagric-logo.png">
 <link rel="stylesheet" href="/assets/site.css">
@@ -13,32 +13,17 @@
 <link rel="icon" href="/favicon.ico" sizes="32x32">
 <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
 <link rel="manifest" href="/site.webmanifest">
-<!-- assets/pageindex.js is deliberately NOT loaded. It built a sticky section
-     index into the right-hand gutter on the five long document pages, and the
-     owner reported it misbehaving on scroll — "when I scroll down it is funny
-     and doesn't work how it's supposed to". The mechanism is a position:sticky
-     <ol> inside a position:absolute box that carries BOTH top and bottom, so
-     the rail stops dead --s-7 above the end of <main> and slides away while
-     there is still page left; that is the "funny" part, and it is the shape of
-     the bug even before anything else is measured.
-     It is out rather than patched because nothing here has a browser to verify
-     a fix in — every check available is layout arithmetic, and this is a defect
-     you can only see. A feature nobody asked for that confuses the owner is
-     worse than an empty gutter. The file stays in the tree; put the tag back
-     when somebody can watch it scroll.
-     Removing the tag is the whole revert: the nav is display:none below
-     1440px, absolutely positioned above it, and takes part in no layout at any
-     width, so these pages are byte-for-byte what they were before it existed. -->
+
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Dagric OS">
-<meta property="og:title" content="Licenses — Dagric OS">
+<meta property="og:title" content="Dagric OS Open-Source Licenses | Bundled Software">
 <meta property="og:description" content="How Dagric OS honors open-source licenses, and what is (and is never) bundled.">
 <meta property="og:url" content="https://dagric.com/licenses">
 <meta property="og:image" content="https://dagric.com/assets/hero-desktop.png">
 <meta property="og:image:width" content="1920">
 <meta property="og:image:height" content="1080">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Licenses — Dagric OS">
+<meta name="twitter:title" content="Dagric OS Open-Source Licenses | Bundled Software">
 <meta name="twitter:description" content="How Dagric OS honors open-source licenses, and what is (and is never) bundled.">
 <meta name="twitter:image" content="https://dagric.com/assets/hero-desktop.png">
 </head>
@@ -57,7 +42,8 @@
   <h1>Licenses, <span class="grad">honored.</span></h1>
   <p class="lead">Dagric OS is built from free and open-source software, and we play it straight.</p>
   <p>The <a href="/terms">Dagric Pro sale terms</a> govern checkout, delivery, the one-machine
-  entitlement, support, refunds and Dagric branding. They do not replace or narrow the licence of
+  hosted delivery, guided-upgrade and support service entitlement, refunds, and Dagric branding.
+  They do not replace or narrow the licence of
   any open-source component. If a sale term conflicts with an applicable open-source licence, that
   component's licence controls.</p>
 
@@ -69,9 +55,10 @@
     <li>Bundled open-source extras keep their upstream licenses — for example
     <strong>grub-btrfs</strong> (GPL-3.0, vendored from a pinned, checksum-verified release, license
     text included) and the <strong>PhotoGIMP</strong> configuration layout (open source, Pro).</li>
-    <li>Dagric's own scripts, branding hooks, and configuration are © DGR Operations; the
-    <strong>Dagric</strong> name, D monogram, and wallpapers are trademarks/brand assets and may not
-    be used to market derivative products.</li>
+    <li>Dagric's own scripts, branding hooks, and configuration are © IMPRESSIONSDIRECT360 LLC.
+    Identified branding artwork is released under CC BY-SA 4.0 for copyright purposes. The
+    <strong>Dagric</strong> name, D monogram, and logos remain trademarks; the copyright licence does
+    not permit uses that imply an official Dagric product, affiliation, or endorsement.</li>
   </ul>
 
   <h2>Appearance components</h2>
@@ -88,22 +75,17 @@
   purchased assets we have no right to redistribute.</p>
 
   <h2>What's never bundled</h2>
-  <p>Proprietary <strong>applications</strong> are <strong>never preinstalled</strong>. Steam (Valve),
-  the NVIDIA driver and DaVinci Resolve (Blackmagic) are only ever installed when
-  <em>you</em> ask — one-click, clearly labeled — fetched from their vendors under their own EULAs.</p>
+  <p>Proprietary <strong>applications</strong> are <strong>never preinstalled</strong>. The Steam
+  client (Valve), NVIDIA driver, and DaVinci Resolve (Blackmagic) are obtained only after
+  <em>you</em> choose a clearly labeled helper, under the provider's own terms. Heroic is an
+  optional GPL-3.0 application installed from Flathub. No GOG, Epic Games, or Amazon Games
+  client, game, account, or store content is included in Dagric OS.</p>
 
-  <!-- Widevine was in the sentence above, in the "only when you ask" list. It does
-       not belong there and the tree says why: policies.json sets
-       EncryptedMediaExtensions.Enabled = true, and no CDM ships on either ISO (a
-       grep for "widevine" across both build logs returns nothing). So Firefox
-       fetches a proprietary Google binary at first use, and there is no click to
-       make — dagric-setup offers exactly three boxes, drivers, HP and Flathub,
-       and Widevine is not one of them.
-       Disabling EME instead was considered and rejected: it would break Netflix,
-       Spotify, Disney+ and Amazon, which features.html promises work, for an
-       audience that left Windows partly to keep watching things. The honest move
-       is to keep it working and stop claiming an absolute that is not true. It is
-       also listed on the privacy page's outbound-connection list. -->
+  <p>Those product and service names identify compatibility only. IMPRESSIONSDIRECT360 LLC
+  and Dagric OS are not affiliated with, sponsored by, or endorsed by Valve, GOG, Epic Games,
+  Amazon, Heroic Games Launcher, Lutris, or their respective owners.</p>
+
+
   <p>One exception on that list is worth stating plainly: <strong>DRM playback</strong>. Netflix,
   Spotify, Disney+ and Amazon all need Google's Widevine module, so Firefox ships configured to
   allow it. The module is proprietary and is <em>not</em> on the disc image — Firefox downloads it
@@ -111,30 +93,66 @@
   would simply appear broken. Turn it off in <em>☰ → Settings → General → Play DRM-controlled
   content</em>, and it is never fetched.</p>
 
-  <p>
-  One honest exception, the same one Debian's own official media makes: redistributable closed-source
-  <em>device firmware and CPU microcode</em> (Wi-Fi chips, sound, security updates for your processor)
-  ship preinstalled from Debian's <code>non-free-firmware</code> area, because without them Wi-Fi and
-  audio simply don't work on real hardware. Every license text is on disk at
-  <code>/usr/share/doc/&lt;package&gt;/copyright</code>.</p>
+  <p><strong>Hardware-enablement exceptions.</strong> The published 1.0 images include non-open-source
+  device firmware and CPU microcode, Broadcom firmware installer packages, and the non-free
+  <code>libfishcamp1t64</code> and <code>libsbig4t64</code> astronomy-camera libraries. Future build
+  source disables live-build's broad automatic firmware scan and selects an explicit reviewed
+  firmware list. Every candidate still requires an artifact-derived inventory and human notice
+  review; the package manifest alone cannot identify files retrieved by an installer.</p>
 
-  <h2>Source code</h2>
-  <p>Every release publishes the exact package list it was built from — the free edition's
-  <a href="/manifest/dagric-os-1.0.packages">package manifest</a> and Pro's
-  <a href="/manifest/dagric-os-pro-1.0.packages">package manifest</a> — naming every component
-  and its precise version.</p>
-  <p>Source for each of those is available from
-  <a href="https://snapshot.debian.org/">snapshot.debian.org</a>, Debian's permanent archive,
-  which keeps every version ever published. (Debian's
-  <a href="https://www.debian.org/distrib/packages">current package archive</a> is easier to
-  browse but drops superseded versions at each point release, so the snapshot archive is the one
-  that will still answer for the versions we ship once they are no longer current.)</p>
-  <p>Per the GPL, we will also supply the corresponding source for any GPL-licensed component we
-  distribute, for at least three years — request it via the <a href="/contact">contact page</a>.
-  That includes the Dagric packages themselves (<code>dagric-tools</code>,
-  <code>dagric-branding</code>, <code>dagric-desktop-defaults</code> and
-  <code>dagric-security-policy</code>), which are GPL-3.0-or-later; each carries its licence at
-  <code>/usr/share/doc/&lt;package&gt;/copyright</code> on any installed machine.</p>
+  <h2 id="corresponding-source">Corresponding source and notices — release 1.0</h2>
+  <p>This is the source-and-notices route shown beside the held Free, Pro, and post-checkout
+  controls. It is pinned to the two 1.0 “Foundation” images in the
+  <a href="/manifest/release.json">release record</a>, not to whatever happens to be on a moving
+  branch.</p>
+  <p><strong>Dagric layer.</strong> The exact build source and Dagric modifications are at commit
+  <a href="https://github.com/Dagric/dagric-os/tree/3f19b305464b82478ce83db8d970a2abbf326cf9"><code>3f19b305464b82478ce83db8d970a2abbf326cf9</code></a>.
+  You can also download that commit's
+  <a href="https://github.com/Dagric/dagric-os/archive/3f19b305464b82478ce83db8d970a2abbf326cf9.tar.gz">source archive</a>
+  and inspect its pinned
+  <a href="https://github.com/Dagric/dagric-os/blob/3f19b305464b82478ce83db8d970a2abbf326cf9/LICENSES.md">release-time licensing map and source-offer notice</a>.</p>
+  <p><strong>Legal-document supplement.</strong> The 1.0 source commit did not contain root
+  <code>COPYING</code>, <code>LICENSE</code>, or <code>THIRD-PARTY-NOTICES.md</code> files. Those
+  documents were added after the release at documentation-only commit
+  <a href="https://github.com/Dagric/dagric-os/tree/2446b49c76ba13426ae6a4562cc0164286b78040"><code>2446b49c76ba13426ae6a4562cc0164286b78040</code></a>:
+  the <a href="https://github.com/Dagric/dagric-os/blob/2446b49c76ba13426ae6a4562cc0164286b78040/COPYING">complete GPL version 3 text</a>,
+  <a href="https://github.com/Dagric/dagric-os/blob/2446b49c76ba13426ae6a4562cc0164286b78040/LICENSE">Dagric repository licensing notice</a>, and
+  <a href="https://github.com/Dagric/dagric-os/blob/2446b49c76ba13426ae6a4562cc0164286b78040/THIRD-PARTY-NOTICES.md">third-party notice overview</a>.
+  This supplement documents the applicable terms; it is not presented as source used to build
+  the 1.0 images.</p>
+  <p><strong>Binary inventories.</strong> The Free
+  <a href="/manifest/dagric-os-1.0.packages">package manifest</a> and Pro
+  <a href="/manifest/dagric-os-pro-1.0.packages">package manifest</a> name each installed binary
+  package and version. The
+  <a href="/manifest/source-index-1.0.json">release-pinned source index</a> connects those
+  inventories, both ISO hashes, the Dagric commit, notices, official Debian source services, and
+  the exact-source retrieval procedure in one machine-readable record.</p>
+  <div class="note">
+    <p style="margin:0 0 10px"><strong>Exact binary-to-source map.</strong> The 1.0 record maps all
+    1,810 Free and 2,537 Pro binary package identities to the exact Dagric release commit or Debian
+    source package and version. Each Debian entry includes an archived <code>.dsc</code> locator,
+    its locally verified SHA-256, and every source-file SHA-256 listed by that signed control file.
+    Dagric-authored packages point to the release-commit source archive and its SHA-256.</p>
+    <p style="margin:0">Use the
+    <a href="/manifest/source-index-1.0.json">machine-readable source index</a> to retrieve and
+    verify a named component through
+    <a href="https://snapshot.debian.org/">Debian Snapshot</a>. The
+    <a href="/contact">contact page</a> remains available if you need help obtaining corresponding
+    source for a named image and package. Binary delivery and new sales remain paused while the
+    separate localization, trademark, rights-approval, physical-validation, and release-provenance
+    gates are completed.</p>
+  </div>
+  <p>Each installed package also carries its applicable copyright and licence notice at
+  <code>/usr/share/doc/&lt;package&gt;/copyright</code>. Dagric will supply corresponding source for
+  any GPL-covered component it conveys for the period required by the applicable licence, at no
+  further charge for network delivery. Source requests identify the edition, ISO filename, and
+  package so the response can stay release-exact.</p>
+
+  <h2>Reviews, screenshots and videos</h2>
+  <p>You may truthfully identify, review, criticize, or demonstrate Dagric OS. Open-source licences
+  do not automatically license documents, music, films, games, websites, or other content displayed
+  inside an application, and third-party product names remain their owners' trademarks. Do not imply
+  that IMPRESSIONSDIRECT360 LLC or an upstream project sponsors or endorses independent content.</p>
 
   <h2>Verifying releases</h2>
   <p>Every release publishes <a href="SHA256SUMS">SHA256SUMS</a>, a GPG
@@ -147,8 +165,17 @@
 </main>
 
 <footer><div class="foot">
-  <span>© 2026 DGR Operations · Built on Debian. Not affiliated with the Debian Project.</span>
+  <span>© 2026 IMPRESSIONSDIRECT360 LLC · Built on Debian. Not affiliated with the Debian Project.</span>
   <span class="links"><a href="/features">Features</a><a href="/pro">Pro</a><a href="/download">Download</a><a href="/news">News</a><a href="/guide">Guide</a><a href="/support">Support</a><a href="/faq">FAQ</a><a href="/accessibility">Accessibility</a><a href="/security">Security</a><a href="/bugs">Report a bug</a><a href="/contact">Contact</a><a href="/about">About</a><a href="/review">Reviewers</a><a href="/licenses">Licenses</a><a href="/privacy">Privacy</a><a href="/terms">Terms</a></span>
+  <div class="social-footer" role="navigation" aria-label="Dagric OS social media">
+    <strong>Follow Dagric OS</strong>
+    <a href="https://www.youtube.com/@DagricOS" target="_blank" rel="me noopener">YouTube</a>
+    <a href="https://www.tiktok.com/@dagricosofficial" target="_blank" rel="me noopener">TikTok</a>
+    <a href="https://www.instagram.com/dagricosofficial/" target="_blank" rel="me noopener">Instagram</a>
+    <a href="https://www.snapchat.com/@dagricos" target="_blank" rel="me noopener">Snapchat</a>
+    <a href="https://www.linkedin.com/in/dorien-richardson" target="_blank" rel="me noopener">LinkedIn</a>
+    <a href="https://github.com/Dagric/dagric-os" target="_blank" rel="me noopener">GitHub</a>
+  </div>
 </div></footer>
 </body>
 </html>

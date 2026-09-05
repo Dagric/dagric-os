@@ -18,12 +18,12 @@ tree (bug hunt + commercial-gap analysis).
   audacity, keepassxc, wine(+wine32), lutris, gamemode, mangohud, goverlay,
   timeshift, distrobox, docker.io, podman, kdeconnect, vorta, rclone,
   papirus-icon-theme
-  - **No Steam package ships in either edition, by design.** `steam-installer`
-    was bundled in the 2026-07-21 build this report originally covered; it was
-    removed in `e3e3eb8` (2026-07-25). Steam is now reachable only through the
-    `dagric-get-steam` consent helper, per the never-bundled mandate in
-    docs/EDITIONS.md. Verified: no `Package: *steam*` stanza in the dpkg status
-    of either ISO; `/usr/bin` carries only `dagric-get-steam`.
+  - **The proprietary Steam client does not ship in either edition.** The
+    published 1.0 package inventory does include Debian's open-source
+    `steam-devices` rules; the client itself is obtained only after the user
+    chooses `dagric-get-steam`, which uses Debian's `steam-installer` path and
+    presents Valve's terms. Do not interpret `steam-devices` as a bundled Steam
+    client.
 - firewalld kdeconnect service present; wallpaper `Image=Dagric` set correctly
 
 ## Review findings — triaged against the real image
@@ -39,7 +39,7 @@ REAL — fixed this session:
   Now mirrors container-build.sh (edition arg, /etc/dagric-edition, chmod).
 - SDDM login theme relied on Debian defaulting to breeze (works today, fragile).
   Added `/etc/sddm.conf.d/10-dagric.conf` with `Current=breeze`.
-- `dagric-gaming` wrote Proton-GE into `~/.steam/root` (a symlink Steam owns).
+- `dagric-gaming` wrote GE-Proton into `~/.steam/root` (a symlink Steam owns).
   Now uses `~/.local/share/Steam/compatibilitytools.d` and checks Steam ran.
 
 DEFERRED (defensive, not current bugs): Calamares rebrand filename-fragility

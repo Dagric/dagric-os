@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# SPDX-FileCopyrightText: 2026 DGR Operations <repo@dagric.com>
+# SPDX-FileCopyrightText: 2026 IMPRESSIONSDIRECT360 LLC <repo@dagric.com>
 # SPDX-License-Identifier: GPL-3.0-or-later
 """Extract po/ entries for review, apply reviewed translations, and guard the mechanics.
 
@@ -65,7 +65,7 @@ PO = os.path.join(ROOT, "po")
 # Tokens that are names, not words. Case-sensitive on purpose: "bottles" in a
 # sentence is a word, "Bottles" is the application.
 KEEP = [
-    "Dagric", "Debian", "KDE", "Plasma", "Steam", "Proton", "Proton-GE", "Bottles",
+    "Dagric", "Debian", "KDE", "Plasma", "Steam", "Proton", "GE-Proton", "Proton-GE", "Bottles",
     "Heroic", "Lutris", "Wine", "Ollama", "Flatpak", "Flathub", "GitHub", "NVIDIA",
     "BitLocker", "Wi-Fi", "Secure Boot", "UEFI", "BIOS", "NTFS", "exFAT", "btrfs",
     "Btrfs", "Windows", "Firefox", "Chrome", "Edge", "LibreOffice", "GIMP",

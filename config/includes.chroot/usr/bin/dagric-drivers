@@ -1,5 +1,5 @@
 #!/bin/sh
-# SPDX-FileCopyrightText: 2026 DGR Operations <repo@dagric.com>
+# SPDX-FileCopyrightText: 2026 IMPRESSIONSDIRECT360 LLC <repo@dagric.com>
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Dagric OS — proprietary driver setup, done honestly.
 # Detects an NVIDIA GPU and installs the driver from Debian's own
@@ -30,6 +30,8 @@ if lspci | grep -qi 'vga.*nvidia\|3d.*nvidia'; then
     # says, in words that do not assume the owner knows what Debian is. It is
     # not a euphemism: the non-free repository is exactly where it comes from,
     # and /licenses on the site names Debian as the upstream in full.
+    dg_say "NVIDIA driver and firmware license:"
+    printf '%s\n\n' 'https://www.nvidia.com/en-us/drivers/nvidia-license/linux/'
     printf '%s ' "$(gettext "Install NVIDIA's proprietary driver from the system's non-free repository? [y/N]")"
     read -r answer
     if dg_is_yes "$answer"; then

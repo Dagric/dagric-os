@@ -3,48 +3,29 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Download — Dagric OS</title>
-<meta name="description" content="Download Dagric OS free, or get Dagric OS Pro. System requirements, checksums, and GPG verification.">
+<title>Dagric OS Release Status | Source Availability</title>
+<meta name="description" content="Check Dagric OS release and corresponding-source availability before downloading or purchasing.">
 <link rel="icon" type="image/png" href="/assets/dagric-logo.png">
 <link rel="stylesheet" href="/assets/site.css">
 <style>
-/* The two download cards keep a bounded surface while the rest of the site went
-   to ruled entries: a boundary earns its ink where a reader is being asked to
-   compare two things and pick one. Pro is the filled one with a gold rule
-   across its top — the same mark the homepage price card and the compare
-   table's Pro column carry, so "gold means Pro" is one idea in three places. */
+
 .dl{display:grid;gap:var(--s-4);grid-template-columns:repeat(auto-fit,minmax(min(19rem,100%),1fr));margin:var(--s-5) 0}
 .dl .card{margin:0;background:var(--surface-2);border:1px solid var(--rule);
   border-radius:var(--r-md);padding:var(--s-5)}
 /* --pro-edge — see the identical note on index.html's .price.pro. */
 .dl .card.pro{background:var(--ink-1);border-color:var(--pro-edge);border-top:2px solid var(--pro)}
-/* The two download cards are h2, not h3. This page was the site's only heading-level
-   skip — its outline ran h1, h3, h3, h2, h2, h2, h2 — so a screen-reader user browsing
-   by heading dropped two levels into the two most important elements on the page and
-   heard the free/Pro choice announced as subsections of a heading that does not exist,
-   then climbed back up to "System requirements". The declarations below are not new
-   styling: they hold what h3 renders, because the shared h2 rule brings a tighter
-   line-height and a bigger size. Keep them if you touch this.
-   .dl h2 (0,1,1) outranks main h2 (0,0,2), so it wins on desktop and at the 640px
-   breakpoint alike. */
+
 .dl h2{font-size:var(--t-h3);font-weight:600;line-height:1.28;letter-spacing:-.005em;
   margin:0 0 var(--s-2);border-bottom:0;padding-bottom:0}
 .dl .meta{color:var(--on-3);font-size:var(--t-ui);margin:0 0 var(--s-4)}
-/* site.css drops .card.boxed to a tighter padding on phones, but `.dl .card` is
-   (0,2,0) and beats it from here, so the two cards that ARE this page kept
-   desktop padding on a 360px screen: 320px of card holding 250px of content.
-   These are the most important elements on the download page and they were the
-   most cramped. Measured at 360px: card content 250 -> 278px (+11%).
-   The .strip frame that used to sit at the bottom of this block has moved into
-   site.css, where `.shot,.strip` is now one rule for all real screenshots.
-   Redeclaring it here fixed this page but left three copies with three different
-   shadows across three files, and only the homepage kept the accent ring. */
+
 @media(max-width:640px){
   .dl{gap:var(--s-3);margin:var(--s-4) 0}
   .dl .card{padding:var(--s-4)}
 }
 </style>
 <link rel="canonical" href="https://dagric.com/download">
+<link rel="search" type="application/opensearchdescription+xml" title="Search Dagric OS" href="/opensearch.xml">
 <meta name="theme-color" content="#0C0F14">
 <script src="/assets/theme.js"></script>
 <link rel="icon" href="/favicon.ico" sizes="32x32">
@@ -52,15 +33,15 @@
 <link rel="manifest" href="/site.webmanifest">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Dagric OS">
-<meta property="og:title" content="Download — Dagric OS">
-<meta property="og:description" content="Download Dagric OS free, or get Dagric OS Pro. System requirements, checksums, and GPG verification.">
+<meta property="og:title" content="Dagric OS Release Status | Source Availability">
+<meta property="og:description" content="Check Dagric OS release and corresponding-source availability before downloading or purchasing.">
 <meta property="og:url" content="https://dagric.com/download">
 <meta property="og:image" content="https://dagric.com/assets/hero-desktop.png">
 <meta property="og:image:width" content="1920">
 <meta property="og:image:height" content="1080">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Download — Dagric OS">
-<meta name="twitter:description" content="Download Dagric OS free, or get Dagric OS Pro. System requirements, checksums, and GPG verification.">
+<meta name="twitter:title" content="Dagric OS Release Status | Source Availability">
+<meta name="twitter:description" content="Check Dagric OS release and corresponding-source availability before downloading or purchasing.">
 <meta name="twitter:image" content="https://dagric.com/assets/hero-desktop.png">
 </head>
 <body>
@@ -69,27 +50,27 @@
   <a class="brand" href="/"><img src="/assets/dagric-logo.png" alt="" width="30" height="30">Dagric&nbsp;OS</a>
   <div class="nav-links">
     <a href="/features">Features</a><a href="/pro">Pro</a><a href="/about">About</a>
-    <a href="/guide">Guide</a><a href="/support">Support</a>
+    <a href="/guide">Guide</a><a href="/support">Support</a><a href="/search">Search</a>
     <a class="cta" href="/download">Download</a>
   </div>
 </div></nav>
 
-<!-- This page opened on a bare <h1> at the top of an 820px document column —
-     the same shell privacy.html uses, on the page where money changes hands.
-     It uses the shared .phero now, nested inside <main> so href="#main" still
-     lands ABOVE the headline rather than below it. main.wide because the two
-     edition cards, the installer capture and the walkthrough all want more than
-     820px; the prose under them keeps its own measure. -->
+
 <main id="main" class="wide">
-  <!-- The inline padding override that used to sit here is gone: site.css's
-       `main.wide > .phero` now owns it, so this page and /features open on the
-       same measured rhythm instead of on two different hand-patches. -->
+
   <header class="phero">
-    <h1>Get <span class="grad">Dagric OS.</span></h1>
-    <p class="lead">Both editions are full 64-bit systems you can try live from USB before
-    installing. New to this? The <a href="/getting-started">step-by-step guide</a> takes you from
-    download to desktop in about 20 minutes.</p>
+    <h1>Release <span class="grad">status.</span></h1>
+    <p class="lead">Dagric OS downloads and new Pro sales are temporarily paused while the
+    remaining localization, trademark, rights, physical-validation, and release-provenance gates
+    are completed and independently reviewed.</p>
   </header>
+
+  <div class="note"><strong>No purchase is needed right now.</strong> See the
+  <a href="/licenses#corresponding-source">source and release status</a> for the completed source map
+  and remaining limitations.
+  Existing customers can use <a href="/contact">contact</a> for delivery, support, cancellation,
+  or any refund remedy that applies to their order. This hold will be lifted only after the release
+  gate passes.</div>
 
   <div class="note"><strong>Here to help test Dagric?</strong> Boot the USB first, run
   <strong>Check This PC</strong>, and use the <a href="/testers">community tester guide</a> to
@@ -99,42 +80,26 @@
     <div class="card">
       <h2>Dagric OS</h2>
       <div class="meta">Free forever · 2.1 GB ISO · the lean, private daily driver</div>
-      <a class="btn primary" href="https://pub-23bebbd32e3b44c4af6e53c06194e77f.r2.dev/dagric-os-1.0-amd64.iso">Download free</a>
-      <!-- The Pro card had a refund line and a delivery line under its button; this one had nothing,
-           so the ungated download — the thing this product is proudest of — was the one promise not
-           made at the moment it matters. People arrive expecting an email wall in front of a 2 GB
-           file. It is true and checkable one line above: the href is a direct R2 object, no form, no
-           sign-up, no address. Same .refund class as the Pro card so both buttons read as equally
-           supported. -->
-      <p class="refund">No account, no email address — the button is the download</p>
+      <span class="btn primary" role="link" aria-disabled="true">Download temporarily paused</span>
+      <p class="refund"><a href="/licenses#corresponding-source">Corresponding-source status and notices</a> · release 1.0</p>
     </div>
     <div class="card pro">
       <h2>Dagric OS <span class="grad">Pro</span></h2>
       <div class="meta">$39 one-time · 3.9 GB ISO · creative + gaming + dev + Windows apps</div>
-      <a class="btn primary" href="https://buy.stripe.com/6oU5kwbye2Jogri31D8k809">Buy &amp; download — $39</a>
-      <p class="refund">Downloadable software · sales final once download begins</p>
-      <p class="refund">Completing checkout accepts the <a href="/terms">sale terms</a>.
-      See <a href="/privacy">privacy</a> for Stripe and download-gate data.</p>
-      <div class="meta" style="margin:10px 0 0">Instant delivery after checkout · <a href="/pro">what's inside →</a></div>
+      <span class="btn primary" role="link" aria-disabled="true">New sales temporarily paused</span>
+      <p class="refund"><a href="/licenses#corresponding-source">Corresponding-source status and notices</a> · release 1.0</p>
+      <div class="meta" style="margin:10px 0 0"><a href="/contact">Existing-customer help</a> · <a href="/pro">what's inside →</a></div>
     </div>
   </div>
 
-  <!-- The two cards gave a price and an ISO size and then changed the subject to
-       system requirements, so the page that exists to make this choice offered nothing
-       to choose with. The note below used to warn that the choice was consequential
-       (no in-place upgrade); that has since inverted — free upgrades to Pro in place
-       from the Dagric Hub, and the note now says so. Same wording as / and /faq so the
-       three decision points cannot drift apart again.
-       Nothing below is a new claim — the free list is index.html's own pricing card,
-       the upgrade sentence is faq.html verbatim, and $1,000+/yr LINKS to /pro rather
-       than restating the number, so the "Honest math" caveat stays attached to it. -->
+
   <div class="note">
     <p style="margin:0 0 10px"><strong>Not sure which one?</strong> Free is the whole private,
     hardened desktop — zero telemetry, snapshot rollback on the default btrfs install, updates that install themselves and never
     reboot you, Writer/Calc/Impress/Draw, and one-click Steam, Heroic, Bottles and Ollama. Pro is
     that same system with the creative studio, the tuned Wine and gaming runtime, the developer
     stack and all seven layouts already installed and tested — the subscriptions that lot replaces
-    <a href="/pro">run past $1,000 a year</a>.</p>
+    <a href="/pro">can replace paid tools for some workflows</a>.</p>
     <p style="margin:0">One thing worth knowing before you pick: <strong>you can't pick
     wrong</strong>. A free install upgrades to Pro in place whenever you're ready — buy Pro, open
     the <strong>Dagric Hub</strong>, pick <em>Upgrade to Pro</em>, paste the code from your receipt,
@@ -143,18 +108,7 @@
     are final.</p>
   </div>
 
-  <!-- A real capture of the installer, taken from this ISO booted in UEFI mode
-       in the QEMU harness. It belongs on THIS page because the unspoken worry
-       between "download" and "install" is "how hard is this going to be, and
-       will I break my computer" — and the honest answer is a seven-step wizard
-       that names every step up front.
 
-       It also happens to be proof the rebranding actually works on the shipped
-       image rather than only in config/: the window is "Dagric OS Installer",
-       the heading is "Welcome to the Dagric OS 1.0 (Foundation) installer", the
-       links are Dagric Support and Release notes, and the word Debian does not
-       appear anywhere in the frame. That was previously only verifiable by
-       reading 0500-desktop-defaults.hook.chroot and believing it. -->
   <h2>What installing looks like</h2>
   <p>Seven steps, and it tells you all of them before it starts. Nothing is written to your
   disk until the <strong>Summary</strong> step, where you confirm — you can back out of every
@@ -167,14 +121,7 @@
            width="1280" height="800" loading="lazy" decoding="async">
     </picture>
   </div>
-  <!-- assets/shot-partitions.png has been in the tree unreferenced by any of the
-       sixteen pages. It belongs here and nowhere else: the paragraph above it
-       says nothing is written to your disk until the Summary step, and this is
-       the step before it — the seven-step rail with Partitions selected, the
-       Erase disk and Manual partitioning choices, and the before/after disk
-       bars. A real capture from the QEMU harness, same run as the still above.
-       The alt text describes what is visible in the frame and asserts nothing
-       else; alt text that states a fact is content. -->
+
   <div class="strip">
     <picture>
       <source type="image/webp" srcset="/assets/shot-partitions.webp">
@@ -184,41 +131,10 @@
     </picture>
   </div>
 
-  <!-- The still above answers "what does it look like"; this answers the
-       question that actually stops the download, which is "what happens to my
-       computer, and at which point can I no longer undo it". Every frame is a
-       real capture from a real install in the QEMU harness — the hardware
-       check, the live desktop, all seven installer screens, the first-run
-       wizard and the finished desktop, in order. Nothing is a mockup, which is
-       the only reason it is worth watching.
-
-       Same markup as the tour on /features and for the same reasons: controls,
-       preload="none" so a 5.8 MB file is never fetched by somebody who came
-       here to click Download, playsinline so iOS does not take over the
-       screen, and no autoplay of any kind. width/height are the real 1920x1080
-       so the box is reserved before the poster loads and the page does not
-       jump — site.css's img,video rule supplies height:auto, which is what
-       stops those attributes rendering it 720px tall on a phone.
-
-       The poster is a JPEG, not the PNG the still renderer produced. A poster
-       IS fetched even under preload="none" — it is the only part of the video
-       everyone downloads, including everyone who never presses play — and the
-       PNG was 322 KB against 82 KB here for a photographic frame nobody can
-       tell apart at 770px. <video poster> takes no <source> fallback, so this
-       has to be one universally decodable file rather than a WebP with an
-       alternative. -->
-  <div class="strip">
-    <video controls preload="none" playsinline width="1920" height="1080"
-           poster="/assets/walkthrough-poster.jpg" style="width:100%;display:block"
-           aria-label="A 47-second walkthrough of installing Dagric OS, recorded from a real install">
-      <source src="/assets/dagric-install-walkthrough.mp4" type="video/mp4">
-      Your browser can't play this video. It is a 47-second walkthrough of the
-      install — every step in it is described in the text on this page and in
-      the <a href="/getting-started">step-by-step guide</a>.
-    </video>
-  </div>
-  <p class="refund">47 seconds, no narration &mdash; every screen is a real
-  capture, not a mockup.</p>
+  <div class="note"><strong>Want the full sequence before touching a disk?</strong> The
+  <a href="/getting-started">step-by-step installation guide</a> shows every decision, including
+  backup, USB creation, live testing, partitioning, confirmation, and first boot. We removed the
+  older edited montage because it did not meet the site's new continuous-footage standard.</div>
 
   <h2>System requirements</h2>
   <ul>
@@ -231,18 +147,7 @@
     your own machine fares before you install.</li>
   </ul>
 
-  <!-- The spec list above was the site's entire answer to "will this run on MY PC?",
-       and a spec list cannot answer it: a 2014 laptop meets every line and can still
-       have a Wi-Fi chip with no firmware on the disc. The product already answers it
-       properly and the site never said so — dagric-hardware-check ships on both
-       editions, and 2010-dagric-hwcheck-icon puts "Check This PC" on the live desktop
-       beside the installer precisely because the tool is worth nothing if it is found
-       AFTER the install. Leaving it unmentioned hid the strongest risk-reversal this
-       product has from everyone who had not already installed.
-       Every claim below is the tool's own behaviour, not marketing: the list of areas
-       is its section headings, "nothing is changed" is its header ("It mounts nothing,
-       unlocks nothing") and its closing line, and "you can install with confidence" is
-       its verbatim all-clear. -->
+
   <h2 id="h-check">Not sure it will work on <em>your</em> PC? Find out before you install.</h2>
   <p>A spec list can't tell you whether your Wi-Fi card has a driver. So every Dagric USB stick
   puts <strong>Check This PC</strong> on the live desktop, right beside the installer — click that
@@ -255,25 +160,8 @@
 
   <h2 id="h-verify-download">Verify your download</h2>
   <p>Don't skip this for installs that matter — it proves your ISO is byte-for-byte what we built.</p>
-  <!-- No checksums are printed inline on this page, deliberately.
-       There used to be a copy here and a second copy in index.html, both transcribed by
-       hand, and both drifted out of step with the signed SHA256SUMS sitting right beside
-       them - three published copies carrying two different values for the same file. A
-       buyer who followed these very instructions got a MISMATCH, which reads as a corrupt
-       or tampered download rather than as a stale web page, on a product they paid for.
-       SHA256SUMS is now the only published source, because one copy of a checksum cannot
-       disagree with itself, and it is the copy the signature actually covers. -->
-  <!-- tabindex+role+a name, matching the .tablewrap wrappers on /index and
-       /accessibility. site.css gives every <pre> overflow-x:auto, and measured
-       at a 320px viewport this block is 296px of content in a 278px box: 18px
-       of horizontal scroll, on the three commands that prove the ISO is what
-       we built. An overflow container is not keyboard-focusable in Chrome
-       without tabindex, so a reader using only a keyboard could not scroll to
-       the end of `gpg --verify SHA256SUMS.sig SHA256SUMS` at all (WCAG 2.1.1),
-       and without role+name a screen reader announces the scroll region as
-       nothing (WCAG 1.3.1, 4.1.2). aria-labelledby points at the section's own
-       h2 rather than carrying an aria-label, so the name is text that is
-       already on the page and no new wording is introduced. -->
+
+
   <pre tabindex="0" role="region" aria-labelledby="h-verify-download"><code>gpg --import dagric-signing-key.asc
 gpg --verify SHA256SUMS.sig SHA256SUMS
 sha256sum -c SHA256SUMS</code></pre>
@@ -283,14 +171,23 @@ sha256sum -c SHA256SUMS</code></pre>
   the matching line in <a href="SHA256SUMS">SHA256SUMS</a>.</p>
 
   <h2>Already bought Pro?</h2>
-  <p>Your download link lives on your post-purchase page — open the link from your Stripe receipt
-  (it re-downloads anytime and resumes if interrupted). Trouble? <a href="/support">Support</a> has
-  you.</p>
+  <p>Distribution is paused for existing links too. Your purchase record remains intact. Use
+  <a href="/contact">contact</a> or <a href="/support">support</a> for delivery questions,
+  cancellation, or any refund remedy that applies to your order.</p>
 </main>
 
 <footer><div class="foot">
-  <span>© 2026 DGR Operations · Built on Debian. Not affiliated with the Debian Project.</span>
+  <span>© 2026 IMPRESSIONSDIRECT360 LLC · Built on Debian. Not affiliated with the Debian Project.</span>
   <span class="links"><a href="/features">Features</a><a href="/pro">Pro</a><a href="/download">Download</a><a href="/news">News</a><a href="/guide">Guide</a><a href="/support">Support</a><a href="/faq">FAQ</a><a href="/accessibility">Accessibility</a><a href="/security">Security</a><a href="/bugs">Report a bug</a><a href="/contact">Contact</a><a href="/about">About</a><a href="/review">Reviewers</a><a href="/licenses">Licenses</a><a href="/privacy">Privacy</a><a href="/terms">Terms</a></span>
+  <div class="social-footer" role="navigation" aria-label="Dagric OS social media">
+    <strong>Follow Dagric OS</strong>
+    <a href="https://www.youtube.com/@DagricOS" target="_blank" rel="me noopener">YouTube</a>
+    <a href="https://www.tiktok.com/@dagricosofficial" target="_blank" rel="me noopener">TikTok</a>
+    <a href="https://www.instagram.com/dagricosofficial/" target="_blank" rel="me noopener">Instagram</a>
+    <a href="https://www.snapchat.com/@dagricos" target="_blank" rel="me noopener">Snapchat</a>
+    <a href="https://www.linkedin.com/in/dorien-richardson" target="_blank" rel="me noopener">LinkedIn</a>
+    <a href="https://github.com/Dagric/dagric-os" target="_blank" rel="me noopener">GitHub</a>
+  </div>
 </div></footer>
 </body>
 </html>

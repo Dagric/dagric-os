@@ -41,6 +41,12 @@ name = "dagric-gate"
 main = "gate-worker.js"
 compatibility_date = "2026-01-01"
 
+# Fail closed until the exact candidate source map and human legal/IP approvals
+# pass the commercial-release gate. Setting this to true is a deliberate release
+# operation, never an incidental code deploy.
+[vars]
+DISTRIBUTION_ENABLED = "false"
+
 # The PRIVATE bucket. dagric-downloads is the PUBLIC one and holds only the free
 # ISO and the checksums; the Pro ISO must never be placed there, which is the
 # entire reason this worker exists.
@@ -64,6 +70,7 @@ name = "dagric-gate-staging"
 
 [env.staging.vars]
 STAGING_PRICE_PRO = "price_1UA1yR6lZx4VOIr3kR4YQCJ0"
+DISTRIBUTION_ENABLED = "false"
 
 [[env.staging.r2_buckets]]
 binding = "PRO"
@@ -86,21 +93,22 @@ id = "a6a999aa328c4f46883508ddeee45ef2"
 binding = "LICENSE"
 id = "689804cc1ed64a8686c55eae693aed47"
 
-# A KV counter cannot HARD-stop a deliberate parallel burst — read-modify-write
-# is not atomic and KV is eventually consistent, so a scripted fan-out on one
-# leaked session can overshoot every budget in the worker. The worker's budgets
-# are the backstop; the THROTTLE is a Cloudflare rate-limiting rule on this
-# route, which must be added in the dashboard once (it is not expressible here):
-#
-#   Security -> WAF -> Rate limiting rules, on dagric-gate.dagric.workers.dev:
-#     match:  URI Query contains "session_id="
-#     count:  by the session_id value if available, else client IP
-#     limit:  ~60 requests / 10s  ->  Block (or Managed Challenge)
-#
-# Sixty requests in ten seconds is far above a browser resuming a download or
-# the upgrade tool's handful of calls, and far below what a distribution script
-# needs. The gated payload is free software either way, so this protects egress,
-# not a sale — do not over-tune it into blocking a real customer on hotel Wi-Fi.
+# Enforce the gate throttle with the Worker deployment itself. The key is the
+# verified-looking Checkout Session value, so one leaked purchase link is
+# bounded even when requests arrive from many IP addresses. Honest browsers and
+# the in-place upgrade make only a handful of calls; sixty in ten seconds leaves
+# substantial room for parallel range requests and download-manager retries.
+[[unsafe.bindings]]
+name = "RATE_LIMIT"
+type = "ratelimit"
+namespace_id = "1002"
+simple = { limit = 60, period = 10 }
+
+# A KV counter cannot hard-stop a deliberate parallel burst — read-modify-write
+# is not atomic and KV is eventually consistent. RATE_LIMIT above is the hard
+# throttle; the worker's byte and fetch budgets remain the durable backstop.
+# The gated payload is free software either way, so this protects egress rather
+# than restricting lawful use. Do not tighten it into blocking a real customer.
 
 # ── the contact-form backend ────────────────────────────────────────────────
 # Deployed separately:  wrangler deploy --config infra/wrangler.toml --env contact

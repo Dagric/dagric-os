@@ -1,5 +1,5 @@
 #!/bin/sh
-# SPDX-FileCopyrightText: 2026 DGR Operations <repo@dagric.com>
+# SPDX-FileCopyrightText: 2026 IMPRESSIONSDIRECT360 LLC <repo@dagric.com>
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Dagric OS — the Hub. One friendly place that gathers every owner tool
 # (drivers, setup, security, guide, and the Pro creator/gaming/AI helpers)
@@ -133,7 +133,7 @@ set -- "$@" \
     steam       "      Steam" \
     heroic      "      $(gettext "Heroic — Epic, GOG, Amazon")" \
     protonup    "      ProtonUp-Qt" \
-    gaming      "      $(gettext "Proton-GE for Steam")" \
+    gaming      "      $(gettext "GE-Proton for Steam")" \
     bottles     "      $(gettext "Windows apps — Bottles")" \
     onlyoffice  "      $(gettext "Office suite — ONLYOFFICE")" \
     joplin      "      $(gettext "Private notes — Joplin")" \
@@ -152,11 +152,11 @@ set -- "$@" \
 # This block used to hold all fourteen helpers. That shipped a free edition
 # which DOCUMENTED Steam, Bottles, Heroic and Resolve in its own manual and
 # then offered no way to reach any of them — the exact "free feels broken"
-# failure the project forbids — while the thing being gated was a script that
-# runs `apt install steam`. Steam is free; gating the convenience of installing
-# it behind $39 protected no revenue and made the gate look petty. Pro's value
-# is that the creator and gaming stacks are already installed and tuned, not
-# that free users are forbidden to download things.
+# failure the project forbids — while the thing being gated was an optional
+# helper. Steam's client is proprietary and acquired under Valve's terms; the
+# helper itself is not a defensible edition boundary. Pro's value is that the
+# creator and gaming stacks are already installed and tuned, not that free
+# users are forbidden to obtain optional applications.
 if [ "$EDITION" = "pro" ]; then
     set -- "$@" \
         _windows "$(gettext "──  Windows and security  ─────────")" \

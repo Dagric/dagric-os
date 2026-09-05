@@ -1,16 +1,21 @@
 #!/bin/sh
-# SPDX-FileCopyrightText: 2026 DGR Operations <repo@dagric.com>
+# SPDX-FileCopyrightText: 2026 IMPRESSIONSDIRECT360 LLC <repo@dagric.com>
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Dagric OS — install Heroic Games Launcher, on request.
-# Heroic (GPL-3.0) is the open-source launcher for Epic Games, GOG, and
-# Amazon Prime Gaming libraries — the natural companion to Steam on Pro.
+# Heroic (GPL-3.0) is an independent open-source launcher supporting Epic
+# Games Store, GOG and Amazon Games accounts. It is not an official client of
+# those providers and compatibility with their services can change.
 # Installed from the already-enabled Flathub as a per-user Flatpak (no root).
 . /usr/bin/dagric-i18n.sh
 
 dg_say "$(gettext "Dagric — install Heroic Games Launcher
 
-Heroic is a free, open-source launcher for your Epic Games, GOG, and Amazon
-Prime Gaming libraries, with Proton/Wine built in. It installs from Flathub.")"
+Heroic is an independent, open-source launcher supporting Epic Games Store,
+GOG and Amazon Games accounts. It supports Wine and Proton for compatible
+Windows titles and installs from Flathub.
+
+Heroic is not official or endorsed by those providers. Compatibility varies,
+and provider, game and optional runtime terms still apply.")"
 
 dg_live_warn
 printf '\n%s ' "$(gettext "Install Heroic now? [y/N]")"

@@ -13,6 +13,7 @@
 <link rel="alternate" hreflang="it" href="https://dagric.com/guide/it">
 <link rel="alternate" hreflang="pt-br" href="https://dagric.com/guide/pt-br">
 <link rel="alternate" hreflang="x-default" href="https://dagric.com/guide">
+<meta name="description" content="Le guide fourni dans Dagric OS : venir de Windows, le premier jour, imprimantes, Wi-Fi, raccourcis clavier, programmes Windows et que faire quand quelque chose ne va pas.">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Guide de Dagric OS — votre première semaine">
 <meta property="og:description" content="Le guide fourni dans Dagric OS : venir de Windows, le premier jour, imprimantes, Wi-Fi, raccourcis clavier, programmes Windows et que faire quand quelque chose ne va pas.">
@@ -88,11 +89,7 @@
       <a lang="pt-BR" hreflang="pt-BR" href="/guide/pt-br">Português (Brasil)</a>
     </div>
 
-    <!-- Deux choses à savoir avant de lire la suite. Elles sont ici, en haut,
-         et non en petits caractères, parce qu'autrement personne ne les
-         trouve. Le second paragraphe dit ce qui est en français et ce qui ne
-         l'est pas : un guide qui nomme un libellé inexistant est pire qu'un
-         guide resté en anglais. -->
+
     <div class="langnote">
       <p><strong>À propos de la version française.</strong> Ce guide et la page d'accueil sont traduits
       de l'anglais et n'ont pas encore été relus par une personne dont le
@@ -118,15 +115,7 @@
       <p class="sub">Tout ce qu'il vous faut pour votre première semaine. Cette page fonctionne hors ligne.</p>
     </header>
 
-    <!-- Les deux sections avec lesquelles un nouveau venu arrive vraiment :
-         « où est passé tout ce que je connais ? » et « je fais quoi
-         d'abord ? ». Elles sont avant tout le reste parce que ce sont les
-         questions posées avant que les autres sections aient un sens. Le
-         tableau est un vrai <table> — un lecteur d'écran lit chaque ligne
-         comme un couple nom-Windows/nom-Dagric, et Ctrl+F comme la recherche
-         de la barre latérale en voient chaque mot. La colonne de gauche donne
-         les TERMES DU WINDOWS FRANÇAIS (Panneau de configuration, Corbeille,
-         Explorateur), car ce sont les mots avec lesquels on cherche ici. -->
+
     <section id="windowsmap"
       data-syn="menu démarrer demarrer explorateur de fichiers panneau de configuration paramètres parametres gestionnaire des tâches taches edge bloc-notes notepad paint photos outil capture snipping presse-papiers corbeille defender antivirus cmd powershell invite de commandes word excel powerpoint outlook ce pc onedrive">
       <h2>Vous venez de Windows ? Tout est encore là</h2>
@@ -499,14 +488,7 @@
         <a href="#manual">manuel</a> lui consacre une page.</p>
       </div>
 
-      <!-- PAS réservé à Pro, et la première version de ce conseil l'affirmait à
-           tort. snapper et grub-btrfs sont dans system.list.chroot, c'est-à-dire
-           la liste GRATUITE ; Pro n'ajoute par-dessus que l'interface planifiée
-           de Timeshift. Dire à un propriétaire de l'édition gratuite qu'il n'a
-           aucun retour arrière — au moment précis où une mise à jour vient de
-           casser sa machine — c'est la règle « le gratuit ne doit jamais se
-           lire comme cassé » qui échoue au pire endroit possible. Voir le
-           commentaire de la version anglaise. -->
+
       <div class="tip">Si une mise à jour ou une expérience laisse un jour le
       système vraiment mal en point, redémarrez et choisissez l'entrée
       <strong>snapshots</strong> (instantanés) dans le menu de démarrage. Sur
@@ -566,12 +548,14 @@
       <h2>Exécuter des programmes Windows</h2>
       <p>Pour les jeux, installez <strong>Steam</strong> en un clic depuis le
       Dagric Hub (il n'est jamais fourni d'office), puis activez Proton dans
-      Paramètres → Compatibilité. <strong>Heroic</strong> couvre Epic, GOG et
-      Amazon, et la commande <code>dagric-gaming</code> ajoute la version
-      communautaire Proton-GE. Pour les logiciels Windows ordinaires,
+      Paramètres → Compatibilité. <strong>Heroic</strong> est un lanceur indépendant
+      pour les comptes Epic Games Store, GOG et Amazon Games, et la commande
+      <code>dagric-gaming</code> ajoute la version
+      communautaire GE-Proton. Pour les logiciels Windows ordinaires,
       <strong>Bottles</strong> — également en un clic depuis le Hub — garde
-      chaque programme dans son propre conteneur bien rangé. Tout cela
-      fonctionne dans les deux éditions.</p>
+      chaque programme dans son propre environnement Wine, qui n'est pas un bac
+      à sable de sécurité. Ces aides facultatives sont disponibles dans les deux
+      éditions ; la compatibilité varie selon l'application, le jeu et le service.</p>
       <p><strong>Sur Pro</strong> <span class="pro">PRO</span>, la couche
       d'exécution sous-jacente est déjà installée et réglée : Wine exécute
       beaucoup de fichiers <code>.exe</code> d'un double clic, et GameMode,
@@ -612,7 +596,7 @@
         <div class="helper-row"><code>dagric-migrate</code><span>récupérer les fichiers de Windows</span></div>
         <div class="helper-row"><code>dagric-get-resolve</code><span>DaVinci Resolve</span></div>
         <div class="helper-row"><code>dagric-ai</code><span>IA locale et privée</span></div>
-        <div class="helper-row"><code>dagric-gaming</code><span>Proton-GE</span></div>
+        <div class="helper-row"><code>dagric-gaming</code><span>GE-Proton</span></div>
         <div class="helper-row"><code>dagric-vm</code><span>machines virtuelles, Pro</span></div>
       </div>
     </section>

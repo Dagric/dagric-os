@@ -220,7 +220,7 @@ meta() {                                  # PKGNAME TITLE
         "Id": "$1",
         "Name": "$2",
         "License": "CC-BY-SA-4.0",
-        "Authors": [ { "Name": "DGR Operations" } ]
+        "Authors": [ { "Name": "IMPRESSIONSDIRECT360 LLC" } ]
     }
 }
 EOF

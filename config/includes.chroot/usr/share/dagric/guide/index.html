@@ -154,7 +154,7 @@
           <tr><th scope="row">Recycle Bin</th>
               <td><strong>Trash</strong> — in the Files sidebar</td></tr>
           <tr><th scope="row">Defender / antivirus</th>
-              <td>built in: the <strong>firewall is on</strong> from the first boot and apps are confined. Nothing extra to buy, nothing nagging you to renew</td></tr>
+              <td>built in: the <strong>firewall is on</strong> from the first boot, with documented AppArmor coverage for selected system services. Keep the system and browser updated and use normal care with downloads; this is not a replacement for malware scanning</td></tr>
           <tr><th scope="row">Word / Excel / PowerPoint</th>
               <td><strong>LibreOffice</strong> Writer / Calc / Impress — opens and saves the same files</td></tr>
           <tr><th scope="row">Outlook</th>
@@ -274,7 +274,7 @@
       <h2>Installing apps</h2>
       <p>Open the <strong>Software Store</strong> (the bag icon in the taskbar —
       it is called Discover underneath, and that name still finds it). Search,
-      click Install, done. Everything is free, checked, and removable. Removing
+      click Install, done. Repository details and permissions are shown before installation, and installed apps are removable. Flathub includes both open-source and proprietary software, so review the publisher, permissions, licence, and source before you install. Removing
       an app actually removes it — nothing comes back on its own.</p>
     </section>
 
@@ -658,18 +658,20 @@
       else.</p>
       <p>For games, install <strong>Steam</strong> with one click from the Dagric
       Hub (it is never bundled), then enable Proton under Settings →
-      Compatibility. <strong>Heroic</strong> covers Epic, GOG and Amazon, and
-      the <code>dagric-gaming</code> command adds the community Proton-GE build.
+      Compatibility. <strong>Heroic</strong> is an independent launcher supporting
+      Epic Games Store, GOG and Amazon Games accounts, and
+      the <code>dagric-gaming</code> command adds the community GE-Proton build.
       For ordinary Windows software, <strong>Bottles</strong> — also one click
-      from the Hub — keeps each program in its own tidy container. All of that
-      works on either edition.</p>
+      from the Hub — keeps each program in a separate Wine environment, not a
+      security sandbox. Those optional helpers are available on either edition;
+      compatibility varies by application, title and online service.</p>
       <p><strong>On Pro</strong> <span class="pro">PRO</span> the runtime
       underneath is already installed and tuned: Wine runs many
       <code>.exe</code> files on a double-click, and GameMode, MangoHud, Lutris
       and 32-bit Vulkan are in place for games. And for the rare app that will
       not run under Wine at all, <strong>Windows in a window</strong>: pick it in
       the Hub (<code>dagric-vm</code>) to enable virtual machines and run real
-      Windows safely inside Dagric.</p>
+      licensed Windows inside Dagric.</p>
     </section>
 
     <section id="phone" data-syn="android iphone kde connect notifications sms">
@@ -707,7 +709,7 @@
         <div class="helper-row"><code>dagric-migrate</code><span>bring files from Windows</span></div>
         <div class="helper-row"><code>dagric-get-resolve</code><span>DaVinci Resolve</span></div>
         <div class="helper-row"><code>dagric-ai</code><span>private local AI</span></div>
-        <div class="helper-row"><code>dagric-gaming</code><span>Proton-GE</span></div>
+        <div class="helper-row"><code>dagric-gaming</code><span>GE-Proton</span></div>
         <div class="helper-row"><code>dagric-vm</code><span>virtual machines, Pro</span></div>
       </div>
     </section>

@@ -34,7 +34,7 @@
         <a href="tool-dagric-security-checkup.html">Security Checkup</a>
         <a href="tool-dagric-usb-protect.html">USB Protection</a>
         <a href="tool-dagric-vm.html">Windows in a window (VM setup)</a>
-        <a href="tool-dagric-gaming.html">Proton-GE helper</a>
+        <a href="tool-dagric-gaming.html">GE-Proton helper</a>
         <a href="tool-dagric-ai.html" class="active">Local AI (Ollama)</a>
         <a href="tool-dagric-manual.html">This manual</a>
         <a href="tool-dagric-background.html">Helpers that run by themselves</a>
@@ -48,7 +48,7 @@
     <header class="hero">
       <div class="eyebrow">Dagric&#x27;s own tools</div>
       <h1>Local AI (Ollama)<span class="pill add" title="Not preinstalled — Dagric installs it for you when you ask">ADD-ON</span></h1>
-      <p class="sub">Run a large language model on your own hardware, offline, with nothing sent anywhere.</p>
+      <p class="sub">Run a downloaded language model on your own hardware, with prompts and inference kept on this computer.</p>
     </header>
 
     <div class="swap"><span>On Windows this was</span><strong>ChatGPT and Copilot &mdash; on your machine, without the account</strong></div>
@@ -57,9 +57,9 @@
     <section>
       <h2>What it is</h2>
       <p><strong>Ollama</strong> downloads and runs large language models on this
-      computer. The model file lives on your disk, the computation happens on your
-      processor or graphics card, and <strong>nothing is sent anywhere</strong>. It
-      works with the network unplugged.</p>
+      computer. The model file lives on your disk, and after the model is downloaded,
+      prompts and inference stay on your processor or graphics card. Installed models
+      work with the network unplugged.</p>
       <p>That is the entire pitch. A local model is not as capable as the largest
       hosted ones, and in exchange nobody is reading your prompts, keeping them, or
       training on them.</p>
@@ -70,11 +70,12 @@
       <p>Dagric Hub &rarr; <strong>Local AI &mdash; Ollama</strong>, launcher &rarr;
       <em>Local AI Setup</em>, or <code>dagric-ai</code>. A terminal window explains
       what Ollama is and asks yes or no.</p>
-      <p>Be aware of what &ldquo;yes&rdquo; means here: it downloads and runs the
-      official installer script from <code>ollama.com</code>. That is outside Debian's
-      archive, so it is your trust in Ollama rather than in Debian's packaging. The
-      helper tells you the address before it asks, and tells you how to remove it
-      afterwards: <code>sudo rm -f /usr/local/bin/ollama</code>.</p>
+      <p>Be aware of what &ldquo;yes&rdquo; means here: it downloads one reviewed Ollama
+      release archive from Ollama's official GitHub project. Dagric pins the version,
+      byte size and SHA-256 checksum, checks them before and after administrator
+      approval, restricts what the archive may install, and restores a previous working
+      copy if the service cannot start. It is outside Debian's archive, so the confirmation
+      screen still names the source and the complete removal commands before you agree.</p>
     </section>
     <section>
       <h2>Five things you will actually do</h2>
@@ -102,13 +103,14 @@
 
     <section>
       <h2>One thing that will surprise you</h2>
-      <p><strong>This is the only Dagric helper that pipes a downloaded script into
-      a shell, and we would rather it did not.</strong> Ollama is not packaged in
-      Debian, and its official installation route is exactly the
-      <code>curl | sh</code> pattern that this manual tells you elsewhere to be
-      suspicious of. The helper is honest about it: it names the source, asks first,
-      and tells you how to remove it. If that trade is not one you want to make, do not
-      answer yes &mdash; nothing else on the machine depends on it.</p>
+      <p><strong>Dagric does not pipe an internet script into a shell.</strong> The
+      helper downloads one versioned Ollama archive over HTTPS from Ollama's official
+      GitHub release, then verifies the expected byte size and SHA-256 digest before it
+      asks for administrator approval. A narrow installation helper rejects unexpected
+      archive paths, installs only the reviewed files and service, and restores the
+      previous working copy if startup fails. Ollama is still outside Debian's archive;
+      if that trust boundary is not acceptable, answer no. Nothing else on the machine
+      depends on it.</p>
     </section>
 
     <section>

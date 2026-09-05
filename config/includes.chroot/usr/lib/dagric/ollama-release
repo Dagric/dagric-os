@@ -1,0 +1,10 @@
+# SPDX-FileCopyrightText: 2026 IMPRESSIONSDIRECT360 LLC <repo@dagric.com>
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+# Reviewed Ollama release used by dagric-ai. Updating Ollama is an explicit
+# source change: update all four values from the upstream GitHub release API,
+# then run the security and ISO audit suites before shipping the new pin.
+OLLAMA_VERSION="v0.33.3"
+OLLAMA_URL="https://github.com/ollama/ollama/releases/download/v0.33.3/ollama-linux-amd64.tar.zst"
+OLLAMA_SHA256="c13cea8f3389db4145f8a6cb88d1747242a48639d7c13e3bda7c1ebdc6eebb2f"
+OLLAMA_SIZE="1433825108"

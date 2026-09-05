@@ -13,6 +13,7 @@
 <link rel="alternate" hreflang="it" href="https://dagric.com/guide/it">
 <link rel="alternate" hreflang="pt-br" href="https://dagric.com/guide/pt-br">
 <link rel="alternate" hreflang="x-default" href="https://dagric.com/guide">
+<meta name="description" content="Das Handbuch aus Dagric OS: Umstieg von Windows, der erste Tag, Drucker, WLAN, Tastenkürzel, Windows-Programme und was zu tun ist, wenn etwas nicht funktioniert.">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Dagric OS Handbuch — Ihre erste Woche">
 <meta property="og:description" content="Das Handbuch aus Dagric OS: Umstieg von Windows, der erste Tag, Drucker, WLAN, Tastenkürzel, Windows-Programme und was zu tun ist, wenn etwas nicht funktioniert.">
@@ -554,12 +555,14 @@
       <h2>Windows-Programme ausf&uuml;hren</h2>
       <p>F&uuml;r Spiele installieren Sie <strong>Steam</strong> mit einem Klick
       aus dem Dagric Hub (mitgeliefert wird es nie) und schalten danach unter
-      Settings &rarr; Compatibility Proton ein. <strong>Heroic</strong> deckt
-      Epic, GOG und Amazon ab, und der Befehl <code>dagric-gaming</code>
-      erg&auml;nzt die Proton-GE-Variante aus der Gemeinschaft. F&uuml;r
+      Settings &rarr; Compatibility Proton ein. <strong>Heroic</strong> ist ein
+      unabh&auml;ngiger Launcher f&uuml;r Konten bei Epic Games Store, GOG und Amazon Games;
+      der Befehl <code>dagric-gaming</code>
+      erg&auml;nzt die GE-Proton-Variante aus der Gemeinschaft. F&uuml;r
       gew&ouml;hnliche Windows-Software h&auml;lt <strong>Bottles</strong> —
-      ebenfalls ein Klick im Hub — jedes Programm in einem eigenen, sauberen
-      Container. All das funktioniert in beiden Editionen.</p>
+      ebenfalls ein Klick im Hub — jedes Programm in einer eigenen Wine-Umgebung,
+      die keine Sicherheits-Sandbox ist. Diese optionalen Helfer sind in beiden
+      Editionen verf&uuml;gbar; die Kompatibilit&auml;t h&auml;ngt von Programm, Spiel und Dienst ab.</p>
       <p><strong>In Pro</strong> <span class="pro">PRO</span> ist der Unterbau
       bereits installiert und abgestimmt: Wine f&uuml;hrt viele
       <code>.exe</code>-Dateien per Doppelklick aus, und GameMode, MangoHud,
@@ -600,7 +603,7 @@
         <div class="helper-row"><code>dagric-migrate</code><span>Dateien aus Windows holen</span></div>
         <div class="helper-row"><code>dagric-get-resolve</code><span>DaVinci Resolve</span></div>
         <div class="helper-row"><code>dagric-ai</code><span>private KI auf diesem Rechner</span></div>
-        <div class="helper-row"><code>dagric-gaming</code><span>Proton-GE</span></div>
+        <div class="helper-row"><code>dagric-gaming</code><span>GE-Proton</span></div>
         <div class="helper-row"><code>dagric-vm</code><span>virtuelle Maschinen, Pro</span></div>
       </div>
     </section>

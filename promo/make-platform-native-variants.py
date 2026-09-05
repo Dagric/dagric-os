@@ -82,7 +82,7 @@ PLATFORMS = (
         tone_hz=520,
         hook_labels=("DAGRIC OS SHORT", "REAL PC TEST", "PROOF BEFORE PROMISES", "WINDOWS 10 PC?"),
         outros=("SUBSCRIBE FOR REAL PC TESTS", "WATCH THE NEXT DAGRIC DEMO", "SUBSCRIBE FOR BUILD UPDATES", "TRY THE LIVE USB • REPORT BACK"),
-        subline="DAGRIC OS  •  DAGRIC.COM",
+        subline="@DAGRICOS  •  DAGRIC.COM",
     ),
     Platform(
         key="snapchat",

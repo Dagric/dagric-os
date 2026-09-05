@@ -3,26 +3,18 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Reviewer kit — Dagric OS</title>
+<title>Dagric OS Reviewer Kit | Download, Verify &amp; Test</title>
 <meta name="description" content="How to test Dagric OS properly: get the ISO, verify the signature, and see plainly what we have proven and what we have not.">
 <link rel="icon" type="image/png" href="/assets/dagric-logo.png">
 <link rel="stylesheet" href="/assets/site.css">
 <style>
-/* dl.meta is lifted verbatim from accessibility.html, where the same component
-   already carries the same job: a short block of stated facts a reader checks
-   rather than reads. It is a page-local rule in both places because it is used
-   on two pages and site.css is not the right home for a two-page component.
-   If it ever reaches a third page, move it there and delete both copies. */
+
 dl.meta{display:grid;grid-template-columns:auto 1fr;gap:var(--s-2) var(--s-4);margin:var(--s-4) 0;
   border-top:1px solid var(--rule);border-bottom:1px solid var(--rule);padding:var(--s-4) 0}
 dl.meta dt{font-weight:600;color:var(--on-3);font-size:var(--t-ui)}
 dl.meta dd{margin:0;color:var(--on-2)}
 @media(max-width:640px){dl.meta{grid-template-columns:1fr;gap:2px}dl.meta dd{margin-bottom:10px}}
-/* The verdict column carries its verdict in words, never in colour — the same
-   rule accessibility.html states about its own Supports / Does Not Support
-   cells. Nothing here is tinted; "Tested" and "Not yet verified" are the value.
-   The column is held off wrapping mid-verdict at desktop widths only, so the
-   two states line up down the page and the split is visible at a glance. */
+
 @media(min-width:641px){.proof td b{white-space:nowrap}}
 </style>
 <link rel="canonical" href="https://dagric.com/review">
@@ -33,14 +25,14 @@ dl.meta dd{margin:0;color:var(--on-2)}
 <link rel="manifest" href="/site.webmanifest">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Dagric OS">
-<meta property="og:title" content="Reviewer kit — Dagric OS">
+<meta property="og:title" content="Dagric OS Reviewer Kit | Download, Verify &amp; Test">
 <meta property="og:description" content="How to test Dagric OS properly: get the ISO, verify the signature, and see plainly what we have proven and what we have not.">
 <meta property="og:url" content="https://dagric.com/review">
 <meta property="og:image" content="https://dagric.com/assets/hero-desktop.png">
 <meta property="og:image:width" content="1920">
 <meta property="og:image:height" content="1080">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Reviewer kit — Dagric OS">
+<meta name="twitter:title" content="Dagric OS Reviewer Kit | Download, Verify &amp; Test">
 <meta name="twitter:description" content="How to test Dagric OS properly: get the ISO, verify the signature, and see plainly what we have proven and what we have not.">
 <meta name="twitter:image" content="https://dagric.com/assets/hero-desktop.png">
 </head>
@@ -61,7 +53,7 @@ dl.meta dd{margin:0;color:var(--on-2)}
     <h1>Test it, and <span class="grad">tell people.</span></h1>
     <p class="lead">Dagric OS is a Debian 13 desktop with KDE Plasma, built for the person leaving
     Windows 10 rather than for someone who already runs Linux. There is a free edition and a Pro
-    edition at a one-time $39. It is made by DGR Operations, an independent company in the United
+    edition at a one-time $39. It is made by IMPRESSIONSDIRECT360 LLC, an independent company in the United
     States.</p>
     <p>This page is not a pitch. It exists so a hands-on test is easy to run and hard to get
     wrong: where the ISO is, how to check it is ours, what to click in what order, and — the part
@@ -89,7 +81,9 @@ dl.meta dd{margin:0;color:var(--on-2)}
     <dt>ISO sizes</dt><dd>
 Free 2.1 GB (2,251,653,120 bytes) &middot; Pro 3.9 GB (4,152,623,104 bytes)
     </dd>
-    <dt>Made by</dt><dd>DGR Operations, an independent company in the United States</dd>
+    <dt>Made by</dt><dd>IMPRESSIONSDIRECT360 LLC, led by
+    <a href="https://www.linkedin.com/in/dorien-richardson">Dorien Richardson</a>, an independent
+    founder in St.&nbsp;Louis, Missouri, United States</dd>
   </dl>
   <p>The two editions are one system, not two. Pro is the same base with the creative, gaming,
   developer and Windows-app suites already installed, and all seven desktop layouts rather than
@@ -109,14 +103,7 @@ Free 2.1 GB (2,251,653,120 bytes) &middot; Pro 3.9 GB (4,152,623,104 bytes)
   <a href="/SHA256SUMS.sig">SHA256SUMS.sig</a> and the
   <a href="/dagric-signing-key.asc">signing key</a> in the folder holding the ISO, then run the
   three commands the download page gives:</p>
-  <!-- tabindex+role+aria-labelledby, matching the identical block on
-       /download and the .tablewrap wrappers on / and /accessibility.
-       site.css gives every <pre> overflow-x:auto, and an overflow container is
-       not keyboard-focusable in Chrome without tabindex — WCAG 2.1.1 — while
-       without role+name a screen reader announces the scroll region as
-       nothing (1.3.1, 4.1.2). The name is the id of the h2 above, so the two
-       cannot drift apart. Same reasoning, same commands, same page furniture:
-       if the commands change on /download they change here too. -->
+
   <pre tabindex="0" role="region" aria-labelledby="h-download-and-verify"><code>gpg --import dagric-signing-key.asc
 gpg --verify SHA256SUMS.sig SHA256SUMS
 sha256sum -c SHA256SUMS</code></pre>
@@ -160,7 +147,7 @@ sha256sum -c SHA256SUMS</code></pre>
     <li><strong>Open the Dagric Hub.</strong> Press <kbd>Meta</kbd>, type <em>Hub</em>. This is
     the one window gathering the owner tools: graphics drivers, Finish Setup for printers, the
     Security Checkup, the layout switcher, and the one-click installers for Steam, Bottles,
-    Heroic and Ollama. Nothing proprietary is bundled — those install only when you click
+    Heroic and Ollama. None of those optional applications is bundled — each installs only when you click
     them, which is a claim worth checking rather than repeating.</li>
     <li><strong>Switch layouts in Dagric Looks.</strong> In the Hub under <em>Appearance</em>, or
     press <kbd>Meta</kbd> and type <em>Looks</em>. Three layouts on the free edition, all seven
@@ -184,7 +171,7 @@ sha256sum -c SHA256SUMS</code></pre>
         <tr><th scope="row">First-run wizard</th><td><b>Tested</b> — run end to end after a fresh install.</td></tr>
         <tr><th scope="row">Dagric Looks layouts</th><td><b>Tested</b> — applied and switched between, in a virtual machine.</td></tr>
         <tr><th scope="row">Snapshot rollback</th><td><b>Tested</b> — rolled back from the boot menu on a default btrfs install, in a virtual machine.</td></tr>
-        <tr><th scope="row">Six-language coverage</th><td><b>Tested, with two known gaps</b> — the desktop, the setup wizard, the launcher entries, the login screen, the installer and the guide are in English, German, Spanish, French, Italian and Brazilian Portuguese. Two windows are <em>not</em> yet translated and will appear in English whatever language you install in: the appearance gallery, and <em>Check This PC</em> — which step&nbsp;3 above asks you to run. We would rather you knew that before you opened them than concluded the translation was unreliable.</td></tr>
+        <tr><th scope="row">Six-language coverage</th><td><b>Mechanically complete; human language review pending</b> — German, Spanish, French, Italian and Brazilian Portuguese catalogues are byte-synchronised with their source, compiled, and contain zero fuzzy or untranslated active messages. Placeholder, URL, product-name and safety-wording guards pass. The completed machine translations have not had native-speaker review, so this is not presented as native linguistic approval.</td></tr>
         <tr><th scope="row">Accessibility</th><td><b>Tested</b> — a vendor self-assessment checked against the built image, published in full with its gaps as the <a href="/accessibility">conformance report</a>. It is not an independent audit and does not claim to be.</td></tr>
         <tr><th scope="row">Secure Boot with enforcing firmware</th><td><b>Not yet verified</b> — it ships, and it has only ever been exercised in virtual machines. It has never booted on a physical machine with Secure Boot actually enforcing.</td></tr>
         <tr><th scope="row">Full-disk-encryption install</th><td><b>Not yet verified</b> — the encrypted install path ships and has not been run end to end on real hardware.</td></tr>
@@ -193,13 +180,7 @@ sha256sum -c SHA256SUMS</code></pre>
       </tbody>
     </table>
   </div>
-  <!-- The four "not yet verified" rows are the reason this page exists, so the
-       note under them states the consequence in the plainest words available
-       rather than softening it into a roadmap sentence. A reviewer who reads
-       "shipped, not proven" and then finds it broken has been told the truth;
-       a reviewer who reads "fully supported" and then finds it broken stops
-       believing the other seven rows too, and there is no way to earn those
-       back. -->
+
   <div class="note">
     <p style="margin:0">The four rows marked <strong>not yet verified</strong> are shipped, not
     proven. They work in a virtual machine, and a virtual machine is not a laptop. We would far
@@ -227,6 +208,9 @@ sha256sum -c SHA256SUMS</code></pre>
   </ul>
 
   <h2>Press assets</h2>
+  <h3>Official description</h3>
+  <div class="note"><p style="margin:0">Dagric OS gives Windows 10-era PCs a private, customizable second life. It requires no Dagric account, adds no Dagric telemetry, and can be tried before installation. Dagric OS Free is complete for everyday use; Dagric OS Pro adds preconfigured creator, developer, gaming, privacy, and Windows-app suites for a one-time $39. Dagric OS is published by IMPRESSIONSDIRECT360 LLC and is built on Debian and KDE Plasma.</p></div>
+  <p>Use <strong>Dagric OS</strong> in ordinary copy, <strong>Dagric OS Pro</strong> for the paid edition, and <strong>IMPRESSIONSDIRECT360 LLC</strong> when naming the legal publisher or seller. The public <a href="/brand-system.json">brand-system.json</a> records the approved hierarchy, colors, message roles, and content pillars.</p>
   <p>These are the files this site uses. You may use them in coverage of Dagric OS — no
   permission to ask for, no approval step, and no conditions attached to what the coverage says.
   Every screenshot below is a real capture from a booted system, not a mockup or a render; where
@@ -247,9 +231,10 @@ sha256sum -c SHA256SUMS</code></pre>
     <li><a href="/assets/shot-installer.png">shot-installer.png</a> — the installer, with its
     steps listed down the side.</li>
     <li><a href="/assets/dagric-logo.png">dagric-logo.png</a> — the logo, 256&times;256.</li>
-    <li>Video: <a href="/assets/dagric-promo.mp4">dagric-promo.mp4</a> and
-    <a href="/assets/dagric-looks.mp4">dagric-looks.mp4</a>, the second being a tour of all seven
-    desktop layouts.</li>
+    <li>Continuous video: <a href="/assets/dagric-live-tour.mp4">one-minute live tour</a>,
+    <a href="/assets/dagric-files-live.mp4">30-second file and desktop demo</a>, and
+    <a href="/assets/dagric-personalize-live.mp4">15-second personalization demo</a>. Each keeps
+    one running Dagric desktop on screen, with no burned captions or composite product frames.</li>
   </ul>
 
   <div class="shot">
@@ -287,8 +272,17 @@ sha256sum -c SHA256SUMS</code></pre>
 </main>
 
 <footer><div class="foot">
-  <span>© 2026 DGR Operations · Built on Debian. Not affiliated with the Debian Project.</span>
+  <span>© 2026 IMPRESSIONSDIRECT360 LLC · Built on Debian. Not affiliated with the Debian Project.</span>
   <span class="links"><a href="/features">Features</a><a href="/pro">Pro</a><a href="/download">Download</a><a href="/news">News</a><a href="/guide">Guide</a><a href="/support">Support</a><a href="/faq">FAQ</a><a href="/accessibility">Accessibility</a><a href="/security">Security</a><a href="/bugs">Report a bug</a><a href="/contact">Contact</a><a href="/about">About</a><a href="/review">Reviewers</a><a href="/testing">Proof</a><a href="/licenses">Licenses</a><a href="/privacy">Privacy</a><a href="/terms">Terms</a></span>
+  <div class="social-footer" role="navigation" aria-label="Dagric OS social media">
+    <strong>Follow Dagric OS</strong>
+    <a href="https://www.youtube.com/@DagricOS" target="_blank" rel="me noopener">YouTube</a>
+    <a href="https://www.tiktok.com/@dagricosofficial" target="_blank" rel="me noopener">TikTok</a>
+    <a href="https://www.instagram.com/dagricosofficial/" target="_blank" rel="me noopener">Instagram</a>
+    <a href="https://www.snapchat.com/@dagricos" target="_blank" rel="me noopener">Snapchat</a>
+    <a href="https://www.linkedin.com/in/dorien-richardson" target="_blank" rel="me noopener">LinkedIn</a>
+    <a href="https://github.com/Dagric/dagric-os" target="_blank" rel="me noopener">GitHub</a>
+  </div>
 </div></footer>
 </body>
 </html>

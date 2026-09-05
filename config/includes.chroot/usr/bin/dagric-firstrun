@@ -1,5 +1,5 @@
 #!/bin/sh
-# SPDX-FileCopyrightText: 2026 DGR Operations <repo@dagric.com>
+# SPDX-FileCopyrightText: 2026 IMPRESSIONSDIRECT360 LLC <repo@dagric.com>
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Dagric OS — "Set Up Dagric": the wizard the owner meets on their first login.
 #
@@ -50,7 +50,7 @@
 # The autostart entry itself is left in place rather than deleted, so the stamp
 # is the single source of truth and a re-run can never resurrect the autostart.
 EDITION=$(cat /etc/dagric-edition 2>/dev/null || echo free)
-BRAND='#3fa9f5'
+BRAND='#ff3b5c'
 WALLS=/usr/share/wallpapers
 QMLDIR=/usr/share/dagric/firstrun
 QMLFILE=$QMLDIR/main.qml
@@ -487,7 +487,7 @@ current_mode() {
 # This was the one piece of state the startMode/startWallId/startScale fix
 # missed. undo_all() below writes the captured AccentColor back to kdeglobals,
 # so the desktop returned to the owner's colour while the wizard's own buttons
-# snapped to #3fa9f5 — the same visible contradiction that fix was written to
+# snapped to the built-in accent — the same visible contradiction that fix was written to
 # remove, just in the one property nobody had thought to capture.
 #
 # Plasma stores AccentColor as "r,g,b", which is the third column of the accent
@@ -698,7 +698,7 @@ rebuild_panels() {
     while IFS='|' read -r _tag _loc _h _widgets; do
         [ "$_tag" = "P" ] || continue
         case "$_loc" in ''|*[!a-z]*) _loc=bottom ;; esac
-        case "$_h" in ''|*[!0-9]*) _h=44 ;; esac
+        case "$_h" in ''|*[!0-9]*) _h=46 ;; esac
         _n=$((_n + 1))
         _js="$_js var p$_n=new Panel; p$_n.location=\"$_loc\"; p$_n.height=$_h;"
         for _w in $_widgets; do
@@ -814,13 +814,12 @@ run_helper() {
 # else. By the time this runs the window has closed and the terminal lands in
 # front of the owner.
 #
-# The ticked card IS the consent: it carries the same name and the same
-# one-line description the Hub row shows. So each helper's own y/N prompt is
-# answered with a piped "y" — the helper still prints its full explanation
-# into a terminal the owner is watching, and a helper that needs more than
-# consent (the password for Steam's apt install) still asks through polkit as
-# always. The Pro upgrade is NOT pre-answered: it needs a pasted purchase code
-# and a human, so it runs fully interactive, last, in the same window.
+# A checked card selects an installer; it does not accept that installer's
+# disclosures or any third-party terms. Every helper therefore remains
+# interactive in the terminal and asks again before changing the machine.
+# This is especially important for Steam: Debian's free installer downloads a
+# proprietary Valve client governed by Valve's current terms. The Pro upgrade
+# likewise remains interactive and runs last in the same window.
 #
 # Every name is validated against the whitelist below even though the QML only
 # ever sends names from its own model — the window's list is data, not policy.
@@ -843,9 +842,9 @@ run_downloads() {
         return 0
     }
 
-    # TWO PASSES OVER THE SAME WHITELIST, then the two interactive tools, in
-    # an order chosen so nothing waits on a prompt it does not need to:
-    #   1. the flatpak helpers — no password, no interaction, piped consent;
+# TWO PASSES OVER THE SAME WHITELIST, then the two additional interactive
+# tools, in an order chosen so prompts are predictable:
+#   1. the Flatpak helpers — each asks for confirmation in the terminal;
     #   2. steam — its polkit prompt would stall everything queued behind it,
     #      so it runs after the unattended set;
     #   3. dagric-ai, fully INTERACTIVE. Its own y/N is the consent for things
@@ -862,7 +861,7 @@ run_downloads() {
         for _a in $APPS_QUEUE; do
             case "$_a" in
                 heroic|bottles|onlyoffice|joplin|localsend|cryptomator|upscayl)
-                    printf "printf 'y\\\\n' | /usr/bin/dagric-get-%s || true\n" "$_a"
+                    printf '/usr/bin/dagric-get-%s || true\n' "$_a"
                     printf 'echo\n'
                     ;;
             esac
@@ -870,7 +869,7 @@ run_downloads() {
         for _a in $APPS_QUEUE; do
             case "$_a" in
                 steam)
-                    printf "printf 'y\\\\n' | /usr/bin/dagric-get-steam || true\n"
+                    printf '/usr/bin/dagric-get-steam || true\n'
                     printf 'echo\n'
                     ;;
             esac
@@ -1174,13 +1173,13 @@ You're running the live trial from the USB stick, so anything you set here lasts
 This is the live trial. To keep any of it, run Install Dagric OS from the desktop.
 Want to run through this again? It's called "Set Up Dagric" in your apps list.
 Add your apps
-Tick what you want and it installs itself right after you press Finish. All of it is free software, and none of it is required.
+Choose what you want. Each installer opens after Finish and asks before making changes. Some choices are third-party or proprietary; none is required.
 Steam
-Your game library, from Valve.
+Optional proprietary Valve client; vendor terms apply.
 Heroic
-Epic, GOG and Amazon games in one place.
+Independent launcher for Epic Games Store, GOG and Amazon Games.
 Bottles
-Run Windows programs in tidy containers.
+Run Windows programs in separate Wine environments.
 ONLYOFFICE
 An office suite that looks like the one at work.
 Joplin

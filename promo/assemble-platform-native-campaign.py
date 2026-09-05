@@ -56,7 +56,7 @@ PLATFORMS = (
     Platform("youtube", "YouTube Shorts", 0.82, 3.25, "F05B68", "110C19", 520,
              ("DAGRIC OS SHORT", "REAL PC TEST", "PROOF BEFORE PROMISES", "WINDOWS 10 PC?"),
              ("SUBSCRIBE FOR REAL PC TESTS", "WATCH THE NEXT DAGRIC DEMO", "SUBSCRIBE FOR BUILD UPDATES", "TRY THE LIVE USB • REPORT BACK"),
-             "DAGRIC OS  •  DAGRIC.COM"),
+             "@DAGRICOS  •  DAGRIC.COM"),
     Platform("snapchat", "Snapchat Spotlight", 0.45, 1.25, "FFD84D", "090A0C", 830,
              ("FAST FACT", "TRY THIS FIRST", "OLD PC CHECK", "DAGRIC IN 15 SECONDS"),
              ("SCREENSHOT THIS", "SEND TO A WINDOWS 10 USER", "TRY IT FROM USB", "FOLLOW @DAGRICOS"),

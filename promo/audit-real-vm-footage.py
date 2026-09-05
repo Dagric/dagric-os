@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import math
 import re
 import subprocess
 from datetime import datetime, timezone
@@ -12,6 +13,8 @@ from pathlib import Path
 
 
 ROOT = Path(r"C:\Users\1248n\Downloads\Dagric OS Videos\Real VM Footage\finished")
+VIDEO_EXTENSIONS = {".mp4", ".mov", ".mkv", ".webm"}
+CAPTURE_MODE = "continuous-vnc-stream"
 
 
 def run(args: list[str]) -> str:
@@ -45,11 +48,17 @@ def probe(path: Path) -> dict:
     )
 
 
-def motion_sample(path: Path) -> tuple[int, int]:
-    output = run([
-        "ffmpeg", "-hide_banner", "-loglevel", "error", "-i", str(path),
+def motion_sample(path: Path, start: float = 0.0, duration: float | None = None) -> tuple[int, int]:
+    args = ["ffmpeg", "-hide_banner", "-loglevel", "error"]
+    if start:
+        args.extend(["-ss", f"{start:.3f}"])
+    if duration is not None:
+        args.extend(["-t", f"{duration:.3f}"])
+    args.extend([
+        "-i", str(path), "-map", "0:v:0", "-an",
         "-vf", "fps=1,scale=160:90,format=gray", "-f", "framemd5", "-",
     ])
+    output = run(args)
     hashes = []
     for line in output.splitlines():
         if line.startswith("#") or not line.strip():
@@ -58,6 +67,26 @@ def motion_sample(path: Path) -> tuple[int, int]:
         if len(fields) >= 6:
             hashes.append(fields[-1])
     return len(hashes), len(set(hashes))
+
+
+def has_sustained_motion(frame_count: int, unique_frames: int) -> bool:
+    return frame_count >= 3 and unique_frames >= max(3, math.ceil(frame_count * 0.40))
+
+
+def capture_receipt_valid(source: Path, receipt_path: Path) -> bool:
+    try:
+        receipt = json.loads(receipt_path.read_text(encoding="utf-8"))
+        return all([
+            receipt.get("captureMode") == CAPTURE_MODE,
+            receipt.get("continuousFrameEncoding") is True,
+            receipt.get("asynchronousFramebufferRefresh") is True,
+            receipt.get("snapshotInputs") == [],
+            int(receipt.get("targetFramesPerSecond", 0)) >= 20,
+            Path(receipt.get("output", "")).resolve() == source.resolve(),
+            receipt.get("sha256") == sha256(source),
+        ])
+    except (OSError, ValueError, TypeError, json.JSONDecodeError):
+        return False
 
 
 def audio_levels(path: Path) -> tuple[float, float]:
@@ -73,6 +102,18 @@ def audio_levels(path: Path) -> tuple[float, float]:
 
 
 def main() -> int:
+    manifest_path = ROOT / "real-footage-manifest.json"
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    policy = manifest.get("visualPolicy", {})
+    policy_valid = all([
+        policy.get("continuousFootageRequired") is True,
+        policy.get("snapshotsAllowed") is False,
+        policy.get("stillImagesAllowedAsProductVisuals") is False,
+        policy.get("generatedVideoAllowed") is False,
+        policy.get("captureReceiptsRequired") is True,
+        policy.get("maximumSimultaneousProductVideoLayers") == 1,
+    ])
+    output_manifest = {Path(item["output"]).resolve(): item for item in manifest.get("outputs", [])}
     videos = sorted(ROOT.glob("*/*.mp4"))
     if len(videos) != 14:
         raise RuntimeError(f"Expected 14 delivered MP4 files; found {len(videos)}")
@@ -87,6 +128,32 @@ def main() -> int:
         aspect = path.parent.name
         expected = (1080, 1920) if aspect == "vertical" else (1920, 1080)
         frame_count, unique_frames = motion_sample(path)
+        provenance = output_manifest.get(path.resolve(), {})
+        source = Path(provenance.get("source", ""))
+        source_is_video = source.suffix.lower() in VIDEO_EXTENSIONS and source.is_file()
+        receipt_paths = [Path(value) for value in provenance.get("captureReceipts", [])]
+        source_type = provenance.get("visualSourceType")
+        if source_type == "continuous-live-vm-montage":
+            segment_sources = [Path(item["source"]) for item in manifest.get("montageSegments", [])]
+            receipts_valid = (
+                len(segment_sources) > 0
+                and len(receipt_paths) == len(segment_sources)
+                and all(capture_receipt_valid(segment, receipt) for segment, receipt in zip(segment_sources, receipt_paths))
+            )
+        else:
+            receipts_valid = (
+                len(receipt_paths) == 1
+                and source_is_video
+                and capture_receipt_valid(source, receipt_paths[0])
+            )
+        if source_is_video:
+            source_frame_count, source_unique_frames = motion_sample(
+                source,
+                float(provenance.get("visualSourceStartSeconds", 0.0)),
+                float(provenance.get("visualSourceDurationSeconds", 0.0)) or None,
+            )
+        else:
+            source_frame_count, source_unique_frames = 0, 0
         mean_volume, max_volume = audio_levels(path)
         digest = sha256(path)
         checks = {
@@ -99,7 +166,16 @@ def main() -> int:
             "fortyEightKhz": int(audio["sample_rate"]) == 48000,
             "audible": mean_volume > -45.0 and max_volume > -10.0,
             "notClipped": max_volume <= 0.0,
-            "movingPicture": unique_frames >= 3,
+            "movingPicture": has_sustained_motion(frame_count, unique_frames),
+            "manifestEntry": bool(provenance),
+            "realtimePolicy": policy_valid,
+            "realtimeVisualSource": source_type in {"continuous-live-vm-video", "continuous-live-vm-montage"},
+            "captureReceipts": receipts_valid and provenance.get("captureReceiptsVerified") is True,
+            "sourceIsVideo": source_is_video,
+            "sourceHasMotion": has_sustained_motion(source_frame_count, source_unique_frames),
+            "noSnapshotInputs": provenance.get("snapshotInputs") == [],
+            "noGeneratedVisuals": provenance.get("generatedVisuals") is False,
+            "singleProductVideoLayer": provenance.get("visibleProductVideoLayers") == 1,
             "sidecarCaptions": path.with_suffix(".srt").exists(),
             "uniqueFile": digest not in hashes,
         }
@@ -123,6 +199,11 @@ def main() -> int:
             "maxVolumeDb": max_volume,
             "sampledFrames": frame_count,
             "uniqueSampledFrames": unique_frames,
+            "motionCoverage": round(unique_frames / max(1, frame_count), 3),
+            "visualSource": str(source) if source else None,
+            "sourceSampledFrames": source_frame_count,
+            "sourceUniqueSampledFrames": source_unique_frames,
+            "sourceMotionCoverage": round(source_unique_frames / max(1, source_frame_count), 3),
             "sha256": digest,
             "checks": checks,
             "passed": not failed,
@@ -147,9 +228,9 @@ def main() -> int:
         "",
         f"Files checked: {len(records)} MP4 masters plus matching SRT captions.",
         "",
-        "Checks: dimensions, H.264/yuv420p, 30 fps, AAC stereo at 48 kHz, audible/non-clipped audio, sampled visual motion, caption sidecars, and unique file hashes.",
+        "Checks: dimensions, H.264/yuv420p, 30 fps, AAC stereo at 48 kHz, audible/non-clipped audio, sustained motion in the final and its underlying video segment, continuous-capture receipts bound to source hashes, video-only provenance, exactly one visible product-video layer, no snapshot inputs, no generated visuals, caption sidecars, and unique file hashes.",
         "",
-        "All visuals originate in the captured Dagric OS Pro live-ISO VM sessions. The moving-picture check verifies multiple distinct decoded frames; it is not a claim about physical-hardware compatibility.",
+        "Required policy: product visuals must originate in continuous Dagric OS Pro live-ISO VM sessions. Text and caption overlays are permitted, but still screenshots and generated replacement visuals are rejected. A passing capture is still not a claim about physical-hardware compatibility.",
         "",
     ]
     if errors:

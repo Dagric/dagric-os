@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Release gate for Dagric Flow palette, artwork, and desktop/login continuity."""
+"""Release gate for the Dagric Design Language and visual continuity."""
 
 from __future__ import annotations
 
@@ -94,6 +94,13 @@ def require_text(path: pathlib.Path, *tokens: str) -> list[str]:
     return [f"{path.relative_to(ROOT)} lacks {token!r}" for token in tokens if token not in text]
 
 
+def forbid_text(path: pathlib.Path, *tokens: str) -> list[str]:
+    if not path.is_file():
+        return [f"missing {path.relative_to(ROOT)}"]
+    text = path.read_text(encoding="utf-8", errors="replace")
+    return [f"{path.relative_to(ROOT)} contains retired token {token!r}" for token in tokens if token in text]
+
+
 def main() -> int:
     errors: list[str] = []
     schemes = INC / "usr/share/color-schemes"
@@ -136,6 +143,42 @@ def main() -> int:
         if actual != expected:
             errors.append(f"Flow token {key} is {actual!r}, expected {expected!r}")
 
+    if isinstance(tokens, dict):
+        if tokens.get("name") != "Dagric Design Language":
+            errors.append("visual contract must be named Dagric Design Language")
+        if tokens.get("shortName") != "DDL" or tokens.get("version") != 2:
+            errors.append("visual contract must identify DDL schema version 2")
+
+        layout = tokens.get("layout", {})
+        radii = layout.get("radiiPx", {}) if isinstance(layout, dict) else {}
+        panel_height = layout.get("panelHeightPx") if isinstance(layout, dict) else None
+        if not isinstance(panel_height, int) or not 44 <= panel_height <= 48:
+            errors.append(f"DDL primary panel height is {panel_height!r}; expected 44-48px")
+        expected_radii = {
+            "compact": 8,
+            "control": 10,
+            "majorSurface": 12,
+            "maximumRoutineSurface": 14,
+        }
+        for key, expected in expected_radii.items():
+            actual = radii.get(key) if isinstance(radii, dict) else None
+            if actual != expected:
+                errors.append(f"DDL radius {key} is {actual!r}, expected {expected}px")
+
+        motion = tokens.get("motion", {})
+        expected_motion = {
+            "menuOpenMs": 150,
+            "windowTransitionMs": 180,
+            "workspaceTransitionMs": 240,
+            "maxTransitionMs": 300,
+        }
+        for key, expected in expected_motion.items():
+            actual = motion.get(key) if isinstance(motion, dict) else None
+            if actual != expected:
+                errors.append(f"DDL motion {key} is {actual!r}, expected {expected}ms")
+        if "original generic artwork" not in str(tokens.get("rules", {}).get("thirdPartyMarks", "")):
+            errors.append("DDL third-party mark rule must require original generic artwork")
+
     errors.extend(require_text(
         ROOT / "config/hooks/normal/0500-desktop-defaults.hook.chroot",
         "Image=DagricObsidianPulse", "ColorScheme=DagricDark",
@@ -148,13 +191,61 @@ def main() -> int:
         INC / "usr/share/sddm/themes/dagric/Main.qml",
         'cAccent: "#ff3b5c"', 'cInk:    "#f5f7fa"',
     ))
+    errors.extend(require_text(
+        INC / "usr/share/dagric/appearance/main.qml",
+        'cBrand: "#ff3b5c"', "Qt.darker(app.cBrand, 1.16)",
+    ))
+    errors.extend(forbid_text(
+        INC / "usr/share/dagric/appearance/main.qml",
+        'cBrand: "#3fa9f5"',
+    ))
+    errors.extend(require_text(
+        INC / "usr/bin/dagric-firstrun",
+        "BRAND='#ff3b5c'", "_h=46",
+    ))
+    errors.extend(require_text(
+        INC / "usr/share/dagric/firstrun/main.qml",
+        'startAccent: "#ff3b5c"', 'cAccent: "#ff3b5c"',
+    ))
+    errors.extend(require_text(
+        INC / "usr/share/dagric/rewind/main.qml",
+        'accent: "#ff3b5c"', 'accentSoft: "#4a1824"',
+    ))
+    errors.extend(require_text(
+        INC / "usr/share/plasma/look-and-feel/org.dagric.splash/contents/splash/Splash.qml",
+        'color: "#ff3b5c"',
+    ))
+    errors.extend(require_text(
+        INC / "usr/share/plymouth/themes/dagric/dagric.script",
+        '1.000, 0.231, 0.361', '#ff3b5c',
+    ))
+    errors.extend(require_text(
+        INC / "etc/calamares/branding/dagric/branding.desc",
+        'SidebarBackgroundCurrent: "#ff3b5c"',
+    ))
+    errors.extend(require_text(
+        INC / "usr/share/icons/hicolor/scalable/apps/dagric-logo.svg",
+        'stop-color="#3fa9f5"', 'stop-color="#7be0c8"',
+    ))
+    errors.extend(require_text(
+        INC / "usr/share/dagric/looks/classic.look",
+        "NAME=Classic", 'p.location="bottom"', "p.height=46", 'k.writeConfig("icon","dagric-logo")',
+    ))
+    errors.extend(require_text(
+        INC / "usr/share/dagric/looks/eleven.look",
+        "NAME=Centered", "a centered taskbar, clean and modern",
+    ))
+    errors.extend(require_text(
+        INC / "usr/bin/dagric-appearance",
+        "_h=46",
+    ))
 
     if errors:
         print("flow-check: FAILED", file=sys.stderr)
         for error in errors:
             print(f"  - {error}", file=sys.stderr)
         return 1
-    print("flow-check: palettes meet contrast floors; wallpaper sizes, SDDM continuity and tokens passed")
+    print("flow-check: DDL v2, contrast floors, artwork continuity, panel, and layout identity passed")
     return 0
 
 

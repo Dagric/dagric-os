@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Privacy — Dagric OS</title>
+<title>Dagric OS Privacy Policy | Website &amp; Product Data</title>
 <meta name="description" content="How Dagric OS, dagric.com, Stripe checkout, Cloudflare delivery, and support messages handle data.">
 <link rel="icon" type="image/png" href="/assets/dagric-logo.png">
 <link rel="stylesheet" href="/assets/site.css">
@@ -13,32 +13,17 @@
 <link rel="icon" href="/favicon.ico" sizes="32x32">
 <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
 <link rel="manifest" href="/site.webmanifest">
-<!-- assets/pageindex.js is deliberately NOT loaded. It built a sticky section
-     index into the right-hand gutter on the five long document pages, and the
-     owner reported it misbehaving on scroll — "when I scroll down it is funny
-     and doesn't work how it's supposed to". The mechanism is a position:sticky
-     <ol> inside a position:absolute box that carries BOTH top and bottom, so
-     the rail stops dead --s-7 above the end of <main> and slides away while
-     there is still page left; that is the "funny" part, and it is the shape of
-     the bug even before anything else is measured.
-     It is out rather than patched because nothing here has a browser to verify
-     a fix in — every check available is layout arithmetic, and this is a defect
-     you can only see. A feature nobody asked for that confuses the owner is
-     worse than an empty gutter. The file stays in the tree; put the tag back
-     when somebody can watch it scroll.
-     Removing the tag is the whole revert: the nav is display:none below
-     1440px, absolutely positioned above it, and takes part in no layout at any
-     width, so these pages are byte-for-byte what they were before it existed. -->
+
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Dagric OS">
-<meta property="og:title" content="Privacy — Dagric OS">
+<meta property="og:title" content="Dagric OS Privacy Policy | Website &amp; Product Data">
 <meta property="og:description" content="How Dagric OS, dagric.com, Stripe checkout, Cloudflare delivery, and support messages handle data.">
 <meta property="og:url" content="https://dagric.com/privacy">
 <meta property="og:image" content="https://dagric.com/assets/hero-desktop.png">
 <meta property="og:image:width" content="1920">
 <meta property="og:image:height" content="1080">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Privacy — Dagric OS">
+<meta name="twitter:title" content="Dagric OS Privacy Policy | Website &amp; Product Data">
 <meta name="twitter:description" content="How Dagric OS, dagric.com, Stripe checkout, Cloudflare delivery, and support messages handle data.">
 <meta name="twitter:image" content="https://dagric.com/assets/hero-desktop.png">
 </head>
@@ -56,7 +41,7 @@
 <main id="main">
   <h1>Privacy, <span class="grad">in plain words.</span></h1>
   <p class="lead">The operating system, website, checkout and support form do different things,
-  so this policy keeps them separate. Effective 30&nbsp;August&nbsp;2026.</p>
+  so this policy keeps them separate. Effective 4&nbsp;September&nbsp;2026.</p>
 
   <h2>The operating system</h2>
   <p><strong>The installed operating system sends no product telemetry or analytics to
@@ -66,103 +51,26 @@
   services are listed below. Website visits, purchases, downloads and support messages are covered
   separately later on this page.</p>
 
-  <!-- This list replaces one sentence that said updates come from "standard Debian
-       and Flathub mirrors" and stopped there. It read as an exhaustive account of
-       the OS's network behaviour and it was not one: it omitted our own update
-       channel, which every installed machine polls, and the firmware service. On a
-       product sold on privacy, the page describing its network behaviour is the one
-       page that has to be complete, and an omission here is worth more than the
-       feature it was hiding. The previous text also said "no crash reporters phoning
-       home" while KDE's crash handler ships installed — corrected below to say what
-       it actually does rather than to claim it is absent.
 
-       Second round of the same mistake, same cause: the list still called itself
-       complete while omitting Mozilla's add-on site, which Firefox contacts
-       unprompted on first run because our own policies.json installs uBlock Origin
-       with installation_mode "normal_installed". The shipped manual
-       (manual/app-firefox.html) and the first-run welcome page both disclose it;
-       this page, the one a school or procurement officer actually reads, was the
-       only place that did not. If a policy or a package ever adds another outbound
-       host, name it here in the same commit — otherwise the sentence above becomes
-       a false claim again.
-
-       THIRD ROUND, and this one was six omissions, not one. The instruction two
-       paragraphs up was written and then not followed for a year of package-list
-       changes, which is the whole lesson: a comment does not enforce anything.
-       What was missing, each confirmed against the built image before it was
-       written here rather than after —
-
-         Chromium        pro-apps.list.chroot, and out/manifest/pro.packages line
-                         "chromium 150.0.7871.181-1~deb13u1". This page enumerated
-                         Firefox down to the captive-portal ping while a second,
-                         Google-derived browser shipped in the PAID tier and was
-                         not named once. That is the version of this mistake that
-                         does the most damage, because the reader who checks is
-                         the procurement officer.
-         Lutris          pro-gaming.list.chroot, manifest "lutris 0.5.19-2". The
-                         launcher is a catalogue; the catalogue lives on lutris.net.
-         The KDE Store   BOTH editions. libkf6newstuffcore6, libkf6newstuffwidgets6,
-                         qml6-module-org-kde-newstuff and libkf6attica6 (the OCS
-                         protocol client) are all in free.packages AND pro.packages,
-                         and a case-insensitive grep of the entire config/ tree for
-                         ghns / KNewStuff / "KDE Action Restrictions" returns no
-                         restriction — so every "Get New ..." button is live on both
-                         discs. docs/APPEARANCE-ROADMAP.md states as policy that
-                         this is "Not enabled by default". Nothing implements that.
-                         The roadmap is the thing that is wrong, not this page; it
-                         is named here so the next person does not trust it.
-         Flathub scope   0400-flathub.hook.chroot adds the remote in the BUILD
-                         chroot, so it is configured before first boot;
-                         /etc/xdg/autostart/org.kde.discover.notifier.desktop is on
-                         the image, so the notifier polls the Flatpak backend every
-                         login; and eight /usr/bin/dagric-get-* helpers run
-                         `flatpak install ... flathub` with the software centre not
-                         involved. The old bullet said "when you browse or install
-                         Flatpak apps in the software centre", which excluded all
-                         three.
-         Thunderbird     manifest "thunderbird 1:140.12.0esr-1~deb13u1". Second
-                         Mozilla application on the image, and its account setup
-                         sends the domain part of an email address to a lookup
-                         service — the only item on this page that transmits
-                         anything the owner typed.
-         Syncthing       manifest "syncthing 1.29.5~ds1-2". THIS ONE BROKE TWO
-                         SENTENCES, not just the list. Global discovery and relaying
-                         are on by default, so a started Syncthing announces a
-                         stable device ID to servers Syncthing operates. The lead
-                         therefore could not keep "every item is a fetch FROM a
-                         server, never a report TO one", and the closing paragraph
-                         could not keep "None of them carries a device ID". Both
-                         were corrected rather than the bullet being left off, which
-                         is the only honest way round: the claim was written before
-                         the package shipped and the package won.
-
-       Two claims here were also false against this page's OWN bullets, before any
-       package was considered. "Nothing here is optional-but-on" was contradicted by
-       the Firefox bullet three lines below it, which says in as many words that
-       those services are Mozilla defaults "which we have not switched off", and by
-       the Widevine bullet. And the Hub bullet named ollama.com and GitHub while the
-       same menu also installs Valve's Steam and opens Blackmagic Design's site.
-
-       The rule stands and is worth restating in the imperative: A PACKAGE ADDED TO
-       config/package-lists/ IS A HOST ADDED TO THIS LIST. Check it against
-       out/manifest/*.packages, not against what you meant to ship. -->
-  <p><strong>What the machine connects to, in full.</strong> This is the complete list.
-  Most of it is on by default and stays on until you switch it off; where that is true the
-  item says so, and says how. All but one are a fetch <em>from</em> a server rather than a
-  report <em>to</em> one, and the one that is not is marked as such. Items marked
-  <strong>Pro</strong> are on the paid edition only.</p>
+  <p><strong>Documented Dagric-configured and known stock-system connections.</strong>
+  Where a connection is on by default and can be switched off, the item says so and explains
+  how. This inventory covers the connections Dagric configures plus the stock-system connections
+  identified in this review; it is not a claim that every optional app or future upstream version
+  makes no additional request. Items marked <strong>Pro</strong> are on the paid edition only, and
+  optional third-party applications may make additional requests under their own privacy terms.</p>
   <ul>
     <li><strong>Debian's mirrors</strong>, for system updates and anything you install.</li>
-    <li><strong>Our licence check</strong> (<code>dagric-gate.dagric.workers.dev</code>) — contacted
+    <li><strong>Our purchase-entitlement check</strong> (<code>dagric-gate.dagric.workers.dev</code>) — contacted
     <em>only</em> by the Hub's or setup wizard's <em>Upgrade to Pro</em> flow, only after you
     paste the purchase code from your receipt, and never otherwise. It sends two things: that
     code, so we can ask Stripe whether the purchase is real, and an <strong>anonymous machine
     fingerprint</strong> — a one-way hash of a hardware identifier salted with your purchase
-    code. The fingerprint exists because one purchase covers one machine; it cannot be turned
+    code. The fingerprint enforces one active guided-upgrade/support service slot per single-machine
+    purchase; it cannot be turned
     back into a serial number, and the same hardware produces a <em>different</em> value for
     every purchase, so it cannot track a machine across customers, sessions, or anything else.
     If you never start the upgrade, this host is never contacted. We keep, against your purchase,
-    only what enforces "one purchase, one machine": that fingerprint and the dates it was first
+    only what enforces that service slot: the fingerprint and the dates it was first
     and last seen. There is no raw serial number or IP address in that activation record. Ask
     <a href="/support">support</a> with your purchase if a replacement machine needs the slot moved,
     or if you want the activation record deleted. Browser-download records are described under
@@ -194,34 +102,25 @@
     rest of this before you press one. We do not vet any of it, and a Plasma theme or widget is
     not a picture — it is a program, and it runs in your session. Dagric's own wallpapers and
     styles are already on the disc and need none of this.</li>
-    <li><strong>Mozilla's add-on site</strong>, the first time you open Firefox. We set Firefox up
-    with the <strong>uBlock Origin</strong> ad blocker, but the blocker is not in the disc image —
-    Firefox fetches it, then checks it for updates exactly as it would an add-on you chose
-    yourself. There is no account and no identifier for you in those requests. Remove it from
-    <em>☰ → Add-ons and themes</em> and the checks stop.</li>
-    <li><strong>Firefox's own built-in services</strong>, which are Mozilla's defaults on every
-    Linux desktop and which we have not switched off: <em>Safe Browsing</em> downloads Google's
+    <li><strong>Mozilla's add-on site</strong>, only when you browse or install an add-on yourself.
+    Dagric does not preinstall or force any Firefox extension. An extension you choose may contact
+    Mozilla for installation and updates; remove it under <em>☰ → Add-ons and themes</em> to stop
+    those extension-update checks.</li>
+    <li><strong>Firefox's own built-in services.</strong> Dagric ships Debian's Firefox ESR package
+    without Dagric-specific browser policy or changed first-run settings. For example,
+    <em>Safe Browsing</em> downloads Google's
     list of malicious sites so it can warn you before you open one (the list comes to you — the
     pages you visit are not sent to Google), <em>captive-portal detection</em> pings
     <code>detectportal.firefox.com</code> so Firefox can tell a hotel Wi-Fi login page from a
     broken connection, and Firefox periodically fetches its own settings and blocklists from
     Mozilla. All three are in <em>☰ → Settings</em>.</li>
-<!-- ADDED WITH THE DoH POLICY. This page's rule is that a new outbound host is
-     named here in the SAME commit that creates it, and that rule has been broken
-     three times. Firefox's DNSOverHTTPS policy ships with no ProviderURL, which
-     means Firefox uses its own default endpoint — Cloudflare's — so the honest
-     entry names Cloudflare rather than saying "a DoH resolver", which is not a
-     hostname. Chromium's policy is deliberately NOT template-pinned, so it has
-     no new host to declare; that difference is stated rather than smoothed over. -->
-    <li><strong>Encrypted DNS.</strong> Both browsers are set to look names up over an
-    encrypted connection rather than in plaintext, so the café, hotel or campus network
-    you are on can no longer read a list of every site you visit. In Firefox this means
-    the lookups go to <code>mozilla.cloudflare-dns.com</code> &mdash; Firefox's own default
-    endpoint, which we have not overridden. In Chromium on Pro it means your existing
+
+    <li><strong>Encrypted DNS.</strong> Firefox keeps Debian and Mozilla's current defaults;
+    Dagric neither forces a resolver nor locks the setting. Review or change it at
+    <em>☰ → Settings → Privacy &amp; Security → DNS over HTTPS</em>. Chromium on Pro is set so your existing
     resolver is used over an encrypted connection <em>when that resolver supports one</em>,
-    and plain DNS otherwise; no fixed provider is pinned. Both are deliberately left
-    unlocked, so you can point them somewhere else or switch them off entirely
-    (Firefox: <em>☰ → Settings → Privacy &amp; Security → DNS over HTTPS</em>). Be
+    and plain DNS otherwise; no fixed provider is pinned. You can point either browser
+    somewhere else or switch encrypted DNS off entirely. Be
     clear-eyed about the trade: this moves who can watch your lookups from the network
     operator to the resolver. On public Wi-Fi that is a plain win; on your own home
     connection it is closer to a lateral move.</li>
@@ -236,11 +135,10 @@
     no walking-past problem on a cable and school and office networks authenticate by
     that address. If a network filters by hardware address and refuses you, the override
     is per-connection, in <em>Wi-Fi settings → Advanced → Restrict to device</em>.</li>
-    <li><strong>Google's Widevine module</strong>, the first time you play something that needs
-    it. Netflix, Spotify, Disney+ and Amazon all require DRM, so Firefox is configured to allow
-    it — and the module itself is proprietary and is <em>not</em> on the disc image, so Firefox
-    downloads it from Google at that moment. This is the one exception to "nothing proprietary
-    unless you ask", and it is here rather than buried: turn it off in
+    <li><strong>Google's Widevine module.</strong> Some streaming services require DRM. The module
+    is proprietary and is <em>not</em> on the disc image; Firefox may offer or fetch it according
+    to Firefox's own current settings when protected playback is requested. Dagric does not force
+    or lock that choice. Review it under
     <em>☰ → Settings → General → Play DRM-controlled content</em>, and those services stop
     working.</li>
     <li><strong>Chromium's own services</strong> (<strong>Pro</strong>). Pro ships a second
@@ -249,8 +147,8 @@
     the API keys that Chrome Sync and the Google account features need — so those genuinely do
     not work here. What is left still talks to Google-operated servers on its own: a connectivity
     check, so it can tell a hotel Wi-Fi page from a broken network, and update checks for any
-    extension you add from the Chrome Web Store. We have not gone through Chromium's settings the
-    way we went through Firefox's above, and this page is not going to imply that we have.
+    extension you add from the Chrome Web Store. Dagric leaves Firefox's browser configuration to
+    Debian/Mozilla and does not claim to have audited either publisher's changing online services.
     Nothing in Dagric launches it; Firefox is the default browser and stays the default until you
     change it.</li>
     <li><strong>Mozilla again, and your own mail provider</strong> (<strong>Pro</strong>), for
@@ -258,30 +156,30 @@
     Adding an account does one more thing worth knowing about: rather than make you type a page
     of server names and port numbers, Thunderbird looks them up — it sends the domain part of the
     email address you entered to Mozilla's configuration database, and asks your mail provider's
-    own servers directly. That is the only thing on this page that transmits something you typed.
+    own servers directly. This is one example on this page of a feature transmitting something you typed.
     Choose <em>Configure manually</em> at that screen and it asks nobody.</li>
     <li><strong>lutris.net</strong> (<strong>Pro</strong>), because the gaming launcher is a
     catalogue and the catalogue is not on the disc. Lutris asks lutris.net's API for the list of
     game installers and for the runner and runtime versions a game needs; without that request it
     has nothing to show you. It is normal operation, not a prompt — it happens when you open
     Lutris. Nothing starts it for you.</li>
-    <li><strong>Syncthing's discovery and relay servers</strong> (<strong>Pro</strong>), and this
-    is the one item on this page that is a report <em>to</em> a server rather than a fetch
-    <em>from</em> one. Syncthing does not run until you start it. Once you do, it announces this
+    <li><strong>Syncthing's discovery and relay servers</strong> (<strong>Pro</strong>).
+    Syncthing does not run until you start it. Once you do, it announces this
     machine's device ID and its network addresses to Syncthing's global discovery servers, and
     registers with the public relay pool, which is how two of your own machines find each other
     across the internet without you configuring anything. That device ID is a stable identifier
-    for the computer, and it is the only identifier anything on this list sends. Switch both off
+    for the computer. Switch both services off
     in Syncthing's own settings page — <em>Actions → Settings → Connections</em>, clear
     <em>Global Discovery</em> and <em>Enable Relaying</em> — after which your devices find each
     other only on the same network, or at addresses you type in yourself.</li>
-    <li><strong>ollama.com, GitHub, Valve and Blackmagic Design</strong>, only when you pick the
+    <li><strong>GitHub, Valve and Blackmagic Design</strong>, only when you pick the
     matching row in the Hub, and only after the confirmation screen that tells you exactly what
-    will be installed: <em>Local AI</em> fetches Ollama's installer from ollama.com,
-    <em>Proton-GE for Steam</em> fetches a release from GitHub, <em>Steam</em> installs Valve's
+    will be installed: <em>Local AI</em> fetches a pinned Ollama release archive from Ollama's
+    official GitHub project and verifies its reviewed SHA-256 checksum before installation,
+    <em>GE-Proton for Steam</em> fetches a release from GitHub, <em>Steam</em> installs Valve's
     installer package from Debian and Steam then updates itself from Valve on first run, and
     <em>DaVinci Resolve</em> opens Blackmagic Design's download page in your browser, because
-    their licence does not let us ship the software. The Hub's other installers use Flathub —
+    Dagric has not obtained permission to redistribute that software. The Hub's other installers use Flathub —
     see above.</li>
     <li><strong>The Linux Vendor Firmware Service</strong>, which is how your laptop learns a
     firmware update exists. It fetches a catalogue; it does not upload your hardware list.
@@ -293,18 +191,18 @@
     editions and announces this computer on your <em>local network</em> — a small broadcast
     carrying the computer's name and a stable device identifier, so your phone can find it in the
     pairing list. It goes no further than your own network: nothing is sent to us or to any
-    third party, and no pairing happens without you accepting it on both devices. This is the one
-    thing in this list that starts by itself and carries an identifier, which is exactly why it is
-    named here. To stop it, untick <em>KDE Connect</em> in
+    third party, and no pairing happens without you accepting it on both devices. It starts with
+    the desktop session and carries an identifier, which is exactly why it is named here. To stop
+    it, untick <em>KDE Connect</em> in
     <em>System Settings → Startup and Shutdown → Autostart</em>, or remove the
     <code>kdeconnect</code> package.</li>
   </ul>
   <p>Internet requests reveal your IP address to the server being asked, as they do on any Linux
   distribution. Dagric adds no product-usage report to those requests. Some third-party programs
   process additional information when you turn on their services or sign in; their own privacy
-  terms apply. Two device identifiers are specifically worth calling out: KDE&nbsp;Connect's local
-  announcement, which starts with your session, and Syncthing's discovery, only once you have
-  started it. Both are named above rather than left out of the list.</p>
+  terms apply. Identifiers specifically worth calling out include the per-purchase service-slot
+  fingerprint, KDE&nbsp;Connect's local announcement, and Syncthing's discovery identifier. Their
+  different purposes and trigger conditions are described above.</p>
   <p class="note">To be precise about a phrase that is easy to over-read: &ldquo;no telemetry&rdquo;
   means Dagric does not add a system that reports how you use the installed OS to us. It does not
   mean the machine never talks to anyone — it checks for updates, fetches firmware metadata, and
@@ -343,13 +241,7 @@
     first/last-use dates described above. Dagric does not put a raw hardware identifier or IP
     address in those KV records, although Firebase, Cloudflare and Stripe may process request logs
     under their policies.</li>
-    <!-- infra/contact-worker.js writes every
-         submission — message, name, email, and the CF-IPCountry code the sender
-         never typed — to the private Cloudflare R2 bucket dagric-contact. This
-         section listed only hosting, Stripe and "support email", so the one thing
-         we actually collect from most visitors was the one thing undisclosed, and
-         a processor was missing from our own data inventory. Keep this bullet in
-         step with the worker: if it ever stores another field, it is named here. -->
+
     <li><strong>The contact form.</strong> Sending it saves what you typed — topic, message, and the
     name and email you choose to give — as a private file in Cloudflare R2 that only authorized
     Dagric operators can read. Cloudflare supplies the two-letter request-country code, which is
@@ -358,7 +250,7 @@
     security or legal requests; we do not add it to a marketing list.</li>
     <li><strong>Support email.</strong> If you write to
     <a href="mailto:support@dagric.com">support@dagric.com</a> instead, Microsoft 365 processes
-    and stores the message for DGR Operations. We use it to reply and handle the request, and
+    and stores the message for IMPRESSIONSDIRECT360 LLC. We use it to reply and handle the request, and
     nothing more. See <a href="https://www.microsoft.com/privacy/privacystatement">Microsoft's
     privacy statement</a>.</li>
   </ul>
@@ -382,15 +274,14 @@
   <h2>What we never do</h2>
   <ul>
     <li>Sell, rent, or share your data with advertisers or brokers.</li>
-    <li>Profile you, fingerprint you, or track you across the web.</li>
+    <li>Fingerprint a browser or device for advertising, analytics, profiling, or cross-site
+    tracking. This does not describe the disclosed per-purchase service-slot hash used only after
+    you start the guided Pro upgrade.</li>
     <li>Require an account to use, update, or keep the software you bought.</li>
   </ul>
 
   <h2>Your choices and rights</h2>
-  <!-- "typically: a Stripe receipt" was wrong for most people who read this page:
-       someone who has never bought Pro but has used the contact form is held as a
-       stored message, not a receipt. A subject-access answer that understates the
-       inventory is worse than no answer. -->
+
   <p>Use the <a href="/contact">contact page</a> to ask what Dagric holds about you, correct it,
   request a portable copy, object to or restrict a use, or ask for deletion. In practice that can
   include a Stripe order, delivery/activation records and messages you sent us. We may need proof
@@ -409,8 +300,17 @@
 </main>
 
 <footer><div class="foot">
-  <span>© 2026 DGR Operations · Built on Debian. Not affiliated with the Debian Project.</span>
+  <span>© 2026 IMPRESSIONSDIRECT360 LLC · Built on Debian. Not affiliated with the Debian Project.</span>
   <span class="links"><a href="/features">Features</a><a href="/pro">Pro</a><a href="/download">Download</a><a href="/news">News</a><a href="/guide">Guide</a><a href="/support">Support</a><a href="/faq">FAQ</a><a href="/accessibility">Accessibility</a><a href="/security">Security</a><a href="/bugs">Report a bug</a><a href="/contact">Contact</a><a href="/about">About</a><a href="/review">Reviewers</a><a href="/licenses">Licenses</a><a href="/privacy">Privacy</a><a href="/terms">Terms</a></span>
+  <div class="social-footer" role="navigation" aria-label="Dagric OS social media">
+    <strong>Follow Dagric OS</strong>
+    <a href="https://www.youtube.com/@DagricOS" target="_blank" rel="me noopener">YouTube</a>
+    <a href="https://www.tiktok.com/@dagricosofficial" target="_blank" rel="me noopener">TikTok</a>
+    <a href="https://www.instagram.com/dagricosofficial/" target="_blank" rel="me noopener">Instagram</a>
+    <a href="https://www.snapchat.com/@dagricos" target="_blank" rel="me noopener">Snapchat</a>
+    <a href="https://www.linkedin.com/in/dorien-richardson" target="_blank" rel="me noopener">LinkedIn</a>
+    <a href="https://github.com/Dagric/dagric-os" target="_blank" rel="me noopener">GitHub</a>
+  </div>
 </div></footer>
 </body>
 </html>

@@ -1,5 +1,5 @@
 #!/bin/sh
-# SPDX-FileCopyrightText: 2026 DGR Operations <repo@dagric.com>
+# SPDX-FileCopyrightText: 2026 IMPRESSIONSDIRECT360 LLC <repo@dagric.com>
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Dagric OS — "Dagric Appearance": browse the desktop's styles and layouts as
 # pictures, try any of them for real, and keep only what you actually like.
@@ -51,6 +51,7 @@ XDG_DATA=${XDG_DATA_HOME:-$HOME/.local/share}
 XDG_CONF=${XDG_CONFIG_HOME:-$HOME/.config}
 STYLE_DIRS="/usr/share/dagric/styles /etc/dagric/styles $XDG_DATA/dagric/styles"
 LOOK_DIRS="/usr/share/dagric/looks /etc/dagric/looks $XDG_DATA/dagric/looks"
+ICON_DIRS="/usr/share/dagric/icon-styles /etc/dagric/icon-styles $XDG_DATA/dagric/icon-styles"
 THUMB_DIRS="/usr/share/dagric/appearance/thumbs /etc/dagric/appearance/thumbs $XDG_DATA/dagric/appearance/thumbs"
 # The catalogue is kept in a delimited scratch file. The delimiter is ASCII
 # Unit Separator, NOT a tab: tab counts as IFS whitespace, so "read" silently
@@ -120,6 +121,7 @@ trap 'exit 130' INT TERM HUP
 CATALOG=$WORK/catalog.json
 CAPFILE=$WORK/captured
 PANFILE=$WORK/panels
+ICONCAP=$WORK/icon-theme
 STATE=$WORK/pending
 
 # --- reading the drop-in files ----------------------------------------------
@@ -136,7 +138,7 @@ jesc() {
 flat() { printf '%s' "$1" | tr -d '\001-\037'; }
 
 # ACCENT is "r,g,b" in the style files; the window wants "#rrggbb" for the
-# fallback tile. Anything unparseable becomes the Dagric blue.
+# fallback tile. Anything unparseable becomes the DDL interaction accent.
 accent_hex() {
     _a=$(printf '%s' "$1" | tr -d ' ')
     case "$_a" in
@@ -184,8 +186,13 @@ collect() {
             _acc=$BRAND
             [ "$_kind" = "style" ] && _acc=$(accent_hex "$(skey "$_f" ACCENT)")
             _thumb=
+            _thumb_name=$(skey "$_f" THUMB)
+            [ -n "$_thumb_name" ] || _thumb_name=$_id.png
+            case "$_thumb_name" in
+                ''|*[!A-Za-z0-9._-]*) _thumb_name=$_id.png ;;
+            esac
             for _td in $THUMB_DIRS; do
-                [ -f "$_td/$_id.png" ] && _thumb="file://$_td/$_id.png"
+                [ -f "$_td/$_thumb_name" ] && _thumb="file://$_td/$_thumb_name"
             done
             grep -avF "$SEP$_id$SEP" "$_out" > "$_out.n" 2>/dev/null || true
             mv -f "$_out.n" "$_out" 2>/dev/null || true
@@ -210,8 +217,9 @@ emit_entries() {
 
 collect style style $STYLE_DIRS
 collect layout look $LOOK_DIRS
+collect icons iconstyle $ICON_DIRS
 
-if [ ! -s "$WORK/style.tsv" ] && [ ! -s "$WORK/layout.tsv" ]; then
+if [ ! -s "$WORK/style.tsv" ] && [ ! -s "$WORK/layout.tsv" ] && [ ! -s "$WORK/icons.tsv" ]; then
     kdialog --title "$TITLE" --sorry \
         "$(gettext "No styles or layouts are installed. Reinstall the dagric-branding package to restore them.")" 2>/dev/null
     exit 1
@@ -226,6 +234,9 @@ fi
     printf '\n  ],\n'
     printf '  "layouts": [\n'
     emit_entries "$WORK/layout.tsv" layout
+    printf '\n  ],\n'
+    printf '  "icons": [\n'
+    emit_entries "$WORK/icons.tsv" icons
     printf '\n  ]\n}\n'
 } > "$CATALOG"
 
@@ -255,6 +266,28 @@ set_wall() {
 }
 set_effect() { [ -n "$2" ] && kwriteconfig6 --file kwinrc --group Plugins --key "$1" "$2" 2>/dev/null; return 0; }
 del_effect() { kwriteconfig6 --file kwinrc --group Plugins --key "$1" --delete 2>/dev/null; return 0; }
+
+icon_theme_exists() {
+    _theme=$1
+    for _root in "$XDG_DATA/icons" "$HOME/.icons" /usr/local/share/icons /usr/share/icons; do
+        [ -f "$_root/$_theme/index.theme" ] && return 0
+    done
+    return 1
+}
+
+set_icon_theme() {
+    _theme=$1
+    case "$_theme" in ''|*[!A-Za-z0-9._-]*) return 1 ;; esac
+    icon_theme_exists "$_theme" || return 1
+    kwriteconfig6 --file kdeglobals --group Icons --key Theme "$_theme" 2>/dev/null || return 1
+    command -v kbuildsycoca6 >/dev/null 2>&1 && kbuildsycoca6 --noincremental >/dev/null 2>&1 || true
+    # KDE's IconChanged notification refreshes launchers and already-open KDE
+    # applications. A config write alone otherwise appears to work only after
+    # the next sign-in.
+    dbus-send --session --type=signal /KGlobalSettings \
+        org.kde.KGlobalSettings.notifyChange int32:4 int32:0 2>/dev/null || true
+    return 0
+}
 
 kwin_reload() {
     dbus-send --session --type=method_call --dest=org.kde.KWin \
@@ -350,6 +383,14 @@ capture_panels() {
     return 0
 }
 
+capture_icons() {
+    [ -s "$ICONCAP" ] && return 0
+    _theme=$(kreadconfig6 --file kdeglobals --group Icons --key Theme 2>/dev/null)
+    [ -n "$_theme" ] || _theme=breeze
+    case "$_theme" in ''|*[!A-Za-z0-9._-]*) _theme=breeze ;; esac
+    printf '%s\n' "$_theme" > "$ICONCAP"
+}
+
 # --- putting it back ---------------------------------------------------------
 revert_style() {
     [ -f "$CAPFILE" ] || return 0
@@ -387,7 +428,7 @@ rebuild_panels() {
     while IFS='|' read -r _tag _loc _h _widgets; do
         [ "$_tag" = "P" ] || continue
         case "$_loc" in ''|*[!a-z]*) _loc=bottom ;; esac
-        case "$_h" in ''|*[!0-9]*) _h=44 ;; esac
+        case "$_h" in ''|*[!0-9]*) _h=46 ;; esac
         _n=$((_n + 1))
         _js="$_js var p$_n=new Panel; p$_n.location=\"$_loc\"; p$_n.height=$_h;"
         for _w in $_widgets; do
@@ -414,6 +455,12 @@ fallback_layout() {
     return 0
 }
 
+revert_icons() {
+    [ -s "$ICONCAP" ] || return 0
+    _theme=$(head -1 "$ICONCAP")
+    set_icon_theme "$_theme"
+}
+
 # --- applying ----------------------------------------------------------------
 apply_style() {
     set_scheme "$(skey "$1" SCHEME)"
@@ -435,10 +482,16 @@ apply_layout() {
     plasma_script "$CLEAR $_sc"
 }
 
+apply_icons() {
+    _theme=$(skey "$1" THEME)
+    set_icon_theme "$_theme"
+}
+
 do_revert() {
     case "$1" in
         style)  revert_style ;;
         layout) rebuild_panels || fallback_layout ;;
+        icons)  revert_icons ;;
     esac
     return 0
 }
@@ -501,7 +554,7 @@ QML_RC=$WORK/qml.rc
     rest=${msg#*|}
     kind=${rest%%|*}
     id=${rest#*|}
-    case "$kind" in style|layout) : ;; *) kind=; id= ;; esac
+    case "$kind" in style|layout|icons) : ;; *) kind=; id= ;; esac
     case "$id" in ''|*[!A-Za-z0-9._-]*) id= ;; esac
 
     case "$cmd" in
@@ -520,19 +573,19 @@ QML_RC=$WORK/qml.rc
                     do_revert "$pending_kind"
                 fi
             fi
-            if [ "$kind" = "style" ]; then
-                capture_style
-            else
-                capture_panels || true
-            fi
+            case "$kind" in
+                style) capture_style ;;
+                layout) capture_panels || true ;;
+                icons) capture_icons ;;
+            esac
             pending_kind=$kind
             pending_id=$id
             printf '%s|%s\n' "$kind" "$id" > "$STATE"
-            if [ "$kind" = "style" ]; then
-                apply_style "$file"
-            else
-                apply_layout "$file"
-            fi
+            case "$kind" in
+                style) apply_style "$file" ;;
+                layout) apply_layout "$file" ;;
+                icons) apply_icons "$file" ;;
+            esac
             ;;
         KEEP)
             [ -n "$pending_kind" ] || continue
@@ -545,7 +598,7 @@ QML_RC=$WORK/qml.rc
             # tried and reverted would restore that older desktop and quietly
             # throw the Keep away. Clearing it makes the next trial measure
             # itself against what is actually on screen now.
-            rm -f "$CAPFILE" "$PANFILE"
+            rm -f "$CAPFILE" "$PANFILE" "$ICONCAP"
             pending_kind=
             pending_id=
             # $name came out of the catalogue, so it is already translated.

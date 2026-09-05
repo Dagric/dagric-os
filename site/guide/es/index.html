@@ -13,6 +13,7 @@
 <link rel="alternate" hreflang="it" href="https://dagric.com/guide/it">
 <link rel="alternate" hreflang="pt-br" href="https://dagric.com/guide/pt-br">
 <link rel="alternate" hreflang="x-default" href="https://dagric.com/guide">
+<meta name="description" content="La guía que viene dentro de Dagric OS: llegar desde Windows, el primer día, impresoras, Wi-Fi, atajos de teclado, programas de Windows y qué hacer cuando algo va mal.">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Guía de Dagric OS — su primera semana, resuelta">
 <meta property="og:description" content="La guía que viene dentro de Dagric OS: llegar desde Windows, el primer día, impresoras, Wi-Fi, atajos de teclado, programas de Windows y qué hacer cuando algo va mal.">
@@ -88,13 +89,7 @@
       <a lang="pt-BR" hreflang="pt-BR" href="/guide/pt-br">Português (Brasil)</a>
     </div>
 
-    <!-- Dos cosas que conviene saber antes de seguir leyendo. Están aquí arriba
-         y no en la letra pequeña, porque si no nadie las encuentra. La segunda
-         NO dice lo que dice la versión alemana: en español las herramientas de
-         Dagric, las entradas del lanzador y KDE sí están traducidas (po/es.po,
-         Name[es] en cada .desktop y la tabla de dagric-app-names), así que los
-         nombres en negrita de esta página son los españoles. Lo poco que sigue
-         en inglés se nombra una por una. -->
+
     <div class="langnote">
       <p><strong>Sobre la versión en español.</strong> Esta guía y la página de bienvenida están completas
       en español, pero todavía no las ha leído una persona de habla hispana nativa
@@ -545,12 +540,14 @@
       <h2>Ejecutar programas de Windows</h2>
       <p>Para los juegos, instala <strong>Steam</strong> con un clic desde el
       Dagric Hub (nunca viene incluido) y luego activa Proton en Configuración →
-      Compatibilidad. <strong>Heroic</strong> cubre Epic, GOG y Amazon, y la
-      orden <code>dagric-gaming</code> añade la versión Proton-GE de la
+      Compatibilidad. <strong>Heroic</strong> es un lanzador independiente para
+      cuentas de Epic Games Store, GOG y Amazon Games, y la
+      orden <code>dagric-gaming</code> añade la versión GE-Proton de la
       comunidad. Para el software de Windows corriente,
       <strong>Bottles</strong> — también un clic en el Hub — mantiene cada
-      programa en su propio contenedor ordenado. Todo eso funciona en
-      cualquiera de las dos ediciones.</p>
+      programa en su propio entorno Wine, que no es un entorno seguro. Estos
+      ayudantes opcionales est&aacute;n disponibles en ambas ediciones; la compatibilidad
+      var&iacute;a según la aplicación, el juego y el servicio.</p>
       <p><strong>En Pro</strong> <span class="pro">PRO</span> la base ya está
       instalada y ajustada: Wine ejecuta muchos archivos <code>.exe</code> con
       doble clic, y GameMode, MangoHud, Lutris y Vulkan de 32 bits están listos
@@ -591,7 +588,7 @@
         <div class="helper-row"><code>dagric-migrate</code><span>traer archivos desde Windows</span></div>
         <div class="helper-row"><code>dagric-get-resolve</code><span>DaVinci Resolve</span></div>
         <div class="helper-row"><code>dagric-ai</code><span>IA privada en este equipo</span></div>
-        <div class="helper-row"><code>dagric-gaming</code><span>Proton-GE</span></div>
+        <div class="helper-row"><code>dagric-gaming</code><span>GE-Proton</span></div>
         <div class="helper-row"><code>dagric-vm</code><span>máquinas virtuales, Pro</span></div>
       </div>
     </section>

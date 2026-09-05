@@ -11,13 +11,9 @@
 # With no default set, it takes whichever handler it happens to find first, and
 # on Pro that is Chromium.
 #
-# Which is the wrong answer, and wrong in the direction that matters. Firefox is
-# the browser Dagric actually hardens: telemetry off, Pocket off, studies off,
-# tracking protection on, uBlock Origin. Chromium as packaged has none of that.
-# So the edition somebody PAID for was the one that quietly handed them an
-# unhardened Google browser as the default for every link they click — while the
-# manual, the guide and the sales page all say Firefox. Free was correct only by
-# accident, because it has nothing else to pick.
+# Firefox ESR is the documented cross-edition default. Dagric intentionally
+# leaves Firefox's own browser settings and extensions unmodified; this MIME
+# choice selects the browser but does not change Mozilla's configuration.
 #
 # Chromium stays installed and one click away on Pro; it is offered, not
 # defaulted. Declaring the default explicitly also means this cannot drift again

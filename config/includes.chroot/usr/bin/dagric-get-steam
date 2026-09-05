@@ -1,28 +1,36 @@
 #!/bin/sh
-# SPDX-FileCopyrightText: 2026 DGR Operations <repo@dagric.com>
+# SPDX-FileCopyrightText: 2026 IMPRESSIONSDIRECT360 LLC <repo@dagric.com>
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Dagric OS — install Steam, on the owner's request.
-# Steam's installer (steam-installer) is in Debian's non-free section and
-# carries Valve's Subscriber Agreement, so Dagric never bundles it. This
-# installs it only when you ask — the same honest, user-consented pattern as
+# Steam's installer (steam-installer) is in Debian's contrib section. Dagric
+# does not redistribute Valve's proprietary client; this helper asks Debian's
+# installer to obtain it only when you ask — the same user-consented pattern as
 # the NVIDIA driver and DaVinci Resolve helpers. The 32-bit libraries Steam
-# needs (i386 multiarch, Wine32, 32-bit Vulkan) are already in place on Pro,
-# so this is a quick download.
+# needs (i386 multiarch, Wine32, 32-bit Vulkan) are already in place on Pro.
+# The same consent step installs Debian's steam-devices rules for advanced
+# controller access; those rules are intentionally absent from the base image.
 . /usr/bin/dagric-i18n.sh
 
-# TRANSLATORS: this paragraph explains a LICENCE position — Dagric does not
-# bundle Steam because Valve's licence forbids it. Keep that meaning exact;
-# it is the reason the helper exists. "Steam" and "Valve" are product names.
+# TRANSLATORS: keep the distinction between software included in Dagric and a
+# user-requested download. "Steam" and "Valve" are third-party product names.
 dg_say "$(gettext "Dagric — install Steam
 
-Steam is Valve's proprietary game store and launcher. Dagric doesn't ship it
-preinstalled (its licence forbids anyone bundling it), but installing it is one
-step. Everything it depends on is already set up on Dagric Pro.
+Steam is Valve's proprietary game store and launcher. Dagric does not include
+or redistribute the Steam client. If you choose to continue, Debian's installer
+will obtain it under Valve's terms. Dagric Pro already includes its open-source
+system dependencies.
+
+This also installs Debian's open-source steam-devices access rules for advanced
+controller features and /dev/uinput. Debian warns that these rules trade local-
+user isolation for functionality and should not be used on a machine with
+untrusted local users.
 
 You'll be asked for your administrator password, then Steam downloads and
 installs. Afterwards, launch \"Steam\" from the application launcher.")"
 
 dg_live_warn
+dg_say "Valve's current Steam Subscriber Agreement:"
+printf '%s\n\n' 'https://store.steampowered.com/subscriber_agreement/'
 printf '\n%s ' "$(gettext "Install Steam now? [y/N]")"
 read ans
 if ! dg_is_yes "$ans"; then
@@ -55,7 +63,7 @@ fi
 #
 # Both are also already on the Pro image, where apt will simply report them
 # installed and move on.
-pkexec sh -c 'dpkg --add-architecture i386 && apt-get update && apt-get install -y steam-installer mesa-vulkan-drivers mesa-vulkan-drivers:i386'
+pkexec sh -c 'dpkg --add-architecture i386 && apt-get update && apt-get install -y steam-installer steam-devices mesa-vulkan-drivers mesa-vulkan-drivers:i386'
 RC=$?
 if [ "$RC" -eq 0 ]; then
     echo

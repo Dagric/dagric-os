@@ -8,25 +8,13 @@
 <link rel="icon" type="image/png" href="/assets/dagric-logo.png">
 <link rel="stylesheet" href="/assets/site.css">
 <style>
-/* The ACR tables keep their full cell borders — a conformance table is read
-   cell by cell across three columns, which is the one place a grid of rules
-   beats a set of hairlines. --rule-2 rather than --rule because these lines
-   are doing structural work, not decoration. */
+
 table.acr{width:100%;border-collapse:collapse;margin:var(--s-4) 0;font-size:.94rem}
 table.acr th,table.acr td{border:1px solid var(--rule-2);padding:10px 12px;text-align:left;vertical-align:top}
 table.acr th{background:var(--ink-1);font-weight:600;color:var(--on)}
 table.acr thead th{border-bottom:1px solid var(--rule-2)}
 table.acr td:nth-child(2){white-space:nowrap;font-weight:700}
-/* Status is never carried by colour alone — the words "Supports", "Partially
-   Supports" and "Does Not Support" are the value in the cell.
-   All three are tokens now. --warn and --bad were literals (#E8B339/#F0837B),
-   which measured 1.70:1 and 2.26:1 the moment a light ground existed: this
-   page publishes the WCAG claim, so its own verdicts failing AA would have
-   been the worst single defect the light theme could ship.
-   Re-measured with the exact relative-luminance formula rather than carried
-   over — the old comment here claimed 8.15 and 6.09 on --ink-0 and neither
-   reproduces; the real dark figures are yes 11.02, partial 10.00, no 7.53.
-   Light: yes 6.15, partial 6.26, no 6.56 on the page. */
+
 .s-yes{color:var(--good)}.s-part{color:var(--warn)}.s-no{color:var(--bad)}
 .tablewrap{overflow-x:auto}
 dl.meta{display:grid;grid-template-columns:auto 1fr;gap:var(--s-2) var(--s-4);margin:var(--s-4) 0;
@@ -41,22 +29,7 @@ dl.meta dd{margin:0;color:var(--on-2)}
 <link rel="icon" href="/favicon.ico" sizes="32x32">
 <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
 <link rel="manifest" href="/site.webmanifest">
-<!-- assets/pageindex.js is deliberately NOT loaded. It built a sticky section
-     index into the right-hand gutter on the five long document pages, and the
-     owner reported it misbehaving on scroll — "when I scroll down it is funny
-     and doesn't work how it's supposed to". The mechanism is a position:sticky
-     <ol> inside a position:absolute box that carries BOTH top and bottom, so
-     the rail stops dead --s-7 above the end of <main> and slides away while
-     there is still page left; that is the "funny" part, and it is the shape of
-     the bug even before anything else is measured.
-     It is out rather than patched because nothing here has a browser to verify
-     a fix in — every check available is layout arithmetic, and this is a defect
-     you can only see. A feature nobody asked for that confuses the owner is
-     worse than an empty gutter. The file stays in the tree; put the tag back
-     when somebody can watch it scroll.
-     Removing the tag is the whole revert: the nav is display:none below
-     1440px, absolutely positioned above it, and takes part in no layout at any
-     width, so these pages are byte-for-byte what they were before it existed. -->
+
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Dagric OS">
 <meta property="og:title" content="Accessibility Conformance — Dagric OS">
@@ -112,25 +85,9 @@ dl.meta dd{margin:0;color:var(--on-2)}
   with the reason, not glossed.</p>
 
   <h2 id="tbl-keyboard-access-section-508-502-4">Keyboard access — Section 508 502.4 / ANSI-HFES 9.3</h2>
-  <!-- tabindex+role+aria-label, not a bare div. This wrapper is overflow-x:auto,
-       and on a 360px phone its table is 403px wide, so the "Remarks" column is
-       only reachable by scrolling the region. A div with overflow:auto is NOT
-       focusable in Chrome without tabindex, so a keyboard-only reader could not
-       scroll it at all - WCAG 2.1.1 (Keyboard), on the page that publishes this
-       product's WCAG 2.1 AA conformance claim. role=region plus a name makes it
-       a landmark a screen reader announces and can jump to, instead of an
-       unlabelled focus stop that appears to do nothing. The name is the id of
-       the h2 immediately above, so the two cannot drift apart. -->
+
   <div class="tablewrap" tabindex="0" role="region" aria-labelledby="tbl-keyboard-access-section-508-502-4">
-  <!-- FIRST COLUMN IS <th scope="row"> IN ALL FOUR TABLES ON THIS PAGE. The
-       criterion name is the row label; "Supports" / "Does Not Support" beside it
-       is meaningless without it. As plain <td> that relationship was not
-       programmatically determinable — WCAG 1.3.1 Info and Relationships,
-       Level A — on the four tables of the conformance report itself. The
-       report's scope statement further down covers the shipped OS rather than
-       this website, so nothing published was false; it was still the worst page
-       on the site to have it. <thead> keeps bare <th>: one header row does not
-       need scope="col". -->
+
   <table class="acr">
     <thead><tr><th>Criterion</th><th>Conformance</th><th>Remarks</th></tr></thead>
     <tbody>
@@ -178,15 +135,7 @@ dl.meta dd{margin:0;color:var(--on-2)}
   </div>
 
   <h2 id="tbl-screen-reader-and-non-visual-acces">Screen reader and non-visual access</h2>
-  <!-- tabindex+role+aria-label, not a bare div. This wrapper is overflow-x:auto,
-       and on a 360px phone its table is 403px wide, so the "Remarks" column is
-       only reachable by scrolling the region. A div with overflow:auto is NOT
-       focusable in Chrome without tabindex, so a keyboard-only reader could not
-       scroll it at all - WCAG 2.1.1 (Keyboard), on the page that publishes this
-       product's WCAG 2.1 AA conformance claim. role=region plus a name makes it
-       a landmark a screen reader announces and can jump to, instead of an
-       unlabelled focus stop that appears to do nothing. The name is the id of
-       the h2 immediately above, so the two cannot drift apart. -->
+
   <div class="tablewrap" tabindex="0" role="region" aria-labelledby="tbl-screen-reader-and-non-visual-acces">
   <table class="acr">
     <thead><tr><th>Criterion</th><th>Conformance</th><th>Remarks</th></tr></thead>
@@ -250,15 +199,7 @@ dl.meta dd{margin:0;color:var(--on-2)}
   </div>
 
   <h2 id="tbl-low-vision-contrast-magnification">Low vision — contrast, magnification, text size</h2>
-  <!-- tabindex+role+aria-label, not a bare div. This wrapper is overflow-x:auto,
-       and on a 360px phone its table is 403px wide, so the "Remarks" column is
-       only reachable by scrolling the region. A div with overflow:auto is NOT
-       focusable in Chrome without tabindex, so a keyboard-only reader could not
-       scroll it at all - WCAG 2.1.1 (Keyboard), on the page that publishes this
-       product's WCAG 2.1 AA conformance claim. role=region plus a name makes it
-       a landmark a screen reader announces and can jump to, instead of an
-       unlabelled focus stop that appears to do nothing. The name is the id of
-       the h2 immediately above, so the two cannot drift apart. -->
+
   <div class="tablewrap" tabindex="0" role="region" aria-labelledby="tbl-low-vision-contrast-magnification">
   <table class="acr">
     <thead><tr><th>Criterion</th><th>Conformance</th><th>Remarks</th></tr></thead>
@@ -303,15 +244,7 @@ dl.meta dd{margin:0;color:var(--on-2)}
   </div>
 
   <h2 id="tbl-other">Other</h2>
-  <!-- tabindex+role+aria-label, not a bare div. This wrapper is overflow-x:auto,
-       and on a 360px phone its table is 403px wide, so the "Remarks" column is
-       only reachable by scrolling the region. A div with overflow:auto is NOT
-       focusable in Chrome without tabindex, so a keyboard-only reader could not
-       scroll it at all - WCAG 2.1.1 (Keyboard), on the page that publishes this
-       product's WCAG 2.1 AA conformance claim. role=region plus a name makes it
-       a landmark a screen reader announces and can jump to, instead of an
-       unlabelled focus stop that appears to do nothing. The name is the id of
-       the h2 immediately above, so the two cannot drift apart. -->
+
   <div class="tablewrap" tabindex="0" role="region" aria-labelledby="tbl-other">
   <table class="acr">
     <thead><tr><th>Criterion</th><th>Conformance</th><th>Remarks</th></tr></thead>
@@ -372,8 +305,17 @@ dl.meta dd{margin:0;color:var(--on-2)}
 </main>
 
 <footer><div class="foot">
-  <span>© 2026 DGR Operations · Built on Debian. Not affiliated with the Debian Project.</span>
+  <span>© 2026 IMPRESSIONSDIRECT360 LLC · Built on Debian. Not affiliated with the Debian Project.</span>
   <span class="links"><a href="/features">Features</a><a href="/pro">Pro</a><a href="/download">Download</a><a href="/news">News</a><a href="/guide">Guide</a><a href="/support">Support</a><a href="/faq">FAQ</a><a href="/accessibility">Accessibility</a><a href="/security">Security</a><a href="/bugs">Report a bug</a><a href="/contact">Contact</a><a href="/about">About</a><a href="/review">Reviewers</a><a href="/licenses">Licenses</a><a href="/privacy">Privacy</a><a href="/terms">Terms</a></span>
+  <div class="social-footer" role="navigation" aria-label="Dagric OS social media">
+    <strong>Follow Dagric OS</strong>
+    <a href="https://www.youtube.com/@DagricOS" target="_blank" rel="me noopener">YouTube</a>
+    <a href="https://www.tiktok.com/@dagricosofficial" target="_blank" rel="me noopener">TikTok</a>
+    <a href="https://www.instagram.com/dagricosofficial/" target="_blank" rel="me noopener">Instagram</a>
+    <a href="https://www.snapchat.com/@dagricos" target="_blank" rel="me noopener">Snapchat</a>
+    <a href="https://www.linkedin.com/in/dorien-richardson" target="_blank" rel="me noopener">LinkedIn</a>
+    <a href="https://github.com/Dagric/dagric-os" target="_blank" rel="me noopener">GitHub</a>
+  </div>
 </div></footer>
 </body>
 </html>

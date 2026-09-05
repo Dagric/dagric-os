@@ -3,11 +3,12 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Getting started — Dagric OS</title>
-<meta name="description" content="From download to desktop in about 20 minutes: make a USB stick, try the live system, install Dagric OS.">
+<title>Install Dagric OS | Download, USB &amp; Setup Guide</title>
+<meta name="description" content="Install Dagric OS step by step: download and verify the release, prepare a USB drive, test hardware, back up files, and complete setup safely.">
 <link rel="icon" type="image/png" href="/assets/dagric-logo.png">
 <link rel="stylesheet" href="/assets/site.css">
 <link rel="canonical" href="https://dagric.com/getting-started">
+<link rel="search" type="application/opensearchdescription+xml" title="Search Dagric OS" href="/opensearch.xml">
 <meta name="theme-color" content="#0C0F14">
 <script src="/assets/theme.js"></script>
 <link rel="icon" href="/favicon.ico" sizes="32x32">
@@ -15,15 +16,15 @@
 <link rel="manifest" href="/site.webmanifest">
 <meta property="og:type" content="article">
 <meta property="og:site_name" content="Dagric OS">
-<meta property="og:title" content="Getting started — Dagric OS">
-<meta property="og:description" content="From download to desktop in about 20 minutes: make a USB stick, try the live system, install Dagric OS.">
+<meta property="og:title" content="Install Dagric OS | Download, USB &amp; Setup Guide">
+<meta property="og:description" content="Download and verify the release, prepare a USB drive, test hardware, back up files, and install safely.">
 <meta property="og:url" content="https://dagric.com/getting-started">
 <meta property="og:image" content="https://dagric.com/assets/hero-desktop.png">
 <meta property="og:image:width" content="1920">
 <meta property="og:image:height" content="1080">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Getting started — Dagric OS">
-<meta name="twitter:description" content="From download to desktop in about 20 minutes: make a USB stick, try the live system, install Dagric OS.">
+<meta name="twitter:title" content="Install Dagric OS | Download, USB &amp; Setup Guide">
+<meta name="twitter:description" content="Download and verify the release, prepare a USB drive, test hardware, back up files, and install safely.">
 <meta name="twitter:image" content="https://dagric.com/assets/hero-desktop.png">
 </head>
 <body>
@@ -32,7 +33,7 @@
   <a class="brand" href="/"><img src="/assets/dagric-logo.png" alt="" width="30" height="30">Dagric&nbsp;OS</a>
   <div class="nav-links">
     <a href="/features">Features</a><a href="/pro">Pro</a><a href="/about">About</a>
-    <a href="/guide">Guide</a><a href="/support">Support</a>
+    <a href="/guide">Guide</a><a href="/support">Support</a><a href="/search">Search</a>
     <a class="cta" href="/download">Download</a>
   </div>
 </div></nav>
@@ -57,14 +58,7 @@
       On macOS/Linux, <a href="https://etcher.balena.io">balenaEtcher</a> works the same way.</li>
     <li><strong>Boot from the USB.</strong> Restart with the stick plugged in and tap the
       boot-menu key as the machine starts:
-      <!-- The maker column is a row LABEL, not data: reading down the Key column,
-           "F9" only means something once you know the row is HP. Left as plain
-           <td> the relationship is not programmatically determinable, so a screen
-           reader navigating column-wise announces the key and never the maker —
-           WCAG 1.3.1 Info and Relationships, Level A. scope="col" is on the head
-           row here (and NOT on the thead tables elsewhere on the site) because
-           this table has no <thead>: once the first column carries row headers,
-           the direction of a bare <th> is ambiguous and has to be stated. -->
+
       <table>
         <tr><th scope="col">Maker</th><th scope="col">Key</th></tr>
         <tr><th scope="row">Dell, Lenovo, Acer</th><td><kbd>F12</kbd></td></tr>
@@ -90,17 +84,7 @@
 
   <h2 id="h-verify-download">Verify your download (recommended)</h2>
   <p>Every release is checksummed and GPG-signed. On Linux/macOS:</p>
-  <!-- tabindex+role+a name, matching the .tablewrap wrappers on /index and
-       /accessibility, and the identical block on /download. site.css gives
-       every <pre> overflow-x:auto, and measured at a 320px viewport this block
-       is 296px of content in a 278px box: 18px of horizontal scroll, on the
-       three commands that prove the ISO is what we built. An overflow
-       container is not keyboard-focusable in Chrome without tabindex, so a
-       reader using only a keyboard could not scroll to the end of
-       `gpg --verify SHA256SUMS.sig SHA256SUMS` at all (WCAG 2.1.1), and
-       without role+name a screen reader announces the scroll region as nothing
-       (WCAG 1.3.1, 4.1.2). aria-labelledby points at the section's own h2, so
-       the name is text already on the page and no new wording is introduced. -->
+
   <pre tabindex="0" role="region" aria-labelledby="h-verify-download"><code>gpg --import dagric-signing-key.asc
 gpg --verify SHA256SUMS.sig SHA256SUMS
 sha256sum -c SHA256SUMS</code></pre>
@@ -119,8 +103,17 @@ sha256sum -c SHA256SUMS</code></pre>
 </main>
 
 <footer><div class="foot">
-  <span>© 2026 DGR Operations · Built on Debian. Not affiliated with the Debian Project.</span>
+  <span>© 2026 IMPRESSIONSDIRECT360 LLC · Built on Debian. Not affiliated with the Debian Project.</span>
   <span class="links"><a href="/features">Features</a><a href="/pro">Pro</a><a href="/download">Download</a><a href="/news">News</a><a href="/guide">Guide</a><a href="/support">Support</a><a href="/faq">FAQ</a><a href="/accessibility">Accessibility</a><a href="/security">Security</a><a href="/bugs">Report a bug</a><a href="/contact">Contact</a><a href="/about">About</a><a href="/review">Reviewers</a><a href="/licenses">Licenses</a><a href="/privacy">Privacy</a><a href="/terms">Terms</a></span>
+  <div class="social-footer" role="navigation" aria-label="Dagric OS social media">
+    <strong>Follow Dagric OS</strong>
+    <a href="https://www.youtube.com/@DagricOS" target="_blank" rel="me noopener">YouTube</a>
+    <a href="https://www.tiktok.com/@dagricosofficial" target="_blank" rel="me noopener">TikTok</a>
+    <a href="https://www.instagram.com/dagricosofficial/" target="_blank" rel="me noopener">Instagram</a>
+    <a href="https://www.snapchat.com/@dagricos" target="_blank" rel="me noopener">Snapchat</a>
+    <a href="https://www.linkedin.com/in/dorien-richardson" target="_blank" rel="me noopener">LinkedIn</a>
+    <a href="https://github.com/Dagric/dagric-os" target="_blank" rel="me noopener">GitHub</a>
+  </div>
 </div></footer>
 </body>
 </html>

@@ -519,11 +519,14 @@
       <h2>Eseguire programmi Windows</h2>
       <p>Per i giochi, installa <strong>Steam</strong> con un clic dal Dagric
       Hub (non è mai preinstallato), poi attiva Proton in Impostazioni →
-      Compatibilità. <strong>Heroic</strong> copre Epic, GOG e Amazon, e il
-      comando <code>dagric-gaming</code> aggiunge la versione Proton-GE della
+      Compatibilità. <strong>Heroic</strong> è un launcher indipendente per gli
+      account Epic Games Store, GOG e Amazon Games, e il
+      comando <code>dagric-gaming</code> aggiunge la versione GE-Proton della
       comunità. Per il software Windows ordinario, <strong>Bottles</strong> —
-      anche questo un clic dall'Hub — tiene ogni programma nel suo contenitore
-      pulito. Tutto questo funziona in entrambe le edizioni.</p>
+      anche questo un clic dall'Hub — tiene ogni programma in un ambiente Wine
+      separato, che non è una sandbox di sicurezza. Questi strumenti facoltativi
+      sono disponibili in entrambe le edizioni; la compatibilità varia in base
+      all'applicazione, al gioco e al servizio.</p>
       <p><strong>Su Pro</strong> <span class="pro">PRO</span> lo strato
       sottostante è già installato e messo a punto: Wine esegue molti file
       <code>.exe</code> con un doppio clic, e GameMode, MangoHud, Lutris e
@@ -563,7 +566,7 @@
         <div class="helper-row"><code>dagric-migrate</code><span>portare i file da Windows</span></div>
         <div class="helper-row"><code>dagric-get-resolve</code><span>DaVinci Resolve</span></div>
         <div class="helper-row"><code>dagric-ai</code><span>IA locale e privata</span></div>
-        <div class="helper-row"><code>dagric-gaming</code><span>Proton-GE</span></div>
+        <div class="helper-row"><code>dagric-gaming</code><span>GE-Proton</span></div>
         <div class="helper-row"><code>dagric-vm</code><span>macchine virtuali, Pro</span></div>
       </div>
     </section>

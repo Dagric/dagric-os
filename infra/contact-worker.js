@@ -18,6 +18,7 @@ const ORIGINS = [
   "https://dagric-os.web.app",
 ];
 const MAX = { name: 120, email: 200, topic: 40, message: 5000 };
+const TOPICS = new Set(["support", "order", "bug", "security", "business", "general"]);
 
 // Nothing may be parsed before this is checked. The field caps below are applied
 // AFTER req.json() has already read and decoded the whole body, so a megabyte of
@@ -29,19 +30,32 @@ const MAX_BODY = 16 * 1024;
 
 export default {
   async fetch(req, env) {
-    // Echo the caller's origin when it is on the list (Vary: Origin so no cache
-    // hands one site's header to another). Anything else gets the canonical
-    // domain, which is not a match for that caller and so is still refused.
+    // Echo an allowed caller and omit ACAO entirely for every other origin.
+    // More importantly, reject a present, unrecognised Origin before touching
+    // the rate limiter or R2. Without this check an attacker could use a
+    // no-cors text/plain POST to make a victim's browser fill the support inbox:
+    // CORS hides a response, but it does not stop a request from being sent.
     const origin = req.headers.get("Origin") || "";
     const cors = {
-      "Access-Control-Allow-Origin": ORIGINS.includes(origin) ? origin : ORIGINS[0],
       "Vary": "Origin",
       "Access-Control-Allow-Methods": "POST, OPTIONS",
       "Access-Control-Allow-Headers": "Content-Type",
+      "Cache-Control": "no-store",
+      "Content-Security-Policy": "default-src 'none'; base-uri 'none'; frame-ancestors 'none'",
+      "Referrer-Policy": "no-referrer",
+      "X-Content-Type-Options": "nosniff",
+      "X-Frame-Options": "DENY",
     };
-    if (req.method === "OPTIONS") return new Response(null, { status: 204, headers: cors });
+    if (ORIGINS.includes(origin)) cors["Access-Control-Allow-Origin"] = origin;
+    if (origin && !ORIGINS.includes(origin))
+      return json({ ok: false, error: "Origin not allowed" }, 403, cors);
+    if (req.method === "OPTIONS")
+      return new Response(null, { status: 204, headers: cors });
     if (req.method !== "POST")
       return json({ ok: false, error: "POST only" }, 405, cors);
+    const contentType = (req.headers.get("Content-Type") || "").toLowerCase();
+    if (!contentType.startsWith("application/json"))
+      return json({ ok: false, error: "JSON required" }, 415, cors);
 
     // RATE LIMITING, BECAUSE CORS IS NOT A CONTROL.
     //
@@ -90,7 +104,7 @@ export default {
 
     let raw;
     try { raw = await req.text(); } catch { return json({ ok: false, error: "Bad request" }, 400, cors); }
-    if (raw.length > MAX_BODY)
+    if (new TextEncoder().encode(raw).byteLength > MAX_BODY)
       return json({ ok: false, error: "That message is too long." }, 413, cors);
 
     let b;
@@ -103,7 +117,8 @@ export default {
 
     const name = str(b.name, MAX.name);
     const email = str(b.email, MAX.email);
-    const topic = str(b.topic, MAX.topic) || "general";
+    const requestedTopic = str(b.topic, MAX.topic);
+    const topic = TOPICS.has(requestedTopic) ? requestedTopic : "general";
     const message = str(b.message, MAX.message);
     if (!message || message.length < 10)
       return json({ ok: false, error: "Please write a message (at least 10 characters)." }, 400, cors);
@@ -112,11 +127,20 @@ export default {
 
     const when = new Date();
     const key = `inbox/${when.toISOString().slice(0, 10)}/${when.toISOString().replace(/[:.]/g, "-")}-${crypto.randomUUID().slice(0, 8)}.json`;
-    await env.MAIL.put(key, JSON.stringify({
-      when: when.toISOString(),
-      topic, name, email, message,
-      country: req.headers.get("CF-IPCountry") || "",
-    }, null, 2), { httpMetadata: { contentType: "application/json" } });
+    try {
+      if (!env || !env.MAIL || typeof env.MAIL.put !== "function") throw new Error("missing R2 binding");
+      await env.MAIL.put(key, JSON.stringify({
+        when: when.toISOString(),
+        topic, name, email, message,
+        country: req.headers.get("CF-IPCountry") || "",
+      }, null, 2), { httpMetadata: { contentType: "application/json" } });
+    } catch {
+      return json(
+        { ok: false, error: "The support inbox is temporarily unavailable. Please email support@dagric.com." },
+        503,
+        { ...cors, "Retry-After": "60" }
+      );
+    }
 
     return json({ ok: true }, 200, cors);
   },
@@ -125,6 +149,6 @@ export default {
 function str(v, max) { return (typeof v === "string" ? v.trim() : "").slice(0, max); }
 function json(obj, status, cors) {
   return new Response(JSON.stringify(obj), {
-    status, headers: { "Content-Type": "application/json", ...cors },
+    status, headers: { "Content-Type": "application/json; charset=utf-8", ...cors },
   });
 }

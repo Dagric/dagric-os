@@ -1,0 +1,15 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>ISO Image Writer — Dagric OS Manual</title><link rel="stylesheet" href="manual.css"><script src="manual.js"></script></head>
+<body><a class="skip" href="#main">Skip to content</a><div class="shell"><aside class="side"><div class="sidebox"><a class="brand" href="index.html"><div class="mark">D</div><div class="brand-name">Dagric OS<small>Manual</small></div></a><nav class="toc" aria-label="Files and getting around"><a class="back" href="index.html">&larr; All applications</a><div class="navgroup">Files and getting around</div><a href="app-dolphin.html">Dolphin</a><a href="app-iso-image-writer.html" class="active">ISO Image Writer</a><a href="app-partition-manager.html">Partition Manager</a></nav></div></aside>
+<main class="content" id="main" tabindex="-1"><header class="hero"><div class="eyebrow">Files and getting around</div><h1>ISO Image Writer</h1><p class="sub">Turn a downloaded operating-system image into a bootable USB drive.</p></header>
+<div class="swap"><span>On Windows this was</span><strong>Rufus or balenaEtcher</strong></div>
+<section><h2>What it is</h2><p>ISO Image Writer copies a disk image to a USB drive exactly. It does not copy the image as an ordinary file. The destination drive is overwritten, including its current files and partition layout.</p></section>
+<section><h2>Five things you will actually do</h2><ol class="tasks">
+<li><span class="t">Download the image</span><p>Get the image from the operating system's official website. Keep its checksum or signature when one is provided.</p></li>
+<li><span class="t">Select the image</span><p>Open ISO Image Writer and choose the downloaded <code>.iso</code> or supported image file.</p></li>
+<li><span class="t">Identify the USB drive</span><p>Match its size and model. Unplug other removable drives if the list is ambiguous.</p></li>
+<li><span class="t">Write and wait</span><p>Start the write, approve the password prompt, and leave the drive connected until verification finishes.</p></li>
+<li><span class="t">Eject safely</span><p>Use the eject control in Dolphin before unplugging. To start from it, restart and choose the USB drive in the computer's boot menu.</p></li></ol></section>
+<section><h2>Important</h2><p><strong>The selected destination is erased.</strong> A USB drive may appear smaller or unreadable in another system afterward; Partition Manager can restore it for ordinary storage later.</p></section>
+<section><h2>Where to find it</h2><p>Launcher &rarr; <strong>ISO Image Writer</strong>. You can also right-click a compatible image in Dolphin and choose the writer.</p></section>
+<section><h2>See also</h2><div class="related"><a href="app-dolphin.html">Dolphin</a><a href="app-partition-manager.html">Partition Manager</a><a href="app-drive-health.html">Drive health</a></div></section>
+<footer class="colophon">Dagric OS Manual &middot; stored on this computer, no internet needed &middot; <a href="index.html">every application</a></footer></main></div></body></html>

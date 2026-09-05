@@ -3,16 +3,12 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>FAQ — Dagric OS</title>
+<title>Dagric OS FAQ | Pricing, Privacy, Hardware &amp; Windows Apps</title>
 <meta name="description" content="Frequently asked questions about Dagric OS — pricing, privacy, Windows apps, installation, Pro delivery, and purchase policy.">
 <link rel="icon" type="image/png" href="/assets/dagric-logo.png">
 <link rel="stylesheet" href="/assets/site.css">
 <style>
-/* The full local re-declaration of details/summary that used to sit here is
-   deleted. site.css owns the disclosure component, so the twenty answers on
-   this page and the eight on the homepage are the same object — which is what
-   stopped .shot forking into four copies across three files and is the same
-   argument here. Only the department rhythm is local. */
+
 h2{margin-top:var(--s-7)}
 </style>
 <link rel="canonical" href="https://dagric.com/faq">
@@ -21,32 +17,17 @@ h2{margin-top:var(--s-7)}
 <link rel="icon" href="/favicon.ico" sizes="32x32">
 <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
 <link rel="manifest" href="/site.webmanifest">
-<!-- assets/pageindex.js is deliberately NOT loaded. It built a sticky section
-     index into the right-hand gutter on the five long document pages, and the
-     owner reported it misbehaving on scroll — "when I scroll down it is funny
-     and doesn't work how it's supposed to". The mechanism is a position:sticky
-     <ol> inside a position:absolute box that carries BOTH top and bottom, so
-     the rail stops dead --s-7 above the end of <main> and slides away while
-     there is still page left; that is the "funny" part, and it is the shape of
-     the bug even before anything else is measured.
-     It is out rather than patched because nothing here has a browser to verify
-     a fix in — every check available is layout arithmetic, and this is a defect
-     you can only see. A feature nobody asked for that confuses the owner is
-     worse than an empty gutter. The file stays in the tree; put the tag back
-     when somebody can watch it scroll.
-     Removing the tag is the whole revert: the nav is display:none below
-     1440px, absolutely positioned above it, and takes part in no layout at any
-     width, so these pages are byte-for-byte what they were before it existed. -->
+
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Dagric OS">
-<meta property="og:title" content="FAQ — Dagric OS">
+<meta property="og:title" content="Dagric OS FAQ | Pricing, Privacy, Hardware &amp; Windows Apps">
 <meta property="og:description" content="Frequently asked questions about Dagric OS — pricing, privacy, Windows apps, installation, Pro delivery, and purchase policy.">
 <meta property="og:url" content="https://dagric.com/faq">
 <meta property="og:image" content="https://dagric.com/assets/hero-desktop.png">
 <meta property="og:image:width" content="1920">
 <meta property="og:image:height" content="1080">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="FAQ — Dagric OS">
+<meta name="twitter:title" content="Dagric OS FAQ | Pricing, Privacy, Hardware &amp; Windows Apps">
 <meta name="twitter:description" content="Frequently asked questions about Dagric OS — pricing, privacy, Windows apps, installation, Pro delivery, and purchase policy.">
 <meta name="twitter:image" content="https://dagric.com/assets/hero-desktop.png">
 </head>
@@ -67,14 +48,7 @@ h2{margin-top:var(--s-7)}
   <a href="/contact">Ask us directly</a>.</p>
 
   <h2>The basics</h2>
-  <!-- The most important question on this page, and it was missing entirely.
-       The homepage headline is "Windows 10 is done" — so the very first thing a
-       reader wants to know is how long THIS one lasts before it does the same
-       thing to them. Dates are Debian's own published LTS schedule for trixie
-       (2028-08-09 to 2030-06-30), not a promise invented here. Stated with the
-       LTS caveat because LTS is a volunteer-and-sponsor effort with narrower
-       package coverage than regular security support, and overstating it would
-       be exactly the kind of thing this page exists to avoid. -->
+
   <details><summary>How long will Dagric OS be supported?</summary><p>Security updates through
   <strong>August 2028</strong> from Debian's security team, and then community long-term support
   until <strong>June 2030</strong> — Debian publishes that schedule openly, and Dagric inherits it
@@ -96,10 +70,10 @@ h2{margin-top:var(--s-7)}
   <details><summary>Can I try it without installing anything?</summary><p>Yes — every ISO is also
   a live system. Boot it from a USB stick and use the full desktop without touching your disk;
   install only when you're ready. The <a href="/getting-started">guide</a> shows you how.</p></details>
-  <details><summary>Will it run on my computer?</summary><p>Any 64-bit PC from roughly 2012
-  onward with 4 GB of RAM (8 GB recommended) and 25–40 GB of disk. UEFI with Secure Boot and older
-  BIOS machines both work. It runs beautifully on hardware Windows 10's end-of-support left
-  behind.</p><p>But a spec list can't tell you whether <em>your</em> Wi-Fi card has a driver, so
+  <details><summary>Will it run on my computer?</summary><p>The baseline is a 64-bit PC with
+  4 GB of RAM (8 GB recommended) and 25–40 GB of disk. Dagric OS supports UEFI with Secure Boot
+  and older BIOS startup, but a requirements list cannot prove that every component in a specific
+  computer will work.</p><p>A spec list can't tell you whether <em>your</em> Wi-Fi card has a driver, so
   don't take our word for it. Every Dagric USB stick puts <strong>Check This PC</strong> on the live
   desktop, right beside the installer — click that one first. It reports, in plain language, on your
   Wi-Fi and network, graphics and screen, Secure Boot, sound, camera and printer, the battery if
@@ -111,14 +85,7 @@ h2{margin-top:var(--s-7)}
   which to boot.</p></details>
 
   <h2>Coming from Windows</h2>
-  <!-- "Yes — automatically" was true of the files and false of the bookmarks.
-       dagric-migrate rsyncs the folders across on its own, but its bookmark step
-       writes ~/Windows-bookmarks.html and then prints Firefox's own import path
-       — nothing on this side ever writes places.sqlite. The homepage's "coming
-       from Windows" table already says "import your bookmarks from its menu", so
-       the accurate answer is also the one that stops the site arguing with
-       itself. This is the question that decides the install; it does not get to
-       be the one that disappoints ten minutes after first boot. -->
+
   <details><summary>Will my files and bookmarks come with me?</summary><p>Yes. The
   <strong>Migration Assistant</strong> (in the Hub, on every edition) finds the Windows still
   on your PC and copies your Documents, Desktop, Pictures, Music and Videos straight into your new
@@ -127,36 +94,28 @@ h2{margin-top:var(--s-7)}
   modified — you can boot back into
   it any time. NTFS and exFAT drives also mount out of the box, and documents open with matching
   Office-metric fonts so the layout holds.</p></details>
-  <!-- "on Pro" was both wrong and a weaker pitch than the truth. dagric-hub
-       lists Bottles in the unconditional block; the EDITION = pro gate below it
-       holds only the VM and USB protection, and dagric-get-bottles has no
-       edition check at all. Selling a gate that does not exist loses the free
-       user who believes it and refunds the Pro buyer who finds out. Pro's real
-       advantage is the Wine runtime preinstalled underneath — which is what the
-       comparison tables on /pro and the homepage already say. -->
+
   <details><summary>Can I run Windows programs?</summary><p>Many, yes — on <em>both</em> editions.
   <strong>Bottles</strong> installs in one click from the Dagric Hub and runs Windows software in
-  tidy per-app containers. Pro adds the runtime underneath — Wine and winetricks, preinstalled and
+  separate per-app Wine environments; those environments are not security sandboxes. Pro adds
+  Wine and winetricks underneath, preinstalled and
   tuned. Compatibility varies by app;
-  for the rest, the web version in Firefox usually covers it. Steam games run through Proton with
-  excellent results. And for the stubborn holdout, Pro ships <strong>Windows in a window</strong> —
+  for the rest, the web version in Firefox usually covers it. Some Steam games run through Proton;
+  compatibility varies by title, anti-cheat, service and hardware. For a stubborn holdout, Pro ships <strong>Windows in a window</strong> —
   a full virtual-machine stack (UEFI + TPM 2.0, Windows 11-capable) so real Windows runs safely
   boxed inside Dagric, using Microsoft's own ISO.</p></details>
-  <details><summary>Does streaming work — Netflix, Spotify, YouTube?</summary><p>Yes, out of the
-  box in Firefox, DRM included. Media codecs for local files are preinstalled too.</p></details>
+  <details><summary>Does streaming work — Netflix, Spotify, YouTube?</summary><p>Firefox is
+  configured for DRM playback, but Google Widevine is proprietary and is not in the image;
+  Firefox may download it from Google the first time protected playback needs it. Media codecs
+  for local files are preinstalled. Service, browser, region, and title restrictions still
+  apply.</p></details>
   <details><summary>Will my printer and scanner work?</summary><p>Many modern driverless printers
   and scanners work without a vendor installer, and Dagric includes a broad driver library plus
   Print-to-PDF. HP all-in-ones get one-click setup in the Hub. Test your exact device from the live
   USB before installing; no OS can guarantee every model.</p></details>
 
   <h2>Privacy &amp; security</h2>
-  <!-- "Nothing phones home — there's nothing to turn off" was the overreach. No
-       data collection is true and stays. But the machine does make outbound
-       fetches — Debian, our own update channel, the firmware catalogue — and
-       every one of those CAN be turned off, so claiming there was nothing to
-       turn off was both wrong and unnecessary: asking a server for a package
-       list is not collecting anything, and the accurate version reads better.
-       The privacy page now lists all of them with the off switch for each. -->
+
   <details><summary>What data does Dagric OS collect?</summary><p>The installed OS sends no product
   telemetry, analytics or crash reports to Dagric, requires no Dagric account, and has no Dagric
   advertising ID. It does make documented requests for Debian and Dagric updates, firmware
@@ -171,30 +130,22 @@ h2{margin-top:var(--s-7)}
   the update, and you're back — files intact.</p></details>
 
   <h2>Dagric OS Pro</h2>
-  <details><summary>Is Pro a subscription?</summary><p>No. $39, once, for one machine. No
-  subscription, no expiry: your purchase is verified once, when you claim it, and after that
-  nothing on your machine ever phones home — no recurring activation, no server that can turn
-  your computer off. Keep it forever, updates included.</p></details>
-  <details><summary>How do I get Pro after paying?</summary><p>Two ways, same result. If you're
-  installing fresh: checkout finishes on your personal download page — bookmark it; the same link
-  re-downloads anytime, resumes interrupted downloads, and is also linked from your Stripe receipt.
-  If you're already running the free edition: you don't need the ISO at all — open the
-  <strong>Dagric Hub</strong>, pick <em>Upgrade to Pro</em>, and paste the code from your receipt.</p></details>
-  <details><summary>What if I buy Pro and don't like it?</summary><p>Test the Free live image and
+  <details><summary>Is Pro a subscription?</summary><p>No. $39, once, provides the private-delivery,
+  guided-upgrade, and support entitlement for one managed machine. There is no subscription or
+  expiry, and no recurring purchase check after the claim. That service limit does not reduce any
+  right to run, copy, modify, or redistribute a component under its open-source licence.</p></details>
+  <details><summary>How do I get Pro after paying?</summary><p>New sales and binary delivery are
+  temporarily paused while the release-exact corresponding-source set is completed. Existing
+  customers should use <a href="/contact">contact</a> for delivery questions, cancellation, or any
+  refund remedy that applies to their order. Current status is on the
+  <a href="/download">release-status page</a>.</p></details>
+  <details><summary>What if I buy Pro and don't like it?</summary><p>Try Dagric OS Free and
   run <em>Check This PC</em> on your actual hardware before buying. Pro is downloadable software:
   before the download begins you can ask us to cancel a paid order, but after the download begins
   there are no change-of-mind or compatibility refunds. Mandatory consumer remedies still apply.
   Details are in the <a href="/terms">terms</a>.</p></details>
   <details><summary>Can I upgrade a free install to Pro?</summary>
-  <!-- The tool this answer used to say didn't exist was built, and its old
-       comment ended "If the tool is ever built, this is the sentence to change
-       back." It was, and this is that change. What backs the words now:
-       dagric-upgrade-to-pro ships on every free image, the Hub shows "Upgrade
-       to Pro — already bought it?" on installed free machines, the gate worker
-       validates the purchase against Stripe before anything is touched, and
-       the build refuses to produce an ISO whose Pro package set disagrees with
-       the upgrade tool's list — so an upgrader and a reinstaller end up with
-       the same machine, by machine-checked construction. -->
+
   <p><strong>Yes — in place, without reinstalling.</strong> Buy Pro, then on your free machine open
   the <strong>Dagric Hub</strong> and pick <em>Upgrade to Pro — already bought it?</em>. Paste the
   purchase code from your receipt (it starts with <code>cs_</code>), and the tool checks your
@@ -203,21 +154,24 @@ h2{margin-top:var(--s-7)}
   <p>Two honest details: your existing settings are kept rather than replaced by Pro's defaults,
   and your snapshot history starts fresh at the upgrade rather than at a clean install. The tool
   won't run on battery power or from the live USB stick, on purpose.</p>
-  <p><strong>One purchase covers one machine.</strong> Reinstalling the same machine is normally
+  <p><strong>One purchase provides guided upgrade and support for one managed machine.</strong>
+  Reinstalling the same machine is normally
   free — it is recognised by an anonymous fingerprint, never a serial number (details on the
   <a href="/privacy">privacy page</a>). On the small number of machines with no stable hardware id
   the fingerprint is based on an installation id that changes on reinstall, and the upgrade tool
   tells you if yours is one; there, and whenever a machine is replaced or a virtual machine moves,
-  <a href="/support">support</a> moves the licence over at no cost — a message, not a process. A
-  second machine is a second purchase.</p></details>
+  <a href="/support">support</a> moves the service slot at no cost — a message, not a process. A
+  second concurrently managed machine needs a second service entitlement. This does not narrow the
+  rights granted by any component's licence.</p></details>
 
   <h2>The project</h2>
-  <details><summary>Is the software open source?</summary><p>Yes — Dagric OS is built from
-  open-source software on a Debian base. Optional extras (Steam, NVIDIA driver, DaVinci
-  Resolve) install only when you ask. One honest exception, the same one Debian's own
-  official media makes: redistributable closed-source <em>device firmware and CPU
-  microcode</em> ships preinstalled, because without it Wi-Fi and audio do not work on real
-  hardware. See <a href="/licenses">licenses</a> for the full statement.</p></details>
+  <details><summary>Is the software open source?</summary><p>The Dagric-authored layer and the
+  ordinary desktop applications are open source on a Debian base. Optional applications such as
+  Steam, the NVIDIA driver, and DaVinci Resolve install only when you ask. The hardware layer also
+  contains separately licensed, non-open-source components. Published 1.0 includes device
+  firmware, CPU microcode, Broadcom firmware installers, and two prebuilt astronomy-camera
+  libraries; future candidates use an explicit firmware list and a complete artifact-derived
+  legal inventory. See <a href="/licenses">licenses</a> for the exact status.</p></details>
   <details><summary>What am I paying for, if it's open source?</summary><p>The work: curation,
   integration, hardening, testing, packaging, and support — turning thousands of parts into one
   finished, coherent product. The parts are free; the craftsmanship is what you buy.</p></details>
@@ -229,17 +183,26 @@ h2{margin-top:var(--s-7)}
 </main>
 
 <footer><div class="foot">
-  <span>© 2026 DGR Operations · Built on Debian. Not affiliated with the Debian Project.</span>
+  <span>© 2026 IMPRESSIONSDIRECT360 LLC · Built on Debian. Not affiliated with the Debian Project.</span>
   <span class="links"><a href="/features">Features</a><a href="/pro">Pro</a><a href="/download">Download</a><a href="/news">News</a><a href="/guide">Guide</a><a href="/support">Support</a><a href="/faq">FAQ</a><a href="/accessibility">Accessibility</a><a href="/security">Security</a><a href="/bugs">Report a bug</a><a href="/contact">Contact</a><a href="/about">About</a><a href="/review">Reviewers</a><a href="/licenses">Licenses</a><a href="/privacy">Privacy</a><a href="/terms">Terms</a></span>
+  <div class="social-footer" role="navigation" aria-label="Dagric OS social media">
+    <strong>Follow Dagric OS</strong>
+    <a href="https://www.youtube.com/@DagricOS" target="_blank" rel="me noopener">YouTube</a>
+    <a href="https://www.tiktok.com/@dagricosofficial" target="_blank" rel="me noopener">TikTok</a>
+    <a href="https://www.instagram.com/dagricosofficial/" target="_blank" rel="me noopener">Instagram</a>
+    <a href="https://www.snapchat.com/@dagricos" target="_blank" rel="me noopener">Snapchat</a>
+    <a href="https://www.linkedin.com/in/dorien-richardson" target="_blank" rel="me noopener">LinkedIn</a>
+    <a href="https://github.com/Dagric/dagric-os" target="_blank" rel="me noopener">GitHub</a>
+  </div>
 </div></footer>
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"FAQPage","mainEntity":[
 {"@type":"Question","name":"How long will Dagric OS be supported?","acceptedAnswer":{"@type":"Answer","text":"Security updates through August 2028 from Debian's security team, then community long-term support until June 2030 — Dagric inherits Debian's published schedule because it is Debian underneath. That is roughly five more years from a machine Windows 10 already abandoned. The LTS phase is run by a smaller sponsored team and covers most, not every, package."}},
 {"@type":"Question","name":"Is Dagric OS really free?","acceptedAnswer":{"@type":"Answer","text":"Yes. The free edition is a complete, private, hardened desktop — free forever, no account. Pro adds the creative, gaming, developer, and Windows-app suites for a one-time $39."}},
 {"@type":"Question","name":"Why pay $39 when Mint, Ubuntu or Zorin are free?","acceptedAnswer":{"@type":"Answer","text":"You don't have to — the free edition is a real, complete distro. Pro is one curated, tested, supported product (the Hub, Looks, snapshot-rollback, signed releases, Windows-app support, human support) for people who'd rather not assemble and harden a general distro themselves. The tools are open source; the $39 buys the craftsmanship."}},
-{"@type":"Question","name":"Will it run on my computer?","acceptedAnswer":{"@type":"Answer","text":"Any 64-bit PC from roughly 2012 onward with 4 GB of RAM (8 GB recommended) and 25-40 GB of disk. UEFI with Secure Boot and older BIOS machines both work. But a spec list cannot tell you whether your Wi-Fi card has a driver, so every Dagric USB stick puts Check This PC on the live desktop beside the installer. It reports in plain language on Wi-Fi and network, graphics and screen, Secure Boot, sound, camera and printer, the battery if it is a laptop, and whether your drives have room. Nothing is installed and nothing is changed while you look."}},
-{"@type":"Question","name":"Is Pro a subscription?","acceptedAnswer":{"@type":"Answer","text":"No. Pro is a one-time purchase for one machine, verified once when you claim it, with no recurring licence check or expiry. You own your copy outright, with free updates."}},
-{"@type":"Question","name":"What if I buy Pro and don't like it?","acceptedAnswer":{"@type":"Answer","text":"Test the Free live image on your hardware before buying. Before a Pro download begins you can ask to cancel a paid order; after downloading begins, there are no change-of-mind or compatibility refunds. Mandatory consumer remedies still apply."}},
+{"@type":"Question","name":"Will it run on my computer?","acceptedAnswer":{"@type":"Answer","text":"The baseline is a 64-bit PC with 4 GB of RAM (8 GB recommended) and 25-40 GB of disk. Dagric OS supports UEFI with Secure Boot and older BIOS startup, but a requirements list cannot prove every component will work. Check This PC reports in plain language on Wi-Fi and network, graphics and screen, Secure Boot, sound, camera and printer, the battery if it is a laptop, and whether the drives have room. Nothing is installed and nothing is changed while you look."}},
+{"@type":"Question","name":"Is Pro a subscription?","acceptedAnswer":{"@type":"Answer","text":"No. Pro is a one-time purchase for private delivery, guided upgrade, and support for one managed machine, with no recurring purchase check or expiry. Component-level open-source rights are unchanged."}},
+{"@type":"Question","name":"What if I buy Pro and don't like it?","acceptedAnswer":{"@type":"Answer","text":"Try Dagric OS Free and run Check This PC on your hardware before buying. Before a Pro download begins you can ask to cancel a paid order; after downloading begins, there are no change-of-mind or compatibility refunds. Mandatory consumer remedies still apply."}},
 {"@type":"Question","name":"What data does Dagric OS collect?","acceptedAnswer":{"@type":"Answer","text":"The installed OS sends no product telemetry, analytics or crash reports to Dagric, requires no Dagric account, and has no Dagric advertising ID. It makes documented requests for updates, firmware metadata and optional services; the privacy policy also covers website, checkout, download and support data."}}
 ]}
 </script>

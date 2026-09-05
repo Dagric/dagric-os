@@ -157,14 +157,14 @@ Upstream-Name: Dagric OS
 Source: https://dagric.com/licenses
 
 Files: *
-Copyright: 2026 DGR Operations <repo@dagric.com>
+Copyright: 2026 IMPRESSIONSDIRECT360 LLC <repo@dagric.com>
 License: GPL-3.0-or-later
 
 Files: usr/share/wallpapers/*
        usr/share/dagric/logo/*
        usr/share/dagric/sddm/*
        usr/share/dagric/splash/*
-Copyright: 2026 DGR Operations <repo@dagric.com>
+Copyright: 2026 IMPRESSIONSDIRECT360 LLC <repo@dagric.com>
 License: CC-BY-SA-4.0
 
 License: GPL-3.0-or-later
@@ -185,7 +185,7 @@ License: CC-BY-SA-4.0
  at https://creativecommons.org/licenses/by-sa/4.0/legalcode
  .
  Trade marks are not licensed by the above: the Dagric name, the D monogram and
- the Dagric logo are marks of DGR Operations. See https://dagric.com/licenses.
+ the Dagric logo are marks of IMPRESSIONSDIRECT360 LLC. See https://dagric.com/licenses.
 COPYRIGHT
     chmod 0755 "$root/usr" "$root/usr/share" "$root/usr/share/doc" \
                "$root/usr/share/doc/$name"
@@ -252,7 +252,7 @@ build_pkg dagric-branding
 
 # ---- dagric-desktop-defaults ---------------------------------------------
 P=$STAGE/dagric-desktop-defaults
-mkdir -p "$P/etc/skel/.config" "$P/usr/lib/firefox-esr/distribution" "$P/etc/xdg" \
+mkdir -p "$P/etc/skel/.config" "$P/etc/xdg" \
          "$P/usr/share/color-schemes"
 cp -r "$REPO/packages/dagric-desktop-defaults/DEBIAN" "$P/"
 # kglobalshortcutsrc and kaccessrc were missing from this list, which meant
@@ -264,7 +264,9 @@ cp -r "$REPO/packages/dagric-desktop-defaults/DEBIAN" "$P/"
 for f in kdeglobals kwinrc kcminputrc kglobalshortcutsrc kaccessrc; do
     [ -f "$INC/etc/skel/.config/$f" ] && cp "$INC/etc/skel/.config/$f" "$P/etc/skel/.config/"
 done
-cp "$INC/usr/lib/firefox-esr/distribution/policies.json" "$P/usr/lib/firefox-esr/distribution/"
+# Firefox ESR is intentionally redistributed exactly as Debian packages it.
+# Do not add a distribution/policies.json here: changing defaults, first-run
+# content, or extensions changes the Mozilla trademark-distribution posture.
 # The default-browser declaration. Pro shipped Chromium as the default for
 # every link because nothing declared one; that fix has to reach sold machines.
 # klipperrc (clipboard-history defaults) and ksplashrc (the Dagric startup
@@ -370,7 +372,7 @@ find "$P/usr/lib/dagric" -name '*.pyc' -delete 2>/dev/null || true
 # /usr/share/dagric/family/main.qml — the window itself — was not. The rule this
 # broke is the one stated for the Konsole profile above: never ship the pointer
 # without its target.
-for d in firstrun appearance manual guide welcome styles looks hwcheck boot family rewind budgets; do
+for d in firstrun appearance manual guide welcome styles looks icon-styles hwcheck boot family rewind budgets; do
     [ -e "$INC/usr/share/dagric/$d" ] && cp -r "$INC/usr/share/dagric/$d" "$P/usr/share/dagric/"
 done
 # Fail rather than ship a dagric-family with no window, the same way the
@@ -449,6 +451,19 @@ for f in "$INC/usr/share/polkit-1/actions/"*.policy; do
     [ -f "$f" ] && cp "$f" "$P/usr/share/polkit-1/actions/"
 done
 [ -d "$INC/usr/share/icons/hicolor" ] && cp -r "$INC/usr/share/icons/hicolor/." "$P/usr/share/icons/hicolor/"
+# Selectable Dagric icon families. Each carries only Dagric-owned application
+# icons and inherits Breeze/hicolor for third-party programs, so an update does
+# not overwrite or redraw another project's official mark.
+for _theme in "$INC/usr/share/icons/"Dagric*; do
+    [ -d "$_theme" ] || continue
+    cp -r "$_theme" "$P/usr/share/icons/"
+done
+_icon_themes=$(find "$P/usr/share/icons" -mindepth 1 -maxdepth 1 -type d -name 'Dagric*' | wc -l)
+[ "$_icon_themes" -eq 3 ] || {
+    echo "dagric-tools: packed $_icon_themes selectable icon themes (want 3)." >&2
+    exit 1
+}
+unset _theme _icon_themes
 # The translations, so an update can also fix a bad string.
 [ -d "$INC/usr/share/locale" ] && mkdir -p "$P/usr/share/locale" && \
     cp -r "$INC/usr/share/locale/." "$P/usr/share/locale/"

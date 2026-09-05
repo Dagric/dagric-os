@@ -102,6 +102,18 @@ esac
 # buy back another 45 MB, but there is no lb flag for it: it would have to be
 # smuggled in through MKSQUASHFS_OPTIONS in lb build's environment, and
 # undocumented passthrough does not belong in this file.
+#
+# --firmware-chroot false: live-build's automatic firmware scan queues every
+# firmware package associated with the kernel, including contrib installer
+# packages that download separate Broadcom blobs during the build. Dagric uses
+# the explicit, reviewable list in config/package-lists/firmware.list.chroot
+# instead. This keeps the candidate payload bounded by the legal inventory and
+# prevents a package downloader from silently expanding it. The release gate
+# still derives the complete resolved inventory from the finished image.
+#
+# --firmware-binary false: this build has no Debian Installer payload
+# (--debian-installer none), so the separate installer-firmware bundle is both
+# unused and outside Dagric's explicit package inventory.
 lb config noauto \
     --distribution trixie \
     --architectures amd64 \
@@ -118,6 +130,6 @@ lb config noauto \
     --iso-publisher "Dagric OS Project" \
     --iso-volume "$FH_VOLUME" \
     --memtest none \
-    --firmware-chroot true \
-    --firmware-binary true \
+    --firmware-chroot false \
+    --firmware-binary false \
     "${@}"

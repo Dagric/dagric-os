@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2026 DGR Operations <repo@dagric.com>
+// SPDX-FileCopyrightText: 2026 IMPRESSIONSDIRECT360 LLC <repo@dagric.com>
 // SPDX-License-Identifier: GPL-3.0-or-later
 //
 // Dagric OS — "Set Up Dagric": the first-run wizard.
@@ -163,7 +163,7 @@ ApplicationWindow {
     // The accent the machine wore when setup opened. "" and the brand blue
     // are what a fresh install reports, because nothing ships an AccentColor.
     property string startAccentId: ""
-    property color startAccent: "#3fa9f5"
+    property color startAccent: "#ff3b5c"
     property string accentId: ""
     property string wallId: ""
     property int scale: 0
@@ -255,7 +255,7 @@ ApplicationWindow {
     property color cLine:   app.dark ? "#22334d" : "#cfd9e8"
     property color cText:   app.dark ? "#e8eef7" : "#101a26"
     property color cDim:    app.dark ? "#93a4bd" : "#586a80"
-    property color cAccent: "#3fa9f5"
+    property color cAccent: "#ff3b5c"
 
     // --- contrast, computed rather than guessed ------------------------------
     // WCAG 2.x relative luminance and contrast ratio, straight from the spec.
@@ -2294,7 +2294,7 @@ ApplicationWindow {
 
                 PageHead {
                     heading: app.t("Add your apps")
-                    sub: app.t("Tick what you want and it installs itself right after you press Finish. All of it is free software, and none of it is required.")
+                    sub: app.t("Choose what you want. Each installer opens after Finish and asks before making changes. Some choices are third-party or proprietary; none is required.")
                 }
 
                 Flow {
@@ -2310,11 +2310,11 @@ ApplicationWindow {
                         id: dlRepeater
                         model: [
                             { act: "steam", title: "Steam",
-                              body: "Your game library, from Valve." },
+                              body: "Optional proprietary Valve client; vendor terms apply." },
                             { act: "heroic", title: "Heroic",
-                              body: "Epic, GOG and Amazon games in one place." },
+                              body: "Independent launcher for Epic Games Store, GOG and Amazon Games." },
                             { act: "bottles", title: "Bottles",
-                              body: "Run Windows programs in tidy containers." },
+                              body: "Run Windows programs in separate Wine environments." },
                             { act: "onlyoffice", title: "ONLYOFFICE",
                               body: "An office suite that looks like the one at work." },
                             { act: "joplin", title: "Joplin",

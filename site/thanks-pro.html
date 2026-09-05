@@ -4,57 +4,30 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Thank you — Dagric OS Pro</title>
+<meta name="description" content="Complete your private Dagric OS Pro download after checkout.">
 <meta name="robots" content="noindex">
-<!-- Self-referential, and inert on purpose: this page is noindex above and
-     Disallow'd in robots.txt, so the canonical can neither help nor hurt. It is
-     here because the head census across the 22 pages is a defect-detection
-     mechanism — "one page differs" is the signal — and this was the only page
-     that broke it. Do not read it as an instruction to index this page. -->
+
 <link rel="canonical" href="https://dagric.com/thanks-pro">
 <link rel="icon" type="image/png" href="/assets/dagric-logo.png">
 <style>
-/* HAND-PORTED FROM site.css, DELIBERATELY. This page is the ONLY one of the
-   sixteen that links no stylesheet — it is self-contained so that a stylesheet
-   edit cannot break a receipt page — which means every token change in site.css
-   has to be copied here in the same commit or the one screen a paying customer
-   sees becomes the odd page out. These values are the Daybook tokens: the
-   surface ramp, the display serif, the near-square radii, and .grad as the
-   italic of the display face rather than a clipped gradient. */
+
 :root{
   --ink-0:#0C0F14;--ink-1:#1D2126;--ink-2:#25292E;--well:#080B0F;
   --rule:#43474C;--rule-2:#5C6065;
   --paper:#F5F2EB;--body:#C0C8D4;--soft:#98A2B0;
   --accent:#7CB8EC;--accent-2:#8FC3EE;--accent-deep:#14487A;--pro:#E3C27D;--good:#4ADE80;
   --mono-b:#8FD6AE;
-  /* Ported with the light band: the two literals this page carried are now
-     tokens, exactly as in site.css, and for the same reason — composited on a
-     light card they measured 1.15:1 (the Pro rail) and printed as a grey
-     smudge (the .85 black plate shadow). Dark keeps the identical rgba, so
-     this receipt renders precisely as it did. */
+
   --pro-edge:rgba(227,194,125,.35);
   --shadow:0 30px 60px -30px rgba(0,0,0,.85);
   --focus:var(--accent-2);
   --ff-display:Georgia,"Iowan Old Style","Palatino Linotype","Source Serif 4","Noto Serif","Liberation Serif",serif;
   --ff-ui:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
-  /* --grad-fill is kept, and it is the last fill on the site that carries white
-     text: 9.38:1. The bright --grad it used to pair with is gone, along with the
-     hazard that made two tokens necessary. */
+
   --grad-fill:var(--accent-deep);
   color-scheme:dark;
 }
-/* THE LIGHT BAND, HAND-PORTED TOO — and this is the page most likely to be
-   missed, because it links no stylesheet so nothing fails loudly when it
-   drifts. Every value below is the same one site.css uses; keep them in step
-   in the same commit, as the note above requires for every other token.
-   There is no control on this screen and that is correct: it is a centred
-   receipt with no footer, so theme.js finds nowhere to put a button and
-   simply applies the choice the reader already made elsewhere on the site.
-   Measured on this page's two grounds — the page (--ink-0) and the card
-   (--ink-1), which is where all of its text actually sits:
-     --paper  14.24 / 12.54     --body 8.56 / 7.54     --soft 5.88 / 5.18
-     --accent  6.49 /  5.71     --pro  5.90 / 5.20     --good 6.15 / 5.42
-     --mono-b on --well 5.55    #fff on --grad-fill 9.38 (fixed dark fill)
-     --focus 7.43 / 6.54 */
+
 :root[data-theme="light"]{
   --ink-0:#F3EFE4;--ink-1:#E8E1CE;--ink-2:#FFFDF7;--well:#E4DCC6;
   --rule:#C3BBA5;--rule-2:#7C7666;
@@ -86,32 +59,15 @@ p{color:var(--body);margin:12px 0;max-width:34rem}
 .small{font-size:.9375rem;margin-top:20px;color:var(--soft)}
 a{color:var(--accent);text-decoration:none}
 a:hover{text-decoration:underline;text-underline-offset:3px}
-/* --focus, not --accent-2 directly: the light band re-points it to #1B4F7D
-   because #8FC3EE measures 1.87:1 on a light ground. outline-offset:2px is
-   load-bearing — it keeps the ring on the surface behind a control, never on
-   the near-black .btn fill. Do not set it to 0. */
+
 :focus-visible{outline:2px solid var(--focus);outline-offset:2px}
 .sums{background:var(--well);border:1px solid var(--rule);border-radius:2px;padding:12px 14px;
   font:.8125rem/1.8 ui-monospace,Consolas,monospace;color:var(--mono-b);overflow-x:auto;
   white-space:nowrap;margin-top:18px;font-variant-numeric:tabular-nums}
 @media(max-width:640px){.card{padding:28px 22px}h1{font-size:1.6875rem}}
-/* This page is the ONLY one of the sixteen that does not link site.css — it is
-   deliberately self-contained so a receipt page cannot be broken by a stylesheet
-   edit — which also means site.css's print block does not reach it. It needs one
-   more than any other page does: this is the post-purchase page, it carries the
-   Pro download link and the SHA256 a buyer is asked to check, and printing or
-   saving-to-PDF is exactly what somebody does with a receipt. Browsers drop
-   background-color and keep color, so without this it printed as light ink on
-   white (1.17:1) with the checksum in a pale green (1.81:1) — the two pieces of
-   information the page exists to hand over, invisible on the paper.
-   white-space is unset on .sums because a 64-character hash cannot scroll on
-   paper; it has to wrap or it is simply cut off at the margin. */
+
 @media print{
-  /* Token reset first, with `:root,:root[data-theme]` so it ties the light
-     band's (0,2,0) and wins on order — the same reconciliation site.css's
-     print block uses. Every rule below already overrode its literal directly,
-     so this is belt and braces rather than a fix; it is here so that the next
-     token added to this page cannot quietly print in screen colours. */
+
   :root,:root[data-theme]{
     --ink-0:#fff;--ink-1:#fff;--ink-2:#fff;--well:#fff;
     --rule:#bbb;--rule-2:#999;--paper:#000;--body:#1c1c1c;--soft:#444;
@@ -134,42 +90,20 @@ a:hover{text-decoration:underline;text-underline-offset:3px}
 <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
 </head>
 <body>
-<!-- <main> because this was the only one of the sixteen pages with no landmark
-     of any kind — no nav, no main, no footer, no role — and it is the page a
-     paying customer lands on. No skip link is added: there is no repeated block
-     to bypass here, so 2.4.1 is already satisfied and a skip link would be
-     furniture. Measured before shipping: the wrapper is pixel-neutral. The card
-     is 634px wide against its own 640px max-width, so main's shrink-to-fit lands
-     on the same number — getBoundingClientRect delta 0/0/0/0 at both 1280x900
-     and 320x700. -->
+
 <main id="main">
 <div class="card">
   <img class="logo" src="/assets/dagric-logo.png" alt="Dagric OS">
   <h1>Thank you. <span class="grad">It's yours — outright.</span></h1>
   <p>Your purchase of <strong>Dagric OS Pro</strong> is complete. A receipt from Stripe is on its way to your email.</p>
-  <!-- href="/support", NOT "#". assets/thanks-pro.js overwrites this the moment
-       it runs, so the static value is only ever seen when the script does not
-       run at all — JS off, an extension blocking it, a failed request. With "#"
-       that case turned the one control on a $39 receipt page into a
-       scroll-to-top with no error shown, and the page's only other in-site link
-       is the homepage; "Questions? Reply to your receipt email" further down is
-       plain text, not a link. /support is the honest fallback: it already tells
-       Pro customers that replying to the Stripe receipt reaches us fastest for
-       order questions. It must NOT be the Stripe purchase URL — a customer whose
-       script failed would be invited to pay twice. This was the only bare-hash
-       href on the whole site (written here without the literal attribute so a
-       grep for it does not keep finding this comment). -->
-  <a class="btn" id="dl" href="/support">Download Dagric OS Pro (3.9 GB)</a>
-  <p class="small" id="dlnote">Your download is tied to your purchase and verified by Stripe. Keep this page's
-  address (bookmark it!) — the same link re-downloads anytime, and resuming an interrupted download works.</p>
+
+  <a class="btn" id="dl" href="/contact">Contact customer support</a>
+  <p class="small"><a href="/licenses#corresponding-source">Corresponding-source status and notices</a> · release 1.0</p>
+  <p class="small" id="dlnote">Binary delivery is temporarily paused while the remaining release
+  gates are completed. Your purchase record remains intact. Contact us for delivery questions,
+  cancellation, or any refund remedy that applies to your order.</p>
   <p class="small">Write it to a USB stick with <a href="https://rufus.ie">Rufus</a> or <a href="https://www.ventoy.net">Ventoy</a>, boot, try the live desktop, then click <em>Install Dagric OS</em>.<br>
   Free updates are announced on the <a href="https://dagric.com">homepage</a>.</p>
-<script src="/assets/thanks-pro.js" defer></script>
-  <!-- The Pro checksum was printed here inline, and it did not match the
-       SHA256SUMS linked on the very next line. This is the page somebody reaches
-       by PAYING, so it is the page whose mismatch costs the most: the buyer most
-       likely to verify is the one who just spent $39, and a failed check reads as
-       a tampered download. Only the signed file is published now. -->
   <p class="small">Verify with <a href="SHA256SUMS">SHA256SUMS</a> + <a href="SHA256SUMS.sig">signature</a> · Questions? Reply to your receipt email.</p>
 </div>
 </main>

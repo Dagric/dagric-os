@@ -1,19 +1,20 @@
 #!/bin/sh
-# SPDX-FileCopyrightText: 2026 DGR Operations <repo@dagric.com>
+# SPDX-FileCopyrightText: 2026 IMPRESSIONSDIRECT360 LLC <repo@dagric.com>
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Dagric OS — install ProtonUp-Qt, on request.
-# ProtonUp-Qt (GPL-3.0) is a GUI for installing and managing Proton-GE / Wine-GE
-# compatibility versions for Steam and Lutris — a friendlier alternative to the
-# CLI `dagric-gaming` helper. Installed from Flathub as a per-user Flatpak.
+# ProtonUp-Qt (GPL-3.0) is a GUI for installing and managing GE-Proton / Wine-GE
+# compatibility versions for Steam and Lutris. Installed from Flathub as a
+# per-user Flatpak. Compatibility tools remain title-specific.
 . /usr/bin/dagric-i18n.sh
 
-# TRANSLATORS: "ProtonUp-Qt", "Proton-GE", "Wine-GE", "Steam", "Lutris" and
+# TRANSLATORS: "ProtonUp-Qt", "GE-Proton", "Wine-GE", "Steam", "Lutris" and
 # "Flathub" are product names — leave them exactly as they are.
 dg_say "$(gettext "Dagric — install ProtonUp-Qt
 
 ProtonUp-Qt is a free, open-source app for installing and switching between
-Proton-GE and Wine-GE versions for Steam and Lutris — no terminal needed.
-It installs from Flathub.")"
+GE-Proton and Wine-GE versions for Steam and Lutris — no terminal needed.
+It installs from Flathub. Compatibility varies by title and service; GE-Proton
+is an independent project and is not affiliated with Valve's Proton project.")"
 
 dg_live_warn
 printf '\n%s ' "$(gettext "Install ProtonUp-Qt now? [y/N]")"

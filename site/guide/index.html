@@ -13,6 +13,7 @@
 <link rel="alternate" hreflang="it" href="https://dagric.com/guide/it">
 <link rel="alternate" hreflang="pt-br" href="https://dagric.com/guide/pt-br">
 <link rel="alternate" hreflang="x-default" href="https://dagric.com/guide">
+<meta name="description" content="The guide that ships inside Dagric OS: coming from Windows, your first day, printers, Wi-Fi, shortcuts, running Windows programs, and what to do when something goes wrong.">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Dagric OS User Guide — your first week, answered">
 <meta property="og:description" content="The guide that ships inside Dagric OS: coming from Windows, your first day, printers, Wi-Fi, shortcuts, running Windows programs, and what to do when something goes wrong.">
@@ -46,15 +47,7 @@
                data-none="Nothing here — try the Manual, it covers every app.">
         <p class="gsearch-status" id="gsearch-status" aria-live="polite"></p>
       </div>
-      <!-- THIS LIST MUST STAY IN THE PAGE'S OWN ORDER, GROUP FOR GROUP.
-           It did not. "When something goes wrong" was advertised here as the
-           14th thing on the page and was physically the 20th, with six
-           optional sections sitting between a frightened reader and the one
-           section they were looking for. Worse, guide.js's scroll-spy runs on
-           document order, so scrolling from "Terminal helpers" into
-           "When something goes wrong" threw the highlight six entries
-           backwards up this list and the page looked like it had lost its
-           place. A sidebar that disagrees with the page is not navigation. -->
+
       <nav class="toc" aria-label="Sections of this guide">
         <div class="navgroup">Start here</div>
         <a href="#windowsmap">Coming from Windows</a>
@@ -104,12 +97,7 @@
       <p class="sub">Everything you need for your first week. This page works offline.</p>
     </header>
 
-    <!-- The hero said "everything you need for your first week" and then
-         dropped the reader straight into a fourteen-row table with no
-         instruction about what to do with it. Two sentences of signposting: one
-         route for the person setting up, one for the person whose machine is
-         already misbehaving — which is the other reason anybody opens a guide.
-         Both are links, so this works under the sidebar search too. -->
+
     <nav class="startline" aria-label="Where to start">
       <p><strong>If you only read one thing, read
       <a href="#firstday">Your first day</a></strong> — a short checklist that
@@ -119,19 +107,7 @@
       <a href="#trouble">When something goes wrong</a>.</p>
     </nav>
 
-    <!-- The two sections a switcher actually arrives with: "where did
-         everything go?" and "what do I do first?". They sit above everything
-         else because they are the questions being asked before any other
-         section makes sense. The table is a real <table> — a screen reader
-         reads each row as a Windows-name/Dagric-name pair, and Ctrl+F and the
-         sidebar search both see every word.
 
-         data-syn no longer claims "media player", "this pc" or "onedrive".
-         There is no row for any of them, so those three searches produced a
-         confident single hit on a table that does not answer the question —
-         which is worse than the honest "Nothing here" the search already has.
-         "email" is added because the Outlook row genuinely does answer it, and
-         it used to land on "Getting help", which contains no email address. -->
     <section id="windowsmap"
       data-syn="start menu file explorer control panel settings task manager edge notepad paint photos snipping tool win+v clipboard recycle bin defender antivirus cmd powershell command prompt word excel powerpoint outlook email mail thunderbird webmail">
       <h2>Coming from Windows? Everything is still here</h2>
@@ -175,7 +151,7 @@
           <tr><th scope="row">Recycle Bin</th>
               <td><strong>Trash</strong> — in the Files sidebar</td></tr>
           <tr><th scope="row">Defender / antivirus</th>
-              <td>built in: the <strong>firewall is on</strong> from the first boot and apps are confined. Nothing extra to buy, nothing nagging you to renew</td></tr>
+              <td>built in: the <strong>firewall is on</strong> from the first boot, with documented AppArmor coverage for selected system services. Keep the system and browser updated and use normal care with downloads; this is not a replacement for malware scanning</td></tr>
           <tr><th scope="row">Word / Excel / PowerPoint</th>
               <td><strong>LibreOffice</strong> Writer / Calc / Impress — opens and saves the same files</td></tr>
           <tr><th scope="row">Outlook</th>
@@ -190,20 +166,7 @@
       or <em>Notepad</em> and the right app appears.</div>
     </section>
 
-    <!-- THE HUB ITEM MOVED UP TO THIRD, AND IT IS THE ANCHOR OTHER SECTIONS
-         LINK TO. The Dagric Hub is named in nine of this guide's sections and
-         has no section of its own; its only explanation was the ninth and last
-         bullet of this list. So item three, "bring your files over", linked to a
-         section that opens "Open the Dagric Hub and pick…" — six items before
-         the Hub was introduced. Moving the bullet ahead of the first section
-         that depends on it costs nothing (the checkboxes persist by data-ck,
-         not by position) and removes the forward reference for every one of
-         them. id="hub" gives those sections something precise to link to.
 
-         The count line moved ABOVE the list for the same reason: it is the
-         reassurance ("nothing here is urgent") and the reward, and it was
-         sitting below nine items where you only meet it after scrolling past
-         everything it was meant to soften. -->
     <section id="firstday"
       data-syn="checklist first steps getting started todo begin new hub dagric hub">
       <h2>Your first day, as a checklist</h2>
@@ -241,13 +204,7 @@
       </ul>
     </section>
 
-    <!-- UP FROM TWELFTH. "Where did my tax records go" is the single biggest
-         fear this reader arrives with, and it is item three of the checklist —
-         and the answer used to sit behind the setup wizard, Looks and Styles,
-         text size and the whole accessibility section. The reassurance moved
-         with it: "Windows is only ever read" was the last thing in the section
-         and is now the first, because it is the sentence that lets somebody
-         breathe before they read the instruction. -->
+
     <section id="migrate" data-syn="transfer copy files documents pictures music bookmarks import windows dual boot boot back into windows">
       <h2>Bringing your files from Windows</h2>
       <div class="tip">Windows is only ever <em>read</em> — nothing there is
@@ -272,11 +229,7 @@
       <a href="#trouble">When something goes wrong</a>.</p>
     </section>
 
-    <!-- data-syn no longer claims "bluetooth". This section is about the tray
-         and never mentions Bluetooth, so the search answered a real question
-         with a confident wrong hit. Removing it means the reader gets the
-         "try the Manual" message, which is true and which sends them somewhere
-         that can help. -->
+
     <section id="tray" data-syn="wifi wireless network volume speaker monitor projector second screen">
       <h2>Wi-Fi, sound, displays</h2>
       <p>All in the system tray (bottom right). Click the network icon to join
@@ -295,15 +248,11 @@
       <h2>Installing apps</h2>
       <p>Open the <strong>Software Store</strong> (the bag icon in the taskbar —
       it is called Discover underneath, and that name still finds it). Search,
-      click Install, done. Everything is free, checked, and removable. Removing
+      click Install, done. Repository details and permissions are shown before installation, and installed apps are removable. Flathub includes both open-source and proprietary software, so review the publisher, permissions, licence, and source before you install. Removing
       an app actually removes it — nothing comes back on its own.</p>
     </section>
 
-    <!-- "scanner" left data-syn: this section is about printing and says
-         nothing about scanning, and somebody digitising paperwork searched it
-         and was sent here. That is the same false-promise class as the
-         "bluetooth" removal above. Scanning is a genuine content gap, not
-         something the search can paper over. -->
+
     <section id="printers" data-syn="print printer driver">
       <h2>Printers</h2>
       <p>Plug the printer in (or have it on the same Wi-Fi), then open
@@ -354,12 +303,7 @@
       </div>
     </section>
 
-    <!-- LEGIBILITY BEFORE DECORATION. Text size used to be the third of six
-         "make it yours" sections, below the setup wizard and below wallpaper.
-         Being able to read the screen is a need; a centred taskbar is a want,
-         and the reader who cannot read the screen cannot get as far as the
-         want. This section and Accessibility now come first in this group, and
-         the two decorative sections follow them. -->
+
     <section id="textsize" data-syn="scaling dpi small tiny huge zoom night light blue filter">
       <h2>If everything looks too small</h2>
       <p>On a laptop with a very sharp screen, text can come out tiny. Open
@@ -379,15 +323,7 @@
       time</em>, or off, and forget about it.</p>
     </section>
 
-    <!-- This section is not decoration. Documentation that ships with a
-         product is required to say what the product's accessibility features
-         are and how to use them (EN 301 549 clause 12.1, and the same question
-         appears on every institutional procurement form). It only claims what
-         is installed and working today, including the part that is not.
 
-         It opened on a claim about downloads, which answers a question nobody
-         asked before they know whether the section is for them; a one-line
-         "who this is for" now goes first. -->
     <section id="access" data-syn="screen reader orca magnifier zoom accessibility blind low vision sticky keys">
       <h2>Accessibility</h2>
       <p>This section is for anyone who needs the screen read aloud, made
@@ -434,12 +370,7 @@
       and it is yours to make.</div>
     </section>
 
-    <!-- WRITTEN ENTIRELY IN THE PAST TENSE, which is false for two whole
-         audiences: somebody reading this from the live USB before installing,
-         and every visitor to dagric.com/guide, which tools/publish-guide.py
-         exists specifically to serve. The lead sentence below says which
-         reader is which; the section's own account of the wizard is unchanged
-         underneath it. -->
+
     <section id="setup" data-syn="wizard first run setup wallpaper accent undo">
       <h2>The setup wizard is still there</h2>
       <p>If you have not installed Dagric yet, this section is a description of
@@ -461,14 +392,7 @@
       skipped that step the first time.</div>
     </section>
 
-    <!-- FIVE NAMED TOOLS ACROSS THREE SECTIONS AND NO MAP. Between the wizard,
-         this section and Text Size a reader meets Set Up Dagric, Dagric Looks,
-         Dagric Styles, Dagric Appearance and Text Size — heavily overlapping,
-         with nothing saying which one to open for a given goal. Somebody who
-         came here wanting bigger text was standing in front of five doors. The
-         table answers the question in the reader's own terms; it deliberately
-         reuses the .winmap component, which is the pattern this same reader has
-         already learned at the top of the page. -->
+
     <section id="looks" data-syn="theme dark mode light appearance customize taskbar layout style">
       <h2>Making it yours: Looks and Styles</h2>
       <p>Not sure which one to open? Start here.</p>
@@ -508,16 +432,7 @@
       things costs nothing, so try everything.</p>
     </section>
 
-    <!-- h3 + prose, not an accordion, and each entry leads with the symptom in
-         the owner's words — nobody searches "audio output device", they search
-         "no sound". The NTFS entry is the single most common switcher trap on
-         the internet and almost no distro documents it in its guide.
 
-         UP FROM TWENTIETH, to where the sidebar has always said it is. Six
-         optional sections — phone pairing, USB protection, backups, gaming,
-         terminal helpers — used to sit physically between a frightened reader
-         and this section. Nobody scrolls past "Pairing your phone" while their
-         Wi-Fi is down; they conclude the guide does not cover it. -->
     <section id="trouble"
       data-syn="no sound audio mute speakers hdmi wifi wireless internet not working printer not found frozen stuck crash hang force quit ntfs read only fast startup locked drive won't open small huge tiny screen resolution download missing disk full space slow broken desktop restore rollback snapshot">
       <h2>When something goes wrong</h2>
@@ -525,20 +440,7 @@
       <p>The eight things that actually come up, each with the fix that
       actually works. Nothing here needs the terminal.</p>
 
-      <!-- THE MOST IMPORTANT PARAGRAPH IN THE GUIDE, AND IT WAS THE LAST THING
-           IN IT. A reader reaches this section at the most frightened moment
-           they will have all week, and the one instruction that recovers a
-           genuinely broken machine was below eight smaller fixes. It now goes
-           first, with a sentence saying who it is for so that somebody with
-           merely no sound does not think their computer needs rolling back.
 
-           NOT Pro-gated, and the first draft of this tip wrongly said it was.
-           snapper + grub-btrfs are in system.list.chroot, which is the FREE
-           list; Pro adds only Timeshift's scheduled GUI on top. Telling a free
-           owner they have no rollback — at the exact moment an update has just
-           broken their machine — is the "free must never read as broken" rule
-           failing in the worst place it could, and it contradicted the manual
-           and the welcome page, which both say it correctly. -->
       <p><strong>If it is worse than that</strong> — if the computer itself is
       unwell rather than one program — read this before anything else:</p>
       <div class="tip">If an update or experiment ever leaves the system
@@ -600,11 +502,7 @@
         <em>themselves</em> after twenty seconds if you don't confirm them, so an
         unreadable screen fixes itself if you simply wait.</p>
 
-        <!-- THE NO-TERMINAL ANSWER GOES FIRST. This section opens "Nothing here
-             needs the terminal" and this entry then led with a piped shell
-             command, giving the right-click answer second. The reader whose
-             entire fear is typing the wrong thing hit the contradiction before
-             the escape hatch. Same two answers, same words, opposite order. -->
+
         <h3>The disk is filling up</h3>
         <p>Right-click a folder you suspect in <strong>Files</strong> and choose
         <em>Properties</em> to see its size. To see the whole list at once
@@ -620,13 +518,7 @@
       <p>None of these? <a href="#help">Getting help</a> is next.</p>
     </section>
 
-    <!-- IMMEDIATELY AFTER TROUBLESHOOTING, which is the only place it makes
-         sense: it is the next step when the eight fixes above did not work. The
-         two were already adjacent — and both were behind six optional sections.
-         data-syn no longer claims "email": this section contains no email
-         address and nothing about email, and that synonym was catching every
-         reader who searched for how to set up their mail. The Outlook row in
-         "Coming from Windows" answers that one, and now matches it. -->
+
     <section id="help" data-syn="support contact human website questions">
       <h2>Getting help</h2>
       <p>When the fixes above haven't solved it, there are people.</p>
@@ -679,18 +571,20 @@
       else.</p>
       <p>For games, install <strong>Steam</strong> with one click from the Dagric
       Hub (it is never bundled), then enable Proton under Settings →
-      Compatibility. <strong>Heroic</strong> covers Epic, GOG and Amazon, and
-      the <code>dagric-gaming</code> command adds the community Proton-GE build.
+      Compatibility. <strong>Heroic</strong> is an independent launcher supporting
+      Epic Games Store, GOG and Amazon Games accounts, and
+      the <code>dagric-gaming</code> command adds the community GE-Proton build.
       For ordinary Windows software, <strong>Bottles</strong> — also one click
-      from the Hub — keeps each program in its own tidy container. All of that
-      works on either edition.</p>
+      from the Hub — keeps each program in a separate Wine environment, not a
+      security sandbox. Those optional helpers are available on either edition;
+      compatibility varies by application, title and online service.</p>
       <p><strong>On Pro</strong> <span class="pro">PRO</span> the runtime
       underneath is already installed and tuned: Wine runs many
       <code>.exe</code> files on a double-click, and GameMode, MangoHud, Lutris
       and 32-bit Vulkan are in place for games. And for the rare app that will
       not run under Wine at all, <strong>Windows in a window</strong>: pick it in
       the Hub (<code>dagric-vm</code>) to enable virtual machines and run real
-      Windows safely inside Dagric.</p>
+      licensed Windows inside Dagric.</p>
     </section>
 
     <section id="phone" data-syn="android iphone kde connect notifications sms">
@@ -711,12 +605,7 @@
       the list or switch protection back off.</p>
     </section>
 
-    <!-- LAST, ON PURPOSE. This was the section immediately before "When
-         something goes wrong", so the last thing a frightened reader saw
-         before a section that promises "Nothing here needs the terminal" was a
-         panel of shell commands with sudo in it. It is the most advanced
-         content in the document and it now sits at the end of the optional
-         group, where somebody has to go looking for it. -->
+
     <section id="helpers" data-syn="terminal command line cli nvidia resolve ai ollama">
       <h2>Terminal helpers</h2>
       <p>Optional, and last on purpose: these are one-line shortcuts for people
@@ -728,7 +617,7 @@
         <div class="helper-row"><code>dagric-migrate</code><span>bring files from Windows</span></div>
         <div class="helper-row"><code>dagric-get-resolve</code><span>DaVinci Resolve</span></div>
         <div class="helper-row"><code>dagric-ai</code><span>private local AI</span></div>
-        <div class="helper-row"><code>dagric-gaming</code><span>Proton-GE</span></div>
+        <div class="helper-row"><code>dagric-gaming</code><span>GE-Proton</span></div>
         <div class="helper-row"><code>dagric-vm</code><span>virtual machines, Pro</span></div>
       </div>
     </section>

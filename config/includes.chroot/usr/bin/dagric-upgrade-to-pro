@@ -1,5 +1,5 @@
 #!/bin/sh
-# SPDX-FileCopyrightText: 2026 DGR Operations <repo@dagric.com>
+# SPDX-FileCopyrightText: 2026 IMPRESSIONSDIRECT360 LLC <repo@dagric.com>
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Dagric OS — turn this free machine into a Pro one, in place.
 #
@@ -10,7 +10,7 @@
 # also the single worst moment to ask someone to reinstall: they have just paid.
 #
 # WHAT PRO ACTUALLY IS, because that decides what this has to do. Four things,
-# and only the third needs a licence to obtain:
+# and only the third needs a paid hosted-delivery entitlement to obtain:
 #
 #   1. 83 packages, every one of them from Debian main. A free owner could
 #      apt-get install all of them today and nobody would stop them. That is not
@@ -25,7 +25,7 @@
 #   3. Four Plasma layouts and three colour styles. These are DELETED from the
 #      free image at build time rather than hidden behind a flag, because a flag
 #      is one line of text to edit. They are the only part that has to be
-#      fetched, and the only part the licence gates.
+#      fetched, and the only part the hosted service gates.
 #   4. /etc/dagric-edition and the os-release VARIANT, which is what the Hub,
 #      the launcher entries and the appearance gallery read to decide what to
 #      show.
@@ -39,7 +39,7 @@
 # there and it is the same class of operation:
 #   1. Refuse when the machine is not in a state to survive it.
 #   2. Snapshot FIRST and say plainly when a snapshot is impossible.
-#   3. Verify the purchase BEFORE touching anything, so a wrong licence costs
+#   3. Verify the purchase BEFORE touching anything, so a wrong code costs
 #      nothing.
 #   4. Download everything before installing anything.
 #   5. Never leave the edition marker flipped if the install did not finish —
@@ -50,6 +50,11 @@ set -e
 . /usr/bin/dagric-i18n.sh
 
 GATE="https://dagric-gate.dagric.workers.dev"
+# This digest is part of the signed dagric-tools package. The private R2 object
+# is not trusted merely because it came through our Worker: an accidentally or
+# maliciously replaced archive must not be unpacked by a root process. Update
+# this value in the same signed package release that publishes new Pro assets.
+PRO_ASSETS_SHA256="4636c16db61c1dd3a8838c988e55baf8d6fda5805d7108ad19fe85cd55c895bb"
 EDITION_FILE=/etc/dagric-edition
 LOOKS=/usr/share/dagric/looks
 STYLES=/usr/share/dagric/styles
@@ -185,15 +190,15 @@ say "$(eval_gettext 'This machine: Dagric OS $CUR')"
 say "$(eval_gettext 'Free disk:    $FREE_GB GB')"
 say ""
 
-# ------------------------------------------------------------------ the licence
-# Asked for and verified BEFORE anything is touched. A wrong or mistyped licence
+# ----------------------------------------------------------- purchase entitlement
+# Asked for and verified BEFORE anything is touched. A wrong or mistyped code
 # should cost the owner nothing but the retyping.
 _h=$(gettext "Your Pro purchase")
 say "$_h"
 say "$(rule "$_h")"
 say "$(gettext "Open the download page from your purchase email. Its address ends in")"
 say "  ?session_id=cs_...."
-say "$(gettext "Paste that cs_... value here (it is not a password and not secret).")"
+say "$(gettext "Paste that cs_... value here. Treat it like a private download link: anyone who has it can use your Pro download access.")"
 say ""
 # printf '%s', never printf "$(...)": the translation is an ARGUMENT, so a
 # msgstr containing a % can never become a conversion specifier. The trailing
@@ -204,11 +209,10 @@ read -r SID
 case "$SID" in
     *session_id=*) SID=${SID##*session_id=}; SID=${SID%%&*} ;;
 esac
-case "$SID" in
-    cs_*) : ;;
-    *) die "$(gettext "that does not look like a purchase session. It starts with cs_ and
-        appears in the address of your download page. Nothing was changed.")" ;;
-esac
+if ! printf '%s\n' "$SID" | grep -Eq '^cs_[A-Za-z0-9_]{8,252}$'; then
+    die "$(gettext "that does not look like a complete purchase session. It starts with cs_ and
+        appears in the address of your download page. Nothing was changed.")"
+fi
 
 say ""
 say "$(gettext "Checking the purchase...")"
@@ -219,7 +223,7 @@ say "$(gettext "Checking the purchase...")"
 # NO -f HERE, AND THAT IS THE WHOLE POINT OF THIS CALL. `curl -f` exits non-zero
 # on an HTTP error, so with it the 403 that means "we checked, and that session
 # has not paid" arrived at the `||` branch as 000 and got reported as "could not
-# reach the licence check, try again in a minute" — telling someone with a
+# reach the purchase check, try again in a minute" — telling someone with a
 # mistyped session id to keep retrying a check that was working perfectly.
 # Measured against the live gate: -f gives 000, without it gives 403.
 #
@@ -228,7 +232,8 @@ say "$(gettext "Checking the purchase...")"
 # further down DOES keep -f, because there the desired behaviour is the
 # opposite: fail, and write no file, on any non-200.
 # ---------------------------------------------------------------- fingerprint
-# One purchase covers one machine, and this is how the licence check knows
+# One purchase provides a guided-upgrade/support slot for one managed machine,
+# and this is how the purchase check knows
 # which machine is asking WITHOUT ever seeing a serial number: a SHA-256 of
 # the machine's DMI product UUID, salted with the purchase session — so the
 # value is meaningless outside this one purchase, cannot be correlated across
@@ -240,7 +245,7 @@ say "$(gettext "Checking the purchase...")"
 # The fallbacks, in honesty order: some boards ship the notorious duplicate
 # DMI UUID 03000200-0400-0500-0006-000700080009 or nothing at all — those fall
 # back to /etc/machine-id (reinstalls on such hardware may need
-# dagric.com/support to move the licence, which the 409 message says).
+# dagric.com/support to move the service slot, which the 409 message says).
 # Disclosed in the text below and on dagric.com/privacy.
 RAWID=$(cat /sys/class/dmi/id/product_uuid 2>/dev/null || true)
 FP_STABLE=yes
@@ -249,33 +254,39 @@ case "$RAWID" in
         # No usable hardware id (some boards ship none, or the notorious
         # duplicate). Fall back to /etc/machine-id — which REGENERATES on every
         # reinstall, so on this hardware a future reinstall looks like a new
-        # machine to the licence check and needs one support message to move
-        # the licence. Say so plainly rather than let it surprise a reinstaller.
+        # machine to the purchase check and needs one support message to move
+        # the service slot. Say so plainly rather than let it surprise a reinstaller.
         RAWID=$(cat /etc/machine-id 2>/dev/null || echo unknown)
         FP_STABLE=no ;;
 esac
 MID=$(printf '%s:%s' "$SID" "$RAWID" | sha256sum | cut -c1-64)
 
+# Keep the purchase session out of curl's command line. /proc/<pid>/cmdline is
+# readable to other processes on many multi-user Linux systems, and this value
+# is a bearer credential for the paid download. curl reads the header from
+# stdin instead; only the anonymous machine fingerprint remains in argv.
+private_header() { printf 'Authorization: Bearer %s\n' "$SID"; }
+
 say ""
-say "$(gettext "Your purchase covers one machine. This machine introduces itself to the
-licence check as an anonymous fingerprint (a one-way hash tied to this
-purchase) — never a serial number, never anything readable.")"
+say "$(gettext "Your purchase provides guided upgrade and support for one managed machine.
+This machine introduces itself to the purchase check as an anonymous fingerprint
+(a one-way hash tied to this purchase) — never a serial number, never anything readable.")"
 if [ "$FP_STABLE" = no ]; then
     say "$(gettext "(This machine has no stable hardware id, so the fingerprint is based on
 an installation id that changes if you reinstall. A reinstall will need a
-quick message to dagric.com/support to move the licence — at no cost.)")"
+quick message to dagric.com/support to move the service slot — at no cost.)")"
 fi
 
-HTTP=$(curl -sS -o /dev/null -w '%{http_code}' -I --max-time 30 \
-       "$GATE/?session_id=$SID&m=$MID" 2>/dev/null) || HTTP=000
+HTTP=$(private_header | curl --proto '=https' --tlsv1.2 -H @- -sS -o /dev/null -w '%{http_code}' -I --max-time 30 \
+       "$GATE/?m=$MID" 2>/dev/null) || HTTP=000
 
 case "$HTTP" in
     200)
         say "  $(gettext "Confirmed. Thank you.")" ;;
     409)
         die "$(gettext "this purchase is already upgrading a different machine. One purchase
-        covers one machine. dagric.com/support can move the licence to this
-        machine, or a second machine needs a second purchase. Nothing was
+        provides one guided-upgrade/support slot. dagric.com/support can move the slot to this
+        machine, or a second managed machine needs a second service entitlement. Nothing was
         changed.")" ;;
     403)
         die "$(gettext "that purchase session was not recognised as paid. If you have just
@@ -290,14 +301,14 @@ case "$HTTP" in
         from the address bar of your download page — it is long, and it is easy
         to miss the end of it. Nothing was changed.")" ;;
     000|503)
-        die "$(gettext "could not reach the licence check just now. Your purchase is fine;
+        die "$(gettext "could not reach the purchase-entitlement check just now. Your purchase is fine;
         this is our end or your connection. Try again in a minute. Nothing was
         changed.")" ;;
     *)
         # eval_gettext and therefore SINGLE quotes: in double quotes the shell
         # would expand $HTTP before gettext saw the string, the lookup would
         # miss, and this line alone would come out in English with no warning.
-        die "$(eval_gettext 'the licence check answered $HTTP, which it should not. Please send
+        die "$(eval_gettext 'the purchase-entitlement check answered $HTTP, which it should not. Please send
         that number to dagric.com/support. Nothing was changed.')" ;;
 esac
 say ""
@@ -422,7 +433,7 @@ if [ "$CAN_SNAPSHOT" = yes ]; then
 fi
 
 # ------------------------------------------------------------------ the assets
-# Fetched BEFORE apt runs. These are the only licence-gated part, they are small,
+# Fetched BEFORE apt runs. These are the only hosted-delivery-gated part, they are small,
 # and finding out the gate is unreachable after a twenty-minute install would be
 # the worst possible ordering.
 WORK=$(mktemp -d /tmp/dagric-pro.XXXXXX) || die "$(gettext "cannot create a working directory.")"
@@ -431,7 +442,7 @@ trap 'exit 130' INT TERM HUP
 
 say ""
 say "$(gettext "Fetching the Pro layouts and styles...")"
-# THIS IS THE ONE PART THE LICENCE GATES, AND THE ONE PART THAT CANNOT BE
+# THIS IS THE ONE PART THE HOSTED PURCHASE SERVICE GATES, AND THE ONE PART THAT CANNOT BE
 # OBTAINED LATER.
 #
 # A failed fetch used to be a warning: the run carried on, installed the 83
@@ -449,9 +460,18 @@ say "$(gettext "Fetching the Pro layouts and styles...")"
 ASSETS_OK=no
 n=1
 while [ "$n" -le 3 ]; do
-    if curl -fsS --max-time 120 -o "$WORK/assets.tar.gz" \
-            "$GATE/assets?session_id=$SID&m=$MID" 2>/dev/null &&
-       tar -tzf "$WORK/assets.tar.gz" >/dev/null 2>&1; then
+    if private_header | curl --proto '=https' --tlsv1.2 -H @- -fsS --max-time 120 -o "$WORK/assets.tar.gz" \
+            "$GATE/assets?m=$MID" 2>/dev/null &&
+       printf '%s  %s\n' "$PRO_ASSETS_SHA256" "$WORK/assets.tar.gz" | sha256sum -c - >/dev/null 2>&1 &&
+       tar -tzf "$WORK/assets.tar.gz" 2>/dev/null | sed 's#^\./##' | awk '
+         /(^|\/)\.\.(\/|$)/ || /^\// { exit 1 }
+         /^(looks|styles|thumbs|applications)\/$/ { next }
+         /^looks\/[^\/]+\.look$/ { next }
+         /^styles\/[^\/]+\.style$/ { next }
+         /^thumbs\/[^\/]+\.png$/ { next }
+         /^applications\/[^\/]+\.desktop$/ { next }
+         { exit 1 }
+       '; then
         ASSETS_OK=yes
         say "  $(gettext "done.")"
         break
@@ -721,7 +741,7 @@ if [ "$ASSETS_OK" = yes ]; then
     say ""
     say "$(gettext "Adding the Pro layouts and styles...")"
     mkdir -p "$WORK/x"
-    if tar -xzf "$WORK/assets.tar.gz" -C "$WORK/x" 2>/dev/null; then
+    if tar --no-same-owner --no-same-permissions -xzf "$WORK/assets.tar.gz" -C "$WORK/x" 2>/dev/null; then
         mkdir -p "$LOOKS" "$STYLES" "$THUMBS"
         for f in "$WORK"/x/looks/*.look;   do [ -e "$f" ] && cp -f "$f" "$LOOKS/";  done
         for f in "$WORK"/x/styles/*.style; do [ -e "$f" ] && cp -f "$f" "$STYLES/"; done
@@ -745,7 +765,7 @@ if [ "$ASSETS_OK" = yes ]; then
         # NOT a warning. An unpack that fails here is past apt, so continuing
         # would write the marker and recreate exactly the trap the retry loop
         # above was added to remove: a machine calling itself Pro that can never
-        # receive the one thing the licence gates. Stopping short of the marker
+        # receive the one thing the hosted purchase service gates. Stopping short of the marker
         # leaves the tool able to finish the job on a second run.
         die "$(gettext "the layouts and styles arrived but would not unpack — usually that
         is disk space. The applications ARE installed and set to the Pro opt-in

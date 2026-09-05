@@ -48,7 +48,7 @@ There is no embargo and no requirement for positive coverage. Please disclose th
 Thank you,
 
 [Owner name]<br>
-DGR Operations / Dagric OS<br>
+IMPRESSIONSDIRECT360 LLC / Dagric OS<br>
 [Reply email]
 
 ## Personalization prompts

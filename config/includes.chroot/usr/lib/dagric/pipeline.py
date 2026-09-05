@@ -33,6 +33,9 @@ SAFE_ACTIONS = {
     "keep-ssd-kernel-default",
     "bfq-for-rotational-via-udev",
     "bounded-launch-prefetch",
+    "atom-low-resource-profile",
+    "low-memory-zram-priority",
+    "disable-background-indexing-hints",
 }
 SENSITIVE_WORDS = ("serial", "uuid", "mac", "address", "edid", "dmi", "machine-id")
 SYSTEM_PREFIXES = ("/usr/", "/lib/", "/lib64/", "/opt/")
@@ -93,6 +96,10 @@ def iter_dirs(path: pathlib.Path) -> Iterable[pathlib.Path]:
 def hardware_projection(root: pathlib.Path) -> dict[str, Any]:
     mem = parse_meminfo(root)
     cpuinfo = read_text(root, "/proc/cpuinfo")
+    model_names = re.findall(r"^(?:model name|Model|Processor)\s*:\s*(.+)$", cpuinfo, flags=re.MULTILINE)
+    cpu_model = model_names[0].strip() if model_names else "unknown"
+    cpu_lower = cpu_model.casefold()
+    atom_family = bool(re.search(r"\batom(?:\(tm\))?\s*(?:cpu\s*)?(?:n?4[0-9]{2}|z5\d{3})", cpu_lower))
     cpu_count = len(re.findall(r"^processor\s*:", cpuinfo, flags=re.MULTILINE))
     if not cpu_count:
         cpu_count = len([item for item in iter_dirs(host_path(root, "/sys/devices/system/cpu")) if re.fullmatch(r"cpu\d+", item.name)])
@@ -125,6 +132,8 @@ def hardware_projection(root: pathlib.Path) -> dict[str, Any]:
 
     return {
         "cpu_threads": cpu_count,
+        "cpu_model": cpu_model[:120],
+        "atom_family": atom_family,
         "memory_bytes": mem.get("MemTotal", 0),
         "numa_nodes": len(iter_dirs(host_path(root, "/sys/devices/system/node"))),
         "gpu_vendors": sorted(set(gpus)),
@@ -151,9 +160,24 @@ def memory_class(memory_bytes: int) -> str:
     return "high-memory"
 
 
+def is_atom_class(projection: dict[str, Any]) -> bool:
+    """Identify netbook-era Atom-class machines without requiring a DMI serial.
+
+    The RAM/CPU gate is intentional: model strings vary across firmware and
+    virtual machines, while the resource envelope is what makes this profile
+    useful.  Atom N450/N455 systems normally report one core/two threads and
+    1–2 GiB RAM; comparable single/dual-core low-memory systems get the same
+    safe treatment.
+    """
+    memory = int(projection.get("memory_bytes", 0))
+    threads = int(projection.get("cpu_threads", 0))
+    return memory > 0 and memory <= 2 * 1024 ** 3 and threads <= 2
+
+
 def compile_policy(projection: dict[str, Any]) -> dict[str, Any]:
-    tier = memory_class(int(projection["memory_bytes"]))
-    budgets = {"low-memory": 8, "standard": 32, "high-memory": 64}
+    atom_class = is_atom_class(projection)
+    tier = "atom-low-resource" if atom_class else memory_class(int(projection["memory_bytes"]))
+    budgets = {"atom-low-resource": 2, "low-memory": 8, "standard": 32, "high-memory": 64}
     actions = ["keep-ssd-kernel-default", "bounded-launch-prefetch"]
     if projection["zram_available"]:
         actions.append("retain-zram")
@@ -163,6 +187,8 @@ def compile_policy(projection: dict[str, Any]) -> dict[str, Any]:
         actions.append("retain-btrfs-zstd")
     if any(device["rotational"] for device in projection["storage"]):
         actions.append("bfq-for-rotational-via-udev")
+    if atom_class:
+        actions.extend(("atom-low-resource-profile", "low-memory-zram-priority", "disable-background-indexing-hints"))
     return {
         "machine_class": tier,
         "launch_prefetch_max_mib": budgets[tier],
@@ -170,6 +196,14 @@ def compile_policy(projection: dict[str, Any]) -> dict[str, Any]:
         # happens in response to an explicit launch, and is skipped under PSI.
         "background_warming": False,
         "pressure_limits_avg10": {"cpu": 10.0, "memory": 2.0, "io": 2.0},
+        "low_resource": {
+            "enabled": atom_class,
+            "max_background_jobs": 1 if atom_class else None,
+            "zram_target_percent": 75 if atom_class else None,
+            "swappiness": 180 if atom_class else None,
+            "disable_file_indexing_by_default": atom_class,
+            "notes": ("Atom/N450-class safe mode: prioritize responsiveness and avoid concurrent indexing." if atom_class else "standard adaptive policy"),
+        },
         "actions": sorted(actions),
         "experimental": {
             "damon_reclaim": False,
@@ -297,11 +331,11 @@ def prefetch(paths: Iterable[str], budget_mib: int, root: pathlib.Path = pathlib
             length = min(path.stat().st_size, budget - warmed)
             if length <= 0:
                 continue
-            descriptor = os.open(path, os.O_RDONLY | os.O_CLOEXEC)
+            descriptor = os.open(path, os.O_RDONLY | getattr(os, "O_CLOEXEC", 0))
             try:
                 if not hasattr(os, "posix_fadvise"):
                     return {"files": files, "bytes": warmed}
-                os.posix_fadvise(descriptor, 0, length, os.POSIX_FADV_WILLNEED)
+                os.posix_fadvise(descriptor, 0, length, getattr(os, "POSIX_FADV_WILLNEED", 3))
             finally:
                 os.close(descriptor)
             warmed += length
@@ -367,6 +401,32 @@ def command_launch(command: list[str], root: pathlib.Path) -> int:
     return child.wait()
 
 
+def command_apply(root: pathlib.Path) -> int:
+    """Apply only reversible low-memory knobs; silently skip unavailable ones."""
+    policy = active_policy(root)
+    low = policy.get("low_resource") or {}
+    if not low.get("enabled"):
+        return 0
+    values = {
+        "vm.swappiness": low.get("swappiness"),
+        "vm.page-cluster": 0,
+        "vm.dirty_background_ratio": 3,
+        "vm.dirty_ratio": 10,
+    }
+    for key, value in values.items():
+        if value is None:
+            continue
+        proc = host_path(root, "/proc/sys/" + key.replace(".", "/"))
+        if not proc.exists():
+            continue
+        try:
+            proc.write_text(str(int(value)) + "\n", encoding="ascii")
+        except OSError:
+            # A read-only/test root or a restricted sysctl is a safe no-op.
+            continue
+    return 0
+
+
 def strip_separator(command: list[str]) -> list[str]:
     return command[1:] if command[:1] == ["--"] else command
 
@@ -384,6 +444,7 @@ def main(argv: list[str] | None = None) -> int:
     prepare.add_argument("command", nargs=argparse.REMAINDER)
     launch = sub.add_parser("launch", help="launch and learn only system-code mappings")
     launch.add_argument("command", nargs=argparse.REMAINDER)
+    sub.add_parser("apply", help="apply reversible low-resource settings when detected")
     args = parser.parse_args(argv)
     root = pathlib.Path(args.root)
 
@@ -412,6 +473,8 @@ def main(argv: list[str] | None = None) -> int:
             return 1
         print("dagric-pipeline: profile is privacy-safe and uses only approved actions")
         return 0
+    if args.subcommand == "apply":
+        return command_apply(root)
     command = strip_separator(args.command)
     if args.subcommand == "prepare":
         return command_prepare(command, root)

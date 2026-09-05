@@ -1,27 +1,31 @@
 #!/bin/sh
-# SPDX-FileCopyrightText: 2026 DGR Operations <repo@dagric.com>
+# SPDX-FileCopyrightText: 2026 IMPRESSIONSDIRECT360 LLC <repo@dagric.com>
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Dagric OS — gaming compatibility upgrades, on request.
-# Installs the community Proton-GE build (extra codecs, game fixes that
-# land weeks before upstream) into Steam's compatibility tools folder.
+# Installs the community GE-Proton build into Steam's compatibility tools
+# folder. Compatibility remains title-specific; this helper promises no game,
+# online-service or anti-cheat support.
 set -e
 . /usr/bin/dagric-i18n.sh
 
 # TRANSLATORS: "wine setup.exe" and "dagric-get-steam" are commands typed
-# verbatim. Wine, winetricks, gamemode, mangohud, Vulkan, Proton, Proton-GE,
+# verbatim. Wine, winetricks, gamemode, mangohud, Vulkan, Proton, GE-Proton,
 # Steam and GloriousEggroll are product names — leave them all as they are.
 dg_say "$(gettext "Dagric gaming setup
 =====================
 Already preinstalled on Dagric Pro:
-  * Wine + winetricks       run Windows apps:  wine setup.exe
+  * Wine + winetricks       try Windows apps:  wine setup.exe
   * gamemode + mangohud     performance governor + FPS overlay
-  * 32-bit Vulkan           ready for Proton's Windows games
+  * 32-bit Vulkan           graphics support used by many compatibility layers
 
-Steam itself is NEVER bundled (it is proprietary) — install it any time
-with one click from the Dagric Hub, or run:  dagric-get-steam
+Dagric does not bundle the proprietary Steam client. You can ask Debian's
+installer to obtain it under Valve's current terms from the Dagric Hub, or run:
+dagric-get-steam
 
-This helper adds Proton-GE (GloriousEggroll's community Proton with
-extra media codecs and game-specific fixes) for a Steam you've installed.")"
+This helper downloads GE-Proton, GloriousEggroll's community compatibility
+tool, for a Steam installation you already chose. It may help some titles, but
+game, online-service and anti-cheat compatibility varies. Dagric and GE-Proton
+are not affiliated with or endorsed by Valve.")"
 dg_live_warn
 
 # --help MUST NOT REACH THE PROMPT BELOW. This script takes no options and
@@ -44,19 +48,19 @@ esac
 # actually makes GameMode do something — stayed inert for anyone who plays
 # through Lutris, Heroic, Bottles or plain Wine, all of which Pro ships. To be
 # offered the group at all you had to own Steam, have launched it once, AND then
-# say yes to a Proton-GE download you may have had no interest in.
+# say yes to a GE-Proton download you may have had no interest in.
 #
 # A flag rather than moving the block, deliberately. Moving it would mean
 # rewording "One more thing:", which changes the msgid, which silently drops
 # that string back to English in all five shipped languages — a mistake already
-# made twice in this tree. The Proton-GE work is skipped exactly as before and
+# made twice in this tree. The GE-Proton work is skipped exactly as before and
 # every message is untouched; the run simply continues instead of ending.
 #
 # The failure exits further down (download failed, archive damaged) are left as
 # they are: those are genuine errors, and stopping is the right answer there.
 DO_PROTON=yes
 
-printf '%s ' "$(gettext "Download the latest Proton-GE from GitHub? [y/N]")"
+printf '%s ' "$(gettext "Download the latest GE-Proton release from GloriousEggroll's GitHub? [y/N]")"
 read -r answer
 if ! dg_is_yes "$answer"; then
     dg_say "$(gettext "Nothing changed.")"
@@ -73,10 +77,38 @@ fi
 
 if [ "$DO_PROTON" = yes ]; then
 mkdir -p "$DEST"
-URL=$(curl -fsSL https://api.github.com/repos/GloriousEggroll/proton-ge-custom/releases/latest \
-      | grep browser_download_url | grep '\.tar\.gz"' | head -1 | cut -d '"' -f 4)
-if [ -z "$URL" ]; then
+META=$(mktemp -t dagric-proton-release.XXXXXX) || exit 1
+if ! curl --proto '=https' --tlsv1.2 -fsSL \
+        https://api.github.com/repos/GloriousEggroll/proton-ge-custom/releases/latest -o "$META"; then
+    rm -f "$META"
     dg_say "$(gettext "Could not find the latest release (offline?). Try again later.")"
+    exit 1
+fi
+ASSET=$(python3 - "$META" <<'PY'
+import json, re, sys
+try:
+    release = json.load(open(sys.argv[1], encoding="utf-8"))
+except (OSError, ValueError):
+    raise SystemExit(1)
+for asset in release.get("assets", []):
+    name = asset.get("name", "")
+    url = asset.get("browser_download_url", "")
+    digest = asset.get("digest", "") or ""
+    if not name.endswith("-x86_64.tar.gz"):
+        continue
+    if not url.startswith("https://github.com/GloriousEggroll/proton-ge-custom/releases/download/"):
+        continue
+    if not re.fullmatch(r"sha256:[0-9a-f]{64}", digest):
+        continue
+    print(url + "\t" + digest.removeprefix("sha256:"))
+    break
+PY
+) || ASSET=""
+rm -f "$META"
+URL=$(printf '%s\n' "$ASSET" | cut -f1)
+EXPECTED=$(printf '%s\n' "$ASSET" | cut -f2)
+if [ -z "$URL" ] || ! printf '%s\n' "$EXPECTED" | grep -Eq '^[0-9a-f]{64}$'; then
+    dg_say "$(gettext "The release did not provide a verifiable x86-64 archive. Nothing was installed; try again later.")"
     exit 1
 fi
 dg_say "$(eval_gettext 'Downloading: $URL')"
@@ -106,9 +138,15 @@ dg_say "$(eval_gettext 'Downloading: $URL')"
 # prefix keeps a staging directory out of Steam's own compatibility-tool list in
 # the meantime.
 TMP=$(mktemp "$DEST/.dagric-dl.XXXXXX") || exit 1
-if ! curl -fL "$URL" -o "$TMP"; then
+if ! curl --proto '=https' --tlsv1.2 -fL "$URL" -o "$TMP"; then
     rm -f "$TMP"
     dg_say "$(gettext "Download failed — nothing was installed. Check your connection and try again.")"
+    exit 1
+fi
+GOT=$(sha256sum "$TMP" 2>/dev/null | awk '{print $1}')
+if [ "$GOT" != "$EXPECTED" ]; then
+    rm -f "$TMP"
+    dg_say "$(gettext "The downloaded GE-Proton archive did not match GitHub's published digest. Nothing was installed.")"
     exit 1
 fi
 

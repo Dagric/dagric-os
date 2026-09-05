@@ -174,17 +174,8 @@ fonts-nanum
 # switched on behind their back.
 plasma-browser-integration
 
-# Controller support, on BOTH editions, and it contains no Valve software
-# whatsoever: the package is two udev rules files and its own documentation -
-# 60-steam-input.rules and 60-steam-vr.rules, 55 kB, verified by unpacking it.
-# The name is the only Valve thing about it, which is why this comment exists;
-# a future audit reading the never-bundle mandate would otherwise delete it.
-#
-# It is on free because dagric-get-steam and dagric-get-heroic live in the
-# SHARED includes.chroot, so a free owner is offered Steam and Heroic with no
-# udev rules behind them - the controller they plug in afterwards gets no
-# permissions for its hidraw node, so Steam Input and Lutris's controller
-# enumeration do not work. Plain gamepad input over evdev works without this
-# (Debian 13 has hid-playstation and hid-nintendo in-tree), so the honest claim
-# is about Steam Input and pairing, not about the pad being dead.
-steam-devices
+# Advanced controller access is deliberately not enabled in the base image.
+# Debian warns that steam-devices trades local-user isolation for access to
+# gaming hardware and /dev/uinput. dagric-get-steam explains that boundary and
+# installs the package only after the owner explicitly chooses Steam. Ordinary
+# evdev controller input does not depend on these broader rules.

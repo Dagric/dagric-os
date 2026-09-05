@@ -30,11 +30,11 @@ e o computador reinicia somente quando você mandar.</translation>
         <source>Need more software?
 
 Open Discover to install thousands of apps —
-chosen by you, sandboxed, removable.</source>
+chosen by you, clearly sourced, removable.</source>
         <translation>Precisa de mais programas?
 
 Abra o Discover para instalar milhares de aplicativos —
-escolhidos por você, isolados, removíveis.</translation>
+escolhidos por você, com a origem indicada e removíveis.</translation>
     </message>
 </context>
 </TS>

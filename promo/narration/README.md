@@ -24,3 +24,28 @@ The accompanying non-dialogue Adobe batch contains:
 - Mixed 24-second montages in 16:9 and 9:16
 - A mixed 30-second montage in 1:1
 - A 5-second square teaser
+
+## Optional ElevenLabs takes
+
+`../elevenlabs_tts.py` creates an MP3 take from one approved `.txt` file and
+an auditable JSON sidecar. It reads `ELEVENLABS_API_KEY` only from the current
+process environment; it never reads a project `.env` file or writes the key to
+disk. The binary output directory is already ignored by Git.
+
+List the account's approved voices first, then choose a voice ID intentionally:
+
+```powershell
+cd promo
+npm run tts:voices
+npm run tts:eleven -- --text-file narration\windows10.txt --voice-id YOUR_VOICE_ID --output public\narration-batch\windows10.mp3
+```
+
+The JSON sidecar records the model, voice ID, voice settings, source text,
+SHA-256, and synthetic-voice disclosure without recording credentials. Pair
+the resulting narration only with the approved realtime-footage workflow in
+`../CREATIVE-PIPELINE.md`; the older screenshot-driven social renderer is now
+kept as a `legacy:*` command and is not approved for new output.
+
+Keep the existing Kokoro path as the local/offline fallback. Do not claim that
+synthetic narration is a human recording, and use a voice only when you have
+the right to use it for the intended Dagric campaign.

@@ -150,7 +150,7 @@ Rectangle {
                 id: fill
                 height: parent.height
                 radius: 1
-                color: "#3fa9f5"
+                color: "#ff3b5c"
                 width: Math.round(track.width * Math.min(root.stage / 6.0, 1.0))
                 Behavior on width {
                     NumberAnimation { duration: 350; easing.type: Easing.OutCubic }

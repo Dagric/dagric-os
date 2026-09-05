@@ -27,7 +27,9 @@ code of conduct, security policy, issue templates, or pull-request template.
 - Expanded topics around desktop Linux, Windows migration, privacy, Btrfs,
   Secure Boot, Calamares, and beginners.
 - Enabled GitHub Discussions, secret scanning, and push protection.
-- Added the rights preflight to GitHub Actions.
+- Added a cross-platform rights preflight for local and future CI use. GitHub
+  Actions is currently prevented from starting jobs by an account billing lock,
+  so its unavailable result must not be presented as a product-quality failure.
 
 ## Attention plan that does not manufacture engagement
 

@@ -1,0 +1,232 @@
+{
+  "schemaVersion": 1,
+  "policyName": "Dagric optional game integrations",
+  "publisher": "IMPRESSIONSDIRECT360 LLC",
+  "releaseRules": {
+    "proprietaryStoreClientsBundled": false,
+    "optionalInstallRequiresOwnerAction": true,
+    "officialThirdPartyLogosInDagricArtwork": false,
+    "compatibilityGuaranteed": false,
+    "thirdPartyTermsMustBeCurrentAtRelease": true,
+    "relationship": "Independent project; no sponsorship, affiliation, certification, or endorsement implied"
+  },
+  "artworkClearance": {
+    "assets": [
+      {
+        "asset": "branding/icons/apps/dagric-gaming-source.png",
+        "sha256": "6b7edf9f688a1438bc38ac88ab1005f22741f838c72f780ba4ca8eb2e300ca46"
+      },
+      {
+        "asset": "branding/icons/apps/dagric-get-steam-source.png",
+        "sha256": "19cde985cd6d9668d588f28c5258bac6e717a99aeb3a63479cef7798aa94600d"
+      },
+      {
+        "asset": "branding/icons/apps/dagric-get-heroic-source.png",
+        "sha256": "e2a7c838ceba423954eb1ab54c83a5840036bb0f1c979a81df825bcec94516bb"
+      },
+      {
+        "asset": "branding/icons/apps/dagric-get-protonup-source.png",
+        "sha256": "ff9c27e08bd6a0f5b1d68fd001e98ed60b7179be7261ed0bcfd07f90fb165d39"
+      }
+    ],
+    "rejectedOrRetiredPredecessorSha256": [
+      "003537ef93a993b2965a8c6597ff34182596123bbdfdb7ebefe5ce9115969eb2",
+      "a27e9d6bc8ef4fc0053210fc10ed3f97d8a96d249de82c7abf41585776a9ce9f",
+      "30bcc921ec1cb4508258d8d11f849b39e6e752225e2c265c3f1bfe9fec24f295",
+      "21eb1891ac9ea65ca50638e2a3915368dee2a1bea1788727e43e89812a6e70c8"
+    ],
+    "reviewedOn": "2026-09-04",
+    "reviewType": "preliminary visual-similarity and vendor-mark screen",
+    "reviewedBy": "Dagric release engineering",
+    "finding": "Four original generic library, setup, compatibility, and performance symbols; no controller silhouette, platform shape set, game cover, or vendor logo.",
+    "humanLegalReviewRequiredBeforeCommercialRelease": true
+  },
+  "integrations": [
+    {
+      "id": "steam",
+      "displayName": "Steam",
+      "bundledApplication": false,
+      "licenseClass": "proprietary-third-party",
+      "delivery": {
+        "mode": "owner-initiated-debian-installer",
+        "helper": "/usr/bin/dagric-get-steam",
+        "identifier": "steam-installer",
+        "repositoryComponent": "contrib"
+      },
+      "iconPolicy": "original-generic-gaming-performance-artwork",
+      "usesOfficialPlatformLogo": false,
+      "compatibilityGuaranteed": false,
+      "terms": "https://store.steampowered.com/subscriber_agreement/",
+      "packageReference": "https://packages.debian.org/stable/steam-installer",
+      "relationshipDisclosure": "Steam and related marks belong to Valve Corporation; Dagric is not affiliated with or endorsed by Valve."
+    },
+    {
+      "id": "steam-devices",
+      "displayName": "steam-devices",
+      "bundledApplication": false,
+      "bundledInPublishedRelease1": true,
+      "licenseClass": "Expat",
+      "delivery": {
+        "mode": "owner-initiated-with-steam-helper",
+        "helper": "/usr/bin/dagric-get-steam",
+        "identifier": "steam-devices"
+      },
+      "containsProprietarySteamClient": false,
+      "securityReviewNote": "Not in future base images. Debian documents broad udev and /dev/uinput access; install only after informed owner consent and avoid on systems with untrusted local users.",
+      "packageReference": "https://packages.debian.org/stable/steam-devices"
+    },
+    {
+      "id": "heroic",
+      "displayName": "Heroic Games Launcher",
+      "bundledApplication": false,
+      "licenseClass": "GPL-3.0",
+      "delivery": {
+        "mode": "owner-initiated-flathub-user-install",
+        "helper": "/usr/bin/dagric-get-heroic",
+        "identifier": "com.heroicgameslauncher.hgl"
+      },
+      "connectedServices": [
+        "Epic Games",
+        "GOG",
+        "Amazon Games"
+      ],
+      "connectedServiceClientsBundled": false,
+      "iconPolicy": "original-generic-game-library",
+      "usesOfficialPlatformLogo": false,
+      "compatibilityGuaranteed": false,
+      "source": "https://github.com/Heroic-Games-Launcher/HeroicGamesLauncher",
+      "packageReference": "https://github.com/flathub/com.heroicgameslauncher.hgl/blob/master/com.heroicgameslauncher.hgl.yml",
+      "relationshipDisclosure": "Dagric and Heroic are independent of Epic Games, GOG, and Amazon; provider terms govern their services."
+    },
+    {
+      "id": "gog",
+      "displayName": "GOG",
+      "bundledApplication": false,
+      "licenseClass": "third-party-service",
+      "terms": "https://support.gog.com/hc/en-us/sections/115000136785-Policies?product=gog",
+      "usesOfficialPlatformLogo": false,
+      "relationshipDisclosure": "Named descriptively as an optional account service; Dagric is not affiliated with or endorsed by GOG."
+    },
+    {
+      "id": "epic-games-store",
+      "displayName": "Epic Games Store",
+      "bundledApplication": false,
+      "licenseClass": "third-party-service",
+      "terms": "https://legal.epicgames.com/store/eula",
+      "usesOfficialPlatformLogo": false,
+      "relationshipDisclosure": "Named descriptively as an optional account service; Dagric is not affiliated with or endorsed by Epic Games."
+    },
+    {
+      "id": "amazon-games",
+      "displayName": "Amazon Games",
+      "bundledApplication": false,
+      "licenseClass": "third-party-service",
+      "terms": "https://www.amazon.com/gp/help/customer/display.html?nodeId=201380010",
+      "usesOfficialPlatformLogo": false,
+      "relationshipDisclosure": "Named descriptively as an optional account service; Dagric is not affiliated with or endorsed by Amazon."
+    },
+    {
+      "id": "lutris",
+      "displayName": "Lutris",
+      "bundledApplication": true,
+      "bundledEditions": [
+        "pro"
+      ],
+      "licenseClass": "open-source",
+      "delivery": {
+        "mode": "debian-package-in-pro-image",
+        "identifier": "lutris"
+      },
+      "communityInstallersMayRetrieveThirdPartySoftware": true,
+      "iconPolicy": "upstream-package-icon-for-upstream-application",
+      "compatibilityGuaranteed": false,
+      "relationshipDisclosure": "Lutris is an independent open-source project; other named services are optional compatibility targets."
+    },
+    {
+      "id": "bottles",
+      "displayName": "Bottles",
+      "bundledApplication": false,
+      "licenseClass": "GPL-3.0",
+      "delivery": {
+        "mode": "owner-initiated-flathub-user-install",
+        "helper": "/usr/bin/dagric-get-bottles",
+        "identifier": "com.usebottles.bottles"
+      },
+      "mayRetrieveSeparatelyLicensedDependencies": true,
+      "usesOfficialPlatformLogo": false,
+      "compatibilityGuaranteed": false,
+      "source": "https://github.com/bottlesdevs/Bottles"
+    },
+    {
+      "id": "protonup-qt",
+      "displayName": "ProtonUp-Qt",
+      "bundledApplication": false,
+      "licenseClass": "GPL-3.0",
+      "delivery": {
+        "mode": "owner-initiated-flathub-user-install",
+        "helper": "/usr/bin/dagric-get-protonup",
+        "identifier": "net.davidotek.pupgui2"
+      },
+      "usesOfficialPlatformLogo": false,
+      "compatibilityGuaranteed": false,
+      "source": "https://github.com/DavidoTek/ProtonUp-Qt"
+    },
+    {
+      "id": "ge-proton",
+      "displayName": "GE-Proton",
+      "bundledApplication": false,
+      "licenseClass": "mixed-open-source-compatibility-tool",
+      "delivery": {
+        "mode": "owner-initiated-official-github-release-with-sha256-verification",
+        "identifier": "GloriousEggroll/proton-ge-custom"
+      },
+      "compatibilityGuaranteed": false,
+      "source": "https://github.com/GloriousEggroll/proton-ge-custom",
+      "relationshipDisclosure": "GE-Proton is not affiliated with Valve's Proton project."
+    },
+    {
+      "id": "wine-winetricks-dxvk",
+      "displayName": "Wine, Winetricks and DXVK",
+      "bundledApplication": true,
+      "bundledEditions": [
+        "pro"
+      ],
+      "licenseClass": "open-source",
+      "delivery": {
+        "mode": "debian-packages-in-pro-image",
+        "identifier": "wine/winetricks/dxvk"
+      },
+      "mayRetrieveSeparatelyLicensedDependencies": true,
+      "compatibilityGuaranteed": false
+    },
+    {
+      "id": "nvidia-firmware",
+      "displayName": "NVIDIA GPU firmware",
+      "bundledApplication": true,
+      "bundledEditions": [
+        "free",
+        "pro"
+      ],
+      "licenseClass": "proprietary-firmware",
+      "delivery": {
+        "mode": "debian-non-free-firmware-packages-in-image",
+        "identifier": "firmware-nvidia-graphics/firmware-nvidia-tesla-535-gsp"
+      },
+      "license": "https://www.nvidia.com/en-us/drivers/nvidia-license/linux/",
+      "relationshipDisclosure": "Firmware is bundled for hardware enablement; the NVIDIA proprietary kernel/display driver is not bundled."
+    },
+    {
+      "id": "nvidia-driver",
+      "displayName": "NVIDIA proprietary driver",
+      "bundledApplication": false,
+      "licenseClass": "proprietary-third-party",
+      "delivery": {
+        "mode": "owner-initiated-debian-non-free-install",
+        "helper": "/usr/bin/dagric-drivers",
+        "identifier": "nvidia-driver"
+      },
+      "license": "https://www.nvidia.com/en-us/drivers/nvidia-license/linux/",
+      "relationshipDisclosure": "Dagric is not affiliated with or endorsed by NVIDIA."
+    }
+  ]
+}

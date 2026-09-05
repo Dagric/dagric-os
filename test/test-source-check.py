@@ -94,6 +94,10 @@ class SourceCheckMutationTests(unittest.TestCase):
             private_key_marker + "not-a-real-key\n", encoding="utf-8"
         )
         (self.root / "merge.txt").write_text("<<<<<<< ours\ntext\n=======\nother\n>>>>>>> theirs\n", encoding="utf-8")
+        (self.root / "fixture").mkdir()
+        (self.root / "fixture/chrome_passwords.csv").write_text(
+            "synthetic,password\n", encoding="utf-8"
+        )
         subprocess.run(
             [*git, "add", "credentials.pem", "notes.txt", "merge.txt"],
             cwd=self.root,
@@ -109,6 +113,7 @@ class SourceCheckMutationTests(unittest.TestCase):
             self.assertEqual(3, source_check.check_repository(errors))
         joined = "\n".join(errors)
         self.assertIn("tracked sensitive-looking path", joined)
+        self.assertIn("untracked sensitive-looking path", joined)
         self.assertIn("unresolved merge markers", joined)
         self.assertIn("private key material", joined)
 

@@ -105,8 +105,8 @@ TOPIC_COPY = {
         "Download it, test it from USB, and decide based on your own computer.",
     ),
     "pro-one-time-purchase": (
-        "Dagric Pro costs thirty-nine dollars once for one machine, not every month. Try the Free edition first, then decide.",
-        "Pro adds the curated creator, gaming, developer, and Windows-app toolkit, with updates included.",
+        "Dagric Pro costs thirty-nine dollars once for hosted delivery, a guided upgrade, and support for one managed machine.",
+        "It is not a subscription, and component licence rights remain unchanged. Try the Free edition first, then decide.",
     ),
     "windows-apps-with-bottles": (
         "Bottles can run many Windows programs inside separate containers. Compatibility still depends on the individual app, so test the software you actually need.",
@@ -175,13 +175,13 @@ EXTENDED_DIALOGUE = {
         "Start with the layout that feels comfortable, adjust the text size and taskbar position, and change it again later if your workflow changes.",
     ],
     "real-vm-onboarding": [
-        "This is real Dagric O S onboarding inside a virtual machine, not a motion-design mockup.",
+        "This is real Dagric O S onboarding in the running operating system, not a motion-design mockup.",
         "The setup walks through appearance, text size, taskbar placement, and optional app choices in plain steps.",
         "Nothing forces a single layout. Choose what feels familiar, skip anything you do not need, and revisit those settings later from Dagric Hub or K D E settings.",
-        "A virtual machine cannot prove compatibility with your Wi-Fi card, graphics hardware, or printer, so use the live USB for that final check on the real P C.",
+        "Use Dagric from a USB drive to check compatibility with your Wi-Fi card, graphics hardware, and printer on the real P C.",
     ],
     "real-vm-settings": [
-        "Here is Dagric O S running in a real virtual machine. Open Firefox, browse the application launcher, and move through K D E settings without a staged interface.",
+        "Here is Dagric O S running live. Open Firefox, browse the application launcher, and move through K D E settings without a staged interface.",
         "The desktop keeps familiar controls close while leaving the Debian and K D E foundation visible.",
         "Use settings to change appearance, accessibility options, displays, sound, networking, and input devices. Then open Dagric Hub for the owner-focused tools and guides.",
         "This demonstrates the software experience. Hardware support still needs to be tested from the live USB on the actual computer.",

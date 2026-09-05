@@ -3,59 +3,22 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>News — Dagric OS</title>
-<meta name="description" content="Release notes and news from the Dagric OS project.">
+<title>Dagric OS News &amp; Release Notes | Updates and Changes</title>
+<meta name="description" content="Read Dagric OS release notes, product updates, security changes, test progress, and important announcements from the project.">
 <link rel="icon" type="image/png" href="/assets/dagric-logo.png">
 <link rel="stylesheet" href="/assets/site.css">
 <style>
-/* A release note is a dated article, not a panel. Panels put four identical
-   boxes down a page and the reader has to find the date inside each one; a rule
-   with the date above it reads as a changelog, which is what this page is. */
+
 article{background:none;border:0;border-top:1px solid var(--rule);border-radius:0;
   padding:var(--s-5) 0 var(--s-6);margin:0}
 article .date{color:var(--accent);font-family:var(--ff-ui);font-size:var(--t-meta);
   font-weight:600;letter-spacing:.10em;text-transform:uppercase}
 article h2{margin:var(--s-2) 0 var(--s-3);border-bottom:0;padding-bottom:0}
 article img{border-radius:2px;border:1px solid var(--rule);margin:var(--s-4) 0}
-/* The last note's --s-6 stacked onto main's --s-7 and the footer's --s-6, so
-   this page closed on 203px of empty band at 1280-1920 where every other
-   document page closes on 136px. Trailing padding on the last item of a list
-   is separation from something that is not there. Measured: 203 -> 151px, in
-   line with its siblings. */
+
 article:last-of-type{padding-bottom:0}
 
-/* ── THE DATE RAIL ───────────────────────────────────────────────────
-   This was the worst content-to-viewport ratio of any real content page on
-   the site. `article` is in the reading-measure rule's :is() list in site.css,
-   so each release note was capped at --w-text and ragged left inside an 820px
-   main that is itself centred: measured at 1920px, 543px of content in a
-   1920px window — 0.283 — with a 574px left gutter and an 804px right one.
-   71.7% of the screen carrying nothing.
-   The fix is the device the homepage already owns. .dept puts a numeral and a
-   hairline in a 8rem left rail and lets the copy run flush left beside it; a
-   changelog wants exactly that, with the date in the rail, because the date is
-   the one thing a reader scanning release notes is actually looking for and it
-   was buried as the first line inside each entry. Zero markup changes: .date
-   is already the first child of every article.
-   THE MEASURE IS NOT WIDENED — it was derived on purpose and it stays at
-   --w-text. What grows is the article's box, by exactly the rail plus its gap
-   (8rem + --s-6 + --w-text = 724px), which spends main's own dead right side
-   rather than the page gutter, so nothing moves outside a container that was
-   already there.
-   #main, not main, and that is the only reason an id appears in this file: the
-   measure rule computes to (0,3,1), so `main > article` at (0,0,2) loses to it
-   on specificity no matter what order the sheets load in. The alternatives
-   were !important or three more :not() clauses restating site.css's internals
-   here, where they would go stale. The id is on the element already.
-   NOT sticky, unlike .dept-rail: that rail is sticky because a homepage
-   section runs to 1,434px, while the tallest note here is ~800px and a date
-   that follows you down two screens of its own entry is a distraction rather
-   than an aid.
-   `screen and` is load-bearing — @media print has no width guarantee and would
-   otherwise match this on a wide sheet, turning every printed release note
-   into a two-column grid. The print block in site.css flattens .dept for the
-   same reason. Below 901px the rail folds away and the date rides above the
-   heading, which is what .dept does below 960px. */
+
 @media screen and (min-width:901px){
   #main > article{
     max-width:calc(8rem + var(--s-6) + var(--w-text));
@@ -63,9 +26,7 @@ article:last-of-type{padding-bottom:0}
     align-items:start}
   #main > article > *{grid-column:2;min-width:0}
   #main > article > .date{grid-column:1;padding-top:3px}
-  /* The heading's own top margin is what separated the date from the title
-     when they were stacked. Side by side they must sit on the same baseline
-     band, or the rail reads as belonging to the entry above it. */
+
   #main > article > h2{margin-top:0}
 }
 </style>
@@ -77,15 +38,15 @@ article:last-of-type{padding-bottom:0}
 <link rel="manifest" href="/site.webmanifest">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Dagric OS">
-<meta property="og:title" content="News — Dagric OS">
-<meta property="og:description" content="Release notes and news from the Dagric OS project.">
+<meta property="og:title" content="Dagric OS News &amp; Release Notes | Updates and Changes">
+<meta property="og:description" content="Read Dagric OS release notes, product updates, security changes, test progress, and important announcements from the project.">
 <meta property="og:url" content="https://dagric.com/news">
 <meta property="og:image" content="https://dagric.com/assets/hero-desktop.png">
 <meta property="og:image:width" content="1920">
 <meta property="og:image:height" content="1080">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="News — Dagric OS">
-<meta name="twitter:description" content="Release notes and news from the Dagric OS project.">
+<meta name="twitter:title" content="Dagric OS News &amp; Release Notes | Updates and Changes">
+<meta name="twitter:description" content="Read Dagric OS release notes, product updates, security changes, test progress, and important announcements from the project.">
 <meta name="twitter:image" content="https://dagric.com/assets/hero-desktop.png">
 </head>
 <body>
@@ -202,7 +163,7 @@ article:last-of-type{padding-bottom:0}
     <h2>More Looks, and a curated open-source toolkit</h2>
     <p>Dagric Looks grows to <strong>seven layouts</strong>. New this update:</p>
     <ul>
-      <li><strong>Eleven</strong> (free) — a centered taskbar in the Windows-11 style.</li>
+      <li><strong>Centered</strong> (free) — Dagric's clean centered taskbar.</li>
       <li><strong>Unity</strong> (Pro) — a side dock with a global menu bar up top.</li>
       <li><strong>Duo</strong> (Pro) — two panels, top and bottom, for power users.</li>
     </ul>
@@ -252,14 +213,7 @@ article:last-of-type{padding-bottom:0}
     <h2>Introducing Dagric OS: own it outright</h2>
     <p><em>Dagr</em> — Old Norse for day. <em>Ric</em> — ruler. <strong>Dagric</strong>: your
     computer, your day, your rule.</p>
-    <!-- "local AI" was listed here as something Pro adds. It is not: nothing installs
-         Ollama in either edition. dagric-hub prints the "Local AI — Ollama" row in its
-         unconditional block, sixteen lines above its `if [ "$EDITION" = "pro" ]` test,
-         and /usr/bin/dagric-ai only fetches it at runtime when the user says yes — so
-         it is byte-identical on free. pro.html's comparison table already prints
-         One-click / One-click for it, and that page's hero lead and product schema
-         were corrected the same way. Selling a one-click downloader as a $39 feature
-         is a refund conversation. -->
+
     <p>Dagric OS is a fast, private desktop operating system built on Debian 13 and KDE Plasma —
     debloated, hardened, and finished. No telemetry exists in it. No ads, no accounts, no forced
     restarts, no subscriptions. The free edition is a complete daily driver, forever; Pro adds the
@@ -274,8 +228,17 @@ article:last-of-type{padding-bottom:0}
 </main>
 
 <footer><div class="foot">
-  <span>© 2026 DGR Operations · Built on Debian. Not affiliated with the Debian Project.</span>
+  <span>© 2026 IMPRESSIONSDIRECT360 LLC · Built on Debian. Not affiliated with the Debian Project.</span>
   <span class="links"><a href="/features">Features</a><a href="/pro">Pro</a><a href="/download">Download</a><a href="/news">News</a><a href="/guide">Guide</a><a href="/support">Support</a><a href="/faq">FAQ</a><a href="/accessibility">Accessibility</a><a href="/security">Security</a><a href="/bugs">Report a bug</a><a href="/contact">Contact</a><a href="/about">About</a><a href="/review">Reviewers</a><a href="/licenses">Licenses</a><a href="/privacy">Privacy</a><a href="/terms">Terms</a></span>
+  <div class="social-footer" role="navigation" aria-label="Dagric OS social media">
+    <strong>Follow Dagric OS</strong>
+    <a href="https://www.youtube.com/@DagricOS" target="_blank" rel="me noopener">YouTube</a>
+    <a href="https://www.tiktok.com/@dagricosofficial" target="_blank" rel="me noopener">TikTok</a>
+    <a href="https://www.instagram.com/dagricosofficial/" target="_blank" rel="me noopener">Instagram</a>
+    <a href="https://www.snapchat.com/@dagricos" target="_blank" rel="me noopener">Snapchat</a>
+    <a href="https://www.linkedin.com/in/dorien-richardson" target="_blank" rel="me noopener">LinkedIn</a>
+    <a href="https://github.com/Dagric/dagric-os" target="_blank" rel="me noopener">GitHub</a>
+  </div>
 </div></footer>
 </body>
 </html>
