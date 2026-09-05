@@ -48,10 +48,10 @@ W, H = 400, 225
 
 # The exact stops from Splash.qml. If those change, change these -- a preview
 # that lies about the colour is worse than no preview, because it is believed.
-TOP = (0x0E, 0x18, 0x26)
-BOTTOM = (0x05, 0x08, 0x10)
-ACCENT = (0x3F, 0xA9, 0xF5)
-TRACK = (0x1C, 0x2B, 0x40)
+TOP = (0x20, 0x20, 0x24)
+BOTTOM = (0x10, 0x10, 0x12)
+ACCENT = (0xB8, 0x20, 0x36)
+TRACK = (0x36, 0x36, 0x3E)
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 LOGO = os.path.join(ROOT, "config", "includes.chroot", "usr", "share",

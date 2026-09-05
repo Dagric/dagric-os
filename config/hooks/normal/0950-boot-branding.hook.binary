@@ -33,11 +33,12 @@ fi
 [ -n "$EDITION" ] || EDITION=free
 
 if [ "$EDITION" = "pro" ]; then
-    LIVE="Dagric OS Pro 1.0"
+    PRODUCT="Dagric OS Pro"
 else
-    LIVE="Dagric OS 1.0  -  Free edition"
+    PRODUCT="Dagric OS Free"
 fi
-SAFE="$LIVE  (safe graphics mode)"
+LIVE="Start $PRODUCT"
+SAFE="$PRODUCT - safe graphics"
 # The BIOS menu needs its own copy of that string for the same reason the
 # accessible entry does further down: syslinux marks a hotkey with a caret
 # inside the label, and the sed below replaces the whole label — carrying away
@@ -47,7 +48,7 @@ SAFE="$LIVE  (safe graphics mode)"
 # (safe graphics mode)", no caret. $SAFE stays as it is for the GRUB rewrite
 # below, where a caret would print as a literal character. "g" is free: this
 # menu uses ^D and ^U at the top level and ^B and ^H inside Utilities.
-SAFE_BIOS="$LIVE  (safe ^graphics mode)"
+SAFE_BIOS="$PRODUCT - safe ^graphics"
 
 esc() { printf '%s' "$1" | sed -e 's/[\/&]/\\&/g'; }
 L=$(esc "$LIVE"); S=$(esc "$SAFE"); SB=$(esc "$SAFE_BIOS")
@@ -160,7 +161,7 @@ done
 # drift from it. `menu default` is dropped from the copy — a bug here would
 # make the screen reader the default boot for everybody. If the block cannot be
 # found the file is left exactly as it was and the check at the bottom warns.
-A11Y="$LIVE  (with screen reader)"
+A11Y="$PRODUCT - screen reader"
 
 # AND THE SAME KEY ON THE OTHER FIRMWARE PATH, which is where it matters most.
 # The GRUB copy below gets --hotkey=s for the reason argued there; syslinux has
@@ -180,7 +181,7 @@ A11Y="$LIVE  (with screen reader)"
 #
 # "s" matches the GRUB copy's --hotkey=s so the two menus agree, and it is free:
 # this menu uses ^D and ^U at the top level and ^B and ^H inside Utilities.
-A11Y_BIOS="$LIVE  (with ^screen reader)"
+A11Y_BIOS="$PRODUCT - ^screen reader"
 
 for f in isolinux/live.cfg; do
     [ -f "$f" ] || continue
@@ -446,8 +447,8 @@ if [ -e $prefix/themes/dagric/theme.txt ]; then
 elif [ -e $prefix/splash.png ]; then
     set theme=$prefix/live-theme/theme.txt
 else
-    set menu_color_normal=cyan/blue
-    set menu_color_highlight=white/blue
+    set menu_color_normal=light-gray/black
+    set menu_color_highlight=white/red
 fi
 THEMECFG
 

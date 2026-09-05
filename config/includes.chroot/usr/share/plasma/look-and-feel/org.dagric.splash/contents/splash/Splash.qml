@@ -168,21 +168,21 @@ Rectangle {
         target: content
         property: "opacity"
         from: 0; to: 1
-        duration: 700
+        duration: 200
         easing.type: Easing.OutCubic
     }
 
     SequentialAnimation {
         id: sweepRun
         // Let the entrance finish before the flourish starts.
-        PauseAnimation { duration: 500 }
+        PauseAnimation { duration: 100 }
         ScriptAction { script: sweep.opacity = 1 }
         NumberAnimation {
             target: sweep
             property: "x"
             from: -sweep.width
             to: lockup.width + sweep.width
-            duration: 900
+            duration: 400
             easing.type: Easing.InOutQuad
         }
         ScriptAction { script: { sweep.opacity = 0; sweep.done = true; } }

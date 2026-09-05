@@ -34,7 +34,7 @@ desktop-image: "background.png"
 desktop-image-scale-method: "crop"
 desktop-image-h-align: "center"
 desktop-image-v-align: "center"
-desktop-color: "#05080d"
+desktop-color: "#101012"
 
 # Blank on purpose, and 0950 re-blanks it as a guard. The title renders centred
 # at the top of the screen, which is exactly where the background art puts the
@@ -44,8 +44,8 @@ title-color: "#e8eef4"
 title-font: "Dagric Small 17 Regular 17"
 
 message-font: "Dagric Small 17 Regular 17"
-message-color: "#c8d6e8"
-message-bg-color: "#0b1526"
+message-color: "#f5f5f7"
+message-bg-color: "#18181c"
 
 # gfxterm gets the whole screen, not an inset box. The moment the menu exits,
 # gfxmenu stops painting and gfxterm clears ITS rectangle to draw GRUB's
@@ -110,26 +110,16 @@ terminal-border: "0"
 # 52, or the countdown draws inside the panel.
 + boot_menu {
     left = 50%-380
-    top = 40%
+    top = 36%
     width = 760
     height = 340
     menu_pixmap_style = "panel_*.png"
     item_font = "Dagric Body 24 Regular 24"
-    item_color = "#a9bdd6"
+    item_color = "#d6d6de"
     selected_item_font = "Dagric Sel 24 Bold 24"
-    # NOT white. The pill is the brand blue at 95% (make-boot-art.sh draws it
-    # rgba(63,169,245,0.95)) and it composites over the panel to #3ca1ea —
-    # measured off a booted frame, and off select_c.png directly, which agree.
-    # White on that is 2.8:1. WCAG wants 4.5:1 for text and will not even give
-    # 24px bold the 3:1 large-text allowance at that number, and this is the
-    # ONE line on the boot screen that has to be unmistakable: it is the entry
-    # that boots if the owner does nothing. Dark ink on the blue measures
-    # 7.5:1 and is the same inversion the login screen already uses for
-    # selected text on accent (TextInput selectedTextColor in the SDDM theme's
-    # Main.qml is this exact value), so the two screens agree on what "this one
-    # is chosen" looks like. Do not "fix" this back to white without booting it
-    # and measuring the pixels.
-    selected_item_color = "#06101c"
+    # Opaque deep red (#b82036) with white type exceeds 4.5:1 contrast.
+    # Keep the generated selection tiles and this foreground paired.
+    selected_item_color = "#ffffff"
     selected_item_pixmap_style = "select_*.png"
     item_height = 30
     item_padding = 18
@@ -163,13 +153,13 @@ terminal-border: "0"
 + progress_bar {
     id = "__timeout__"
     left = 50%-260
-    top = 40%+372
+    top = 36%+372
     width = 520
     height = 20
     show_text = true
     font = "Dagric Small 17 Regular 17"
     text_color = "#eaf2ff"
-    text = "Starting Dagric OS in %ds"
+    text = "Starting selected option in %ds"
     bar_style = "pbbg_*.png"
     highlight_style = "pbfg_*.png"
 }
@@ -179,7 +169,7 @@ terminal-border: "0"
     top = 100%-52
     width = 100%
     align = "center"
-    color = "#68809b"
+    color = "#b8b8c2"
     font = "Dagric Small 17 Regular 17"
     text = "Enter to start        Up / Down to choose        E to edit"
 }

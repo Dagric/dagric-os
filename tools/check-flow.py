@@ -223,7 +223,7 @@ def main() -> int:
     ))
     errors.extend(require_text(
         INC / "usr/share/plymouth/themes/dagric/dagric.script",
-        '1.000, 0.231, 0.361', '#ff3b5c',
+        '0.722, 0.125, 0.212', '#b82036',
     ))
     errors.extend(require_text(
         INC / "etc/calamares/branding/dagric/branding.desc",

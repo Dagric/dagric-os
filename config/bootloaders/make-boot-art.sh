@@ -99,25 +99,25 @@ magick "$T/fg.png" $P32 PNG32:"$OUT/isolinux/splash.png"
 # theme.txt's item_spacing is set from them; changing one means changing both.
 
 # menu panel — 20px corners
-magick -size 120x120 xc:none -fill 'rgba(11,21,38,0.86)' \
-    -stroke 'rgba(140,180,232,0.22)' -strokewidth 2 \
+magick -size 120x120 xc:none -fill 'rgba(24,24,28,0.96)' \
+    -stroke 'rgba(184,184,194,0.24)' -strokewidth 2 \
     -draw 'roundrectangle 1,1 118,118 18,18' $P32 PNG32:"$T/panel.png"
 mk9 "$T/panel.png" panel 20 120
 
 # selection pill — 10px corners, so item_spacing must be >= 20
-magick -size 60x60 xc:none -fill 'rgba(63,169,245,0.95)' \
+magick -size 60x60 xc:none -fill '#b82036' \
     -draw 'roundrectangle 0,0 59,59 10,10' $P32 PNG32:"$T/sel.png"
 mk9 "$T/sel.png" select 10 60
 
 # countdown track and fill — 10px corners
 magick -size 60x60 xc:none -fill 'rgba(255,255,255,0.10)' \
-    -stroke 'rgba(150,190,240,0.18)' -strokewidth 2 \
+    -stroke 'rgba(184,184,194,0.24)' -strokewidth 2 \
     -draw 'roundrectangle 1,1 58,58 10,10' $P32 PNG32:"$T/pbbg.png"
 mk9 "$T/pbbg.png" pbbg 10 60
 # Kept low on purpose: the fill sweeps left to right UNDERNEATH the countdown
 # text, and at full strength its leading edge visibly cuts whichever word it is
 # passing through.
-magick -size 60x60 xc:none -fill 'rgba(63,169,245,0.40)' \
+magick -size 60x60 xc:none -fill 'rgba(184,32,54,0.40)' \
     -draw 'roundrectangle 0,0 59,59 10,10' $P32 PNG32:"$T/pbfg.png"
 mk9 "$T/pbfg.png" pbfg 10 60
 
