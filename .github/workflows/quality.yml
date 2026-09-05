@@ -21,6 +21,7 @@ jobs:
         run: |
           python3 tools/check-source.py
           python3 test/test-build-directory.py
+          python3 test/test-audit-all-modes.py
       - name: Offline manual and icon-family coverage
         run: |
           python3 tools/check-manual-coverage.py
@@ -35,6 +36,7 @@ jobs:
           python3 test/test-private-r2-staging.py
       - name: Product concept contracts and negative-path tests
         run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq python3-yaml
           python3 tools/check-concepts.py
           python3 test/test-source-check.py
           python3 test/test-migrate-browser-security.py
@@ -42,6 +44,7 @@ jobs:
           python3 test/test-private-state-writes.py
           sudo python3 test/test-opensnitch-boundary.py
           sudo python3 test/test-opensnitch-package.py
+          python3 test/test-opensnitch-calamares.py
           python3 test/test-security-artifacts.py
       - name: JavaScript syntax
         run: sh tools/check-javascript.sh

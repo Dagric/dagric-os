@@ -3,18 +3,27 @@
 # Optional gates:
 #   --package-names  query Debian trixie for every declared package
 #   --artifacts      inspect out/week-audit Free/Pro ISOs (requires root)
+# Developer mode:
+#   --source-only    omit the untracked generated exact-source-map candidate;
+#                    this is not an artifact audit or release approval
 set -eu
 cd "$(dirname "$0")/.."
 
 packages=0
 artifacts=0
+source_only=0
 for arg in "$@"; do
     case "$arg" in
         --package-names) packages=1 ;;
         --artifacts) artifacts=1 ;;
-        *) echo "usage: $0 [--package-names] [--artifacts]" >&2; exit 2 ;;
+        --source-only) source_only=1 ;;
+        *) echo "usage: $0 [--source-only] [--package-names] [--artifacts]" >&2; exit 2 ;;
     esac
 done
+if [ "$source_only" -eq 1 ] && [ "$artifacts" -eq 1 ]; then
+    echo "audit-all: --source-only and --artifacts cannot be combined" >&2
+    exit 2
+fi
 
 run() {
     echo ""
@@ -24,13 +33,19 @@ run() {
 }
 
 run "source and security" python3 tools/check-source.py
+run "audit command mode regressions" python3 test/test-audit-all-modes.py
 run "non-destructive native build paths" python3 test/test-build-directory.py
 run "offline manual application coverage" python3 tools/check-manual-coverage.py
 run "offline manual coverage regressions" python3 test/test-manual-coverage.py
 run "selectable Dagric icon families" python3 tools/check-icon-themes.py
 run "licensing and media rights" python3 tools/check-release-rights.py
 run "optional game-platform boundary" python3 tools/check-game-platform-policy.py
-run "exact corresponding-source map" python3 tools/check-generated-source-map.py
+if [ "$source_only" -eq 1 ]; then
+    echo "NOT CHECKED: generated candidate out/exact-source-map-1.0.json (--source-only)."
+    echo "Tracked source-index identity, website media, and release-gate regression checks remain selected."
+else
+    run "exact corresponding-source map" python3 tools/check-generated-source-map.py
+fi
 run "source-map identity regressions" python3 test/test-generate-exact-source-map.py
 run "source-map gate regressions" python3 test/test-source-map-gate.py
 run "private R2 staging regressions" python3 test/test-private-r2-staging.py
@@ -45,6 +60,7 @@ run "Steam migration privacy" python3 test/test-migrate-continuity-privacy.py
 run "private state files and atomic reports" python3 test/test-private-state-writes.py
 run "OpenSnitch administrator socket boundary" python3 test/test-opensnitch-boundary.py
 run "OpenSnitch package lifecycle" python3 test/test-opensnitch-package.py
+run "OpenSnitch installer administrator policy" python3 test/test-opensnitch-calamares.py
 run "security artifact gate regressions" python3 test/test-security-artifacts.py
 run "Docker build definition" sh tools/check-dockerfile.sh
 run "website release safety" sh tools/check-site.sh
@@ -71,4 +87,9 @@ if [ "$artifacts" -eq 1 ]; then
 fi
 
 echo ""
-echo "audit-all: every selected gate passed"
+if [ "$source_only" -eq 1 ]; then
+    echo "NOT CHECKED: generated ISO payloads, boot/runtime evidence, physical tests, or release approval."
+    echo "audit-all: source-only developer checks passed; NOT a release approval"
+else
+    echo "audit-all: every selected gate passed"
+fi

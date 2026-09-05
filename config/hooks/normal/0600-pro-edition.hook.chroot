@@ -190,16 +190,26 @@ systemctl --global disable usbguard-notifier.service 2>/dev/null || true
 # These build assertions do not substitute for an installed multi-user test.
 python3 - <<'PY'
 import json
+import yaml
 from pathlib import Path
+
+def validate_admin_owner_yaml(text):
+    # Calamares accepts block/flow lists and arbitrary YAML whitespace. Check
+    # the parsed policy, not one spelling of the upstream configuration file.
+    users = yaml.safe_load(text)
+    if not isinstance(users, dict) or users.get('sudoersGroup') != 'sudo':
+        raise ValueError('OpenSnitch: Calamares sudoersGroup must be exactly sudo')
+    groups = users.get('defaultGroups')
+    if not isinstance(groups, list) or 'sudo' not in groups:
+        raise ValueError('OpenSnitch: Calamares defaultGroups must include the sudo administrator group')
+
 expected = 'unix:///run/dagric-opensnitch/osui.sock'
 assert json.loads(Path('/etc/opensnitchd/default-config.json').read_text())['Server']['Address'] == expected
 assert 'd /run/dagric-opensnitch 02770 root sudo -' in Path('/usr/lib/tmpfiles.d/dagric-opensnitch.conf').read_text()
 unit = Path('/usr/lib/systemd/system/opensnitch.service.d/20-dagric-control-socket.conf').read_text()
 assert '-ui-socket ' + expected in unit
 assert '--check-directory' in unit and '--migrate-config' in unit
-users = Path('/etc/calamares/modules/users.conf').read_text()
-assert 'sudoersGroup: sudo' in users
-assert any('defaultGroups:' in line and 'sudo' in line for line in users.splitlines())
+validate_admin_owner_yaml(Path('/etc/calamares/modules/users.conf').read_text())
 PY
 [ -x /usr/bin/opensnitch-ui ] && [ -x /usr/lib/dagric/opensnitch-ui-upstream ] || {
     echo 'OpenSnitch managed launcher or vendor diversion is missing' >&2; exit 1;

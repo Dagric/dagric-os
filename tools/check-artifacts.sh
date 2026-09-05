@@ -205,7 +205,7 @@ require_foundations "$free_mnt/live/filesystem.squashfs"
 require_foundations "$pro_mnt/live/filesystem.squashfs"
 
 # Static payload evidence only: do not execute image code or infer that a
-# physical account/connection test passed. The eight reviewed security files
+# physical account/connection test passed. The nine reviewed security files
 # must match the commit recorded for these artifacts (allowing CRLF cleanup).
 require_security_payload() {
     python3 - "$1" "$2" "$ROOT" "$source_commit" <<'DAGRIC_SECURITY_ARTIFACT_PY'
@@ -222,6 +222,7 @@ SOURCE_FILES = {
     'usr/lib/dagric/pipeline.py': 'config/includes.chroot/usr/lib/dagric/pipeline.py',
     'usr/lib/dagric/twin.py': 'config/includes.chroot/usr/lib/dagric/twin.py',
     'usr/bin/dagric-restore-assistant': 'config/includes.chroot/usr/bin/dagric-restore-assistant',
+    'usr/bin/dagric-store': 'config/includes.chroot/usr/bin/dagric-store',
     'var/lib/dpkg/info/dagric-tools.preinst': 'packages/dagric-tools/DEBIAN/preinst',
     'var/lib/dpkg/info/dagric-tools.postinst': 'packages/dagric-tools/DEBIAN/postinst',
     'var/lib/dpkg/info/dagric-tools.postrm': 'packages/dagric-tools/DEBIAN/postrm',
@@ -290,7 +291,7 @@ def audit_security_payload(read, listing, edition, expected_sources):
     helper = ast.parse(read('usr/lib/dagric/private_files.py'))
     require(any(isinstance(node, ast.FunctionDef) and node.name == 'write_private_text' for node in helper.body),
             'missing private state writer API')
-    for path in ('usr/lib/dagric/pipeline.py', 'usr/lib/dagric/twin.py', 'usr/bin/dagric-restore-assistant'):
+    for path in ('usr/lib/dagric/pipeline.py', 'usr/lib/dagric/twin.py', 'usr/bin/dagric-restore-assistant', 'usr/bin/dagric-store'):
         module = ast.parse(read(path))
         require(any(isinstance(node, ast.ImportFrom) and node.module == 'private_files' and
                     any(alias.name == 'write_private_text' for alias in node.names) for node in ast.walk(module)),

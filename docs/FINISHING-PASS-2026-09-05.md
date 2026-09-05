@@ -56,6 +56,11 @@ See `NATIVE-LAB-RESTORED-2026-09-05.md` for the hash, run receipts and restricti
 
 ## What still prevents a finished release
 
+- GitHub Actions run `33979792250` never received a runner. Its check annotation
+  reports: "The job was not started because your account is locked due to a billing
+  issue." This requires the GitHub account owner or billing administrator; no
+  online test pass is claimed, and no billing settings were changed. Local
+  verification and native builds do not depend on that hosted runner.
 - Fresh Free/Pro construction, artifact inspection, actual installation/reboot,
   application and recovery tests, and an exact new corresponding-source map.
 - Unresolved upstream Debian-package security findings and reachability review:
