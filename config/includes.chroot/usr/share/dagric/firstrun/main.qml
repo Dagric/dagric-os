@@ -160,7 +160,7 @@ ApplicationWindow {
     // The accent the machine wore when setup opened. "" and the brand blue
     // are what a fresh install reports, because nothing ships an AccentColor.
     property string startAccentId: ""
-    property color startAccent: "#ff3b5c"
+    property color startAccent: "#b82036"
     property string accentId: ""
     property string wallId: ""
     property int scale: 0

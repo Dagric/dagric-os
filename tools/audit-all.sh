@@ -79,6 +79,7 @@ run "Dagric trust loop and Support Mode" sh tools/check-trust.sh
 run "safe in-place Dagric Update" sh tools/check-update.sh
 run "Dagric Update unit tests" python3 test/test-update-core.py
 run "Dagric Flow visual contract" python3 tools/check-flow.py
+run "browser security floor and visual contract regressions" python3 test/test-browser-and-flow-fixes.py
 run "Dagric dependability foundations" sh tools/check-foundations.sh
 run "JavaScript syntax" sh tools/check-javascript.sh
 run "Worker security boundaries" node test/test-workers.mjs

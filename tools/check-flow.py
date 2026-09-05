@@ -133,6 +133,7 @@ def main() -> int:
         "obsidian": "#0B0D12",
         "frost": "#F5F7FA",
         "pulseRed": "#FF3B5C",
+        "setupRed": "#B82036",
         "signalViolet": "#8B5CF6",
         "success": "#38D982",
         "warning": "#F6B84A",
@@ -180,8 +181,13 @@ def main() -> int:
             errors.append("DDL third-party mark rule must require original generic artwork")
 
     errors.extend(require_text(
-        ROOT / "config/hooks/normal/0500-desktop-defaults.hook.chroot",
+        INC / "usr/share/plasma/look-and-feel/org.dagric.desktop/contents/defaults",
         "Image=DagricObsidianPulse", "ColorScheme=DagricDark",
+    ))
+    errors.extend(require_text(
+        ROOT / "config/hooks/normal/0500-desktop-defaults.hook.chroot",
+        "LNF=/usr/share/plasma/look-and-feel/org.dagric.desktop/contents/defaults",
+        'test -s "$LNF"',
     ))
     errors.extend(require_text(
         INC / "usr/share/dagric/styles/obsidian-flow.style",
@@ -201,11 +207,11 @@ def main() -> int:
     ))
     errors.extend(require_text(
         INC / "usr/bin/dagric-firstrun",
-        "BRAND='#ff3b5c'", "_h=46",
+        "BRAND='#b82036'", "_h=46",
     ))
     errors.extend(require_text(
         INC / "usr/share/dagric/firstrun/main.qml",
-        'startAccent: "#ff3b5c"', 'cAccent: "#ff3b5c"',
+        'startAccent: "#b82036"', 'cAccent: "#b82036"',
     ))
     errors.extend(require_text(
         INC / "usr/share/dagric/rewind/main.qml",
@@ -213,7 +219,7 @@ def main() -> int:
     ))
     errors.extend(require_text(
         INC / "usr/share/plasma/look-and-feel/org.dagric.splash/contents/splash/Splash.qml",
-        'color: "#ff3b5c"',
+        'color: "#b82036"',
     ))
     errors.extend(require_text(
         INC / "usr/share/plymouth/themes/dagric/dagric.script",

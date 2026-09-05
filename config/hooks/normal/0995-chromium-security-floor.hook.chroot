@@ -1,0 +1,16 @@
+#!/bin/sh
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Refuse an outdated Pro browser even if a build cache has stale packages.
+# This is a minimum, not a pin: newer Debian security versions remain allowed.
+set -eu
+edition=$(cat /etc/dagric-edition)
+[ "$edition" = pro ] || exit 0
+minimum='152.0.7977.82-1~deb13u1'
+for package in chromium chromium-common; do
+    version=$(dpkg-query -W -f='${Version}' "$package")
+    dpkg --compare-versions "$version" ge "$minimum" || {
+        echo "ERROR: $package $version is older than security floor $minimum; rebuild with fresh Debian security indexes." >&2
+        exit 1
+    }
+done
+echo 'Chromium security floor passed.'
