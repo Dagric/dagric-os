@@ -1,5 +1,14 @@
 # Dagric OS release hold — 2026-09-04
 
+Historical scope: the 1,810/2,537 package counts and live-service observations
+below belong to the September 4 artifacts/actions. The current September 5
+candidate has 1,771 Free and 2,498 Pro binaries. Its primary one-to-one map is
+not complete corresponding-source clearance. See
+`RELEASE-READINESS-PASS-2026-09-05.md` and
+`SOURCE-COMPLETENESS-HOLD-2026-09-05.md` for controlling current evidence.
+Nothing in this older document approves the newer candidate or treats the
+recorded live-service actions as freshly rechecked on every later date.
+
 ## Status
 
 Dagric OS 1.0 Free and Pro binary delivery and new Pro sales remain held. The

@@ -1,5 +1,12 @@
 # Primary mapping is not complete corresponding-source clearance
 
+Later continuation: all exact declared source-content files have now been
+privately downloaded and freshly rehashed. The earlier metadata-only scope
+below is historical. See `SOURCE-BUNDLE-AUDIT-2026-09-05.md` for final content
+and actual-image receipts, `DEBIAN-KEYRING-FRESHNESS-2026-09-05.md` for separately
+authenticated signature evidence, and `RELEASE-READINESS-PASS-2026-09-05.md`
+for remaining requirements. None of those checks removes this source hold.
+
 This is an audit-tooling change. It does not change, relabel, approve, sign or
 publish the completed candidate images built from
 `20e24dd04ea3de802531be5139f9f36fe96a1490`.

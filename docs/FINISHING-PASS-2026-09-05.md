@@ -1,5 +1,11 @@
 # Dagric OS and website finishing pass — September 5, 2026
 
+Current continuation: `RELEASE-READINESS-PASS-2026-09-05.md` records the later
+complete private source download, actual-image bindings, canonical source lock,
+expanded security/signature evidence and the installer account-setup handoff.
+The older counts and open download items below describe the earlier finishing
+pass; they do not supersede that later evidence or remove any release hold.
+
 Status: this finishing pass's implementation, clean-source verification and
 matching private Free/Pro builds are complete. Installed-system and release
 acceptance remain separate, pending work.

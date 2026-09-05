@@ -36,7 +36,7 @@ jobs:
           python3 test/test-private-r2-staging.py
       - name: Product concept contracts and negative-path tests
         run: |
-          sudo apt-get update -qq && sudo apt-get install -y -qq python3-yaml
+          sudo apt-get update -qq && sudo apt-get install -y -qq python3-yaml xorriso squashfs-tools
           python3 tools/check-concepts.py
           python3 test/test-source-check.py
           python3 test/test-migrate-browser-security.py
@@ -46,12 +46,21 @@ jobs:
           sudo python3 test/test-opensnitch-package.py
           python3 test/test-opensnitch-calamares.py
           python3 test/test-security-artifacts.py
+          python3 test/test-installed-audit.py
+          python3 test/test-candidate-security-audit.py
           python3 test/test-embedded-sources.py
+          python3 test/test-source-bundle.py
+          python3 test/test-source-candidate-lock.py
+          python3 test/test-dsc-signatures.py
+          python3 test/test-source-bundle-images.py
+          python3 test/test-source-evidence-integration.py
           python3 test/test-source-completeness-guards.py
       - name: JavaScript syntax
         run: sh tools/check-javascript.sh
       - name: Worker security-boundary tests
         run: node test/test-workers.mjs
+      - name: Marketing discovery never authorizes submission
+        run: node --test test/test-marketing-opportunity-discovery.mjs
       - name: Production dependency vulnerabilities
         run: sh tools/check-dependencies.sh
       - name: Dockerfile sanity

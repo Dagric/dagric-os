@@ -62,7 +62,14 @@ run "OpenSnitch administrator socket boundary" python3 test/test-opensnitch-boun
 run "OpenSnitch package lifecycle" python3 test/test-opensnitch-package.py
 run "OpenSnitch installer administrator policy" python3 test/test-opensnitch-calamares.py
 run "security artifact gate regressions" python3 test/test-security-artifacts.py
+run "installed-system audit truthfulness" python3 test/test-installed-audit.py
+run "candidate security inventory and signed-index regressions" python3 test/test-candidate-security-audit.py
 run "embedded-source inventory regressions" python3 test/test-embedded-sources.py
+run "full source-object bundle regressions" python3 test/test-source-bundle.py
+run "canonical private source-lock regressions" python3 test/test-source-candidate-lock.py
+run "exact DSC signature evidence regressions" python3 test/test-dsc-signatures.py
+run "actual source-image binding regressions" python3 test/test-source-bundle-images.py
+run "real image/source evidence integration" python3 test/test-source-evidence-integration.py
 run "source completeness fail-closed guards" python3 test/test-source-completeness-guards.py
 run "Docker build definition" sh tools/check-dockerfile.sh
 run "website release safety" sh tools/check-site.sh
@@ -75,6 +82,7 @@ run "Dagric Flow visual contract" python3 tools/check-flow.py
 run "Dagric dependability foundations" sh tools/check-foundations.sh
 run "JavaScript syntax" sh tools/check-javascript.sh
 run "Worker security boundaries" node test/test-workers.mjs
+run "marketing opportunity discovery boundaries" node --test test/test-marketing-opportunity-discovery.mjs
 run "JavaScript dependency vulnerabilities" sh tools/check-dependencies.sh
 run "shell syntax and error rules" sh tools/check-shell.sh
 run "translation catalogues" sh tools/i18n-build.sh --check
