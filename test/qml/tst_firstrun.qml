@@ -70,9 +70,16 @@ TestCase {
     }
 
     function test_page_matrix_data() {
-        return [{tag:"small",w:800,h:600},{tag:"laptop",w:1366,h:768},{tag:"desktop",w:1920,h:1080}];
+        return [{tag:"small",w:800,h:600,edition:"free"},
+                {tag:"laptop",w:1366,h:768,edition:"free"},
+                {tag:"desktop",w:1920,h:1080,edition:"free"},
+                {tag:"pro-small",w:800,h:600,edition:"pro"},
+                {tag:"pro-laptop",w:1366,h:768,edition:"pro"},
+                {tag:"pro-desktop",w:1920,h:1080,edition:"pro"}];
     }
     function test_page_matrix(data) {
+        wizard.edition=data.edition;
+        wizard.editionName=data.edition === "pro" ? "Dagric OS Pro" : "Dagric OS";
         wizard.width=data.w; wizard.height=data.h;
         for(var i=0;i<wizard.steps.length;i++) {
             wizard.stepIndex=i;
