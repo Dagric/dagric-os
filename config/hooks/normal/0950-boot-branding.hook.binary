@@ -38,6 +38,7 @@ else
     PRODUCT="Dagric OS Free"
 fi
 LIVE="Start $PRODUCT"
+LIVE_BIOS="Start ^$PRODUCT"
 SAFE="$PRODUCT - safe graphics"
 # The BIOS menu needs its own copy of that string for the same reason the
 # accessible entry does further down: syslinux marks a hotkey with a caret
@@ -52,6 +53,7 @@ SAFE_BIOS="$PRODUCT - safe ^graphics"
 
 esc() { printf '%s' "$1" | sed -e 's/[\/&]/\\&/g'; }
 L=$(esc "$LIVE"); S=$(esc "$SAFE"); SB=$(esc "$SAFE_BIOS")
+LB=$(esc "$LIVE_BIOS")
 
 # Where the pre-rendered menu art, fonts and theme live inside the chroot.
 # Binary hooks run with the cwd set to binary/, so the chroot is one level up;
@@ -81,7 +83,7 @@ for f in isolinux/live.cfg isolinux/menu.cfg isolinux/stdmenu.cfg isolinux/isoli
     # Order matters: rewrite the fail-safe entry first, otherwise the plain
     # "Live system (amd64)" pattern would match and mangle it too.
     sed -i "s/menu label .*Live system (amd64 fail-safe mode).*/menu label $SB/" "$f"
-    sed -i "s/menu label \^Live system (amd64)/menu label ^$L/" "$f"
+    sed -i "s/menu label \^Live system (amd64)/menu label $LB/" "$f"
     # The top-level title is REMOVED, not branded, for the same reason the GRUB
     # theme's title is blanked further down: splash.png already carries the
     # DAGRIC wordmark and the tagline, and syslinux prints its title in the same
@@ -562,7 +564,7 @@ MISS=""
 # its own; this is that rule applied to the label the editions are told apart by.
 for f in isolinux/live.cfg boot/grub/grub.cfg; do
     [ -f "$f" ] || continue
-    grep -q "$LIVE" "$f" || MISS="$MISS edition-label:$f"
+    sed 's/\^//g' "$f" | grep -q "$LIVE" || MISS="$MISS edition-label:$f"
 done
 if [ -f boot/grub/grub.cfg ]; then
     grep -q "^set timeout=$WAIT" boot/grub/grub.cfg || MISS="$MISS grub-timeout"

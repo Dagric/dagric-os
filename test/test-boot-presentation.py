@@ -87,7 +87,8 @@ label live-amd64-failsafe
                 bios = (binary / 'isolinux/live.cfg').read_text()
                 product = 'Dagric OS Pro' if edition == 'pro' else 'Dagric OS Free'
                 self.assertIn('Start ' + product, result)
-                self.assertIn('Start ' + product, bios)
+                self.assertIn('Start ^' + product, bios)
+                self.assertNotIn('menu label ^Start', bios)
                 self.assertIn(product + ' - safe graphics', result)
                 self.assertIn(product + ' - safe ^graphics', bios)
                 self.assertIn(product + ' - screen reader" --hotkey=s', result)
