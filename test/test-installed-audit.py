@@ -224,7 +224,7 @@ class InstalledAuditTests(unittest.TestCase):
             self.data["systemctl"] = response
             self.assert_fail("no_failed_services")
 
-    def test_installed_preflight_passes_disk_but_refuses_live_and_unknown(self):
+    def test_preflight_accepts_installed_root_and_refuses_live_or_unknown(self):
         self.assert_pass("installed_environment")
         for key, response in (("id", output("1000\n")), ("id", output(status=1)),
                               ("cat:/proc/cmdline", output("quiet boot=live components\n")),
