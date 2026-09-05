@@ -1,5 +1,6 @@
 import fs from "node:fs/promises";
 import path from "node:path";
+import { assessDiscovery, annotateHistoricalReview, compareDiscoveryPriority } from "./marketing-opportunity-discovery.mjs";
 
 const outputDir = process.argv[2] || path.resolve("outputs", "contest-marketing-audit");
 const categories = ["launch", "startup", "saas", "community"];
@@ -79,9 +80,9 @@ async function fetchText(url, timeoutMs = 10000) {
       headers: { "user-agent": "Mozilla/5.0 (compatible; DagricOpportunityAudit/1.0; +https://dagric.com)" }
     });
     const text = await response.text();
-    return { ok: response.ok, status: response.status, url: response.url, text: text.slice(0, 120000) };
+    return { ok: response.ok, status: response.status, url: response.url, text: text.slice(0, 120000), fetchedAtUtc: new Date().toISOString() };
   } catch (error) {
-    return { ok: false, status: 0, url, text: "", error: String(error) };
+    return { ok: false, status: 0, url, text: "", error: String(error), fetchedAtUtc: new Date().toISOString() };
   } finally {
     clearTimeout(timer);
   }
@@ -120,18 +121,6 @@ function isSubmissionRoute(url) {
   }
 }
 
-function textSignals(html) {
-  const plain = decode(html).toLowerCase();
-  return {
-    free: /\bfree\b|no entry fee|no fee|zero fees|free to (submit|list|launch|apply)/.test(plain),
-    submit: /\bsubmit\b|add (your )?(product|startup|project|tool)|launch your|apply now|applications? open/.test(plain),
-    relevant: /software|startup|product|developer|open.source|technology|desktop app|project/.test(plain),
-    paidOnly: /entry fee|required fee|purchase.*pass|paid submission only/.test(plain) && !/free to (submit|list|launch|apply)|no entry fee|no fee/.test(plain),
-    rightsRisk: /assign[^.]{0,80}(ownership|rights)|exclusive[^.]{0,80}licen[cs]e|transfer[^.]{0,80}(copyright|ownership)|irrevocable[^.]{0,80}sublicen[cs]able/.test(plain),
-    currentOpen: /applications? (are )?open|submissions? (are )?open|apply now|submit now|launch now|add your/.test(plain),
-  };
-}
-
 async function auditOne(item) {
   const home = await fetchText(item.url);
   const links = discoverLinks(home.text, home.url || item.url);
@@ -141,36 +130,7 @@ async function auditOne(item) {
   const socialUrls = links.filter((url) => /linkedin\.com|x\.com|twitter\.com|instagram\.com|facebook\.com|youtube\.com|github\.com/i.test(url)).slice(0, 8);
   const submit = submitUrl && submitUrl !== home.url ? await fetchText(submitUrl, 8000) : { text: "", ok: false, status: 0, url: submitUrl };
   const terms = termsUrl ? await fetchText(termsUrl, 8000) : { text: "", ok: false, status: 0, url: termsUrl };
-  const signals = textSignals(`${home.text}\n${submit.text}`);
-  const legal = textSignals(terms.text);
-  const officialFree = signals.free;
-  const verified = home.ok && signals.relevant && signals.submit && Boolean(submitUrl);
-  const eligible = verified && officialFree && !signals.paidOnly && !legal.rightsRisk;
-  const status = eligible ? "Eligible — ready for form review" : verified ? "Needs manual rule review" : "Rejected or unverifiable";
-  const reasons = [];
-  if (!home.ok) reasons.push(`site unavailable (${home.status || home.error || "unknown"})`);
-  if (!signals.relevant) reasons.push("official page does not clearly describe a relevant software/startup channel");
-  if (!signals.submit || !submitUrl) reasons.push("no current submission route found");
-  if (!officialFree) reasons.push("free entry not confirmed on official page");
-  if (signals.paidOnly) reasons.push("official page indicates a required fee");
-  if (legal.rightsRisk) reasons.push("terms contain a possible ownership/license risk phrase");
-  return {
-    ...item,
-    officialUrl: home.url || item.url,
-    httpStatus: home.status,
-    submitUrl: submit.url || submitUrl,
-    termsUrl,
-    aboutUrl,
-    socialUrls,
-    officialFree,
-    currentOpen: signals.currentOpen,
-    rightsRisk: legal.rightsRisk,
-    verified,
-    eligible,
-    status,
-    auditReason: reasons.join("; ") || "official route, relevance, and free-entry language found",
-    checkedAtUtc: new Date().toISOString(),
-  };
+  return assessDiscovery(item, { home, submit, terms, submitUrl, termsUrl, aboutUrl, socialUrls });
 }
 
 await fs.mkdir(outputDir, { recursive: true });
@@ -203,29 +163,32 @@ for (let index = 0; index < unique.length; index += concurrency) {
 let manualReviews = [];
 try {
   const overrideDocument = JSON.parse(await fs.readFile(path.join(outputDir, "reviewed-overrides.json"), "utf8"));
-  manualReviews = overrideDocument.reviews || [];
+  manualReviews = Array.isArray(overrideDocument.reviews) ? overrideDocument.reviews : [];
 } catch {}
 
-const reviewsByName = new Map(manualReviews.map((review) => [review.name.toLowerCase(), review]));
-for (const opportunity of audited) {
+const reviewsByName = new Map(manualReviews.filter((review) => typeof review?.name === "string").map((review) => [review.name.toLowerCase(), review]));
+for (let index = 0; index < audited.length; index++) {
+  const opportunity = audited[index];
   const review = reviewsByName.get(opportunity.name.toLowerCase());
-  if (!review) continue;
-  opportunity.manualReview = review;
-  opportunity.status = review.decision;
-  opportunity.eligible = review.decision === "submit";
-  opportunity.auditReason = review.reason;
+  audited[index] = annotateHistoricalReview(opportunity, review);
 }
 
-audited.sort((a, b) => Number(b.eligible) - Number(a.eligible) || Number(b.verified) - Number(a.verified) || (b.dr || 0) - (a.dr || 0));
+audited.sort(compareDiscoveryPriority);
 await fs.writeFile(path.join(outputDir, "opportunities.json"), JSON.stringify({
-  schema: "dagric-marketing-opportunity-audit-v1",
+  schema: "dagric-marketing-opportunity-discovery-v2",
+  auditMode: "discovery-only",
+  submissionAuthorized: false,
+  notice: "Scraping and historical reviews do not verify organizers, entry costs, current deadlines, rights, or eligibility. Current manual review and explicit release/website acceptance are required before any submission.",
   generatedAtUtc: new Date().toISOString(),
   discoverySource: "https://www.submission.directory/ plus official contest/program sites",
   counts: {
     total: audited.length,
-    eligible: audited.filter((x) => x.eligible).length,
-    verified: audited.filter((x) => x.verified).length,
-    rejectedOrUnverifiable: audited.filter((x) => !x.verified).length,
+    eligible: 0,
+    verified: 0,
+    blockedPendingReviewAndAcceptance: audited.length,
+    pagesFetched: audited.filter((x) => x.sourceFacts.home.fetchSucceeded).length,
+    termsFetchedUnreviewed: audited.filter((x) => x.termsFetchStatus === "fetched_unreviewed").length,
+    historicalReviews: audited.filter((x) => x.manualReviewIsHistorical).length,
   },
   opportunities: audited,
 }, null, 2) + "\n");

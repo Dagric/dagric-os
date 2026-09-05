@@ -4,6 +4,7 @@
   "description": "Dagric OS continuous-footage video pipeline",
   "scripts": {
     "studio": "remotion studio",
+    "test:marketing-discovery": "node --test ../test/test-marketing-opportunity-discovery.mjs",
     "capture:realtime": "python capture-real-vm.py",
     "render": "npm run render:realtime",
     "render:realtime": "python assemble-real-vm-footage.py",

@@ -1,10 +1,25 @@
 # Dagric OS brand and call-to-action standard
 
-Verified against the public profiles on 2026-09-03.
+Profile destinations were checked on 2026-09-03. CTA rules updated on 2026-09-05;
+this is not a fresh verification of those external profiles.
+
+## Release-aware publishing rule
+
+Read `site/manifest/release.json` and the current release acceptance evidence before
+selecting copy. While distribution or sales are held, do not invite viewers to
+download, install, upgrade or buy, and do not call Dagric a finished release.
+Use **Check release status at dagric.com/download** as the spoken primary action.
+The supporting action is **Follow Dagric OS here for real demonstrations and updates**.
+
+The user's September 5 instruction gates new contest entries and the new launch
+campaign on confirmed completion of both the operating system and website. Local
+preparation is permitted. This document does not authorize changing or deleting
+previously approved queued posts. See `POST-RELEASE-MARKETING-PLAN-2026-09-05.md`.
 
 ## Official destinations
 
-- Website and free operating system download: https://dagric.com
+- Website: https://dagric.com
+- Release status and download availability: https://dagric.com/download
 - Proof and known limits: https://dagric.com/testing
 - Reviewer kit: https://dagric.com/review
 - TikTok: https://www.tiktok.com/@dagricosofficial (`@dagricosofficial`)
@@ -14,7 +29,7 @@ Verified against the public profiles on 2026-09-03.
 
 Do not invent, abbreviate, or reuse one platform's handle on another platform.
 
-## Every publishable video
+## Every publishable video after release approval
 
 Use one spoken primary action and one short supporting action. The viewer should
 understand both without reading a description.
@@ -30,7 +45,11 @@ For hardware-compatibility videos, replace it with:
 
 > Try the live USB on your own PC before installing.
 
-## End-card copy
+## Platform-specific closing copy
+
+Deliver these closes in narration or the post description, not an end card that
+covers or replaces the operating-system footage. While held, replace trial or
+download wording with the release-status action above.
 
 - TikTok: `Follow @dagricosofficial for the next live PC test.`
 - Instagram: `Follow @dagricosofficial for live Dagric tests.`
@@ -38,8 +57,9 @@ For hardware-compatibility videos, replace it with:
 - Snapchat: `Follow @dagricos for the next live test.`
 - Final line on every platform: `Try Dagric OS Free — dagric.com`
 
-The end card should remain visible for at least 2.5 seconds on TikTok,
-Instagram, and YouTube, and at least 1.5 seconds on Snapchat.
+Leave a short natural pause after the spoken close while useful live footage
+continues. Do not add a static closing slide, persistent banner, or duplicate
+product-video layer to satisfy a timing target.
 
 ## Visual and editorial gate
 
@@ -72,7 +92,7 @@ Instagram, and YouTube, and at least 1.5 seconds on Snapchat.
   natural delivery, accurate wording, no caption overlay, and an understandable
   call to action.
 
-## Audience-specific spoken close
+## Audience-specific spoken close after release approval
 
 - Windows 10 owner: `Try Dagric from a USB before you replace a working PC.`
 - Privacy buyer: `Read exactly what Dagric sends—and does not send—at dagric.com/privacy.`

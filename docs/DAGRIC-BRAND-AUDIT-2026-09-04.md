@@ -2,6 +2,12 @@
 
 Audited: 2026-09-04
 
+September 5 status note: this is a historical audit, not current publication
+approval. Download, purchase and launch recommendations below are conditional
+on release acceptance. Use `DAGRIC-BRAND-ARCHITECTURE.md` and
+`../promo/BRAND-CTA-STANDARD.md` for current held-release copy, and
+`../promo/POST-RELEASE-MARKETING-PLAN-2026-09-05.md` for the next campaign's gate.
+
 ## Implementation update — 2026-09-04
 
 The structural recommendations from this audit are now implemented across the public site and the release checks:

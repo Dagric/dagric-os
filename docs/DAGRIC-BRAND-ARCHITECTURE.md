@@ -1,6 +1,15 @@
 # Dagric brand architecture
 
-Updated: 2026-09-04
+Updated: 2026-09-05
+
+## Current release status takes precedence
+
+Distribution and sales remain held. The current primary action is **Check release
+status** at `https://dagric.com/download`, not an invitation to download or buy.
+The post-release wording below is conditional on the exact release passing its
+acceptance gates. A successful private build is not public release approval.
+See `FINISHING-PASS-2026-09-05.md` and
+`../promo/POST-RELEASE-MARKETING-PLAN-2026-09-05.md`.
 
 ## Decision
 
@@ -56,7 +65,8 @@ cannot explain faster.
    before installing.**
 3. Trust differentiator: **The proof is public.**
 4. Ownership support: **Own it outright.**
-5. Primary action: **Try Dagric OS Free.**
+5. Primary action while held: **Check release status.** After approved availability:
+   **Try Dagric OS Free.**
 6. Secondary action: **Watch the 60-second tour.**
 
 Each line has one job. They should not rotate as interchangeable slogans.
@@ -95,7 +105,18 @@ Use plain, calm, specific language. Avoid unverifiable superlatives, dense
 feature stacks, engineering capture terms in consumer copy, or any claim that a
 synthetic voice is human.
 
-## Public boilerplate
+## Current public boilerplate
+
+> Your computer. Yours again. Dagric OS is a customizable desktop operating
+> system built on Debian and KDE Plasma. Release testing is in progress, and
+> downloads and sales are currently held. Explore the demonstrations, public test
+> record, and known limits at dagric.com.
+
+## Conditional post-release boilerplate
+
+Do not publish this paragraph while distribution or sales are held. Recheck the
+price, edition contents, legal publisher and claim evidence for the actual release.
+Hardware suitability is machine-specific, not a promise that every older PC works.
 
 > Dagric OS gives Windows 10-era PCs a private, customizable second life. It
 > requires no Dagric account, adds no Dagric telemetry, and can be tried before
