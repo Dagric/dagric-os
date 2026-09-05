@@ -91,6 +91,11 @@ the exact candidate artifacts:
   and bound to the exact candidate (the prior Dagric policy is already removed);
 - all Dagric gaming-helper artwork hashes have human IP approval;
 - package, source, security, boot, install, accessibility, and upgrade gates pass;
+- the exact final candidate receives an upstream vulnerability/reachability
+  review; the September 5 failed-build inventory exposed unresolved Chromium,
+  runc/containerd and CUPS issues without a confirmed trixie fixing package
+  (see `DEBIAN-SECURITY-AUDIT-2026-09-05.md`). Current package versions or zero
+  high-urgency tracker rows do not by themselves satisfy this review;
 - the protected physical-evidence gate passes for the exact Free and Pro hashes;
 - the website, Worker flag, Stripe link, and R2 access are switched together and
   verified after deployment.

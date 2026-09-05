@@ -24,6 +24,9 @@ import sys
 from collections import defaultdict
 from pathlib import Path
 
+sys.path.insert(0, "/usr/lib/dagric")
+from private_files import write_private_text
+
 HOME = Path.home()
 CACHE_DIR = HOME / ".cache" / "dagric" / "store"
 OUTPUT_FILE = CACHE_DIR / "dagric-store.html"
@@ -526,9 +529,9 @@ def main():
         if report_data is None and report_path.suffix.lower() == ".json":
             report_data = parse_report(report_path)
 
-    CACHE_DIR.mkdir(parents=True, exist_ok=True)
+    CACHE_DIR.mkdir(mode=0o700, parents=True, exist_ok=True)
     html = build_html(report_data)
-    OUTPUT_FILE.write_text(html, encoding="utf-8")
+    write_private_text(OUTPUT_FILE, html)
 
     if args.no_open:
         print(str(OUTPUT_FILE))

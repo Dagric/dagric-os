@@ -71,6 +71,34 @@ def is_visible_application(path: Path) -> bool:
     )
 
 
+def check_group_counts(index: str) -> list[str]:
+    """Keep the no-JavaScript sidebar honest before the image build hook runs."""
+    errors: list[str] = []
+    sidebar = dict(re.findall(
+        r'data-goto="(g-[a-z]+)"[^>]*>.*?<span class="count">(\d+)</span>',
+        index,
+    ))
+    sections = {
+        name: len(re.findall(r'<a class="card"\s', body))
+        for name, body in re.findall(
+            r'<section\b[^>]*id="(g-[a-z]+)"[^>]*>(.*?)</section>',
+            index,
+            re.DOTALL,
+        )
+    }
+    for name in sorted(sidebar.keys() | sections.keys()):
+        if name not in sections:
+            errors.append(f"manual sidebar {name}: section is missing")
+        elif name not in sidebar:
+            errors.append(f"manual section {name}: sidebar count is missing")
+        elif int(sidebar[name]) != sections[name]:
+            errors.append(
+                f"manual sidebar {name}: says {sidebar[name]}; "
+                f"section contains {sections[name]} cards"
+            )
+    return errors
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
@@ -89,6 +117,7 @@ def main() -> int:
     routes, errors = read_map(MAP)
     index_path = MANUAL / "index.html"
     index = index_path.read_text(encoding="utf-8")
+    errors.extend(check_group_counts(index))
     linked_pages = {html.unescape(href) for href in re.findall(r'href="([^"]+\.html)"', index)}
 
     page_names = {path.name for path in MANUAL.glob("*.html") if path.name != "index.html"}

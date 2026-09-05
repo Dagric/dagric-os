@@ -47,7 +47,14 @@ def main() -> int:
     homepage = (SITE / "index.html").read_text(encoding="utf-8")
     require(homepage, "Your computer.", "site/index.html", failures)
     require(homepage, "Yours again.", "site/index.html", failures)
-    require(homepage, "Try Dagric OS Free", "site/index.html", failures)
+    release = json.loads((SITE / "manifest/release.json").read_text(encoding="utf-8"))
+    if release.get("distribution", {}).get("status") == "held":
+        require(homepage, 'href="/download">Check release status</a>', "site/index.html", failures)
+        require(homepage, "Release testing in progress.", "site/index.html", failures)
+        if re.search(r">\s*(?:Try Dagric OS Free|Download free)\s*</a>", homepage):
+            failures.append("site/index.html: immediate-download CTA conflicts with held release")
+    else:
+        require(homepage, "Try Dagric OS Free", "site/index.html", failures)
     require(homepage, "Watch the 60-second tour", "site/index.html", failures)
     require(homepage, "No Dagric telemetry", "site/index.html", failures)
 

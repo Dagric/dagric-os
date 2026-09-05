@@ -18,6 +18,10 @@ cd "$(dirname "$0")"
 SRC=$(pwd)
 
 EDITION="${1:-free}"
+case "$EDITION" in
+    free|pro) ;;
+    *) echo "usage: $0 [free|pro]" >&2; exit 2 ;;
+esac
 BUILD="${DAGRIC_BUILD_DIR:-$SRC/../dagric-build-$EDITION}"
 
 # Record the source identity at build time, not later at publish time. Release
@@ -44,9 +48,10 @@ command -v rsync >/dev/null 2>&1 || { echo "rsync is required: apt install rsync
 command -v python3 >/dev/null 2>&1 || { echo "python3 is required: apt install python3"; exit 1; }
 python3 "$SRC/tools/check-source.py"
 
-echo "Building $EDITION edition in: $BUILD"
-rm -rf "$BUILD"
-mkdir -p "$BUILD"
+# A typo in DAGRIC_BUILD_DIR must never recursively erase an owner's folder.
+# Preserve failed builds and require a new path instead of guessing ownership.
+BUILD=$(python3 "$SRC/tools/prepare-build-dir.py" "$SRC" "$BUILD")
+echo "Building $EDITION edition in new directory: $BUILD"
 # site/repo is excluded for two reasons, and the second one bit.
 #
 # It is 65 MB of .deb that no image build reads — the packages an image needs

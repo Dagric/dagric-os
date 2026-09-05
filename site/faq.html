@@ -49,14 +49,14 @@ h2{margin-top:var(--s-7)}
 
   <h2>The basics</h2>
 
-  <details><summary>How long will Dagric OS be supported?</summary><p>Security updates through
-  <strong>August 2028</strong> from Debian's security team, and then community long-term support
-  until <strong>June 2030</strong> — Debian publishes that schedule openly, and Dagric inherits it
-  because it <em>is</em> Debian underneath. That is roughly five more years from a machine Windows
-  10 already abandoned. Two honest caveats: the LTS phase is run by a smaller sponsored team and
-  covers most, not every, package; and when the next Debian arrives, moving to it is an upgrade we
-  will document rather than something that happens on its own. You will not wake up unsupported
-  without warning.</p></details>
+  <details><summary>How long will Dagric OS be supported?</summary><p>Debian 13's published
+  schedule provides full support until <strong>August 9, 2028</strong>, followed by Long Term
+  Support until <strong>June 30, 2030</strong>. See
+  <a href="https://www.debian.org/releases/trixie/">Debian's release information</a> and
+  <a href="https://wiki.debian.org/LTS">LTS coverage</a>. These dates apply to covered Debian
+  packages, not automatically to Dagric-authored tools, optional third-party apps, or every
+  hardware driver. Dagric's own release remains under review; see the
+  <a href="/download">current availability</a> and <a href="/testing">test limits</a>.</p></details>
   <details><summary>Is Dagric OS really free?</summary><p>Yes. The free edition is a complete,
   private, hardened desktop — free forever, no strings, no account. Pro adds the creative, gaming,
   developer, and Windows-app suites for a one-time $39.</p></details>
@@ -67,19 +67,20 @@ h2{margin-top:var(--s-7)}
   support, a hand-picked open-source toolkit, and real human support — set up the way a careful
   friend would. The tools are open source; the $39 buys the craftsmanship and the time it saves.
   No disrespect to the other projects — Dagric is just a different trade.</p></details>
-  <details><summary>Can I try it without installing anything?</summary><p>Yes — every ISO is also
-  a live system. Boot it from a USB stick and use the full desktop without touching your disk;
-  install only when you're ready. The <a href="/getting-started">guide</a> shows you how.</p></details>
+  <details><summary>Can I try it without installing anything?</summary><p>The image can start
+  a live desktop from USB without installing Dagric. Public downloads are currently paused;
+  check <a href="/download">release status</a> first. The
+  <a href="/getting-started">guide</a> explains preparation and testing.</p></details>
   <details><summary>Will it run on my computer?</summary><p>The baseline is a 64-bit PC with
-  4 GB of RAM (8 GB recommended) and 25–40 GB of disk. Dagric OS supports UEFI with Secure Boot
-  and older BIOS startup, but a requirements list cannot prove that every component in a specific
+  4 GB of RAM (8 GB recommended) and 25–40 GB of disk. The BIOS, UEFI, and Secure Boot paths have
+  virtual-machine test evidence; physical Secure Boot validation remains pending. A requirements list cannot prove that every component in a specific
   computer will work.</p><p>A spec list can't tell you whether <em>your</em> Wi-Fi card has a driver, so
   don't take our word for it. Every Dagric USB stick puts <strong>Check This PC</strong> on the live
   desktop, right beside the installer — click that one first. It reports, in plain language, on your
   Wi-Fi and network, graphics and screen, Secure Boot, sound, camera and printer, the battery if
   it's a laptop, and whether your drives have room (and whether BitLocker is holding them shut).
   Nothing is installed and nothing is changed while you look: Windows is exactly where you left it
-  when you pull the stick out. <a href="/download">Get a stick going</a>.</p></details>
+  when you pull the stick out. <a href="/download">Check release availability</a>.</p></details>
   <details><summary>Can I keep Windows and dual-boot?</summary><p>Yes — choose <em>Install
   alongside</em> in the installer and pick how much space each system gets. At startup you choose
   which to boot.</p></details>
@@ -135,7 +136,7 @@ h2{margin-top:var(--s-7)}
   expiry, and no recurring purchase check after the claim. That service limit does not reduce any
   right to run, copy, modify, or redistribute a component under its open-source licence.</p></details>
   <details><summary>How do I get Pro after paying?</summary><p>New sales and binary delivery are
-  temporarily paused while the release-exact corresponding-source set is completed. Existing
+  temporarily paused while the remaining release gates are completed. Existing
   customers should use <a href="/contact">contact</a> for delivery questions, cancellation, or any
   refund remedy that applies to their order. Current status is on the
   <a href="/download">release-status page</a>.</p></details>
@@ -197,10 +198,10 @@ h2{margin-top:var(--s-7)}
 </div></footer>
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"FAQPage","mainEntity":[
-{"@type":"Question","name":"How long will Dagric OS be supported?","acceptedAnswer":{"@type":"Answer","text":"Security updates through August 2028 from Debian's security team, then community long-term support until June 2030 — Dagric inherits Debian's published schedule because it is Debian underneath. That is roughly five more years from a machine Windows 10 already abandoned. The LTS phase is run by a smaller sponsored team and covers most, not every, package."}},
+{"@type":"Question","name":"How long will Dagric OS be supported?","acceptedAnswer":{"@type":"Answer","text":"Debian 13's published schedule provides full support until August 9, 2028, then Long Term Support until June 30, 2030 for covered Debian packages. These dates do not automatically cover Dagric-authored tools, optional third-party apps, or every hardware driver. Dagric's own release remains under review."}},
 {"@type":"Question","name":"Is Dagric OS really free?","acceptedAnswer":{"@type":"Answer","text":"Yes. The free edition is a complete, private, hardened desktop — free forever, no account. Pro adds the creative, gaming, developer, and Windows-app suites for a one-time $39."}},
 {"@type":"Question","name":"Why pay $39 when Mint, Ubuntu or Zorin are free?","acceptedAnswer":{"@type":"Answer","text":"You don't have to — the free edition is a real, complete distro. Pro is one curated, tested, supported product (the Hub, Looks, snapshot-rollback, signed releases, Windows-app support, human support) for people who'd rather not assemble and harden a general distro themselves. The tools are open source; the $39 buys the craftsmanship."}},
-{"@type":"Question","name":"Will it run on my computer?","acceptedAnswer":{"@type":"Answer","text":"The baseline is a 64-bit PC with 4 GB of RAM (8 GB recommended) and 25-40 GB of disk. Dagric OS supports UEFI with Secure Boot and older BIOS startup, but a requirements list cannot prove every component will work. Check This PC reports in plain language on Wi-Fi and network, graphics and screen, Secure Boot, sound, camera and printer, the battery if it is a laptop, and whether the drives have room. Nothing is installed and nothing is changed while you look."}},
+{"@type":"Question","name":"Will it run on my computer?","acceptedAnswer":{"@type":"Answer","text":"The baseline is a 64-bit PC with 4 GB of RAM (8 GB recommended) and 25-40 GB of disk. BIOS, UEFI, and Secure Boot have virtual-machine test evidence; physical Secure Boot validation remains pending. Check This PC reports on hardware, but a requirements list or report cannot prove every component works. Check release availability before preparing a USB drive."}},
 {"@type":"Question","name":"Is Pro a subscription?","acceptedAnswer":{"@type":"Answer","text":"No. Pro is a one-time purchase for private delivery, guided upgrade, and support for one managed machine, with no recurring purchase check or expiry. Component-level open-source rights are unchanged."}},
 {"@type":"Question","name":"What if I buy Pro and don't like it?","acceptedAnswer":{"@type":"Answer","text":"Try Dagric OS Free and run Check This PC on your hardware before buying. Before a Pro download begins you can ask to cancel a paid order; after downloading begins, there are no change-of-mind or compatibility refunds. Mandatory consumer remedies still apply."}},
 {"@type":"Question","name":"What data does Dagric OS collect?","acceptedAnswer":{"@type":"Answer","text":"The installed OS sends no product telemetry, analytics or crash reports to Dagric, requires no Dagric account, and has no Dagric advertising ID. It makes documented requests for updates, firmware metadata and optional services; the privacy policy also covers website, checkout, download and support data."}}

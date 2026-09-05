@@ -11,7 +11,7 @@
 dl.meta{display:grid;grid-template-columns:auto 1fr;gap:var(--s-2) var(--s-4);margin:var(--s-4) 0;
   border-top:1px solid var(--rule);border-bottom:1px solid var(--rule);padding:var(--s-4) 0}
 dl.meta dt{font-weight:600;color:var(--on-3);font-size:var(--t-ui)}
-dl.meta dd{margin:0;color:var(--on-2)}
+dl.meta dd{margin:0;color:var(--on-2);min-width:0;overflow-wrap:anywhere}
 .status{font-weight:700;white-space:nowrap}
 .proof-links{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(16rem,100%),1fr));gap:var(--s-4);margin:var(--s-5) 0}
 .proof-links .card{height:100%}
@@ -59,6 +59,11 @@ dl.meta dd{margin:0;color:var(--on-2)}
     so one passing check cannot stand in for another.</p>
   </header>
 
+  <div class="note"><strong>Current availability: paused.</strong> Downloads and new Pro
+  sales remain on hold. The dated results below describe the August 2026 candidate, not a new
+  build or a current promise of delivery. See <a href="/download">release status</a> and
+  <a href="/licenses#corresponding-source">source and release limitations</a>.</div>
+
   <h2>Public proof paths</h2>
   <div class="proof-links">
     <div class="card"><h3>Test on your hardware</h3><p>The <a href="/testers">tester guide</a> gives the safe live-USB test order and exactly what to include in feedback.</p></div>
@@ -68,7 +73,7 @@ dl.meta dd{margin:0;color:var(--on-2)}
     <div class="card"><h3>Software inventory</h3><p>Exact package manifests for the <a href="/manifest/dagric-os-1.0.packages">Free</a> and <a href="/manifest/dagric-os-pro-1.0.packages">Pro</a> images are published from the ISOs themselves.</p></div>
   </div>
 
-  <h2>Release under test</h2>
+  <h2>Recorded release candidate</h2>
   <dl class="meta">
     <dt>Version</dt><dd>1.0 “Foundation”</dd>
     <dt>Architecture</dt><dd>64-bit Intel and AMD (amd64)</dd>
@@ -79,8 +84,8 @@ dl.meta dd{margin:0;color:var(--on-2)}
   </dl>
 
   <h2 id="release-matrix">Release verification matrix</h2>
-  <p>The status describes the current public candidate. “Pending” is not a pass and is never
-  hidden behind a successful check in another row.</p>
+  <p>These results are pinned to the source revision and hashes above. They do not certify
+  later changes. Historical delivery tests do not mean downloads or checkout are open today.</p>
   <div class="tablewrap" tabindex="0" role="region" aria-labelledby="release-matrix">
     <table class="proof">
       <thead><tr><th scope="col">Gate</th><th scope="col">Status</th><th scope="col">Evidence and scope</th></tr></thead>
@@ -94,8 +99,8 @@ dl.meta dd{margin:0;color:var(--on-2)}
         <tr><th scope="row">Legacy BIOS live boot</th><td class="status">Pass</td><td>The Free image reached the branded live desktop and first-run setup in the QEMU harness.</td></tr>
         <tr><th scope="row">UEFI and Secure Boot live boot</th><td class="status">Pass</td><td>Free and Pro reached their branded live desktops through OVMF. Free also booted with Microsoft-enrolled virtual Secure Boot firmware; shim and GRUB signatures were inspected in both images.</td></tr>
         <tr><th scope="row">Install and installed-system boot</th><td class="status">Pass</td><td>Calamares installed Free to a blank 40 GB UEFI/GPT virtual disk. With the ISO detached, that disk reached the Dagric login, accepted the new local account and opened the Plasma desktop.</td></tr>
-        <tr><th scope="row">Public Free download</th><td class="status">Pass</td><td>The customer-facing R2 URL was downloaded after promotion and hashed to <code>68380d47e6eb6f98bb5c6de0fe93e4feaaed4e849317f7faefaa7a502ba117d0</code>, matching the signed local image.</td></tr>
-        <tr><th scope="row">Private Pro delivery gate</th><td class="status">Pass</td><td>A live, one-use 100%-discount Stripe Checkout completed in production and Stripe marked the session complete and paid. Its private gate delivered the full 4,152,623,104-byte Pro ISO, whose SHA-256 matched the signed release, and returned a correct HTTP 206 Range response whose first 1 MiB matched the downloaded file. No non-zero live card charge was exercised.</td></tr>
+        <tr><th scope="row">Free download delivery</th><td class="status">Historical pass; now paused</td><td>The customer-facing R2 URL was downloaded after promotion and hashed to <code>68380d47e6eb6f98bb5c6de0fe93e4feaaed4e849317f7faefaa7a502ba117d0</code>, matching the signed local image. This records the earlier delivery test only.</td></tr>
+        <tr><th scope="row">Private Pro delivery gate</th><td class="status">Historical pass; new sales paused</td><td>A live, one-use 100%-discount Stripe Checkout completed in production and Stripe marked the session complete and paid. Its private gate delivered the full 4,152,623,104-byte Pro ISO, whose SHA-256 matched the signed release, and returned a correct HTTP 206 Range response whose first 1 MiB matched the downloaded file. No non-zero live card charge was exercised. This records the earlier delivery test only.</td></tr>
         <tr><th scope="row">Contact form delivery and retention</th><td class="status">Pass</td><td>On August 30, 2026, a marked no-email message submitted through the public form returned a success response and appeared as the matching private R2 object. The exact test object was deleted and confirmed absent. An enabled lifecycle rule deletes objects under <code>inbox/</code> after 365 days.</td></tr>
       </tbody>
     </table>

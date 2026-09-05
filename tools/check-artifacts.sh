@@ -24,7 +24,7 @@ PRO="$BASE/pro/dagric-os-pro-1.0-amd64.iso"
 for file in "$FREE" "$PRO"; do
     [ -f "$file" ] || { echo "artifact-check: missing $file" >&2; exit 1; }
 done
-for command in sha256sum xorriso unsquashfs mount umount python3; do
+for command in sha256sum xorriso unsquashfs mount umount python3 git; do
     command -v "$command" >/dev/null 2>&1 || { echo "artifact-check: missing $command" >&2; exit 1; }
 done
 
@@ -124,6 +124,7 @@ require_pipeline() {
         squashfs-root/usr/sbin/dagric-pipeline \
         squashfs-root/usr/bin/dagric-pipeline-launch \
         squashfs-root/usr/lib/dagric/pipeline.py \
+        squashfs-root/usr/lib/dagric/private_files.py \
         squashfs-root/etc/systemd/system/dagric-pipeline.service \
         squashfs-root/etc/systemd/system/dagric-pipeline.timer \
         squashfs-root/etc/systemd/system/timers.target.wants/dagric-pipeline.timer; do
@@ -203,6 +204,143 @@ require_foundations() {
 require_foundations "$free_mnt/live/filesystem.squashfs"
 require_foundations "$pro_mnt/live/filesystem.squashfs"
 
+# Static payload evidence only: do not execute image code or infer that a
+# physical account/connection test passed. The eight reviewed security files
+# must match the commit recorded for these artifacts (allowing CRLF cleanup).
+require_security_payload() {
+    python3 - "$1" "$2" "$ROOT" "$source_commit" <<'DAGRIC_SECURITY_ARTIFACT_PY'
+import ast
+import json
+from pathlib import PurePosixPath
+import posixpath
+import subprocess
+import sys
+
+SOURCE_FILES = {
+    'usr/bin/opensnitch-ui': 'config/includes.chroot/usr/bin/opensnitch-ui',
+    'usr/lib/dagric/private_files.py': 'config/includes.chroot/usr/lib/dagric/private_files.py',
+    'usr/lib/dagric/pipeline.py': 'config/includes.chroot/usr/lib/dagric/pipeline.py',
+    'usr/lib/dagric/twin.py': 'config/includes.chroot/usr/lib/dagric/twin.py',
+    'usr/bin/dagric-restore-assistant': 'config/includes.chroot/usr/bin/dagric-restore-assistant',
+    'var/lib/dpkg/info/dagric-tools.preinst': 'packages/dagric-tools/DEBIAN/preinst',
+    'var/lib/dpkg/info/dagric-tools.postinst': 'packages/dagric-tools/DEBIAN/postinst',
+    'var/lib/dpkg/info/dagric-tools.postrm': 'packages/dagric-tools/DEBIAN/postrm',
+}
+ENDPOINT = 'unix:///run/dagric-opensnitch/osui.sock'
+DROPIN = 'usr/lib/systemd/system/opensnitch.service.d/20-dagric-control-socket.conf'
+
+
+def parse_listing(text):
+    entries = {}
+    for line in text.splitlines():
+        if ' squashfs-root/' not in line:
+            continue
+        metadata, tail = line.split(' squashfs-root/', 1)
+        path, _, target = tail.partition(' -> ')
+        columns = metadata.split()
+        entries[path] = (columns[0], columns[1], target)
+    return entries
+
+
+def audit_security_payload(read, listing, edition, expected_sources):
+    def require(condition, reason):
+        if not condition:
+            raise ValueError(reason)
+
+    def regular(path, executable=False):
+        require(path in listing, 'missing exact payload path: ' + path)
+        mode, owner, _ = listing[path]
+        require(mode.startswith('-') and owner == 'root/root', 'unsafe payload owner/type: ' + path)
+        require(mode[5] != 'w' and mode[8] != 'w', 'writable security payload: ' + path)
+        if executable:
+            require(mode[3] in 'xs', 'nonexecutable launcher: ' + path)
+
+    package_files = set(read('var/lib/dpkg/info/dagric-tools.list').decode().splitlines())
+    for path in SOURCE_FILES:
+        regular(path, path == 'usr/bin/opensnitch-ui' or '/dagric-tools.' in path)
+        require(read(path).replace(b'\r\n', b'\n') == expected_sources[path].replace(b'\r\n', b'\n'),
+                'security payload differs from recorded source commit: ' + path)
+        if not path.startswith('var/lib/dpkg/info/'):
+            require('/' + path in package_files, 'security payload is not owned by dagric-tools: ' + path)
+
+    for path in (DROPIN, 'usr/lib/tmpfiles.d/dagric-opensnitch.conf'):
+        regular(path)
+        require('/' + path in package_files, 'unpackaged OpenSnitch wiring: ' + path)
+    require('etc/systemd/system/opensnitch.service.d/20-dagric-control-socket.conf' not in listing,
+            'managed drop-in is incorrectly preserved under /etc')
+    require(ENDPOINT == json.loads(read('etc/opensnitchd/default-config.json'))['Server']['Address'],
+            'daemon JSON does not use the protected endpoint')
+    tmpfiles = read('usr/lib/tmpfiles.d/dagric-opensnitch.conf').decode().splitlines()
+    require('d /run/dagric-opensnitch 02770 root sudo -' in tmpfiles,
+            'missing root:sudo 02770 boot directory contract')
+    unit = read(DROPIN).decode().splitlines()
+    for directive in (
+        'ExecStartPre=/usr/bin/systemd-tmpfiles --create /usr/lib/tmpfiles.d/dagric-opensnitch.conf',
+        'ExecStartPre=/usr/bin/opensnitch-ui --check-directory',
+        'ExecStartPre=/usr/bin/opensnitch-ui --migrate-config',
+        'ExecStart=',
+        'ExecStart=/usr/bin/opensnitchd -rules-path /etc/opensnitchd/rules -ui-socket ' + ENDPOINT,
+    ):
+        require(directive in unit, 'missing managed daemon directive: ' + directive)
+    records = read('var/lib/dpkg/diversions').decode().splitlines()
+    require(len(records) % 3 == 0, 'invalid dpkg diversion records')
+    matches = [records[i:i + 3] for i in range(0, len(records), 3) if records[i] == '/usr/bin/opensnitch-ui']
+    require(matches == [['/usr/bin/opensnitch-ui', '/usr/lib/dagric/opensnitch-ui-upstream', 'dagric-tools']],
+            'missing or conflicting installed OpenSnitch diversion')
+    helper = ast.parse(read('usr/lib/dagric/private_files.py'))
+    require(any(isinstance(node, ast.FunctionDef) and node.name == 'write_private_text' for node in helper.body),
+            'missing private state writer API')
+    for path in ('usr/lib/dagric/pipeline.py', 'usr/lib/dagric/twin.py', 'usr/bin/dagric-restore-assistant'):
+        module = ast.parse(read(path))
+        require(any(isinstance(node, ast.ImportFrom) and node.module == 'private_files' and
+                    any(alias.name == 'write_private_text' for alias in node.names) for node in ast.walk(module)),
+                'private state writer is not wired into: ' + path)
+
+    # The Free artifact carries the guard for later upgrades, not the Pro UI.
+    vendor = 'usr/lib/dagric/opensnitch-ui-upstream'
+    if edition == 'pro' or vendor in listing:
+        regular(vendor, executable=True)
+        require(b'--socket' in read(vendor), 'vendor UI lacks the required socket option')
+        desktop = 'usr/share/applications/opensnitch_ui.desktop'
+        allowed_exec = {'Exec=opensnitch-ui', 'Exec=opensnitch-ui --background'}
+        require(any(line in allowed_exec for line in read(desktop).decode().splitlines()),
+                'vendor menu bypasses the managed launcher')
+        autostart = 'etc/xdg/autostart/opensnitch_ui.desktop'
+        require(autostart in listing, 'missing vendor autostart route')
+        if listing[autostart][0].startswith('l'):
+            target = listing[autostart][2]
+            resolved = posixpath.normpath(posixpath.join('/' + str(PurePosixPath(autostart).parent), target))
+            require(resolved == '/' + desktop, 'autostart symlink bypasses the managed launcher')
+        else:
+            require(any(line in allowed_exec for line in read(autostart).decode().splitlines()),
+                    'vendor autostart bypasses the managed launcher')
+    if edition == 'pro':
+        blocked_defaults = {'docker.service', 'docker.socket', 'containerd.service', 'ssh.service', 'sshd.service', 'ssh.socket'}
+        for path in listing:
+            if path.startswith(('etc/systemd/system/', 'usr/lib/systemd/system/', 'lib/systemd/system/')):
+                require(not (('/' in path and PurePosixPath(path).name in blocked_defaults) and
+                             ('.wants/' in path or '.requires/' in path)),
+                        'Pro ships an unexpected enabled service dependency: ' + path)
+
+
+if __name__ == '__main__':
+    image, edition, root, commit = sys.argv[1:]
+    try:
+        def read(path):
+            return subprocess.check_output(['unsquashfs', '-cat', image, path], stderr=subprocess.PIPE)
+        expected = {path: subprocess.check_output(['git', '-C', root, 'show', commit + ':' + source], stderr=subprocess.PIPE)
+                    for path, source in SOURCE_FILES.items()}
+        listing = parse_listing(subprocess.check_output(['unsquashfs', '-ll', image], stderr=subprocess.PIPE).decode())
+        audit_security_payload(read, listing, edition, expected)
+    except (ValueError, KeyError, SyntaxError, IndexError, subprocess.CalledProcessError) as exc:
+        print('artifact-check: security payload failed for ' + edition + ': ' + str(exc), file=sys.stderr)
+        raise SystemExit(1)
+    print('artifact-check: ' + edition + ' security payload/source wiring passed (not runtime or physical approval)')
+DAGRIC_SECURITY_ARTIFACT_PY
+}
+require_security_payload "$free_mnt/live/filesystem.squashfs" free
+require_security_payload "$pro_mnt/live/filesystem.squashfs" pro
+
 sh "$ROOT/tools/check-secureboot.sh" "$FREE"
 sh "$ROOT/tools/check-secureboot.sh" "$PRO"
 
@@ -225,7 +363,7 @@ pro_size=$(stat -c %s "$PRO")
 [ "$pro_size" -gt "$free_size" ] || { echo "artifact-check: Pro ISO is not larger than Free" >&2; exit 1; }
 
 if [ "$pipeline_only" -eq 1 ]; then
-    echo "artifact-check: candidate passed (checksums, edition split, package manifests, signed EFI, adaptive pipeline and Foundations payloads)"
+    echo "artifact-check: candidate passed (checksums, edition split, package manifests, signed EFI, adaptive pipeline, Foundations and static security payloads)"
 else
-    echo "artifact-check: passed (checksums, edition split, package manifests, signed EFI, adaptive pipeline, Foundations and four boot evidence sets)"
+    echo "artifact-check: passed (checksums, edition split, package manifests, signed EFI, adaptive pipeline, Foundations, static security payloads and four boot evidence sets)"
 fi

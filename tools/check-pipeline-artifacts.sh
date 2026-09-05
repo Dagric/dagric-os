@@ -50,6 +50,7 @@ for iso in "$@"; do
     check_file "$image" usr/sbin/dagric-pipeline
     check_file "$image" usr/bin/dagric-pipeline-launch
     check_file "$image" usr/lib/dagric/pipeline.py
+    check_file "$image" usr/lib/dagric/private_files.py
     check_file "$image" etc/systemd/system/dagric-pipeline.service
     check_file "$image" etc/systemd/system/dagric-pipeline.timer
     # unsquashfs -cat intentionally does not follow this systemd symlink, so

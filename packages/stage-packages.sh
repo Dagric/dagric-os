@@ -347,6 +347,14 @@ cp "$INC/etc/xdg/autostart/dagric-restart-check.desktop" "$P/etc/xdg/autostart/"
 for f in "$INC/usr/bin/"dagric-*; do
     [ -f "$f" ] && cp "$f" "$P/usr/bin/"
 done
+# Own only the boundary wrapper; preinst diverts the vendor UI and dpkg keeps
+# delivering upstream updates to the diversion target. No vendor code is copied.
+cp "$INC/usr/bin/opensnitch-ui" "$P/usr/bin/"
+mkdir -p "$P/usr/lib/tmpfiles.d" "$P/etc/systemd/system/opensnitch.service.d"
+cp "$INC/usr/lib/tmpfiles.d/dagric-opensnitch.conf" "$P/usr/lib/tmpfiles.d/"
+cp "$INC/etc/systemd/system/opensnitch.service.d/"*.conf "$P/etc/systemd/system/opensnitch.service.d/"
+mkdir -p "$P/usr/lib/systemd/system/opensnitch.service.d"
+cp "$INC/usr/lib/systemd/system/opensnitch.service.d/20-dagric-control-socket.conf" "$P/usr/lib/systemd/system/opensnitch.service.d/"
 [ -f "$INC/usr/sbin/dagric-pipeline" ] && cp "$INC/usr/sbin/dagric-pipeline" "$P/usr/sbin/"
 [ -f "$INC/etc/systemd/system/dagric-pipeline.service" ] && \
     cp "$INC/etc/systemd/system/dagric-pipeline.service" "$P/etc/systemd/system/"

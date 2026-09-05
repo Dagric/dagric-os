@@ -40,7 +40,7 @@ main{max-width:none;margin:0;padding:0}
 
 
 .trust{border-top:1px solid var(--rule);border-bottom:1px solid var(--rule);padding:0 24px}
-.trust-in{max-width:var(--w-page);margin:0 auto;display:grid;grid-template-columns:repeat(5,1fr)}
+.trust-in{max-width:var(--w-page);margin:0 auto;display:grid;grid-template-columns:repeat(3,1fr)}
 .trust span{display:flex;align-items:center;justify-content:center;gap:8px;text-align:center;
   padding:18px 12px;color:var(--body);font-size:var(--t-meta);font-weight:600;letter-spacing:.04em;
   border-left:1px solid var(--rule)}
@@ -120,14 +120,16 @@ main{max-width:none;margin:0;padding:0}
   <h1>Your computer.<br><span class="grad">Yours again.</span></h1>
 
   <p class="lead">Dagric OS gives Windows 10 PCs a private, customizable second life.
-  No required account, no subscription, and no Dagric telemetry. Try the complete Free edition
-  before installing.</p>
+  No required account, no subscription, and no Dagric telemetry. Explore the desktop,
+  the tools, and the current release record.</p>
 
   <div class="btns">
-    <a class="btn primary lg" href="/download">Try Dagric OS Free</a>
+    <a class="btn primary lg" href="/download">Check release status</a>
     <a class="btn ghost lg" href="#live-tour">Watch the 60-second tour</a>
   </div>
-  <p class="refund">Pro is a one-time $39 · sales final once the download begins</p>
+  <p class="release-notice"><strong>Release testing in progress.</strong> Downloads and new Pro
+  purchases are paused. You can watch the demos, browse the guide, and
+  <a href="/testing">see what has been tested</a>.</p>
 
   <div class="shot live-demo" id="live-tour">
     <video controls autoplay muted loop playsinline preload="metadata" width="1920" height="1080"
@@ -148,7 +150,7 @@ main{max-width:none;margin:0;padding:0}
 <div class="trust"><div class="trust-in">
   <span><b>✓</b>No Dagric telemetry</span>
   <span><b>✓</b>Public test record</span>
-  <span><b>✓</b>Pro is $39 once</span>
+  <span><b>✓</b>No required account</span>
 </div></div>
 
 <section class="quick-search">
@@ -195,19 +197,19 @@ main{max-width:none;margin:0;padding:0}
   <div class="dept">
     <div class="dept-rail"></div>
     <div>
-      <div class="eyebrow">The end of Windows 10</div>
-      <h2>Windows 10 is done. <span class="grad">Your PC isn't.</span></h2>
-      <p class="lead">Microsoft ended Windows 10 support and left a
-      perfectly good computer behind. Dagric OS brings it back — fast, private, secure, and yours.
-      No new hardware, no subscription, no account — and the Migration Assistant copies your
-      documents, pictures, music and videos across in one click, then gathers your old bookmarks
-      into one file Firefox imports from its own menu.</p>
+      <div class="eyebrow">Make an informed switch</div>
+      <h2>A fresh start for <span class="grad">your Windows PC.</span></h2>
+      <p class="lead">Keep familiar files and choose a desktop that feels right. The Migration
+      Assistant copies documents, pictures, music and videos from a Windows drive, then gathers
+      bookmarks for import into your browser. Check your hardware and essential apps before
+      deciding to switch.</p>
 
-      <p style="max-width:var(--w-text);margin:0 0 var(--s-5)">And when you ask how long
-      <em>this</em> one lasts: <strong>security updates into 2030</strong> &mdash; Debian's own
-      published schedule, which Dagric inherits. Roughly five more years out of the machine
-      Windows already gave up on. <a href="/faq">The dates, in full</a>.</p>
-      <a class="btn primary" href="/download">Give your PC a second life — free</a>
+      <p style="max-width:var(--w-text);margin:0 0 var(--s-5)">Windows 10's standard support has
+      ended; Microsoft also offers <a href="https://www.microsoft.com/en-us/windows/extended-security-updates">Extended Security Updates</a>.
+      Dagric offers a different path on a Debian 13 base. Debian's published support schedule
+      runs into 2030 for covered packages; that is not a blanket support guarantee for every
+      Dagric tool. <a href="/faq">Read the support scope</a>.</p>
+      <a class="btn primary" href="/switch-from-windows">Plan your switch</a>
     </div>
   </div>
 </section>
@@ -256,8 +258,8 @@ main{max-width:none;margin:0;padding:0}
       <p class="lead">The security baseline is enabled before you change a thing — and Dagric OS does not add telemetry.</p>
 
       <div class="calls">
-        <div class="call"><div><h3>Hardened out of the box</h3><p>AppArmor confinement, a hardened kernel, and a firewall from first boot. Pro adds an opt-in application firewall and USB device controls.</p></div></div>
-        <div class="call"><div><h3>Undo system changes</h3><p>Automatic snapshots before every update. If an update causes trouble, roll the system back from the boot menu.</p></div></div>
+        <div class="call"><div><h3>Hardened out of the box</h3><p>AppArmor confinement, hardened kernel settings, and a firewall from first boot. Pro adds an opt-in application firewall and USB device controls. See the <a href="/testing">tested scope</a>.</p></div></div>
+        <div class="call"><div><h3>Undo system changes</h3><p>On the default btrfs installation, snapshots before updates help you roll back system changes from the boot menu. Keep a separate backup of your personal files.</p></div></div>
         <div class="call"><div><h3>Updates, your way</h3><p>Security patches install silently. The computer <em>never</em> restarts itself — you reboot when it suits you.</p></div></div>
         <div class="call"><div><h3>The Dagric Hub</h3><p>Drivers, security checkup, the layout switcher, the guide, and every owner tool — gathered in one friendly window.</p></div></div>
 
@@ -308,7 +310,7 @@ main{max-width:none;margin:0;padding:0}
             <li class="no">Wine, GameMode &amp; the tuned gaming runtime</li>
             <li class="no">Developer toolchain (Docker, Git, SSH)</li>
           </ul>
-          <a class="btn ghost" href="/download">Download free</a>
+          <a class="btn ghost" href="/download">Free release status</a>
         </div>
         <div class="price pro">
           <div class="tier">Dagric OS <span class="grad">Pro</span></div>
@@ -326,17 +328,15 @@ main{max-width:none;margin:0;padding:0}
             <li>Opt-in security suite: app firewall + USB control</li>
           </ul>
           <a class="btn primary" href="/download">Pro release status</a>
-          <p class="refund" style="text-align:center">Test Free first · sales final once download begins</p>
+          <p class="refund" style="text-align:center">New Pro purchases are paused during release review.</p>
         </div>
       </div>
 
-      <p class="note" style="margin-top:var(--s-5)">One thing worth
-      knowing before you pick: <strong>you can't pick wrong</strong>. A free install upgrades to Pro
-      in place whenever you're ready — buy Pro, open the <strong>Dagric Hub</strong> on your free
-      machine, pick <em>Upgrade to Pro</em>, and paste the code from your receipt. Your files and
-      settings stay exactly where they are. Try Dagric OS Free on your actual hardware before
-      buying; once a Pro download begins, change-of-mind and compatibility sales are final.</p>
-      <p style="color:var(--on-3);font-size:var(--t-meta);margin-top:var(--s-4)">Secure checkout by Stripe · Dagric-authored code and most included software are open source; redistributable proprietary device firmware and CPU microcode are disclosed separately.</p>
+      <p class="note" style="margin-top:var(--s-5)">Free and Pro use the same desktop
+      foundation. Pro adds a configured creative, gaming, and developer toolkit. Downloads and
+      purchases are currently paused; review the <a href="/download">release status</a> before
+      planning an installation. Existing customers can <a href="/contact">contact us for help</a>.</p>
+      <p style="color:var(--on-3);font-size:var(--t-meta);margin-top:var(--s-4)">Dagric-authored code and most included software are open source; separately licensed device firmware and CPU microcode remain subject to release-rights review.</p>
     </div>
   </div>
 </section>
@@ -345,15 +345,16 @@ main{max-width:none;margin:0;padding:0}
   <div class="dept">
     <div class="dept-rail"></div>
     <div>
-      <h2>Download <span class="grad">Dagric OS</span></h2>
-      <p class="lead">Write Dagric OS to a USB drive, start your computer from it, try the desktop, then install.
-      UEFI &amp; Secure Boot supported. New to this? The
-      <a href="/getting-started">step-by-step guide</a> takes you from download to desktop.</p>
+      <h2>Your next <span class="grad">step.</span></h2>
+      <p class="lead">Check the release status first. When a release is available, the
+      <a href="/getting-started">step-by-step guide</a> explains how to verify it, prepare a USB
+      drive, test your hardware, and install. Physical Secure Boot validation remains pending;
+      see the <a href="/testing#limitations">current test limits</a>.</p>
 
       <div class="grid c2" style="max-width:var(--w-col)">
 
-        <div class="card boxed"><h3>Dagric OS — Free</h3><p style="margin:var(--s-2) 0 var(--s-4)">The lean, private daily driver. 2.1&nbsp;GB.</p><a class="btn primary" href="/download">Release status</a></div>
-        <div class="card boxed"><h3>Dagric OS — Pro</h3><p style="margin:var(--s-2) 0 var(--s-4)">The complete suite. 3.9&nbsp;GB. $39, delivered after purchase.</p><a class="btn ghost" href="/pro">See what's inside →</a></div>
+        <div class="card boxed"><h3>Dagric OS — Free</h3><p style="margin:var(--s-2) 0 var(--s-4)">The core desktop. Downloads are temporarily paused.</p><a class="btn primary" href="/download">Release status</a></div>
+        <div class="card boxed"><h3>Dagric OS — Pro</h3><p style="margin:var(--s-2) 0 var(--s-4)">The expanded toolkit. New purchases are temporarily paused.</p><a class="btn ghost" href="/pro">See what's inside →</a></div>
       </div>
       <h3 style="margin-top:var(--s-6)">Verify your download</h3>
 
@@ -383,7 +384,7 @@ main{max-width:none;margin:0;padding:0}
         <a class="card boxed" href="https://github.com/Dagric/dagric-os" target="_blank" rel="me noopener"><h3>GitHub</h3><p>Source, technical progress, issues, and release evidence.</p><span>Dagric/dagric-os →</span></a>
       </div>
       <p style="margin-top:var(--s-5)"><a class="btn ghost" href="https://www.launchory.app/startups/dagric-os?ref=badge" target="_blank" rel="noopener">See Dagric OS on Launchory</a></p>
-      <p style="margin-top:var(--s-5)"><a class="btn primary" href="/download">Try Dagric OS Free</a></p>
+      <p style="margin-top:var(--s-5)"><a class="btn primary" href="/download">Check release status</a></p>
     </div>
   </div>
 </section>

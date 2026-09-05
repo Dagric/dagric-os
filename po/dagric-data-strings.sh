@@ -302,28 +302,31 @@ gettext "Old School"
 gettext "Friendly pixel icons inspired by early personal computers."
 # TRANSLATORS: the name of a Dagric wallpaper pack. "Dagric" is the brand
 # and never changes; translate only the descriptive word after it.
-gettext "Dagric Arctic Clean"
+gettext "Dagric"
 # TRANSLATORS: the name of a Dagric wallpaper pack. "Dagric" is the brand
 # and never changes; translate only the descriptive word after it.
 gettext "Dagric Arctic"
 # TRANSLATORS: the name of a Dagric wallpaper pack. "Dagric" is the brand
 # and never changes; translate only the descriptive word after it.
-gettext "Dagric Aurora Clean"
+gettext "Dagric Arctic Clean"
 # TRANSLATORS: the name of a Dagric wallpaper pack. "Dagric" is the brand
 # and never changes; translate only the descriptive word after it.
 gettext "Dagric Aurora"
 # TRANSLATORS: the name of a Dagric wallpaper pack. "Dagric" is the brand
 # and never changes; translate only the descriptive word after it.
-gettext "Dagric Contour Clean"
+gettext "Dagric Aurora Clean"
 # TRANSLATORS: the name of a Dagric wallpaper pack. "Dagric" is the brand
 # and never changes; translate only the descriptive word after it.
 gettext "Dagric Contour"
 # TRANSLATORS: the name of a Dagric wallpaper pack. "Dagric" is the brand
 # and never changes; translate only the descriptive word after it.
-gettext "Dagric Copper Clean"
+gettext "Dagric Contour Clean"
 # TRANSLATORS: the name of a Dagric wallpaper pack. "Dagric" is the brand
 # and never changes; translate only the descriptive word after it.
 gettext "Dagric Copper"
+# TRANSLATORS: the name of a Dagric wallpaper pack. "Dagric" is the brand
+# and never changes; translate only the descriptive word after it.
+gettext "Dagric Copper Clean"
 # TRANSLATORS: the name of a Dagric wallpaper pack. "Dagric" is the brand
 # and never changes; translate only the descriptive word after it.
 gettext "Dagric Dawn"
@@ -332,40 +335,37 @@ gettext "Dagric Dawn"
 gettext "Dagric Dusk"
 # TRANSLATORS: the name of a Dagric wallpaper pack. "Dagric" is the brand
 # and never changes; translate only the descriptive word after it.
-gettext "Dagric Ember Clean"
+gettext "Dagric Ember"
 # TRANSLATORS: the name of a Dagric wallpaper pack. "Dagric" is the brand
 # and never changes; translate only the descriptive word after it.
-gettext "Dagric Ember"
+gettext "Dagric Ember Clean"
 # TRANSLATORS: the name of a Dagric wallpaper pack. "Dagric" is the brand
 # and never changes; translate only the descriptive word after it.
 gettext "Dagric Forest"
 # TRANSLATORS: the name of a Dagric wallpaper pack. "Dagric" is the brand
 # and never changes; translate only the descriptive word after it.
-gettext "Dagric Halftone Clean"
-# TRANSLATORS: the name of a Dagric wallpaper pack. "Dagric" is the brand
-# and never changes; translate only the descriptive word after it.
 gettext "Dagric Halftone"
 # TRANSLATORS: the name of a Dagric wallpaper pack. "Dagric" is the brand
 # and never changes; translate only the descriptive word after it.
-gettext "Dagric Ink Clean"
+gettext "Dagric Halftone Clean"
 # TRANSLATORS: the name of a Dagric wallpaper pack. "Dagric" is the brand
 # and never changes; translate only the descriptive word after it.
 gettext "Dagric Ink"
 # TRANSLATORS: the name of a Dagric wallpaper pack. "Dagric" is the brand
 # and never changes; translate only the descriptive word after it.
-gettext "Dagric Linen Clean"
+gettext "Dagric Ink Clean"
 # TRANSLATORS: the name of a Dagric wallpaper pack. "Dagric" is the brand
 # and never changes; translate only the descriptive word after it.
 gettext "Dagric Linen"
 # TRANSLATORS: the name of a Dagric wallpaper pack. "Dagric" is the brand
 # and never changes; translate only the descriptive word after it.
-gettext "Dagric Mesh Clean"
+gettext "Dagric Linen Clean"
 # TRANSLATORS: the name of a Dagric wallpaper pack. "Dagric" is the brand
 # and never changes; translate only the descriptive word after it.
 gettext "Dagric Mesh"
 # TRANSLATORS: the name of a Dagric wallpaper pack. "Dagric" is the brand
 # and never changes; translate only the descriptive word after it.
-gettext "Dagric"
+gettext "Dagric Mesh Clean"
 # TRANSLATORS: the name of a Dagric wallpaper pack. "Dagric" is the brand
 # and never changes; translate only the descriptive word after it.
 gettext "Dagric Midnight"
@@ -386,34 +386,34 @@ gettext "Dagric Open Coast"
 gettext "Dagric Open Horizon"
 # TRANSLATORS: the name of a Dagric wallpaper pack. "Dagric" is the brand
 # and never changes; translate only the descriptive word after it.
-gettext "Dagric Prism Clean"
-# TRANSLATORS: the name of a Dagric wallpaper pack. "Dagric" is the brand
-# and never changes; translate only the descriptive word after it.
 gettext "Dagric Prism"
 # TRANSLATORS: the name of a Dagric wallpaper pack. "Dagric" is the brand
 # and never changes; translate only the descriptive word after it.
-gettext "Dagric Sand Clean"
+gettext "Dagric Prism Clean"
 # TRANSLATORS: the name of a Dagric wallpaper pack. "Dagric" is the brand
 # and never changes; translate only the descriptive word after it.
 gettext "Dagric Sand"
 # TRANSLATORS: the name of a Dagric wallpaper pack. "Dagric" is the brand
 # and never changes; translate only the descriptive word after it.
-gettext "Dagric Slate Clean"
+gettext "Dagric Sand Clean"
 # TRANSLATORS: the name of a Dagric wallpaper pack. "Dagric" is the brand
 # and never changes; translate only the descriptive word after it.
 gettext "Dagric Slate"
 # TRANSLATORS: the name of a Dagric wallpaper pack. "Dagric" is the brand
 # and never changes; translate only the descriptive word after it.
-gettext "Dagric Violet Clean"
+gettext "Dagric Slate Clean"
 # TRANSLATORS: the name of a Dagric wallpaper pack. "Dagric" is the brand
 # and never changes; translate only the descriptive word after it.
 gettext "Dagric Violet"
 # TRANSLATORS: the name of a Dagric wallpaper pack. "Dagric" is the brand
 # and never changes; translate only the descriptive word after it.
-gettext "Dagric Void Clean"
+gettext "Dagric Violet Clean"
 # TRANSLATORS: the name of a Dagric wallpaper pack. "Dagric" is the brand
 # and never changes; translate only the descriptive word after it.
 gettext "Dagric Void"
+# TRANSLATORS: the name of a Dagric wallpaper pack. "Dagric" is the brand
+# and never changes; translate only the descriptive word after it.
+gettext "Dagric Void Clean"
 # TRANSLATORS: the name of a Dagric wallpaper pack. "Dagric" is the brand
 # and never changes; translate only the descriptive word after it.
 gettext "Dagric Wild Meadow"

@@ -1,0 +1,154 @@
+#!/usr/bin/python3
+# SPDX-FileCopyrightText: 2026 IMPRESSIONSDIRECT360 LLC <repo@dagric.com>
+# SPDX-License-Identifier: GPL-3.0-or-later
+"""Dagric's local-admin boundary for the unprivileged OpenSnitch interface.
+
+dagric-tools diverts the vendor launcher, preserving it at UPSTREAM. Keeping
+the original command name covers the vendor menu and its autostart symlink.
+"""
+from __future__ import annotations
+
+import grp
+import gettext
+import json
+import os
+from pathlib import Path
+import stat
+import subprocess
+import sys
+import tempfile
+
+
+RUNTIME = Path("/run/dagric-opensnitch")
+SOCKET_ADDRESS = "unix:///run/dagric-opensnitch/osui.sock"
+UPSTREAM = Path("/usr/lib/dagric/opensnitch-ui-upstream")
+DAEMON_CONFIG = Path("/etc/opensnitchd/default-config.json")
+_ = gettext.translation("dagric", localedir="/usr/share/locale", fallback=True).gettext
+
+
+def validate_directory(path: Path, admin_gid: int) -> None:
+    info = path.lstat()
+    if (
+        not stat.S_ISDIR(info.st_mode)
+        or info.st_uid != 0
+        or info.st_gid != admin_gid
+        or stat.S_IMODE(info.st_mode) != 0o2770
+    ):
+        raise PermissionError(_(
+            "OpenSnitch's control directory must be owned by root:sudo with mode 2770. "
+            "Restart the computer or ask an administrator to repair the Dagric tools package."
+        ))
+
+
+def validate_user(uid: int, groups: list[int], admin_gid: int) -> None:
+    if uid == 0:
+        raise PermissionError(_("Open OpenSnitch from your desktop account, without sudo. The interface must not run as root."))
+    if admin_gid not in groups:
+        raise PermissionError(_(
+            "OpenSnitch controls network rules for the whole computer. Sign in with an administrator "
+            "account to use it. Existing system firewall rules still apply to your account."
+        ))
+
+
+def validate_upstream(path: Path) -> None:
+    for parent in path.parents:
+        info = parent.lstat()
+        if not stat.S_ISDIR(info.st_mode) or info.st_uid != 0 or info.st_mode & 0o022:
+            raise PermissionError(_("The OpenSnitch launcher has unexpected ownership or permissions. Reinstall the Dagric tools package."))
+    info = path.lstat()
+    if not stat.S_ISREG(info.st_mode) or info.st_uid != 0 or info.st_mode & 0o022:
+        raise PermissionError(_("The OpenSnitch launcher has unexpected ownership or permissions. Reinstall the Dagric tools package."))
+
+
+def seed_defaults(settings) -> None:
+    # QSettings runs under the current user's identity, never root. Preserve
+    # every existing preference, including an owner's intentional deny default.
+    if not settings.contains("global/default_action"):
+        settings.setValue("global/default_action", 1)
+        settings.sync()
+        if settings.status() != settings.NoError:
+            raise OSError(_("OpenSnitch could not save its initial preference. Check that your home folder is writable."))
+
+
+def migrate_daemon_config(path: Path) -> None:
+    """Move only the legacy local endpoint, preserving all other root settings."""
+    if os.geteuid() != 0:
+        raise PermissionError(_("Only an administrator can update the system firewall configuration."))
+    # Free has no upstream daemon config yet. Its source defaults and the
+    # service's explicit argument already use the new address when installed.
+    if not path.exists() and not path.is_symlink():
+        return
+    for component in (*path.parents, path):
+        info = component.lstat()
+        expected_type = stat.S_ISREG if component == path else stat.S_ISDIR
+        if info.st_uid != 0 or info.st_mode & 0o022 or not expected_type(info.st_mode):
+            raise PermissionError(_("The firewall configuration has unexpected ownership or permissions. Ask an administrator to repair it."))
+    descriptor = os.open(path, os.O_RDONLY | os.O_NOFOLLOW)
+    with os.fdopen(descriptor, encoding="utf-8") as handle:
+        document = json.load(handle)
+    if not isinstance(document, dict):
+        raise ValueError(_("The firewall configuration is invalid. Restore its configuration before starting OpenSnitch."))
+    server = document.get("Server", {})
+    if not isinstance(server, dict):
+        raise ValueError(_("The firewall configuration is invalid. Restore its configuration before starting OpenSnitch."))
+    if server.get("Address") != "unix:///tmp/osui.sock":
+        return
+    server["Address"] = SOCKET_ADDRESS
+    document["Server"] = server
+    descriptor, temporary = tempfile.mkstemp(prefix=".dagric-socket-", dir=path.parent)
+    try:
+        with os.fdopen(descriptor, "w", encoding="utf-8") as handle:
+            json.dump(document, handle, indent=4)
+            handle.write("\n")
+            handle.flush()
+            os.fsync(handle.fileno())
+        os.replace(temporary, path)
+    finally:
+        if os.path.exists(temporary):
+            os.unlink(temporary)
+
+
+def error(message: str, graphical: bool = True) -> int:
+    print("OpenSnitch: " + message, file=sys.stderr)
+    if graphical and os.geteuid() != 0 and (os.environ.get("DISPLAY") or os.environ.get("WAYLAND_DISPLAY")):
+        try:
+            subprocess.run(["/usr/bin/kdialog", "--title", "OpenSnitch", "--sorry", message], check=False)
+        except OSError:
+            pass
+    return 1
+
+
+def main(argv: list[str] | None = None) -> int:
+    args = sys.argv[1:] if argv is None else argv
+    if args not in ([], ["--background"], ["--check-directory"], ["--migrate-config"]):
+        return error(_("Use opensnitch-ui from the launcher. Dagric manages its local control address."), False)
+    try:
+        if args == ["--migrate-config"]:
+            migrate_daemon_config(DAEMON_CONFIG)
+            return 0
+        admin_gid = grp.getgrnam("sudo").gr_gid
+        if args != ["--check-directory"]:
+            try:
+                validate_user(os.geteuid(), os.getgroups() + [os.getegid()], admin_gid)
+            except PermissionError as exc:
+                # Upstream's menu and global autostart share this command.
+                # A standard account login must not display a blocking modal.
+                return error(str(exc), False)
+        validate_directory(RUNTIME, admin_gid)
+        if args == ["--check-directory"]:
+            return 0
+        validate_upstream(UPSTREAM)
+        # Import only after refusing root and unauthorized accounts. Qt writes
+        # the user's preference as that user, replacing the unsafe root upgrade
+        # loop which traversed arbitrary home-directory links.
+        from PyQt5.QtCore import QSettings
+        seed_defaults(QSettings("opensnitch", "settings"))
+        os.umask(0o077)
+        os.execv(str(UPSTREAM), [str(UPSTREAM), "--socket", SOCKET_ADDRESS, "--socket-auth", "simple", *args])
+    except (OSError, KeyError, ImportError, ValueError) as exc:
+        return error(str(exc), args != ["--check-directory"])
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

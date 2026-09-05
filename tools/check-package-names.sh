@@ -138,21 +138,21 @@ if [ -r "$UPG" ]; then
     #
     # OpenSnitch's connection prompt denies when nobody answers it, because its
     # UI seeds an absent global/default_action with ACTION_DENY_IDX. Dagric ships
-    # ACTION_ALLOW_IDX instead, and has to ship it TWICE: /etc/skel for accounts
-    # the Pro ISO creates, and a loop in the upgrade tool for the home directory
-    # a free machine already has. Change one and the other keeps the old value —
+    # ACTION_ALLOW_IDX instead, in /etc/skel for new accounts and the unprivileged
+    # launcher for existing accounts. Root must not seed users' home directories.
+    # Change one and the other keeps the old value —
     # and the symptom is not a build failure, it is a program on somebody's
     # machine being blocked by a dialog they never saw.
     _skel_os=config/includes.chroot/etc/skel/.config/opensnitch/settings.conf
     if [ -r "$_skel_os" ]; then
         _da_skel=$(sed -n 's/^default_action=\([0-9][0-9]*\)$/\1/p' "$_skel_os" | head -1)
-        _da_upg=$(grep -o 'default_action=[0-9][0-9]*' "$UPG" | head -1 | cut -d= -f2)
+        _da_upg=$(sed -n 's/.*settings.setValue("global\/default_action", \([0-9][0-9]*\)).*/\1/p' config/includes.chroot/usr/bin/opensnitch-ui | head -1)
         if [ -z "$_da_skel" ] || [ -z "$_da_upg" ] || [ "$_da_skel" != "$_da_upg" ]; then
             echo "" >&2
             echo "pkgcheck: the OpenSnitch prompt default disagrees between the two" >&2
             echo "  paths onto a Pro machine." >&2
             echo "    /etc/skel (the Pro ISO):        ${_da_skel:-MISSING}" >&2
-            echo "    dagric-upgrade-to-pro (upgrade): ${_da_upg:-MISSING}" >&2
+            echo "    unprivileged launcher (upgrade): ${_da_upg:-MISSING}" >&2
             echo "  1 is ACTION_ALLOW_IDX and is what Dagric ships; 0 is upstream's" >&2
             echo "  deny-on-timeout. Both paths must write the same number." >&2
             echo "" >&2

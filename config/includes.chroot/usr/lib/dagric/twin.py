@@ -24,6 +24,7 @@ from statistics import median
 from typing import Any, Iterable
 
 import pipeline
+from private_files import write_private_text
 
 
 SCHEMA = 1
@@ -51,10 +52,7 @@ def now() -> int:
 def write_atomic(path: pathlib.Path, value: dict[str, Any]) -> None:
     path.parent.mkdir(mode=0o700, parents=True, exist_ok=True)
     os.chmod(path.parent, 0o700)
-    temporary = path.with_suffix(".tmp")
-    temporary.write_text(json.dumps(value, sort_keys=True, indent=2) + "\n", encoding="utf-8")
-    os.chmod(temporary, 0o600)
-    os.replace(temporary, path)
+    write_private_text(path, json.dumps(value, sort_keys=True, indent=2) + "\n")
 
 
 def empty_state() -> dict[str, Any]:

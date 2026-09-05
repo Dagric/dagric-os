@@ -69,7 +69,7 @@
     </section>
 
     <section>
-      <h2>Five things you will actually do</h2>
+      <h2>Six things you will actually do</h2>
       <ol class="tasks">
         <li><span class="t">Install first, then migrate</span><p>If you run it from the live USB it warns you, and it is right to: the
          live session's home folder lives in memory and disappears at shutdown. Install
@@ -91,11 +91,41 @@
         <li><span class="t">Run it more than once</span><p>It is safe to. Copies skip files that already exist, so a second run
          picks up the folders you did not tick the first time without duplicating
          anything.</p></li>
-        <li><span class="t">Restore your setup fast</span><p>
+        <li><span class="t">Continue from your migration checklist</span><p>
          Run <em>Restore Migration Notes</em> from the launcher. It turns the local State Pack
          into a readable checklist for search engines, startup pages, enabled extensions,
          shortcut names and recent-work signals; it can also add a one-click launcher entry in KDE.</p></li>
       </ol>
+    </section>
+
+    <section>
+      <h2>Restore Migration Notes: where to start</h2>
+      <p><strong>Restore Migration Notes</strong> opens a saved checklist to help
+      you recreate your old setup. It does not install the listed applications,
+      change browser settings for you, or roll back the operating system.
+      For system checkpoints, use <a href="tool-dagric-rewind.html">Dagric Rewind</a>.</p>
+      <ol>
+        <li>Run Migration Assistant first. In Dolphin, open your Home folder and
+        look for <code>Dagric-Migration-State-Pack.json</code>. Keep it in the
+        top level of Home, rather than Documents, for the launcher to find it.</li>
+        <li>Open <em>Restore Migration Notes</em> from the application launcher.
+        It reads that State Pack and saves
+        <code>Dagric-Migration-Notes.html</code> in the same Home folder, then
+        opens the checklist in your browser. It also adds an
+        <em>Open Migration Notes</em> launcher for later.</li>
+        <li>Work through the checklist yourself and check each application as
+        you set it up. These are local notes; you can open the HTML file in
+        Dolphin even without internet access.</li>
+      </ol>
+      <p><strong>If no checklist opens:</strong> check that the State Pack exists
+      in Home and belongs to this account. If it is missing, run Migration
+      Assistant again to create it. If you kept it somewhere else, use Konsole
+      to run <code>dagric-restore-assistant "/full/path/to/Dagric-Migration-State-Pack.json" --open</code>,
+      replacing the quoted path with your file's actual location. Konsole shows
+      a readable error if the file is missing or is not a valid State Pack.</p>
+      <p>Regenerating the checklist replaces the generated HTML. Keep any personal
+      notes in a separate document. The checklist can include private folder
+      names and web addresses, so review it before sharing.</p>
     </section>
 
     <section>

@@ -9,6 +9,9 @@ import os
 import subprocess
 import sys
 
+sys.path.insert(0, "/usr/lib/dagric")
+from private_files import write_private_text
+
 # $HOME is the account selected in Dagric's graphical session.  Use it
 # explicitly rather than inheriting a launcher-specific platform fallback.
 HOME_DIR = os.environ.get("HOME") or os.path.expanduser("~")
@@ -59,9 +62,7 @@ def write_notes(pack, dest):
 <style>body{max-width:980px;margin:3rem auto;padding:0 1.5rem;font:16px system-ui;color:#e8edf5;background:#121821}section{background:#1c2633;padding:1rem 1.25rem;margin:1rem 0;border-radius:12px}li{margin:.65rem 0;overflow-wrap:anywhere}small{color:#b9c7d9}</style>
 <h1>Dagric Migration Notes</h1><p>This local checklist helps you recreate your working setup. It never imports passwords, cookies, browser sessions, or Windows programs.</p>
 """ + entries("Folders that existed in Windows", folders, lambda r: "%s <small>(%s items)</small>" % (esc(r.get("name")), esc(r.get("items", "unknown")))) + entries("Browser setup to restore", browser_rows, lambda r: r) + entries("Desktop and Start-menu shortcuts", shortcuts, lambda r: "%s <small>%s · %s</small>" % (esc(r.get("name")), esc(r.get("source")), esc(", ".join(r.get("signals") or []) or "no portable target"))) + entries("Recent work signals", recent, lambda r: "%s <small>%s</small>" % (esc(r.get("name")), esc(", ".join(r.get("signals") or []) or "recent link"))) + entries("Jump-list-like signals", jumps, lambda r: "%s <small>%s</small>" % (esc(r.get("relative_path")), esc(", ".join(r.get("signals") or []) or "no portable target")))
-    fd = os.open(dest, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
-    with os.fdopen(fd, "w", encoding="utf-8") as fh:
-        fh.write(document)
+    write_private_text(dest, document)
 
 
 def kde_launcher(notes):
@@ -72,8 +73,7 @@ def kde_launcher(notes):
     # a normal home folder such as /home/Alex Smith keeps working.
     safe_notes = notes.replace("\\", "\\\\").replace('"', '\\"').replace("%", "%%")
     text = "[Desktop Entry]\nType=Application\nName=Open Migration Notes\nComment=Continue setting up Dagric after moving from Windows\nExec=xdg-open \\\"%s\\\"\nIcon=dagric-logo\nCategories=Utility;\n" % safe_notes
-    with open(path, "w", encoding="utf-8") as fh:
-        fh.write(text)
+    write_private_text(path, text)
     return path
 
 

@@ -23,6 +23,8 @@ import sys
 import time
 from typing import Any, Iterable
 
+from private_files import write_private_text
+
 
 SCHEMA = 1
 MAX_PROFILE_FILES = 96
@@ -235,11 +237,8 @@ def profile_path() -> pathlib.Path:
 
 
 def write_json_atomic(path: pathlib.Path, payload: dict[str, Any]) -> None:
-    path.parent.mkdir(mode=0o755, parents=True, exist_ok=True)
-    temporary = path.with_suffix(path.suffix + ".tmp")
-    temporary.write_text(json.dumps(payload, sort_keys=True, indent=2) + "\n", encoding="utf-8")
-    os.chmod(temporary, 0o600)
-    os.replace(temporary, path)
+    path.parent.mkdir(mode=0o700, parents=True, exist_ok=True)
+    write_private_text(path, json.dumps(payload, sort_keys=True, indent=2) + "\n")
 
 
 def read_json(path: pathlib.Path) -> dict[str, Any] | None:

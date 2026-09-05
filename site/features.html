@@ -100,9 +100,9 @@ h2.sec{margin-top:var(--s-7)}
     what it sends and how to switch it off.</p></div>
     <div class="card"><h3>No accounts, no ads</h3><p>Your desktop works without signing in to
     anything, and no surface of it is rented to advertisers.</p></div>
-    <div class="card"><h3>Private AI, if you want AI</h3><p>One click in the Hub — on either
-    edition — sets up Ollama to run language models on your own hardware. Your prompts never
-    leave the room.</p></div>
+    <div class="card"><h3>Local AI, if you want it</h3><p>The Hub offers optional Ollama setup
+    on either edition. Local models can run on your hardware; downloads need a connection.
+    Review any model or service you add before sharing sensitive prompts.</p></div>
   </div>
 
   <h2 class="sec" id="security">Security you don't have to assemble</h2>
@@ -113,20 +113,20 @@ h2.sec{margin-top:var(--s-7)}
     background. The machine <em>never</em> restarts itself.</p></div>
     <div class="card"><h3>Verified releases</h3><p>Every ISO ships SHA-256 checksums signed with our
     GPG key, so you can prove your download is untouched.</p></div>
-    <div class="card"><h3>Secure Boot, supported</h3><p>Boots with Secure Boot on, with no firmware
-    settings to change. Installing the NVIDIA driver? Dagric enrolls the signing key and walks you
-    through the blue MOK screen at the next reboot — the step that otherwise ends in a black screen.
-    (Tested in UEFI virtual machines; see <a href="/security">Security</a>.)</p></div>
+    <div class="card"><h3>Secure Boot test record</h3><p>The signed boot chain has been
+    exercised in virtual firmware. Physical-machine validation is still pending. NVIDIA driver
+    setup includes guidance for enrolling a signing key at reboot. See the
+    <a href="/security">security details</a> before changing firmware settings.</p></div>
     <div class="card"><h3>Security Checkup</h3><p>One click runs a Lynis audit and shows your
     hardening score — security you can see.</p></div>
-    <div class="card"><h3>Opt-in lockdown (Pro)</h3><p>OpenSnitch application firewall, plus USB
-    Protection: one click remembers the devices you actually use and blocks malicious USB
-    impostors — without ever locking out your own keyboard.</p></div>
+    <div class="card"><h3>Optional device and app controls (Pro)</h3><p>OpenSnitch provides
+    application firewall controls. USB Protection lets you review and allow connected devices.
+    Test your keyboard, mouse, and recovery path before enforcing device restrictions.</p></div>
   </div>
 
   <div class="midcta">
-    <p>All of this is in the free edition. Try it today.</p>
-    <a class="btn primary" href="/download">Download Dagric OS — free</a>
+    <p>The core security tools are included in Free. Optional app and USB controls are Pro features.</p>
+    <a class="btn primary" href="/download">Check release status</a>
     <a class="btn ghost" href="/pro">See Pro · $39</a>
   </div>
 
@@ -163,11 +163,12 @@ h2.sec{margin-top:var(--s-7)}
     music library (Elisa), not just a file player — are configured in the image, not left for you.
     Run <strong>Check This PC</strong> from the live USB to see how your own machine fares before
     anything is installed.</p></div>
-    <div class="card"><h3>Your documents open right</h3><p>Office-metric fonts mean Word and Excel
-    files keep their layout. Full LibreOffice on Pro.</p></div>
+    <div class="card"><h3>Work with familiar documents</h3><p>LibreOffice and Office-metric fonts
+    help with common Word and Excel files. Check complex formatting, macros, and fonts with your
+    own documents before switching. Full LibreOffice is included on Pro.</p></div>
     <div class="card"><h3>Windows-switcher care</h3><p>Taskbar where you expect it, double-click as
     you expect it, NumLock on, task manager on <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>Esc</kbd>.</p></div>
-    <div class="card"><h3>Accessible to everyone</h3><p>A talking screen reader (bootable from the
+    <div class="card"><h3>Accessibility tools</h3><p>A talking screen reader (bootable from the
     live USB), a measured high-contrast theme, fingerprint login support, and keyboard-friendly
     design. Read the <a href="/accessibility">conformance report</a> — including the three things
     it does not do.</p></div>
@@ -175,11 +176,10 @@ h2.sec{margin-top:var(--s-7)}
 
 
   <p style="margin:var(--s-7) 0 0">
-    <a class="btn primary lg" href="/download">Download Dagric OS — free</a>
+    <a class="btn primary lg" href="/download">Check release status</a>
     <a class="btn ghost lg" href="/pro">See Pro · $39</a>
   </p>
-  <p class="refund">Free forever, no account. Pro is a one-time $39. Test Free before
-  buying; Pro sales are final once the download begins.</p>
+  <p class="refund">Downloads and new Pro purchases are paused during release review.</p>
 </main>
 
 <footer><div class="foot">

@@ -35,11 +35,38 @@
   }
 
 
-  var current = read() === 'light' ? 'light' : 'dark';
+  var preference = read();
+  var systemLight = window.matchMedia('(prefers-color-scheme: light)');
+  var current = preference === 'light' || (preference !== 'dark' && systemLight.matches) ? 'light' : 'dark';
   apply(current);
 
   function build() {
     paintMeta();   /* <body> exists now, so the chrome colour can be read */
+
+    var primaryNav = document.querySelector('body > nav');
+    if (primaryNav) {
+      primaryNav.setAttribute('aria-label', 'Main navigation');
+      var path = window.location.pathname.replace(/\/$|\.html$/g, '') || '/';
+      primaryNav.querySelectorAll('a[href]').forEach(function (link) {
+        if ((link.getAttribute('href').replace(/\/$|\.html$/g, '') || '/') === path)
+          link.setAttribute('aria-current', 'page');
+      });
+      function measureNav() { root.style.setProperty('--nav-h', primaryNav.offsetHeight + 'px'); }
+      measureNav();
+      if (window.ResizeObserver) new ResizeObserver(measureNav).observe(primaryNav);
+      else window.addEventListener('resize', measureNav);
+    }
+
+    var reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+    function respectMotionPreference() {
+      if (!reducedMotion.matches) return;
+      document.querySelectorAll('video[autoplay]').forEach(function (video) {
+        video.removeAttribute('autoplay');
+        video.pause();
+      });
+    }
+    respectMotionPreference();
+    if (reducedMotion.addEventListener) reducedMotion.addEventListener('change', respectMotionPreference);
 
 
     var sitebar = document.querySelector('.sitebar .sitebar-in');
@@ -59,8 +86,8 @@
 
     function label() {
       var next = current === 'light' ? 'dark' : 'light';
-      btn.textContent = next === 'light' ? 'Light page' : 'Dark page';
-      btn.setAttribute('aria-label', 'Switch to the ' + next + ' page');
+      btn.textContent = next === 'light' ? 'Light theme' : 'Dark theme';
+      btn.setAttribute('aria-label', 'Use the ' + next + ' website theme');
     }
     label();
 

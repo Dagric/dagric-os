@@ -1,0 +1,67 @@
+#!/bin/sh
+# Restore the vendor command after dpkg removes Dagric's wrapper.
+set -e
+cleanup=no
+remove_runtime=no
+case "$1" in
+remove|disappear) cleanup=yes; remove_runtime=yes ;;
+abort-install) cleanup=yes ;;
+abort-upgrade)
+    # 1.1.19 introduces the wrapper. An aborted upgrade from an older package
+    # must put its vendor command back; an older wrapper still needs diversion.
+    if dpkg --compare-versions "${2:-0}" lt 1.1.19; then cleanup=yes; fi
+    ;;
+esac
+if [ "$cleanup" = yes ]; then
+    # The guard is leaving. Stop its active daemon before restoring vendor
+    # configuration; never silently restart a public-/tmp controller endpoint.
+    if [ "$remove_runtime" = yes ] && [ -d /run/systemd/system ] && command -v systemctl >/dev/null 2>&1; then
+        systemctl stop opensnitch.service || true
+    fi
+    if [ "$(dpkg-divert --listpackage /usr/bin/opensnitch-ui)" = dagric-tools ]; then
+        dpkg-divert --package dagric-tools --remove --rename \
+            --divert /usr/lib/dagric/opensnitch-ui-upstream /usr/bin/opensnitch-ui
+    fi
+fi
+# A failed preinst has not changed runtime configuration. Undo only its new
+# diversion, leaving a previously running vendor firewall and settings alone.
+if [ "$remove_runtime" = yes ]; then
+    # Restore only our managed address when leaving the vendor package installed.
+    # Never traverse a user-owned/link configuration path as root.
+    if command -v python3 >/dev/null 2>&1; then
+      python3 - <<'PY'
+import json, os, stat, tempfile
+from pathlib import Path
+path = Path('/etc/opensnitchd/default-config.json')
+if not path.exists() and not path.is_symlink():
+    raise SystemExit(0)
+for component in (*path.parents, path):
+    info = component.lstat()
+    expected_type = stat.S_ISREG if component == path else stat.S_ISDIR
+    if info.st_uid != 0 or info.st_mode & 0o022 or not expected_type(info.st_mode):
+        raise SystemExit('Unsafe OpenSnitch configuration; restore its address manually before starting the vendor service.')
+with path.open(encoding='utf-8') as handle:
+    document = json.load(handle)
+if isinstance(document, dict) and isinstance(document.get('Server'), dict) and document['Server'].get('Address') == 'unix:///run/dagric-opensnitch/osui.sock':
+    document['Server']['Address'] = 'unix:///tmp/osui.sock'
+    descriptor, temporary = tempfile.mkstemp(prefix='.dagric-socket-', dir=path.parent)
+    try:
+        with os.fdopen(descriptor, 'w', encoding='utf-8') as handle:
+            json.dump(document, handle, indent=4)
+            handle.write('\n')
+            handle.flush()
+            os.fsync(handle.fileno())
+        os.replace(temporary, path)
+    finally:
+        if os.path.exists(temporary):
+            os.unlink(temporary)
+PY
+    else
+        echo 'OpenSnitch: Python is unavailable; restore the daemon control address manually before using the vendor service.' >&2
+    fi
+    if [ -d /run/systemd/system ] && command -v systemctl >/dev/null 2>&1; then
+        systemctl daemon-reload
+    fi
+    echo 'OpenSnitch: Dagric control protection was removed. The service was not restarted. Review the vendor control-socket security before starting it.' >&2
+fi
+exit 0

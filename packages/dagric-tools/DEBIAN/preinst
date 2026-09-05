@@ -33,6 +33,30 @@
 # is a lost customisation, not a broken package manager.
 set -e
 
+# Preserve Debian's interface at a dpkg-managed diversion. This avoids editing
+# its desktop/autostart files and keeps the wrapper in force after UI upgrades.
+# A conflicting administrator diversion fails instead of replacing their file.
+case "$1" in
+install|upgrade)
+    # Refuse linked/writable ancestors before root creates a diversion target.
+    # preinst can rely only on Essential tools, not the python3 Depends yet.
+    for directory in / /usr /usr/lib /usr/lib/dagric; do
+        if [ "$directory" = /usr/lib/dagric ] && [ ! -e "$directory" ] && [ ! -L "$directory" ]; then
+            continue
+        fi
+        mode=$(stat -c %a "$directory")
+        if [ -L "$directory" ] || [ ! -d "$directory" ] || \
+           [ "$(stat -c %u "$directory")" != 0 ] || [ "$((0$mode & 0022))" -ne 0 ]; then
+            echo "Unsafe OpenSnitch diversion directory: $directory" >&2
+            exit 1
+        fi
+    done
+    install -d -m 0755 /usr/lib/dagric
+    dpkg-divert --package dagric-tools --add --rename \
+        --divert /usr/lib/dagric/opensnitch-ui-upstream /usr/bin/opensnitch-ui
+    ;;
+esac
+
 STASH=/var/lib/dagric/pro-appearance
 LOOKS=/usr/share/dagric/looks
 STYLES=/usr/share/dagric/styles

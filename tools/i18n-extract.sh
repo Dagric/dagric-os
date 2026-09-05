@@ -223,6 +223,8 @@ done
 _nbin=0
 for _f in $(ls "$BIN" | sort); do
     [ -f "$BIN/$_f" ] || continue
+    # Python's _() needs its own parser; do not silently skip these messages.
+    [ "$_f" = opensnitch-ui ] && continue
     set -- "$@" "$BIN/$_f"
     _nbin=$((_nbin + 1))
 done
@@ -241,6 +243,11 @@ xgettext \
     --copyright-holder='IMPRESSIONSDIRECT360 LLC' \
     -o po/dagric.pot \
     "$@"
+
+xgettext --language=Python --from-code=UTF-8 --keyword=_ --join-existing \
+    --add-comments=TRANSLATORS: --package-name=dagric --package-version=1.0 \
+    --msgid-bugs-address=repo@dagric.com --copyright-holder='IMPRESSIONSDIRECT360 LLC' \
+    -o po/dagric.pot "$BIN/opensnitch-ui"
 
 echo "po/dagric.pot: $(grep -c '^msgid ' po/dagric.pot) messages (including the header)"
 

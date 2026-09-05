@@ -39,20 +39,27 @@
 </div></nav>
 
 <main id="main">
-  <h1>From download to desktop, <span class="grad">in about 20 minutes.</span></h1>
-  <p class="lead">No experience needed. You'll make a USB stick, try Dagric OS without touching
-  your computer, and install it only when you're ready.</p>
+  <h1>From download to desktop, <span class="grad">one step at a time.</span></h1>
+  <p class="lead">Prepare a USB drive, try the desktop, check your essential apps and hardware,
+  and install when you're ready. The time needed depends on your computer and connection.</p>
+  <p class="note"><strong>Downloads are currently paused.</strong> This guide is preparation
+  for an available release or help for existing testers. Check <a href="/download">release
+  status</a> first. Keep your working operating system while release testing continues.</p>
 
   <h2>What you need</h2>
   <ul>
     <li>A USB stick, <strong>8 GB or larger</strong> (it will be erased)</li>
-    <li>A PC from roughly the last 12 years (64-bit, 4 GB+ RAM recommended)</li>
+    <li>A 64-bit Intel or AMD PC with at least 4 GB RAM (8 GB recommended) and space for installation</li>
     <li>The <a href="/download">Dagric OS ISO</a> you downloaded</li>
+    <li>A separate backup of personal files and, if Windows uses BitLocker, your recovery key</li>
   </ul>
 
   <h2>Step by step</h2>
   <ol class="steps">
-    <li><strong>Write the ISO to USB.</strong> On Windows, use
+    <li><strong>Verify the download.</strong> Follow the <a href="#h-verify-download">signature and
+      checksum instructions</a> below before writing the image.</li>
+    <li><strong>Write the ISO to USB.</strong> Check the target drive's name and capacity: writing
+      the image erases that USB drive. On Windows, use
       <a href="https://rufus.ie">Rufus</a> (pick the ISO, pick the stick, press Start) or
       <a href="https://www.ventoy.net">Ventoy</a> (install once, then just copy ISOs onto the stick).
       On macOS/Linux, <a href="https://etcher.balena.io">balenaEtcher</a> works the same way.</li>
@@ -67,30 +74,41 @@
         <tr><th scope="row">Most others</th><td><kbd>F12</kbd>, <kbd>F10</kbd> or <kbd>Esc</kbd></td></tr>
       </table>
       Choose the USB entry (the one that says UEFI if both appear).</li>
-    <li><strong>Try it, risk-free.</strong> Pick <em>Live system</em> in the menu. You get the
+    <li><strong>Try before installing.</strong> Pick <em>Live system</em> in the menu. You get the
       complete Dagric desktop running from the stick — browse, test Wi-Fi and sound, open apps.
-      Nothing on your disk changes.</li>
+      Starting the desktop does not install Dagric. Avoid opening internal drives for writing
+      while testing, and run <strong>Check This PC</strong> first.</li>
     <li><strong>Install.</strong> When you're ready, double-click <em>Install Dagric OS</em> on the
       desktop. The installer walks you through language, time zone, and disk choice. On a blank
-      machine choose <em>Erase disk</em>; alongside Windows, use <em>Install alongside</em>.</li>
+      machine choose <em>Erase disk</em> only if everything on the selected disk may be removed.
+      To keep Windows, use <em>Install alongside</em> if offered. Stop and ask for help if the
+      expected option is missing. Read the final disk summary before confirming.</li>
     <li><strong>Reboot and enjoy.</strong> Remove the stick when asked. First login, Dagric greets
       you, offers the NVIDIA driver if you have that hardware, and the
       <strong>Dagric Hub</strong> gathers every setup tool in one place.</li>
   </ol>
 
-  <div class="note"><strong>Secure Boot?</strong> Leave it on — Dagric OS boots with Secure Boot.
-  If you later install the NVIDIA driver, Dagric walks you through the one-time key-enrollment
+  <div class="note"><strong>Secure Boot?</strong> Leave it enabled for the initial test.
+  The boot chain has been exercised in virtual firmware; physical-machine validation remains
+  pending. If the USB does not boot, record the message and <a href="/support">ask for help</a>
+  before changing firmware settings. If you later install the NVIDIA driver, Dagric includes
+  guidance for the one-time key-enrollment
   screen at reboot (choose <em>Enroll MOK → Continue</em>, enter the password you set).</div>
 
-  <h2 id="h-verify-download">Verify your download (recommended)</h2>
-  <p>Every release is checksummed and GPG-signed. On Linux/macOS:</p>
+  <h2 id="h-verify-download">Verify your download</h2>
+  <p>Use the checksum, signature, and signing key for the exact release you downloaded.
+  Verify the key fingerprint against the <a href="/security">security page</a>. With GPG installed:</p>
 
   <pre tabindex="0" role="region" aria-labelledby="h-verify-download"><code>gpg --import dagric-signing-key.asc
-gpg --verify SHA256SUMS.sig SHA256SUMS
-sha256sum -c SHA256SUMS</code></pre>
+gpg --verify SHA256SUMS.sig SHA256SUMS</code></pre>
+  <p>Continue only after a valid signature from the expected key. On Linux, run
+  <code>sha256sum -c SHA256SUMS</code>; on macOS, use <code>shasum -a 256 -c SHA256SUMS</code>.
+  The entry for your downloaded image must match.</p>
   <p>Files: <a href="SHA256SUMS">SHA256SUMS</a> · <a href="SHA256SUMS.sig">SHA256SUMS.sig</a> ·
   <a href="dagric-signing-key.asc">signing key</a>. On Windows, compare
-  <code>Get-FileHash the.iso</code> in PowerShell against the list.</p>
+  <code>Get-FileHash -Algorithm SHA256 .\dagric-os-1.0-amd64.iso</code> in PowerShell against the verified
+  list, adjusting the filename to your actual download. A checksum match alone does not
+  verify the publisher; the signature check is a separate step.</p>
 
   <h2>After you're in</h2>
   <ul>
@@ -99,7 +117,7 @@ sha256sum -c SHA256SUMS</code></pre>
     <li><strong>Discover</strong> (the bag icon) — thousands of free apps, one click to install.</li>
     <li><strong>Snapshots</strong> — on the default btrfs install, Dagric snapshots before updates; roll back anytime from the boot menu under <em>Dagric snapshots</em>.</li>
   </ul>
-  <p style="margin-top:30px"><a class="btn primary" href="/download">Download Dagric OS</a></p>
+  <p style="margin-top:30px"><a class="btn primary" href="/download">Check release status</a></p>
 </main>
 
 <footer><div class="foot">

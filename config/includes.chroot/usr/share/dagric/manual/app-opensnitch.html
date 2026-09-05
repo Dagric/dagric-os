@@ -70,8 +70,7 @@
              then apt twice. InterceptUnknown governs processes the daemon
              cannot resolve, not whether the UI asks. Do not restore the old
              sentence without booting an image and watching an idle desktop. -->
-        <li><span class="t">Answer the first question about each program</span><p>OpenSnitch <strong>blocks nothing on its own</strong> — its default action
-         is to allow — but it does <em>ask</em>, the first time a program reaches the
+        <li><span class="t">Answer the first question about each program</span><p>Dagric starts with an <strong>allow-by-default policy</strong>. Existing deny rules still block matching traffic. With an administrator's interface connected, OpenSnitch can <em>ask</em> the first time a program reaches the
          internet. Dagric answers in advance for its own
          background services (the clock, updates, printing, the software centre), so
          the questions you get should be about programs you chose to run. Those
@@ -87,15 +86,13 @@
         <li><span class="t">See what has been happening</span><p>Open the OpenSnitch UI from the tray. The tabs list connections by
          application, by host and by port, with counts. Sort by application and read
          down the list.</p></li>
-        <li><span class="t">Turn on prompting</span><p>Two separate settings, in two separate places, and it is worth knowing
+        <li><span class="t">Choose what happens without an answer</span><p>Two separate settings, in two separate places, and it is worth knowing
          which is which. In <em>Preferences &rarr; UI</em>, <em>Default action</em> is
          what the countdown does when you do not answer — Dagric ships it as
          <em>allow</em>; set it to <em>deny</em> and an unanswered dialog blocks. In
          <em>Preferences &rarr; Nodes</em>, the daemon's own default action and
          <em>intercept unknown connections</em> govern what happens when the daemon
-         cannot reach this window at all. From then on a new connection raises a
-         dialogue: allow or deny, once or forever, for this program or this
-         destination.</p></li>
+         cannot reach this window at all. Review both settings before choosing a stricter policy; changing one does not change the other.</p></li>
         <li><span class="t">Write a rule</span><p>Rules can be as broad as &ldquo;allow this application anywhere&rdquo;
          or as narrow as &ldquo;allow only to this host on port 443&rdquo;, and can
          expire after a set time. Blocking a single telemetry endpoint while leaving
@@ -129,6 +126,15 @@
       necessarily watching the screen. It switches itself on the first time the
       machine starts from its own disk. Nothing to turn on, and nothing you learn
       from the USB session would have been kept anyway.</p>
+    </section>
+
+    <section>
+      <h2>Who can manage it</h2>
+      <p>OpenSnitch changes network rules for the <strong>whole computer</strong>, so Dagric lets only administrator accounts in the <code>sudo</code> group open its interface. The main account created by the installer belongs to this group. Open it normally from your desktop, never with <code>sudo</code>.</p>
+      <p>A standard account cannot create the control socket or receive its own rule prompts. Existing OpenSnitch rules and the separate system firewall still apply. If no administrator's interface is connected, new unmatched connections follow the daemon's configured default &mdash; initially <strong>allow</strong>. Closing the window is not the same as blocking all network access.</p>
+      <p>All administrator accounts share the same machine-wide policy. One connected interface should manage it at a time; do not treat separate administrator sessions as independent firewalls.</p>
+      <p>The managed launcher and daemon use <code>/run/dagric-opensnitch/osui.sock</code>. The directory is recreated at boot for root and sudo administrators only. The launcher refuses unsafe permissions instead of falling back to a public temporary directory. Custom remote or TLS UI settings are not used by this managed local launcher.</p>
+      <p><strong>After a Dagric tools update:</strong> save your work, then sign out and back in (or restart) so any older running interface is replaced. If the launcher reports a directory or package problem, ask an administrator to repair the package; do not loosen the directory permissions. Existing personal preferences are preserved. A missing initial prompt preference is written only by your own account.</p>
     </section>
 
     <section>

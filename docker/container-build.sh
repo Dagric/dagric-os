@@ -19,6 +19,10 @@ copy_build_log() {
 trap copy_build_log EXIT
 
 EDITION="${EDITION:-free}"
+case "$EDITION" in
+    free|pro) ;;
+    *) echo "ERROR: EDITION must be free or pro." >&2; exit 2 ;;
+esac
 
 # Bind every artifact to the exact reviewed source revision that produced it.
 # Release builds are stricter: they refuse an unknown revision or a dirty tree,

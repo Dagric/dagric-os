@@ -182,55 +182,31 @@ systemctl mask usbguard.service usbguard-dbus.service 2>/dev/null || true
 # the daemon is masked and only produces confusing popups.
 systemctl --global disable usbguard-notifier.service 2>/dev/null || true
 
-# KNOWN WEAKNESS, WRITTEN DOWN BECAUSE IT CANNOT BE FIXED FROM HERE.
-#
-# /etc/opensnitchd/default-config.json points the daemon at
-# unix:///tmp/osui.sock — upstream's default, and JSON takes no comments, which
-# is why this note lives in the hook that turns the daemon on.
-#
-# In OpenSnitch the UI is the gRPC SERVER and the root daemon is the client that
-# dials it. So the socket is bound by an unprivileged desktop process in a
-# world-writable directory. A second local user who binds that path before the
-# real UI does receives every connection event on the machine (privacy) and
-# answers the prompts that a ROOT daemon then enforces (rule injection). The
-# sticky bit stops them deleting someone else's socket; it does not stop them
-# getting there first.
-#
-# On a single-user home machine there is no second unprivileged user and this is
-# close to unexploitable. Pro is now sold into schools and libraries, where a
-# shared machine is the normal case, so it is worth stating plainly rather than
-# leaving for someone to find.
-#
-# WHY IT IS NOT CHANGED HERE. Fixing it means moving BOTH ends. This file sets
-# only the daemon's address; the UI picks its own at runtime. Move one and the
-# root daemon never reaches a UI at all — and with DefaultAction "allow" above,
-# that failure is silent: Pro's headline security feature becomes a no-op that
-# still appears installed and running. Worse than the weakness.
-#
-# Two obvious fixes are not fixes. An abstract socket (unix-abstract://) is
-# strictly worse — abstract names carry no filesystem permissions at all, so any
-# user can bind one. A shared directory under /run only narrows the squatting
-# set to desktop users, which on a school machine is exactly the threat.
-#
-# The real fix is a per-user path under /run/user/<uid>, which a static config
-# cannot express, or upstream's UI authentication. Both need a booted Pro image
-# to verify, and an unverified change here fails silently in the direction that
-# costs a paying customer their firewall. Do not "tidy" this line without one.
-#
-# 2026-08-29, narrowing it for whoever does the booted test: the shipped daemon
-# is opensnitch 1.6.9-3 and its binary carries both "Authentication" and
-# "AuthType", so Server.Authentication IS expressible in this static config —
-# which is the half of "upstream's UI authentication" that was unknown when the
-# paragraph above was written. What is still missing is the certificate story:
-# the useful modes are TLS, and per-machine key material has to be generated
-# somewhere that is neither the ISO (identical keys on every machine, the exact
-# defect a shipped ssh_host_key would be) nor first boot without a verified
-# generator. So the shape of the fix is now: generate on first boot beside
-# dagric-ssh-hostkeys.service, point both ends at it, and PROVE in a booted Pro
-# VM that a prompt still appears — not "it looks right in the config".
-#
-# Disclosed rather than hidden while it stands: site/security.html lists it, so
-# a buyer evaluating a shared machine reads it from us instead of finding it.
+# The UI is the gRPC SERVER; the root daemon is its client. Both ends use a
+# root:sudo 02770 runtime directory, not an attacker-precreatable /tmp socket.
+# Only existing machine administrators may host the control UI; standard users
+# keep existing rules but cannot manage the machine-wide firewall. No GUI runs
+# as root. The dpkg-divert wrapper covers upstream's menu AND autostart command.
+# These build assertions do not substitute for an installed multi-user test.
+python3 - <<'PY'
+import json
+from pathlib import Path
+expected = 'unix:///run/dagric-opensnitch/osui.sock'
+assert json.loads(Path('/etc/opensnitchd/default-config.json').read_text())['Server']['Address'] == expected
+assert 'd /run/dagric-opensnitch 02770 root sudo -' in Path('/usr/lib/tmpfiles.d/dagric-opensnitch.conf').read_text()
+unit = Path('/usr/lib/systemd/system/opensnitch.service.d/20-dagric-control-socket.conf').read_text()
+assert '-ui-socket ' + expected in unit
+assert '--check-directory' in unit and '--migrate-config' in unit
+users = Path('/etc/calamares/modules/users.conf').read_text()
+assert 'sudoersGroup: sudo' in users
+assert any('defaultGroups:' in line and 'sudo' in line for line in users.splitlines())
+PY
+[ -x /usr/bin/opensnitch-ui ] && [ -x /usr/lib/dagric/opensnitch-ui-upstream ] || {
+    echo 'OpenSnitch managed launcher or vendor diversion is missing' >&2; exit 1;
+}
+[ "$(dpkg-divert --listpackage /usr/bin/opensnitch-ui)" = dagric-tools ] || {
+    echo 'OpenSnitch managed launcher diversion is missing' >&2; exit 1;
+}
 systemctl enable opensnitch.service 2>/dev/null || true
 
 # CONTAINERD DOES NOT RUN ON A DESKTOP NOBODY ASKED TO RUN CONTAINERS ON.

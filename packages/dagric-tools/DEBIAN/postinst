@@ -19,6 +19,18 @@ THUMBS=/usr/share/dagric/appearance/thumbs
 
 case "$1" in
 configure)
+    /usr/bin/opensnitch-ui --migrate-config
+    if command -v systemd-tmpfiles >/dev/null 2>&1; then
+        systemd-tmpfiles --create /usr/lib/tmpfiles.d/dagric-opensnitch.conf
+    fi
+    if [ -d /run/systemd/system ] && command -v systemctl >/dev/null 2>&1; then
+        systemctl daemon-reload
+        # Apply the fixed daemon endpoint on upgrades too. The live-session
+        # Condition remains in force, and an inactive service is not started.
+        if [ -x /usr/bin/opensnitchd ]; then
+            systemctl try-restart opensnitch.service || true
+        fi
+    fi
     # New and existing machines receive the same private, background-only
     # capability refresh.  `enable` is safe both in a live-build chroot (where
     # it creates the Wants= link offline) and on a running system; failures

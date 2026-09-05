@@ -6,12 +6,14 @@ from __future__ import annotations
 import importlib.util
 import json
 import pathlib
+import sys
 import tempfile
 import unittest
 from unittest import mock
 
 
 REPO = pathlib.Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(REPO / "config/includes.chroot/usr/lib/dagric"))
 SPEC = importlib.util.spec_from_file_location(
     "dagric_pipeline", REPO / "config/includes.chroot/usr/lib/dagric/pipeline.py"
 )

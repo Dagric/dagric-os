@@ -49,12 +49,20 @@
       <label for="site-search">Find a Dagric OS page</label>
       <div class="site-search-row">
         <input id="site-search" type="search" name="q" autocomplete="off"
-               placeholder="Try “download”, “release proof”, or “contact”">
+               aria-describedby="site-search-status" placeholder="Try “Will my Wi-Fi work?” or “move my files”">
+        <button id="site-search-clear" class="btn ghost" type="button" hidden>Clear search</button>
         <a class="btn ghost" href="/guide">Open the step-by-step User Guide</a>
       </div>
       <p id="site-search-status" class="search-status" aria-live="polite"></p>
     </div>
   </header>
+
+  <div id="site-search-empty" class="note" hidden>
+    <h2>No matching page yet</h2>
+    <p>Try a shorter phrase, such as “Wi-Fi”, “backup”, or “apps”. You can also
+    <a href="/guide">browse the User Guide</a> or <a href="/contact">ask the Dagric team</a>.</p>
+  </div>
+  <noscript><p class="note">Search needs JavaScript. All topics and links are available below.</p></noscript>
 
   <section class="search-results" aria-label="Dagric OS topics">
     <article class="card boxed" data-search-card data-search="overview desktop linux debian kde operating system windows alternative old pc">
@@ -68,9 +76,9 @@
       <p><a href="/switch-from-windows">Read the Windows switching guide</a></p>
     </article>
     <article class="card boxed" data-search-card data-search="download free usb boot install checksum sha256 gpg signature secure boot system requirements">
-      <h2>Download and install</h2>
-      <p>Get the Free edition, check the signed download, prepare a USB drive, and install step by step.</p>
-      <p><a href="/download">Download Dagric OS Free</a> · <a href="/getting-started">Installation guide</a></p>
+      <h2>Release status and installation</h2>
+      <p>Check the temporary release hold, then read how to verify a download, prepare a USB drive, and install when a release is available.</p>
+      <p><a href="/download">Check release status</a> · <a href="/getting-started">Installation guide</a></p>
     </article>
     <article class="card boxed" data-search-card data-search="privacy telemetry analytics ads account tracking local ai ollama data collection">
       <h2>Privacy and data</h2>
@@ -79,7 +87,7 @@
     </article>
     <article class="card boxed" data-search-card data-search="security firewall apparmor secure boot signed releases hardening usb protection vulnerability">
       <h2>Security</h2>
-      <p>Review the default security baseline, release signing, Secure Boot support, and honest testing limits.</p>
+      <p>Review the default security baseline, release signing, Secure Boot testing, and current limits.</p>
       <p><a href="/security">Dagric OS security</a> · <a href="/testing">Build and test proof</a></p>
     </article>
     <article class="card boxed" data-search-card data-search="recovery recover snapshot snapshots rollback rewind undo bad update boot menu btrfs backup restore">

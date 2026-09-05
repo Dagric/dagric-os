@@ -98,6 +98,11 @@
 .search-results .card{margin:0}
 .search-results .card h2{font-size:var(--t-h3);margin:0 0 var(--s-2);padding:0;border:0}
 .search-results .card[hidden]{display:none}
+[hidden]{display:none!important}
+.release-notice{max-width:var(--w-text);margin:var(--s-4) auto;padding:var(--s-3) var(--s-4);
+  border:1px solid var(--rule-2);border-left:3px solid var(--warn);background:var(--surface-2);
+  color:var(--on-2);font-size:var(--t-ui);text-align:left}
+.release-notice strong{color:var(--on)}
 
 .video-watch{padding:0 0 var(--s-7);margin:0 0 var(--s-7);border-bottom:1px solid var(--rule)}
 .video-watch h2{margin-top:var(--s-2)}
@@ -166,17 +171,19 @@ nav{position:sticky;top:0;z-index:50;background:var(--nav-bg);
 .nav-links a{color:var(--on-2);font-weight:500;font-size:var(--t-ui)}
 .nav-links a:hover{color:var(--on);text-decoration:underline;
   text-underline-offset:5px;text-decoration-thickness:1px}
+.nav-links a[aria-current="page"]{color:var(--on);text-decoration:underline;
+  text-underline-offset:6px;text-decoration-thickness:2px}
 .nav-links a.cta{background:var(--block);color:var(--on-block);font-weight:600;
   padding:8px 18px;border-radius:2px}
 .nav-links a.cta:hover{color:var(--on-block);background:var(--block-hi);text-decoration:none}
 
 @media(max-width:640px){
   .nav-in{justify-content:center;padding:7px 16px;gap:2px 12px}
-  .nav-links{margin:0 auto;justify-content:center;gap:0 6px;font-size:.9rem}
-  .nav-links a{padding:11px 9px;margin:-11px 0;display:inline-block}
+  .nav-links{margin:0 auto;justify-content:center;gap:2px 4px;font-size:.9rem}
+  .nav-links a{padding:10px 9px;margin:0;display:inline-flex;align-items:center;min-height:44px}
   /* The pill already has a 41px target; it only needs the row-gap back so it
      does not collide with the links above it once they carry padding. */
-  .nav-links a.cta{padding:10px 16px;margin:4px 0 0}
+  .nav-links a.cta{padding:10px 16px;margin:0}
 }
 
 
@@ -204,7 +211,7 @@ h1{font-size:clamp(2.125rem,1.60rem + 1.35vw,2.75rem);line-height:1.10;
 h2{font-size:clamp(1.6875rem,1.05rem + 1.00vw,2.125rem);line-height:1.16;
    letter-spacing:-.012em;font-weight:500;color:var(--on)}
 h3{font-size:var(--t-h3);line-height:1.28;letter-spacing:-.005em;font-weight:600;color:var(--on)}
-h1,h2,h3,.lead,summary{text-wrap:balance}
+h1,h2,h3,.lead,summary{text-wrap:balance;overflow-wrap:anywhere}
 p,li,td{text-wrap:pretty}
 /* Prices and comparison columns did not align on the decimal anywhere on the
    site; grep found zero uses of either of these two properties. */
@@ -237,6 +244,7 @@ li strong,p strong{color:var(--on)}
   font:500 var(--t-h2s)/1.2 var(--ff-display);color:var(--on-3);font-variant-numeric:lining-nums}
 code,kbd{background:var(--well);border:1px solid var(--rule);border-radius:2px;padding:2px 7px;
   font:var(--t-meta) var(--ff-mono);color:var(--mono-a)}
+code{overflow-wrap:anywhere}
 pre{background:var(--well);border:1px solid var(--rule);border-radius:2px;padding:16px 18px;
   overflow-x:auto;margin:var(--s-4) 0}
 
