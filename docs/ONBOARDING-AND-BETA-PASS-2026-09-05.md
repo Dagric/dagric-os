@@ -81,7 +81,7 @@ the old source lock must never be relabeled as covering these UI changes.
 
 ## Verification and remaining scope
 
-The controller's 16 offline tests cover trial/keep/revert/expiry, mixed display
+The controller's 17 offline tests cover trial/keep/revert/expiry, mixed display
 baselines, rejected sizes/commands, interrupted-trial ownership, symlinks and
 failed restoration. Three exercise real process/pipe lifetimes and a real
 20-second watchdog with only monitor I/O replaced by fixtures. Qt 6.8.2 tests
@@ -119,9 +119,21 @@ that earlier run.
   At this display resolution 150% was safely disabled.
 - Selecting Centered on the taskbar page at 125% changed only the preview;
   the wizard and existing panel stayed in place with Next visible.
+- Finish then closed the wizard and applied the Centered bottom panel. The
+  Super key opened the launcher. No optional applications were selected.
 - Initial launcher showed browser, Settings, Files and Software favorites but
   not the new Hub/Guide/Recovery pins. Do not count the configured favorite
   list as a delivered live behavior: its first-load import still needs work.
+
+The follow-up uses Plasma's supported `kicker-extra-favoritesrc` Prepend
+setting, consumed inside `portOldFavorites`, instead of a late applet write.
+Existing favorites are not re-imported or overwritten. New accounts no longer
+receive the obsolete launcher-branding autostart that restarts plasmashell;
+the command remains available for older profiles. The removed template is
+recoverable in Git. Versions become branding 1.1.11, desktop defaults 1.1.10
+and tools 1.1.21. This change still needs its own fresh image/first-login check.
+Upstream implementation:
+https://github.com/KDE/plasma-workspace/blob/Plasma/6.3/applets/kicker/plugin/kastatsfavoritesmodel.cpp
 
 The single-output live checks do not replace installation/reboot testing,
 multi-monitor hotplug, accessibility review or physical acceptance. This lab

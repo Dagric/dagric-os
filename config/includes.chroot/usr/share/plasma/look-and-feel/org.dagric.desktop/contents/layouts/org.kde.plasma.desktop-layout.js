@@ -8,9 +8,8 @@ if (panels().length === 0) {
     var menu = panel.addWidget("org.kde.plasma.kickoff");
     menu.currentConfigGroup = ["General"];
     menu.writeConfig("icon", "dagric-logo");
-    menu.writeConfig("favorites", ["dagric-hub.desktop", "dagric-guide.desktop",
-        "systemsettings.desktop", "org.kde.discover.desktop", "dagric-rewind.desktop",
-        "preferred://browser", "org.kde.dolphin.desktop"]);
+    // Initial favorites come from /etc/xdg/kicker-extra-favoritesrc, which
+    // Kickoff reads before importing its model. Writing here is too late.
     panel.addWidget("org.kde.plasma.panelspacer");
     var tasks = panel.addWidget("org.kde.plasma.icontasks");
     tasks.currentConfigGroup = ["General"];

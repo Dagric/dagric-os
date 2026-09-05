@@ -18,6 +18,17 @@ spec.loader.exec_module(scale)
 
 
 class ThemeDefaults(unittest.TestCase):
+    def test_first_load_favorites_do_not_need_a_desktop_restart(self):
+        include = ROOT / "config/includes.chroot"
+        seed = (include / "etc/xdg/kicker-extra-favoritesrc").read_text()
+        self.assertIn("IgnoreDefaults=false\n", seed)
+        for app in ("dagric-hub", "dagric-guide", "dagric-rewind"):
+            self.assertIn("applications:" + app + ".desktop;", seed)
+            self.assertTrue((include / "usr/share/applications" / (app + ".desktop")).is_file())
+        self.assertFalse((include / "etc/skel/.config/autostart/dagric-brand-launcher.desktop").exists())
+        self.assertIn("/etc/xdg/kicker-extra-favoritesrc\n",
+                      (ROOT / "packages/dagric-desktop-defaults/DEBIAN/conffiles").read_text())
+
     def test_undo_uses_the_packaged_dagric_theme(self):
         default = "/usr/share/plasma/look-and-feel/org.dagric.desktop/contents/defaults"
         self.assertTrue((ROOT / "config/includes.chroot" / default.lstrip("/")).is_file())
