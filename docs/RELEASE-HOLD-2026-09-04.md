@@ -41,8 +41,10 @@ deployment:
 2. **Completed:** deployed `infra/gate-worker.js` with
    `DISTRIBUTION_ENABLED="false"`; the live root returns HTTP 503 before Stripe,
    KV, or R2 access.
-3. **Still required:** deactivate the Dagric Pro Stripe Payment Link so an old cached page cannot
-   create a new order.
+3. **Completed:** deactivated the live $39 Dagric OS Pro Stripe Payment Link
+   (`plink_1TwRxZ6lZx4VOIr3IATmC1Ak`) on 4 September 2026 at 7:46 PM CDT.
+   Stripe reports the link as `Deactivated`, offers only an `Activate` action,
+   and its checkout preview reports that the link is no longer active.
 4. **Completed:** disabled the `dagric-downloads` R2 development URL without
    deleting the retained release artifact; the former Free ISO URL returns HTTP
    401.
@@ -53,7 +55,7 @@ deployment:
    `tools/check-release-hold.sh` API proof still requires the protected
    `R2_ACCOUNT_ID` and `CLOUDFLARE_R2_AUDIT_TOKEN` environment values; configure
    those in the release environment, then re-run it and a signed-out browser
-   drill after the Stripe link is deactivated.
+   drill.
 6. **Ongoing requirement:** keep support, cancellation, and applicable refund remedies available to
    existing customers throughout the hold.
 
