@@ -2,6 +2,9 @@
 # Calamares: the same friendly graphical installer Debian Live itself ships.
 calamares
 calamares-settings-debian
+# The unified setup hook validates Calamares YAML in both editions. Pro used
+# to get this transitively; Free must not depend on Pro's package graph.
+python3-yaml
 # Password-quality dictionary — without it Calamares' password check errors
 # out with "error loading dictionary" and blocks EVERY password.
 # (Found by the QEMU install run-through test.)

@@ -13,6 +13,10 @@ INC = ROOT / 'config/includes.chroot'
 
 
 class Installer(unittest.TestCase):
+    def test_yaml_dependency_is_explicit_in_both_editions(self):
+        packages = (ROOT / 'config/package-lists/installer.list.chroot').read_text().splitlines()
+        self.assertIn('python3-yaml', packages)
+
     def test_both_editions_share_entry_and_keep_account_confirmation(self):
         for edition in ('free', 'pro'):
             with self.subTest(edition=edition), tempfile.TemporaryDirectory() as tmp:
