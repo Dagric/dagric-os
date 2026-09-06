@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2026 IMPRESSIONSDIRECT360 LLC <repo@dagric.com>
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Original native artwork. Static curves repaint only for size/palette changes;
-// a single scene-graph reveal moves the decoration, never text or controls.
+// scene-graph transforms move the decoration, never text or controls.
 import QtQuick
 
 Item {
@@ -10,8 +10,10 @@ Item {
     property bool dark: true
     property bool reducedMotion: false
     property bool animate: true
+    property bool ambient: false
+    property real drift: 0
     property real reveal: 1
-    readonly property bool moving: intro.running
+    readonly property bool moving: intro.running || breathe.running
     Accessible.ignored: true
     clip: true
 
@@ -32,12 +34,20 @@ Item {
         from: 0; to: 1; duration: 900
         easing.type: Easing.OutCubic
     }
+    SequentialAnimation {
+        id: breathe
+        running: art.ambient && art.animate && !art.reducedMotion && art.visible
+        loops: Animation.Infinite
+        NumberAnimation { target: art; property: "drift"; from: 0; to: 1; duration: 2200; easing.type: Easing.InOutSine }
+        NumberAnimation { target: art; property: "drift"; from: 1; to: 0; duration: 2200; easing.type: Easing.InOutSine }
+        onStopped: art.drift = 0
+    }
 
     Item {
         anchors.fill: parent
-        opacity: 0.65 + art.reveal * 0.35
+        opacity: (0.65 + art.reveal * 0.35) * (1 - art.drift * 0.13)
         // Decor only: no blur/zoom on text and no per-frame Canvas repaint.
-        rotation: -3 + art.reveal * 3
+        rotation: -3 + art.reveal * 3 + art.drift * 2.5
         Canvas {
             id: contours
             anchors.fill: parent

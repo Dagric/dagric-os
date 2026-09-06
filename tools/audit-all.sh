@@ -79,6 +79,9 @@ run "Dagric trust loop and Support Mode" sh tools/check-trust.sh
 run "safe in-place Dagric Update" sh tools/check-update.sh
 run "Dagric Update unit tests" python3 test/test-update-core.py
 run "Dagric Flow visual contract" python3 tools/check-flow.py
+run "setup Finish and installer handoff" python3 test/test-firstrun-finish.py
+run "unified setup and transactional panels" python3 test/test-setup-integration.py
+run "setup scale rollback" python3 test/test-firstrun-scale.py
 run "browser security floor and visual contract regressions" python3 test/test-browser-and-flow-fixes.py
 run "boot presentation and real hook regressions" python3 test/test-boot-presentation.py
 run "Dagric dependability foundations" sh tools/check-foundations.sh

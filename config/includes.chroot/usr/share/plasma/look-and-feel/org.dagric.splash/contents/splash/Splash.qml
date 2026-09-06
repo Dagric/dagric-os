@@ -32,6 +32,7 @@ Rectangle {
         anchors.centerIn: parent
         anchors.verticalCenterOffset: -root.height * 0.03
         reducedMotion: root.reducedMotion
+        ambient: root.stage < 6
     }
     Column {
         id: identity

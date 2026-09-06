@@ -1,0 +1,38 @@
+#!/bin/sh
+# SPDX-License-Identifier: GPL-3.0-or-later
+# One visible entry point in Free and Pro. Calamares still owns disk/account
+# creation; the installed user's first-run setup owns personal preferences.
+set -eu
+
+ENTRY=/usr/share/applications/calamares-install-debian.desktop
+SETUP=/usr/share/applications/dagric-firstrun.desktop
+if [ -f "$ENTRY" ]; then
+    test -s "$SETUP"
+    cp "$SETUP" "$ENTRY"
+    # The launcher already contains dagric-firstrun; this compatibility entry
+    # is copied to the live desktop by add-calamares-desktop-icon only.
+    printf '\nNoDisplay=true\n' >> "$ENTRY"
+    grep -qx 'Exec=dagric-firstrun' "$ENTRY"
+fi
+
+# Do not skip the installer's final destructive-action confirmation. User
+# creation and the summary must remain before the partition execution phase.
+python3 - <<'PY'
+from pathlib import Path
+import re
+import yaml
+
+path = Path('/etc/calamares/settings.conf')
+text = path.read_text()
+settings = yaml.safe_load(text)
+steps = settings['sequence']
+show = steps[0]['show']
+assert all(module in show for module in ('partition', 'users', 'summary'))
+assert show.index('users') < show.index('summary')
+assert 'users' in steps[1]['exec']
+assert settings.get('dont-chroot') is False
+assert re.search(r'^prompt-install:.*$', text, re.M)
+text = re.sub(r'^prompt-install:.*$', 'prompt-install: true', text, flags=re.M)
+path.write_text(text)
+PY
+echo 'unified-setup: live desktop opens Set Up Dagric; accounts and disk review remain in Calamares'

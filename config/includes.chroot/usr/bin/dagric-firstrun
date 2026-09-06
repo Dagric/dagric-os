@@ -112,6 +112,17 @@ stamp() {
 
 LIVE=false
 [ -d /run/live/medium ] && LIVE=true
+CAN_INSTALL=false
+if [ "$LIVE" = true ] && [ -x /usr/bin/calamares-install-debian ]; then
+    CAN_INSTALL=true
+fi
+
+launch_installer() {
+    # Account/password and disk handling remain inside Calamares. Never collect
+    # credentials through the setup protocol or automatically confirm a disk.
+    [ "$CAN_INSTALL" = true ] || return 1
+    /usr/bin/calamares-install-debian
+}
 
 # Match Plasma's reduced-motion preference. The wizard already follows the
 # desktop's colours, contrast and text size; page movement must not be the one
@@ -285,7 +296,12 @@ WORK=$(mktemp -d) || exit 1
 # make the script actually stop. dagric-display and dagric-hardware-check
 # already do it this way.
 SCALE_PID=
+QML_PID=
 cleanup_firstrun() {
+    if [ -n "$QML_PID" ]; then
+        kill -TERM "$QML_PID" 2>/dev/null || true
+        wait "$QML_PID" 2>/dev/null || true
+    fi
     if [ -n "$SCALE_PID" ]; then
         exec 9>&-
         kill -TERM "$SCALE_PID" 2>/dev/null || true
@@ -652,9 +668,10 @@ set_layout() {   # <path to .look>
     _sc=$(skey "$1" SCRIPT)
     [ -n "$_sc" ] || return 1
     wait_plasma || return 1
-    # No `return 0`: plasma_script's status is the only thing that separates a
-    # layout Plasma built from one it threw on after $CLEAR emptied the desktop.
-    plasma_script "$CLEAR $_sc"
+    # Build first, retire old panels only after a valid replacement exists.
+    # A throwing script removes its own new panels and leaves the original
+    # panels (and their full configuration) intact. No empty-taskbar interval.
+    plasma_script "(function(){var old=panels();var ids=[];for(var i=0;i<old.length;i++)ids.push(old[i].id);try{(function(){$_sc})();var now=panels();var added=[];for(var j=0;j<now.length;j++)if(ids.indexOf(now[j].id)<0)added.push(now[j]);if(!added.length)throw new Error('No replacement panel');for(var k=0;k<old.length;k++)old[k].remove();}catch(e){var current=panels();for(var n=0;n<current.length;n++)if(ids.indexOf(current[n].id)<0)current[n].remove();throw e;}})();"
 }
 
 scale_factor() {
@@ -677,11 +694,13 @@ set_scale() {   # <100|125|150>
             [ "$_any" = 1 ] || { notify "$(gettext "The text size could not be changed here. Open System Settings ▸ Display & Monitor to set it.")"; return 1; }
             ;;
         x11)
-            kwriteconfig6 --file kdeglobals --group KScreen --key ScaleFactor "$_f" 2>/dev/null
+            kwriteconfig6 --file kdeglobals --group KScreen --key ScaleFactor "$_f" 2>/dev/null || return 1
             _list=
             for _o in $(kscreen_outputs); do _list="$_list$_o=$_f;"; done
-            [ -n "$_list" ] && kwriteconfig6 --file kdeglobals --group KScreen \
-                --key ScreenScaleFactors "$_list" 2>/dev/null
+            if [ -n "$_list" ]; then
+                kwriteconfig6 --file kdeglobals --group KScreen \
+                    --key ScreenScaleFactors "$_list" 2>/dev/null || return 1
+            fi
             ;;
         *) return 1 ;;
     esac
@@ -937,6 +956,11 @@ fallback_wizard() {
     if [ "$LIVE" = true ]; then
         _fallback_note=$(gettext "You're running the live trial from the USB stick, so anything you set here lasts until you shut down. Install Dagric first if you want it to stick.")
     fi
+    if [ "$CAN_INSTALL" = true ]; then
+        _path=$(kdialog --title "$TITLE" --menu "$(gettext "Choose how to begin.")" \
+            install "$(gettext "Install Dagric")" try "$(gettext "Try it first")" 2>/dev/null) || return 0
+        if [ "$_path" = install ]; then launch_installer; return $?; fi
+    fi
     kdialog --title "$TITLE" --icon dagric-logo --msgbox \
 "$(eval_gettext 'Welcome to $EDITION_NAME.')
 
@@ -990,7 +1014,7 @@ $_fallback_note" 2>/dev/null
             quit "$(gettext "Stop here — I'll finish later")" 2>/dev/null) || _l=
         [ "$_l" = "quit" ] && return 0
         _lf=$(lookup_layout "$_l")
-        if [ -n "$_lf" ]; then capture_panels || true; set_layout "$_lf"; fi
+        if [ -n "$_lf" ]; then capture_panels || true; set_layout "$_lf" || notify "$(gettext "Your taskbar could not be changed. Please try again from Set Up Dagric.")"; fi
     fi
 
     if [ "$HAS_WINDOWS" = true ]; then
@@ -1188,8 +1212,14 @@ Open %1
 
 Your desktop is back the way it was.
 
-You're running the live trial from the USB stick, so anything you set here lasts until you shut down. Install Dagric first if you want it to stick.
-This is the live trial. To keep any of it, run Install Dagric OS from the desktop.
+Install Dagric to create your account, choose your disk and keep your work. After restarting, this setup will help you personalize your desktop. Trying it first makes no changes to your disks.
+This is a temporary desktop. Choose Install Dagric in Set Up Dagric to create your account and keep your work.
+Install Dagric
+Try it first
+Applying your size…
+Selected text size: %1%
+Choose a text size.
+Your files, your apps, your space.
 Want to run through this again? It's called "Set Up Dagric" in your apps list.
 Add your apps
 Choose what you want. Each installer opens after Finish and asks before making changes. Some choices are third-party or proprietary; none is required.
@@ -1226,6 +1256,7 @@ STRINGS
     printf '  "edition": "%s",\n'     "$(jesc "$EDITION")"
     printf '  "editionName": "%s",\n' "$(jesc "$EDITION_NAME")"
     printf '  "live": %s,\n'          "$LIVE"
+    printf '  "canInstall": %s,\n'    "$CAN_INSTALL"
     printf '  "reducedMotion": %s,\n' "$REDUCED_MOTION"
     printf '  "scaleMode": "%s",\n'   "$(jesc "$SCALE_MODE")"
     printf '  "scaleStatusPath": "%s",\n' "$(jesc "$SCALE_STATUS")"
@@ -1287,6 +1318,18 @@ pending_layout=
 APPS_QUEUE=
 TOPRO=0
 DOWNLOADS_RAN=0
+FINISH_REQUESTED=0
+INSTALL_REQUESTED=0
+X11_REVISION=0
+
+write_x11_status() {
+    X11_REVISION=$((X11_REVISION + 1))
+    printf '{"revision":%s,"phase":"%s","scale":%s,"allowed":[100,125,150],"remaining":0}\n' \
+        "$X11_REVISION" "$1" "$2" > "$SCALE_STATUS.tmp" && mv "$SCALE_STATUS.tmp" "$SCALE_STATUS"
+}
+if [ "$SCALE_MODE" = x11 ]; then
+    write_x11_status ready "$(current_scale)"
+fi
 
 # Nothing is launched here to fix the title-bar icon any more, and that is the
 # point. Two rounds of work went into a python helper that rewrote the window's
@@ -1313,10 +1356,15 @@ DOWNLOADS_RAN=0
 # QUIT and would then show the kdialog version. That is the right trade: an
 # annoyance for somebody who deliberately killed it, against nothing whatsoever
 # for somebody whose image cannot run Qt.
-QML_SPOKE="${XDG_RUNTIME_DIR:-/tmp}/.dagric-firstrun-spoke.$$"
-rm -f "$QML_SPOKE"
+QML_SPOKE="$WORK/qml-spoke"
 
-"$QML" "$QMLFILE" -- "--catalog=$CATALOG" 2>&1 | while IFS= read -r line; do
+# A private FIFO keeps the reader in THIS shell. The previous piped loop lost
+# the queued state in a subshell and applied Finish while QML was still alive.
+# Only wait() proving a clean UI exit authorizes the deferred actions below.
+mkfifo -m 600 "$WORK/ui-events" || exit 1
+"$QML" "$QMLFILE" -- "--catalog=$CATALOG" > "$WORK/ui-events" 2>&1 9>&- &
+QML_PID=$!
+while IFS= read -r line; do
     case "$line" in
         *@DAGRIC@*) msg=${line#*@DAGRIC@}; : > "$QML_SPOKE" ;;
         *) continue ;;
@@ -1326,6 +1374,7 @@ rm -f "$QML_SPOKE"
     case "$msg" in *\|*) arg=${msg#*|} ;; esac
     case "$arg" in *[!A-Za-z0-9._,-]*) arg= ;; esac
 
+    [ "$FINISH_REQUESTED" = 0 ] && [ "$INSTALL_REQUESTED" = 0 ] || continue
     case "$cmd" in
         READY)
             stamp
@@ -1353,7 +1402,12 @@ rm -f "$QML_SPOKE"
                 printf 'SCALE|%s\n' "$arg" >&9
             else
                 capture_scale
-                set_scale "$arg"
+                if set_scale "$arg"; then
+                    write_x11_status saved "$arg"
+                else
+                    restore_scale
+                    write_x11_status error "$(current_scale)"
+                fi
             fi
             ;;
         SCALEKEEP|SCALEREVERT)
@@ -1366,7 +1420,7 @@ rm -f "$QML_SPOKE"
             pending_layout=$file
             ;;
         RUN)
-            case "$arg" in migrate|display|hub|guide|manual|welcome|setup) run_helper "$arg" ;; esac
+            case "$arg" in migrate|display|hub|guide|manual|welcome|setup) run_helper "$arg" </dev/null ;; esac
             ;;
         APPS)
             # Stored, not acted on. Validation happens in run_downloads at
@@ -1383,31 +1437,35 @@ rm -f "$QML_SPOKE"
             last_wall=
             ;;
         DONE)
-            # The UI has closed before changing the desktop's work area.
-            # Selecting a thumbnail never tears down panels underneath setup.
-            if [ -n "$pending_layout" ]; then
-                capture_panels || true
-                set_layout "$pending_layout" || rebuild_panels || fallback_layout
-            fi
-            # The one apply that is repeated. The wallpaper lives in
-            # plasmashell's in-memory applet config, so a plasmashell restart
-            # part-way through the wizard (dagric-brand-launcher does exactly
-            # that on a first login) can swallow it. Writing it once more at
-            # the end is invisible when it already stuck and rescues it when it
-            # did not. The taskbar is deliberately NOT re-applied: rebuilding
-            # the panels is visible, and a flicker on the last screen would
-            # look like something went wrong.
-            [ -n "$last_wall" ] && set_wall "$last_wall"
-            notify "$(gettext "Dagric is set up. Everything else lives in the Dagric Hub.")"
-            # The queued downloads, now that the fullscreen window is gone and
-            # a terminal can actually be seen.
-            run_downloads
-            DOWNLOADS_RAN=1
+            FINISH_REQUESTED=1
+            ;;
+        INSTALL)
+            [ "$CAN_INSTALL" = true ] && INSTALL_REQUESTED=1
             ;;
         QUIT)
             : ;;
     esac
-done
+done < "$WORK/ui-events"
+QML_EXIT=0
+wait "$QML_PID" || QML_EXIT=$?
+QML_PID=
+if [ "$QML_EXIT" = 0 ] && [ "$FINISH_REQUESTED" = 1 ]; then
+    LAYOUT_OK=1
+    if [ -n "$pending_layout" ]; then
+        set_layout "$pending_layout" || LAYOUT_OK=0
+    fi
+    [ -z "$last_wall" ] || set_wall "$last_wall"
+    if [ "$LAYOUT_OK" = 1 ]; then
+        notify "$(gettext "Dagric is set up. Everything else lives in the Dagric Hub.")"
+    else
+        notify "$(gettext "Your taskbar could not be changed. Please try again from Set Up Dagric.")"
+    fi
+    run_downloads
+    DOWNLOADS_RAN=1
+fi
+if [ "$QML_EXIT" = 0 ] && [ "$INSTALL_REQUESTED" = 1 ]; then
+    launch_installer || notify "$(gettext "The installer could not be opened. You can retry from Set Up Dagric.")"
+fi
 
 # A ticked queue that never ran must not vanish without a witness. This fires
 # on every exit that skipped DONE — "I'll do this later", Esc, Alt+F4, a

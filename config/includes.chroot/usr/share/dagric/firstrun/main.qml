@@ -132,6 +132,7 @@ ApplicationWindow {
                                           ? app.t("Set Up Dagric") + " — Pro"
                                           : app.t("Set Up Dagric")
     property bool live: false
+    property bool canInstall: false
     property bool reducedMotion: false
     property string scaleMode: "none"      // wayland | x11 | none
     property int currentScale: 0
@@ -390,6 +391,7 @@ ApplicationWindow {
                 app.edition = d.edition ? d.edition : "free";
                 app.editionName = d.editionName ? d.editionName : "Dagric OS";
                 app.live = d.live === true;
+                app.canInstall = d.canInstall === true;
                 app.reducedMotion = d.reducedMotion === true;
                 app.scaleMode = d.scaleMode ? d.scaleMode : "none";
                 app.currentScale = d.currentScale ? d.currentScale : 0;
@@ -597,8 +599,16 @@ ApplicationWindow {
     }
 
     function finish() {
-        app.send("DONE");
+        if (app.finished || app.scaleBusy || app.scaleTrial) return;
         app.finished = true;
+        app.send("DONE");
+        app.close();
+    }
+
+    function install() {
+        if (!app.live || !app.canInstall || app.finished || app.scaleBusy || app.scaleTrial) return;
+        app.finished = true;
+        app.send("INSTALL");
         app.close();
     }
 
@@ -638,12 +648,8 @@ ApplicationWindow {
     function pickScale(v) {
         if (app.scaleBusy || app.scaleTrial) return;
         app.scaleError = "";
-        if (app.scaleMode === "wayland") {
-            app.scaleBusy = true;
-        } else {
-            app.scale = v;
-            app.markTouched("display");
-        }
+        if ([100, 125, 150].indexOf(v) < 0 || app.scaleMode === "none") return;
+        app.scaleBusy = true;
         app.send("SCALE|" + v);
     }
 
@@ -653,7 +659,7 @@ ApplicationWindow {
     }
 
     function pollScale() {
-        if (app.scaleMode !== "wayland" || !app.scaleStatusPath) return;
+        if (app.scaleMode === "none" || !app.scaleStatusPath) return;
         var xhr = new XMLHttpRequest();
         xhr.onreadystatechange = function() {
             if (xhr.readyState !== XMLHttpRequest.DONE || !xhr.responseText) return;
@@ -669,7 +675,7 @@ ApplicationWindow {
                 if (s.scale > 0) app.scale = s.scale;
                 app.scaleError = (s.phase === "error" || s.phase === "restore-error")
                     ? app.t("This size could not be applied safely. Your previous size will be restored.") : "";
-                if (s.phase === "kept") app.markTouched("display");
+                if (s.phase === "kept" || s.phase === "saved") app.markTouched("display");
             } catch (e) { /* A missing status is not an acknowledgement. */ }
         };
         xhr.open("GET", "file://" + encodeURI(app.scaleStatusPath));
@@ -963,7 +969,9 @@ ApplicationWindow {
         default property alias body: pgCol.data
 
         anchors.fill: parent
-        visible: pg.active || pg.opacity > 0.01
+        // Only the incoming page is drawn: overlapping readable text during
+        // a crossfade looks like a damaged frame, especially at large sizes.
+        visible: pg.active
         enabled: pg.active
         opacity: pg.active ? 1.0 : 0.0
         // No zoom: full-page scaling softens text and resembles screen shake.
@@ -1074,12 +1082,12 @@ ApplicationWindow {
         // The screen reader's own "press this" route, and the toggle path for
         // the radio case. Both land on the same signal as the mouse, so the
         // three routes cannot drift apart later.
-        Accessible.onPressAction: ch.clicked()
-        Accessible.onToggleAction: ch.clicked()
+        Accessible.onPressAction: { if (ch.enabled) ch.clicked(); }
+        Accessible.onToggleAction: { if (ch.enabled) ch.clicked(); }
 
         Keys.onPressed: function(event) {
-            if (event.key === Qt.Key_Space || event.key === Qt.Key_Return
-                    || event.key === Qt.Key_Enter) {
+            if (ch.enabled && (event.key === Qt.Key_Space || event.key === Qt.Key_Return
+                    || event.key === Qt.Key_Enter)) {
                 ch.clicked();
                 event.accepted = true;
             }
@@ -1595,7 +1603,7 @@ ApplicationWindow {
                     Layout.fillWidth: true
                     Layout.maximumWidth: app.px(560)
                     text: app.live
-                          ? app.t("You're running the live trial from the USB stick, so anything you set here lasts until you shut down. Install Dagric first if you want it to stick.")
+                          ? app.t("Install Dagric to create your account, choose your disk and keep your work. After restarting, this setup will help you personalize your desktop. Trying it first makes no changes to your disks.")
                           : app.t("Every step can be skipped, and you can change all of it later.")
                     color: app.cDim
                     font.pixelSize: app.px(13)
@@ -1605,6 +1613,13 @@ ApplicationWindow {
                 }
 
                 Item { Layout.fillHeight: true }
+                Primary {
+                    objectName: "setupInstall"
+                    visible: app.live && app.canInstall
+                    text: app.t("Install Dagric")
+                    enabled: !app.finished
+                    onClicked: app.install()
+                }
                 }
                 Rectangle {
                     objectName: "welcomeApertureCard"
@@ -1625,6 +1640,7 @@ ApplicationWindow {
                         dark: app.dark
                         reducedMotion: app.reducedMotion
                         animate: app.step === "welcome"
+                        ambient: app.step === "welcome"
                     }
                     Image {
                         id: welcomeMark
@@ -2093,6 +2109,7 @@ ApplicationWindow {
                         ]
                         delegate: Choice {
                             id: sizeCard
+                            objectName: "textSize" + modelData.v
                             required property var modelData
                             required property int index
                             width: app.px(176)
@@ -2119,6 +2136,13 @@ ApplicationWindow {
                                     font.bold: true
                                     Accessible.ignored: true
                                 }
+                                Text {
+                                    text: sizeCard.selected ? "✓ " + app.t("Selected") : ""
+                                    color: app.cText
+                                    font.pixelSize: app.px(12)
+                                    font.bold: true
+                                    Accessible.ignored: true
+                                }
                                 Item { Layout.fillHeight: true }
                                 Text {
                                     text: app.t(sizeCard.modelData.name) + "  " + sizeCard.modelData.v + "%"
@@ -2134,6 +2158,40 @@ ApplicationWindow {
                                     Accessible.ignored: true
                                 }
                             }
+                        }
+                    }
+                }
+
+                Rectangle {
+                    objectName: "textSizePreview"
+                    Layout.fillWidth: true
+                    implicitHeight: sizeSample.implicitHeight + app.px(28)
+                    visible: !(app.scaleTrial && app.height < app.px(560))
+                    radius: app.px(12)
+                    color: app.cPanel
+                    border.color: app.cEdge
+                    ColumnLayout {
+                        id: sizeSample
+                        anchors.left: parent.left; anchors.right: parent.right
+                        anchors.top: parent.top; anchors.margins: app.px(14)
+                        spacing: app.px(8)
+                        Text {
+                            objectName: "textSizeSelection"
+                            Layout.fillWidth: true
+                            text: app.scaleBusy ? app.t("Applying your size…")
+                                : (app.scale > 0 ? app.tf("Selected text size: %1%", app.scale) : app.t("Choose a text size."))
+                            color: app.cText
+                            font.pixelSize: app.px(13)
+                            font.bold: true
+                            wrapMode: Text.WordWrap
+                        }
+                        Text {
+                            objectName: "textSizeSample"
+                            Layout.fillWidth: true
+                            text: app.t("Your files, your apps, your space.")
+                            color: app.cText
+                            font.pixelSize: app.px(16 * (app.scale > 0 ? app.scale : 100) / 100)
+                            wrapMode: Text.WordWrap
                         }
                     }
                 }
@@ -2685,7 +2743,7 @@ ApplicationWindow {
                 Text {
                     Layout.fillWidth: true
                     text: app.live
-                          ? app.t("This is the live trial. To keep any of it, run Install Dagric OS from the desktop.")
+                          ? app.t("This is a temporary desktop. Choose Install Dagric in Set Up Dagric to create your account and keep your work.")
                           : app.t("Want to run through this again? It's called \"Set Up Dagric\" in your apps list.")
                     color: app.cDim
                     font.pixelSize: app.px(13)
@@ -2741,8 +2799,8 @@ ApplicationWindow {
             Primary {
                 objectName: "setupNext"
                 text: app.step === "finish" ? app.t("Finish")
-                    : (app.step === "welcome" ? app.t("Let's go") : app.t("Next"))
-                enabled: !app.scaleBusy && !app.scaleTrial
+                    : (app.step === "welcome" ? (app.live ? app.t("Try it first") : app.t("Let's go")) : app.t("Next"))
+                enabled: !app.finished && !app.scaleBusy && !app.scaleTrial
                 onClicked: app.goNext()
             }
         }

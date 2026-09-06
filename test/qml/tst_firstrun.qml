@@ -100,6 +100,66 @@ TestCase {
         verify(!wizard.isTouched("display"));
     }
 
+    function test_x11_size_waits_for_save_and_preview_is_explicit() {
+        wizard.scaleMode = "x11";
+        wizard.stepIndex = wizard.steps.indexOf("display");
+        wizard.scale = 100;
+        wizard.pickScale(125);
+        verify(wizard.scaleBusy);
+        compare(wizard.scale, 100);
+        wizard.scaleBusy = false;
+        wizard.scale = 125; // backend acknowledgement
+        wait(250);
+        var selected = findChild(wizard.contentItem, "textSize125");
+        verify(selected.selected);
+        verify(findChild(wizard.contentItem, "textSizeSelection").text.indexOf("125%") >= 0);
+        var sample = findChild(wizard.contentItem, "textSizeSample");
+        compare(sample.font.pixelSize, wizard.px(20));
+        var imagePath = decodeURIComponent(Qt.resolvedUrl("../../out/text-size-selected-preview.png").toString().replace("file://", ""));
+        grabImage(wizard.contentItem).save(imagePath);
+    }
+
+    function test_install_available_only_on_live_media_data() {
+        return [{tag:"free",edition:"free"}, {tag:"pro",edition:"pro"}];
+    }
+    function test_install_available_only_on_live_media(data) {
+        wizard.edition = data.edition;
+        wizard.editionName = data.edition === "pro" ? "Dagric OS Pro" : "Dagric OS";
+        wizard.live = true; wizard.canInstall = true;
+        var install = findChild(wizard.contentItem, "setupInstall");
+        wait(20); verify(install.visible);
+        var p = install.mapToItem(wizard.contentItem, 0, 0);
+        verify(p.y >= 0 && p.y + install.height <= wizard.height - wizard.px(74));
+        var path = decodeURIComponent(Qt.resolvedUrl("../../out/unified-setup-"+data.edition+".png").toString().replace("file://", ""));
+        grabImage(wizard.contentItem).save(path);
+        wizard.live = false;
+        wait(20); verify(!install.visible);
+        wizard.install();
+        verify(!wizard.finished);
+    }
+
+    function test_boot_art_moves_without_moving_text_and_stops() {
+        var c = Qt.createComponent("../../config/includes.chroot/usr/share/plasma/look-and-feel/org.dagric.splash/contents/splash/Splash.qml");
+        var splash = c.createObject(wizard.contentItem, {width:800,height:600,stage:1});
+        verify(splash !== null);
+        splash.reducedMotion = false;
+        var art = findChild(splash, "startupAperture");
+        var word = findChild(splash, "startupWordmark");
+        var x = word.x, y = word.y;
+        wait(1100); verify(art.moving);
+        var first = grabImage(art);
+        wait(500); verify(!grabImage(art).equals(first));
+        compare(word.x, x); compare(word.y, y);
+        splash.stage = 6;
+        wait(20); verify(!art.moving);
+        splash.stage = 2;
+        wait(20); verify(art.moving);
+        splash.reducedMotion = true;
+        wait(20); verify(!art.moving);
+        compare(art.drift, 0);
+        splash.destroy();
+    }
+
     function test_global_theme_resolves_dagric_splash() {
         var c = Qt.createComponent("../../config/includes.chroot/usr/share/plasma/look-and-feel/org.dagric.desktop/contents/splash/Splash.qml");
         compare(c.status, Component.Ready, c.errorString());
