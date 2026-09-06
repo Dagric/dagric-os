@@ -84,6 +84,8 @@ def main() -> int:
             inherited = {part.strip() for part in inherits.removeprefix("Inherits=").split(",")}
             if not {"breeze", "hicolor"}.issubset(inherited):
                 errors.append(f"{theme}: must inherit Breeze and hicolor for third-party marks")
+            if "breeze-dark" in inherited or "FollowsColorScheme=true" not in text:
+                errors.append(f"{theme}: symbolic controls must follow light/dark colors, not force dark-theme icons")
             for size in SIZES:
                 if f"{size}x{size}/apps" not in text:
                     errors.append(f"{theme}: index.theme omits {size}x{size}/apps")

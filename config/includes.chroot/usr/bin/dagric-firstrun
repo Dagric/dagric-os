@@ -117,6 +117,14 @@ if [ "$LIVE" = true ] && [ -x /usr/bin/calamares-install-debian ]; then
     CAN_INSTALL=true
 fi
 
+# Live media has ONE setup: Calamares now includes desktop personalization.
+# Do not run this six-step wizard before it or again for the installed owner.
+# --personalize remains an explicit, non-installing tool for trial sessions.
+if [ "$CAN_INSTALL" = true ] && [ "${1:-}" != "--personalize" ]; then
+    exec /usr/bin/calamares-install-debian
+fi
+CAN_INSTALL=false
+
 launch_installer() {
     # Account/password and disk handling remain inside Calamares. Never collect
     # credentials through the setup protocol or automatically confirm a disk.

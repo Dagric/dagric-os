@@ -26,13 +26,17 @@ class Installer(unittest.TestCase):
                 setup.write_text((INC / 'usr/share/applications/dagric-firstrun.desktop').read_text())
                 config.write_text(yaml.safe_dump({'sequence': [
                     {'show': ['welcome', 'partition', 'users', 'summary']},
-                    {'exec': ['partition', 'users']}, {'show': ['finished']}],
+                    {'exec': ['partition', 'unpackfs', 'users', 'umount']}, {'show': ['finished']}],
                     'dont-chroot': False, 'prompt-install': False, 'branding': 'dagric'}))
                 source = (ROOT / 'config/hooks/normal/0505-unified-setup.hook.chroot').read_text()
                 for original, replacement in (
                     ('/usr/share/applications/calamares-install-debian.desktop', entry),
                     ('/usr/share/applications/dagric-firstrun.desktop', setup),
-                    ('/etc/calamares/settings.conf', config)):
+                    ('/etc/calamares/settings.conf', config),
+                    ('/usr/lib/dagric', INC / 'usr/lib/dagric'),
+                    ('/etc/calamares/modules/dagricdesktop.conf', base / 'dagricdesktop.conf'),
+                    ('/usr/lib/x86_64-linux-gnu/calamares/modules/packagechooserq/module.desc', entry),
+                    ('/usr/lib/calamares/modules/dagricpersonalize/module.desc', INC / 'usr/lib/calamares/modules/dagricpersonalize/module.desc')):
                     source = source.replace(original, str(replacement))
                 result = subprocess.run(['sh', '-s'], input=source, text=True, capture_output=True)
                 self.assertEqual(result.returncode, 0, result.stderr)
@@ -42,9 +46,42 @@ class Installer(unittest.TestCase):
                 self.assertTrue(settings['prompt-install'])
                 self.assertFalse(settings['dont-chroot'])
                 self.assertEqual(settings['sequence'][0]['show'][-2:], ['users', 'summary'])
+                self.assertEqual(settings['sequence'][0]['show'][-3], 'packagechooserq@dagricdesktop')
+                jobs = settings['sequence'][1]['exec']
+                self.assertEqual(jobs[0], 'dagricpersonalize@dagricprofilecheck')
+                self.assertEqual(jobs[jobs.index('users') + 1], 'dagricpersonalize@dagricprofileapply')
+                self.assertLess(jobs.index('dagricpersonalize@dagricprofileapply'), jobs.index('umount'))
+                choices = yaml.safe_load((base / 'dagricdesktop.conf').read_text())
+                self.assertEqual(choices['method'], 'legacy')
+                self.assertNotIn('items', choices)
+                self.assertIn('Centered', choices['packageChoice'])
+                again = subprocess.run(['sh', '-s'], input=source, text=True, capture_output=True)
+                self.assertEqual(again.returncode, 0, again.stderr)
+                self.assertEqual(yaml.safe_load(config.read_text()), settings)
 
 
 class Panels(unittest.TestCase):
+    def test_first_desktop_consumes_profile_without_resetting_existing_panels(self):
+        script = (INC / 'usr/share/plasma/look-and-feel/org.dagric.desktop/contents/layouts/org.kde.plasma.desktop-layout.js').read_text()
+        for layout in ('classic', 'eleven'):
+            for existing in (True, False):
+                harness = '''
+const assert=require('node:assert/strict');
+let all=[], writes=[], desktop={writeConfig(k,v){writes.push([k,v]);}};
+function ConfigFile(name,group){assert.equal(name,'dagric/installed-desktoprc');this.readEntry=k=>k==='Layout'?LAYOUT:'DagricArcticClean';}
+function Panel(){this.widgets=[];all.push(this);}
+Panel.prototype.addWidget=function(type){this.widgets.push(type);return {writeConfig(){}};};
+function panels(){return all;}
+function desktops(){return [desktop];}
+if(EXISTING) new Panel();
+SCRIPT
+assert.equal(all.length,1);
+if(EXISTING){assert.equal(all[0].widgets.length,0);assert.equal(writes.length,0);}
+else {assert.equal(all[0].height,48);assert.equal(all[0].floating,true);assert.ok(all[0].widgets.includes(LAYOUT==='classic'?'org.kde.plasma.taskmanager':'org.kde.plasma.icontasks'));assert.ok(writes[0][1].includes('/DagricArcticClean/'));}
+'''.replace('SCRIPT', script).replace('LAYOUT', json.dumps(layout)).replace('EXISTING', json.dumps(existing))
+                result = subprocess.run(['node','-e',harness],text=True,capture_output=True)
+                self.assertEqual(result.returncode,0,result.stderr)
+
     def test_packaged_layouts_build_before_removing_old_panels(self):
         source = (INC / 'usr/bin/dagric-firstrun').read_text()
         function = source[source.index('set_layout() {'):source.index('\nscale_factor() {')]

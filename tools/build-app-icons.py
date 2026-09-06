@@ -131,7 +131,8 @@ def write_theme_metadata(theme_dir: Path, name: str, comment: str) -> None:
         "[Icon Theme]",
         f"Name={name}",
         f"Comment={comment}",
-        "Inherits=breeze-dark,breeze,hicolor",
+        "Inherits=breeze,hicolor",
+        "FollowsColorScheme=true",
         f"Directories={directories}",
         "",
     ]

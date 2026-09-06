@@ -381,9 +381,12 @@ find "$P/usr/lib/dagric" -name '*.pyc' -delete 2>/dev/null || true
 # /usr/share/dagric/family/main.qml — the window itself — was not. The rule this
 # broke is the one stated for the Konsole profile above: never ship the pointer
 # without its target.
-for d in firstrun appearance manual guide welcome styles looks icon-styles hwcheck boot family rewind budgets; do
+for d in firstrun appearance desktop-settings manual guide welcome styles looks icon-styles hwcheck boot family rewind budgets; do
     [ -e "$INC/usr/share/dagric/$d" ] && cp -r "$INC/usr/share/dagric/$d" "$P/usr/share/dagric/"
 done
+# The custom installer job belongs to Dagric, not to the upstream Calamares package.
+mkdir -p "$P/usr/lib/calamares/modules"
+cp -r "$INC/usr/lib/calamares/modules/dagricpersonalize" "$P/usr/lib/calamares/modules/"
 # Fail rather than ship a dagric-family with no window, the same way the
 # wallpaper count above refuses a one-pack branding package.
 [ -f "$P/usr/bin/dagric-family" ] && [ ! -f "$P/usr/share/dagric/family/main.qml" ] && {

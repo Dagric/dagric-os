@@ -1,0 +1,28 @@
+#!/bin/sh
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Launch only fixed desktop actions, as the signed-in user. Never elevate.
+set -u
+QML=/usr/bin/qml6
+PAGE=/usr/share/dagric/desktop-settings/main.qml
+if [ ! -x "$QML" ] || [ ! -r "$PAGE" ]; then
+    exec systemsettings
+fi
+theme=$(kreadconfig6 --file kdeglobals --group Icons --key Theme 2>/dev/null || true)
+case "$theme" in DagricModern|DagricClassic|DagricOldSchool) ;; *) theme=DagricModern ;; esac
+"$QML" "$PAGE" -- "--icon-theme=$theme" 2>&1 | while IFS= read -r message; do
+    action=${message#*@DAGRIC_DESKTOP@}
+    [ "$action" != "$message" ] || continue
+    case "$action" in
+        widgets)
+            timeout 8s qdbus6 org.kde.plasmashell /PlasmaShell org.kde.PlasmaShell.toggleWidgetExplorer >/dev/null 2>&1 ||
+                kdialog --title 'Desktop & taskbar' --sorry 'The desktop is not responding. Try again after it finishes starting.' ;;
+        panel)
+            timeout 8s qdbus6 org.kde.plasmashell /PlasmaShell org.kde.PlasmaShell.evaluateScript \
+                'var p=panels(); if(p.length===0) throw new Error("No taskbar found"); p[0].showConfigurationInterface();' >/dev/null 2>&1 ||
+                kdialog --title 'Desktop & taskbar' --sorry 'Taskbar settings could not open. Right-click your taskbar and choose Edit Mode.' ;;
+        appearance) /usr/bin/dagric-appearance >/dev/null 2>&1 & ;;
+        fonts) systemsettings kcm_fonts >/dev/null 2>&1 & ;;
+        display) /usr/bin/dagric-display >/dev/null 2>&1 & ;;
+        *) : ;; # No free-form commands, arguments or scripts from QML.
+    esac
+done
