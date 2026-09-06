@@ -61,6 +61,28 @@ class Installer(unittest.TestCase):
 
 
 class Panels(unittest.TestCase):
+    def test_settings_window_uses_its_own_x11_identity(self):
+        launcher = (INC / 'usr/bin/dagric-desktop-settings').read_text()
+        hook = (ROOT / 'config/hooks/normal/0540-qml-identity.hook.chroot').read_text()
+        self.assertIn('QML=/usr/lib/dagric/wm/dagric-desktop-settings', launcher)
+        self.assertEqual(hook.count('dagric-rewind dagric-desktop-settings; do'), 2)
+
+    def test_missing_icon_fill_preserves_upstream_icons_and_actions(self):
+        source = (ROOT / 'config/hooks/normal/0555-launcher-icons.hook.chroot').read_text()
+        for icon in ('', 'Icon=\n', 'Icon=upstream-lynis\n'):
+            with self.subTest(icon=icon), tempfile.TemporaryDirectory() as tmp:
+                entry = Path(tmp) / 'lynis.desktop'
+                action = '[Desktop Action Inspect]\nIcon=original-action\n'
+                entry.write_text('[Desktop Entry]\nName=Lynis\n' + icon + 'Exec=unchanged\n' + action)
+                script = source.replace('/usr/share/applications/lynis.desktop', str(entry))
+                subprocess.run(['sh', '-s'], input=script, text=True, check=True, capture_output=True)
+                first = entry.read_text()
+                self.assertIn('Icon=upstream-lynis\n' if icon.startswith('Icon=upstream') else 'Icon=security-high\n', first)
+                self.assertIn('Exec=unchanged\n', first)
+                self.assertTrue(first.endswith(action))
+                subprocess.run(['sh', '-s'], input=script, text=True, check=True, capture_output=True)
+                self.assertEqual(first, entry.read_text())
+
     def test_first_desktop_consumes_profile_without_resetting_existing_panels(self):
         script = (INC / 'usr/share/plasma/look-and-feel/org.dagric.desktop/contents/layouts/org.kde.plasma.desktop-layout.js').read_text()
         for layout in ('classic', 'eleven'):

@@ -45,9 +45,14 @@ approval. The currently running VM and all earlier images/disks are preserved.
   failure. FIFO, oversized and malformed config input is also rejected without
   logging private file contents. Fixtures are directories, not real accounts.
   The QML choice labels and IDs are also checked against the backend allowlist.
-- Four setup/panel integration tests, including Free/Pro hook idempotence,
+- Six setup/panel integration tests, including Free/Pro hook idempotence,
   validation before partition jobs, apply after account creation, and existing
   panel preservation. Plasma scripting is mocked in these tests.
+- Static installed-icon scanning found Lynis had no icon. The image hook now
+  fills that empty field with Breeze's existing security symbol, preserving
+  any upstream icon and desktop actions. The new settings app also joins the
+  existing per-app X11 window-identity mechanism; Wayland's generic QML app ID
+  remains a documented limitation of the shared QML runtime.
 - 29 Qt tests (22 existing plus 7 installer test lifecycle/cases), zero failures.
   Installer previews reviewed at 820×660 and 520×420, including 150% text.
 - Existing Finish regression: 9 passing; display/theme regression: 23 passing.

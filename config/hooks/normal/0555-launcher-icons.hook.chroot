@@ -1,0 +1,18 @@
+#!/bin/sh
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Fill missing metadata, not third-party branding. Preserve upstream icons.
+set -e
+python3 - <<'PY'
+from pathlib import Path
+
+entry = Path('/usr/share/applications/lynis.desktop')
+if entry.is_file():
+    lines = entry.read_text().splitlines(keepends=True)
+    start = next(i for i, line in enumerate(lines) if line.strip() == '[Desktop Entry]')
+    end = next((i for i in range(start + 1, len(lines)) if lines[i].startswith('[')), len(lines))
+    section = lines[start + 1:end]
+    if not any(line.startswith('Icon=') and line.partition('=')[2].strip() for line in section):
+        lines[start + 1:end] = ['Icon=security-high\n'] + [line for line in section if not line.startswith('Icon=')]
+        entry.write_text(''.join(lines))
+        print('launcher-icons: filled missing Lynis icon with the existing security symbol')
+PY

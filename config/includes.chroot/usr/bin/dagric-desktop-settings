@@ -3,6 +3,7 @@
 # Launch only fixed desktop actions, as the signed-in user. Never elevate.
 set -u
 QML=/usr/bin/qml6
+[ ! -x /usr/lib/dagric/wm/dagric-desktop-settings ] || QML=/usr/lib/dagric/wm/dagric-desktop-settings
 PAGE=/usr/share/dagric/desktop-settings/main.qml
 if [ ! -x "$QML" ] || [ ! -r "$PAGE" ]; then
     exec systemsettings
