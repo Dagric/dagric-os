@@ -41,6 +41,13 @@ TestCase {
         compare(controls.busy,false)
     }
     function cleanup() { if(controls) controls.destroy() }
+    function test_taskbar_labels_use_visible_order_not_internal_plasma_ids() {
+        var selector=findChild(controls,"panelSelector")
+        verify(selector!==null)
+        compare(selector.currentText,"Taskbar 1 · screen 1")
+        controls.apply()
+        compare(bridge.requests[bridge.requests.length-1].payload.id,7)
+    }
     function test_apply_has_exact_allowlisted_payload_and_locks_controls() {
         controls.apply()
         var request=bridge.requests[bridge.requests.length-1]

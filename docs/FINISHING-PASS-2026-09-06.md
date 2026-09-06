@@ -15,17 +15,20 @@ identity and accessibility; reversible desktop defaults; safer build scheduling.
 
 ## Current constraints
 
-- The existing native lab is running the earlier r3 image, not the new work.
+- The native lab now runs the verified Free preview described below, not r3.
 - Native lab networking is disabled; that backend cannot prove online updates.
-- D: initially has only about 10 GiB free. No full build should start there
-  without sufficient backing-drive space. C: has about 297 GiB available.
+- D: initially had about 10 GiB free and now has about 7.9 GiB. No full build
+  or installation acceptance should assume that sparse test disks will fit.
+- C: has about 198.8 GiB free. The private build filesystem experienced kernel
+  resource-allocation/write errors and has been unmounted for inspection.
 - Unrelated legal/release documentation edits must remain untouched.
 - No public publication, release approval or physical-hardware claim follows
   merely from source checks or a working virtual machine.
 
 ## Acceptance ledger
 
-Implemented in source (not yet the running VM):
+Implemented in source (the Free preview contains these controls, but not the
+later private-user-state seed correction):
 
 - Recommended setup with optional customization; persistent preview; consistent
   light/dark card surfaces and point-size-based text; keyboard focus scrolling.
@@ -50,7 +53,8 @@ Observed checks:
   persistence at 520×420, selection names and keyboard activation.
 - Six additional Quick checks passed for native-control request payloads,
   failure handling, reset confirmation and disabling controls without a bridge
-  (36 total, including the test lifecycle checks).
+  (36 total, including the test lifecycle checks). A later display-numbering
+  regression brought the final Qt run to 37 passed, 0 failed, 0 skipped.
 - 17 desktop-controller tests passed with mocked compositor/service calls.
   These exercise actual transaction/state-file code, not actual Plasma changes.
 - 8 target-profile and 6 setup/panel integration tests passed.
@@ -70,12 +74,12 @@ storage (not a VM disk):
 
 `/var/tmp/dagric-finishing-build-mount.oyMtGNsN`
 
-It has roughly 94 GiB available internally; C: has roughly 201 GiB remaining
-after allocation. The existing native VM, its VHD and all test disks are
-unchanged. Do not delete or copy this build filesystem while mounted.
+It is a roughly 94-GiB filesystem. It is now unmounted and preserved, after
+checking that no process or child mount was using it. No existing test disk
+was deleted. Do not delete it or copy it while mounted.
 
-Still pending: final candidate build/readback, actual install/reboot/account
-creation, encryption, online updates, recovery, real Plasma reset testing,
+Still pending: replacement Free and completed Pro build/readback, actual
+install/reboot/account creation, encryption, online updates, recovery,
 screen-reader acceptance, human translations, and physical hardware tests.
 Docker Desktop failed to start because of its local dockerInference socket;
 no factory reset or global WSL restart was attempted.
@@ -104,8 +108,9 @@ size. Additional regressions cover these boundaries and bounded recovery files.
 
 ## Frozen candidate evidence
 
-Both editions are built from `faf33b8352bca8da9332200894b45eeceaa50e37`.
-Later test/build-tool commits do not change that image-source identity.
+Both edition attempts used `faf33b8352bca8da9332200894b45eeceaa50e37`.
+Only Free completed. Later commits do not change that image-source identity;
+the newest permissions fix requires replacement images.
 
 Free completed successfully in `free.256FAgj9` on the private build mount.
 The initial bounded download attempt failed for six bootstrap packages. The
@@ -138,8 +143,25 @@ Windows delivery, independently rehashed after copying:
 
 `C:\Users\1248n\Downloads\Dagric-finishing-faf33b8-20260906\Free\dagric-os-1.0-amd64.iso`
 
-Pro is building serially after Free in `pro.bsYmNpcB`, using the same exact
-source revision and the preserved Free package cache. It is not yet accepted.
+Pro ran serially after Free in `pro.bsYmNpcB`, using the same exact source
+revision and preserved package cache. It failed in the Plymouth hook while
+saving `/boot/initrd.img-6.12.107+deb13-amd64`: `sync` reported `Cannot allocate
+memory`. The host kernel recorded allocation failures and loop0/ext4 write I/O
+errors. No new Pro ISO was produced. A later successful `sync` does not prove
+the earlier file contents survived intact. PhotoGIMP's optional download also
+failed, so it was not installed in this incomplete root.
+
+The exact private build mount was checked for open consumers and child mounts,
+then unmounted without force. Read-only `e2fsck -fn` on its verified backing
+file completed all five passes with exit 0. That establishes no detected
+filesystem-structure errors, not boot-image content integrity or a cured host
+resource problem. The file and build directories are preserved; no automatic
+repair, resumed Pro build, global WSL restart or disk deletion was performed.
+
+Copied evidence is under `out/finishing-evidence-20260906`: Pro console/build
+logs, the read-only filesystem check, Calamares integration evidence and the
+five installed Quick pages' generated results, logs and renderings. Mount and
+kernel inspection is recorded in `out/finishing-storage-inspection.json`.
 
 ## Fresh Free VM
 
@@ -156,3 +178,60 @@ The fixed native lab remains BIOS-only, offline and without audio/recording.
 After staging Free, D: has approximately 7.9 GiB free. That is not sufficient
 headroom to assume full Free and Pro installations will both fit. C: build and
 delivery space is separate; do not bypass the lab's fixed storage boundary.
+
+### Observed installer and desktop interaction
+
+- Guided disk selection explains whole-drive erasure and advanced custom
+  layouts; accounts share free space rather than needing separate partitions.
+  The sole target was the fresh 64-GiB `vda` test disk. Btrfs and the encryption
+  option were visible. No partitioning, passwords or installation were submitted.
+- Recommended/Customize worked inside the installer. Light, Familiar, Classic
+  icons and 150% text visibly changed their selected state and the persistent
+  preview. Keyboard focus scrolled choices into view without moving the window
+  or the real taskbar. Larger text did not launch another Settings application.
+- The installer was canceled before account creation. No credentials were
+  entered and the test disk remains uninstalled.
+- Desktop & taskbar launched as its own Dagric application. It initially
+  refused to write its journal: the live account's `.local` and
+  `.local/state/dagric` were 0775. `namei -l` confirmed the exact ownership and
+  modes. Only those two user-owned directories in the disposable live session
+  were changed to 0700; refreshing then loaded actual Plasma panel properties.
+- A real taskbar thickness preview changed 48 to 52 pixels and displayed the
+  countdown. After timeout, the UI and visible panel returned to 48 pixels.
+  A second preview was applied and the settings window was closed with 34
+  seconds remaining. The visible panel returned to its original thickness
+  before reopening settings; the reopened UI read back 48 pixels. This is
+  runtime evidence for that single panel and session, not all hardware.
+- Default-layout preview ran after explicit confirmation; Keep enabled the
+  saved-layout undo action. Undo last layout reset started another timed preview;
+  Keep completed it and restored enabled controls, with the desktop still
+  responsive. This is a smoke check on a near-default single-account layout,
+  not an exhaustive custom-widget or multi-monitor reset test.
+
+### Corrections after live testing
+
+`0996-private-user-state.hook.chroot` now seeds `.config`, `.local`,
+`.local/state` and `.local/state/dagric` as 0700 for future live/installer users.
+It checks for symlinks, non-directories and foreign ownership before touching
+the named directories. Existing installed user directories are not silently
+rewritten; the controller's strict permission guard was not weakened.
+
+The Pro PhotoGIMP hook now requires both successful curl completion and the
+exact pinned SHA-256 before unpacking. It uses a unique temporary directory,
+bounded connect/transfer timeouts and an explicitly build-only IPv4 option.
+A failed transfer leaving a file behind can no longer enter the unpack branch.
+
+Four private-directory fixture tests and four actual download-fragment tests
+passed. They are included in the build preflight and source audit. Image
+verification now checks the four skeleton directory modes, so the older Free
+preview cannot be mistaken for an image containing this latest fix.
+
+The taskbar selector previously displayed Plasma's internal ID (for example,
+the only taskbar appeared as Taskbar 2). It now displays ordinal numbering from
+1, while application requests retain the real internal ID. The Qt regression
+checks that a displayed Taskbar 1 still sends the fixture's real ID 7. The
+`dagric-tools` payload version is 1.1.26; the Free preview contains 1.1.25.
+
+The full source-only audit passed after the directory/download changes, and
+the separate final Qt suite passed with the label correction. Logs explicitly
+exclude generated-image acceptance and qualified release approval.

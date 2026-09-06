@@ -81,7 +81,7 @@ ColumnLayout {
         enabled: !!controls.bridge && !controls.busy && !controls.pending && controls.panels.length > 0
         Layout.fillWidth: true
         Label { text: qsTr("Taskbar to change"); Layout.fillWidth: true; wrapMode: Text.WordWrap }
-        ComboBox { id: selector; Layout.fillWidth: true; model: controls.panels.map(function(p) { return qsTr("Taskbar %1 · screen %2").arg(p.id).arg(p.screen + 1) }); Accessible.name: qsTr("Taskbar to change"); onActivated: controls.selectPanel() }
+        ComboBox { id: selector; objectName: "panelSelector"; Layout.fillWidth: true; model: controls.panels.map(function(p, index) { return qsTr("Taskbar %1 · screen %2").arg(index + 1).arg(p.screen + 1) }); Accessible.name: qsTr("Taskbar to change"); onActivated: controls.selectPanel() }
         Label { text: qsTr("Height / thickness (pixels)"); Layout.fillWidth: true; wrapMode: Text.WordWrap }
         SpinBox { id: size; from: 24; to: 120; stepSize: 4; value: 48; editable: true; Accessible.name: qsTr("Taskbar height in pixels") }
         Label { text: qsTr("Screen edge"); Layout.fillWidth: true; wrapMode: Text.WordWrap }

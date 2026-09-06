@@ -11,6 +11,7 @@ import importlib.util
 import json
 from pathlib import Path
 import re
+import stat
 import subprocess
 import tempfile
 import yaml
@@ -75,6 +76,7 @@ def verify(base, revision, output_root='/var/tmp'):
         'etc/calamares/modules/users.conf', 'etc/calamares/modules/welcome.conf',
         'etc/calamares/modules/unpackfs.conf', 'etc/calamares/branding/dagric/branding.desc',
         'etc/skel/.config/autostart/dagric-firstrun.desktop',
+        'etc/skel/.local/state/dagric',
         'usr/share/applications/calamares-install-debian.desktop', 'var/lib/dpkg/status',
         'usr/lib/x86_64-linux-gnu/calamares/modules/packagechooserq/module.desc'] +
         [f'var/lib/dpkg/info/{package}.md5sums' for package in owned] +
@@ -108,6 +110,8 @@ def verify(base, revision, output_root='/var/tmp'):
     assert (root / 'etc/dagric-edition').read_text().strip() == edition
     assert 'Exec=dagric-firstrun --autostart\n' in (root / 'etc/skel/.config/autostart/dagric-firstrun.desktop').read_text()
     assert 'firstrun-done' not in run('unsquashfs', '-ll', str(squashfs), 'etc/skel')
+    for path in ('etc/skel/.config', 'etc/skel/.local', 'etc/skel/.local/state', 'etc/skel/.local/state/dagric'):
+        assert stat.S_IMODE((root / path).stat().st_mode) == 0o700, ('private user-state seed', path)
     users = yaml.safe_load((root / 'etc/calamares/modules/users.conf').read_text())
     assert users['passwordRequirements']['nonempty'] is True
     assert users['setRootPassword'] is False and 'sudo' in users['defaultGroups']

@@ -1,0 +1,25 @@
+#!/bin/sh
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Seed private state directories for both live-config and Calamares users.
+# Debian's private-user-group umask can otherwise make .local and dagric 0775,
+# which correctly fails the desktop recovery journal's parent-directory guard.
+set -eu
+for directory in /etc/skel /etc/skel/.config /etc/skel/.local \
+                 /etc/skel/.local/state /etc/skel/.local/state/dagric; do
+    if [ -L "$directory" ]; then
+        echo "ERROR: refusing linked skeleton directory: $directory" >&2
+        exit 1
+    fi
+    if [ -e "$directory" ]; then
+        [ -d "$directory" ] && [ "$(stat -c %u "$directory")" -eq 0 ] || {
+            echo "ERROR: unsafe skeleton directory: $directory" >&2
+            exit 1
+        }
+    fi
+done
+for directory in /etc/skel/.config /etc/skel/.local \
+                 /etc/skel/.local/state /etc/skel/.local/state/dagric; do
+    mkdir -p "$directory"
+    chmod 0700 "$directory"
+done
+echo 'user-state: private .config/.local/state/dagric parents seeded for new accounts'

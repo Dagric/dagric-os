@@ -496,19 +496,24 @@ fi
 PG_VER=3.1
 PG_SHA256=05ca56937dbe9aa5ea6b6a18b4cb530f4e508e61ce69afd58caba0414cadebbb
 PG_URL="https://github.com/Diolinux/PhotoGIMP/archive/refs/tags/${PG_VER}.zip"
-PG_TMP=/tmp/photogimp
-mkdir -p "$PG_TMP"
-if curl -fsSL -o "$PG_TMP/pg.zip" "$PG_URL" 2>/dev/null; then
+PG_TMP=$(mktemp -d /tmp/photogimp.XXXXXXXX)
+PG_VERIFIED=0
+# This is a build-only download. A failed transfer must never feed a partial
+# archive to unzip, even if curl left a file behind. Keep the exact hash gate.
+set --
+[ "${DAGRIC_BUILD_IPV4:-0}" != 1 ] || set -- -4
+if curl "$@" -fsSL --connect-timeout 15 --max-time 180 \
+        -o "$PG_TMP/pg.zip" "$PG_URL" 2>/dev/null; then
     PG_GOT=$(sha256sum "$PG_TMP/pg.zip" | cut -d' ' -f1)
     if [ "$PG_GOT" != "$PG_SHA256" ]; then
         echo "WARNING: PhotoGIMP $PG_VER CHECKSUM MISMATCH — refusing to install"
         echo "  expected $PG_SHA256"
         echo "  got      $PG_GOT"
-        rm -rf "$PG_TMP"
-        PG_TMP=""
+    else
+        PG_VERIFIED=1
     fi
 fi
-if [ -n "$PG_TMP" ] && [ -f "$PG_TMP/pg.zip" ]; then
+if [ "$PG_VERIFIED" -eq 1 ] && [ -f "$PG_TMP/pg.zip" ]; then
     if command -v unzip >/dev/null 2>&1 || apt-get install -y -qq unzip >/dev/null 2>&1; then
         unzip -q "$PG_TMP/pg.zip" -d "$PG_TMP"
         SRC=$(find "$PG_TMP" -maxdepth 2 -type d -name ".config" | head -1)

@@ -118,7 +118,8 @@ def verify(fd, lock=LOCK):
 def validate_source(source):
     for relative in ('tools/check-source.py', 'test/test-build-directory.py',
                      'test/test-build-guard.py', 'test/test-install-profile.py',
-                     'test/test-setup-integration.py', 'test/test-desktop-controls.py'):
+                     'test/test-setup-integration.py', 'test/test-desktop-controls.py',
+                     'test/test-private-user-state.py', 'test/test-pro-download.py'):
         subprocess.run([sys.executable, str(source / relative)], cwd=source, check=True)
     subprocess.run([sys.executable, str(source / 'tools/check-quick-ui.py')], cwd=source, check=True)
 
