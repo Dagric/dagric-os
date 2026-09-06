@@ -87,6 +87,7 @@ import QtQuick
 import QtQuick.Window
 import QtQuick.Controls
 import QtQuick.Layouts
+import "../design" as DagricDesign
 
 ApplicationWindow {
     id: app
@@ -907,7 +908,7 @@ ApplicationWindow {
             Layout.fillWidth: true
             text: ph.heading
             color: app.cText
-            font.pixelSize: app.px(27)
+            font.pixelSize: app.px(app.shortWin ? 27 : 32)
             font.bold: true
             wrapMode: Text.WordWrap
             // Big and bold is a sighted reader's cue that this is the heading.
@@ -1373,6 +1374,19 @@ ApplicationWindow {
             visible: app.width >= app.px(900)
             color: app.cPanel
 
+            DagricDesign.Aperture {
+                width: parent.width * 1.4
+                height: width
+                anchors.horizontalCenter: parent.horizontalCenter
+                anchors.bottom: parent.bottom
+                anchors.bottomMargin: app.px(90)
+                accent: app.cAccent
+                dark: app.dark
+                animate: false
+                opacity: 0.28
+                visible: parent.height > app.px(560)
+            }
+
             Rectangle {
                 anchors.right: parent.right
                 height: parent.height
@@ -1391,12 +1405,23 @@ ApplicationWindow {
 
                 Repeater {
                     model: app.steps
-                    delegate: RowLayout {
+                    delegate: Item {
                         id: railRow
                         required property int index
                         required property string modelData
                         Layout.fillWidth: true
-                        spacing: app.px(11)
+                        Layout.preferredHeight: app.px(40)
+
+                        Rectangle {
+                            anchors.fill: parent
+                            anchors.leftMargin: -app.px(8)
+                            anchors.rightMargin: -app.px(8)
+                            radius: app.px(10)
+                            color: app.cPanel2
+                            opacity: railRow.index === app.stepIndex ? 1 : 0
+                            Behavior on opacity { NumberAnimation { duration: app.motionMs(200) } }
+                            Accessible.ignored: true
+                        }
 
                         // The rail is a progress indicator, and the numbered
                         // circle plus the title only mean something together.
@@ -1410,6 +1435,9 @@ ApplicationWindow {
                                             : (railRow.index < app.stepIndex ? app.t("done")
                                                : app.t("not done yet")))
 
+                        RowLayout {
+                        anchors.fill: parent
+                        spacing: app.px(11)
                         Rectangle {
                             Layout.preferredWidth: app.px(26)
                             Layout.preferredHeight: app.px(26)
@@ -1441,6 +1469,7 @@ ApplicationWindow {
                             elide: Text.ElideRight
                             verticalAlignment: Text.AlignVCenter
                             Accessible.ignored: true
+                        }
                         }
                     }
                 }
@@ -1489,6 +1518,14 @@ ApplicationWindow {
                 padWide: 40
                 active: app.step === "welcome" && app.loadError === ""
 
+                RowLayout {
+                    Layout.fillWidth: true
+                    Layout.fillHeight: true
+                    spacing: app.px(24)
+                ColumnLayout {
+                    Layout.fillWidth: true
+                    Layout.minimumWidth: 0
+                    spacing: 0
                 Item { Layout.fillHeight: true }
 
                 Rectangle {
@@ -1524,7 +1561,7 @@ ApplicationWindow {
                     Layout.fillWidth: true
                     text: app.tf("Welcome to %1.", app.editionName)
                     color: app.cText
-                    font.pixelSize: app.px(34)
+                    font.pixelSize: app.px(app.shortWin ? 34 : 44)
                     font.bold: true
                     wrapMode: Text.WordWrap
                     Accessible.role: Accessible.Heading
@@ -1566,6 +1603,60 @@ ApplicationWindow {
                 }
 
                 Item { Layout.fillHeight: true }
+                }
+                Rectangle {
+                    objectName: "welcomeApertureCard"
+                    visible: app.width >= app.px(1180) && !app.shortWin
+                    Layout.preferredWidth: Math.min(app.px(440), pageArea.width * 0.40)
+                    Layout.fillHeight: true
+                    Layout.maximumHeight: app.px(500)
+                    Layout.minimumWidth: 0
+                    radius: app.px(12)
+                    color: app.cPanel
+                    border.width: 1
+                    border.color: app.cEdge
+                    clip: true
+                    Accessible.ignored: true
+                    DagricDesign.Aperture {
+                        anchors.fill: parent
+                        accent: app.cAccent
+                        dark: app.dark
+                        reducedMotion: app.reducedMotion
+                        animate: app.step === "welcome"
+                    }
+                    Image {
+                        id: welcomeMark
+                        anchors.centerIn: parent
+                        anchors.verticalCenterOffset: -app.px(20)
+                        width: Math.min(parent.width * 0.28, app.px(128))
+                        height: width
+                        source: "../../icons/hicolor/scalable/apps/dagric-logo.svg"
+                        sourceSize.width: 512
+                        sourceSize.height: 512
+                        fillMode: Image.PreserveAspectFit
+                        smooth: true
+                        visible: status === Image.Ready
+                    }
+                    Text {
+                        anchors.centerIn: parent
+                        visible: welcomeMark.status !== Image.Ready
+                        text: "D"
+                        color: app.cText
+                        font.pixelSize: app.px(72)
+                        font.weight: Font.DemiBold
+                    }
+                    Text {
+                        anchors.horizontalCenter: parent.horizontalCenter
+                        anchors.bottom: parent.bottom
+                        anchors.bottomMargin: app.px(28)
+                        text: "DAGRIC"
+                        color: app.cText
+                        font.pixelSize: app.px(18)
+                        font.weight: Font.DemiBold
+                        font.letterSpacing: app.px(5)
+                    }
+                }
+                }
             }
 
             // ---------------------------------------------------- appearance

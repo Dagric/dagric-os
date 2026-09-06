@@ -78,13 +78,29 @@ TestCase {
     function test_global_theme_resolves_dagric_splash() {
         var c = Qt.createComponent("../../config/includes.chroot/usr/share/plasma/look-and-feel/org.dagric.desktop/contents/splash/Splash.qml");
         compare(c.status, Component.Ready, c.errorString());
-        var splash = c.createObject(wizard.contentItem, {width:800,height:600,stage:1});
+        var splash = c.createObject(wizard.contentItem, {width:800,height:600,stage:1,
+            motionSettingsUrl: Qt.resolvedUrl("../fixtures/motion-disabled.ini")});
         verify(splash !== null);
         compare(splash.stage, 1);
+        compare(splash.motionFactor, 0); // actual INI read, not a simulated flag
+        splash.motionFactor = 0;
+        verify(splash.reducedMotion);
+        splash.motionFactor = 1;
+        verify(!splash.reducedMotion);
         splash.stage = 6;
         wait(250);
         splash.reducedMotion = true;
         compare(splash.reducedMotion, true);
+        var art = findChild(splash, "startupAperture");
+        verify(art !== null);
+        verify(!art.moving);
+        compare(art.reveal, 1);
+        compare(splash.progress, 1);
+        splash.stage = -1;
+        compare(splash.progress, 0);
+        splash.stage = 6;
+        var splashPath = decodeURIComponent(Qt.resolvedUrl("../../out/aperture-startup-800.png").toString().replace("file://", ""));
+        grabImage(splash).save(splashPath);
         splash.destroy();
     }
 
@@ -112,6 +128,17 @@ TestCase {
             verify(p.x >= 0 && p.y >= 0);
             verify(p.x + next.width <= wizard.width + 1);
             verify(p.y + next.height <= wizard.height + 1);
+            if (wizard.step === "welcome") {
+                var hero = findChild(wizard.contentItem, "welcomeApertureCard");
+                verify(hero !== null);
+                if (hero.visible) {
+                    var h = hero.mapToItem(wizard.contentItem, 0, 0);
+                    verify(h.x >= 0 && h.x + hero.width <= wizard.width + 1);
+                    verify(h.y >= 0 && h.y + hero.height <= wizard.height + 1);
+                }
+                var welcomePath = decodeURIComponent(Qt.resolvedUrl("../../out/aperture-welcome-"+data.tag+".png").toString().replace("file://", ""));
+                grabImage(wizard.contentItem).save(welcomePath);
+            }
             if (wizard.step === "display") {
                 wizard.scaleTrial = true;
                 wizard.scaleSeconds = 20;
