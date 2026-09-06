@@ -114,9 +114,14 @@ esac
 # --firmware-binary false: this build has no Debian Installer payload
 # (--debian-installer none), so the separate installer-firmware bundle is both
 # unused and outside Dagric's explicit package inventory.
+# Bootstrap downloads use host-verified HTTPS: plain HTTP wget stalled in the
+# WSL build host while HTTPS completed. Keep the chroot's existing signed APT
+# transport unchanged; its trust store is installed later by the package lists.
 lb config noauto \
     --distribution trixie \
     --architectures amd64 \
+    --mirror-bootstrap "https://deb.debian.org/debian/" \
+    --mirror-chroot "http://deb.debian.org/debian/" \
     --archive-areas "main contrib non-free non-free-firmware" \
     --binary-images iso-hybrid \
     --debian-installer none \

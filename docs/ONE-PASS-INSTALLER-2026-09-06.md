@@ -40,9 +40,10 @@ approval. The currently running VM and all earlier images/disks are preserved.
 
 ## Tests so far
 
-- Six target-profile tests, including 108 combinations, ownership, invalid
+- Seven target-profile tests, including 108 combinations, ownership, invalid
   inputs, symlink rejection, privileged-account rejection and simulated write
-  failure. Fixtures are temporary directories, not real installed accounts.
+  failure. FIFO, oversized and malformed config input is also rejected without
+  logging private file contents. Fixtures are directories, not real accounts.
 - Four setup/panel integration tests, including Free/Pro hook idempotence,
   validation before partition jobs, apply after account creation, and existing
   panel preservation. Plasma scripting is mocked in these tests.
@@ -75,3 +76,14 @@ Actual new-image boot, interactive installer navigation, install/reboot into the
 selected desktop, encryption, updates and rollback. Human translation and
 accessibility checks remain necessary. This task does not clear source-delivery,
 rights, physical hardware or other release gates.
+
+## Build checks and retries
+
+The first isolated Free build stopped at the launcher-localization gate; the
+new entry was added with explicitly unreviewed machine translations in five
+languages. No gate was bypassed. A subsequent build passed that check but wget
+stalled on an HTTP bootstrap package. HTTPS retrieval of the same official
+Debian file succeeded. Only that build's verified process tree was stopped;
+its source, logs and incomplete directory were retained. Bootstrap now uses
+HTTPS with the host's normal certificate and archive-signature verification.
+The active VM was not stopped or modified.

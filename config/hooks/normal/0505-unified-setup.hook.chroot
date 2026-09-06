@@ -34,6 +34,7 @@ assert show.index('users') < show.index('summary')
 assert 'users' in steps[1]['exec']
 assert 'unpackfs' in steps[1]['exec']
 assert 'umount' in steps[1]['exec']
+assert steps[1]['exec'].index('unpackfs') < steps[1]['exec'].index('users') < steps[1]['exec'].index('umount')
 assert settings.get('dont-chroot') is False
 # Use the packaged QML chooser's single-selection legacy/custom interface.
 # The allowlisted profile is handled by Dagric; it installs no extra packages.

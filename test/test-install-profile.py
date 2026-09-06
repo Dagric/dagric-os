@@ -77,6 +77,23 @@ class InstalledProfile(unittest.TestCase):
             profile.apply_to_target(str(self.root), 'sample', profile.DEFAULT)
         self.assertFalse((self.home / '.config/dagric/firstrun-done').exists())
 
+    def test_untrusted_config_fifo_symlink_and_oversize_are_rejected(self):
+        with tempfile.TemporaryDirectory(prefix='dagric-config-input-') as name:
+            parent = Path(name)
+            fd = os.open(parent, os.O_RDONLY | os.O_DIRECTORY)
+            try:
+                os.mkfifo(parent / 'fifo')
+                with self.assertRaises(ValueError): profile.read_config(fd, 'fifo')
+                (parent / 'link').symlink_to(self.root / 'etc/passwd')
+                with self.assertRaises(OSError): profile.read_config(fd, 'link')
+                (parent / 'large').write_text('x' * (256 * 1024 + 1))
+                with self.assertRaises(ValueError): profile.read_config(fd, 'large')
+                (parent / 'invalid').write_text('private contents with no section')
+                with self.assertRaisesRegex(ValueError, '^Existing desktop configuration could not be read$'):
+                    profile.read_config(fd, 'invalid')
+            finally:
+                os.close(fd)
+
 
 if __name__ == '__main__':
     if os.geteuid() != 0: raise SystemExit('Run in isolated WSL test environment as root; verifies uid 1000 ownership.')

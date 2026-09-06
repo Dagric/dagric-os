@@ -68,12 +68,13 @@ def write_private(parent, name, content, uid, gid):
     temp = name + ".dagric-new"
     fd = os.open(temp, os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW, 0o600, dir_fd=parent)
     try:
-        os.fchown(fd, uid, gid)
         with os.fdopen(fd, "w", encoding="utf-8") as stream:
+            os.fchown(stream.fileno(), uid, gid)
             stream.write(content)
             stream.flush()
             os.fsync(stream.fileno())
         os.replace(temp, name, src_dir_fd=parent, dst_dir_fd=parent)
+        os.fsync(parent)
     finally:
         try:
             os.unlink(temp, dir_fd=parent)
@@ -85,13 +86,18 @@ def read_config(parent, name):
     config = configparser.ConfigParser(interpolation=None, strict=False)
     config.optionxform = str
     try:
-        fd = os.open(name, os.O_RDONLY | os.O_NOFOLLOW, dir_fd=parent)
+        fd = os.open(name, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK, dir_fd=parent)
     except FileNotFoundError:
         return config
     with os.fdopen(fd, encoding="utf-8") as stream:
-        if not stat.S_ISREG(os.fstat(stream.fileno()).st_mode):
+        info = os.fstat(stream.fileno())
+        if not stat.S_ISREG(info.st_mode) or info.st_size > 256 * 1024:
             raise ValueError("Configuration is not a regular file")
-        config.read_file(stream)
+        try:
+            config.read_file(stream)
+        except (configparser.Error, UnicodeError) as error:
+            # Do not include file contents from a reused home in installer logs.
+            raise ValueError("Existing desktop configuration could not be read") from error
     return config
 
 
