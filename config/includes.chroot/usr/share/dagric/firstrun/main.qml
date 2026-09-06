@@ -800,7 +800,8 @@ ApplicationWindow {
         id: pb
         opacity: enabled ? 1 : 0.45
         implicitHeight: app.px(40)
-        implicitWidth: Math.max(app.px(120), pbText.implicitWidth + app.px(44))
+        implicitWidth: Math.max(app.px(app.width < app.px(600) ? 100 : 120),
+                               pbText.implicitWidth + app.px(app.width < app.px(600) ? 24 : 44))
         Keys.onReturnPressed: function(event) { pb.clicked(); event.accepted = true; }
         Keys.onEnterPressed:  function(event) { pb.clicked(); event.accepted = true; }
         // Keep text on its native pixel grid; color supplies press feedback.
@@ -841,7 +842,8 @@ ApplicationWindow {
         id: gb
         opacity: enabled ? 1 : 0.45
         implicitHeight: app.px(40)
-        implicitWidth: Math.max(app.px(110), gbText.implicitWidth + app.px(40))
+        implicitWidth: Math.max(app.px(app.width < app.px(600) ? 80 : 110),
+                               gbText.implicitWidth + app.px(app.width < app.px(600) ? 20 : 40))
         Keys.onReturnPressed: function(event) { gb.clicked(); event.accepted = true; }
         Keys.onEnterPressed:  function(event) { gb.clicked(); event.accepted = true; }
         Accessible.description: gb.text === app.t("Back")
@@ -1606,7 +1608,7 @@ ApplicationWindow {
                 }
                 Rectangle {
                     objectName: "welcomeApertureCard"
-                    visible: app.width >= app.px(1180) && !app.shortWin
+                    visible: app.width >= app.px(1180) && app.height >= app.px(560)
                     Layout.preferredWidth: Math.min(app.px(440), pageArea.width * 0.40)
                     Layout.fillHeight: true
                     Layout.maximumHeight: app.px(500)
@@ -2060,8 +2062,9 @@ ApplicationWindow {
                 active: app.step === "display" && app.loadError === ""
 
                 PageHead {
-                    heading: app.t("Is the text the right size?")
-                    sub: (app.scaleMode === "x11"
+                    heading: app.scaleTrial && app.height < app.px(560)
+                             ? app.t("Text size") : app.t("Is the text the right size?")
+                    sub: app.scaleTrial && app.height < app.px(560) ? "" : (app.scaleMode === "x11"
                             ? app.t("Dagric guessed from your screen. A change here takes effect the next time you sign in.")
                             : app.t("Try a size here. Keep it within 20 seconds, or Dagric puts it back. This changes text and icons on all screens."))
                 }
@@ -2070,7 +2073,7 @@ ApplicationWindow {
                 Flow {
                     Layout.fillWidth: true
                     spacing: app.px(14)
-                    visible: true
+                    visible: !(app.scaleTrial && app.height < app.px(560))
                     enabled: !app.scaleBusy && !app.scaleTrial && (app.scaleMode !== "wayland" || app.scaleReady)
 
                     Accessible.role: Accessible.Grouping

@@ -221,6 +221,7 @@ want=$(ls -1d "$INC"/usr/share/wallpapers/Dagric*/ 2>/dev/null | wc -l)
 cp -r "$INC/usr/share/dagric/logo"        "$P/usr/share/dagric/"
 [ -d "$INC/usr/share/dagric/sddm" ]   && cp -r "$INC/usr/share/dagric/sddm"   "$P/usr/share/dagric/"
 [ -d "$INC/usr/share/dagric/splash" ] && cp -r "$INC/usr/share/dagric/splash" "$P/usr/share/dagric/"
+[ -d "$INC/usr/share/dagric/design" ] && cp -r "$INC/usr/share/dagric/design" "$P/usr/share/dagric/"
 [ -d "$INC/usr/share/sddm/themes" ]   && cp -r "$INC/usr/share/sddm/themes/." "$P/usr/share/sddm/themes/"
 # THE .ts SOURCES MUST NOT BE PACKED. 0995-file-modes deletes them from the
 # image (they are Qt translation SOURCES; only the compiled .qm is read at

@@ -56,6 +56,31 @@ TestCase {
         compare(wizard.motionMs(200), 200);
     }
 
+    function test_decorative_motion_is_finite_and_optional() {
+        var c = Qt.createComponent("../../config/includes.chroot/usr/share/dagric/design/Aperture.qml");
+        compare(c.status, Component.Ready, c.errorString());
+        var art = c.createObject(wizard.contentItem, {width:400,height:400,animate:false});
+        verify(art !== null);
+        compare(art.reveal, 1);
+        art.animate = true;
+        art.enter();
+        wait(60);
+        verify(art.moving);
+        var start = grabImage(art);
+        wait(1000);
+        verify(!art.moving);
+        compare(art.reveal, 1);
+        verify(!grabImage(art).equals(start));
+        art.enter();
+        art.reducedMotion = true;
+        verify(!art.moving);
+        compare(art.reveal, 1);
+        var still = grabImage(art);
+        wait(150);
+        verify(grabImage(art).equals(still));
+        art.destroy();
+    }
+
     function test_layout_preview_does_not_resize_window() {
         var w = wizard.width, h = wizard.height, x = wizard.x, y = wizard.y;
         wizard.pickLayout(wizard.layouts[1]);
@@ -110,12 +135,17 @@ TestCase {
                 {tag:"desktop",w:1920,h:1080,edition:"free"},
                 {tag:"pro-small",w:800,h:600,edition:"pro"},
                 {tag:"pro-laptop",w:1366,h:768,edition:"pro"},
-                {tag:"pro-desktop",w:1920,h:1080,edition:"pro"}];
+                {tag:"pro-desktop",w:1920,h:1080,edition:"pro"},
+                {tag:"pro-light",w:1366,h:768,edition:"pro",mode:"light"},
+                {tag:"pro-large-text",w:1024,h:768,edition:"pro",ui:1.5},
+                {tag:"compact",w:360,h:400,edition:"free"}];
     }
     function test_page_matrix(data) {
         wizard.edition=data.edition;
         wizard.editionName=data.edition === "pro" ? "Dagric OS Pro" : "Dagric OS";
         wizard.width=data.w; wizard.height=data.h;
+        wizard.mode=data.mode || "dark";
+        if (data.ui) wizard.ui=data.ui;
         for(var i=0;i<wizard.steps.length;i++) {
             wizard.stepIndex=i;
             wait(220);
