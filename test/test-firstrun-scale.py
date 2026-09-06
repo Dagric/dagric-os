@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 """Offline controller regressions; no real monitor settings are changed."""
 import importlib.util
+import fcntl
 import json
 import os
 from pathlib import Path
@@ -174,13 +175,29 @@ m.Trials.__init__.__defaults__ = (read, change, time.monotonic)
 sys.argv = ['fixture', '--status', status]
 m.main()
 """
-        self.process = subprocess.Popen([sys.executable, "-u", "-c", script,
+        self.command = [sys.executable, "-u", "-c", script,
             str(ROOT / "config/includes.chroot/usr/lib/dagric/firstrun-scale.py"),
-            str(self.hardware), str(self.status)], stdin=subprocess.PIPE,
-            stdout=subprocess.DEVNULL, stderr=subprocess.PIPE,
-            env=dict(os.environ, XDG_STATE_HOME=str(self.path / "state")))
+            str(self.hardware), str(self.status)]
+        self.environment = dict(os.environ, XDG_STATE_HOME=str(self.path / "state"))
+        self.start_worker()
         self.addCleanup(self.stop)
         self.await_phase("idle")
+
+    def start_worker(self):
+        self.process = subprocess.Popen(self.command, stdin=subprocess.PIPE,
+            stdout=subprocess.DEVNULL, stderr=subprocess.PIPE,
+            env=self.environment)
+
+    def contend_at_startup(self):
+        self.stop()
+        self.status.unlink()
+        owner = (self.path / "state/dagric/display-trial.lock").open("a")
+        self.addCleanup(owner.close)
+        fcntl.flock(owner, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        self.start_worker()
+        self.await_phase("waiting")
+        self.assert_restored()
+        return owner
 
     def stop(self):
         if self.process.poll() is None:
@@ -226,6 +243,32 @@ m.main()
     def test_real_watchdog_restores_with_no_ui_messages(self):
         self.begin_trial()
         self.await_phase("reverted", seconds=23)
+        self.assert_restored()
+
+    def test_login_lock_releases_into_usable_controls(self):
+        owner = self.contend_at_startup()
+        first = json.loads(self.status.read_text())["revision"]
+        self.process.stdin.write(b"SCALE|150\n")
+        self.process.stdin.flush()
+        fcntl.flock(owner, fcntl.LOCK_UN)
+        self.await_phase("idle")
+        self.assert_restored()  # Requests sent before readiness are discarded.
+        self.assertGreater(json.loads(self.status.read_text())["revision"], first)
+        self.begin_trial()
+        self.process.stdin.close()
+        self.assertEqual(self.process.wait(timeout=8), 0)
+        self.assert_restored()
+
+    def test_close_while_waiting_does_not_change_display(self):
+        self.contend_at_startup()
+        self.process.stdin.close()
+        self.assertEqual(self.process.wait(timeout=8), 0)
+        self.assert_restored()
+
+    def test_terminate_while_waiting_does_not_change_display(self):
+        self.contend_at_startup()
+        self.process.terminate()
+        self.assertEqual(self.process.wait(timeout=8), 0)
         self.assert_restored()
 
 

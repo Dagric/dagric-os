@@ -138,6 +138,24 @@ TestCase {
         verify(!wizard.finished);
     }
 
+    function test_waiting_for_display_does_not_block_navigation() {
+        wizard.width = 800; wizard.height = 600;
+        wizard.stepIndex = wizard.steps.indexOf("display");
+        wizard.scaleMode = "wayland";
+        wizard.scaleReady = false;
+        wait(30);
+        var notice = findChild(wizard.contentItem, "textSizeWaiting");
+        verify(notice.visible);
+        verify(notice.text.indexOf("Waiting for display setup") >= 0);
+        var next = findChild(wizard.contentItem, "setupNext");
+        verify(next.enabled);
+        var p = next.mapToItem(wizard.contentItem, 0, 0);
+        verify(p.y + next.height <= wizard.height + 1);
+        wizard.scaleReady = true;
+        wait(20);
+        verify(!notice.visible);
+    }
+
     function test_boot_art_moves_without_moving_text_and_stops() {
         var c = Qt.createComponent("../../config/includes.chroot/usr/share/plasma/look-and-feel/org.dagric.splash/contents/splash/Splash.qml");
         var splash = c.createObject(wizard.contentItem, {width:800,height:600,stage:1});

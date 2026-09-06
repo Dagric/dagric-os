@@ -667,7 +667,7 @@ ApplicationWindow {
                 var s = JSON.parse(xhr.responseText);
                 if (s.revision <= app.scaleRevision) return;
                 app.scaleRevision = s.revision;
-                app.scaleReady = true;
+                app.scaleReady = s.phase !== "waiting";
                 app.allowedScales = s.allowed || [];
                 app.scaleBusy = false;
                 app.scaleTrial = s.phase === "trial";
@@ -2194,6 +2194,18 @@ ApplicationWindow {
                             wrapMode: Text.WordWrap
                         }
                     }
+                }
+
+                Text {
+                    objectName: "textSizeWaiting"
+                    Layout.fillWidth: true
+                    visible: app.scaleMode === "wayland" && !app.scaleReady
+                    text: app.t("Waiting for display setup. Close other display tools if this takes a while.")
+                    color: app.cDim
+                    font.pixelSize: app.px(14)
+                    wrapMode: Text.WordWrap
+                    Accessible.role: Accessible.StaticText
+                    Accessible.name: text
                 }
 
                 Item { Layout.fillHeight: true }

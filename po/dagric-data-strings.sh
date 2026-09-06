@@ -109,6 +109,7 @@ gettext "This is a temporary desktop. Choose Install Dagric in Set Up Dagric to 
 gettext "Install Dagric"
 gettext "Try it first"
 gettext "Applying your size…"
+gettext "Waiting for display setup. Close other display tools if this takes a while."
 gettext "Selected text size: %1%"
 gettext "Choose a text size."
 gettext "Your files, your apps, your space."

@@ -320,7 +320,7 @@ if [ "$SCALE_MODE" = wayland ]; then
     mkfifo -m 600 "$WORK/scale-requests" || exit 1
     exec 9<>"$WORK/scale-requests"
     python3 /usr/lib/dagric/firstrun-scale.py --status "$SCALE_STATUS" \
-        < "$WORK/scale-requests" 9>&- >/dev/null 2>&1 &
+        < "$WORK/scale-requests" 9>&- >/dev/null 2>"$WORK/scale-worker.log" &
     SCALE_PID=$!
 fi
 
@@ -1217,6 +1217,7 @@ This is a temporary desktop. Choose Install Dagric in Set Up Dagric to create yo
 Install Dagric
 Try it first
 Applying your size…
+Waiting for display setup. Close other display tools if this takes a while.
 Selected text size: %1%
 Choose a text size.
 Your files, your apps, your space.

@@ -70,7 +70,8 @@ def apply(name, scale):
 
 
 class Trials:
-    def __init__(self, state, status, read=outputs, change=apply, clock=time.monotonic):
+    def __init__(self, state, status, read=outputs, change=apply, clock=time.monotonic,
+                 *, initial_revision=0):
         self.pending = state / "display-pending"
         self.status = status
         self.read, self.change, self.clock = read, change, clock
@@ -78,7 +79,7 @@ class Trials:
         self.baseline = None
         self.deadline = 0
         self.target = 0
-        self.revision = 0
+        self.revision = initial_revision
         self.allowed = []
         try:
             rows = self.read()
@@ -185,14 +186,30 @@ def main():
     lock = os.open(state / "display-trial.lock", os.O_CREAT | os.O_RDWR | os.O_NOFOLLOW, 0o600)
     if not stat.S_ISREG(os.fstat(lock).st_mode):
         raise ValueError("invalid display lock")
-    fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
-    trial = Trials(state, args.status)
+    trial = None
     def stop(*unused):
         raise SystemExit(0)
     for sig in (signal.SIGTERM, signal.SIGINT, signal.SIGHUP):
         signal.signal(sig, stop)
     buffer = b""
     try:
+        # Login autoscaling and recovery use the same lock. Losing that race
+        # must not kill this worker and leave the welcome UI disabled forever.
+        # Do not steal the lock or execute queued size changes while waiting.
+        revision = 0
+        while True:
+            try:
+                fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
+                break
+            except BlockingIOError:
+                if revision == 0:
+                    revision = 1
+                    atomic(args.status, json.dumps({"phase": "waiting", "scale": 0,
+                           "revision": revision, "allowed": [], "remaining": 0}))
+                readable, _, _ = select.select([sys.stdin], [], [], 0.25)
+                if readable and not os.read(sys.stdin.fileno(), 1024):
+                    return
+        trial = Trials(state, args.status, initial_revision=revision)
         while True:
             trial.tick()
             readable, _, _ = select.select([sys.stdin], [], [], 0.25)
@@ -211,7 +228,7 @@ def main():
                 except (OSError, ValueError, subprocess.SubprocessError):
                     trial.report("error")
     finally:
-        if trial.old is not None:
+        if trial is not None and trial.old is not None:
             trial.restore()
         os.close(lock)
 
