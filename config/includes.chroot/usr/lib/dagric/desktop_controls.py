@@ -27,10 +27,11 @@ FIELDS = ('height', 'location', 'alignment', 'floating', 'hiding', 'lengthMode')
 LAYOUT_FILES = ('plasma-org.kde.plasma.desktop-appletsrc', 'plasmashellrc')
 
 
-def validate(values):
+def validate(values, existing=False):
     if not isinstance(values, dict) or set(values) != set(FIELDS):
         raise ValueError('Choose all six taskbar settings.')
-    if type(values['height']) is not int or not 24 <= values['height'] <= 120:
+    low, high = (1, 1024) if existing else (24, 120)
+    if type(values['height']) is not int or not low <= values['height'] <= high:
         raise ValueError('Taskbar height must be between 24 and 120.')
     if type(values['floating']) is not bool:
         raise ValueError('Floating must be on or off.')
@@ -53,9 +54,11 @@ def panel_id(value):
 
 def panel_script(identifier, values):
     identifier = panel_id(identifier)
-    values = validate(values)
+    values = validate(values, existing=True)
     return ('var p=panelById(%d); if(!p) throw Error("Taskbar is no longer available"); '
-            'var v=%s; Object.keys(v).forEach(function(k){p[k]=v[k];}); print("ok");'
+            'var v=%s; p.location=v.location; p.lengthMode=v.lengthMode; '
+            'p.alignment=v.alignment; p.floating=v.floating; p.hiding=v.hiding; '
+            'p.height=v.height; print("ok");'
             % (identifier, json.dumps(values, separators=(',', ':'))))
 
 
@@ -69,17 +72,41 @@ def plasma(script):
                 'org.kde.PlasmaShell.evaluateScript', script])
 
 
-def inventory():
-    script = ('print(JSON.stringify(panels().map(function(p){return {id:p.id,screen:p.screen,'
+INVENTORY_SCRIPT = ('print(JSON.stringify(panels().map(function(p){'
+              'var views=new ConfigFile("plasmashellrc","PlasmaViews"); '
+              'var cfg=new ConfigFile(views); cfg.group="Panel "+p.id; '
+              'var hiding=p.hiding; '
+              'if(hiding==="none" && Number(cfg.readEntry("panelVisibility"))===3) hiding="windowsgobelow"; '
+              'return {id:p.id,screen:p.screen,'
               'height:p.height,location:p.location,alignment:p.alignment,floating:p.floating,'
-              'hiding:p.hiding,lengthMode:p.lengthMode};})));')
-    data = json.loads(plasma(script))
+              'hiding:hiding,lengthMode:p.lengthMode};})));')
+
+
+def inventory():
+    # Plasma 6.3's getter reports WindowsGoBelow as "none"; its shared config
+    # retains the actual enum. Reading that prevents a lossy undo of this mode.
+    data = json.loads(plasma(INVENTORY_SCRIPT))
     if not isinstance(data, list) or len(data) > 32:
         raise ValueError('The desktop returned an unexpected taskbar list.')
     for item in data:
         panel_id(item['id'])
-        validate({k: item[k] for k in FIELDS})
+        validate({k: item[k] for k in FIELDS}, existing=True)
     return data
+
+
+def apply_panel(identifier, values, allow_height_minimum=False):
+    if plasma(panel_script(identifier, values)) != 'ok':
+        raise RuntimeError('The desktop did not acknowledge the taskbar change.')
+    actual = next((p for p in inventory() if p['id'] == identifier), None)
+    if actual is None:
+        raise RuntimeError('Taskbar disappeared while checking the change.')
+    for key in FIELDS:
+        if actual[key] == values[key]:
+            continue
+        if key == 'height' and allow_height_minimum and values[key] <= actual[key] <= 1024:
+            continue  # Plasma enforces the minimum space required by widgets.
+        raise RuntimeError('Taskbar did not retain the requested ' + key + '; recovering the previous settings.')
+    return actual
 
 
 def private_dir(path):
@@ -129,7 +156,10 @@ class Controller:
         return json.loads(value) if value is not None else None
 
     def write(self, name, value):
-        write_private_text(self.state / name, json.dumps(value))
+        encoded = json.dumps(value)
+        if len(encoded.encode('utf-8')) > LIMIT:
+            raise ValueError('Desktop backup exceeds the safe recovery size; no preview can be started.')
+        write_private_text(self.state / name, encoded)
 
     @contextmanager
     def locked(self):
@@ -191,7 +221,7 @@ class Controller:
         if entry['session'] != self.session:
             raise ValueError('This preview belongs to a previous desktop session. Its backup is preserved; no other session was changed.')
         if entry['kind'] == 'panel':
-            plasma(panel_script(entry['id'], entry['before']))
+            apply_panel(entry['id'], entry['before'])
         elif entry['kind'] == 'layout':
             self.service('stop')
             try:
@@ -263,7 +293,7 @@ class Controller:
                 self.write('pending.json', entry)
                 self.watchdog(entry['token'])  # Must acknowledge before any settings change.
                 if action == 'apply':
-                    plasma(panel_script(identifier, values))
+                    effective = apply_panel(identifier, values, allow_height_minimum=True)
                 else:
                     self.service('stop')
                     # Replace the backup with Plasma's final flushed settings.
@@ -275,7 +305,10 @@ class Controller:
                 # Always try to recover; retain journal if recovery itself fails.
                 self.revert(entry)
                 raise
-            return {'pending': True, 'seconds': 60, 'message': 'Preview applied. Keep it, or previous settings return automatically in 60 seconds.'}
+            result = {'pending': True, 'seconds': 60, 'message': 'Preview applied. Keep it, or previous settings return automatically in 60 seconds.'}
+            if action == 'apply' and effective['height'] != values['height']:
+                result['message'] = f"Your widgets need at least {effective['height']} pixels of taskbar thickness. This is a 60-second preview; keep or revert it."
+            return result
 
 
 def main():

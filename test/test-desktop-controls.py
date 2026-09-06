@@ -4,6 +4,7 @@
 import importlib.util
 import json
 import os
+import re
 from pathlib import Path
 import subprocess
 import sys
@@ -28,8 +29,13 @@ class Controls(unittest.TestCase):
         self.controller = dc.Controller(self.base / 'state', self.base / 'config')
         self.controller.config.mkdir(mode=0o700)
         self.calls = []
-        self.patches = [patch.object(dc, 'inventory', return_value=[dict(id=7, screen=0, **VALUES)]),
-                        patch.object(dc, 'plasma', side_effect=lambda value: self.calls.append(value) or 'ok'),
+        self.panel = dict(id=7, screen=0, **VALUES)
+        def write_panel(value):
+            self.calls.append(value)
+            self.panel.update(json.loads(re.search(r'var v=(\{.*?\});', value).group(1)))
+            return 'ok'
+        self.patches = [patch.object(dc, 'inventory', side_effect=lambda: [dict(self.panel)]),
+                        patch.object(dc, 'plasma', side_effect=write_panel),
                         patch.object(self.controller, 'watchdog', side_effect=lambda token: self.calls.append('watchdog')),
                         patch.object(self.controller, 'service', side_effect=lambda action: self.calls.append(action))]
         for item in self.patches: item.start()
@@ -144,6 +150,34 @@ assert.deepEqual(first.widgets,['mine']);assert.deepEqual(second.widgets,['keep'
         self.assertIn('python3-pyside6.qtquick', (ROOT / 'packages/dagric-tools/DEBIAN/control').read_text())
         hook = (ROOT / 'config/hooks/normal/0540-qml-identity.hook.chroot').read_text()
         self.assertNotIn('org.qt-project.qml.desktop', hook)
+
+    def test_inventory_preserves_upstream_visibility_mode_three(self):
+        harness = '''const assert=require('node:assert/strict'); let result;
+function panels(){return [{id:7,screen:0,height:48,location:'bottom',alignment:'center',floating:true,hiding:'none',lengthMode:'fill'}];}
+function ConfigFile(parent,group){this.readEntry=k=>k==='panelVisibility'?3:undefined;}
+function print(value){result=JSON.parse(value);}
+SCRIPT
+assert.equal(result[0].hiding,'windowsgobelow');'''.replace('SCRIPT', dc.INVENTORY_SCRIPT)
+        subprocess.run(['node', '-e', harness], check=True)
+
+    def test_no_acknowledgment_is_a_failure(self):
+        with patch.object(dc, 'plasma', return_value=''):
+            with self.assertRaises(RuntimeError): dc.apply_panel(7, VALUES)
+
+    def test_oversize_journal_cannot_be_written(self):
+        with patch.object(dc, 'LIMIT', 100):
+            with self.assertRaises(ValueError): self.controller.write('pending.json', {'data': 'x' * 101})
+        self.assertFalse((self.controller.state / 'pending.json').exists())
+
+    def test_readback_rejects_silent_unchanged_values(self):
+        with patch.object(dc, 'plasma', return_value='ok'):
+            with self.assertRaises(RuntimeError): dc.apply_panel(7, dict(VALUES, location='top'))
+
+    def test_height_is_applied_after_location_restores_orientation_defaults(self):
+        script = dc.panel_script(7, dict(VALUES, location='top', height=64))
+        self.assertLess(script.index('p.location=v.location'), script.index('p.height=v.height'))
+        dc.validate(dict(VALUES, height=200), existing=True)
+        with self.assertRaises(ValueError): dc.validate(dict(VALUES, height=200))
 
 
 if __name__ == '__main__': unittest.main()

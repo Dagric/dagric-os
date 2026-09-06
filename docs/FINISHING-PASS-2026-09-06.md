@@ -48,7 +48,7 @@ Observed checks:
 
 - 30 Qt Quick tests passed, including optional customization and preview
   persistence at 520×420, selection names and keyboard activation.
-- 12 desktop-controller tests passed with mocked compositor/service calls.
+- 17 desktop-controller tests passed with mocked compositor/service calls.
   These exercise actual transaction/state-file code, not actual Plasma changes.
 - 8 target-profile and 6 setup/panel integration tests passed.
 - 6 build guard regressions passed. A real preflight refused Pro on D: (9.9 GiB
@@ -81,3 +81,20 @@ References used for implementation:
 
 - https://develop.kde.org/docs/plasma/scripting/api/
 - https://doc.qt.io/qtforpython-6/PySide6/QtGui/QGuiApplication.html
+
+## Compatibility review before final candidates
+
+The initial `893bbfb` Free attempt was stopped during bootstrap. Its source and
+log remain in `free.gQZta1Os` on the build mount; no ISO was produced and no Pro
+build began. Plain IPv6-capable retrieval hung, while the exact official URL
+returned HTTP 200 immediately over IPv4. `DAGRIC_BUILD_IPV4=1` now selects a
+build-host-only Wget policy with bounded retries/timeouts. It does not alter the
+installed OS's IPv6 settings, TLS validation or Debian archive signatures.
+
+Plasma 6.3 source review found that changing a panel edge restores its orientation
+defaults, so thickness must be set afterward. Its visibility getter also maps
+WindowsGoBelow to `none`; the shared config enum is now read to preserve that
+mode in undo. The label is accurately “Allow windows underneath.” Apply and
+revert now require acknowledgment and read back real panel properties; widget
+minimum thickness is explained rather than silently advertised as the chosen
+size. Additional regressions cover these boundaries and bounded recovery files.

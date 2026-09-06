@@ -1,0 +1,5 @@
+# Build-host-only download policy, selected explicitly with DAGRIC_BUILD_IPV4=1.
+# Does not disable IPv6 in Dagric, change certificate checks, or bypass archive signatures.
+inet4_only = on
+timeout = 30
+tries = 3

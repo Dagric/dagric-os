@@ -66,7 +66,7 @@ ColumnLayout {
         Layout.fillWidth: true; Layout.preferredHeight: 132; radius: 12; color: "#191c24"; border.color: "#697080"
         Accessible.role: Accessible.StaticText
         Accessible.name: qsTr("Taskbar illustration. %1, %2 pixels, %3.").arg(position.currentText).arg(size.value).arg(hiding.currentText)
-        Text { anchors.centerIn: parent; text: qsTr("Preview — not applied yet"); color: "#d7dce6"; font.pointSize: 10 }
+        Text { anchors.centerIn: parent; text: controls.pending ? qsTr("Trial layout illustration") : qsTr("Preview — not applied yet"); color: "#d7dce6"; font.pointSize: 10 }
         Rectangle {
             readonly property real extent: Math.min(40, size.value / 2)
             width: controls.vertical ? extent : (length.currentIndex === 1 ? parent.width * 0.64 : parent.width - 16)
@@ -93,10 +93,10 @@ ColumnLayout {
         Label { text: qsTr("Alignment moves a shorter taskbar along the edge; it does not rearrange your app icons."); Layout.fillWidth: true; wrapMode: Text.WordWrap }
         CheckBox { id: floating; checked: true; text: qsTr("Floating edges") }
         Label { text: qsTr("Visibility"); Layout.fillWidth: true; wrapMode: Text.WordWrap }
-        ComboBox { id: hiding; Layout.fillWidth: true; model: [qsTr("Always visible"), qsTr("Auto-hide"), qsTr("Dodge windows"), qsTr("Windows can cover it")]; Accessible.name: qsTr("Taskbar visibility") }
+        ComboBox { id: hiding; Layout.fillWidth: true; model: [qsTr("Always visible"), qsTr("Auto-hide"), qsTr("Dodge windows"), qsTr("Allow windows underneath")]; Accessible.name: qsTr("Taskbar visibility") }
         Button { text: qsTr("Try these settings"); highlighted: true; onClicked: controls.apply() }
     }
-    Label { text: controls.pending ? qsTr("Keep this change? Reverting in %1 seconds.").arg(controls.seconds) : controls.message; Layout.fillWidth: true; wrapMode: Text.WordWrap; Accessible.role: Accessible.AlertMessage }
+    Label { text: controls.message + (controls.pending ? "\n" + qsTr("Keep this change? Reverting in %1 seconds.").arg(controls.seconds) : ""); Layout.fillWidth: true; wrapMode: Text.WordWrap; Accessible.role: Accessible.AlertMessage }
     Flow {
         Layout.fillWidth: true; spacing: 8; visible: controls.pending
         Button { text: qsTr("Keep"); enabled: !controls.busy; onClicked: controls.request("keep") }

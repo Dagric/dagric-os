@@ -30,6 +30,10 @@ if [ -z "${DAGRIC_BUILD_LOCK_FD:-}" ]; then
     exec python3 "$SRC/tools/build-guard.py" "$SRC" "$BUILD" "$EDITION" "$SRC/build.sh" "$@"
 fi
 python3 "$SRC/tools/build-guard.py" --verify "$DAGRIC_BUILD_LOCK_FD"
+if [ "${DAGRIC_BUILD_IPV4:-0}" = 1 ]; then
+    WGETRC="$SRC/tools/build-wgetrc"
+    export WGETRC
+fi
 
 # Record the source identity at build time, not later at publish time. Release
 # metadata may be prepared after documentation or tooling has been committed;
