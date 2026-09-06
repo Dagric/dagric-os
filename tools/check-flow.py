@@ -235,7 +235,7 @@ def main() -> int:
     ))
     errors.extend(require_text(
         INC / "usr/share/dagric/looks/classic.look",
-        "NAME=Classic", 'p.location="bottom"', "p.height=46", 'k.writeConfig("icon","dagric-logo")',
+        "NAME=Classic", 'p.location="bottom"', "p.height=48", "p.floating=true", 'k.writeConfig("icon","dagric-logo")',
     ))
     errors.extend(require_text(
         INC / "usr/share/dagric/looks/eleven.look",

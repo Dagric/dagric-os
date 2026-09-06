@@ -40,10 +40,11 @@ approval. The currently running VM and all earlier images/disks are preserved.
 
 ## Tests so far
 
-- Seven target-profile tests, including 108 combinations, ownership, invalid
+- Eight target-profile tests, including 108 combinations, ownership, invalid
   inputs, symlink rejection, privileged-account rejection and simulated write
   failure. FIFO, oversized and malformed config input is also rejected without
   logging private file contents. Fixtures are directories, not real accounts.
+  The QML choice labels and IDs are also checked against the backend allowlist.
 - Four setup/panel integration tests, including Free/Pro hook idempotence,
   validation before partition jobs, apply after account creation, and existing
   panel preservation. Plasma scripting is mocked in these tests.
@@ -51,7 +52,19 @@ approval. The currently running VM and all earlier images/disks are preserved.
   Installer previews reviewed at 820×660 and 520×420, including 150% text.
 - Existing Finish regression: 9 passing; display/theme regression: 23 passing.
 - Icon audit: 32 Dagric icons × 9 sizes × 3 families = 864 valid PNGs.
-- Source checks passed before the final polish; rerun on the final source.
+- The complete source-only audit passed after the final polish, including
+  offline-help coverage, panel contracts, shell/Python/JavaScript checks and
+  localization drift checks. This is not ISO or release acceptance.
+
+The real Calamares 3.3.14 executable was also exercised headlessly inside the
+isolated package-complete Free build root: the shipped QML page selected Light,
+Familiar, Old school, 150% text and Arctic. Calamares carried that exact profile
+through GlobalStorage, ran the shipped Dagric validation job, and a test-only
+assertion job verified receipt. The test exits normally and loads no partition,
+account-creation, mount, unpack or bootloader job. Its finished page has reboot
+disabled. The same test also passed in the Pro build root. Fixture evidence:
+`/var/tmp/dagric-onepass-free.PrgxHFIy/build/chroot/tmp/dagric-calamares-check-7_um3i0p`
+and `/var/tmp/dagric-onepass-pro.qLvijl6J/build/chroot/tmp/dagric-calamares-check-f_bah6i2`.
 
 The above are code/fixture checks, not proof of a completed install and reboot.
 New candidate builds and actual Calamares/Plasma acceptance must be recorded
@@ -87,3 +100,9 @@ Debian file succeeded. Only that build's verified process tree was stopped;
 its source, logs and incomplete directory were retained. Bootstrap now uses
 HTTPS with the host's normal certificate and archive-signature verification.
 The active VM was not stopped or modified.
+
+The broader audit also required a real offline-help route for the new control
+page; `app-desktop.html` now explains its controls. The panel design contract
+now matches the intentional 48-pixel floating layout. Native Calamares testing
+identified an existing slideshow timer using an undefined property; it now
+uses the installed Qt 6 slideshow's `activatedInCalamares` property.

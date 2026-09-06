@@ -3,6 +3,7 @@
 """Exercise actual target-home writes without partitioning or creating OS accounts."""
 import configparser
 import importlib.util
+import json
 import os
 from pathlib import Path
 import shutil
@@ -27,6 +28,12 @@ class InstalledProfile(unittest.TestCase):
 
     def tearDown(self):
         self.tmp.cleanup()
+
+    def test_qml_choices_match_the_backend_allowlist(self):
+        qml = (INC / 'etc/calamares/branding/dagric/dagricdesktop.qml').read_text()
+        for prop, expected in (('choiceIds', profile.CHOICES), ('choiceLabels', profile.LABELS)):
+            raw = qml.split('readonly property var ' + prop + ': ', 1)[1].splitlines()[0]
+            self.assertEqual(json.loads(raw), [list(values) for values in expected.values()])
 
     def test_all_profiles_round_trip_and_no_second_wizard(self):
         self.assertEqual(len(profile.profiles()), 108)
