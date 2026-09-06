@@ -111,3 +111,67 @@ page; `app-desktop.html` now explains its controls. The panel design contract
 now matches the intentional 48-pixel floating layout. Native Calamares testing
 identified an existing slideshow timer using an undefined property; it now
 uses the installed Qt 6 slideshow's `activatedInCalamares` property.
+
+## Storage and preservation
+
+The final image source is commit `8ce310a781542440eee17f0ac4fd0d6c1fda2ef6`.
+An intermediate Free build at `a6521f3b1433ce435849a0bc1aeb5c37482cb371`
+completed and passed payload, package-ownership and installer-order verification.
+It does not include the last two icon fixes and is not the final candidate.
+The superseded Pro build at that earlier revision was cancelled during
+compression; its unfinished chroot was removed after checking its processes
+and unmounting only its own build mounts. Source, cache, package inventory and
+logs remain. Reconstructable `/usr` payloads from the earlier failed Free/Pro
+build roots were also removed; their Calamares fixture logs remain.
+
+To protect space on D:, three older Windows archives were copied to
+`C:\Users\1248n\Downloads\Dagric-preserved-releases`, verified file-by-file by
+SHA-256 and size, then removed from their old locations: the 5 September
+Obsidian build and the 6 September unified-setup/r2 builds. The r3 archive stays
+at its existing D: path. No VM disk was deleted, moved or replaced.
+The final build jobs were paused for this relocation and then resumed.
+Verification outputs now go on C: rather than allocating further copies on D:.
+
+Direct Linux-to-Windows ISO output later failed with an incomplete copy. Final
+verification therefore used an 8-GiB bounded temporary Linux RAM filesystem,
+one edition at a time. Windows copied the verified ISO and evidence from that
+staging area, then independently checked the complete destination SHA-256.
+Only after successful delivery was temporary RAM staging unmounted. This did
+not restart WSL or the active VM.
+
+## Final private candidates
+
+Both final builds completed from clean clones of
+`8ce310a781542440eee17f0ac4fd0d6c1fda2ef6`, with `dagric-tools` 1.1.24.
+The later verifier/documentation changes did not build these images.
+
+| Edition | Delivered Windows image | SHA-256 |
+| --- | --- | --- |
+| Free | `C:\Users\1248n\Downloads\Dagric-one-pass-candidates\Free\dagric-os-1.0-amd64.iso` | `619ade5c0924aaff9f5f54e9e2b2a6c14404f13420ec76a26b0d3f26b85c64f7` |
+| Pro | `C:\Users\1248n\Downloads\Dagric-one-pass-candidates\Pro\dagric-os-pro-1.0-amd64.iso` | `360ff34bea796fd502ac66dbfef0a43d4d7b6f5d1d34c60ae384bc697add4b48` |
+
+Sizes: Free 1,999,831,040 bytes; Pro 3,901,816,832 bytes.
+Each delivery contains `verification.json`, the original payload checksum
+manifest and the selected audited files. Optional preparer metadata was cleared
+in a new copy; the built input images and all checked payload bytes were
+preserved. BIOS/UEFI boot structures are present; this is not proof of booting.
+
+Read-back verification passed for all ISO payload checksums, the listed exact
+source files and Dagric package ownership records, installer validation before
+partitioning, personalization after account creation, and the retained account,
+encryption and final-confirmation controls.
+
+Actual Calamares handoff tests also passed in both final build roots:
+
+- Free: `/var/tmp/dagric-onepass-free.4YOiLPoZ/build/chroot/tmp/dagric-calamares-check-cq301vrc`
+- Pro: `/var/tmp/dagric-onepass-pro.Hrp0Jhkf/build/chroot/tmp/dagric-calamares-check-a4tyq0gh`
+
+Static icon resolution found zero unresolved entries across all three icon
+styles: 76 visible application entries in Free, 107 in Pro. This checks asset
+presence, not the appearance of every icon in a running compositor.
+
+**Not established:** new-image interactive boot, a full account-creating
+installation, reboot, encryption operation, updates/rollback or physical
+hardware acceptance. The existing r3 VM was left running because no answer was
+received to the unsaved-work question. These are private test candidates, not
+a release approval or a public beta publication.

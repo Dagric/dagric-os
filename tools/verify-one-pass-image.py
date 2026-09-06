@@ -17,7 +17,10 @@ import yaml
 
 
 def run(*args, cwd=None):
-    return subprocess.run(args, cwd=cwd, check=True, capture_output=True, text=True).stdout
+    result = subprocess.run(args, cwd=cwd, capture_output=True, text=True)
+    if result.returncode:
+        raise RuntimeError(f'{args[0]} failed ({result.returncode}): {result.stderr[-4000:]}')
+    return result.stdout
 
 
 def sha(path, algorithm='sha256'):
@@ -25,7 +28,7 @@ def sha(path, algorithm='sha256'):
         return hashlib.file_digest(stream, algorithm).hexdigest()
 
 
-def verify(base, revision):
+def verify(base, revision, output_root='/var/tmp'):
     base = Path(base).resolve(strict=True)
     assert re.fullmatch('[a-f0-9]{40}', revision)
     assert base.name in ('dagric-os-1.0-amd64.iso', 'dagric-os-pro-1.0-amd64.iso')
@@ -34,7 +37,9 @@ def verify(base, revision):
     assert run('git', 'rev-parse', 'HEAD', cwd=source).strip() == revision
     assert not run('git', 'status', '--porcelain', '--untracked-files=no', cwd=source)
     original_hash = sha(base)
-    folder = Path(tempfile.mkdtemp(prefix='dagric-onepass-verified-' + edition + '.', dir='/var/tmp'))
+    output_root = Path(output_root).resolve(strict=True)
+    assert output_root.is_dir() and output_root != Path('/')
+    folder = Path(tempfile.mkdtemp(prefix='dagric-onepass-verified-' + edition + '.', dir=output_root))
     print('VERIFICATION_WORKSPACE=' + str(folder), flush=True)
     target = folder / base.name
     run('xorriso', '-indev', str(base), '-outdev', str(target), '-boot_image', 'any', 'replay',
@@ -128,5 +133,6 @@ def verify(base, revision):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('iso'); parser.add_argument('source_revision')
+    parser.add_argument('--output-root', default='/var/tmp', help='Existing directory on a drive with space for verification copies')
     args = parser.parse_args()
-    verify(args.iso, args.source_revision)
+    verify(args.iso, args.source_revision, args.output_root)
