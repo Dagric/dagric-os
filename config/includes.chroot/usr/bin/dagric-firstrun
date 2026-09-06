@@ -155,7 +155,7 @@ session_type() {
 # that is not a plain identifier before it is ever passed back to a command.
 kscreen_outputs() {
     command -v kscreen-doctor >/dev/null 2>&1 || return 0
-    kscreen-doctor -o 2>/dev/null | sed "s/$ESC\[[0-9;]*m//g" | awk '
+    timeout --kill-after=1s 5s kscreen-doctor -o 2>/dev/null | sed "s/$ESC\[[0-9;]*m//g" | awk '
         /^Output:/                        { name = $3; next }
         /^[[:space:]]*enabled[[:space:]]*$/ { if (name != "") { print name; name = "" } }
     ' | while IFS= read -r _o; do
@@ -180,7 +180,7 @@ current_scale() {   # -> 100 | 125 | 150 | 0 (unknown / something else)
     _s=
     case "$SCALE_MODE" in
         wayland)
-            _s=$(kscreen-doctor -o 2>/dev/null | sed "s/$ESC\[[0-9;]*m//g" \
+            _s=$(timeout --kill-after=1s 5s kscreen-doctor -o 2>/dev/null | sed "s/$ESC\[[0-9;]*m//g" \
                  | sed -n 's/.*Scale: *\([0-9.]*\).*/\1/p' | head -1) ;;
         x11)
             _s=$(kreadconfig6 --file kdeglobals --group KScreen --key ScaleFactor 2>/dev/null) ;;
@@ -579,7 +579,7 @@ capture_scale() {
     : > "$SCLFILE"
     case "$SCALE_MODE" in
         wayland)
-            kscreen-doctor -o 2>/dev/null | sed "s/$ESC\[[0-9;]*m//g" | awk '
+            timeout --kill-after=1s 5s kscreen-doctor -o 2>/dev/null | sed "s/$ESC\[[0-9;]*m//g" | awk '
                 /^Output:/ { name = $3; next }
                 /Scale:/   { if (name != "") { sub(/.*Scale: */, ""); sub(/ .*/, "");
                                               print name " " $0; name = "" } }

@@ -272,5 +272,43 @@ m.main()
         self.assert_restored()
 
 
+class DisplayQuery(unittest.TestCase):
+    OUTPUT = "Output: 1 Virtual-1\n enabled\n connected\n Scale: 1\n Modes: 1:1280x800@75*\n"
+
+    def setUp(self):
+        self.temp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.temp.cleanup)
+        self.path = Path(self.temp.name)
+        self.fake = self.path / "kscreen-doctor"
+
+    def query(self, body, with_lock=False):
+        self.fake.write_text("#!/bin/sh\n" + body + "\n")
+        self.fake.chmod(0o755)
+        command = '. "$1"; dg_outputs'
+        if with_lock:
+            command = 'exec 8>"$2"; ' + command
+        return subprocess.run(['sh', '-c', command, 'fixture',
+            str(ROOT / 'config/includes.chroot/usr/lib/dagric/display-common.sh'),
+            str(self.path / 'lock')], env=dict(os.environ, PATH=str(self.path)+os.pathsep+os.environ['PATH']),
+            capture_output=True, text=True, timeout=9, check=True)
+
+    def test_display_lock_is_not_inherited_by_query(self):
+        result = self.query('test ! -e /proc/self/fd/8 || exit 9\n' +
+                            "printf '%s' '" + self.OUTPUT + "'", with_lock=True)
+        self.assertEqual(result.stdout, 'Virtual-1\t1280\t800\t100\t1\n')
+
+    def test_failed_query_discards_partial_monitor_data(self):
+        result = self.query("printf '%s' '" + self.OUTPUT + "'\nexit 1")
+        self.assertEqual(result.stdout, '')
+
+    def test_stalled_query_is_killed_and_does_not_block_next_read(self):
+        started = time.monotonic()
+        result = self.query("trap '' TERM\nprintf '%s' '" + self.OUTPUT + "'\nexec sleep 60")
+        self.assertLess(time.monotonic() - started, 9)
+        self.assertEqual(result.stdout, '')
+        result = self.query("printf '%s' '" + self.OUTPUT + "'")
+        self.assertEqual(result.stdout, 'Virtual-1\t1280\t800\t100\t1\n')
+
+
 if __name__ == "__main__":
     unittest.main()

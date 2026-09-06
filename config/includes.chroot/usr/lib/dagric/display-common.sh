@@ -70,7 +70,11 @@ dg_can_scale() {
 # other tool set something that is not a clean 0.05 step.
 dg_outputs() {
     command -v kscreen-doctor >/dev/null 2>&1 || return 0
-    kscreen-doctor -o 2>/dev/null | sed "$DG_SED_DECOLOUR" | LC_ALL=C awk '
+    # An early-login KScreen query can stall even when later queries work.
+    # Bound the child, discard partial output on failure, and do not pass the
+    # display lock to a backend process that the query might start.
+    _dg_read=$(timeout --kill-after=1s 5s kscreen-doctor -o 8>&- 2>/dev/null) || return 0
+    printf '%s\n' "$_dg_read" | sed "$DG_SED_DECOLOUR" | LC_ALL=C awk '
         function flush_out() {
             if (name != "" && en && conn && w > 0 && h > 0 && stxt != "")
                 printf "%s\t%d\t%d\t%d\t%s\n", name, w, h, int(s * 100 + 0.5), stxt
@@ -261,7 +265,7 @@ dg_max_scale100() {
 dg_apply_scale() {
     _out=$1
     _want=$2
-    kscreen-doctor "output.$_out.scale.$(dg_scale_text "$_want")" >/dev/null 2>&1
+    timeout --kill-after=1s 5s kscreen-doctor "output.$_out.scale.$(dg_scale_text "$_want")" 8>&- >/dev/null 2>&1
     _now=$(dg_outputs | LC_ALL=C awk -F'\t' -v n="$_out" '$1 == n { print $4; exit }')
     [ "$_now" = "$_want" ]
 }

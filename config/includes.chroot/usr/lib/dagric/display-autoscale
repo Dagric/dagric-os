@@ -76,15 +76,16 @@ flock -n 8 || exit 0
 
 # KWin and kscreen are normally up well before XDG autostart runs, but a slow
 # or busy first boot can get here first. Wait for a real answer rather than
-# concluding there are no screens.
+# concluding there are no screens. Each read is bounded to six seconds by
+# display-common; four attempts plus short pauses cannot hold this lock forever.
 i=0
-while [ "$i" -lt 20 ]; do
+while [ "$i" -lt 4 ]; do
     OUTS=$(dg_outputs)
     [ -n "$OUTS" ] && break
     i=$(( i + 1 ))
     sleep 1
 done
-[ -n "$OUTS" ] || { note "no screens reported after 20s — nothing done"; exit 0; }
+[ -n "$OUTS" ] || { note "no screens reported after four bounded attempts — nothing done"; exit 0; }
 
 # --- 1. rescue a trial that was interrupted ----------------------------------
 # Dagric Display writes this file for as long as a size is on trial and deletes

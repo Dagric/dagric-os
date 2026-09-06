@@ -49,7 +49,7 @@ def atomic(path, content):
 def outputs():
     result = subprocess.run(
         ["sh", "-c", ". /usr/lib/dagric/display-common.sh; dg_outputs"],
-        check=True, capture_output=True, text=True, timeout=5)
+        check=True, capture_output=True, text=True, timeout=8)
     rows = []
     for line in result.stdout.splitlines():
         name, width, height, percent, scale = line.split("\t")
