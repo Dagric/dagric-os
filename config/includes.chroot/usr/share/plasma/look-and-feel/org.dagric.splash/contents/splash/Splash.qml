@@ -8,7 +8,7 @@
 // DESIGN CONTRACT, same as the Plymouth theme's:
 //   * The background paints unconditionally — a solid gradient with no asset,
 //     network or font dependency, in the exact colours Plymouth uses
-//     (#0e1826 -> #050810), so Plymouth, SDDM and this screen read as one
+//     (#202024 -> #101012), so the startup surfaces read as one
 //     continuous surface instead of three products taking turns.
 //   * The wordmark is an Image with a Text fallback wired to Image.status —
 //     if the PNG is missing or unreadable, the brand name renders as type
@@ -34,6 +34,7 @@ import QtQuick
 Rectangle {
     id: root
     property int stage: 0
+    property bool reducedMotion: false
 
     gradient: Gradient {
         GradientStop { position: 0.0; color: "#202024" }
@@ -41,10 +42,14 @@ Rectangle {
     }
 
     onStageChanged: {
-        if (stage >= 1 && content.opacity < 1 && !entrance.running)
-            entrance.running = true;
-        if (stage >= 2 && !sweep.done && !sweepRun.running)
+        if (!reducedMotion && stage >= 2 && !sweep.done && !sweepRun.running)
             sweepRun.running = true;
+    }
+    onReducedMotionChanged: {
+        if (reducedMotion) {
+            sweepRun.stop();
+            sweep.opacity = 0;
+        }
     }
 
     Item {
@@ -62,6 +67,19 @@ Rectangle {
             anchors.horizontalCenter: parent.horizontalCenter
             anchors.verticalCenter: parent.verticalCenter
             anchors.verticalCenterOffset: -Math.round(parent.height * 0.06)
+
+            // Static fine outline adds depth without shaders, blur or logo zoom.
+            Rectangle {
+                anchors.centerIn: mark
+                width: mark.width + 28
+                height: mark.height + 28
+                radius: 12
+                color: "transparent"
+                border.width: 1
+                border.color: "#403e3035"
+                visible: mark.visible
+                Accessible.ignored: true
+            }
 
             // THE SVG, NOT THE PNG, and that is the whole point of this block.
             //
@@ -153,25 +171,14 @@ Rectangle {
                 color: "#b82036"
                 width: Math.round(track.width * Math.min(root.stage / 7.0, 1.0))
                 Behavior on width {
+                    enabled: !root.reducedMotion
                     NumberAnimation { duration: 200; easing.type: Easing.OutCubic }
                 }
             }
         }
     }
 
-    // The entrance: the lockup resolves into place over ~0.7 s — an eased
-    // curve, not a linear ramp, for the same reason the Plymouth commit gives:
-    // linear opacity reads as a dimmer being turned up, an eased curve reads
-    // as something coming into focus.
-    NumberAnimation {
-        id: entrance
-        target: content
-        property: "opacity"
-        from: 0; to: 1
-        duration: 200
-        easing.type: Easing.OutCubic
-    }
-
+    // The logo stays visible and sharp throughout; only this accent moves.
     SequentialAnimation {
         id: sweepRun
         // Let the entrance finish before the flourish starts.

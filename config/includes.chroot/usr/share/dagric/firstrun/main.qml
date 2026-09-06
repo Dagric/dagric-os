@@ -802,10 +802,7 @@ ApplicationWindow {
         implicitWidth: Math.max(app.px(120), pbText.implicitWidth + app.px(44))
         Keys.onReturnPressed: function(event) { pb.clicked(); event.accepted = true; }
         Keys.onEnterPressed:  function(event) { pb.clicked(); event.accepted = true; }
-        scale: pb.down ? 0.98 : (pb.hovered ? 1.01 : 1.0)
-        Behavior on scale {
-            NumberAnimation { duration: app.motionMs(90); easing.type: Easing.OutCubic }
-        }
+        // Keep text on its native pixel grid; color supplies press feedback.
         // Controls give a Button its role and name from `text` for free, which
         // is why Back/Skip/Next were the only things Orca could ever see here.
         // The description is the part `text` cannot carry: "Next" alone does
@@ -846,10 +843,6 @@ ApplicationWindow {
         implicitWidth: Math.max(app.px(110), gbText.implicitWidth + app.px(40))
         Keys.onReturnPressed: function(event) { gb.clicked(); event.accepted = true; }
         Keys.onEnterPressed:  function(event) { gb.clicked(); event.accepted = true; }
-        scale: gb.down ? 0.98 : (gb.hovered ? 1.01 : 1.0)
-        Behavior on scale {
-            NumberAnimation { duration: app.motionMs(90); easing.type: Easing.OutCubic }
-        }
         Accessible.description: gb.text === app.t("Back")
                                 ? app.t("Go back to the previous step") : ""
         background: Rectangle {
@@ -970,13 +963,9 @@ ApplicationWindow {
         visible: pg.active || pg.opacity > 0.01
         enabled: pg.active
         opacity: pg.active ? 1.0 : 0.0
-        scale: pg.active ? 1.0 : 0.985
-        transformOrigin: Item.Center
+        // No zoom: full-page scaling softens text and resembles screen shake.
         Behavior on opacity {
             NumberAnimation { duration: app.motionMs(170); easing.type: Easing.OutCubic }
-        }
-        Behavior on scale {
-            NumberAnimation { duration: app.motionMs(190); easing.type: Easing.OutCubic }
         }
         clip: true
         contentWidth: pg.width
@@ -1062,13 +1051,11 @@ ApplicationWindow {
 
         radius: app.px(12)
         color: chMouse.containsMouse ? app.cPanel2 : app.cPanel
-        scale: chMouse.pressed ? 0.99 : (chMouse.containsMouse ? 1.01 : 1.0)
         border.width: ch.selected ? 2 : 1
-        border.color: ch.selected ? app.cSelect : app.cEdge
+        border.color: ch.selected ? app.cSelect
+                                 : (chMouse.containsMouse ? app.cSelect : app.cEdge)
         Behavior on color { ColorAnimation { duration: app.motionMs(120) } }
-        Behavior on scale {
-            NumberAnimation { duration: app.motionMs(110); easing.type: Easing.OutCubic }
-        }
+        Behavior on border.color { ColorAnimation { duration: app.motionMs(160) } }
 
         activeFocusOnTab: ch.tabbable
 
@@ -1225,6 +1212,18 @@ ApplicationWindow {
             width: parent.width
             height: 1
             color: app.cLine
+            Rectangle {
+                objectName: "setupProgress"
+                anchors.bottom: parent.bottom
+                height: 2
+                width: parent.width * (app.steps.length > 0
+                       ? (app.stepIndex + 1) / app.steps.length : 0)
+                color: app.cSelect
+                Accessible.ignored: true // the named step list carries meaning
+                Behavior on width {
+                    NumberAnimation { duration: app.motionMs(200); easing.type: Easing.OutCubic }
+                }
+            }
         }
 
         RowLayout {

@@ -39,6 +39,23 @@ TestCase {
         compare(wizard.stepIndex, 2);
     }
 
+    function test_progress_and_reduced_motion() {
+        wizard.reducedMotion = true;
+        compare(wizard.motionMs(200), 0);
+        var progress = findChild(wizard.contentItem, "setupProgress");
+        verify(progress !== null);
+        wizard.stepIndex = 0;
+        wait(10);
+        var firstWidth = progress.width;
+        verify(firstWidth > 0);
+        wizard.stepIndex = wizard.steps.length - 1;
+        wait(10);
+        verify(progress.width > firstWidth);
+        compare(progress.width, progress.parent.width);
+        wizard.reducedMotion = false;
+        compare(wizard.motionMs(200), 200);
+    }
+
     function test_layout_preview_does_not_resize_window() {
         var w = wizard.width, h = wizard.height, x = wizard.x, y = wizard.y;
         wizard.pickLayout(wizard.layouts[1]);
@@ -66,6 +83,8 @@ TestCase {
         compare(splash.stage, 1);
         splash.stage = 6;
         wait(250);
+        splash.reducedMotion = true;
+        compare(splash.reducedMotion, true);
         splash.destroy();
     }
 
