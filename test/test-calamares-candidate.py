@@ -20,7 +20,7 @@ import yaml
 def check(root):
     root = Path(root).resolve(strict=True)
     assert os.geteuid() == 0
-    assert str(root).startswith('/var/tmp/dagric-onepass-') and root.parts[-2:] == ('build', 'chroot')
+    assert str(root).startswith(('/var/tmp/dagric-onepass-', '/var/tmp/dagric-finishing-build-mount.')) and root.parts[-2:] == ('build', 'chroot')
     assert str(root) not in Path('/proc/self/mountinfo').read_text(), 'Wait for build mounts to be released'
     assert (root / 'usr/bin/calamares').is_file()
     for path in (root / 'dev').rglob('*'):

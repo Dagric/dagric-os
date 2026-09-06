@@ -37,6 +37,25 @@ TestCase {
         choice.forceActiveFocus(); verify(choice.activeFocus)
         choice.destroy()
     }
+    function test_recommended_customize_and_persistent_preview() {
+        compare(page.customizing, false)
+        var button=findChild(page,"customize")
+        button.forceActiveFocus(); keyClick(Qt.Key_Space)
+        compare(page.customizing,true)
+        page.width=520; page.height=420; page.mode="light"; page.textSize="biggest"
+        wait(50)
+        var preview=findChild(page,"persistentPreview"), scroll=findChild(page,"choicesScroll")
+        var y=preview.mapToItem(page,0,0).y
+        scroll.contentItem.contentY=250
+        wait(50)
+        compare(preview.mapToItem(page,0,0).y,y)
+        verify(preview.height>=110); verify(page.color.r>0.8)
+        var image=grabImage(page)
+        image.save(decodeURIComponent(Qt.resolvedUrl("../../out/installer-customize-small.png").toString().replace("file://","")))
+        page.useRecommended()
+        compare(page.customizing,false); compare(page.textSize,"normal")
+        compare(config.packageChoice,"Dark · Centered · Modern icons · 100% text · Obsidian")
+    }
     function test_back_retains_choices() {
         page.mode="light"; page.textSize="biggest"; page.layout="classic"
         page.destroy()

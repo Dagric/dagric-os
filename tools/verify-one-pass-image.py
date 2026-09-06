@@ -52,9 +52,12 @@ def verify(base, revision, output_root='/var/tmp'):
     owned = {
         'dagric-tools': ['usr/bin/dagric-firstrun', 'usr/bin/dagric-desktop-settings',
             'usr/lib/dagric/install_profile.py',
+            'usr/lib/dagric/ui_runner.py', 'usr/lib/dagric/desktop_controls.py',
+            'usr/lib/dagric/desktop_bridge.py',
             'usr/lib/calamares/modules/dagricpersonalize/main.py',
             'usr/lib/calamares/modules/dagricpersonalize/module.desc',
             'usr/share/dagric/desktop-settings/main.qml',
+            'usr/share/dagric/desktop-settings/PanelControls.qml',
             'usr/share/applications/dagric-desktop-settings.desktop',
             'usr/share/dagric/looks/classic.look', 'usr/share/dagric/looks/eleven.look'] +
             [f'usr/share/icons/{theme}/index.theme' for theme in ('DagricModern', 'DagricClassic', 'DagricOldSchool')],
@@ -62,6 +65,7 @@ def verify(base, revision, output_root='/var/tmp'):
         'dagric-desktop-defaults': ['etc/xdg/kicker-extra-favoritesrc'],
     }
     configs = ['etc/calamares/branding/dagric/ProfileChoice.qml',
+        'etc/calamares/branding/dagric/DesktopPreview.qml',
         'etc/calamares/branding/dagric/dagricdesktop.qml',
         'etc/calamares/branding/dagric/lang/calamares-dagric_en.qm',
         'etc/calamares/modules/partition.conf', 'etc/calamares/modules/dagricprofile-check.conf',
@@ -73,7 +77,8 @@ def verify(base, revision, output_root='/var/tmp'):
         'etc/skel/.config/autostart/dagric-firstrun.desktop',
         'usr/share/applications/calamares-install-debian.desktop', 'var/lib/dpkg/status',
         'usr/lib/x86_64-linux-gnu/calamares/modules/packagechooserq/module.desc'] +
-        [f'var/lib/dpkg/info/{package}.md5sums' for package in owned])
+        [f'var/lib/dpkg/info/{package}.md5sums' for package in owned] +
+        [f'usr/lib/dagric/wm/{app}' for app in ('dagric-firstrun', 'dagric-appearance', 'dagric-family', 'dagric-rewind', 'dagric-desktop-settings')])
     root = folder / 'root'
     squashfs = folder / 'iso/live/filesystem.squashfs'
     run('unsquashfs', '-d', str(root), str(squashfs), *paths, *extras)
@@ -109,9 +114,12 @@ def verify(base, revision, output_root='/var/tmp'):
     welcome = yaml.safe_load((root / 'etc/calamares/modules/welcome.conf').read_text())
     assert welcome['requirements']['requiredStorage'] == (40 if edition == 'pro' else 25)
     status = (root / 'var/lib/dpkg/status').read_text()
-    for package in ('python3-yaml', 'calamares', *owned):
+    for package in ('python3-yaml', 'python3-pyside6.qtquick', 'calamares', *owned):
         rows = [s for s in status.split('\n\n') if s.startswith('Package: ' + package + '\n')]
         assert len(rows) == 1 and 'Status: install ok installed' in rows[0], package
+    for app in ('dagric-firstrun', 'dagric-appearance', 'dagric-family', 'dagric-rewind', 'dagric-desktop-settings'):
+        alias = root / 'usr/lib/dagric/wm' / app
+        assert alias.is_symlink() and str(alias.readlink()) == '/usr/lib/dagric/ui_runner.py', app
     assert sha(base) == original_hash
     boot = subprocess.run(['xorriso', '-indev', str(target), '-pvd_info', '-report_el_torito', 'plain'],
                           check=True, capture_output=True, text=True)

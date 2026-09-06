@@ -24,6 +24,13 @@ case "$EDITION" in
     *) echo "ERROR: EDITION must be free or pro." >&2; exit 2 ;;
 esac
 
+# Every Docker build using the documented cache volume shares this lock.
+# Native builds have their own host lock; do not run both backends together.
+mkdir -p /build/cache
+exec 9>/build/cache/.dagric-build.lock
+flock -n 9 || { echo 'Another Dagric Docker build is using the cache; wait for it.' >&2; exit 1; }
+python3 /src/tools/build-guard.py --check-space /build "$EDITION"
+
 # Bind every artifact to the exact reviewed source revision that produced it.
 # Release builds are stricter: they refuse an unknown revision or a dirty tree,
 # because a checksum proves only the ISO bytes, not where those bytes came from.
@@ -60,6 +67,10 @@ python3 /src/tools/check-source.py
 rsync -a --exclude 'out/' --exclude '.git/' --exclude 'site/repo/' \
     --exclude '%SystemDrive%/' /src/ /build/
 cd /build
+python3 tools/check-quick-ui.py
+python3 test/test-install-profile.py
+python3 test/test-setup-integration.py
+python3 test/test-desktop-controls.py
 # *.hook.* and not *.hook.chroot: the boot-menu branding is a .hook.BINARY, so
 # it was outside this line and depended on the executable bit surviving a
 # Windows checkout and an rsync. A binary hook live-build declines to run fails

@@ -10,6 +10,27 @@ param([ValidateSet("free","pro")][string]$Edition = "free")
 
 $ErrorActionPreference = "Stop"
 $repo = $PSScriptRoot
+$dagricBuildMutex = [System.Threading.Mutex]::new($false, 'Local\DagricIsoBuild')
+if (-not $dagricBuildMutex.WaitOne(0)) {
+    $dagricBuildMutex.Dispose()
+    throw 'Another Dagric Windows build is running. Full builds must run one at a time.'
+}
+try {
+# Check the backing Windows drive, not only Docker's virtual free-space count.
+$dagricDockerData = Join-Path $env:LOCALAPPDATA 'Docker\wsl'
+$dagricSettingsPath = Join-Path $env:APPDATA 'Docker\settings-store.json'
+if (Test-Path -LiteralPath $dagricSettingsPath) {
+    $dagricSettings = Get-Content -LiteralPath $dagricSettingsPath -Raw | ConvertFrom-Json
+    if ($dagricSettings.DataFolder) { $dagricDockerData = $dagricSettings.DataFolder }
+}
+$dagricMinimum = if ($Edition -eq 'pro') { 40GB } else { 25GB }
+foreach ($dagricStoragePath in @($repo, $dagricDockerData)) {
+    $dagricDrive = [System.IO.Path]::GetPathRoot([System.IO.Path]::GetFullPath($dagricStoragePath))
+    $dagricDriveInfo = [System.IO.DriveInfo]::new($dagricDrive)
+    if ($dagricDriveInfo.AvailableFreeSpace -lt $dagricMinimum) {
+        throw "Insufficient space on $dagricDrive for a $Edition build. Nothing was removed."
+    }
+}
 $sourceCommit = (git -C "$repo" rev-parse HEAD).Trim()
 if ($sourceCommit -notmatch '^[0-9a-fA-F]{40}$') {
     throw "Could not resolve the Dagric source commit. Build from a Git checkout."
@@ -77,3 +98,8 @@ finally {
 
 Write-Host "Done. ISO is in: $repo\out" -ForegroundColor Green
 Write-Host "Test it: .\test\boot-test.ps1 or .\test\install-test.ps1"
+}
+finally {
+    $dagricBuildMutex.ReleaseMutex()
+    $dagricBuildMutex.Dispose()
+}

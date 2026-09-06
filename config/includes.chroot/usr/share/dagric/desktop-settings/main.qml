@@ -22,7 +22,7 @@ ApplicationWindow {
     }
     property var actions: [
         {key:"appearance", title:qsTr("Colors, icons & layout"), icon:"dagric-appearance", detail:qsTr("See the styles before choosing. Keep a change or let the preview revert automatically.")},
-        {key:"panel", title:qsTr("Taskbar settings"), icon:"dagric-looks", detail:qsTr("Adjust height, position, floating edges and auto-hide. This opens your existing taskbar — it does not replace it.")},
+        {key:"panel", title:qsTr("Advanced taskbar editing"), icon:"dagric-looks", detail:qsTr("Move individual widgets or change detailed app behavior using Plasma Edit Mode.")},
         {key:"widgets", title:qsTr("Add or manage widgets"), icon:"dagric-hub", detail:qsTr("Open the widget browser. Drag a widget onto the desktop or taskbar; use Edit Mode to move or remove it.")},
         {key:"fonts", title:qsTr("Make text easier to read"), icon:"dagric-display", detail:qsTr("Choose application fonts and sizes. Use Display size for icons, windows and everything else together.")},
         {key:"display", title:qsTr("Display size"), icon:"dagric-display", detail:qsTr("Change screen scaling with a timed Keep or Revert preview.")}
@@ -37,8 +37,9 @@ ApplicationWindow {
         contentWidth: availableWidth; clip: true
         ColumnLayout {
             width: scroll.availableWidth; spacing: 14
-            Text { text: qsTr("Your desktop. Your way."); color: window.palette.windowText; font.pixelSize: 28; font.bold: true; Layout.fillWidth: true; wrapMode: Text.WordWrap }
-            Text { text: qsTr("One place for the controls that make Dagric feel like yours."); color: window.palette.windowText; font.pixelSize: 15; Layout.fillWidth: true; wrapMode: Text.WordWrap }
+            Text { text: qsTr("Your desktop. Your way."); color: window.palette.windowText; font.pointSize: Qt.application.font.pointSize * 1.7; font.bold: true; Layout.fillWidth: true; wrapMode: Text.WordWrap }
+            Text { text: qsTr("One place for the controls that make Dagric feel like yours."); color: window.palette.windowText; font.pointSize: Qt.application.font.pointSize; Layout.fillWidth: true; wrapMode: Text.WordWrap }
+            PanelControls { Layout.fillWidth: true; bridge: typeof desktopBridge !== "undefined" ? desktopBridge : null }
             Repeater {
                 model: window.actions
                 delegate: AbstractButton {
@@ -60,13 +61,13 @@ ApplicationWindow {
                         Column {
                             id: copy
                             x: 80; y: (parent.height - height) / 2; width: parent.width - 108; spacing: 6
-                            Text { width: parent.width; text: card.modelData.title; font.pixelSize: 17; font.bold: true; color: window.palette.text; wrapMode: Text.WordWrap }
-                            Text { width: parent.width; text: card.modelData.detail; font.pixelSize: 14; color: window.palette.text; wrapMode: Text.WordWrap }
+                            Text { width: parent.width; text: card.modelData.title; font.pointSize: Qt.application.font.pointSize * 1.15; font.bold: true; color: window.palette.text; wrapMode: Text.WordWrap }
+                            Text { width: parent.width; text: card.modelData.detail; font.pointSize: Qt.application.font.pointSize; color: window.palette.text; wrapMode: Text.WordWrap }
                         }
                     }
                 }
             }
-            Text { Layout.fillWidth: true; wrapMode: Text.WordWrap; color: window.palette.windowText; font.pixelSize: 13; text: qsTr("Changes affect your desktop, not other accounts. Your files and partitions are untouched. Third-party widgets can run code: install only ones you trust.") }
+            Text { Layout.fillWidth: true; wrapMode: Text.WordWrap; color: window.palette.windowText; font.pointSize: Qt.application.font.pointSize; text: qsTr("Changes affect your desktop, not other accounts. Your files and partitions are untouched. Third-party widgets can run code: install only ones you trust.") }
         }
     }
 }

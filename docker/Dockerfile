@@ -48,6 +48,17 @@ FROM debian:trixie
 RUN apt-get update && apt-get install -y --no-install-recommends \
         live-build \
         python3 \
+        python3-yaml \
+        nodejs \
+        qt6-declarative-dev-tools \
+        qml6-module-qttest \
+        qml6-module-qtquick \
+        qml6-module-qtquick-window \
+        qml6-module-qtquick-controls \
+        qml6-module-qtquick-layouts \
+        qml6-module-qtquick-templates \
+        qml6-module-qtqml-workerscript \
+        util-linux \
         git \
         ca-certificates \
         curl \

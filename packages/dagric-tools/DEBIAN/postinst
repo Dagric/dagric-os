@@ -65,14 +65,10 @@ configure)
     # re-running live-build hooks. Create the same symlinks here so the first
     # update-delivered Rewind window gets its own taskbar identity instead of
     # being grouped under the generic qml6 runtime.
-    QML=
-    for q in /usr/bin/qml6 /usr/lib/qt6/bin/qml \
-             /usr/lib/x86_64-linux-gnu/qt6/bin/qml; do
-        [ -x "$q" ] && { QML=$q; break; }
-    done
-    if [ -n "$QML" ]; then
+    QML=/usr/lib/dagric/ui_runner.py
+    if [ -x "$QML" ]; then
         mkdir -p /usr/lib/dagric/wm
-        for app in dagric-firstrun dagric-appearance dagric-family dagric-rewind; do
+        for app in dagric-firstrun dagric-appearance dagric-family dagric-rewind dagric-desktop-settings; do
             ln -sf "$QML" "/usr/lib/dagric/wm/$app"
         done
     fi

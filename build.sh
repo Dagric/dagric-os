@@ -24,6 +24,13 @@ case "$EDITION" in
 esac
 BUILD="${DAGRIC_BUILD_DIR:-$SRC/../dagric-build-$EDITION}"
 
+# A single inherited lock covers validation, copying and the entire build.
+# Space is checked on both the Linux filesystem and its Windows backing drive.
+if [ -z "${DAGRIC_BUILD_LOCK_FD:-}" ]; then
+    exec python3 "$SRC/tools/build-guard.py" "$SRC" "$BUILD" "$EDITION" "$SRC/build.sh" "$@"
+fi
+python3 "$SRC/tools/build-guard.py" --verify "$DAGRIC_BUILD_LOCK_FD"
+
 # Record the source identity at build time, not later at publish time. Release
 # metadata may be prepared after documentation or tooling has been committed;
 # asking Git for HEAD at that point would claim those later bytes built the ISO.

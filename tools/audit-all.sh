@@ -35,6 +35,9 @@ run() {
 run "source and security" python3 tools/check-source.py
 run "audit command mode regressions" python3 test/test-audit-all-modes.py
 run "non-destructive native build paths" python3 test/test-build-directory.py
+run "serialized builds and physical backing space" python3 test/test-build-guard.py
+run "installer profile privacy and exact choices" python3 test/test-install-profile.py
+run "desktop controls and automatic undo" python3 test/test-desktop-controls.py
 run "offline manual application coverage" python3 tools/check-manual-coverage.py
 run "offline manual coverage regressions" python3 test/test-manual-coverage.py
 run "selectable Dagric icon families" python3 tools/check-icon-themes.py
