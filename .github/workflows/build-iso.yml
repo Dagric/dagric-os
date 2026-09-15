@@ -218,7 +218,12 @@ jobs:
             dagric-builder sh /src/docker/container-build.sh
 
       - name: Checksums
-        run: cd out && sha256sum *.iso > SHA256SUMS && cat SHA256SUMS
+        # container-build.sh already creates SHA256SUMS alongside the ISO as
+        # root inside the privileged builder. Rewriting that file from the
+        # unprivileged runner fails with "Permission denied" after an otherwise
+        # successful build. Verify the builder's recorded digest against the
+        # bytes instead; this is also stronger than blindly replacing it.
+        run: cd out && sha256sum --check SHA256SUMS && cat SHA256SUMS
 
       # 3. Five days, not fourteen. A CI ISO is a smoke test — proof the tree
       #    still builds — not a release artifact. Releases come from
