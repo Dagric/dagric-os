@@ -283,22 +283,27 @@ fi
 
 lb build
 
-# Export authoritative repository-section metadata from the resolved chroot.
-# filesystem.packages records only binary name/version, so a release gate that
-# searches names for "firmware" misses non-free payloads such as
-# libfishcamp1t64 and libsbig4t64. `${binary:Package}` preserves i386 qualifiers;
-# the commercial gate requires this sidecar to match filesystem.packages 1:1.
+# Export authoritative repository-section metadata from the packed rootfs.
+# live-build cleans the working chroot after creating filesystem.squashfs, so a
+# post-build chroot query can omit packages that remain in the ISO (notably the
+# signed GRUB and shim packages). The generator must match filesystem.packages
+# 1:1 before the artifact can advance to the commercial gate.
 SECTION_MAP="/out/PACKAGE_SECTIONS-$EDITION.tsv"
-# dpkg-query, not the shell, expands these fields.
-# shellcheck disable=SC2016
-chroot chroot dpkg-query -W \
-    -f='${binary:Package}\t${Version}\t${Section}\n' \
-    | LC_ALL=C sort -u > "$SECTION_MAP"
-[ -s "$SECTION_MAP" ] || {
-    echo "ERROR: resolved package-section inventory is empty." >&2
+PACKED_STATUS=$(mktemp)
+if ! unsquashfs -cat binary/live/filesystem.squashfs var/lib/dpkg/status \
+        > "$PACKED_STATUS"; then
+    rm -f "$PACKED_STATUS"
+    echo "ERROR: cannot read dpkg status from packed root filesystem." >&2
     exit 1
-}
-echo "recorded resolved package sections in $SECTION_MAP"
+fi
+if ! python3 /src/tools/package-sections-from-status.py \
+    --manifest binary/live/filesystem.packages \
+    --status "$PACKED_STATUS" \
+    --output "$SECTION_MAP"; then
+    rm -f "$PACKED_STATUS"
+    exit 1
+fi
+rm -f "$PACKED_STATUS"
 
 # dd plus a size check, not `cp ... 2>/dev/null`. That line reintroduced exactly
 # the failure build.sh was hardened against: cp dying partway across the bridge to

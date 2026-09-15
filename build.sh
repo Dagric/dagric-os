@@ -349,22 +349,28 @@ fi
 
 lb build
 
-# Preserve the resolved dpkg Section for every installed binary. The ISO's
-# filesystem.packages has name/version only; this companion record lets the
-# commercial gate identify all contrib/non-free/non-free-firmware packages,
-# including binary libraries whose names do not contain "firmware".
+# Preserve the resolved dpkg Section for every binary in the packed rootfs.
+# live-build cleans the working chroot after creating filesystem.squashfs, so a
+# post-build `chroot chroot dpkg-query` can omit packages that are nevertheless
+# in the ISO (notably signed GRUB and shim packages). Pair the manifest and dpkg
+# status from the same immutable packed rootfs and require a 1:1 result.
 SECTION_MAP="$SRC/out/PACKAGE_SECTIONS-$EDITION.tsv"
 mkdir -p "$SRC/out"
-# dpkg-query, not the shell, expands these fields.
-# shellcheck disable=SC2016
-chroot chroot dpkg-query -W \
-    -f='${binary:Package}\t${Version}\t${Section}\n' \
-    | LC_ALL=C sort -u > "$SECTION_MAP"
-[ -s "$SECTION_MAP" ] || {
-    echo "ERROR: resolved package-section inventory is empty." >&2
+PACKED_STATUS=$(mktemp)
+if ! unsquashfs -cat binary/live/filesystem.squashfs var/lib/dpkg/status \
+        > "$PACKED_STATUS"; then
+    rm -f "$PACKED_STATUS"
+    echo "ERROR: cannot read dpkg status from packed root filesystem." >&2
     exit 1
-}
-echo "recorded resolved package sections in $SECTION_MAP"
+fi
+if ! python3 "$SRC/tools/package-sections-from-status.py" \
+    --manifest binary/live/filesystem.packages \
+    --status "$PACKED_STATUS" \
+    --output "$SECTION_MAP"; then
+    rm -f "$PACKED_STATUS"
+    exit 1
+fi
+rm -f "$PACKED_STATUS"
 
 mkdir -p "$SRC/out"
 case "$EDITION" in
